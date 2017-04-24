@@ -25,6 +25,9 @@ minecraft {
 
     mappings = "snapshot_20161111"
     makeObfSourceJar = false
+
+    replaceIn "CreeperHostGui.java"
+    replace "@VERSION@", project.version.toString()
 }
 
 dependencies {
