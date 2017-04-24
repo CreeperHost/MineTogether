@@ -1,0 +1,12 @@
+/rebuild.bat
+/doAllTheThings.bat
+/.gradle
+/build
+/out
+/run
+/.idea
+/*.iml
+/*.ipr
+/*.iws
+/lib
+/classes
