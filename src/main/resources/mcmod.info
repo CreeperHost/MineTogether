@@ -1,0 +1,16 @@
+[
+{
+  "modid": "creeperhostigs",
+  "name": "CreeperHost Ad",
+  "description": "Yeah, shameless. Sorry.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Cloudhunter"],
+  "credits": "The Forge and FML guys, for making this example",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

@@ -1,13 +1,18 @@
 package de.ellpeck.chgui.gui;
 
 import de.ellpeck.chgui.Util;
+import de.ellpeck.chgui.common.AvailableResult;
+import de.ellpeck.chgui.common.OrderUtils;
 import de.ellpeck.chgui.paul.Constants;
 import de.ellpeck.chgui.paul.Order;
 import net.minecraft.client.gui.GuiPageButtonList;
 import net.minecraft.client.gui.GuiSlider;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.renderer.GlStateManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonList.GuiResponder{
 
@@ -20,6 +25,13 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
 
     private GuiTextField nameField;
     private GuiSlider slotSlider;
+
+    private long lastKeyTyped;
+    private String acceptString = new String(Character.toChars(10004));
+    private String denyString = new String(Character.toChars(10006));
+    private boolean isAcceptable = false;
+    private boolean nameChecked = false;
+    private String message = "Name can not be blank";
 
     public GuiGeneralServerInfo(int stepId, Order order){
         super(stepId, order);
@@ -46,7 +58,34 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         super.updateScreen();
         this.nameField.updateCursorCounter();
 
-        this.buttonNext.enabled = !this.nameField.getText().trim().isEmpty();
+        final String nameToCheck = this.nameField.getText().trim();
+        boolean isEmpty = nameToCheck.isEmpty();
+
+
+        if (lastKeyTyped + 400 < System.currentTimeMillis()) {
+            if (isEmpty)
+            {
+                message = "Name cannot be blank";
+                isAcceptable = false;
+                nameChecked = true;
+            } else {
+                Runnable task = new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        AvailableResult result = OrderUtils.isNameAvailable(nameToCheck);
+                        isAcceptable = result.getSuccess();
+                        message = result.getMessage();
+                        nameChecked = true;
+                    }
+                };
+
+                Thread thread = new Thread(task);
+                thread.start();
+            }
+        }
+
+        this.buttonNext.enabled = !isEmpty && nameChecked && isAcceptable;
     }
 
     @Override
@@ -55,7 +94,10 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
             super.keyTyped(typedChar, keyCode);
         }
         else{
+            nameChecked = false;
+            message = "Name not yet checked";
             this.order.name = this.nameField.getText().trim();
+            lastKeyTyped = System.currentTimeMillis();
         }
     }
 
@@ -66,7 +108,35 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
 
         this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width/2, this.height/2-45, -1);
 
+
+        String renderedString;
+        int colour;
+
+        if (nameChecked && isAcceptable) {
+            renderedString = this.acceptString;
+            colour = 0x00FF00;
+        } else {
+            renderedString = this.denyString;
+            colour = 0xFF0000;
+        }
+
+        GlStateManager.scale(2.0F, 2.0F, 2.0F);
+        this.drawString(this.fontRendererObj, renderedString, this.width / 4 + 53, this.height / 4 - 14, colour);
+        GlStateManager.scale(0.5F, 0.5F, 0.5F);
+
         this.nameField.drawTextBox();
+
+
+        int xLeft = (this.width / 2) + 104;
+        int xRight = xLeft + (this.fontRendererObj.getStringWidth(renderedString) * 2);
+        int yTop = (this.height / 2) - 30;
+        int yBottom = yTop + 13;
+
+        if (mouseX >= xLeft && mouseX <= xRight && mouseY >= yTop && mouseY <= yBottom) {
+            List list = new ArrayList();
+            list.add(message);
+            this.drawHoveringText(list, mouseX, mouseY);
+        }
     }
 
     @Override
