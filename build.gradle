@@ -2,13 +2,13 @@ buildscript {
     repositories {
         jcenter()
         maven { url = "http://files.minecraftforge.net/maven" }
+        mavenCentral()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
-
 
 version = "r1"
 group= "de.ellpeck.chgui"
@@ -31,7 +31,7 @@ minecraft {
 }
 
 dependencies {
-
+    compile 'com.maxmind.geoip2:geoip2:2.8.1'
 }
 
 processResources {

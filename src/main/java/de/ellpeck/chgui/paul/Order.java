@@ -16,4 +16,7 @@ public class Order{
     public String state = "";
     public String country = "";
     public String zip = "";
+
+    public int version = 35567; // TODO: read from config file
+    public String promo = "feedme"; // TODO: read from config file
 }

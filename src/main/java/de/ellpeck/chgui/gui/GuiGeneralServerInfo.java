@@ -2,7 +2,7 @@ package de.ellpeck.chgui.gui;
 
 import de.ellpeck.chgui.Util;
 import de.ellpeck.chgui.common.AvailableResult;
-import de.ellpeck.chgui.common.OrderUtils;
+import de.ellpeck.chgui.paul.Callbacks;
 import de.ellpeck.chgui.paul.Constants;
 import de.ellpeck.chgui.paul.Order;
 import net.minecraft.client.gui.GuiPageButtonList;
@@ -51,6 +51,22 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.slotSlider = new GuiSlider(this, 1, halfWidth-100, halfHeight+20, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;
         this.buttonList.add(this.slotSlider);
+
+
+        final Order taskOrder = this.order;
+
+        // Lets do it Async here, because *shrugs*
+        Runnable countryAsync = new Runnable() {
+            @Override
+            public void run()
+            {
+                taskOrder.country = Callbacks.getUserCountry();
+            }
+        };
+
+        Thread thread = new Thread(countryAsync);
+        thread.start();
+
     }
 
     @Override
@@ -61,27 +77,27 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         final String nameToCheck = this.nameField.getText().trim();
         boolean isEmpty = nameToCheck.isEmpty();
 
-
-        if (lastKeyTyped + 400 < System.currentTimeMillis()) {
+        if (lastKeyTyped + 400 < System.currentTimeMillis() && !nameChecked) {
+            nameChecked = true;
             if (isEmpty)
             {
                 message = "Name cannot be blank";
                 isAcceptable = false;
-                nameChecked = true;
             } else {
                 Runnable task = new Runnable() {
                     @Override
                     public void run()
                     {
-                        AvailableResult result = OrderUtils.isNameAvailable(nameToCheck);
+                        AvailableResult result = Callbacks.getNameAvailable(nameToCheck);
                         isAcceptable = result.getSuccess();
                         message = result.getMessage();
-                        nameChecked = true;
                     }
                 };
 
                 Thread thread = new Thread(task);
                 thread.start();
+
+                // Done in a thread as to not hold up the UI thread
             }
         }
 

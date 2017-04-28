@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public abstract class GuiGetServer extends GuiScreen{
 
-    private static final int STEP_AMOUNT = 3;
+    private static final int STEP_AMOUNT = 4;
     protected final int stepId;
 
     protected GuiButton buttonPrev;
@@ -69,12 +69,15 @@ public abstract class GuiGetServer extends GuiScreen{
 
     public static GuiScreen getByStep(int step, Order order){
         switch(step){
-            case 1:
-                return new GuiServerLocation(1, order);
-            case 2:
-                return new GuiPersonalDetails(2, order);
+            case 0:
             default:
                 return new GuiGeneralServerInfo(0, order);
+            case 1:
+                return new GuiQuote(1, order);
+            case 2:
+                return new GuiServerLocation(2, order);
+            case 3:
+                return new GuiPersonalDetails(3, order);
         }
     }
 
