@@ -44,6 +44,7 @@ public class GuiQuote extends GuiGetServer{
 
         if (summary == null) {
             summary = Callbacks.getSummary(this.order);
+            // TODO: Should probably async it and have the information loading in later - there's a noticeable hiccup when you click next.
         }
 
         this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, this.height, 67, this.height - 36, 36, "VPS Features", summary.vpsFeatures, true);
