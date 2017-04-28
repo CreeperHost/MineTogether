@@ -7,8 +7,11 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CountryResponse;
@@ -123,6 +126,32 @@ public final class Callbacks {
 
         System.out.println(summary);
 
-        return new OrderSummary();
+        String currency = Util.getWebResponse("https://www.creeperhost.net/json/currency/" + order.country);
+
+        System.out.println(currency);
+
+        String product = Util.getWebResponse("https://www.creeperhost.net/json/products/" + recommended);
+
+        System.out.println(product);
+
+
+        jElement = new JsonParser().parse(product);
+
+        jObject = jElement.getAsJsonObject();
+        String vpsDisplay = jObject.getAsJsonPrimitive("displayName").getAsString();
+
+        // We could parse the json, but no need - this gets us what we want.
+        String patternStr = "<li>(.*?)<";
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(product);
+
+        ArrayList<String> vpsFeatures = new ArrayList<String>();
+
+        while (matcher.find()) {
+            String group = matcher.group(1);
+            vpsFeatures.add(group);
+        }
+
+        return new OrderSummary(vpsDisplay, vpsFeatures);
     }
 }

@@ -7,6 +7,7 @@ import de.ellpeck.chgui.gui.list.GuiListEntry;
 import de.ellpeck.chgui.gui.list.GuiListEntryLocation;
 import de.ellpeck.chgui.paul.Callbacks;
 import de.ellpeck.chgui.paul.Order;
+import de.ellpeck.chgui.paul.OrderSummary;
 import net.minecraft.client.Minecraft;
 
 import java.io.IOException;
@@ -16,10 +17,13 @@ public class GuiQuote extends GuiGetServer{
 
     private GuiList list;
     private boolean countryEnabled = false;
+    private GuiWell wellLeft;
 
     public GuiQuote(int stepId, Order order){
         super(stepId, order);
     }
+
+    public OrderSummary summary;
 
     @Override
     public void initGui(){
@@ -37,12 +41,17 @@ public class GuiQuote extends GuiGetServer{
             }
         }
 
-        Callbacks.getSummary(this.order);
+
+        if (summary == null) {
+            summary = Callbacks.getSummary(this.order);
+        }
+
+        this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, this.height, 67, this.height - 36, 36, "VPS Features", summary.vpsFeatures, true);
     }
 
     @Override
     public String getStepName(){
-        return Util.localize("gui.server_location");
+        return Util.localize("gui.quote");
     }
 
     @Override
@@ -76,7 +85,19 @@ public class GuiQuote extends GuiGetServer{
 
         if (countryEnabled) {
             this.list.drawScreen(mouseX, mouseY, partialTicks);
+        } else {
+            this.wellLeft.drawScreen(mouseX, mouseY, partialTicks);
         }
+
+        this.drawCenteredString(this.fontRendererObj, "Based on your requirements, we recommend a " + summary.vpsDisplay, this.width/2, 50, -1); // TODO: Properly use language file
+
+/*        int lastString = 50;
+
+        for (String line: summary.vpsFeatures) {
+            lastString = lastString + 10;
+            this.drawCenteredString(this.fontRendererObj, line, this.width/2, lastString, -1);
+        }*/
+
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
