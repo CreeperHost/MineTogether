@@ -1,6 +1,5 @@
-package net.creeperhost.ingamesale.client.gui;
+package de.ellpeck.chgui.gui.mpreplacement;
 
-import net.creeperhost.ingamesale.client.gui.CreeperHostEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiMultiplayer;

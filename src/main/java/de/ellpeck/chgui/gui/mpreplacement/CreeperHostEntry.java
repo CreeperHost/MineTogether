@@ -1,8 +1,7 @@
-package net.creeperhost.ingamesale.client.gui;
+package de.ellpeck.chgui.gui.mpreplacement;
 
 import de.ellpeck.chgui.gui.GuiGetServer;
 import de.ellpeck.chgui.paul.Order;
-import net.creeperhost.ingamesale.IngameSale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiListExtended;
@@ -10,8 +9,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.net.URI;
 
 @SideOnly(Side.CLIENT)
 public class CreeperHostEntry implements GuiListExtended.IGuiListEntry
@@ -21,7 +18,7 @@ public class CreeperHostEntry implements GuiListExtended.IGuiListEntry
     private static ResourceLocation serverIcon;
 
     public CreeperHostEntry() {
-        serverIcon = new ResourceLocation("creeperhostigs", "textures/gui/creeperhost.png");
+        serverIcon = new ResourceLocation("chgui", "textures/creeperhost.png");
     }
 
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)

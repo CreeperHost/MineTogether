@@ -51,22 +51,6 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.slotSlider = new GuiSlider(this, 1, halfWidth-100, halfHeight+20, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;
         this.buttonList.add(this.slotSlider);
-
-
-        final Order taskOrder = this.order;
-
-        // Lets do it Async here, because *shrugs*
-        Runnable countryAsync = new Runnable() {
-            @Override
-            public void run()
-            {
-                taskOrder.country = Callbacks.getUserCountry();
-            }
-        };
-
-        Thread thread = new Thread(countryAsync);
-        thread.start();
-
     }
 
     @Override
