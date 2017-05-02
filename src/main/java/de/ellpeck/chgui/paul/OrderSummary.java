@@ -16,8 +16,11 @@ public class OrderSummary
     public final double discount;
     public final String suffix;
     public final String prefix;
+    public final String currency;
+    public final String productID;
 
-    public OrderSummary(String vpsDisplay, List<String> vpsFeatures, double preDiscount, double subTotal, double total, double tax, double discount, String suffix, String prefix) {
+    public OrderSummary(String productID, String vpsDisplay, List<String> vpsFeatures, double preDiscount, double subTotal, double total, double tax, double discount, String suffix, String prefix, String currency) {
+        this.productID = productID;
         this.vpsDisplay = vpsDisplay;
         this.vpsFeatures = vpsFeatures;
         this.preDiscount = preDiscount;
@@ -27,5 +30,6 @@ public class OrderSummary
         this.tax = tax;
         this.suffix = suffix;
         this.prefix = prefix;
+        this.currency = currency;
     }
 }

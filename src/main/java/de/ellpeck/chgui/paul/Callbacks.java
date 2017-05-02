@@ -1,12 +1,8 @@
 package de.ellpeck.chgui.paul;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -115,6 +111,8 @@ public final class Callbacks {
         JsonObject jObject = jElement.getAsJsonObject();
         String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
 
+        System.out.println(resp);
+
         String applyPromo = Util.getWebResponse("https://www.creeperhost.net/applyPromo/" + order.promo);
 
         String summary = Util.getWebResponse("https://www.creeperhost.net/json/order/" + order.country + "/" + recommended + "/" + "summary");
@@ -131,11 +129,14 @@ public final class Callbacks {
 
         String currency = Util.getWebResponse("https://www.creeperhost.net/json/currency/" + order.country);
 
+        System.out.println(currency);
+
         jElement = new JsonParser().parse(currency);
 
         jObject = jElement.getAsJsonObject();
         String prefix = jObject.getAsJsonPrimitive("prefix").getAsString();
         String suffix = jObject.getAsJsonPrimitive("suffix").getAsString();
+        String id = jObject.getAsJsonPrimitive("id").getAsString();
 
         String product = Util.getWebResponse("https://www.creeperhost.net/json/products/" + recommended);
 
@@ -157,9 +158,104 @@ public final class Callbacks {
             vpsFeatures.add(group);
         }
 
-        return new OrderSummary(vpsDisplay, vpsFeatures, preDiscount, subTotal, total, tax, discount, suffix, prefix);
+        return new OrderSummary(recommended, vpsDisplay, vpsFeatures, preDiscount, subTotal, total, tax, discount, suffix, prefix, id);
     }
 
+
+    public static boolean doesEmailExist(final String email)
+    {
+        String response = Util.postWebResponse("https://www.creeperhost.net/json/account/exists", new HashMap<String, String>(){{
+            put("email", email);
+        }});
+
+        if (response.equals("error")) {
+            // Something went wrong, so lets just pretend everything fine and don't change the validation status
+        } else {
+            JsonElement jElement = new JsonParser().parse(response);
+            JsonObject jObject = jElement.getAsJsonObject();
+            if (jObject.getAsJsonPrimitive("status").getAsString().equals("error")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static String doLogin(final String email, final String password)
+    {
+        String response = Util.postWebResponse("https://www.creeperhost.net/json/account/login", new HashMap<String, String>(){{
+            put("email", email);
+            put("password", password);
+        }});
+
+        if (response.equals("error")) {
+            // Something went wrong, so lets just pretend everything fine and don't change the validation status
+        } else {
+            JsonElement jElement = new JsonParser().parse(response);
+            JsonObject jObject = jElement.getAsJsonObject();
+            if (jObject.getAsJsonPrimitive("status").getAsString().equals("error")) {
+                return jObject.getAsJsonPrimitive("message").getAsString();
+            } else {
+                return "success:" + jObject.getAsJsonPrimitive("currency").getAsString() + ":" + jObject.getAsJsonPrimitive("userid").getAsString();
+            }
+        }
+        return "error";
+    }
+
+    public static String createAccount(final Order order)
+    {
+        String response = Util.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>() {{
+            put("servername", order.name);
+            put("modpack", String.valueOf(order.version));
+            put("email", order.emailAddress);
+            put("password", order.password);
+            put("fname", order.firstName);
+            put("lname", order.lastName);
+            put("addr1", order.address);
+            put("city", order.city);
+            put("tel", order.phone);
+            //put("county", order.state);
+            //put("state", order.state);
+            put("country", order.country);
+            put("pcode", order.zip);
+            put("currency", order.currency);
+        }});
+        System.out.println(order.state);
+        System.out.println(response);
+        if (response.equals("error")) {
+            // Something went wrong, so lets just pretend everything fine and don't change the validation status
+        } else {
+            JsonElement jElement = new JsonParser().parse(response);
+            JsonObject jObject = jElement.getAsJsonObject();
+            if (jObject.getAsJsonPrimitive("status").getAsString().equals("error")) {
+                return jObject.getAsJsonPrimitive("message").getAsString();
+            } else {
+                return "success:" + jObject.getAsJsonPrimitive("currency").getAsString() + ":" + jObject.getAsJsonPrimitive("userid").getAsString();
+            }
+        }
+        return "error";
+    }
+
+    public static String createOrder(final Order order)
+    {
+        String response = Util.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" +order.productID + "/" + order.serverLocation, new HashMap<String, String>() {{
+            put("name", order.name);
+            put("swid", String.valueOf(order.version));
+        }});
+        System.out.println(response);
+        if (response.equals("error")) {
+
+        } else {
+            JsonElement jElement = new JsonParser().parse(response);
+            JsonObject jObject = jElement.getAsJsonObject();
+            if (jObject.getAsJsonPrimitive("status").getAsString().equals("success")) {
+                jObject = jObject.getAsJsonObject("more");
+                return "success:" + jObject.getAsJsonPrimitive("invoiceID").getAsString();
+            } else {
+                return jObject.getAsJsonPrimitive("message").getAsString();
+            }
+        }
+        return "error";
+    }
 
     private static Map<String, String> countries = new LinkedHashMap<String, String>() {{
         put("GB", "United Kingdom");
@@ -412,5 +508,4 @@ public final class Callbacks {
         put("ZM", "Zambia");
         put("ZW", "Zimbabwe");
     }};
-
 }

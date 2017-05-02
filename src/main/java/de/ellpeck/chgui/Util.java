@@ -9,11 +9,15 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 public final class Util{
 
@@ -36,6 +40,7 @@ public final class Util{
                     conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
                 }
             }
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56");
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             StringBuilder respData = new StringBuilder();
@@ -58,6 +63,68 @@ public final class Util{
 
         return "error";
 
+    }
+
+    public static String postWebResponse(String urlString, Map<String, String> postDataMap) {
+        try {
+
+            StringBuilder postDataStringBuilder = new StringBuilder();
+
+            for (Map.Entry<String, String> entry : postDataMap.entrySet()) {
+                postDataStringBuilder.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append("=").append(URLEncoder.encode(entry.getValue(), "UTF-8")).append("&");
+            }
+
+            String postDataString = postDataStringBuilder.toString();
+
+            postDataString.substring(0, postDataString.length() - 1);
+
+            byte[] postData = postDataString.getBytes( StandardCharsets.UTF_8 );
+            int postDataLength = postData.length;
+
+            URL url = new URL(urlString);
+
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56");
+            conn.setRequestMethod( "POST" );
+            if (cookies != null) {
+                for (String cookie : cookies) {
+                    conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+                }
+            }
+            conn.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty( "charset", "utf-8");
+            conn.setRequestProperty( "Content-Length", Integer.toString( postDataLength ));
+            conn.setUseCaches( false );
+            conn.setDoOutput(true);
+            try{
+                DataOutputStream wr = new DataOutputStream( conn.getOutputStream());
+                wr.write(postData);
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line;
+            StringBuilder respData = new StringBuilder();
+            while ((line = rd.readLine()) != null)
+            {
+                respData.append(line);
+            }
+
+            List<String> setCookies = conn.getHeaderFields().get("Set-Cookie");
+
+            if (setCookies != null) {
+                cookies = setCookies;
+            }
+
+            rd.close();
+            return respData.toString();
+        } catch (Throwable t) {
+            CreeperHostGui.logger.warn("An error occurred while fetching " + urlString, t);
+        }
+
+        return "error";
     }
 
     public static GuiScreen getGuiFromEvent(Object event) {

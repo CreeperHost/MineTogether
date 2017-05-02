@@ -3,9 +3,7 @@ package de.ellpeck.chgui.gui;
 import de.ellpeck.chgui.Util;
 import de.ellpeck.chgui.gui.element.GuiWell;
 import de.ellpeck.chgui.gui.list.GuiList;
-import de.ellpeck.chgui.gui.list.GuiListEntry;
 import de.ellpeck.chgui.gui.list.GuiListEntryCountry;
-import de.ellpeck.chgui.gui.list.GuiListEntryLocation;
 import de.ellpeck.chgui.paul.Callbacks;
 import de.ellpeck.chgui.paul.Order;
 import de.ellpeck.chgui.paul.OrderSummary;
@@ -27,6 +25,7 @@ public class GuiQuote extends GuiGetServer{
     private boolean refreshing;
     private boolean changed;
     private boolean firstTime = true;
+    private boolean countryOnRelease;
 
     public GuiQuote(int stepId, Order order){
         super(stepId, order);
@@ -64,8 +63,23 @@ public class GuiQuote extends GuiGetServer{
         this.buttonList.add(countryButton);
 
         if (summary == null) {
-            updateSummary();
-            // TODO: Should probably async it and have the information loading in later - there's a noticeable hiccup when you click next.
+            if (!refreshing)
+                updateSummary();
+            countryButton.visible = false;
+       } else {
+
+            this.wellLeft.lines = summary.vpsFeatures;
+
+            Map<String, String> locations = Callbacks.getCountries();
+            for(Map.Entry<String, String> entry : locations.entrySet()){
+                GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
+                list.addEntry(listEntry);
+
+                if(order.country.equals(listEntry.countryID)){
+                    list.setCurrSelected(listEntry);
+                }
+            }
+
         }
 
     }
@@ -84,6 +98,9 @@ public class GuiQuote extends GuiGetServer{
             public void run()
             {
                 summary = Callbacks.getSummary(order);
+
+                order.productID = summary.productID;
+                order.currency = summary.currency;
 
                 if (firstTime) {
                     firstTime = false;
@@ -123,16 +140,6 @@ public class GuiQuote extends GuiGetServer{
     }
 
     @Override
-    public void onGuiClosed(){
-        super.onGuiClosed();
-
-        GuiListEntry entry = this.list.getCurrSelected();
-        if(entry instanceof GuiListEntryLocation){
-            this.order.serverLocation = ((GuiListEntryLocation)entry).locationId;
-        }
-    }
-
-    @Override
     public void handleMouseInput() throws IOException{
         super.handleMouseInput();
         if (this.countryEnabled) {
@@ -144,10 +151,7 @@ public class GuiQuote extends GuiGetServer{
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.id == 8008135) {
-            this.countryEnabled = !this.countryEnabled;
-            this.buttonPrev.displayString = "Back to quote";
-            countryButton.visible = !countryEnabled;
-            return;
+            countryOnRelease = true;
         }
 
         if (countryEnabled && button.id == buttonPrev.id) {
@@ -157,7 +161,7 @@ public class GuiQuote extends GuiGetServer{
                 changed = false;
                 updateSummary();
             } else {
-                countryButton.visible = !countryEnabled;
+                countryButton.visible = true;
             }
             return;
         }
@@ -233,6 +237,13 @@ public class GuiQuote extends GuiGetServer{
         if (this.countryEnabled)
         {
             this.list.mouseReleased(mouseX, mouseY, state);
+        }
+        if (countryOnRelease) {
+            countryOnRelease = false;
+            this.countryEnabled = !this.countryEnabled;
+            this.buttonPrev.displayString = "Back to quote";
+            countryButton.visible = false;
+            return;
         }
     }
 }

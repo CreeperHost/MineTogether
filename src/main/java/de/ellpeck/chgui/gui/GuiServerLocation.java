@@ -29,7 +29,7 @@ public class GuiServerLocation extends GuiGetServer{
             GuiListEntryLocation listEntry = new GuiListEntryLocation(this.list, entry.getKey(), entry.getValue());
             this.list.addEntry(listEntry);
 
-            if(this.order.serverLocation == listEntry.locationId){
+            if(this.order.serverLocation == listEntry.locationName.toLowerCase()){
                 this.list.setCurrSelected(listEntry);
             }
         }
@@ -53,7 +53,7 @@ public class GuiServerLocation extends GuiGetServer{
 
         GuiListEntry entry = this.list.getCurrSelected();
         if(entry instanceof GuiListEntryLocation){
-            this.order.serverLocation = ((GuiListEntryLocation)entry).locationId;
+            this.order.serverLocation = ((GuiListEntryLocation)entry).locationName.toLowerCase();
         }
     }
 
