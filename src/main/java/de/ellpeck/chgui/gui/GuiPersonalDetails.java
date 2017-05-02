@@ -311,7 +311,6 @@ public class GuiPersonalDetails extends GuiGetServer{
 
     public void validationChanged(TextFieldDetails details, boolean valid, IOrderValidation validator, IOrderValidation.ValidationPhase phase) {
         if (details.getId() == 0) {
-            System.out.println((!valid && !validator.isAsync()) + " " + (!valid ? validator.getName() : ""));
             if (!valid && validator.getName().equals("NotEmailExistsValidator") && !validator.isAsync()) {
                 isEmailValid = false;
                 loginMode = true;

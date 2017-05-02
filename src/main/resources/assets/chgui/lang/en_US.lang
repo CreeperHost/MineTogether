@@ -26,5 +26,6 @@ chgui.button.logging=Logging in
 chgui.button.logintryagain=Try again
 chgui.button.done=Done
 chgui.button.order=Place order
+chgui.button.invoice=View invoice
 
 chgui.slider.player_count=Expected Average Player Count

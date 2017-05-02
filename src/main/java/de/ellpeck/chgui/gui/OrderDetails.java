@@ -1,8 +1,14 @@
 package de.ellpeck.chgui.gui;
 
+import de.ellpeck.chgui.CreeperHostGui;
 import de.ellpeck.chgui.Util;
 import de.ellpeck.chgui.paul.Callbacks;
 import de.ellpeck.chgui.paul.Order;
+import net.minecraft.client.gui.GuiButton;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 
 /**
  * Created by Aaron on 02/05/2017.
@@ -17,6 +23,7 @@ public class OrderDetails extends GuiGetServer
     private int orderNumber;
     private String invoiceID;
     private String placedOrderError = "";
+    private GuiButton buttonInvoice;
 
 
     public OrderDetails(int stepId, Order order)
@@ -39,6 +46,27 @@ public class OrderDetails extends GuiGetServer
     {
         super.initGui();
         this.buttonNext.visible = false;
+        buttonInvoice = new GuiButton(80000085, this.width/2-40, (this.height/2) + 30, 80, 20, Util.localize("button.invoice"));
+        this.buttonList.add(buttonInvoice);
+        buttonInvoice.visible = false;
+    }
+
+    @Override
+    public void actionPerformed(GuiButton button) throws IOException
+    {
+        super.actionPerformed(button);
+        if (button.id == 80000085) {
+                try
+                {
+                    Class<?> oclass = Class.forName("java.awt.Desktop");
+                    Object object = oclass.getMethod("getDesktop", new Class[0]).invoke((Object)null, new Object[0]);
+                    oclass.getMethod("browse", new Class[] {URI.class}).invoke(object, new Object[] {new URI("https://billing.creeperhost.net/viewinvoice.php?id=" + invoiceID)});
+                }
+                catch (Throwable throwable)
+                {
+                    CreeperHostGui.logger.error("Couldn\'t open link", throwable);
+                }
+        }
     }
 
     public void updateScreen() {
@@ -58,7 +86,7 @@ public class OrderDetails extends GuiGetServer
                     if (resultSplit[0].equals("success"))
                     {
                         order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
-                        order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
+                        order.clientID = resultSplit[2] != null ? resultSplit[2] : "0"; // random test account fallback
 
                     } else {
                         createdAccountError = result;
@@ -86,7 +114,7 @@ public class OrderDetails extends GuiGetServer
                     String[] resultSplit = result.split(":");
                     if (resultSplit[0].equals("success"))
                     {
-                        invoiceID = resultSplit[1] != null ? resultSplit[1] : "other";
+                        invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
                     } else {
                         placedOrderError = result;
                     }
@@ -98,6 +126,9 @@ public class OrderDetails extends GuiGetServer
             thread.start();
         } else if(placingOrder)
         {
+            return;
+        } else if(placedOrderError.isEmpty()) {
+            buttonInvoice.visible = true;
             return;
         }
     }
