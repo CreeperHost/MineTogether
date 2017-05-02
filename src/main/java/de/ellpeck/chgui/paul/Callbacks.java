@@ -50,11 +50,6 @@ public final class Callbacks {
         return countries;
     }
 
-    //Not called yet, but you should process the order here
-    public static void onOrderComplete(Order order){
-
-    }
-
     public static AvailableResult getNameAvailable(String name) {
         try
         {
