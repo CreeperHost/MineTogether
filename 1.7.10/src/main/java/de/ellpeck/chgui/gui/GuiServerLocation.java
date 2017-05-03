@@ -74,12 +74,12 @@ public class GuiServerLocation extends GuiGetServer{
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton){
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        //this.list.mouseClicked(mouseX, mouseY, mouseButton); // fuck knows
+        this.list.func_148179_a(mouseX, mouseY, mouseButton);
     }
 
-    /*@Override
-    protected void mouseReleased(int mouseX, int mouseY, int state){
-        super.mouseReleased(mouseX, mouseY, state);
-        this.list.mouseReleased(mouseX, mouseY, state);
-    }*/ // fuck knows
+    @Override
+    protected void mouseMovedOrUp(int mouseX, int mouseY, int state) {
+        super.mouseMovedOrUp(mouseX, mouseY, state);
+        this.list.func_148181_b(mouseX, mouseY, state);
+    }
 }

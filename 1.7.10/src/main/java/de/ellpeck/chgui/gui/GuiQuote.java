@@ -140,14 +140,6 @@ public class GuiQuote extends GuiGetServer{
     }
 
     @Override
-    public void handleMouseInput() {
-        super.handleMouseInput();
-        if (this.countryEnabled) {
-            //this.list.handleMouseInput(); // fuck knows what the replacement is
-        }
-    }
-
-    @Override
     protected void actionPerformed(GuiButton button)
     {
         if (button.id == 8008135) {
@@ -222,28 +214,26 @@ public class GuiQuote extends GuiGetServer{
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if (this.countryEnabled)
         {
-            /*if (this.list.mouseClicked(mouseX, mouseY, mouseButton)) {
-                GuiListEntryCountry country = (GuiListEntryCountry)this.list.getCurrSelected();
-                order.country = country.countryID;
-                changed = true;
-            }*/ // still no idea how to handle this
+            this.list.func_148179_a(mouseX, mouseY, mouseButton);
+            GuiListEntryCountry country = (GuiListEntryCountry)this.list.getCurrSelected();
+            order.country = country.countryID;
+            changed = true;
         }
 
     }
 
-    /*@Override
-    protected void mouseReleased(int mouseX, int mouseY, int state){
-        super.mouseReleased(mouseX, mouseY, state);
-        if (this.countryEnabled)
-        {
-            this.list.mouseReleased(mouseX, mouseY, state);
+    @Override
+    protected void mouseMovedOrUp(int p_146286_1_, int p_146286_2_, int p_146286_3_)
+    {
+        if (this.countryEnabled) {
+            this.list.func_148181_b(p_146286_1_, p_146286_2_, p_146286_3_);
         }
-        if (countryOnRelease) {
+        if (countryOnRelease && p_146286_3_ >= 0) {
             countryOnRelease = false;
             this.countryEnabled = !this.countryEnabled;
             this.buttonPrev.displayString = "Back to quote";
             countryButton.visible = false;
             return;
         }
-    }*/ //fuck knows how to handle this either
+    }
 }
