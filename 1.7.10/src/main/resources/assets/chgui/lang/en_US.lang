@@ -1,0 +1,31 @@
+chgui.gui.get_server=Order CreeperHost Server
+chgui.gui.general_info=General Server Info
+chgui.gui.server_location=Server Location
+chgui.gui.personal_details=Personal Details
+chgui.gui.quote=Server Quote
+chgui.gui.order=Order details
+
+chgui.info.step=Step %s of %s
+chgui.info.server_name=Server Name
+chgui.info.e_mail=E-Mail
+chgui.info.password=Password
+chgui.info.first_name=First Name
+chgui.info.last_name=Last Name
+chgui.info.address=Address
+chgui.info.city=City
+chgui.info.zip=Zip Code
+chgui.info.state=State
+chgui.info.country=Country
+chgui.info.phone=Phone Number
+
+chgui.button.prev=Previous Step
+chgui.button.next=Next Step
+chgui.button.cancel=Cancel
+chgui.button.login=Login
+chgui.button.logging=Logging in
+chgui.button.logintryagain=Try again
+chgui.button.done=Done
+chgui.button.order=Place order
+chgui.button.invoice=View invoice
+
+chgui.slider.player_count=Expected Average Player Count

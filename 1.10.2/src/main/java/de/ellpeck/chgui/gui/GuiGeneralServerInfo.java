@@ -108,7 +108,6 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
 
         this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width/2, this.height/2-45, -1);
 
-
         String renderedString;
         int colour;
 

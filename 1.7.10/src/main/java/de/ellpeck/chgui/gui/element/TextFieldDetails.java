@@ -3,11 +3,10 @@ package de.ellpeck.chgui.gui.element;
 import de.ellpeck.chgui.gui.DefferedValidation;
 import de.ellpeck.chgui.gui.GuiPersonalDetails;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.text.TextFormatting;
 
 import de.ellpeck.chgui.common.IOrderValidation;
 import de.ellpeck.chgui.common.Pair;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 
@@ -16,6 +15,7 @@ public class TextFieldDetails extends GuiTextField {
     private final GuiPersonalDetails gui;
     private final String displayString;
     private final boolean canBeFocused;
+    private final int ourID;
     private String censorText = "";
     public boolean isValidated;
     private boolean isChangeValidated = false;
@@ -27,7 +27,9 @@ public class TextFieldDetails extends GuiTextField {
     private DefferedValidation pendingValidation = null;
 
     public TextFieldDetails(GuiPersonalDetails gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators, boolean canBeFocused){
-        super(id, gui.mc.fontRendererObj, x, y, width, height);
+        super(gui.mc.fontRenderer, x, y, width, height);
+        
+        this.ourID = id;
 
         this.validators = validators;
         this.gui = gui;
@@ -61,6 +63,10 @@ public class TextFieldDetails extends GuiTextField {
         }
     }
 
+    public int getId() {
+        return ourID;
+    }
+
     @Override
     public void drawTextBox(){
         if(!this.censorText.isEmpty()){
@@ -90,21 +96,21 @@ public class TextFieldDetails extends GuiTextField {
         int startX = (this.xPosition + this.width + 3) / 2;
         int startY = (this.yPosition + 4) / 2;
 
-        GlStateManager.scale(2.0F, 2.0F, 2.0F);
+        GL11.glScalef(2.0F, 2.0F, 2.0F);
 
         if (isValidated) {
-            this.drawString(this.gui.mc.fontRendererObj, acceptString, startX, startY, 0x00FF00);
+            this.drawString(this.gui.mc.fontRenderer, acceptString, startX, startY, 0x00FF00);
         } else {
-            this.drawString(this.gui.mc.fontRendererObj, denyString, startX, startY, 0xFF0000);
+            this.drawString(this.gui.mc.fontRenderer, denyString, startX, startY, 0xFF0000);
         }
 
-        GlStateManager.scale(0.5F, 0.5F, 0.5F);
+        GL11.glScalef(0.5F, 0.5F, 0.5F);
 
         if(!this.isFocused() && this.getText().trim().isEmpty()){
             int x = this.xPosition+4;
             int y = this.yPosition+(this.height-8)/2;
 
-            this.gui.mc.fontRendererObj.drawStringWithShadow(TextFormatting.ITALIC+this.displayString, x, y, 14737632);
+            this.gui.mc.fontRenderer.drawStringWithShadow("\u00A7o"+this.displayString, x, y, 14737632);
         }
     }
 

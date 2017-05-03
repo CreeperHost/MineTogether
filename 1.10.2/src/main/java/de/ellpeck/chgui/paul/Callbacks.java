@@ -108,7 +108,6 @@ public final class Callbacks {
             JsonObject jObject = jElement.getAsJsonObject();
             String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
 
-            System.out.println(resp);
 
             String applyPromo = Util.getWebResponse("https://www.creeperhost.net/applyPromo/" + order.promo);
 
@@ -125,8 +124,6 @@ public final class Callbacks {
             double total = jObject.getAsJsonPrimitive("Total").getAsDouble();
 
             String currency = Util.getWebResponse("https://www.creeperhost.net/json/currency/" + order.country);
-
-            System.out.println(currency);
 
             jElement = new JsonParser().parse(currency);
 

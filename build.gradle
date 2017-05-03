@@ -1,50 +1,80 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-    }
+subprojects {
+    version = "r1"
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
+
+evaluationDependsOnChildren() // gotta make sure the children happen first
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 
 version = "r1"
-group= "de.ellpeck.chgui"
-archivesBaseName = "chgui"
 
-sourceCompatibility = targetCompatibility = "1.6"
-compileJava {
+allprojects {
+    version = "r1"
+    group= "de.ellpeck.chgui"
+    archivesBaseName = "chgui"
+
     sourceCompatibility = targetCompatibility = "1.6"
+    compileJava {
+        sourceCompatibility = targetCompatibility = "1.6"
+    }
 }
 
-minecraft {
-    version = "1.10.2-12.18.3.2281"
-    runDir = "run"
-
-    mappings = "snapshot_20161111"
-    makeObfSourceJar = false
-
-    replaceIn "CreeperHostGui.java"
-    replace "@VERSION@", project.version.toString()
+repositories {
+    jcenter()
+    maven { url = "http://files.minecraftforge.net/maven" }
+    mavenCentral()
 }
 
 dependencies {
     compile 'com.maxmind.geoip2:geoip2:2.8.1'
 }
 
-processResources {
-   inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+task setupDecompWorkspace
+task setupDevWorkspace
+task setupCiWorkspace
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+subprojects {
+    version = minecraft.version  + "-" + rootProject.version    
+    
+    dependencies {
+        compile rootProject
     }
-        
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+    sourceSets.main.resources.srcDirs += rootProject.sourceSets.main.resources.srcDirs
+
+    jar {
+        duplicatesStrategy = 'exclude'
+        from rootProject.sourceSets.main.output
     }
+
+    sourceJar {
+        duplicatesStrategy = 'exclude'
+        from rootProject.sourceSets.main.allSource
+    }
+    
+    artifacts {
+        archives sourceJar
+    }
+    
+    processResources {
+        inputs.property "version", project.version
+        inputs.property "mcversion", project.minecraft.version
+
+        from(sourceSets.main.resources.srcDirs) {
+            include 'mcmod.info'
+            expand 'version':project.version, 'mcversion':project.minecraft.version
+        }
+
+        from(sourceSets.main.resources.srcDirs) {
+            exclude 'mcmod.info'
+        }
+    }
+    
+    // task deps
+    rootProject.setupDecompWorkspace.dependsOn setupDecompWorkspace
+    rootProject.setupDevWorkspace.dependsOn setupDevWorkspace
+    rootProject.setupCiWorkspace.dependsOn setupCiWorkspace
+    rootProject.build.dependsOn build
+    rootProject.uploadArchives.dependsOn uploadArchives
 }
