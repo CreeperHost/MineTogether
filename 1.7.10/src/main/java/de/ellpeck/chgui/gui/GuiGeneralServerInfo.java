@@ -16,13 +16,6 @@ import java.util.List;
 
 public class GuiGeneralServerInfo extends GuiGetServer {
 
-    /*private static final GuiSlider.FormatHelper SLIDER_FORMATTER = new GuiSlider.FormatHelper(){
-        @Override
-        public String getText(int id, String name, float value){
-            return name+": "+(int)value;
-        }
-    };*/
-
     private GuiTextField nameField;
     private GuiSlider slotSlider;
 
@@ -48,12 +41,14 @@ public class GuiGeneralServerInfo extends GuiGetServer {
         this.nameField.setMaxStringLength(Constants.MAX_SERVER_NAME_LENGTH);
         this.nameField.setText(this.order.name);
 
-        this.slotSlider = new GuiSlider(0, halfWidth - 100, halfHeight + 20, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, new GuiSlider.ISlider()
+        final Order orderTemp = this.order;
+
+        this.slotSlider = new GuiSlider(0, halfWidth - 100, halfHeight + 20, 150, 20, Util.localize("slider.player_count") + " ", "", Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, false, true, new GuiSlider.ISlider()
         {
             @Override
             public void onChangeSliderValue(GuiSlider slider)
             {
-                //this.order.
+                orderTemp.playerAmount = slider.getValueInt();
             }
         });
         this.slotSlider.width = 200;
