@@ -108,6 +108,9 @@ public final class Callbacks
             double subTotal = jObject.getAsJsonPrimitive("Subtotal").getAsDouble();
             double discount = jObject.getAsJsonPrimitive("Discount").getAsDouble();
             double tax = jObject.getAsJsonPrimitive("Tax").getAsDouble();
+            if (tax <= 0) {
+                tax = 0.00;
+            }
             double total = jObject.getAsJsonPrimitive("Total").getAsDouble();
 
             String currency = Util.getWebResponse("https://www.creeperhost.net/json/currency/" + order.country);
