@@ -1,6 +1,7 @@
 package de.ellpeck.chgui.paul;
 
-public class Order{
+public class Order
+{
 
     public String name = "";
     public int playerAmount = Constants.DEF_PLAYER_COUNT;
@@ -20,7 +21,4 @@ public class Order{
     public String productID;
     public String clientID;
     public String currency;
-
-    public int version = 35567; // TODO: read from config file
-    public String promo = "feedme"; // TODO: read from config file
 }

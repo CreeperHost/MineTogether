@@ -9,7 +9,7 @@ buildscript {
     }
 }
 apply plugin: 'forge'
-version = "1.10.2"
+version = "1.7.10"
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
@@ -18,20 +18,4 @@ task sourceJar(type: Jar) {
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
     runDir = "run"
-}
-
-jar.dependsOn ':1.10.2:jar'
-sourceJar.dependsOn ':1.10.2:sourceJar'
-
-gradle.taskGraph.whenReady { graph ->
-    if (graph.hasTask(tasks.jar)) {
-        tasks.jar {
-            from zipTree(project(':1.10.2').tasks['jar'].archivePath)
-        }
-    }
-    if (graph.hasTask(tasks.sourceJar)) {
-        tasks.sourceJar {
-            from zipTree(project(':1.10.2').tasks['sourceJar'].archivePath)
-        }
-    }
 }

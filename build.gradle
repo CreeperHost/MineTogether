@@ -27,10 +27,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    compile 'com.maxmind.geoip2:geoip2:2.8.1'
-}
-
 task setupDecompWorkspace
 task setupDevWorkspace
 task setupCiWorkspace

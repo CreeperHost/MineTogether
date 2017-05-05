@@ -29,7 +29,7 @@ public class GuiServerLocation extends GuiGetServer{
             GuiListEntryLocation listEntry = new GuiListEntryLocation(this.list, entry.getKey(), entry.getValue());
             this.list.addEntry(listEntry);
 
-            if(this.order.serverLocation == listEntry.locationName.toLowerCase()){
+            if(this.order.serverLocation.equals(listEntry.locationName.replace(" ", "").toLowerCase())){
                 this.list.setCurrSelected(listEntry);
             }
         }
@@ -53,14 +53,13 @@ public class GuiServerLocation extends GuiGetServer{
 
         GuiListEntry entry = this.list.getCurrSelected();
         if(entry instanceof GuiListEntryLocation){
-            this.order.serverLocation = ((GuiListEntryLocation)entry).locationName.toLowerCase();
+            this.order.serverLocation = ((GuiListEntryLocation)entry).locationName.replace(" ", "").toLowerCase();
         }
     }
 
     @Override
     public void handleMouseInput(){
         super.handleMouseInput();
-        //this.list.handleMouseInput(); // fuck knows
     }
 
     @Override

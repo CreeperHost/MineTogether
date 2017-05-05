@@ -1,8 +1,6 @@
 package de.ellpeck.chgui.paul;
 
-import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,14 +8,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.maxmind.geoip2.DatabaseReader;
-import com.maxmind.geoip2.model.CountryResponse;
-import com.maxmind.geoip2.record.Country;
 import de.ellpeck.chgui.CreeperHostGui;
 import de.ellpeck.chgui.Util;
 import de.ellpeck.chgui.common.AvailableResult;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import de.ellpeck.chgui.common.Config;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
@@ -69,25 +63,15 @@ public final class Callbacks {
     }
 
     public static String getUserCountry() {
-        // A File object pointing to your GeoIP2 or GeoLite2 database
-        ResourceLocation geoipRes = new ResourceLocation("chgui", "GeoLite2-Country.mmdb");
-
         try {
 
-            String ip = Util.getWebResponse("https://api.ipify.org");
+            String freeGeoIP = Util.getWebResponse("http://freegeoip.net/json/");
 
-            InputStream geoip = Minecraft.getMinecraft().getResourceManager().getResource(geoipRes).getInputStream();
-            DatabaseReader reader = new DatabaseReader.Builder(geoip).build();
+            JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
 
-            InetAddress ipAddress = InetAddress.getByName(ip);
-
-            CountryResponse response = reader.country(ipAddress);
-
-            Country country = response.getCountry();
-
-            return country.getIsoCode();
+            return jObject.getAsJsonPrimitive("country_code").getAsString();
         } catch (Throwable t) {
-            CreeperHostGui.logger.error("Unable to get user's country automatically", t);
+            CreeperHostGui.logger.error("Unable to get user's country automatically, assuming USA", t);
         }
         return "US"; // default
     }
@@ -99,7 +83,7 @@ public final class Callbacks {
         }
 
         try {
-            String url = "https://www.creeperhost.net/json/order/mc/" + order.version + "/recommend/" + order.playerAmount;
+            String url = "https://www.creeperhost.net/json/order/mc/" + Config.getInstance().getVersion() + "/recommend/" + order.playerAmount;
 
             String resp = Util.getWebResponse(url);
 
@@ -109,7 +93,7 @@ public final class Callbacks {
             String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
 
 
-            String applyPromo = Util.getWebResponse("https://www.creeperhost.net/applyPromo/" + order.promo);
+            String applyPromo = Util.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
 
             String summary = Util.getWebResponse("https://www.creeperhost.net/json/order/" + order.country + "/" + recommended + "/" + "summary");
 
@@ -220,7 +204,7 @@ public final class Callbacks {
         try {
             String response = Util.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>() {{
                 put("servername", order.name);
-                put("modpack", String.valueOf(order.version));
+                put("modpack", Config.getInstance().getVersion());
                 put("email", order.emailAddress);
                 put("password", order.password);
                 put("fname", order.firstName);
@@ -257,7 +241,7 @@ public final class Callbacks {
         try {
             String response = Util.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" +order.productID + "/" + order.serverLocation, new HashMap<String, String>() {{
                 put("name", order.name);
-                put("swid", String.valueOf(order.version));
+                put("swid", Config.getInstance().getVersion());
             }});
 
             if (response.equals("error")) {
@@ -277,6 +261,23 @@ public final class Callbacks {
             CreeperHostGui.logger.error("Unable to create order");
             return "Unknown error";
         }
+    }
+
+    public static String getVersionFromCurse(String curse) {
+        String resp = Util.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
+        try {
+            JsonElement jElement = new JsonParser().parse(resp);
+            JsonObject jObject = jElement.getAsJsonObject();
+            if (jObject.getAsJsonPrimitive("status").getAsString().equals("success")) {
+                return jObject.getAsJsonObject("id").getAsString();
+            } else {
+                return "0";
+            }
+        } catch (Throwable t) {
+
+        }
+
+        return "0";
     }
 
     private static Map<String, String> countries = new LinkedHashMap<String, String>() {{
