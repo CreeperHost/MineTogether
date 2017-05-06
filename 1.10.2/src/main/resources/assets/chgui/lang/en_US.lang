@@ -22,8 +22,8 @@ chgui.quote.vpsincluded7=time with 7 days notice
 
 chgui.quote.vpsfeatures=VPS Features
 
-chgui.figues=Figures based on you being in
-chgui.refreshing=Please wait - refreshing quote
+chgui.quote.figures=Figures based on you being in
+chgui.quote.refreshing=Please wait - refreshing quote
 
 chgui.info.step=Step %s of %s
 chgui.info.server_name=Server Name
