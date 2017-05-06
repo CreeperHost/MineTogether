@@ -40,16 +40,16 @@ public class GuiQuote extends GuiGetServer{
         this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height-36, 36);
 
         List<String> vpsIncluded = new ArrayList<String>();
-        vpsIncluded.add("Free Dedicated IPv4");
-        vpsIncluded.add("Unmetered slots");
-        vpsIncluded.add("Free website");
-        vpsIncluded.add("Free VoIP");
-        vpsIncluded.add("Install or switch games for free");
-        vpsIncluded.add("Monthly subscription - cancel at any");
-        vpsIncluded.add("time with 7 days notice");
+        vpsIncluded.add(Util.localize("quote.vpsincluded1"));
+        vpsIncluded.add(Util.localize("quote.vpsincluded2"));
+        vpsIncluded.add(Util.localize("quote.vpsincluded3"));
+        vpsIncluded.add(Util.localize("quote.vpsincluded4"));
+        vpsIncluded.add(Util.localize("quote.vpsincluded5"));
+        vpsIncluded.add(Util.localize("quote.vpsincluded6"));
+        vpsIncluded.add(Util.localize("quote.vpsincluded7"));
 
-        this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, 67, this.height - 88, "VPS Features", new ArrayList<String>(), true, 0);
-        this.wellRight = new GuiWell(this.mc, this.width, 67, this.height - 88, "Included Features", vpsIncluded, true, (this.width / 2) + 10);
+        this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, 67, this.height - 88, Util.localize("quote.vpsfeatures"), new ArrayList<String>(), true, 0);
+        this.wellRight = new GuiWell(this.mc, this.width, 67, this.height - 88, Util.localize("quote.vpsincluded"), vpsIncluded, true, (this.width / 2) + 10);
         this.wellBottom = new GuiWell(this.mc, this.width, this.height - 83, this.height - 36, "", new ArrayList<String>(), true, 0);
 
         int start = (this.width / 2) + 10;
@@ -173,35 +173,48 @@ public class GuiQuote extends GuiGetServer{
                 this.wellRight.drawScreen();
 
 
-                this.drawCenteredString(this.fontRendererObj, "Based on your requirements, we recommend a " + summary.vpsDisplay, this.width/2, 50, -1); // TODO: Properly use language file
+                this.drawCenteredString(this.fontRendererObj, Util.localize("quote.requirements") + summary.vpsDisplay, this.width/2, 50, -1);
 
                 String formatString = summary.prefix + "%1$.2f " + summary.suffix;
 
-                int headerSize = Math.max(fontRendererObj.getStringWidth("Subtotal:  "), Math.max(fontRendererObj.getStringWidth("Tax:  "), Math.max(fontRendererObj.getStringWidth("Total:  "), fontRendererObj.getStringWidth("Discount:  "))));
+                String subTotalString = Util.localize("quote.subtotal") + ":  ";
+                int subTotalWidth = fontRendererObj.getStringWidth(subTotalString);
+                String discountString = Util.localize("quote.discount") + ":  ";
+                int discountWidth = fontRendererObj.getStringWidth(discountString);
+                String taxString = Util.localize("quote.tax") + ":  ";
+                int taxWidth = fontRendererObj.getStringWidth(taxString);
+                String totalString = Util.localize("quote.total") + ":  ";
+                int totalWidth = fontRendererObj.getStringWidth(totalString);
 
-                int maxStringSize = fontRendererObj.getStringWidth(String.format("Subtotal:  " + formatString, summary.subTotal));
+                int headerSize = Math.max(subTotalWidth, Math.max(taxWidth, Math.max(totalWidth, discountWidth)));
+
+                int subTotalValueWidth = fontRendererObj.getStringWidth(String.format(formatString, summary.subTotal));
+                int discountValueWidth = fontRendererObj.getStringWidth(String.format(formatString, summary.discount));
+                int taxValueWidth = fontRendererObj.getStringWidth(String.format(formatString, summary.tax));
+                int totalValueWidth = fontRendererObj.getStringWidth(String.format(formatString, summary.tax));
+
+                int maxStringSize = headerSize + Math.max(subTotalValueWidth, Math.max(discountValueWidth, Math.max(taxValueWidth, totalValueWidth)));
 
                 int offset = maxStringSize / 2;
                 int otherOffset = ((this.width / 2 - 10) / 2) - offset;
 
-                this.drawString(this.fontRendererObj, "SubTotal:  ", otherOffset, this.height - 80, 0xFFFFFF);
+                this.drawString(this.fontRendererObj, subTotalString, otherOffset, this.height - 80, 0xFFFFFF);
                 this.drawString(this.fontRendererObj, String.format(formatString, summary.preDiscount), otherOffset + headerSize, this.height - 80, 0xFFFFFF);
-                this.drawString(this.fontRendererObj, "Discount:  ", otherOffset, this.height - 70, 0xFFFFFF);
+                this.drawString(this.fontRendererObj, discountString, otherOffset, this.height - 70, 0xFFFFFF);
                 this.drawString(this.fontRendererObj, String.format(formatString, summary.discount), otherOffset + headerSize, this.height - 70, 0xFFFFFF);
-                this.drawString(this.fontRendererObj, "Tax:  ", otherOffset, this.height - 60, 0xFFFFFF);
+                this.drawString(this.fontRendererObj, taxString, otherOffset, this.height - 60, 0xFFFFFF);
                 this.drawString(this.fontRendererObj, String.format(formatString, summary.tax), otherOffset + headerSize, this.height - 60, 0xFFFFFF);
-                this.drawString(this.fontRendererObj, "Total:  ", otherOffset, this.height - 50, 0xFFFFFF);
+                this.drawString(this.fontRendererObj, totalString, otherOffset, this.height - 50, 0xFFFFFF);
                 this.drawString(this.fontRendererObj, String.format(formatString, summary.total), otherOffset + headerSize, this.height - 50, 0xFFFFFF);
-
 
                 int start = (this.width / 2) + 10;
                 int end = this.width;
                 int middle = (end - start) / 2;
-                int stringStart = this.fontRendererObj.getStringWidth("Figures based on you being in ") / 2;
+                int stringStart = this.fontRendererObj.getStringWidth(Util.localize("quote.figures")) / 2;
 
-                this.drawString(this.fontRendererObj, "Figures based on you being in ", start + middle - stringStart, this.height - 80, 0xFFFFFF);
+                this.drawString(this.fontRendererObj, Util.localize("quote.figures"), start + middle - stringStart, this.height - 80, 0xFFFFFF);
             } else {
-                this.drawCenteredString(this.fontRendererObj, "Please wait - refreshing quote", this.width/2, 50, -1); // TODO: Properly use language file
+                this.drawCenteredString(this.fontRendererObj, Util.localize("quote.refreshing"), this.width/2, 50, -1);
             }
 
         }
