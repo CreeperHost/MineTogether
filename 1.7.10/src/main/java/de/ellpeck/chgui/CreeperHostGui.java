@@ -48,7 +48,7 @@ public class CreeperHostGui{
             }
             catch (IOException e)
             {
-                logger.error("Error occured whilst creating default config. This will not end well.", e);
+                logger.error("Error occurred whilst creating default config. This will not end well.", e);
             }
             finally
             {
