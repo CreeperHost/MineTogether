@@ -1,0 +1,68 @@
+chgui.gui.get_server=Order CreeperHost Server
+chgui.gui.general_info=General Server Info
+chgui.gui.server_location=Server Location
+chgui.gui.personal_details=Personal Details
+chgui.gui.quote=Server Quote
+chgui.gui.order=Order details
+
+chgui.mp.getserver=Want a server? Get one at Creeper.Host!
+chgui.mp.clickhere=Click here!
+
+chgui.quote.requirements=Based on your requirements, we recommend a
+chgui.quote.tax=Tax
+chgui.quote.subtotal=SubTotal
+chgui.quote.total=Total
+chgui.quote.discount=Discount
+
+chgui.quote.vpsincluded=Included Features
+chgui.quote.vpsincluded1=Free Dedicated IPv4
+chgui.quote.vpsincluded2=Unmetered slots
+chgui.quote.vpsincluded3=Free website
+chgui.quote.vpsincluded4=Free VoIP
+chgui.quote.vpsincluded5=Install or switch games for free
+chgui.quote.vpsincluded6=Monthly subscription - cancel at any
+chgui.quote.vpsincluded7=time with 7 days notice
+
+chgui.quote.vpsfeatures=VPS Features
+
+chgui.quote.figures=Figures based on you being in
+chgui.quote.refreshing=Please wait - refreshing quote
+
+chgui.info.step=Step %s of %s
+chgui.info.server_name=Server Name
+chgui.info.e_mail=E-Mail
+chgui.info.password=Password
+chgui.info.first_name=First Name
+chgui.info.last_name=Last Name
+chgui.info.address=Address
+chgui.info.city=City
+chgui.info.zip=Zip Code
+chgui.info.state=State
+chgui.info.country=Country
+chgui.info.phone=Phone Number
+
+chgui.details.login=Logging in. Please wait
+chgui.details.loginerror=An error occurred. Error:
+chgui.details.loginsuccess=Logged in successfully. Proceed to order!
+chgui.details.accountexists=Account exists with this email. Please login or try another email address.
+
+chgui.order.accountcreating=Please wait. Account being created
+chgui.order.accounterror=Error occurred while creating account. Error:
+chgui.order.accounterrorgoback=Please go back and correct the errors
+chgui.order.orderplacing=Please wait. Order being placed
+chgui.order.ordererror=Error occurred while placing order. Error:
+chgui.order.ordererrorsupport=Please contact support if the problem persists
+chgui.order.ordersuccess=Order successful! Please click the button below to pay
+
+chgui.button.prev=Previous Step
+chgui.button.next=Next Step
+chgui.button.cancel=Cancel
+chgui.button.login=Login
+chgui.button.logging=Logging in
+chgui.button.logintryagain=Try again
+chgui.button.done=Done
+chgui.button.order=Place order
+chgui.button.invoice=View invoice
+chgui.button.quoteback=Back to quote
+
+chgui.slider.player_count=Expected Average Player Count

@@ -1,7 +1,3 @@
-subprojects {
-    version = "r1"
-}
-
 evaluationDependsOnChildren() // gotta make sure the children happen first
 
 apply plugin: 'java'
@@ -11,7 +7,6 @@ apply plugin: 'idea'
 version = "1.0.0"
 
 allprojects {
-    version = "r1"
     group= "de.ellpeck.chgui"
     archivesBaseName = "chgui"
 

@@ -12,6 +12,7 @@ apply plugin: 'forge'
 version = "1.7.10"
 
 task sourceJar(type: Jar) {
+    classifier = 'sources'
     from sourceSets.main.allJava
 }
 
