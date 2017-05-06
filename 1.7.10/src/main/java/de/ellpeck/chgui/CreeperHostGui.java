@@ -75,7 +75,7 @@ public class CreeperHostGui{
         } catch (Throwable t)
         {
             logger.error("Unable to read config", t);
-            throw new RuntimeException("Fatal error");
+            throw new RuntimeException("Fatal error, unable to read config");
         } finally {
             try {
                 if (configStream != null) {
