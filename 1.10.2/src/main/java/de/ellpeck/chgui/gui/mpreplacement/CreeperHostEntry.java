@@ -1,5 +1,6 @@
 package de.ellpeck.chgui.gui.mpreplacement;
 
+import de.ellpeck.chgui.Util;
 import de.ellpeck.chgui.gui.GuiGetServer;
 import de.ellpeck.chgui.paul.Order;
 import net.minecraft.client.Minecraft;
@@ -26,8 +27,8 @@ public class CreeperHostEntry implements GuiListExtended.IGuiListEntry
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(serverIcon);
         Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
-        this.mc.fontRendererObj.drawString("Want a server? Get one at Creeper.Host!", x + 32 + 3, y + 1, 16777215);
-        String s = "Click Here!";
+        this.mc.fontRendererObj.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + 1, 16777215);
+        String s = Util.localize("mp.clickhere");
 
         this.mc.fontRendererObj.drawString(s, x + 32 + 3, y + this.mc.fontRendererObj.FONT_HEIGHT + 3, 8421504);
     }

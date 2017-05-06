@@ -252,13 +252,13 @@ public class GuiPersonalDetails extends GuiGetServer{
         if (loginMode) {
             if (loggingIn)
             {
-                this.drawCenteredString(fontRendererObj, "Logging in. Please wait.", this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                this.drawCenteredString(fontRendererObj, Util.localize("details.login"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
             } else if(!loggingInError.isEmpty()) {
-                this.drawCenteredString(fontRendererObj, "An error occurred. Error: " + loggingInError, this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                this.drawCenteredString(fontRendererObj, Util.localize("details.loginerror") + loggingInError, this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
             } else if(loggedIn) {
-                this.drawCenteredString(fontRendererObj, "Logged in successfully. Proceed to order!", this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                this.drawCenteredString(fontRendererObj, Util.localize("details.loginsuccess"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
             } else {
-                this.drawCenteredString(fontRendererObj, "Account exists with this email. Please login or try another email address.", this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                this.drawCenteredString(fontRendererObj, Util.localize("details.accountexists"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
             }
         }
     }

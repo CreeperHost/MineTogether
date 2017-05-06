@@ -138,19 +138,19 @@ public class OrderDetails extends GuiGetServer
         this.drawDefaultBackground();
         if (creatingAccount)
         {
-            drawCenteredString(fontRendererObj, "Please wait. Account being created", this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.creatingaccount"), this.width / 2, this.height / 2, 0xFFFFFF);
         } else if (!createdAccountError.isEmpty()) {
-            drawCenteredString(fontRendererObj, "Error occurred while creating account. Error:", this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
             drawCenteredString(fontRendererObj, createdAccountError, this.width / 2, (this.height / 2) + 10, 0xFFFFFF);
-            drawCenteredString(fontRendererObj, "Please go back and correct the errors", this.width / 2, this.height / 2 + 20, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.accounterrorgoback"), this.width / 2, this.height / 2 + 20, 0xFFFFFF);
         } else if (placingOrder) {
-            drawCenteredString(fontRendererObj, "Please wait. Order being placed", this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.placingorder"), this.width / 2, this.height / 2, 0xFFFFFF);
         } else if (!placedOrderError.isEmpty()) {
-            drawCenteredString(fontRendererObj, "Error occurred while placing order. Error:", this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
             drawCenteredString(fontRendererObj, placedOrderError, this.width / 2, (this.height / 2) + 10, 0xFFFFFF);
-            drawCenteredString(fontRendererObj, "Please contact support if the problem persists", this.width / 2, (this.height / 2) + 20, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.ordererrorsupport"), this.width / 2, (this.height / 2) + 20, 0xFFFFFF);
         } else {
-            drawCenteredString(fontRendererObj, "Order successful! Please click the button below to pay", this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
         }
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

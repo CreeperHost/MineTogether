@@ -5,6 +5,9 @@ chgui.gui.personal_details=Personal Details
 chgui.gui.quote=Server Quote
 chgui.gui.order=Order details
 
+chgui.mp.getserver=Want a server? Get one at Creeper.Host!
+chgui.mp.clickhere=Click here!
+
 chgui.quote.requirements=Based on your requirements, we recommend a
 chgui.quote.tax=Tax
 chgui.quote.subtotal=SubTotal
@@ -37,6 +40,19 @@ chgui.info.zip=Zip Code
 chgui.info.state=State
 chgui.info.country=Country
 chgui.info.phone=Phone Number
+
+chgui.details.login=Logging in. Please wait
+chgui.details.loginerror=An error occurred. Error:
+chgui.details.loginsuccess=Logged in successfully. Proceed to order!
+chgui.details.accountexists=Account exists with this email. Please login or try another email address.
+
+chgui.order.accountcreating=Please wait. Account being created
+chgui.order.accounterror=Error occurred while creating account. Error:
+chgui.order.accounterrorgoback=Please go back and correct the errors
+chgui.order.orderplacing=Please wait. Order being placed
+chgui.order.ordererror=Error occurred while placing order. Error:
+chgui.order.ordererrorsupport=Please contact support if the problem persists
+chgui.order.ordersuccess=Order successful! Please click the button below to pay
 
 chgui.button.prev=Previous Step
 chgui.button.next=Next Step
