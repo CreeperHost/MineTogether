@@ -43,7 +43,7 @@ public class GuiGeneralServerInfo extends GuiGetServer {
 
         final Order orderTemp = this.order;
 
-        this.slotSlider = new GuiSlider(0, halfWidth - 100, halfHeight + 20, 150, 20, Util.localize("slider.player_count") + " ", "", Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, false, true, new GuiSlider.ISlider()
+        this.slotSlider = new GuiSlider(0, halfWidth - 100, halfHeight + 20, 150, 20, Util.localize("slider.player_count") + ": ", "", Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, false, true, new GuiSlider.ISlider()
         {
             @Override
             public void onChangeSliderValue(GuiSlider slider)
