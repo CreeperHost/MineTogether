@@ -8,7 +8,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 
-version = "r1"
+version = "1.0.0"
 
 allprojects {
     version = "r1"
