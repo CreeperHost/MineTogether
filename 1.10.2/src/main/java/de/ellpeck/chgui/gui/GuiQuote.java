@@ -48,9 +48,9 @@ public class GuiQuote extends GuiGetServer{
         vpsIncluded.add("Monthly subscription - cancel at any");
         vpsIncluded.add("time with 7 days notice");
 
-        this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, this.height, 67, this.height - 88, 88, "VPS Features", new ArrayList<String>(), true, 0);
-        this.wellRight = new GuiWell(this.mc, this.width, this.height, 67, this.height - 88, 88, "Included Features", vpsIncluded, true, (this.width / 2) + 10);
-        this.wellBottom = new GuiWell(this.mc, this.width, this.height, this.height - 83, this.height - 36, 36, "", new ArrayList<String>(), true, 0);
+        this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, 67, this.height - 88, "VPS Features", new ArrayList<String>(), true, 0);
+        this.wellRight = new GuiWell(this.mc, this.width, 67, this.height - 88, "Included Features", vpsIncluded, true, (this.width / 2) + 10);
+        this.wellBottom = new GuiWell(this.mc, this.width, this.height - 83, this.height - 36, "", new ArrayList<String>(), true, 0);
 
         int start = (this.width / 2) + 10;
         int end = this.width;
@@ -176,9 +176,9 @@ public class GuiQuote extends GuiGetServer{
             this.list.drawScreen(mouseX, mouseY, partialTicks);
         } else {
             if (!refreshing) {
-                this.wellBottom.drawScreen(mouseX, mouseY, partialTicks);
-                this.wellLeft.drawScreen(mouseX, mouseY, partialTicks);
-                this.wellRight.drawScreen(mouseX, mouseY, partialTicks);
+                this.wellBottom.drawScreen();
+                this.wellLeft.drawScreen();
+                this.wellRight.drawScreen();
 
 
                 this.drawCenteredString(this.fontRendererObj, "Based on your requirements, we recommend a " + summary.vpsDisplay, this.width/2, 50, -1); // TODO: Properly use language file

@@ -2,62 +2,88 @@ package de.ellpeck.chgui.gui.element;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiSlot;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
 /**
  * Created by Aaron on 28/04/2017.
  */
-public class GuiWell extends GuiSlot
+public class GuiWell
 {
+    private final int top;
+    private final int bottom;
+    private final int right;
+    private final int left;
+    private final Minecraft mc;
     public List<String> lines;
     private boolean centeredF;
     private String title;
 
-    public GuiWell(Minecraft mcIn, int width, int height, int topIn, int bottomIn, int slotHeightIn, String title, List<String> linesToDraw, boolean centred, int left)
+    public GuiWell(Minecraft mcIn, int width, int topIn, int bottomIn, String title, List<String> linesToDraw, boolean centred, int left)
     {
-        super(mcIn, width, height, topIn, bottomIn, slotHeightIn);
+        this.mc = mcIn;
         this.title = title;
         this.lines = linesToDraw;
         this.centeredF = centred;
+        this.top = topIn;
+        this.bottom = bottomIn;
         this.left = left;
+        this.right = width;
     }
 
-    @Override
-    protected int getSize()
+    public void drawScreen()
     {
-        return 0;
-    }
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glDisable(GL11.GL_FOG);
+        Tessellator tessellator = Tessellator.instance;
 
-    @Override
-    protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY)
-    {
 
-    }
+        this.mc.getTextureManager().bindTexture(Gui.optionsBackground);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        float f1 = 32.0F;
+        tessellator.startDrawingQuads();
+        tessellator.setColorOpaque_I(2105376);
+        tessellator.addVertexWithUV((double)this.left, (double)this.bottom, 0.0D, (double)((float)this.left / f1), (double)((float)this.bottom / f1));
+        tessellator.addVertexWithUV((double)this.right, (double)this.bottom, 0.0D, (double)((float)this.right / f1), (double)((float)this.bottom / f1));
+        tessellator.addVertexWithUV((double)this.right, (double)this.top, 0.0D, (double)((float)this.right / f1), (double)((float)this.top / f1));
+        tessellator.addVertexWithUV((double)this.left, (double)this.top, 0.0D, (double)((float)this.left / f1), (double)((float)this.top/ f1));
+        tessellator.draw();
 
-    @Override
-    protected boolean isSelected(int slotIndex)
-    {
-        return false;
-    }
 
-    @Override
-    protected void drawBackground()
-    {
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        byte b0 = 4;
+        GL11.glEnable(GL11.GL_BLEND);
+        OpenGlHelper.glBlendFunc(770, 771, 0, 1);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        tessellator.startDrawingQuads();
+        tessellator.setColorRGBA_I(0, 0);
+        tessellator.addVertexWithUV((double)this.left, (double)(this.top + b0), 0.0D, 0.0D, 1.0D);
+        tessellator.addVertexWithUV((double)this.right, (double)(this.top + b0), 0.0D, 1.0D, 1.0D);
+        tessellator.setColorRGBA_I(0, 255);
+        tessellator.addVertexWithUV((double)this.right, (double)this.top, 0.0D, 1.0D, 0.0D);
+        tessellator.addVertexWithUV((double)this.left, (double)this.top, 0.0D, 0.0D, 0.0D);
+        tessellator.draw();
+        tessellator.startDrawingQuads();
+        tessellator.setColorRGBA_I(0, 255);
+        tessellator.addVertexWithUV((double)this.left, (double)this.bottom, 0.0D, 0.0D, 1.0D);
+        tessellator.addVertexWithUV((double)this.right, (double)this.bottom, 0.0D, 1.0D, 1.0D);
+        tessellator.setColorRGBA_I(0, 0);
+        tessellator.addVertexWithUV((double)this.right, (double)(this.bottom - b0), 0.0D, 1.0D, 0.0D);
+        tessellator.addVertexWithUV((double)this.left, (double)(this.bottom - b0), 0.0D, 0.0D, 0.0D);
+        tessellator.draw();
 
-    }
-
-    @Override
-    protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, Tessellator tessellator, int mouseXIn, int mouseYIn)
-    {
-    }
-
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glShadeModel(GL11.GL_FLAT);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glDisable(GL11.GL_BLEND);
 
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
 

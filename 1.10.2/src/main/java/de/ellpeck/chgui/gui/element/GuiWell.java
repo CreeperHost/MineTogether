@@ -2,67 +2,83 @@ package de.ellpeck.chgui.gui.element;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiSlot;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
 /**
  * Created by Aaron on 28/04/2017.
  */
-public class GuiWell extends GuiSlot
+public class GuiWell
 {
+    private final Minecraft mc;
+    private final int top;
+    private final int bottom;
+    private final int right;
+    private final int left;
     public List<String> lines;
     private boolean centeredF;
     private String title;
 
-    public GuiWell(Minecraft mcIn, int width, int height, int topIn, int bottomIn, int slotHeightIn, String title, List<String> linesToDraw, boolean centred, int left)
+    public GuiWell(Minecraft mcIn, int width, int topIn, int bottomIn, String title, List<String> linesToDraw, boolean centred, int left)
     {
-        super(mcIn, width, height, topIn, bottomIn, slotHeightIn);
         this.title = title;
         this.lines = linesToDraw;
         this.centeredF = centred;
+        this.mc = mcIn;
+        this.top = topIn;
+        this.bottom = bottomIn;
         this.left = left;
+        this.right = width;
     }
 
-    @Override
-    protected int getSize()
+    public void drawScreen()
     {
-        return 0;
-    }
+        GlStateManager.disableLighting();
+        GlStateManager.disableFog();
+        Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer vertexbuffer = tessellator.getBuffer();
 
-    @Override
-    protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY)
-    {
+        VertexBuffer buffer = tessellator.getBuffer();
+        this.mc.getTextureManager().bindTexture(Gui.OPTIONS_BACKGROUND);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        float f = 32.0F;
+        buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+        buffer.pos((double)this.left,  (double)this.bottom, 0.0D).tex((double)((float)this.left  / f), (double)((float)this.bottom / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double)this.right, (double)this.bottom, 0.0D).tex((double)((float)this.right / f), (double)((float)this.bottom / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double)this.right, (double)this.top,    0.0D).tex((double)((float)this.right / f), (double)((float)this.top / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double)this.left,  (double)this.top,    0.0D).tex((double)((float)this.left  / f), (double)((float)this.top / f)).color(32, 32, 32, 255).endVertex();
+        tessellator.draw();
 
-    }
+        GlStateManager.disableDepth();
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+        GlStateManager.disableAlpha();
+        GlStateManager.shadeModel(7425);
+        GlStateManager.disableTexture2D();
+        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+        vertexbuffer.pos((double)this.left, (double)(this.top + 4), 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 0).endVertex();
+        vertexbuffer.pos((double)this.right, (double)(this.top + 4), 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 0).endVertex();
+        vertexbuffer.pos((double)this.right, (double)this.top, 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 255).endVertex();
+        vertexbuffer.pos((double)this.left, (double)this.top, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 255).endVertex();
+        tessellator.draw();
+        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+        vertexbuffer.pos((double)this.left, (double)this.bottom, 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 255).endVertex();
+        vertexbuffer.pos((double)this.right, (double)this.bottom, 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 255).endVertex();
+        vertexbuffer.pos((double)this.right, (double)(this.bottom - 4), 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 0).endVertex();
+        vertexbuffer.pos((double)this.left, (double)(this.bottom - 4), 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 0).endVertex();
+        tessellator.draw();
 
-    @Override
-    protected boolean isSelected(int slotIndex)
-    {
-        return false;
-    }
-
-    @Override
-    protected void drawBackground()
-    {
-
-    }
-
-    @Override
-    protected void overlayBackground(int startY, int endY, int startAlpha, int endAlpha)
-    {
-
-    }
-
-    @Override
-    protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, int mouseXIn, int mouseYIn)
-    {
-    }
-
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        GlStateManager.enableTexture2D();
+        GlStateManager.shadeModel(7424);
+        GlStateManager.enableAlpha();
+        GlStateManager.disableBlend();
 
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
 
