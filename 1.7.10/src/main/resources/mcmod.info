@@ -1,14 +1,14 @@
 [
 {
-  "modid": "creeperhostigs",
-  "name": "CreeperHost Ad",
-  "description": "Yeah, shameless. Sorry.",
+  "modid": "creeperhost",
+  "name": "CreeperHost",
+  "description": "Mod which allows you to purchase a server in game",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
-  "authorList": ["Cloudhunter"],
-  "credits": "The Forge and FML guys, for making this example",
+  "authorList": ["Ellpeck", "Cloudhunter"],
+  "credits": "",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

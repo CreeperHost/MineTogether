@@ -9,7 +9,6 @@ buildscript {
     }
 }
 apply plugin: 'forge'
-version = "1.7.10"
 
 task sourceJar(type: Jar) {
     classifier = 'sources'
@@ -19,4 +18,7 @@ task sourceJar(type: Jar) {
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
     runDir = "run"
+	
+	replaceIn "CreeperHost.java"
+    replace "@VERSION@", project.version.toString()
 }

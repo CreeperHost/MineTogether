@@ -7,8 +7,8 @@ apply plugin: 'idea'
 version = "1.0.0"
 
 allprojects {
-    group= "de.ellpeck.chgui"
-    archivesBaseName = "chgui"
+    group= "de.ellpeck.creeperhost"
+    archivesBaseName = "creeperhost"
 
     sourceCompatibility = targetCompatibility = "1.6"
     compileJava {
