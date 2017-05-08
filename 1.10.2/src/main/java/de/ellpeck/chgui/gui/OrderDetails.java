@@ -151,7 +151,7 @@ public class OrderDetails extends GuiGetServer
             drawCenteredString(fontRendererObj, Util.localize("order.ordererrorsupport"), this.width / 2, (this.height / 2) + 20, 0xFFFFFF);
         } else {
             drawCenteredString(fontRendererObj, Util.localize("order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
-            drawCenteredString(fontRendererObj, Util.localize("order.ordermodpack"), (this.width / 2) + 10, this.height / 2, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.ordermodpack"), (this.width / 2) + 10, (this.height / 2) + 10, 0xFFFFFF);
         }
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
