@@ -138,19 +138,20 @@ public class OrderDetails extends GuiGetServer
         this.drawDefaultBackground();
         if (creatingAccount)
         {
-            drawCenteredString(fontRendererObj, Util.localize("order.creatingaccount"), this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.accountcreating"), this.width / 2, this.height / 2, 0xFFFFFF);
         } else if (!createdAccountError.isEmpty()) {
             drawCenteredString(fontRendererObj, Util.localize("order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
             drawCenteredString(fontRendererObj, createdAccountError, this.width / 2, (this.height / 2) + 10, 0xFFFFFF);
             drawCenteredString(fontRendererObj, Util.localize("order.accounterrorgoback"), this.width / 2, this.height / 2 + 20, 0xFFFFFF);
         } else if (placingOrder) {
-            drawCenteredString(fontRendererObj, Util.localize("order.placingorder"), this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.orderplacing"), this.width / 2, this.height / 2, 0xFFFFFF);
         } else if (!placedOrderError.isEmpty()) {
             drawCenteredString(fontRendererObj, Util.localize("order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
             drawCenteredString(fontRendererObj, placedOrderError, this.width / 2, (this.height / 2) + 10, 0xFFFFFF);
             drawCenteredString(fontRendererObj, Util.localize("order.ordererrorsupport"), this.width / 2, (this.height / 2) + 20, 0xFFFFFF);
         } else {
             drawCenteredString(fontRendererObj, Util.localize("order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.ordermodpack"), (this.width / 2) + 10, this.height / 2, 0xFFFFFF);
         }
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

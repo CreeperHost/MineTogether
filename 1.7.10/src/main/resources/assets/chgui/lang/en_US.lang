@@ -52,7 +52,8 @@ chgui.order.accounterrorgoback=Please go back and correct the errors
 chgui.order.orderplacing=Please wait. Order being placed
 chgui.order.ordererror=Error occurred while placing order. Error:
 chgui.order.ordererrorsupport=Please contact support if the problem persists
-chgui.order.ordersuccess=Order successful! Please click the button below to pay
+chgui.order.ordersuccess=Order successful! Please click the button below to pay!
+chgui.order.ordermodpack=Your server will then be set up with the latest modpack version!
 
 chgui.button.prev=Previous Step
 chgui.button.next=Next Step
