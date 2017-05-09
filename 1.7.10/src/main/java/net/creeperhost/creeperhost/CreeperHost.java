@@ -3,9 +3,11 @@ package net.creeperhost.creeperhost;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cpw.mods.fml.relauncher.Side;
+import net.creeperhost.creeperhost.api.CreeperHostAPI;
 import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.paul.Callbacks;
+import net.creeperhost.creeperhost.paul.CreeperHostServerHost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -81,10 +83,13 @@ public class CreeperHost
             configStream = new FileInputStream(configFile);
             String configString = IOUtils.toString(configStream);
             JsonObject jObject = new JsonParser().parse(configString).getAsJsonObject();
+            boolean chEnabled = jObject.getAsJsonPrimitive("creeperhostEnabled").getAsBoolean();
+            String promocode = chEnabled ? jObject.getAsJsonPrimitive("promoCode").getAsString() : "";
+            String version = chEnabled ? jObject.getAsJsonPrimitive("curseProjectID").getAsString() : "";
             Config.makeConfig(
-                    Callbacks.getVersionFromCurse(jObject.getAsJsonPrimitive("curseProjectID").getAsString()),
-                    jObject.getAsJsonPrimitive("promoCode").getAsString(),
-                    jObject.getAsJsonPrimitive("creeperhostEnabled").getAsBoolean(),
+                    version,
+                    promocode,
+                    chEnabled,
                     jObject.getAsJsonPrimitive("mpMenuEnabled").getAsBoolean(),
                     jObject.getAsJsonPrimitive("mainMenuEnabled").getAsBoolean(),
                     jObject.getAsJsonPrimitive("serverHostButtonImage").getAsBoolean(),
@@ -101,6 +106,10 @@ public class CreeperHost
             } catch (Throwable t) {
             }
 
+        }
+
+        if (Config.getInstance().isCreeperhostEnabled()) {
+            CreeperHostAPI.registerImplementation(new CreeperHostServerHost());
         }
     }
 

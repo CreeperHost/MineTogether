@@ -31,6 +31,7 @@ public class EventHandler{
             return;
         GuiScreen gui = Util.getGuiFromEvent(event);
         if(gui instanceof GuiMainMenu){
+            CreeperHost.instance.setRandomImplementation();
             if (CreeperHost.instance.getImplementation() == null)
                 return;
             List<GuiButton> buttonList = Util.getButtonList(event);

@@ -83,10 +83,13 @@ public class CreeperHost
             configStream = new FileInputStream(configFile);
             String configString = IOUtils.toString(configStream);
             JsonObject jObject = new JsonParser().parse(configString).getAsJsonObject();
+            boolean chEnabled = jObject.getAsJsonPrimitive("creeperhostEnabled").getAsBoolean();
+            String promocode = chEnabled ? jObject.getAsJsonPrimitive("promoCode").getAsString() : "";
+            String version = chEnabled ? jObject.getAsJsonPrimitive("curseProjectID").getAsString() : "";
             Config.makeConfig(
-                    Callbacks.getVersionFromCurse(jObject.getAsJsonPrimitive("curseProjectID").getAsString()),
-                    jObject.getAsJsonPrimitive("promoCode").getAsString(),
-                    jObject.getAsJsonPrimitive("creeperhostEnabled").getAsBoolean(),
+                    version,
+                    promocode,
+                    chEnabled,
                     jObject.getAsJsonPrimitive("mpMenuEnabled").getAsBoolean(),
                     jObject.getAsJsonPrimitive("mainMenuEnabled").getAsBoolean(),
                     jObject.getAsJsonPrimitive("serverHostButtonImage").getAsBoolean(),
