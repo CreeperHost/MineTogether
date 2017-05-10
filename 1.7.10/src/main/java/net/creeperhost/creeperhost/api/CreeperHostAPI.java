@@ -1,6 +1,6 @@
 package net.creeperhost.creeperhost.api;
 
-import net.creeperhost.creeperhost.CreeperHost;
+import cpw.mods.fml.common.Loader;
 
 /**
  * Created by Aaron on 09/05/2017.
@@ -8,6 +8,10 @@ import net.creeperhost.creeperhost.CreeperHost;
 public class CreeperHostAPI
 {
     public static void registerImplementation(IServerHost plugin) {
-        CreeperHost.instance.implementations.add(plugin);
+        if (Loader.isModLoaded("creeperhost"))
+        {
+            Object mod = Loader.instance().getIndexedModList().get("creeperhost").getMod();
+            ((ICreeperHostMod) mod).registerImplementation(plugin);
+        }
     }
 }

@@ -10,8 +10,9 @@ public class OrderSummary
 {
     public final String summaryError;
 
-    public final String vpsDisplay;
-    public final List<String> vpsFeatures;
+    public final String serverHostName;
+    public final List<String> serverFeatures;
+    public final List<String> serverIncluded;
     public final double preDiscount;
     public final double subTotal;
     public final double total;
@@ -22,10 +23,11 @@ public class OrderSummary
     public final String currency;
     public final String productID;
 
-    public OrderSummary(String productID, String vpsDisplay, List<String> vpsFeatures, double preDiscount, double subTotal, double total, double tax, double discount, String suffix, String prefix, String currency) {
+    public OrderSummary(String productID, String serverHostName, List<String> serverFeatures, List<String> serverIncluded, double preDiscount, double subTotal, double total, double tax, double discount, String suffix, String prefix, String currency) {
         this.productID = productID;
-        this.vpsDisplay = vpsDisplay;
-        this.vpsFeatures = vpsFeatures;
+        this.serverHostName = serverHostName;
+        this.serverFeatures = serverFeatures;
+        this.serverIncluded = serverIncluded;
         this.preDiscount = preDiscount;
         this.subTotal = subTotal;
         this.total = total;
@@ -39,8 +41,9 @@ public class OrderSummary
 
     public OrderSummary(String summaryError) {
         this.productID = "";
-        this.vpsDisplay = "";
-        this.vpsFeatures = new ArrayList<String>();
+        this.serverHostName = "";
+        this.serverFeatures = new ArrayList<String>();
+        this.serverIncluded = new ArrayList<String>();
         this.preDiscount = 0;
         this.subTotal = 0;
         this.total = 0;

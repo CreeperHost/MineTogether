@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cpw.mods.fml.relauncher.Side;
 import net.creeperhost.creeperhost.api.CreeperHostAPI;
+import net.creeperhost.creeperhost.api.ICreeperHostMod;
 import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.paul.Callbacks;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 @Mod(modid = CreeperHost.MOD_ID, name = CreeperHost.NAME, version = CreeperHost.VERSION, acceptableRemoteVersions="*")
-public class CreeperHost
+public class CreeperHost implements ICreeperHostMod
 {
 
     public static final String MOD_ID = "creeperhost";
@@ -85,7 +86,7 @@ public class CreeperHost
             JsonObject jObject = new JsonParser().parse(configString).getAsJsonObject();
             boolean chEnabled = jObject.getAsJsonPrimitive("creeperhostEnabled").getAsBoolean();
             String promocode = chEnabled ? jObject.getAsJsonPrimitive("promoCode").getAsString() : "";
-            String version = chEnabled ? jObject.getAsJsonPrimitive("curseProjectID").getAsString() : "";
+            String version = chEnabled ? Callbacks.getVersionFromCurse(jObject.getAsJsonPrimitive("curseProjectID").getAsString()) : ""; // Yes, I'm doing http on the main thread. Rebel.
             Config.makeConfig(
                     version,
                     promocode,
@@ -127,5 +128,11 @@ public class CreeperHost
     public IServerHost getImplementation()
     {
         return currentImplementation;
+    }
+
+    @Override
+    public void registerImplementation(IServerHost serverHost)
+    {
+        implementations.add(serverHost);
     }
 }

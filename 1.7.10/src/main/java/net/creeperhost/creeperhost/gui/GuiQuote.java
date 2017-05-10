@@ -10,7 +10,6 @@ import net.creeperhost.creeperhost.api.OrderSummary;
 import net.minecraft.client.gui.GuiButton;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class GuiQuote extends GuiGetServer{
@@ -38,17 +37,8 @@ public class GuiQuote extends GuiGetServer{
 
         this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height-36, 36);
 
-        List<String> vpsIncluded = new ArrayList<String>();
-        vpsIncluded.add(Util.localize("quote.vpsincluded1"));
-        vpsIncluded.add(Util.localize("quote.vpsincluded2"));
-        vpsIncluded.add(Util.localize("quote.vpsincluded3"));
-        vpsIncluded.add(Util.localize("quote.vpsincluded4"));
-        vpsIncluded.add(Util.localize("quote.vpsincluded5"));
-        vpsIncluded.add(Util.localize("quote.vpsincluded6"));
-        vpsIncluded.add(Util.localize("quote.vpsincluded7"));
-
         this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, 67, this.height - 88, Util.localize("quote.vpsfeatures"), new ArrayList<String>(), true, 0);
-        this.wellRight = new GuiWell(this.mc, this.width, 67, this.height - 88, Util.localize("quote.vpsincluded"), vpsIncluded, true, (this.width / 2) + 10);
+        this.wellRight = new GuiWell(this.mc, this.width, 67, this.height - 88, Util.localize("quote.vpsincluded"), new ArrayList<String>(), true, (this.width / 2) + 10);
         this.wellBottom = new GuiWell(this.mc, this.width, this.height - 83, this.height - 36, "", new ArrayList<String>(), true, 0);
 
         int start = (this.width / 2) + 10;
@@ -67,7 +57,11 @@ public class GuiQuote extends GuiGetServer{
             countryButton.visible = false;
        } else {
 
-            this.wellLeft.lines = summary.vpsFeatures;
+
+            this.wellRight.lines = summary.serverIncluded;
+
+            this.wellLeft.lines = summary.serverFeatures;
+
 
             Map<String, String> locations = Callbacks.getCountries();
             for(Map.Entry<String, String> entry : locations.entrySet()){
@@ -114,7 +108,8 @@ public class GuiQuote extends GuiGetServer{
                     }
                 }
 
-                wellLeft.lines = summary.vpsFeatures;
+                wellLeft.lines = summary.serverFeatures;
+                wellRight.lines = summary.serverIncluded;
                 countryButton.displayString = Callbacks.getCountries().get(order.country);
                 countryButton.visible = true;
                 refreshing = false;
@@ -182,7 +177,7 @@ public class GuiQuote extends GuiGetServer{
                 this.wellRight.drawScreen();
 
 
-                this.drawCenteredString(this.fontRendererObj, Util.localize("quote.requirements") + summary.vpsDisplay, this.width / 2, 50, -1);
+                this.drawCenteredString(this.fontRendererObj, Util.localize("quote.requirements") + summary.serverHostName, this.width / 2, 50, -1);
 
                 String formatString = summary.prefix + "%1$.2f " + summary.suffix;
 
