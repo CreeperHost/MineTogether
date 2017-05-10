@@ -17,6 +17,7 @@ import net.minecraft.util.ResourceLocation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -137,7 +138,16 @@ public class CreeperHostServerHost implements IServerHost
                 vpsFeatures.add(group);
             }
 
-            return new OrderSummary(recommended, vpsDisplay, vpsFeatures, preDiscount, subTotal, total, tax, discount, suffix, prefix, id);
+            List<String> vpsIncluded = new ArrayList<String>();
+            vpsIncluded.add(Util.localize("quote.vpsincluded1"));
+            vpsIncluded.add(Util.localize("quote.vpsincluded2"));
+            vpsIncluded.add(Util.localize("quote.vpsincluded3"));
+            vpsIncluded.add(Util.localize("quote.vpsincluded4"));
+            vpsIncluded.add(Util.localize("quote.vpsincluded5"));
+            vpsIncluded.add(Util.localize("quote.vpsincluded6"));
+            vpsIncluded.add(Util.localize("quote.vpsincluded7"));
+
+            return new OrderSummary(recommended, vpsDisplay, vpsFeatures, vpsIncluded, preDiscount, subTotal, total, tax, discount, suffix, prefix, id);
 
         } catch(Throwable t) {
             CreeperHost.logger.error("Unable to fetch summary", t);
