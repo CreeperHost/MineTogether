@@ -10,3 +10,13 @@
 /*.iws
 /lib
 /classes
+/1.7.10/build
+/1.7.10/out
+/1.7.10/run
+/1.7.10/*.iml
+/1.7.10/.gradle
+/1.10.2/build
+/1.10.2/out
+/1.10.2/run
+/1.10.2/*.iml
+/1.10.2/.gradle

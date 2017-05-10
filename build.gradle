@@ -1,50 +1,82 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-    }
-}
-apply plugin: 'net.minecraftforge.gradle.forge'
+evaluationDependsOnChildren() // gotta make sure the children happen first
 
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 
-version = "r1"
-group= "de.ellpeck.chgui"
-archivesBaseName = "chgui"
+version = "1.0.0"
 
-sourceCompatibility = targetCompatibility = "1.6"
-compileJava {
+allprojects {
+    group= "de.ellpeck.creeperhost"
+    archivesBaseName = "creeperhost"
+
     sourceCompatibility = targetCompatibility = "1.6"
-}
-
-minecraft {
-    version = "1.10.2-12.18.3.2281"
-    runDir = "run"
-
-    mappings = "snapshot_20161111"
-    makeObfSourceJar = false
-
-    replaceIn "CreeperHostGui.java"
-    replace "@VERSION@", project.version.toString()
-}
-
-dependencies {
-
-}
-
-processResources {
-   inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+    compileJava {
+        sourceCompatibility = targetCompatibility = "1.6"
     }
-        
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+}
+
+repositories {
+    jcenter()
+    maven { url = "http://files.minecraftforge.net/maven" }
+    mavenCentral()
+}
+
+task setupDecompWorkspace
+task setupDevWorkspace
+task setupCiWorkspace
+
+subprojects {
+    version = minecraft.version  + "-" + rootProject.version
+	
+    dependencies {
+        compile rootProject
     }
+    sourceSets.main.resources.srcDirs += rootProject.sourceSets.main.resources.srcDirs
+
+    jar {
+        duplicatesStrategy = 'exclude'
+        from rootProject.sourceSets.main.output
+    }
+
+    sourceJar {
+        duplicatesStrategy = 'exclude'
+        from rootProject.sourceSets.main.allSource
+    }
+	
+	ext.jarFile = zipTree(jar.archivePath)
+	
+	task apiJar(type: Jar, dependsOn: reobfJar) {
+        appendix = "api"
+
+		from(project.ext.jarFile) {
+			println project.ext.jarFile
+			includes.addAll(["net/creeperhost/creeperhost/api/**"])
+		}
+    }
+    
+    artifacts {
+        archives sourceJar apiJar
+    }
+    
+    processResources {
+        inputs.property "version", project.version
+        inputs.property "mcversion", project.minecraft.version
+
+        from(sourceSets.main.resources.srcDirs) {
+            include 'mcmod.info'
+            expand 'version':project.version, 'mcversion':project.minecraft.version
+        }
+
+        from(sourceSets.main.resources.srcDirs) {
+            exclude 'mcmod.info'
+        }
+    }
+    
+    // task deps
+    rootProject.setupDecompWorkspace.dependsOn setupDecompWorkspace
+    rootProject.setupDevWorkspace.dependsOn setupDevWorkspace
+    rootProject.setupCiWorkspace.dependsOn setupCiWorkspace
+    rootProject.build.dependsOn build
+    rootProject.uploadArchives.dependsOn uploadArchives
 }

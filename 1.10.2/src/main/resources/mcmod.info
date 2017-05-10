@@ -1,0 +1,16 @@
+[
+{
+  "modid": "creeperhost",
+  "name": "CreeperHost",
+  "description": "Mod which allows you to purchase a server in game",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Ellpeck", "Cloudhunter"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

@@ -1,0 +1,73 @@
+creeperhost.gui.get_server=Order CreeperHost Server
+creeperhost.gui.general_info=General Server Info
+creeperhost.gui.server_location=Server Location
+creeperhost.gui.personal_details=Personal Details
+creeperhost.gui.quote=Server Quote
+creeperhost.gui.order=Order details
+
+creeperhost.mp.getserver=Want a server?
+creeperhost.mp.clickhere=Click here!
+
+creeperhost.quote.requirements=Based on your requirements, we recommend a
+creeperhost.quote.tax=Tax
+creeperhost.quote.subtotal=SubTotal
+creeperhost.quote.total=Total
+creeperhost.quote.discount=Discount
+
+creeperhost.quote.vpsincluded=Included Features
+creeperhost.quote.vpsincluded1=Free Dedicated IPv4
+creeperhost.quote.vpsincluded2=Unmetered slots
+creeperhost.quote.vpsincluded3=Free website
+creeperhost.quote.vpsincluded4=Free VoIP
+creeperhost.quote.vpsincluded5=Install or switch games for free
+creeperhost.quote.vpsincluded6=Monthly subscription - cancel at any
+creeperhost.quote.vpsincluded7=time with 7 days notice
+
+creeperhost.quote.vpsfeatures=VPS Features
+
+creeperhost.quote.figures=Figures based on you being in
+creeperhost.quote.refreshing=Please wait - refreshing quote
+
+creeperhost.quote.error=Error occurred while fetching quote.
+creeperhost.quote.curseerror=Cannot find specified project on CreeperHost. If correct, wait 15!
+creeperhost.quote.promoerror=Promo code does not exist on CreeperHost.
+
+creeperhost.info.step=Step %s of %s
+creeperhost.info.server_name=Server Name
+creeperhost.info.e_mail=E-Mail
+creeperhost.info.password=Password
+creeperhost.info.first_name=First Name
+creeperhost.info.last_name=Last Name
+creeperhost.info.address=Address
+creeperhost.info.city=City
+creeperhost.info.zip=Zip Code
+creeperhost.info.state=State
+creeperhost.info.country=Country
+creeperhost.info.phone=Phone Number
+
+creeperhost.details.login=Logging in. Please wait
+creeperhost.details.loginerror=An error occurred. Error:
+creeperhost.details.loginsuccess=Logged in successfully. Proceed to order!
+creeperhost.details.accountexists=Account exists with this email. Please login or try another email address.
+
+creeperhost.order.accountcreating=Please wait. Account being created
+creeperhost.order.accounterror=Error occurred while creating account. Error:
+creeperhost.order.accounterrorgoback=Please go back and correct the errors
+creeperhost.order.orderplacing=Please wait. Order being placed
+creeperhost.order.ordererror=Error occurred while placing order. Error:
+creeperhost.order.ordererrorsupport=Please contact support if the problem persists
+creeperhost.order.ordersuccess=Order successful! Please click the button below to pay!
+creeperhost.order.ordermodpack=Your server will then be set up with the latest modpack version!
+
+creeperhost.button.prev=Previous Step
+creeperhost.button.next=Next Step
+creeperhost.button.cancel=Cancel
+creeperhost.button.login=Login
+creeperhost.button.logging=Logging in
+creeperhost.button.logintryagain=Try again
+creeperhost.button.done=Done
+creeperhost.button.order=Place order
+creeperhost.button.invoice=View invoice
+creeperhost.button.quoteback=Back to quote
+
+creeperhost.slider.player_count=Expected Average Player Count
