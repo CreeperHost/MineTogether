@@ -27,8 +27,8 @@ task setupDevWorkspace
 task setupCiWorkspace
 
 subprojects {
-    version = minecraft.version  + "-" + rootProject.version    
-    
+    version = minecraft.version  + "-" + rootProject.version
+	
     dependencies {
         compile rootProject
     }
@@ -43,9 +43,20 @@ subprojects {
         duplicatesStrategy = 'exclude'
         from rootProject.sourceSets.main.allSource
     }
+	
+	ext.jarFile = zipTree(jar.archivePath)
+	
+	task apiJar(type: Jar, dependsOn: reobfJar) {
+        appendix = "api"
+
+		from(project.ext.jarFile) {
+			println project.ext.jarFile
+			includes.addAll(["net/creeperhost/creeperhost/api/**"])
+		}
+    }
     
     artifacts {
-        archives sourceJar
+        archives sourceJar apiJar
     }
     
     processResources {
