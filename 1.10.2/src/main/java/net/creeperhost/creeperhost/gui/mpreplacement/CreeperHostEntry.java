@@ -8,20 +8,28 @@ import net.creeperhost.creeperhost.api.Order;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiListExtended;
+import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.gui.ServerListEntryNormal;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class CreeperHostEntry implements GuiListExtended.IGuiListEntry
+public class CreeperHostEntry extends ServerListEntryNormal
 {
     private final Minecraft mc = Minecraft.getMinecraft();
 
     private static ResourceLocation serverIcon;
 
-    public CreeperHostEntry() {
+    protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn) {
+        super(p_i45048_1_, serverIn);
         serverIcon = Config.getInstance().isServerHostMenuImage() ? CreeperHost.instance.getImplementation().getMenuIcon() : new ResourceLocation("creeperhost", "textures/nobrandmp.png");
+    }
+
+    public CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn, boolean diffSig) {
+        this(p_i45048_1_, serverIn);
     }
 
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)

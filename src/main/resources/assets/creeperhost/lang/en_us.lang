@@ -71,3 +71,7 @@ creeperhost.button.invoice=View invoice
 creeperhost.button.quoteback=Back to quote
 
 creeperhost.slider.player_count=Expected Average Player Count
+
+creeperhost.secure.line1=All data is transmitted via SSL, no payment details
+creeperhost.secure.line2=will be taken in the client. You will be redirected outside
+creeperhost.secure.line3=of the client to CreeperHost's secure portal to make payment

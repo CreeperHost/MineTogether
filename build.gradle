@@ -26,6 +26,16 @@ task setupDecompWorkspace
 task setupDevWorkspace
 task setupCiWorkspace
 
+ext.jarFile = zipTree(jar.archivePath)
+
+task apiJar(type: Jar) {
+    appendix = "api"
+    from(project.ext.jarFile) {
+       println project.ext.jarFile
+       includes.addAll(["net/creeperhost/creeperhost/api/**"])
+    }
+}
+
 subprojects {
     version = minecraft.version  + "-" + rootProject.version
 	
@@ -43,20 +53,20 @@ subprojects {
         duplicatesStrategy = 'exclude'
         from rootProject.sourceSets.main.allSource
     }
+
+    ext.jarFile = zipTree(jar.archivePath)
 	
-	ext.jarFile = zipTree(jar.archivePath)
-	
-	task apiJar(type: Jar, dependsOn: reobfJar) {
+    task apiJar(type: Jar, dependsOn: reobfJar) {
         appendix = "api"
 
-		from(project.ext.jarFile) {
-			println project.ext.jarFile
-			includes.addAll(["net/creeperhost/creeperhost/api/**"])
-		}
+        from(project.ext.jarFile) {
+            println project.ext.jarFile
+            includes.addAll(["net/creeperhost/creeperhost/api/**"])
+        }
     }
     
     artifacts {
-        archives sourceJar apiJar
+        archives sourceJar //apiJar
     }
     
     processResources {

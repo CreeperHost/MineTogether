@@ -24,12 +24,12 @@ public class GuiServerLocation extends GuiGetServer{
 
         this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height-36, 36);
 
-        Map<Integer, String> locations = Callbacks.getAllServerLocations();
-        for(Map.Entry<Integer, String> entry : locations.entrySet()){
+        Map<String, String> locations = Callbacks.getAllServerLocations();
+        for(Map.Entry<String, String> entry : locations.entrySet()){
             GuiListEntryLocation listEntry = new GuiListEntryLocation(this.list, entry.getKey(), entry.getValue());
             this.list.addEntry(listEntry);
 
-            if(this.order.serverLocation.equals(listEntry.locationName.replace(" ", "").toLowerCase())){
+            if(this.order.serverLocation.equals(listEntry.locationName)){
                 this.list.setCurrSelected(listEntry);
             }
         }
@@ -53,7 +53,7 @@ public class GuiServerLocation extends GuiGetServer{
 
         GuiListEntry entry = this.list.getCurrSelected();
         if(entry instanceof GuiListEntryLocation){
-            this.order.serverLocation = ((GuiListEntryLocation)entry).locationName.replace(" ", "").toLowerCase();
+            this.order.serverLocation = ((GuiListEntryLocation)entry).locationName;
         }
     }
 

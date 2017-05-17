@@ -11,7 +11,7 @@ public interface IServerHost
 {
     ResourceLocation getButtonIcon();
     ResourceLocation getMenuIcon();
-    Map<Integer, String> getAllServerLocations();
+    Map<String, String> getAllServerLocations();
     OrderSummary getSummary(Order order);
     AvailableResult getNameAvailable(String name);
     boolean doesEmailExist(String email);

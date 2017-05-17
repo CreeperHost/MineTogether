@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  */
 public class CreeperHostServerHost implements IServerHost
 {
-    public static Map<Integer, String> locations = new HashMap<Integer, String>();
+    public static Map<String, String> locations = new HashMap<String, String>();
 
     private ResourceLocation buttonIcon = new ResourceLocation("creeperhost", "textures/gui.png");
     private ResourceLocation menuIcon = new ResourceLocation("creeperhost", "textures/creeperhost.png");
@@ -45,24 +45,26 @@ public class CreeperHostServerHost implements IServerHost
     }
 
     @Override
-    public Map<Integer, String> getAllServerLocations()
+    public Map<String, String> getAllServerLocations()
     {
-        Map<String, Integer> rawMap = new HashMap<String,Integer>();
+        Map<String, String> rawMap = new HashMap<String, String>();
         try {
 
             String jsonData = Util.getWebResponse("https://www.creeperhost.net/json/locations");
 
-            Type type = new TypeToken<Map<String, Integer>>(){}.getType();
+            Type type = new TypeToken<Map<String, String>>(){}.getType();
             Gson g = new Gson();
-            rawMap = g.fromJson(jsonData.toString(), type);
+            JsonElement el = new JsonParser().parse(jsonData);
+            rawMap = g.fromJson(el.getAsJsonObject().get("nameMap"), type);
         } catch(Exception e)
         {
             CreeperHost.logger.error("Unable to fetch server locations" + e);
+            locations.put("no", "Unable to fetch server locations");
         }
-        for(Map.Entry<String, Integer> entry : rawMap.entrySet()) {
+        for(Map.Entry<String, String> entry : rawMap.entrySet()) {
             String key = entry.getKey();
-            Integer value = entry.getValue();
-            locations.put(value, Character.toUpperCase(key.charAt(0)) + key.substring(1));
+            String value = entry.getValue();
+            locations.put(key, value);
         }
         return locations;
     }

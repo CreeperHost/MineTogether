@@ -6,16 +6,23 @@ import com.google.gson.JsonParser;
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.AvailableResult;
+import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.api.Order;
 import net.creeperhost.creeperhost.api.OrderSummary;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class Callbacks {
 
-    public static Map<Integer, String> getAllServerLocations(){
-        return CreeperHost.instance.getImplementation().getAllServerLocations();
+    public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
+
+    public static Map<String, String> getAllServerLocations(){
+        IServerHost implementation = CreeperHost.instance.getImplementation();
+        if (locationCache.get(implementation) == null)
+            locationCache.put(implementation, implementation.getAllServerLocations());
+        return locationCache.get(implementation);
     }
 
     public static Map<String, String> getCountries() {
@@ -143,10 +150,10 @@ public final class Callbacks {
         put("CD", "Congo, the Democratic Republic of the");
         put("CK", "Cook Islands");
         put("CR", "Costa Rica");
-        put("CI", "Côte d'Ivoire");
+        put("CI", "Cï¿½te d'Ivoire");
         put("HR", "Croatia");
         put("CU", "Cuba");
-        put("CW", "Curaçao");
+        put("CW", "Curaï¿½ao");
         put("CY", "Cyprus");
         put("CZ", "Czech Republic");
         put("DJ", "Djibouti");
@@ -266,11 +273,11 @@ public final class Callbacks {
         put("PT", "Portugal");
         put("PR", "Puerto Rico");
         put("QA", "Qatar");
-        put("RE", "Réunion");
+        put("RE", "Rï¿½union");
         put("RO", "Romania");
         put("RU", "Russian Federation");
         put("RW", "Rwanda");
-        put("BL", "Saint Barthélemy");
+        put("BL", "Saint Barthï¿½lemy");
         put("SH", "Saint Helena, Ascension and Tristan da Cunha");
         put("KN", "Saint Kitts and Nevis");
         put("LC", "Saint Lucia");

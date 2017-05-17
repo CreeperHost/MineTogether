@@ -6,7 +6,9 @@ import net.creeperhost.creeperhost.api.AvailableResult;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.Constants;
 import net.creeperhost.creeperhost.api.Order;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -24,8 +26,12 @@ public class GuiGeneralServerInfo extends GuiGetServer {
     private boolean nameChecked = false;
     private String message = "Name can not be blank";
 
+    private static ResourceLocation lockIcon;
+
+
     public GuiGeneralServerInfo(int stepId, Order order){
         super(stepId, order);
+        lockIcon = new ResourceLocation("creeperhost", "textures/lock.png");
     }
 
     @Override
@@ -41,7 +47,7 @@ public class GuiGeneralServerInfo extends GuiGetServer {
 
         final Order orderTemp = this.order;
 
-        this.slotSlider = new GuiSlider(0, halfWidth - 100, halfHeight + 20, 150, 20, Util.localize("slider.player_count") + ": ", "", Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, false, true, new GuiSlider.ISlider()
+        this.slotSlider = new GuiSlider(0, halfWidth - 100, halfHeight, 150, 20, Util.localize("slider.player_count") + ": ", "", Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, false, true, new GuiSlider.ISlider()
         {
             @Override
             public void onChangeSliderValue(GuiSlider slider)
@@ -123,12 +129,21 @@ public class GuiGeneralServerInfo extends GuiGetServer {
         this.drawString(this.fontRendererObj, renderedString, this.width / 4 + 53, this.height / 4 - 14, colour);
         GL11.glScaled(0.5F, 0.5F, 0.5F);
 
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        this.mc.getTextureManager().bindTexture(lockIcon);
+        Gui.func_146110_a(this.width / 2 - 8, (this.height / 2) + 24, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
+
+
+        this.drawCenteredString(fontRendererObj, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + 45, 0xFFFFFF);
+        this.drawCenteredString(fontRendererObj, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + 55, 0xFFFFFF);
+        this.drawCenteredString(fontRendererObj, Util.localize("secure.line3"), this.width / 2, (this.height / 2) + 65, 0xFFFFFF);
+
         this.nameField.drawTextBox();
 
 
         int xLeft = (this.width / 2) + 104;
         int xRight = xLeft + (this.fontRendererObj.getStringWidth(renderedString) * 2);
-        int yTop = (this.height / 2) - 30;
+        int yTop = (this.height / 2) - 28;
         int yBottom = yTop + 13;
 
         if (mouseX >= xLeft && mouseX <= xRight && mouseY >= yTop && mouseY <= yBottom) {

@@ -2,17 +2,17 @@ package net.creeperhost.creeperhost.gui.list;
 
 public class GuiListEntryLocation extends GuiListEntry{
 
-    public final int locationId;
     public final String locationName;
+    public final String locationDisplay;
 
-    public GuiListEntryLocation(GuiList list, int locationId, String locationName){
+    public GuiListEntryLocation(GuiList list, String locationName, String locationDisplay){
         super(list);
-        this.locationId = locationId;
         this.locationName = locationName;
+        this.locationDisplay = locationDisplay;
     }
 
     @Override
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected){
-        this.mc.fontRendererObj.drawString(this.locationName, x+5, y+5, 16777215);
+        this.mc.fontRendererObj.drawSplitString(this.locationDisplay, x+5, y+5, listWidth,16777215);
     }
 }
