@@ -5,13 +5,16 @@ import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.api.Order;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.ServerList;
 
+import java.io.IOException;
 import java.net.URI;
 
 /**
  * Created by Aaron on 02/05/2017.
  */
-public class OrderDetails extends GuiGetServer
+public class GuiOrderDetails extends GuiGetServer
 {
     private boolean placingOrder = false;
     private boolean placedOrder = false;
@@ -22,9 +25,10 @@ public class OrderDetails extends GuiGetServer
     private String invoiceID;
     private String placedOrderError = "";
     private GuiButton buttonInvoice;
+    private boolean serverAdded;
 
 
-    public OrderDetails(int stepId, Order order)
+    public GuiOrderDetails(int stepId, Order order)
     {
         super(stepId, order);
         if (order.clientID != null && !order.clientID.isEmpty()) {
@@ -44,21 +48,26 @@ public class OrderDetails extends GuiGetServer
     {
         super.initGui();
         this.buttonNext.visible = false;
+        buttonCancel.displayString = Util.localize("order.ordercancel");
+        buttonCancel.enabled = false;
         buttonInvoice = new GuiButton(80000085, this.width/2-40, (this.height/2) + 30, 80, 20, Util.localize("button.invoice"));
         this.buttonList.add(buttonInvoice);
         buttonInvoice.visible = false;
     }
 
     @Override
-    public void actionPerformed(GuiButton button)
+    public void actionPerformed(GuiButton button) throws IOException
     {
+        if (button.id == buttonCancel.id) {
+            CreeperHost.instance.getImplementation().cancelOrder(orderNumber);
+        }
         super.actionPerformed(button);
         if (button.id == 80000085) {
                 try
                 {
                     Class<?> oclass = Class.forName("java.awt.Desktop");
                     Object object = oclass.getMethod("getDesktop", new Class[0]).invoke((Object)null, new Object[0]);
-                    oclass.getMethod("browse", new Class[] {URI.class}).invoke(object, new Object[] {new URI("https://billing.creeperhost.net/viewinvoice.php?id=" + invoiceID)});
+                    oclass.getMethod("browse", new Class[] {URI.class}).invoke(object, new Object[] {new URI(CreeperHost.instance.getImplementation().getPaymentLink(invoiceID))});
                 }
                 catch (Throwable throwable)
                 {
@@ -71,6 +80,7 @@ public class OrderDetails extends GuiGetServer
         super.updateScreen();
         if (!createdAccount && !creatingAccount) {
             if (!createdAccountError.isEmpty()) {
+                buttonCancel.enabled = true;
                 return;
             }
             creatingAccount = true;
@@ -100,6 +110,7 @@ public class OrderDetails extends GuiGetServer
         {
             return;
         } else if (!createdAccountError.isEmpty()) {
+            buttonCancel.enabled = true;
             return;
         } else if (!placingOrder && !placedOrder) {
             placingOrder = true;
@@ -113,6 +124,7 @@ public class OrderDetails extends GuiGetServer
                     if (resultSplit[0].equals("success"))
                     {
                         invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
+                        orderNumber = Integer.valueOf(resultSplit[2]);
                     } else {
                         placedOrderError = result;
                     }
@@ -126,7 +138,16 @@ public class OrderDetails extends GuiGetServer
         {
             return;
         } else if(placedOrderError.isEmpty()) {
+            if (!serverAdded) {
+                ServerList savedServerList = new ServerList(this.mc);
+                savedServerList.loadServerList();
+                savedServerList.addServerData(CreeperHost.instance.getImplementation().getServerEntry(order));
+                savedServerList.saveServerList();
+                serverAdded = true;
+            }
             buttonInvoice.visible = true;
+            buttonNext.visible = true;
+            buttonCancel.enabled = true;
             return;
         }
     }
@@ -149,7 +170,7 @@ public class OrderDetails extends GuiGetServer
             drawCenteredString(fontRendererObj, Util.localize("order.ordererrorsupport"), this.width / 2, (this.height / 2) + 20, 0xFFFFFF);
         } else {
             drawCenteredString(fontRendererObj, Util.localize("order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
-            drawCenteredString(fontRendererObj, Util.localize("order.ordermodpack"), this.width / 2, (this.height / 2) + 10, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, Util.localize("order.ordermodpack"), (this.width / 2) + 10, (this.height / 2) + 10, 0xFFFFFF);
         }
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

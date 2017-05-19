@@ -5,11 +5,10 @@ import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.gui.GuiGetServer;
 import net.creeperhost.creeperhost.gui.GuiServerInfo;
 import net.creeperhost.creeperhost.gui.element.ButtonCreeper;
-import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostEntry;
+import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.creeperhost.creeperhost.lib.KeyBindings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -26,8 +25,10 @@ public class EventHandler {
     
     private static Field parentScreenField;
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
-    
-    
+
+
+    private GuiMultiplayer lastInitialized = null;
+
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event) {
         
@@ -42,7 +43,7 @@ public class EventHandler {
             if (buttonList != null) {
                 buttonList.add(new ButtonCreeper(BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
             }
-        } else if (gui instanceof GuiMultiplayer) {
+        } else if(gui instanceof GuiMultiplayer && lastInitialized != gui) {
             if (!Config.getInstance().isMpMenuEnabled() || CreeperHost.instance.getImplementation() == null)
                 return;
             // Done using reflection so we can work on 1.8.9 before setters/getters
@@ -60,8 +61,13 @@ public class EventHandler {
     
                 ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
                 List serverListInternet = (List) serverListInternetField.get(serverListSelector); // Get the list from inside it
-                serverListInternet.add(new CreeperHostEntry(mpGUI, new ServerData("", "127.0.0.1", false), true));
-            } catch (Throwable e) {
+                CreeperHostServerSelectionList ourList = new CreeperHostServerSelectionList(mpGUI, Minecraft.getMinecraft(), mpGUI.width, mpGUI.height, 32, mpGUI.height - 64, 36);
+                ourList.replaceList(serverListInternet);
+                serverListInternetField.set(ourList, serverListInternet);
+                serverListSelectorField.set(mpGUI, ourList);
+                lastInitialized = mpGUI;
+            } catch (Throwable e)
+            {
                 CreeperHost.logger.warn("Reflection to alter server list failed.", e);
             }
         }

@@ -7,6 +7,7 @@ creeperhost.gui.order=Order details
 
 creeperhost.mp.getserver=Want a server?
 creeperhost.mp.clickhere=Click here!
+creeperhost.mp.clickherebrand=Click here to get one from CreeperHost!
 
 creeperhost.quote.requirements=Based on your requirements, we recommend a
 creeperhost.quote.tax=Tax
@@ -58,6 +59,7 @@ creeperhost.order.ordererror=Error occurred while placing order. Error:
 creeperhost.order.ordererrorsupport=Please contact support if the problem persists
 creeperhost.order.ordersuccess=Order successful! Please click the button below to pay!
 creeperhost.order.ordermodpack=Your server will then be set up with the latest modpack version!
+creeperhost.order.ordercancel=Cancel order
 
 creeperhost.button.prev=Previous Step
 creeperhost.button.next=Next Step

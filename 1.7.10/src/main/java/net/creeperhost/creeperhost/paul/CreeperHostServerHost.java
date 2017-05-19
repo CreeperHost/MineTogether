@@ -12,6 +12,7 @@ import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.api.Order;
 import net.creeperhost.creeperhost.api.OrderSummary;
 import net.creeperhost.creeperhost.common.Config;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.ResourceLocation;
 
 import java.lang.reflect.Type;
@@ -288,7 +289,7 @@ public class CreeperHostServerHost implements IServerHost
                 JsonObject jObject = jElement.getAsJsonObject();
                 if (jObject.getAsJsonPrimitive("status").getAsString().equals("success")) {
                     jObject = jObject.getAsJsonObject("more");
-                    return "success:" + jObject.getAsJsonPrimitive("invoiceid").getAsString();
+                    return "success:" + jObject.getAsJsonPrimitive("invoiceid").getAsString() + ":" + jObject.getAsJsonPrimitive("orderid").getAsString();
                 } else {
                     return jObject.getAsJsonPrimitive("message").getAsString();
                 }
@@ -301,8 +302,31 @@ public class CreeperHostServerHost implements IServerHost
     }
 
     @Override
+    public boolean cancelOrder(int orderNum) {
+        try {
+            String response = Util.getWebResponse("https://www.creeperhost.net/json/order/" + orderNum + "/cancel");
+        } catch (Throwable t) {
+            CreeperHost.logger.error("Unable to cancel order");
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public String getLocalizationRoot()
     {
         return "creeperhost";
+    }
+
+    @Override
+    public String getPaymentLink(String invoiceID)
+    {
+        return "https://billing.creeperhost.net/viewinvoice.php?id=" + invoiceID;
+    }
+
+    @Override
+    public ServerData getServerEntry(Order order)
+    {
+        return new ServerData(order.name + ".PlayAt.CH", order.name + ".playat.ch", false);
     }
 }

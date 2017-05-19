@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 //import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
@@ -23,6 +24,7 @@ public class CreeperHostEntry extends ServerListEntryNormal
     private final Minecraft mc = Minecraft.getMinecraft();
 
     private static ResourceLocation serverIcon;
+    private float transparency = 0.5F;
 
     protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn) {
         super(p_i45048_1_, serverIn);
@@ -35,13 +37,24 @@ public class CreeperHostEntry extends ServerListEntryNormal
 
 
     @Override
-    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, Tessellator p_148279_6, int mouseX, int mouseY, boolean isSelected)
+    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, Tessellator p_148279_6, int mouseX, int mouseY, boolean isHovering)
     {
-        //GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        if (isHovering) {
+            if (transparency <= 1.0F)
+                transparency += 0.04;
+        } else {
+            if (transparency >= 0.5F)
+                transparency -= 0.04;
+        }
+
         this.mc.getTextureManager().bindTexture(serverIcon);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, transparency);
         Gui.func_146110_a(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glDisable(GL11.GL_BLEND);
         this.mc.fontRenderer.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + 1, 16777215);
-        String s = Util.localize("mp.clickhere");
+        String s = Util.localize(Config.getInstance().isServerHostMenuImage() ? "mp.clickherebrand" : "mp.clickherebranding");
 
         this.mc.fontRenderer.drawString(s, x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 3, 8421504);
     }

@@ -2,6 +2,7 @@ package net.creeperhost.creeperhost.gui;
 
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.AvailableResult;
+import net.creeperhost.creeperhost.gui.element.GuiTextFieldValidate;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.Constants;
 import net.creeperhost.creeperhost.api.Order;
@@ -49,7 +50,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         int halfWidth = this.width/2;
         int halfHeight = this.height/2;
 
-        this.nameField = new GuiTextField(0, this.fontRendererObj, halfWidth-100, halfHeight-30, 200, 20);
+        this.nameField = new GuiTextFieldValidate(0, this.fontRendererObj, halfWidth-100, halfHeight-50, 200, 20, "([A-Za-z0-9]*)");
         this.nameField.setMaxStringLength(Constants.MAX_SERVER_NAME_LENGTH);
         this.nameField.setText(this.order.name);
 
@@ -94,15 +95,18 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException{
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        String nameFieldOldValue = nameField.getText();
         if(!this.nameField.textboxKeyTyped(typedChar, keyCode)){
             super.keyTyped(typedChar, keyCode);
         }
-        else{
-            nameChecked = false;
-            message = "Name not yet checked";
-            this.order.name = this.nameField.getText().trim();
-            lastKeyTyped = System.currentTimeMillis();
+        else {
+            if (!nameFieldOldValue.equals(nameField.getText())) {
+                nameChecked = false;
+                message = "Name not yet checked";
+                this.order.name = this.nameField.getText().trim();
+                lastKeyTyped = System.currentTimeMillis();
+            }
         }
     }
 
@@ -111,22 +115,15 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width/2, this.height/2-45, -1);
+        this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width/2, this.height/2-65, -1);
 
-        String renderedString;
         int colour;
 
         if (nameChecked && isAcceptable) {
-            renderedString = this.acceptString;
             colour = 0x00FF00;
         } else {
-            renderedString = this.denyString;
             colour = 0xFF0000;
         }
-
-        GlStateManager.scale(2.0F, 2.0F, 2.0F);
-        this.drawString(this.fontRendererObj, renderedString, this.width / 4 + 53, (this.height / 4) - 14, colour);
-        GlStateManager.scale(0.5F, 0.5F, 0.5F);
 
         this.mc.getTextureManager().bindTexture(lockIcon);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -139,16 +136,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
 
         this.nameField.drawTextBox();
 
-        int xLeft = (this.width / 2) + 104;
-        int xRight = xLeft + (this.fontRendererObj.getStringWidth(renderedString) * 2);
-        int yTop = (this.height / 2) - 28;
-        int yBottom = yTop + 13;
-
-        if (mouseX >= xLeft && mouseX <= xRight && mouseY >= yTop && mouseY <= yBottom) {
-            List list = new ArrayList();
-            list.add(message);
-            this.drawHoveringText(list, mouseX, mouseY);
-        }
+        this.drawCenteredString(fontRendererObj, message, (this.width / 2), (this.height / 2) - 20, colour);
     }
 
     @Override
