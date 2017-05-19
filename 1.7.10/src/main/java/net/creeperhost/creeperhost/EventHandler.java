@@ -5,6 +5,7 @@ import net.creeperhost.creeperhost.gui.element.ButtonCreeper;
 import net.creeperhost.creeperhost.gui.GuiGetServer;
 import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostEntry;
 import net.creeperhost.creeperhost.api.Order;
+import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.ServerData;
@@ -21,6 +22,8 @@ public class EventHandler{
     private static final int BUTTON_ID = 30051988;
 
     private static Field parentScreenField;
+
+    private GuiMultiplayer lastInitialized = null;
 
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event){
@@ -54,7 +57,11 @@ public class EventHandler{
 
                 ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
                 List serverListInternet = (List) serverListInternetField.get(serverListSelector); // Get the list from inside it
-                serverListInternet.add(new CreeperHostEntry(mpGUI, new ServerData("","127.0.0.1", false), true));
+                CreeperHostServerSelectionList ourList = new CreeperHostServerSelectionList(mpGUI, Minecraft.getMinecraft(), mpGUI.width, mpGUI.height, 32, mpGUI.height - 64, 36);
+                ourList.replaceList(serverListInternet);
+                serverListInternetField.set(ourList, serverListInternet);
+                serverListSelectorField.set(mpGUI, ourList);
+                lastInitialized = mpGUI;
             } catch (Throwable e)
             {
                 CreeperHost.logger.warn("Reflection to alter server list failed.", e);

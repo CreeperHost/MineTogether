@@ -5,6 +5,8 @@ import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.api.Order;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.ServerList;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,6 +25,7 @@ public class OrderDetails extends GuiGetServer
     private String invoiceID;
     private String placedOrderError = "";
     private GuiButton buttonInvoice;
+    private boolean serverAdded;
 
 
     public OrderDetails(int stepId, Order order)
@@ -59,7 +62,7 @@ public class OrderDetails extends GuiGetServer
                 {
                     Class<?> oclass = Class.forName("java.awt.Desktop");
                     Object object = oclass.getMethod("getDesktop", new Class[0]).invoke((Object)null, new Object[0]);
-                    oclass.getMethod("browse", new Class[] {URI.class}).invoke(object, new Object[] {new URI("https://billing.creeperhost.net/viewinvoice.php?id=" + invoiceID)});
+                    oclass.getMethod("browse", new Class[] {URI.class}).invoke(object, new Object[] {new URI(CreeperHost.instance.getImplementation().getPaymentLink(invoiceID))});
                 }
                 catch (Throwable throwable)
                 {
@@ -127,6 +130,13 @@ public class OrderDetails extends GuiGetServer
         {
             return;
         } else if(placedOrderError.isEmpty()) {
+            if (!serverAdded) {
+                ServerList savedServerList = new ServerList(this.mc);
+                savedServerList.loadServerList();
+                savedServerList.addServerData(CreeperHost.instance.getImplementation().getServerEntry(order));
+                savedServerList.saveServerList();
+                serverAdded = true;
+            }
             buttonInvoice.visible = true;
             return;
         }

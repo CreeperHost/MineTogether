@@ -3,6 +3,7 @@ package net.creeperhost.creeperhost.gui;
 import cpw.mods.fml.client.config.GuiSlider;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.AvailableResult;
+import net.creeperhost.creeperhost.gui.element.GuiTextFieldValidate;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.Constants;
 import net.creeperhost.creeperhost.api.Order;
@@ -20,8 +21,6 @@ public class GuiGeneralServerInfo extends GuiGetServer {
     private GuiSlider slotSlider;
 
     private long lastKeyTyped;
-    private String acceptString = new String(Character.toChars(10004));
-    private String denyString = new String(Character.toChars(10006));
     private boolean isAcceptable = false;
     private boolean nameChecked = false;
     private String message = "Name can not be blank";
@@ -41,7 +40,7 @@ public class GuiGeneralServerInfo extends GuiGetServer {
         int halfWidth = this.width/2;
         int halfHeight = this.height/2;
 
-        this.nameField = new GuiTextField(this.fontRendererObj, halfWidth-100, halfHeight-30, 200, 20);
+        this.nameField = new GuiTextFieldValidate(this.fontRendererObj, halfWidth-100, halfHeight-50, 200, 20, "([A-Za-z0-9]*)");
         this.nameField.setMaxStringLength(Constants.MAX_SERVER_NAME_LENGTH);
         this.nameField.setText(this.order.name);
 
@@ -96,14 +95,17 @@ public class GuiGeneralServerInfo extends GuiGetServer {
 
     @Override
     protected void keyTyped(char typedChar, int keyCode){
+        String nameFieldOldValue = nameField.getText();
         if(!this.nameField.textboxKeyTyped(typedChar, keyCode)){
             super.keyTyped(typedChar, keyCode);
         }
-        else{
-            nameChecked = false;
-            message = "Name not yet checked";
-            this.order.name = this.nameField.getText().trim();
-            lastKeyTyped = System.currentTimeMillis();
+        else {
+            if (!nameFieldOldValue.equals(nameField.getText())) {
+                nameChecked = false;
+                message = "Name not yet checked";
+                this.order.name = this.nameField.getText().trim();
+                lastKeyTyped = System.currentTimeMillis();
+            }
         }
     }
 
@@ -112,27 +114,19 @@ public class GuiGeneralServerInfo extends GuiGetServer {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width/2, this.height/2-45, -1);
+        this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width/2, this.height/2-65, -1);
 
-        String renderedString;
         int colour;
 
         if (nameChecked && isAcceptable) {
-            renderedString = this.acceptString;
             colour = 0x00FF00;
         } else {
-            renderedString = this.denyString;
             colour = 0xFF0000;
         }
-
-        GL11.glScaled(2.0F, 2.0F, 2.0F);
-        this.drawString(this.fontRendererObj, renderedString, this.width / 4 + 53, this.height / 4 - 14, colour);
-        GL11.glScaled(0.5F, 0.5F, 0.5F);
 
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(lockIcon);
         Gui.func_146110_a(this.width / 2 - 8, (this.height / 2) + 24, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
-
 
         this.drawCenteredString(fontRendererObj, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + 45, 0xFFFFFF);
         this.drawCenteredString(fontRendererObj, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + 55, 0xFFFFFF);
@@ -140,17 +134,7 @@ public class GuiGeneralServerInfo extends GuiGetServer {
 
         this.nameField.drawTextBox();
 
-
-        int xLeft = (this.width / 2) + 104;
-        int xRight = xLeft + (this.fontRendererObj.getStringWidth(renderedString) * 2);
-        int yTop = (this.height / 2) - 28;
-        int yBottom = yTop + 13;
-
-        if (mouseX >= xLeft && mouseX <= xRight && mouseY >= yTop && mouseY <= yBottom) {
-            List list = new ArrayList();
-            list.add(message);
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
-        }
+        this.drawCenteredString(fontRendererObj, message, (this.width / 2), (this.height / 2) - 20, colour);
     }
 
     @Override

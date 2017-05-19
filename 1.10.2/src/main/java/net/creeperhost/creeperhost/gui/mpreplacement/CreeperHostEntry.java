@@ -21,10 +21,15 @@ public class CreeperHostEntry extends ServerListEntryNormal
 {
     private final Minecraft mc = Minecraft.getMinecraft();
 
-    private static ResourceLocation serverIcon;
+    private ResourceLocation serverIcon;
+
+    private GuiMultiplayer ourMP;
+
+    private float transparency = 0.5F;
 
     protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn) {
         super(p_i45048_1_, serverIn);
+        ourMP = p_i45048_1_;
         serverIcon = Config.getInstance().isServerHostMenuImage() ? CreeperHost.instance.getImplementation().getMenuIcon() : new ResourceLocation("creeperhost", "textures/nobrandmp.png");
     }
 
@@ -32,14 +37,24 @@ public class CreeperHostEntry extends ServerListEntryNormal
         this(p_i45048_1_, serverIn);
     }
 
-    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
+    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
+        if (isHovering) {
+            if (transparency <= 1.0F)
+                transparency += 0.04;
+        } else {
+            if (transparency >= 0.5F)
+                transparency -= 0.04;
+        }
+
         this.mc.getTextureManager().bindTexture(serverIcon);
-        //GlStateManager.color(1.0F, 1.0F, 1.0F, 0.25F);
+        GlStateManager.enableBlend();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, transparency);
         Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
-        //GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.disableBlend();
         this.mc.fontRendererObj.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + 1, 16777215);
-        String s = Util.localize("mp.clickhere");
+        String s = Util.localize(Config.getInstance().isServerHostMenuImage() ? "mp.clickherebrand" : "mp.clickherebranding");
 
         this.mc.fontRendererObj.drawString(s, x + 32 + 3, y + this.mc.fontRendererObj.FONT_HEIGHT + 3, 8421504);
     }

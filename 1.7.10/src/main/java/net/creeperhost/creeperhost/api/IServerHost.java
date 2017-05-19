@@ -1,5 +1,6 @@
 package net.creeperhost.creeperhost.api;
 
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Map;
@@ -19,4 +20,6 @@ public interface IServerHost
     String createAccount(Order order);
     String createOrder(Order order);
     String getLocalizationRoot();
+    String getPaymentLink(String invoiceID);
+    ServerData getServerEntry(Order order);
 }

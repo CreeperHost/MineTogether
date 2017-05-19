@@ -12,6 +12,7 @@ import net.creeperhost.creeperhost.api.Order;
 import net.creeperhost.creeperhost.api.OrderSummary;
 import net.creeperhost.creeperhost.api.AvailableResult;
 import net.creeperhost.creeperhost.common.Config;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.ResourceLocation;
 
 import java.lang.reflect.Type;
@@ -304,5 +305,17 @@ public class CreeperHostServerHost implements IServerHost
     public String getLocalizationRoot()
     {
         return "creeperhost";
+    }
+
+    @Override
+    public String getPaymentLink(String invoiceID)
+    {
+        return "https://billing.creeperhost.net/viewinvoice.php?id=" + invoiceID;
+    }
+
+    @Override
+    public ServerData getServerEntry(Order order)
+    {
+        return new ServerData(order.name + ".PlayAt.CH", order.name + ".playat.ch", false);
     }
 }
