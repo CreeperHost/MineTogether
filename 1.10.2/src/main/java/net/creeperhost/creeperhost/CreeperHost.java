@@ -6,11 +6,14 @@ import net.creeperhost.creeperhost.api.CreeperHostAPI;
 import net.creeperhost.creeperhost.api.ICreeperHostMod;
 import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.common.Config;
+import net.creeperhost.creeperhost.lib.KeyBindings;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.CreeperHostServerHost;
+import net.creeperhost.creeperhost.siv.QueryGetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -19,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -36,6 +40,8 @@ public class CreeperHost implements ICreeperHostMod
 
     public ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
     public IServerHost currentImplementation;
+    
+    private QueryGetter queryGetter;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
@@ -43,6 +49,10 @@ public class CreeperHost implements ICreeperHostMod
             logger.info("Client side only mod - not doing anything on the server!");
             return;
         }
+        
+        //Register keybinds
+        KeyBindings.init();
+        
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         File configFile = event.getSuggestedConfigurationFile();
         if (!configFile.exists()) {
@@ -135,5 +145,15 @@ public class CreeperHost implements ICreeperHostMod
     public void registerImplementation(IServerHost serverHost)
     {
         implementations.add(serverHost);
+    }
+    
+    public QueryGetter getQueryGetter(){
+        if(queryGetter == null) {
+            if (FMLClientHandler.instance().getClientToServerNetworkManager() != null) {
+                queryGetter = new QueryGetter((InetSocketAddress) FMLClientHandler.instance().getClientToServerNetworkManager().getRemoteAddress());
+                //This can fail..?
+            }
+        }
+        return queryGetter;
     }
 }
