@@ -19,6 +19,7 @@ public interface IServerHost
     String doLogin(String username, String password);
     String createAccount(Order order);
     String createOrder(Order order);
+    boolean cancelOrder(int orderNum);
     String getLocalizationRoot();
     String getPaymentLink(String invoiceID);
     ServerData getServerEntry(Order order);

@@ -3,6 +3,7 @@ package net.creeperhost.creeperhost.gui;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.Order;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.GuiScreen;
 
 import java.io.IOException;
@@ -33,9 +34,8 @@ public abstract class GuiGetServer extends GuiScreen{
         this.buttonPrev.enabled = this.stepId > 0;
         this.buttonList.add(this.buttonPrev);
 
-        this.buttonNext = new GuiButton(-2, this.width-90, y, 80, 20, Util.localize("button.next"));
-        this.buttonNext.enabled = this.stepId < STEP_AMOUNT;
-        this.buttonList.add(this.buttonNext);
+        this.buttonNext = new GuiButton(-2, this.width-90, y, 80, 20, ((this.stepId + 1) == STEP_AMOUNT) ? Util.localize("button.done") : Util.localize("button.next"));
+        this.buttonList.add(buttonNext);
 
         this.buttonCancel = new GuiButton(-3, this.width/2-40, y, 80, 20, Util.localize("button.cancel"));
         this.buttonList.add(this.buttonCancel);
@@ -57,7 +57,12 @@ public abstract class GuiGetServer extends GuiScreen{
             this.mc.displayGuiScreen(getByStep(this.stepId-1, this.order));
         }
         else if(button == this.buttonNext){
-            this.mc.displayGuiScreen(getByStep(this.stepId+1, this.order));
+            if ((this.stepId + 1) == STEP_AMOUNT) {
+                this.mc.displayGuiScreen(new GuiMultiplayer(null));
+            } else
+            {
+                this.mc.displayGuiScreen(getByStep(this.stepId + 1, this.order));
+            }
         }
         else if(button == this.buttonCancel){
             this.mc.displayGuiScreen(null);
@@ -79,7 +84,7 @@ public abstract class GuiGetServer extends GuiScreen{
             case 3:
                 return new GuiPersonalDetails(3, order);
             case 4:
-                return new OrderDetails(4, order);
+                return new GuiOrderDetails(4, order);
         }
     }
 

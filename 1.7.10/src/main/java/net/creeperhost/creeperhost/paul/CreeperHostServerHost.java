@@ -289,7 +289,7 @@ public class CreeperHostServerHost implements IServerHost
                 JsonObject jObject = jElement.getAsJsonObject();
                 if (jObject.getAsJsonPrimitive("status").getAsString().equals("success")) {
                     jObject = jObject.getAsJsonObject("more");
-                    return "success:" + jObject.getAsJsonPrimitive("invoiceid").getAsString();
+                    return "success:" + jObject.getAsJsonPrimitive("invoiceid").getAsString() + ":" + jObject.getAsJsonPrimitive("orderid").getAsString();
                 } else {
                     return jObject.getAsJsonPrimitive("message").getAsString();
                 }
@@ -299,6 +299,17 @@ public class CreeperHostServerHost implements IServerHost
             CreeperHost.logger.error("Unable to create order");
             return "Unknown error";
         }
+    }
+
+    @Override
+    public boolean cancelOrder(int orderNum) {
+        try {
+            String response = Util.getWebResponse("https://www.creeperhost.net/json/order/" + orderNum + "/cancel");
+        } catch (Throwable t) {
+            CreeperHost.logger.error("Unable to cancel order");
+            return false;
+        }
+        return true;
     }
 
     @Override
