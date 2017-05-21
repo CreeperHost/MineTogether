@@ -23,4 +23,6 @@ public interface IServerHost
     String getLocalizationRoot();
     String getPaymentLink(String invoiceID);
     ServerData getServerEntry(Order order);
+
+    String getRecommendedLocation();
 }

@@ -175,7 +175,11 @@ public class Query {
                 byte[] buffer = new byte[8];
                 for (int count = 5; (byte1 = receiveData[count++]) != 0; )
                     buffer[i++] = byte1;
-                challengeInteger = Integer.parseInt(new String(buffer).trim());
+                String bufferStr = new String(buffer).trim();
+                if (!bufferStr.isEmpty())
+                    challengeInteger = Integer.parseInt(bufferStr);
+                else
+                    challengeInteger = 0;
             }
             
             sendPacket(socket, address, 0xFE, 0xFD, 0x08, 0x01, 0x01, 0x01, 0x01, challengeInteger >> 24, challengeInteger >> 16, challengeInteger >> 8, challengeInteger);

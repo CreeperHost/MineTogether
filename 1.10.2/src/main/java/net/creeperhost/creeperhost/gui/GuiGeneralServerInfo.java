@@ -52,7 +52,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
 
         this.nameField = new GuiTextFieldValidate(0, this.fontRendererObj, halfWidth-100, halfHeight-50, 200, 20, "([A-Za-z0-9]*)");
         this.nameField.setMaxStringLength(Constants.MAX_SERVER_NAME_LENGTH);
-        this.nameField.setText(this.order.name);
+        this.nameField.setText(this.order.name.isEmpty() ? Util.getDefaultName() : this.order.name);
 
         this.slotSlider = new GuiSlider(this, 1, halfWidth-100, halfHeight, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;

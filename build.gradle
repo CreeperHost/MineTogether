@@ -16,6 +16,10 @@ allprojects {
     }
 }
 
+dependencies {
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.2.4'
+}
+
 repositories {
     jcenter()
     maven { url = "http://files.minecraftforge.net/maven" }

@@ -1,17 +1,12 @@
 package net.creeperhost.creeperhost;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import net.creeperhost.creeperhost.api.CreeperHostAPI;
 import net.creeperhost.creeperhost.api.ICreeperHostMod;
 import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.common.Config;
-import net.creeperhost.creeperhost.lib.KeyBindings;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.CreeperHostServerHost;
 import net.creeperhost.creeperhost.siv.QueryGetter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -49,62 +44,22 @@ public class CreeperHost implements ICreeperHostMod
             logger.info("Client side only mod - not doing anything on the server!");
             return;
         }
-        
-        //Register keybinds
-        KeyBindings.init();
-        
+
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         File configFile = event.getSuggestedConfigurationFile();
-        if (!configFile.exists()) {
-            BufferedWriter writer = null;
-            InputStream defaultInputStream = null;
-            try
-            {
-                writer = new BufferedWriter( new FileWriter( configFile ));
-                ResourceLocation location = new ResourceLocation("creeperhost", "default.config");
-                defaultInputStream = Minecraft.getMinecraft().getResourceManager().getResource(location).getInputStream();
-
-                String defaultConfigString = IOUtils.toString(defaultInputStream);
-
-                writer.write(defaultConfigString);
-
-            }
-            catch (IOException e)
-            {
-                logger.error("Error occurred whilst creating default config. This will not end well.", e);
-            }
-            finally
-            {
-                try
-                {
-                    if ( writer != null)
-                        writer.close( );
-                    if ( defaultInputStream != null )
-                        defaultInputStream.close();
-                }
-                catch (IOException e)
-                {
-                }
-            }
-        }
 
         InputStream configStream = null;
         try
         {
-            configStream = new FileInputStream(configFile);
-            String configString = IOUtils.toString(configStream);
-            JsonObject jObject = new JsonParser().parse(configString).getAsJsonObject();
-            boolean chEnabled = jObject.getAsJsonPrimitive("creeperhostEnabled").getAsBoolean();
-            String promocode = chEnabled ? jObject.getAsJsonPrimitive("promoCode").getAsString() : "";
-            String version = chEnabled ? Callbacks.getVersionFromCurse(jObject.getAsJsonPrimitive("curseProjectID").getAsString()) : ""; // Yes, I'm doing http on the main thread. Rebel.
-            Config.makeConfig(
-                    version,
-                    promocode,
-                    chEnabled,
-                    jObject.getAsJsonPrimitive("mpMenuEnabled").getAsBoolean(),
-                    jObject.getAsJsonPrimitive("mainMenuEnabled").getAsBoolean(),
-                    jObject.getAsJsonPrimitive("serverHostButtonImage").getAsBoolean(),
-                    jObject.getAsJsonPrimitive("serverHostMenuImage").getAsBoolean());
+            String configString;
+            if (configFile.exists()) {
+                configStream = new FileInputStream(configFile);
+                configString = IOUtils.toString(configStream);
+            } else {
+                configString = "{}";
+            }
+
+            Config.loadConfig(configString);
         } catch (Throwable t)
         {
             logger.error("Unable to read config", t);
@@ -120,7 +75,29 @@ public class CreeperHost implements ICreeperHostMod
         }
 
         if (Config.getInstance().isCreeperhostEnabled()) {
+            Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
             CreeperHostAPI.registerImplementation(new CreeperHostServerHost());
+        }
+
+        FileOutputStream configOut;
+        try
+        {
+            configOut = new FileOutputStream(configFile);
+            IOUtils.write(Config.saveConfig(), configOut);
+            configOut.close();
+        } catch (Throwable t)
+        {
+        } finally
+        {
+            try
+            {
+                if (configStream != null)
+                {
+                    configStream.close();
+                }
+            } catch (Throwable t)
+            {
+            }
         }
     }
 
@@ -146,13 +123,16 @@ public class CreeperHost implements ICreeperHostMod
     {
         implementations.add(serverHost);
     }
+
+    public void makeQueryGetter() {
+        if (FMLClientHandler.instance().getClientToServerNetworkManager() != null) {
+            queryGetter = new QueryGetter((InetSocketAddress) FMLClientHandler.instance().getClientToServerNetworkManager().getRemoteAddress());
+        }
+    }
     
     public QueryGetter getQueryGetter(){
         if(queryGetter == null) {
-            if (FMLClientHandler.instance().getClientToServerNetworkManager() != null) {
-                queryGetter = new QueryGetter((InetSocketAddress) FMLClientHandler.instance().getClientToServerNetworkManager().getRemoteAddress());
-                //This can fail..?
-            }
+            makeQueryGetter();
         }
         return queryGetter;
     }

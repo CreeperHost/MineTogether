@@ -21,7 +21,7 @@ public class QueryGetter {
         try {
             query.receivePort();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return;
         }
         int tcpPort = query.getTcpPort();
@@ -33,7 +33,7 @@ public class QueryGetter {
 
     public void run(){
         try {
-            if(extendedServerData.isRequesting())
+            if(extendedServerData == null || extendedServerData.isRequesting())
                 return;
             extendedServerData.setRequesting(true);
             sipEndPoint.requestExtendedInfo(EnumSIPValues.TPS, EnumSIPValues.DIMENSIONS, EnumSIPValues.ENTITIES);

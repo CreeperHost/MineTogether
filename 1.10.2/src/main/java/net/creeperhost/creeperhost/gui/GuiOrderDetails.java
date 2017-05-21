@@ -147,7 +147,7 @@ public class GuiOrderDetails extends GuiGetServer
             }
             buttonInvoice.visible = true;
             buttonNext.visible = true;
-            buttonCancel.enabled = true;
+                buttonCancel.enabled = true;
             return;
         }
     }

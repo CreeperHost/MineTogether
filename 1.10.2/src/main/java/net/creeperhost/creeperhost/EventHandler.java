@@ -6,15 +6,19 @@ import net.creeperhost.creeperhost.gui.GuiGetServer;
 import net.creeperhost.creeperhost.gui.GuiServerInfo;
 import net.creeperhost.creeperhost.gui.element.ButtonCreeper;
 import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostServerSelectionList;
-import net.creeperhost.creeperhost.lib.KeyBindings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.lwjgl.input.Keyboard;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -34,12 +38,12 @@ public class EventHandler {
         
         if (!Config.getInstance().isMainMenuEnabled())
             return;
-        GuiScreen gui = Util.getGuiFromEvent(event);
+        GuiScreen gui = event.getGui();
         if (gui instanceof GuiMainMenu) {
             CreeperHost.instance.setRandomImplementation();
             if (CreeperHost.instance.getImplementation() == null)
                 return;
-            List<GuiButton> buttonList = Util.getButtonList(event);
+            List<GuiButton> buttonList = event.getButtonList();
             if (buttonList != null) {
                 buttonList.add(new ButtonCreeper(BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
             }
@@ -72,15 +76,34 @@ public class EventHandler {
             }
         }
     }
+
+    @SubscribeEvent
+    public void serverLoginEvent(FMLNetworkEvent.ClientConnectedToServerEvent event) {
+        hasJoinedWorld = false;
+    }
+
+    private boolean hasJoinedWorld;
+
+    @SubscribeEvent
+    public void onEntityJoinedWorld(EntityJoinWorldEvent event) {
+        if (!Config.getInstance().isSivIntegration())
+            return;
+        if (event.getWorld().isRemote && !hasJoinedWorld && Minecraft.getMinecraft().thePlayer != null) {
+            hasJoinedWorld = true;
+            CreeperHost.instance.makeQueryGetter();
+            if(CreeperHost.instance.getQueryGetter() != null) {
+                CreeperHost.instance.getQueryGetter().run();
+            }
+        }
+    }
     
     @SubscribeEvent
     public void onActionPerformed(ActionPerformedEvent.Pre event) {
-        
         if (!Config.getInstance().isMainMenuEnabled() || CreeperHost.instance.getImplementation() == null)
             return;
-        GuiScreen gui = Util.getGuiFromEvent(event);
+        GuiScreen gui = event.getGui();
         if (gui instanceof GuiMainMenu) {
-            GuiButton button = Util.getButton(event);
+            GuiButton button = event.getButton();
             if (button != null && button.id == BUTTON_ID) {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
             }
@@ -92,26 +115,36 @@ public class EventHandler {
     
     @SubscribeEvent
     public void onRenderGameOverlay(RenderGameOverlayEvent event) {
-        
-        if ((event.getType() != RenderGameOverlayEvent.ElementType.EXPERIENCE && event.getType() != RenderGameOverlayEvent.ElementType.JUMPBAR) ||
-                event.isCancelable()) {
+        if (!Config.getInstance().isSivIntegration())
+            return;
+        if (event.getType() != RenderGameOverlayEvent.ElementType.PLAYER_LIST)
+        {
             return;
         }
-        if (!KeyBindings.getSivGuiKeybind().isKeyDown() || Minecraft.getMinecraft().isIntegratedServerRunning() || !guiServerInfo.getIsPlayerOpped()) {
+        if (!(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) || Minecraft.getMinecraft().isIntegratedServerRunning() || !guiServerInfo.getIsPlayerOpped()) {
             return;
         }
         
         Minecraft mc = Minecraft.getMinecraft();
-        guiServerInfo.renderServerInfo(event.getResolution());
+
+        ScaledResolution resolution = new ScaledResolution(mc);
+        guiServerInfo.setWorldAndResolution(mc, resolution.getScaledWidth(), resolution.getScaledHeight());
+        if (guiServerInfo.renderServerInfo()) {
+            event.setCanceled(true);
+        }
     }
     
     
     private static int ticks = 0;
     @SubscribeEvent
     public void tickEvent(TickEvent.ClientTickEvent event){
-        if (!KeyBindings.getSivGuiKeybind().isKeyDown() || Minecraft.getMinecraft().isIntegratedServerRunning() || !guiServerInfo.getIsPlayerOpped()) {
+        if (!Config.getInstance().isSivIntegration())
+            return;
+        guiServerInfo.doTick();
+        if (!((Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) && Minecraft.getMinecraft().gameSettings.keyBindPlayerList.isKeyDown()) || Minecraft.getMinecraft().isIntegratedServerRunning() || !guiServerInfo.getIsPlayerOpped()) {
             return;
         }
+
         if(ticks == 0){
             ticks = 40;
             //Update
