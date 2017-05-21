@@ -49,8 +49,7 @@ public final class Callbacks {
 
     public static String getRecommendedLocation()
     {
-        return "buffalo";
-        //return CreeperHost.instance.getImplementation().getRecommendedLocation();
+        return CreeperHost.instance.getImplementation().getRecommendedLocation();
     }
 
     public static OrderSummary getSummary(Order order) {
