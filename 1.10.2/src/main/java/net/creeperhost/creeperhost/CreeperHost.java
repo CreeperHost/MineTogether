@@ -126,20 +126,25 @@ public class CreeperHost implements ICreeperHostMod
     }
 
     public void makeQueryGetter() {
-        if (FMLClientHandler.instance().getClientToServerNetworkManager() != null) {
-            SocketAddress socketAddress = FMLClientHandler.instance().getClientToServerNetworkManager().getRemoteAddress();
+        try {
+            if (FMLClientHandler.instance().getClientToServerNetworkManager() != null) {
+                SocketAddress socketAddress = FMLClientHandler.instance().getClientToServerNetworkManager().getRemoteAddress();
 
-            String host = "127.0.0.1";
-            int port = 25565;
+                String host = "127.0.0.1";
+                int port = 25565;
 
-            if (socketAddress instanceof InetSocketAddress) {
-                InetSocketAddress add = (InetSocketAddress) socketAddress;
-                host = add.getHostName();
-                port = add.getPort();
+                if (socketAddress instanceof InetSocketAddress) {
+                    InetSocketAddress add = (InetSocketAddress) socketAddress;
+                    host = add.getHostName();
+                    port = add.getPort();
+                }
+
+                queryGetter = new QueryGetter(host, port);
             }
-
-            queryGetter = new QueryGetter(host, port);
+        } catch (Throwable t) {
+            // Catch _ALL_ errors. We should _NEVER_ crash.
         }
+
     }
     
     public QueryGetter getQueryGetter(){

@@ -145,14 +145,22 @@ public class EventHandler {
             return;
         }
 
-        if(ticks == 0){
-            ticks = 40;
-            //Update
-            if(CreeperHost.instance.getQueryGetter() != null) {
-                CreeperHost.instance.getQueryGetter().run();
+        try
+        {
+
+            if (ticks == 0)
+            {
+                ticks = 40;
+                //Update
+                if (CreeperHost.instance.getQueryGetter() != null)
+                {
+                    CreeperHost.instance.getQueryGetter().run();
+                }
             }
+            ticks--;
+        } catch (Throwable t) {
+            // Catch _ALL_ errors. We should _NEVER_ crash.
         }
-        ticks--;
     }
     
 }
