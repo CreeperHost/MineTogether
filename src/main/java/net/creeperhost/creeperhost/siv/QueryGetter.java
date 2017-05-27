@@ -11,16 +11,12 @@ public class QueryGetter {
     private ExtendedServerData extendedServerData;
     private SipEndPoint        sipEndPoint;
 
-    public QueryGetter(InetSocketAddress address){
-        this(address.getAddress().getHostAddress(), address.getPort());
-    }
-    
     public QueryGetter(String host, int port) {
         //Find the actual port.
         Query query = new Query(host, port);
         try {
             query.receivePort();
-        } catch (IOException e) {
+        } catch (Throwable e) {
             //e.printStackTrace();
             return;
         }

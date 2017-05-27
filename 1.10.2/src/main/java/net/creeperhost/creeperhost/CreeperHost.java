@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -126,7 +127,18 @@ public class CreeperHost implements ICreeperHostMod
 
     public void makeQueryGetter() {
         if (FMLClientHandler.instance().getClientToServerNetworkManager() != null) {
-            queryGetter = new QueryGetter((InetSocketAddress) FMLClientHandler.instance().getClientToServerNetworkManager().getRemoteAddress());
+            SocketAddress socketAddress = FMLClientHandler.instance().getClientToServerNetworkManager().getRemoteAddress();
+
+            String host = "127.0.0.1";
+            int port = 25565;
+
+            if (socketAddress instanceof InetSocketAddress) {
+                InetSocketAddress add = (InetSocketAddress) socketAddress;
+                host = add.getHostName();
+                port = add.getPort();
+            }
+
+            queryGetter = new QueryGetter(host, port);
         }
     }
     

@@ -286,8 +286,6 @@ public class CreeperHostServerHost implements IServerHost
                 put("swid", Config.getInstance().getVersion());
             }});
 
-            System.out.println(response);
-
             if (response.equals("error")) {
 
             } else {
