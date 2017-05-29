@@ -201,7 +201,7 @@ public class Query {
             json += (char) b;
         }
         
-        tcpPort = Integer.parseInt(json);
+        tcpPort = Integer.parseInt(json.trim());
     }
     
     /**
