@@ -89,6 +89,10 @@ public class Config
         return serverHostMenuImage;
     }
 
+    public void setMpMenuEnabled(boolean value){
+        mpMenuEnabled = value;
+    }
+
     public static void makeConfig(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
         if (instance != null) {
             return;

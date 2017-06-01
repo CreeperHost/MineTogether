@@ -8,6 +8,7 @@ import net.creeperhost.creeperhost.api.Order;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiListExtended;
+import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.ServerListEntryNormal;
 import net.minecraft.client.multiplayer.ServerData;
@@ -22,10 +23,14 @@ public class CreeperHostEntry extends ServerListEntryNormal
     private final Minecraft mc = Minecraft.getMinecraft();
 
     private ResourceLocation serverIcon;
+    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/hidebtn.png");
 
     private GuiMultiplayer ourMP;
 
     private float transparency = 0.5F;
+
+    private int exitX = 0;
+    private int exitY = 0;
 
     protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn) {
         super(p_i45048_1_, serverIn);
@@ -42,6 +47,10 @@ public class CreeperHostEntry extends ServerListEntryNormal
         if (isHovering) {
             if (transparency <= 1.0F)
                 transparency += 0.04;
+            mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
+            this.ourMP.drawModalRectWithCustomSizedTexture(x + listWidth - 60- 2, y+4, 0.0F, 0.0F, 60, 10,60F , 10F);
+            exitX = x + listWidth - 60- 2;
+            exitY = y+4;
         } else {
             if (transparency >= 0.5F)
                 transparency -= 0.04;
@@ -54,6 +63,7 @@ public class CreeperHostEntry extends ServerListEntryNormal
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableBlend();
         this.mc.fontRendererObj.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + 1, 16777215);
+
         String s = Util.localize(Config.getInstance().isServerHostMenuImage() ? "mp.clickherebrand" : "mp.clickherebranding");
 
         this.mc.fontRendererObj.drawString(s, x + 32 + 3, y + this.mc.fontRendererObj.FONT_HEIGHT + 3, 8421504);
@@ -69,6 +79,12 @@ public class CreeperHostEntry extends ServerListEntryNormal
      */
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY)
     {
+        if(isInRect(exitX, exitY, 60, 10, mouseX, mouseY )){
+            Config.getInstance().setMpMenuEnabled(false);
+            CreeperHost.instance.saveConfig();
+            this.mc.displayGuiScreen(new GuiMultiplayer(null));
+            return true;
+        }
         Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
         return true;
     }
@@ -78,5 +94,9 @@ public class CreeperHostEntry extends ServerListEntryNormal
      */
     public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY)
     {
+    }
+
+    public boolean isInRect(int x, int y, int xSize, int ySize, int mouseX, int mouseY) {
+        return ((mouseX >= x && mouseX <= x + xSize) && (mouseY >= y && mouseY <= y + ySize));
     }
 }

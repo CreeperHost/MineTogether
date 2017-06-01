@@ -36,6 +36,7 @@ public class CreeperHost implements ICreeperHostMod
 
     public ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
     public IServerHost currentImplementation;
+    public File configFile;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
@@ -44,7 +45,7 @@ public class CreeperHost implements ICreeperHostMod
             return;
         }
         MinecraftForge.EVENT_BUS.register(new EventHandler());
-        File configFile = event.getSuggestedConfigurationFile();
+        configFile = event.getSuggestedConfigurationFile();
         if (!configFile.exists()) {
             BufferedWriter writer = null;
             InputStream defaultInputStream = null;
@@ -111,6 +112,18 @@ public class CreeperHost implements ICreeperHostMod
 
         if (Config.getInstance().isCreeperhostEnabled()) {
             CreeperHostAPI.registerImplementation(new CreeperHostServerHost());
+        }
+    }
+
+    public void saveConfig(){
+        FileOutputStream configOut;
+        try
+        {
+            configOut = new FileOutputStream(configFile);
+            IOUtils.write(Config.saveConfig(), configOut);
+            configOut.close();
+        } catch (Throwable t)
+        {
         }
     }
 
