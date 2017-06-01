@@ -36,7 +36,9 @@ public class CreeperHost implements ICreeperHostMod
 
     public ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
     public IServerHost currentImplementation;
-    
+
+    public File configFile;
+
     private QueryGetter queryGetter;
 
     @Mod.EventHandler
@@ -47,7 +49,7 @@ public class CreeperHost implements ICreeperHostMod
         }
 
         MinecraftForge.EVENT_BUS.register(new EventHandler());
-        File configFile = event.getSuggestedConfigurationFile();
+        configFile = event.getSuggestedConfigurationFile();
 
         InputStream configStream = null;
         try
@@ -80,6 +82,12 @@ public class CreeperHost implements ICreeperHostMod
             CreeperHostAPI.registerImplementation(new CreeperHostServerHost());
         }
 
+
+    }
+
+    private Random randomGenerator;
+
+    public void saveConfig(){
         FileOutputStream configOut;
         try
         {
@@ -88,21 +96,8 @@ public class CreeperHost implements ICreeperHostMod
             configOut.close();
         } catch (Throwable t)
         {
-        } finally
-        {
-            try
-            {
-                if (configStream != null)
-                {
-                    configStream.close();
-                }
-            } catch (Throwable t)
-            {
-            }
         }
     }
-
-    private Random randomGenerator;
 
     public void setRandomImplementation() {
         if (randomGenerator == null)
