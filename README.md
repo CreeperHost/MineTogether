@@ -17,6 +17,6 @@ No payment information will ever be taken in the client and all communication is
  
 If you want to use the button with Custom Main menu, the button ID is 30051988 to be used in the wrapped button functionality.
  
-Source is available on github. We will be releasing an API jar for other hosts to use soon - if you don't want to wait, then the source is open at our github :)
+We will be releasing an API jar for other hosts to use soon.
  
 Latest release is for 1.10.2 and 1.11.2 due to time constraints, but we will be testing on other versions and releasing a 1.7.10 build soon.
