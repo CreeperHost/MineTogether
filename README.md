@@ -3,7 +3,7 @@ This mod is designed for inclusion in modpacks by CreeperHost partnered modpack 
  
 It allows users to view basic server metrics regarding performance so they can judge if the server is lagging or they are, and other similarly useful information. This functionality requires ServerInfoProvider installed on the server - but this is not required for the ordering functionality to work. To access this, hold down Ctrl and Tab :)
  
-**This information is not branded or feature locked to CreeperHost services - and this feature can be used without having any button or MP menu entry. More features - again, not branded or locked - will be added once we think of them**
+**This information is not branded or feature locked to CreeperHost services - and this feature can be used without having any button or MP menu entry. More features - again, not branded or locked - will be added once we think of more cool/useful stuff to add to assist server owners :)**
  
 The mod will also provide the ability for modpack creators to monetise any server sales through their modpack.
  
