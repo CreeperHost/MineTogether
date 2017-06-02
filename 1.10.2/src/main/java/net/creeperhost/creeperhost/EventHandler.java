@@ -13,6 +13,7 @@ import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -161,6 +162,15 @@ public class EventHandler {
         } catch (Throwable t) {
             // Catch _ALL_ errors. We should _NEVER_ crash.
         }
+    }
+
+    @SubscribeEvent
+    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs) {
+        if (!CreeperHost.MOD_ID.equals(eventArgs.getModID())) {
+            return;
+        }
+
+        CreeperHost.instance.saveConfig();
     }
     
 }

@@ -22,7 +22,15 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Mod(modid = CreeperHost.MOD_ID, name = CreeperHost.NAME, version = CreeperHost.VERSION, clientSideOnly = true, acceptableRemoteVersions="*", acceptedMinecraftVersions = "1.8,1.8.8,1.8.9,1.9.4,1.10.2,1.11.2")
+@Mod(
+        modid = CreeperHost.MOD_ID,
+        name = CreeperHost.NAME,
+        version = CreeperHost.VERSION,
+        clientSideOnly = true,
+        acceptableRemoteVersions="*",
+        acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2",
+        guiFactory = "net.creeperhost.creeperhost.gui.config.GuiCreeperConfigFactory"
+)
 public class CreeperHost implements ICreeperHostMod
 {
 
@@ -40,6 +48,7 @@ public class CreeperHost implements ICreeperHostMod
     public File configFile;
 
     private QueryGetter queryGetter;
+    private String lastCurse = "";
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
@@ -77,18 +86,15 @@ public class CreeperHost implements ICreeperHostMod
 
         }
 
-        if (Config.getInstance().isCreeperhostEnabled()) {
-            Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
-            CreeperHostAPI.registerImplementation(new CreeperHostServerHost());
-        }
-
-
+        saveConfig();
     }
 
     private Random randomGenerator;
 
+    private CreeperHostServerHost implement;
+
     public void saveConfig(){
-        FileOutputStream configOut;
+        FileOutputStream configOut = null;
         try
         {
             configOut = new FileOutputStream(configFile);
@@ -96,14 +102,39 @@ public class CreeperHost implements ICreeperHostMod
             configOut.close();
         } catch (Throwable t)
         {
+        } finally {
+            try
+            {
+                if (configOut != null) {
+                    configOut.close();
+                }
+            } catch (Throwable t) {
+            }
         }
+
+        if (Config.getInstance().isCreeperhostEnabled() && implement == null) {
+            Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
+            CreeperHost.instance.implementations.remove(implement);
+            CreeperHostAPI.registerImplementation(implement = new CreeperHostServerHost());
+        } else if(Config.getInstance().curseProjectID != lastCurse && Config.getInstance().isCreeperhostEnabled())
+        {
+            Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
+        } else {
+            CreeperHost.instance.implementations.remove(implement);
+            implement = null;
+        }
+
+        lastCurse = Config.getInstance().curseProjectID;
     }
 
     public void setRandomImplementation() {
         if (randomGenerator == null)
             randomGenerator = new Random();
         if (implementations.size() == 0)
+        {
+            currentImplementation = null;
             return;
+        }
         int random = randomGenerator.nextInt(implementations.size());
         currentImplementation = implementations.get(random);
     }

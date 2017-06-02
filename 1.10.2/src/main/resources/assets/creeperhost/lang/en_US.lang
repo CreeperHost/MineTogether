@@ -80,3 +80,22 @@ creeperhost.secure.line3=of the client to CreeperHost's secure portal to make pa
 
 creeperhost.gui.tps=Current dimension TPS:
 creeperhost.gui.entities=Entities for current dimension
+
+creeperhost.config.title=CreeperHost Config
+
+creeperhost.config.curseprojectid=Curse Project ID
+creeperhost.config.curseprojectid.tooltip=The ID of your curse project for your pack
+creeperhost.config.promocode=Promotional Code
+creeperhost.config.promocode.tooltip=Your CreeperHost promotional code
+creeperhost.config.creeperhostenabled=CreeperHost Enabled
+creeperhost.config.creeperhostenabled.tooltip=Whether the CreeperHost server host integration is enabled. Disable this if you want to use another host's plugin
+creeperhost.config.mpmenuenabled=MP Menu Enabled
+creeperhost.config.mpmenuenabled.tooltip=Whether the entry in the Multiplayer Menu is enabled
+creeperhost.config.mainmenuenabled=Main Menu Enabled
+creeperhost.config.mainmenuenabled.tooltip=Whether the button in the Main Menu is enabled. Note: may not take effect if you have a menu replacement
+creeperhost.config.serverhostbuttonimage=Server host button brand
+creeperhost.config.serverhostbuttonimage.tooltip=Whether the server host button should be branded or generic
+creeperhost.config.serverhostmenuimage=Server host menu brand
+creeperhost.config.serverhostmenuimage.tooltip=Whether the Multiplayer Menu entry should be branded or generic
+creeperhost.config.sivintegration=SIV integration
+creeperhost.config.sivintegration.tooltip=Whether SIV integration is enabled. If so, hold down Shift + TAB to see in game (if SIP is installed)
