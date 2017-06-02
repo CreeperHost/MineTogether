@@ -36,11 +36,8 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event) {
-        
-        if (!Config.getInstance().isMainMenuEnabled())
-            return;
         GuiScreen gui = event.getGui();
-        if (gui instanceof GuiMainMenu) {
+        if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu) {
             CreeperHost.instance.setRandomImplementation();
             if (CreeperHost.instance.getImplementation() == null)
                 return;
@@ -48,9 +45,7 @@ public class EventHandler {
             if (buttonList != null) {
                 buttonList.add(new ButtonCreeper(BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
             }
-        } else if(gui instanceof GuiMultiplayer && lastInitialized != gui) {
-            if (!Config.getInstance().isMpMenuEnabled() || CreeperHost.instance.getImplementation() == null)
-                return;
+        } else if(Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null && gui instanceof GuiMultiplayer && lastInitialized != gui) {
             // Done using reflection so we can work on 1.8.9 before setters/getters
             GuiMultiplayer mpGUI = (GuiMultiplayer) gui;
             try {
