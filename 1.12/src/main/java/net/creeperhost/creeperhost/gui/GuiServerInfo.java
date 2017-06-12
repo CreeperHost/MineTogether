@@ -66,7 +66,7 @@ public class GuiServerInfo extends GuiScreen {
                 return false;
             }
 
-            Map<String, Double> tpsInfo = CreeperHost.instance.getQueryGetter().getExtendedServerData().getTPS(mc.thePlayer.dimension);
+            Map<String, Double> tpsInfo = CreeperHost.instance.getQueryGetter().getExtendedServerData().getTPS(mc.player.dimension);
             TextFormatting color = TextFormatting.WHITE;
             if (tpsInfo.get("tps") < 20) {
                 color = TextFormatting.YELLOW;
@@ -88,7 +88,7 @@ public class GuiServerInfo extends GuiScreen {
                 myList.put(entity.getKey(), entity.getValue());
             }*/
 
-            Map<String, Integer> entities = CreeperHost.instance.getQueryGetter().getExtendedServerData().getEntitiesInDimension(Minecraft.getMinecraft().theWorld.provider.getDimension());
+            Map<String, Integer> entities = CreeperHost.instance.getQueryGetter().getExtendedServerData().getEntitiesInDimension(Minecraft.getMinecraft().world.provider.getDimension());
             for(Map.Entry entity: entities.entrySet()){
                 String key = (String) entity.getKey();
                 if (key.length() >= 9 && key.contains("item.tile.") || key.contains("item.item.")) {

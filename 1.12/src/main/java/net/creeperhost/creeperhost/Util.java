@@ -1,15 +1,20 @@
 package net.creeperhost.creeperhost;
 
+import net.creeperhost.creeperhost.gui.hacky.IBufferProxy;
+import net.creeperhost.creeperhost.gui.hacky.IBufferProxyGetter;
 import net.minecraft.client.resources.I18n;
+import net.minecraftforge.common.ForgeVersion;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -136,5 +141,61 @@ public final class Util{
         }
         String name = nm1[rnd] + nm2[rnd2] + random.nextInt(999);
         return name;
+    }
+
+    // Stolen from ReflectionHelper as is deprecated and could be removed
+    public static <E> Method findMethod(Class<? super E> clazz, String[] methodNames, Class<?>... methodTypes)
+    {
+        for (String methodName : methodNames)
+        {
+            try
+            {
+                Method m = clazz.getDeclaredMethod(methodName, methodTypes);
+                m.setAccessible(true);
+                return m;
+            }
+            catch (Throwable e)
+            {
+            }
+        }
+        return null;
+    }
+
+    private static ArrayList<String> oldVersions = new ArrayList<String>() {{
+        add("1.9");
+        add("1.9.4");
+        add("1.10");
+        add("1.10.2");
+        add("1.11");
+        add("1.11.2");
+    }};
+
+    private static IBufferProxyGetter proxyGetter;
+    public static IBufferProxy getBufferProxy() {
+        if (proxyGetter == null) {
+            String className = "net.creeperhost.creeperhost.gui.hacky.BufferProxyGetterNew";
+            String mcVersion;
+            try {
+                /*
+                We need to get this at runtime as Java is smart and interns final fields.
+                Certainly not the dirtiest hack we do in this codebase.
+                */
+                mcVersion = (String) ForgeVersion.class.getField("mcVersion").get(null);
+            } catch (Throwable e) {
+                mcVersion = "unknown"; // will default to new method
+            }
+            if (oldVersions.contains(mcVersion)) {
+                className = "net.creeperhost.creeperhost.gui.hacky.BufferProxyGetterOld";
+            }
+
+            try {
+                Class clazz = Class.forName(className);
+                proxyGetter = (IBufferProxyGetter) clazz.newInstance();
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+        }
+
+        return proxyGetter.get();
     }
 }

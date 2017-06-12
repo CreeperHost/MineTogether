@@ -1,7 +1,6 @@
 package net.creeperhost.creeperhost.gui.element;
 
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiTextField;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,7 +8,7 @@ import java.util.regex.Pattern;
 /**
  * Created by Aaron on 19/05/2017.
  */
-public class GuiTextFieldValidate extends GuiTextField
+public class GuiTextFieldValidate extends GuiTextFieldCompat
 {
     Pattern pattern;
     public GuiTextFieldValidate(int id, FontRenderer p_i1032_1_, int p_i1032_2_, int p_i1032_3_, int p_i1032_4_, int p_i1032_5_, String regexStr)

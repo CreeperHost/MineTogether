@@ -2,6 +2,7 @@ package net.creeperhost.creeperhost.gui;
 
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.AvailableResult;
+import net.creeperhost.creeperhost.gui.element.GuiTextFieldCompat;
 import net.creeperhost.creeperhost.gui.element.GuiTextFieldValidate;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.Constants;
@@ -26,7 +27,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         }
     };
 
-    private GuiTextField nameField;
+    private GuiTextFieldCompat nameField;
     private GuiSlider slotSlider;
 
     private long lastKeyTyped;
@@ -143,7 +144,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException{
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
+        this.nameField.myMouseClicked(mouseX, mouseY, mouseButton);
     }
 
     @Override

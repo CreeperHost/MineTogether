@@ -267,7 +267,7 @@ public class GuiPersonalDetails extends GuiGetServer{
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
         for(TextFieldDetails field : this.fields){
-            field.mouseClicked(mouseX, mouseY, mouseButton);
+            field.myMouseClicked(mouseX, mouseY, mouseButton);
         }
     }
 

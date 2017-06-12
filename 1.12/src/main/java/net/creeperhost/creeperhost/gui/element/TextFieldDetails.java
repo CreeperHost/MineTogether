@@ -3,14 +3,14 @@ package net.creeperhost.creeperhost.gui.element;
 import net.creeperhost.creeperhost.gui.DefferedValidation;
 import net.creeperhost.creeperhost.gui.GuiPersonalDetails;
 import net.creeperhost.creeperhost.common.Pair;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 
 import net.creeperhost.creeperhost.common.IOrderValidation;
 
 import java.util.ArrayList;
 
-public class TextFieldDetails extends GuiTextField {
+public class TextFieldDetails extends GuiTextFieldCompat
+{
 
     private final GuiPersonalDetails gui;
     private final String displayString;

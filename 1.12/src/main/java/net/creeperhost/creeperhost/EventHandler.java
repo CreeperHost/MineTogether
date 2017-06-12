@@ -84,7 +84,7 @@ public class EventHandler {
     public void onEntityJoinedWorld(EntityJoinWorldEvent event) {
         if (!Config.getInstance().isSivIntegration())
             return;
-        if (event.getWorld().isRemote && !hasJoinedWorld && Minecraft.getMinecraft().thePlayer != null) {
+        if (event.getWorld().isRemote && !hasJoinedWorld && Minecraft.getMinecraft().player != null) {
             hasJoinedWorld = true;
             CreeperHost.instance.makeQueryGetter();
             if(CreeperHost.instance.getQueryGetter() != null) {
