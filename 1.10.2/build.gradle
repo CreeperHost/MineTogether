@@ -25,6 +25,10 @@ dependencies {
     compile project(':1.12')
 }
 
+task reObfJar {
+    jar.dependsOn ':1.12:reobfJar'
+}
+
 jar.dependsOn ':1.12:jar'
 sourceJar.dependsOn ':1.12:sourceJar'
 

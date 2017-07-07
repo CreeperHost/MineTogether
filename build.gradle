@@ -35,7 +35,6 @@ ext.jarFile = zipTree(jar.archivePath)
 task apiJar(type: Jar) {
     appendix = "api"
     from(project.ext.jarFile) {
-       println project.ext.jarFile
        includes.addAll(["net/creeperhost/creeperhost/api/**"])
     }
 }
@@ -64,7 +63,6 @@ subprojects {
         appendix = "api"
 
         from(project.ext.jarFile) {
-            println project.ext.jarFile
             includes.addAll(["net/creeperhost/creeperhost/api/**"])
         }
     }
