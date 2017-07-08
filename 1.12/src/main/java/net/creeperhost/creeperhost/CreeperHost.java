@@ -119,7 +119,7 @@ public class CreeperHost implements ICreeperHostMod
             CreeperHostAPI.registerImplementation(implement = new CreeperHostServerHost());
         }
 
-        if(Config.getInstance().curseProjectID != lastCurse && Config.getInstance().isCreeperhostEnabled())
+        if(!Config.getInstance().curseProjectID.equals(lastCurse) && Config.getInstance().isCreeperhostEnabled())
         {
             Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
         }

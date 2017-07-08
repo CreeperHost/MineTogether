@@ -46,7 +46,6 @@ public class EventHandler {
                 buttonList.add(new ButtonCreeper(BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
             }
         } else if(Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null && gui instanceof GuiMultiplayer && lastInitialized != gui) {
-            // Done using reflection so we can work on 1.8.9 before setters/getters
             GuiMultiplayer mpGUI = (GuiMultiplayer) gui;
             try {
                 if (serverListSelectorField == null) {

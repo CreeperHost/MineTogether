@@ -2,6 +2,8 @@ package net.creeperhost.creeperhost;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import net.creeperhost.creeperhost.api.CreeperHostAPI;
 import net.creeperhost.creeperhost.api.ICreeperHostMod;
@@ -9,6 +11,7 @@ import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.CreeperHostServerHost;
+import net.creeperhost.creeperhost.siv.QueryGetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,10 +22,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Mod(modid = CreeperHost.MOD_ID, name = CreeperHost.NAME, version = CreeperHost.VERSION, acceptableRemoteVersions="*")
+@Mod(
+        modid = CreeperHost.MOD_ID,
+        name = CreeperHost.NAME,
+        version = CreeperHost.VERSION,
+        acceptableRemoteVersions="*",
+        guiFactory = "net.creeperhost.creeperhost.gui.config.GuiCreeperConfigFactory"
+)
 public class CreeperHost implements ICreeperHostMod
 {
 
@@ -38,64 +49,34 @@ public class CreeperHost implements ICreeperHostMod
     public IServerHost currentImplementation;
     public File configFile;
 
+    private QueryGetter queryGetter;
+    private String lastCurse = "";
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
         if (event.getSide() == Side.SERVER) {
             logger.info("Client side only mod - not doing anything on the server!");
             return;
         }
-        MinecraftForge.EVENT_BUS.register(new EventHandler());
+
+        EventHandler eventHandler = new EventHandler();
+
+        FMLCommonHandler.instance().bus().register(eventHandler);
+        MinecraftForge.EVENT_BUS.register(eventHandler);
         configFile = event.getSuggestedConfigurationFile();
-        if (!configFile.exists()) {
-            BufferedWriter writer = null;
-            InputStream defaultInputStream = null;
-            try
-            {
-                writer = new BufferedWriter( new FileWriter( configFile ));
-                ResourceLocation location = new ResourceLocation("creeperhost", "default.config");
-                defaultInputStream = Minecraft.getMinecraft().getResourceManager().getResource(location).getInputStream();
-
-                String defaultConfigString = IOUtils.toString(defaultInputStream);
-
-                writer.write(defaultConfigString);
-
-            }
-            catch (IOException e)
-            {
-                logger.error("Error occurred whilst creating default config. This will not end well.", e);
-            }
-            finally
-            {
-                try
-                {
-                    if ( writer != null)
-                        writer.close( );
-                    if ( defaultInputStream != null )
-                        defaultInputStream.close();
-                }
-                catch (IOException e)
-                {
-                }
-            }
-        }
 
         InputStream configStream = null;
         try
         {
-            configStream = new FileInputStream(configFile);
-            String configString = IOUtils.toString(configStream);
-            JsonObject jObject = new JsonParser().parse(configString).getAsJsonObject();
-            boolean chEnabled = jObject.getAsJsonPrimitive("creeperhostEnabled").getAsBoolean();
-            String promocode = chEnabled ? jObject.getAsJsonPrimitive("promoCode").getAsString() : "";
-            String version = chEnabled ? Callbacks.getVersionFromCurse(jObject.getAsJsonPrimitive("curseProjectID").getAsString()) : ""; // Yes, I'm doing http on the main thread. Rebel.
-            Config.makeConfig(
-                    version,
-                    promocode,
-                    chEnabled,
-                    jObject.getAsJsonPrimitive("mpMenuEnabled").getAsBoolean(),
-                    jObject.getAsJsonPrimitive("mainMenuEnabled").getAsBoolean(),
-                    jObject.getAsJsonPrimitive("serverHostButtonImage").getAsBoolean(),
-                    jObject.getAsJsonPrimitive("serverHostMenuImage").getAsBoolean());
+            String configString;
+            if (configFile.exists()) {
+                configStream = new FileInputStream(configFile);
+                configString = IOUtils.toString(configStream);
+            } else {
+                configString = "{}";
+            }
+
+            Config.loadConfig(configString);
         } catch (Throwable t)
         {
             logger.error("Unable to read config", t);
@@ -110,13 +91,14 @@ public class CreeperHost implements ICreeperHostMod
 
         }
 
-        if (Config.getInstance().isCreeperhostEnabled()) {
-            CreeperHostAPI.registerImplementation(new CreeperHostServerHost());
-        }
+        saveConfig();
     }
 
+
+    private CreeperHostServerHost implement;
+
     public void saveConfig(){
-        FileOutputStream configOut;
+        FileOutputStream configOut = null;
         try
         {
             configOut = new FileOutputStream(configFile);
@@ -124,7 +106,33 @@ public class CreeperHost implements ICreeperHostMod
             configOut.close();
         } catch (Throwable t)
         {
+        } finally {
+            try
+            {
+                if (configOut != null) {
+                    configOut.close();
+                }
+            } catch (Throwable t) {
+            }
         }
+
+        if (Config.getInstance().isCreeperhostEnabled() && implement == null) {
+            Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
+            CreeperHost.instance.implementations.remove(implement);
+            CreeperHostAPI.registerImplementation(implement = new CreeperHostServerHost());
+        }
+
+        if(!Config.getInstance().curseProjectID.equals(lastCurse) && Config.getInstance().isCreeperhostEnabled())
+        {
+            Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
+        }
+
+        if (!Config.getInstance().isCreeperhostEnabled()) {
+            CreeperHost.instance.implementations.remove(implement);
+            implement = null;
+        }
+
+        lastCurse = Config.getInstance().curseProjectID;
     }
 
     private Random randomGenerator;
@@ -147,5 +155,34 @@ public class CreeperHost implements ICreeperHostMod
     public void registerImplementation(IServerHost serverHost)
     {
         implementations.add(serverHost);
+    }
+
+    public void makeQueryGetter() {
+        try {
+            if (FMLClientHandler.instance().getClientToServerNetworkManager() != null) {
+                SocketAddress socketAddress = FMLClientHandler.instance().getClientToServerNetworkManager().getSocketAddress();
+
+                String host = "127.0.0.1";
+                int port = 25565;
+
+                if (socketAddress instanceof InetSocketAddress) {
+                    InetSocketAddress add = (InetSocketAddress) socketAddress;
+                    host = add.getHostName();
+                    port = add.getPort();
+                }
+
+                queryGetter = new QueryGetter(host, port);
+            }
+        } catch (Throwable t) {
+            // Catch _ALL_ errors. We should _NEVER_ crash.
+        }
+
+    }
+
+    public QueryGetter getQueryGetter(){
+        if(queryGetter == null) {
+            makeQueryGetter();
+        }
+        return queryGetter;
     }
 }
