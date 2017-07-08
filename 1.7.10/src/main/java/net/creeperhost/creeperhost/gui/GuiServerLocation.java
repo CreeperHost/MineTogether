@@ -24,13 +24,27 @@ public class GuiServerLocation extends GuiGetServer{
         this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height-36, 36);
 
         Map<String, String> locations = Callbacks.getAllServerLocations();
+
+        String topEntryName = "";
+
         for(Map.Entry<String, String> entry : locations.entrySet()){
             GuiListEntryLocation listEntry = new GuiListEntryLocation(this.list, entry.getKey(), entry.getValue());
-            this.list.addEntry(listEntry);
 
             if(this.order.serverLocation.equals(listEntry.locationName)){
+                topEntryName = entry.getKey();
+                this.list.addEntry(listEntry);
                 this.list.setCurrSelected(listEntry);
+                break;
             }
+        }
+
+        for(Map.Entry<String, String> entry : locations.entrySet())
+        {
+            if (topEntryName.equals(entry.getKey())) {
+                continue;
+            }
+            GuiListEntryLocation listEntry = new GuiListEntryLocation(this.list, entry.getKey(), entry.getValue());
+            this.list.addEntry(listEntry);
         }
     }
 

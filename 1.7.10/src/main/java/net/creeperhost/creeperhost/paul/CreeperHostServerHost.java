@@ -74,8 +74,12 @@ public class CreeperHostServerHost implements IServerHost
     public OrderSummary getSummary(Order order)
     {
 
-        if (order.country == "") {
+        if (order.country.isEmpty()) {
             order.country = Callbacks.getUserCountry();
+        }
+
+        if (order.serverLocation.isEmpty()) {
+            order.serverLocation = Callbacks.getRecommendedLocation();
         }
 
         try {
@@ -328,5 +332,21 @@ public class CreeperHostServerHost implements IServerHost
     public ServerData getServerEntry(Order order)
     {
         return new ServerData(order.name + ".PlayAt.CH", order.name + ".playat.ch", false);
+    }
+
+    @Override
+    public String getRecommendedLocation()
+    {
+        try {
+            String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
+
+            JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
+
+            jObject = jObject.getAsJsonObject("datacentre");
+
+            return jObject.getAsJsonPrimitive("name").getAsString();
+        } catch (Throwable t) {
+        }
+        return ""; // default
     }
 }

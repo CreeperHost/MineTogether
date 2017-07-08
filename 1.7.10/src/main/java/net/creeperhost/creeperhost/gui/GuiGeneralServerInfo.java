@@ -42,7 +42,7 @@ public class GuiGeneralServerInfo extends GuiGetServer {
 
         this.nameField = new GuiTextFieldValidate(this.fontRendererObj, halfWidth-100, halfHeight-50, 200, 20, "([A-Za-z0-9]*)");
         this.nameField.setMaxStringLength(Constants.MAX_SERVER_NAME_LENGTH);
-        this.nameField.setText(this.order.name);
+        this.nameField.setText(this.order.name.isEmpty() ? Util.getDefaultName() : this.order.name);
 
         final Order orderTemp = this.order;
 

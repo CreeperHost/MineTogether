@@ -35,15 +35,22 @@ public final class Callbacks {
 
     public static String getUserCountry() {
         try {
-            String freeGeoIP = Util.getWebResponse("http://freegeoip.net/json/");
+            String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
 
             JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
 
-            return jObject.getAsJsonPrimitive("country_code").getAsString();
+            jObject = jObject.getAsJsonObject("customer");
+
+            return jObject.getAsJsonPrimitive("country").getAsString();
         } catch (Throwable t) {
             CreeperHost.logger.error("Unable to get user's country automatically, assuming USA", t);
         }
         return "US"; // default
+    }
+
+    public static String getRecommendedLocation()
+    {
+        return CreeperHost.instance.getImplementation().getRecommendedLocation();
     }
 
     public static OrderSummary getSummary(Order order) {
