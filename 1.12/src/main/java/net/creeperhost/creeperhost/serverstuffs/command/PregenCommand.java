@@ -10,6 +10,8 @@ import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
@@ -36,7 +38,13 @@ public class PregenCommand extends CommandBase
     @Override
     public String getUsage(ICommandSender sender)
     {
-        return "chserver.command.pregen.usage";
+        TextComponentTranslation chatcomponenttranslation1 = new TextComponentTranslation("creeperhostserver.command.pregen.usage1");
+        chatcomponenttranslation1.getStyle().setColor(TextFormatting.RED);
+        sender.sendMessage(chatcomponenttranslation1);
+        TextComponentTranslation chatcomponenttranslation2 = new TextComponentTranslation("creeperhostserver.command.pregen.usage2");
+        chatcomponenttranslation2.getStyle().setColor(TextFormatting.RED);
+        sender.sendMessage(chatcomponenttranslation2);
+        return "creeperhostserver.command.pregen.usage3";
     }
 
     /**
@@ -105,7 +113,7 @@ public class PregenCommand extends CommandBase
         int chunkMaxZ = zCenter + (zRadius / 2);
 
         if (CreeperHostServer.INSTANCE.createTask(dimension, chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick))
-            sender.sendMessage(new TextComponentString("chserver.command.pregen.added"));
+            sender.sendMessage(new TextComponentTranslation("chserver.command.pregen.added"));
         else
             throw new WrongUsageException("chserver.command.pregen.alreadyexists");
     }

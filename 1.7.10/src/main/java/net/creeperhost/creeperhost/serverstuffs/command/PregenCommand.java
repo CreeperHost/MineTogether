@@ -94,7 +94,7 @@ public class PregenCommand extends CommandBase
         int chunkMaxZ = zCenter + (zRadius / 2);
 
         if (CreeperHostServer.INSTANCE.createTask(dimension, chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick))
-            sender.addChatMessage(new ChatComponentText("creeperhostserver.command.pregen.added"));
+            sender.addChatMessage(new ChatComponentTranslation("creeperhostserver.command.pregen.added"));
         else
             throw new WrongUsageException("creeperhostserver.command.pregen.alreadyexists");
     }
