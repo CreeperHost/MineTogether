@@ -1,0 +1,7 @@
+creeperhostserver.command.pregen.wrongconsole=Cannot use "current" in the console! Please specify a dimension ID.
+creeperhostserver.command.pregen.wrong=Not enough arguments!
+creeperhostserver.command.pregen.added=Pregen task added!
+creeperhostserver.command.pregen.alreadyexists=Pregen task already exists for dimension. Only one task may exist per dimension!
+creeperhostserver.command.pregen.usage1=chpregen current|dimID xRadius zRadius [chunksPerTick, default 20]
+creeperhostserver.command.pregen.usage2=- OR -
+creeperhostserver.command.pregen.usage3=chpregen current|dimID xRadius zRadius xStartChunk zStartChunk [chunksPerTick, default 20]

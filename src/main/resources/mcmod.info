@@ -12,5 +12,19 @@
   "logoFile": "",
   "screenshots": [],
   "dependencies": []
+},
+{
+  "modid": "creeperhostserver",
+  "name": "CreeperHostServer",
+  "description": "Companion server side mod to allow you to pregen chunks",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Cloudhunter"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": ["creeperhost"]
 }
 ]

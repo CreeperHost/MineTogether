@@ -40,7 +40,7 @@ public class CreeperHost implements ICreeperHostMod
     public static final String VERSION = "@VERSION@";
     public static final Logger logger = LogManager.getLogger("creeperhost");
 
-    @Mod.Instance
+    @Mod.Instance(value="creeperhost", owner="creeperhost")
     public static CreeperHost instance;
 
     public ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
