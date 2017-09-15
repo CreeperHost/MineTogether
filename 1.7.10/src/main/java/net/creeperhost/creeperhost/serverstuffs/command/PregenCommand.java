@@ -110,7 +110,6 @@ public class PregenCommand extends CommandBase
             Integer[] dimensions = DimensionManager.getStaticDimensionIDs();
             for (int dimension : dimensions)
             {
-                System.out.println(dimension);
                 completions.add(String.valueOf(dimension));
             }
             return getListOfStringsFromIterableMatchingLastWord(args, completions);

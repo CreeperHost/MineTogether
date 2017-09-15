@@ -50,7 +50,7 @@ public class CreeperHostServer
 
     private MinecraftServer server;
 
-    @Mod.Instance(value = "creeperhostserver", owner = "creeperhost")
+    @Mod.Instance(value = "creeperhostserver")
     public static CreeperHostServer INSTANCE;
 
     private HashMap<Integer, PregenTask> pregenTasks = new HashMap<Integer, PregenTask>();
@@ -73,7 +73,6 @@ public class CreeperHostServer
     @SubscribeEvent
     public void entityJoinWorld(EntityJoinWorldEvent event)
     {
-        //System.out.println("wut");
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (server == null || server.isSinglePlayer())
             return;
@@ -83,7 +82,7 @@ public class CreeperHostServer
             for (PregenTask task : pregenTasks.values())
             {
                 kicker.kickPlayer((EntityPlayerMP) entity, "Server is still pre-generating!\n" + task.lastPregenString);
-                logger.error("Kicked player " + entity.getName() + " as still pregenerating");
+                logger.error("Kicked player " + entity.getName() + " as still pre-generating");
                 break;
             }
 
@@ -156,12 +155,13 @@ public class CreeperHostServer
             task.lastChunksDone = task.chunksDone;
             int chunksDelta = task.chunksDone - lastChunks;
 
-            double fraction = ((double) task.totalChunks / (double) task.chunksDone);
-
             long deltaTime = curTime - task.startTime;
 
+            double timePerChunk = (double)deltaTime / (double)task.chunksDone;
 
-            long estimatedTime = (long) (deltaTime * fraction) - deltaTime;
+            long chunksRemaining = task.totalChunks - task.chunksDone;
+
+            long estimatedTime = (long) (chunksRemaining * timePerChunk);
 
             long days = TimeUnit.MILLISECONDS
                     .toDays(estimatedTime);
@@ -180,17 +180,17 @@ public class CreeperHostServer
 
             String time = days + " day(s) " + hours + " hour(s) " + minutes + " minute(s) " + seconds + " second(s)";
 
-            task.lastPregenString = "Pregenerating chunks for dimension " + dimension + ", current speed " + chunksDelta + " every 10 seconds." + "\n" + task.chunksDone + "/" + task.totalChunks + " " + time + " remaining";
+            task.lastPregenString = "Pre-generating chunks for dimension " + dimension + ", current speed " + chunksDelta + " every 10 seconds." + "\n" + task.chunksDone + "/" + task.totalChunks + " " + time + " remaining";
 
             logger.info(task.lastPregenString);
 
             serializePreload();
+
         }
 
         for (Pair<Integer, Integer> pair : chunkToGen)
         {
             world.getChunkProvider().provideChunk(pair.getLeft(), pair.getRight());
-            //System.out.println("Pregenning chunk " + pair.getLeft() + " " + pair.getRight());
             task.storedCurX = pair.getLeft();
             task.storedCurZ = pair.getRight();
             task.chunksDone++;

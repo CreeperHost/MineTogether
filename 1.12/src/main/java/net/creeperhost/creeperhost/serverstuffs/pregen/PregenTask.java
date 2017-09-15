@@ -43,6 +43,7 @@ public class PregenTask
 
     public void init()
     {
+        startTime = 0;
         if (chunksToGen != null) return;
 
         if (diameterX > 0 && totalChunks == 0) // only the first time

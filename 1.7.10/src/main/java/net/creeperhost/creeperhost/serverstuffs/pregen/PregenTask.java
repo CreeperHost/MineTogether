@@ -45,6 +45,8 @@ public class PregenTask
     {
         if (chunksToGen != null) return;
 
+        startTime = 0;
+
         if (diameterX > 0 && totalChunks == 0) // only the first time
         {
             World world = DimensionManager.getWorld(dimension);
