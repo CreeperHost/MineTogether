@@ -18,8 +18,8 @@ public class PregenTask
     public int maxX;
     public int minZ;
     public int maxZ;
-    public int radiusX = 0;
-    public int radiusZ = 0;
+    public int diameterX = 0;
+    public int diameterZ = 0;
     public long startTime = 0;
     public transient long lastCheckedTime = -9001;
     public int chunksDone = 0;
@@ -45,15 +45,15 @@ public class PregenTask
     {
         if (chunksToGen != null) return;
 
-        if (radiusX > 0 && totalChunks == 0) // only the first time
+        if (diameterX > 0 && totalChunks == 0) // only the first time
         {
             World world = DimensionManager.getWorld(dimension);
             BlockPos pos = world.getSpawnPoint();
-            minX = (pos.getX() << 4) - (radiusX / 2);
-            maxX = (pos.getX() << 4) + (radiusX / 2);
+            minX = (pos.getX() << 4) - (diameterX / 2);
+            maxX = (pos.getX() << 4) + (diameterX / 2);
 
-            minZ = (pos.getZ() << 4) - (radiusZ / 2);
-            maxZ = (pos.getZ() << 4) + (radiusZ / 2);
+            minZ = (pos.getZ() << 4) - (diameterZ / 2);
+            maxZ = (pos.getZ() << 4) + (diameterZ / 2);
             storedCurX = minX;
             storedCurZ = minZ;
         }
