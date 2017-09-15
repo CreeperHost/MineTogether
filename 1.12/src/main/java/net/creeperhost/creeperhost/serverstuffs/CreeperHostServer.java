@@ -59,7 +59,7 @@ public class CreeperHostServer
     public void serverStarting(FMLServerStartingEvent event)
     {
         event.registerServerCommand(new PregenCommand());
-        deserializePreload(new File(DimensionManager.getCurrentSaveRootDirectory(), "pregenData.json"));
+        deserializePreload(new File(getSaveFolder(), "pregenData.json"));
     }
 
     @Mod.EventHandler
@@ -204,9 +204,17 @@ public class CreeperHostServer
         task.chunksToGen.removeAll(chunkToGen);
     }
 
+    public File getSaveFolder()
+    {
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server != null && !server.isSinglePlayer())
+            return server.getFile("");
+        return DimensionManager.getCurrentSaveRootDirectory();
+    }
+
     public void serializePreload()
     {
-        serializePreload(new File(DimensionManager.getCurrentSaveRootDirectory(), "pregenData.json"));
+        serializePreload(new File(getSaveFolder(), "pregenData.json"));
     }
 
     private void serializePreload(File file)
