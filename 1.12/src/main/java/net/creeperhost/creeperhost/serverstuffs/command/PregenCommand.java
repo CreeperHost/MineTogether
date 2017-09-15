@@ -58,7 +58,7 @@ public class PregenCommand extends CommandBase
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 3 || args.length >= 7)
-            throw new WrongUsageException("chserver.command.pregen.wrong");
+            throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
         int dimension, xRadius, zRadius;
         dimension = xRadius = zRadius = 0;
         int chunksPerTick = 5;
@@ -69,7 +69,7 @@ public class PregenCommand extends CommandBase
             if (args[0].equals("current"))
             {
                 if (sender.getCommandSenderEntity() == null)
-                    throw new WrongUsageException("chserver.command.pregen.wrongconsole");
+                    throw new WrongUsageException("creeperhostserver.command.pregen.wrongconsole");
                 world = sender.getEntityWorld();
                 dimension = world.provider.getDimension();
             } else {
@@ -113,9 +113,9 @@ public class PregenCommand extends CommandBase
         int chunkMaxZ = zCenter + (zRadius / 2);
 
         if (CreeperHostServer.INSTANCE.createTask(dimension, chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick))
-            sender.sendMessage(new TextComponentTranslation("chserver.command.pregen.added"));
+            sender.sendMessage(new TextComponentTranslation("creeperhostserver.command.pregen.added"));
         else
-            throw new WrongUsageException("chserver.command.pregen.alreadyexists");
+            throw new WrongUsageException("creeperhostserver.command.pregen.alreadyexists");
     }
 
     @Override
