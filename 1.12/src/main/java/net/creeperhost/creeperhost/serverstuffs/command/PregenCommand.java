@@ -61,7 +61,7 @@ public class PregenCommand extends CommandBase
             throw new WrongUsageException("chserver.command.pregen.wrong");
         int dimension, xRadius, zRadius;
         dimension = xRadius = zRadius = 0;
-        int chunksPerTick = 20;
+        int chunksPerTick = 5;
         World world = null;
 
         if (args.length >= 3)

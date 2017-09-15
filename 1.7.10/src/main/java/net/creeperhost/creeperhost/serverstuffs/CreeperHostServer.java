@@ -139,12 +139,13 @@ public class CreeperHostServer
             i++;
         }
 
+        long curTime = System.currentTimeMillis();
+
         if (task.startTime == 0)
         {
-            task.lastCheckedTime = task.startTime = System.currentTimeMillis();
+            task.lastCheckedTime = curTime;
+            task.startTime = curTime;
         }
-
-        long curTime = System.currentTimeMillis();
 
         if (curTime - task.lastCheckedTime >= 10000)
         {
@@ -158,7 +159,7 @@ public class CreeperHostServer
             long deltaTime = curTime - task.startTime;
 
 
-            long estimatedTime = (long) (deltaTime * fraction);
+            long estimatedTime = (long) (deltaTime * fraction) - deltaTime;
 
             long days = TimeUnit.MILLISECONDS
                     .toDays(estimatedTime);
@@ -179,7 +180,6 @@ public class CreeperHostServer
 
             task.lastPregenString = "Pregenerating chunks for dimension " + dimension + ", current speed " + chunksDelta + " every 10 seconds." + "\n" + task.chunksDone + "/" + task.totalChunks + " " + time + " remaining";
 
-
             logger.info(task.lastPregenString);
 
             serializePreload();
@@ -192,6 +192,11 @@ public class CreeperHostServer
             task.storedCurX = pair.getLeft();
             task.storedCurZ = pair.getRight();
             task.chunksDone++;
+        }
+
+        if (task.chunksDone != 0 && task.chunksDone % 1000 == 0)
+        {
+            world.getSaveHandler().flush();
         }
 
         task.chunksToGen.removeAll(chunkToGen);
