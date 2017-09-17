@@ -284,6 +284,8 @@ public class CreeperHostServerHost implements IServerHost
             String response = Util.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" +order.productID + "/" + order.serverLocation, new HashMap<String, String>() {{
                 put("name", order.name);
                 put("swid", Config.getInstance().getVersion());
+                if (order.pregen)
+                    put("pregen", "yus");
             }});
 
             if (response.equals("error")) {

@@ -13,6 +13,7 @@ import net.minecraft.client.gui.GuiSlider;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.config.GuiCheckBox;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +38,8 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     private boolean nameChecked = false;
     private String message = "Name can not be blank";
 
+    private GuiCheckBox pregen;
+
     private static ResourceLocation lockIcon;
 
     public GuiGeneralServerInfo(int stepId, Order order){
@@ -56,7 +59,15 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.nameField.setText(this.order.name.isEmpty() ? Util.getDefaultName() : this.order.name);
         this.order.name = this.nameField.getText().trim();
 
-        this.slotSlider = new GuiSlider(this, 1, halfWidth-100, halfHeight, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
+        String checkboxString = Util.localize("order.pregen");
+
+        int checkboxWidth = this.fontRendererObj.getStringWidth(checkboxString) + 11 + 2;
+
+        pregen = new GuiCheckBox(3, halfWidth - (checkboxWidth / 2), halfHeight - 6, checkboxString, order.pregen);
+
+        this.buttonList.add(pregen);
+
+        this.slotSlider = new GuiSlider(this, 1, halfWidth-100, halfHeight + 18, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;
         this.buttonList.add(this.slotSlider);
     }
@@ -129,22 +140,24 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
 
         this.mc.getTextureManager().bindTexture(lockIcon);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        Gui.drawModalRectWithCustomSizedTexture((this.width / 2) - 8, (this.height / 2) + 24, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
+        Gui.drawModalRectWithCustomSizedTexture((this.width / 2) - 8, (this.height / 2) + 44, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
 
+        int strStart = 65;
 
-        this.drawCenteredString(fontRendererObj, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + 45, 0xFFFFFF);
-        this.drawCenteredString(fontRendererObj, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + 55, 0xFFFFFF);
-        this.drawCenteredString(fontRendererObj, Util.localize("secure.line3"), this.width / 2, (this.height / 2) + 65, 0xFFFFFF);
+        this.drawCenteredString(fontRendererObj, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
+        this.drawCenteredString(fontRendererObj, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);
+        this.drawCenteredString(fontRendererObj, Util.localize("secure.line3"), this.width / 2, (this.height / 2) + strStart + 20, 0xFFFFFF);
 
         this.nameField.drawTextBox();
 
-        this.drawCenteredString(fontRendererObj, message, (this.width / 2), (this.height / 2) - 20, colour);
+        this.drawCenteredString(fontRendererObj, message, (this.width / 2), (this.height / 2) - 26, colour);
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException{
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.nameField.myMouseClicked(mouseX, mouseY, mouseButton);
+        order.pregen = pregen.isChecked();
     }
 
     @Override

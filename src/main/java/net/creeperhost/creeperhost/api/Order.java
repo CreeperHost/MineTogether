@@ -23,4 +23,6 @@ public class Order
     public String productID;
     public String clientID;
     public String currency;
+
+    public boolean pregen = false;
 }

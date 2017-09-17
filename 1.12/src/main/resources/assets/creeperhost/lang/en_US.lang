@@ -35,6 +35,7 @@ creeperhost.quote.promoerror=Promo code does not exist on CreeperHost.
 
 creeperhost.info.step=Step %s of %s
 creeperhost.info.server_name=Server Name
+creeperhost.info.pregen=Pre-generate world?
 creeperhost.info.e_mail=E-Mail
 creeperhost.info.password=Password
 creeperhost.info.first_name=First Name
