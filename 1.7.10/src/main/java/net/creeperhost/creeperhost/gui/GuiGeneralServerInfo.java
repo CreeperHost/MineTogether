@@ -2,6 +2,7 @@ package net.creeperhost.creeperhost.gui;
 
 import cpw.mods.fml.client.config.GuiCheckBox;
 import cpw.mods.fml.client.config.GuiSlider;
+import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.AvailableResult;
 import net.creeperhost.creeperhost.gui.element.GuiTextFieldValidate;
@@ -51,13 +52,16 @@ public class GuiGeneralServerInfo extends GuiGetServer {
 
         int checkboxWidth = this.fontRendererObj.getStringWidth(checkboxString) + 11 + 2;
 
-        pregen = new GuiCheckBox(3, halfWidth - (checkboxWidth / 2), halfHeight - 6, checkboxString, order.pregen);
+        pregen = new GuiCheckBox(3, halfWidth - (checkboxWidth / 2), halfHeight - 8, checkboxString, order.pregen);
 
-        this.buttonList.add(pregen);
+        if (CreeperHost.instance.getImplementation().supportsPregen())
+        {
+            this.buttonList.add(pregen);
+        }
 
         final Order orderTemp = this.order;
 
-        this.slotSlider = new GuiSlider(0, halfWidth - 100, halfHeight + 18, 150, 20, Util.localize("slider.player_count") + ": ", "", Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, false, true, new GuiSlider.ISlider()
+        this.slotSlider = new GuiSlider(0, halfWidth - 100, halfHeight + 15, 150, 20, Util.localize("slider.player_count") + ": ", "", Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, false, true, new GuiSlider.ISlider()
         {
             @Override
             public void onChangeSliderValue(GuiSlider slider)
@@ -137,9 +141,9 @@ public class GuiGeneralServerInfo extends GuiGetServer {
 
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(lockIcon);
-        Gui.func_146110_a(this.width / 2 - 8, (this.height / 2) + 44, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
+        Gui.func_146110_a(this.width / 2 - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
 
-        int strStart = 65;
+        int strStart = 61;
 
         this.drawCenteredString(fontRendererObj, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
         this.drawCenteredString(fontRendererObj, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);

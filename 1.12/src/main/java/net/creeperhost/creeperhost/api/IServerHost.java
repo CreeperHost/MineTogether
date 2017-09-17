@@ -25,4 +25,6 @@ public interface IServerHost
     ServerData getServerEntry(Order order);
 
     String getRecommendedLocation();
+
+    boolean supportsPregen();
 }

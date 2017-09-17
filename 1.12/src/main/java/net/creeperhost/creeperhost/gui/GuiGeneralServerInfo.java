@@ -1,5 +1,6 @@
 package net.creeperhost.creeperhost.gui;
 
+import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.AvailableResult;
 import net.creeperhost.creeperhost.gui.element.GuiTextFieldCompat;
@@ -63,11 +64,16 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
 
         int checkboxWidth = this.fontRendererObj.getStringWidth(checkboxString) + 11 + 2;
 
-        pregen = new GuiCheckBox(3, halfWidth - (checkboxWidth / 2), halfHeight - 6, checkboxString, order.pregen);
+        pregen = new GuiCheckBox(3, halfWidth - (checkboxWidth / 2), halfHeight - 8, checkboxString, order.pregen);
+
+        if (CreeperHost.instance.getImplementation().supportsPregen())
+        {
+            this.buttonList.add(pregen);
+        }
 
         this.buttonList.add(pregen);
 
-        this.slotSlider = new GuiSlider(this, 1, halfWidth-100, halfHeight + 18, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
+        this.slotSlider = new GuiSlider(this, 1, halfWidth-100, halfHeight + 15, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;
         this.buttonList.add(this.slotSlider);
     }
@@ -140,9 +146,9 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
 
         this.mc.getTextureManager().bindTexture(lockIcon);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        Gui.drawModalRectWithCustomSizedTexture((this.width / 2) - 8, (this.height / 2) + 44, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
+        Gui.drawModalRectWithCustomSizedTexture((this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
 
-        int strStart = 65;
+        int strStart = 61;
 
         this.drawCenteredString(fontRendererObj, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
         this.drawCenteredString(fontRendererObj, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);

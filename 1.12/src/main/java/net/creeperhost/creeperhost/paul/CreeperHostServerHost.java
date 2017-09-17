@@ -351,4 +351,10 @@ public class CreeperHostServerHost implements IServerHost
         }
         return ""; // default
     }
+
+    @Override
+    public boolean supportsPregen()
+    {
+        return true;
+    }
 }
