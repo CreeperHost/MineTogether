@@ -34,6 +34,7 @@ public class ReflectionConfigElement implements IConfigElement
     private HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>> lookupEntry = new HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>>() {{
         put("boolean", GuiConfigEntries.BooleanEntry.class);
         put("String", GuiConfigEntries.StringEntry.class);
+        put("int", GuiConfigEntries.IntegerEntry.class);
     }};
 
     @Override
@@ -81,6 +82,7 @@ public class ReflectionConfigElement implements IConfigElement
     private HashMap<String, ConfigGuiType> lookup = new HashMap<String, ConfigGuiType>() {{
         put("boolean", ConfigGuiType.BOOLEAN);
         put("String", ConfigGuiType.STRING);
+        put("int", ConfigGuiType.INTEGER);
     }};
 
     @Override
@@ -196,13 +198,13 @@ public class ReflectionConfigElement implements IConfigElement
     @Override
     public Object getMinValue()
     {
-        return null;
+        return 0;
     }
 
     @Override
     public Object getMaxValue()
     {
-        return null;
+        return 400;
     }
 
     @Override

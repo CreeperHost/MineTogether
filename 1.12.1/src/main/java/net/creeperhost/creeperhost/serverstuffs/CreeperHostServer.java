@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.creeperhost.CreeperHost;
+import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.common.Pair;
 import net.creeperhost.creeperhost.serverstuffs.command.PregenCommand;
 import net.creeperhost.creeperhost.serverstuffs.hacky.IPlayerKicker;
@@ -11,7 +12,10 @@ import net.creeperhost.creeperhost.serverstuffs.pregen.PregenTask;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.rcon.IServer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.dedicated.PropertyManager;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
@@ -20,17 +24,21 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -46,14 +54,49 @@ public class CreeperHostServer
 {
     public static final String MOD_ID = "creeperhostserver";
     public static final String NAME = "CreeperHostServer";
-    private static Logger logger;
+    public static Logger logger;
 
-    private MinecraftServer server;
+    @SidedProxy(clientSide = "net.creeperhost.creeperhost.serverstuffs.ClientProxy", serverSide = "net.creeperhost.creeperhost.serverstuffs.ServerProxy")
+    public static IServerProxy proxy;
 
     @Mod.Instance(value = "creeperhostserver")
     public static CreeperHostServer INSTANCE;
 
     private HashMap<Integer, PregenTask> pregenTasks = new HashMap<Integer, PregenTask>();
+
+    public static Thread getThreadByName(String threadName) {
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            if (t.getName().equals(threadName)) return t;
+        }
+        return null;
+    }
+
+    public boolean needsToBeKilled = true;
+    public boolean watchdogKilled = false;
+    public boolean watchdogChecked = false;
+
+    public void killWatchdog()
+    {
+        if (!watchdogChecked)
+        {
+            needsToBeKilled = proxy.needsToBeKilled();
+            watchdogChecked = true;
+        }
+        if (!watchdogKilled && needsToBeKilled)
+        {
+            watchdogKilled = proxy.killWatchdog();
+        }
+
+    }
+
+    public void resuscitateWatchdog()
+    {
+        if (watchdogKilled && needsToBeKilled)
+        {
+            proxy.resuscitateWatchdog();
+            watchdogKilled = false;
+        }
+    }
 
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
@@ -67,7 +110,6 @@ public class CreeperHostServer
     {
         serializePreload();
         pregenTasks.clear();
-        server = null;
     }
 
     @SubscribeEvent
@@ -121,6 +163,10 @@ public class CreeperHostServer
         {
             logger.info("No more chunks to generate for dimension " + dimension + " - removing task!");
             pregenTasks.remove(dimension);
+            if (pregenTasks.isEmpty())
+            {
+                resuscitateWatchdog();
+            }
             serializePreload();
             return;
         }
@@ -187,6 +233,8 @@ public class CreeperHostServer
             serializePreload();
 
         }
+
+        killWatchdog();
 
         for (Pair<Integer, Integer> pair : chunkToGen)
         {
@@ -316,7 +364,6 @@ public class CreeperHostServer
             }
             catch (Throwable t)
             {
-                t.printStackTrace();
             }
         }
     }

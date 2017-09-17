@@ -285,7 +285,7 @@ public class CreeperHostServerHost implements IServerHost
                 put("name", order.name);
                 put("swid", Config.getInstance().getVersion());
                 if (order.pregen)
-                    put("pregen", "yus");
+                    put("pregen", String.valueOf(Config.getInstance().getPregenDiameter()));
             }});
 
             if (response.equals("error")) {
@@ -350,11 +350,5 @@ public class CreeperHostServerHost implements IServerHost
         } catch (Throwable t) {
         }
         return ""; // default
-    }
-
-    @Override
-    public boolean supportsPregen()
-    {
-        return true;
     }
 }

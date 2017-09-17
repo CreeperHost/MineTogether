@@ -35,7 +35,7 @@ creeperhost.quote.promoerror=Promo code does not exist on CreeperHost.
 
 creeperhost.info.step=Step %s of %s
 creeperhost.info.server_name=Server Name
-creeperhost.info.pregen=Pre-generate world?
+creeperhost.info.pregen=Agree to Mojang EULA and pre-generate world?
 creeperhost.info.e_mail=E-Mail
 creeperhost.info.password=Password
 creeperhost.info.first_name=First Name
@@ -100,3 +100,5 @@ creeperhost.config.serverhostmenuimage=Server host menu brand
 creeperhost.config.serverhostmenuimage.tooltip=Whether the Multiplayer Menu entry should be branded or generic
 creeperhost.config.sivintegration=SIV integration
 creeperhost.config.sivintegration.tooltip=Whether SIV integration is enabled. If so, hold down Shift + TAB to see in game (if SIP is installed)
+creeperhost.config.pregenDiameter=Pre-generate diameter
+creeperhost.config.pregenDiameter.tooltip=If over 0, enables option for pre-gen of world on the server of specified chunk diameter. Requires mod on server.

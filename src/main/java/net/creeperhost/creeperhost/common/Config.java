@@ -18,6 +18,8 @@ public class Config
     private boolean serverHostMenuImage;
     private boolean sivIntegration;
 
+    private int pregenDiameter = 120;
+
     private static Config instance;
 
     public Config() {
@@ -88,6 +90,8 @@ public class Config
     {
         return serverHostMenuImage;
     }
+
+    public int getPregenDiameter() { return pregenDiameter; }
 
     public void setMpMenuEnabled(boolean value){
         mpMenuEnabled = value;

@@ -3,6 +3,7 @@ package net.creeperhost.creeperhost.gui;
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.AvailableResult;
+import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.gui.element.GuiTextFieldCompat;
 import net.creeperhost.creeperhost.gui.element.GuiTextFieldValidate;
 import net.creeperhost.creeperhost.paul.Callbacks;
@@ -60,18 +61,16 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.nameField.setText(this.order.name.isEmpty() ? Util.getDefaultName() : this.order.name);
         this.order.name = this.nameField.getText().trim();
 
-        String checkboxString = Util.localize("order.pregen");
+        String checkboxString = Util.localize("info.pregen");
 
         int checkboxWidth = this.fontRendererObj.getStringWidth(checkboxString) + 11 + 2;
 
         pregen = new GuiCheckBox(3, halfWidth - (checkboxWidth / 2), halfHeight - 8, checkboxString, order.pregen);
 
-        if (CreeperHost.instance.getImplementation().supportsPregen())
+        if (Config.getInstance().getPregenDiameter() > 0)
         {
             this.buttonList.add(pregen);
         }
-
-        this.buttonList.add(pregen);
 
         this.slotSlider = new GuiSlider(this, 1, halfWidth-100, halfHeight + 15, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;

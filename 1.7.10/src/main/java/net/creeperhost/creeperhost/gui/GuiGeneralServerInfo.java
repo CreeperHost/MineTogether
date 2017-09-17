@@ -5,6 +5,7 @@ import cpw.mods.fml.client.config.GuiSlider;
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.AvailableResult;
+import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.gui.element.GuiTextFieldValidate;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.Constants;
@@ -54,7 +55,7 @@ public class GuiGeneralServerInfo extends GuiGetServer {
 
         pregen = new GuiCheckBox(3, halfWidth - (checkboxWidth / 2), halfHeight - 8, checkboxString, order.pregen);
 
-        if (CreeperHost.instance.getImplementation().supportsPregen())
+        if (Config.getInstance().getPregenDiameter() > 0)
         {
             this.buttonList.add(pregen);
         }

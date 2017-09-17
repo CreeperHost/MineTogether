@@ -3,12 +3,15 @@ package net.creeperhost.creeperhost;
 import net.creeperhost.creeperhost.api.Order;
 import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.gui.GuiGetServer;
+import net.creeperhost.creeperhost.gui.GuiProgressDisconnected;
 import net.creeperhost.creeperhost.gui.GuiServerInfo;
 import net.creeperhost.creeperhost.gui.element.ButtonCreeper;
 import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -33,6 +36,41 @@ public class EventHandler {
 
 
     private GuiMultiplayer lastInitialized = null;
+
+    @SubscribeEvent
+    public void onInitGui(InitGuiEvent.Pre event)
+    {
+        GuiScreen gui = event.getGui();
+        System.out.println(gui);
+        if (gui instanceof GuiDisconnected && !(gui instanceof GuiProgressDisconnected))
+        {
+            GuiDisconnected dc = (GuiDisconnected) gui;
+            Field reasonField = ReflectionHelper.findField(gui.getClass(), "reason");
+            reasonField.setAccessible(true);
+            Field messageField = ReflectionHelper.findField(gui.getClass(), "message");
+            messageField.setAccessible(true);
+            Field parentField = ReflectionHelper.findField(gui.getClass(), "parentScreen");
+            parentField.setAccessible(true);
+            try
+            {
+                String reason = (String) reasonField.get(dc);
+                ITextComponent message = (ITextComponent) messageField.get(dc);
+                if (message.getFormattedText().contains("Server is still pre-generating!"))
+                {
+                    event.setCanceled(true);
+                    Minecraft.getMinecraft().displayGuiScreen(new GuiProgressDisconnected((GuiScreen) parentField.get(dc), reason, message));
+                }
+                //System.out.println(reason + " " + message);
+            }
+            catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+
+        } else if(gui instanceof GuiConnecting) {
+            GuiConnecting con = (GuiConnecting) gui;
+        }
+    }
 
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event) {

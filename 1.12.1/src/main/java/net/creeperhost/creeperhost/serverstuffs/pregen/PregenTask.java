@@ -1,6 +1,7 @@
 package net.creeperhost.creeperhost.serverstuffs.pregen;
 
 import net.creeperhost.creeperhost.common.Pair;
+import net.creeperhost.creeperhost.serverstuffs.CreeperHostServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
