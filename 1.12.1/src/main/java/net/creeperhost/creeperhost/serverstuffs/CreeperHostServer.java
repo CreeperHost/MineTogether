@@ -4,19 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.creeperhost.CreeperHost;
-import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.common.Pair;
 import net.creeperhost.creeperhost.serverstuffs.command.PregenCommand;
 import net.creeperhost.creeperhost.serverstuffs.hacky.IPlayerKicker;
 import net.creeperhost.creeperhost.serverstuffs.pregen.PregenTask;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.rcon.IServer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.dedicated.PropertyManager;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeVersion;
@@ -26,19 +20,16 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -71,11 +62,11 @@ public class CreeperHostServer
         return null;
     }
 
-    public boolean needsToBeKilled = true;
-    public boolean watchdogKilled = false;
-    public boolean watchdogChecked = false;
+    private boolean needsToBeKilled = true;
+    private boolean watchdogKilled = false;
+    private boolean watchdogChecked = false;
 
-    public void killWatchdog()
+    private void killWatchdog()
     {
         if (!watchdogChecked)
         {
@@ -89,7 +80,7 @@ public class CreeperHostServer
 
     }
 
-    public void resuscitateWatchdog()
+    private void resuscitateWatchdog()
     {
         if (watchdogKilled && needsToBeKilled)
         {
@@ -127,7 +118,7 @@ public class CreeperHostServer
                 logger.error("Kicked player " + entity.getName() + " as still pre-generating");
                 break;
             }
-
+            event.setCanceled(true);
         }
     }
 

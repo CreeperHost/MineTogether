@@ -11,7 +11,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -31,44 +33,96 @@ public class EventHandler {
     
     private static final int BUTTON_ID = 30051988;
     
-    private static Field parentScreenField;
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
 
-
     private GuiMultiplayer lastInitialized = null;
+    private static Field reasonField = null;
+    private static Field messageField = null;
+    private static Field parentField = null;
+    private static Field networkManagerField = null;
+
+    private static NetworkManager lastNetworkManager = null;
 
     @SubscribeEvent
-    public void onInitGui(InitGuiEvent.Pre event)
+    public void guiOpen(GuiOpenEvent event)
     {
         GuiScreen gui = event.getGui();
-        System.out.println(gui);
+        GuiScreen curGui = Minecraft.getMinecraft().currentScreen;
         if (gui instanceof GuiDisconnected && !(gui instanceof GuiProgressDisconnected))
         {
             GuiDisconnected dc = (GuiDisconnected) gui;
-            Field reasonField = ReflectionHelper.findField(gui.getClass(), "reason");
-            reasonField.setAccessible(true);
-            Field messageField = ReflectionHelper.findField(gui.getClass(), "message");
-            messageField.setAccessible(true);
-            Field parentField = ReflectionHelper.findField(gui.getClass(), "parentScreen");
-            parentField.setAccessible(true);
+            if (reasonField == null)
+            {
+                reasonField = ReflectionHelper.findField(gui.getClass(), "field_146306_a", "reason");
+                reasonField.setAccessible(true);
+            }
+
+            if (messageField == null)
+            {
+                messageField = ReflectionHelper.findField(gui.getClass(), "field_146304_f", "message");
+                messageField.setAccessible(true);
+            }
+
+            if (parentField == null)
+            {
+                parentField = ReflectionHelper.findField(gui.getClass(), "field_146307_h", "parentScreen");
+                parentField.setAccessible(true);
+            }
+
             try
             {
                 String reason = (String) reasonField.get(dc);
                 ITextComponent message = (ITextComponent) messageField.get(dc);
-                if (message.getFormattedText().contains("Server is still pre-generating!"))
+
+                if(curGui instanceof GuiProgressDisconnected)
                 {
-                    event.setCanceled(true);
-                    Minecraft.getMinecraft().displayGuiScreen(new GuiProgressDisconnected((GuiScreen) parentField.get(dc), reason, message));
+                    if (message.getFormattedText().contains("Server is still pre-generating!"))
+                    {
+                        GuiProgressDisconnected curDiscon = (GuiProgressDisconnected) curGui;
+                        curDiscon.update(reason, message);
+                        event.setCanceled(true);
+                    }
+                } else if (message.getFormattedText().contains("Server is still pre-generating!"))
+                {
+                    if (lastNetworkManager == null)
+                        return;
+                    event.setGui(new GuiProgressDisconnected((GuiScreen) parentField.get(dc), reason, message, lastNetworkManager));
+                    lastNetworkManager = null;
                 }
-                //System.out.println(reason + " " + message);
             }
             catch (IllegalAccessException e)
             {
                 e.printStackTrace();
             }
-
         } else if(gui instanceof GuiConnecting) {
-            GuiConnecting con = (GuiConnecting) gui;
+            lastNetworkManager = getNetworkManager((GuiConnecting) gui);
+        }
+    }
+
+    public static NetworkManager getNetworkManager(GuiConnecting con)
+    {
+        long time = System.currentTimeMillis() + 5000;
+        try
+        {
+            if (networkManagerField == null)
+            {
+                networkManagerField = ReflectionHelper.findField(con.getClass(), "field_146373_h", "networkManager");
+                networkManagerField.setAccessible(true);
+            }
+
+            NetworkManager manager = null;
+            while (manager == null) // loop to wait until networkManager is set.
+            {
+                if (System.currentTimeMillis() > time)
+                    break;
+                manager = (NetworkManager) networkManagerField.get(con);
+            }
+
+            return manager;
+        }
+        catch (Exception e)
+        {
+            return null;
         }
     }
 

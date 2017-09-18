@@ -1,6 +1,6 @@
 package net.creeperhost.creeperhost.gui;
 
-import com.google.common.graph.Network;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.creeperhost.creeperhost.EventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -11,13 +11,9 @@ import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.client.config.GuiConfigEntries;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.IChatComponent;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -28,7 +24,7 @@ public class GuiProgressDisconnected extends GuiDisconnected
 {
 
     private String ourReason;
-    private ITextComponent ourMessage;
+    private IChatComponent ourMessage;
     private List<String> multilineMessage;
     private final GuiScreen parentScreen;
     private int textHeight;
@@ -37,7 +33,7 @@ public class GuiProgressDisconnected extends GuiDisconnected
     private GuiConnecting captiveConnecting;
     private String ip = "";
 
-    public GuiProgressDisconnected(GuiScreen screen, String reasonLocalizationKey, ITextComponent chatComp, NetworkManager lastNetworkManager)
+    public GuiProgressDisconnected(GuiScreen screen, String reasonLocalizationKey, IChatComponent chatComp, NetworkManager lastNetworkManager)
     {
         super(screen, reasonLocalizationKey, chatComp);
         this.parentScreen = screen;
@@ -47,7 +43,7 @@ public class GuiProgressDisconnected extends GuiDisconnected
         this.lastConnectAttempt = System.currentTimeMillis();
         if (lastNetworkManager != null)
         {
-            InetSocketAddress address = (InetSocketAddress)lastNetworkManager.getRemoteAddress();
+            InetSocketAddress address = (InetSocketAddress)lastNetworkManager.getSocketAddress();
             ip = address.getHostName() + ":" + address.getPort();
         }
     }
@@ -89,12 +85,12 @@ public class GuiProgressDisconnected extends GuiDisconnected
 
         for (int i = 0; i < this.buttonList.size(); ++i)
         {
-            ((GuiButton)this.buttonList.get(i)).func_191745_a(this.mc, mouseX, mouseY, partialTicks);
+            ((GuiButton)this.buttonList.get(i)).drawButton(this.mc, mouseX, mouseY);
         }
 
         for (int j = 0; j < this.labelList.size(); ++j)
         {
-            ((GuiLabel)this.labelList.get(j)).drawLabel(this.mc, mouseX, mouseY);
+            ((GuiLabel)this.labelList.get(j)).func_146159_a(this.mc, mouseX, mouseY);
         }
 
         if (false)
@@ -125,7 +121,7 @@ public class GuiProgressDisconnected extends GuiDisconnected
 
     Pattern pattern = Pattern.compile("(\\d+/\\d+).*");
 
-    public void update(String reason, ITextComponent message)
+    public void update(String reason, IChatComponent message)
     {
         lastConnectAttempt = System.currentTimeMillis();
         ourMessage = message;
@@ -149,7 +145,8 @@ public class GuiProgressDisconnected extends GuiDisconnected
 
     Field cancelField = null;
 
-    protected void actionPerformed(GuiButton button) throws IOException
+    @Override
+    protected void actionPerformed(GuiButton button)
     {
         if (button.id == 0)
         {
@@ -157,7 +154,7 @@ public class GuiProgressDisconnected extends GuiDisconnected
             {
                 if (lastNetworkManager != null)
                 {
-                    lastNetworkManager.closeChannel(new TextComponentString("Aborted"));
+                    lastNetworkManager.closeChannel(new ChatComponentText("Aborted"));
                 }
 
                 try

@@ -10,8 +10,8 @@ import static net.minecraftforge.fml.common.FMLCommonHandler.instance;
 
 public class ServerProxy implements IServerProxy
 {
-    Field field = null;
-    Field server = null;
+    private Field field = null;
+    private Field server = null;
 
     @Override
     public boolean killWatchdog()
@@ -22,7 +22,7 @@ public class ServerProxy implements IServerProxy
             {
                 field = Thread.class.getDeclaredField("target");
                 field.setAccessible(true);
-                server = ReflectionHelper.findField(ServerHangWatchdog.class,"server");
+                server = ReflectionHelper.findField(ServerHangWatchdog.class,"field_180249_b", "server");
                 server.setAccessible(true);
             }
             catch (Throwable e)
@@ -47,7 +47,6 @@ public class ServerProxy implements IServerProxy
         }
         catch (Throwable e)
         {
-            e.printStackTrace();
             return false;
         }
 

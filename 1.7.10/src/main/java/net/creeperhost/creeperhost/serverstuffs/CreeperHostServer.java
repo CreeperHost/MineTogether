@@ -3,6 +3,7 @@ package net.creeperhost.creeperhost.serverstuffs;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.server.FMLServerHandler;
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.common.Pair;
@@ -53,6 +54,13 @@ public class CreeperHostServer
     public static CreeperHostServer INSTANCE;
 
     private HashMap<Integer, PregenTask> pregenTasks = new HashMap<Integer, PregenTask>();
+
+    public static Thread getThreadByName(String threadName) {
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            if (t.getName().equals(threadName)) return t;
+        }
+        return null;
+    }
 
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)

@@ -4,6 +4,7 @@ import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent;
 import net.creeperhost.creeperhost.common.Config;
+import net.creeperhost.creeperhost.gui.GuiProgressDisconnected;
 import net.creeperhost.creeperhost.gui.GuiServerInfo;
 import net.creeperhost.creeperhost.gui.element.ButtonCreeper;
 import net.creeperhost.creeperhost.gui.GuiGetServer;
@@ -12,7 +13,11 @@ import net.creeperhost.creeperhost.api.Order;
 import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.util.IChatComponent;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -32,6 +37,96 @@ public class EventHandler{
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
 
     private GuiMultiplayer lastInitialized = null;
+    private static Field reasonField = null;
+    private static Field messageField = null;
+    private static Field parentField = null;
+    private static Field networkManagerField = null;
+
+    private static NetworkManager lastNetworkManager = null;
+
+    @SubscribeEvent
+    public void guiOpen(GuiOpenEvent event)
+    {
+        GuiScreen gui = event.gui;
+        GuiScreen curGui = Minecraft.getMinecraft().currentScreen;
+        if (gui instanceof GuiDisconnected && !(gui instanceof GuiProgressDisconnected))
+        {
+            GuiDisconnected dc = (GuiDisconnected) gui;
+            if (reasonField == null)
+            {
+                reasonField = ReflectionHelper.findField(gui.getClass(), "field_146306_a", "reason");
+                reasonField.setAccessible(true);
+            }
+
+            if (messageField == null)
+            {
+                messageField = ReflectionHelper.findField(gui.getClass(), "field_146304_f", "message");
+                messageField.setAccessible(true);
+            }
+
+            if (parentField == null)
+            {
+                parentField = ReflectionHelper.findField(gui.getClass(), "field_146307_h", "parentScreen");
+                parentField.setAccessible(true);
+            }
+
+            try
+            {
+                String reason = (String) reasonField.get(dc);
+                IChatComponent message = (IChatComponent) messageField.get(dc);
+
+                if(curGui instanceof GuiProgressDisconnected)
+                {
+                    if (message.getFormattedText().contains("Server is still pre-generating!"))
+                    {
+                        GuiProgressDisconnected curDiscon = (GuiProgressDisconnected) curGui;
+                        curDiscon.update(reason, message);
+                        event.setCanceled(true);
+                    }
+                } else if (message.getFormattedText().contains("Server is still pre-generating!"))
+                {
+                    /*if (lastNetworkManager == null)
+                        return;*/
+                    event.gui = new GuiProgressDisconnected((GuiScreen) parentField.get(dc), reason, message, null);
+                    lastNetworkManager = null;
+                }
+            }
+            catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        } else if(gui instanceof GuiConnecting) {
+            //lastNetworkManager = getNetworkManager((GuiConnecting) gui);
+        }
+    }
+
+    public static NetworkManager getNetworkManager(GuiConnecting con)
+    {
+        long time = System.currentTimeMillis() + 3000;
+        try
+        {
+            if (networkManagerField == null)
+            {
+                networkManagerField = ReflectionHelper.findField(GuiConnecting.class, "field_146371_g", "networkManager");
+                networkManagerField.setAccessible(true);
+            }
+
+            NetworkManager manager = null;
+            while (manager == null) // loop to wait until networkManager is set.
+            {
+                if (System.currentTimeMillis() > time)
+                    break;
+                manager = (NetworkManager) networkManagerField.get(con);
+            }
+
+            return manager;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event){
