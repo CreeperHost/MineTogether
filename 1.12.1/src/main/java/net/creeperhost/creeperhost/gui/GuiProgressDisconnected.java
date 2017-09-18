@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GuiProgressDisconnected extends GuiDisconnected
+public class GuiProgressDisconnected extends GuiScreen
 {
 
     private String ourReason;
@@ -39,7 +39,6 @@ public class GuiProgressDisconnected extends GuiDisconnected
 
     public GuiProgressDisconnected(GuiScreen screen, String reasonLocalizationKey, ITextComponent chatComp, NetworkManager lastNetworkManager)
     {
-        super(screen, reasonLocalizationKey, chatComp);
         this.parentScreen = screen;
         this.ourReason = I18n.format(reasonLocalizationKey);
         this.ourMessage = chatComp;
@@ -87,22 +86,14 @@ public class GuiProgressDisconnected extends GuiDisconnected
         drawRect(left, top, left + loadingWidth, top + loadingHeight, loadingBackColour);
         drawRect(left, top, left + loadingPercentWidth, top + loadingHeight, loadingFrontColour);
 
-        for (int i = 0; i < this.buttonList.size(); ++i)
-        {
-            ((GuiButton)this.buttonList.get(i)).func_191745_a(this.mc, mouseX, mouseY, partialTicks);
-        }
-
-        for (int j = 0; j < this.labelList.size(); ++j)
-        {
-            ((GuiLabel)this.labelList.get(j)).drawLabel(this.mc, mouseX, mouseY);
-        }
-
         if (false)
         {
             lastConnectAttempt = System.currentTimeMillis();
             captiveConnecting = new GuiConnecting(this, Minecraft.getMinecraft(), new ServerData("lol", ip, false));
             lastNetworkManager = EventHandler.getNetworkManager(captiveConnecting);
         }
+
+        super.drawScreen(mouseX, mouseY, partialTicks);
 
         //drawCenteredString(fontRendererObj, I18n.format("creeperhost.pregen.refresh"), this.width / 2, Math.min(this.height / 2 + 60, this.height - 30), 0xFFFFFFFF);
     }
@@ -173,6 +164,7 @@ public class GuiProgressDisconnected extends GuiDisconnected
 
                 }
             }
+            this.mc.displayGuiScreen(this.parentScreen);
         }
         super.actionPerformed(button);
     }

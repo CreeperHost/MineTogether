@@ -29,6 +29,8 @@ import org.lwjgl.input.Keyboard;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import static net.creeperhost.creeperhost.serverstuffs.CreeperHostServer.logger;
+
 public class EventHandler {
     
     private static final int BUTTON_ID = 30051988;
@@ -48,54 +50,53 @@ public class EventHandler {
     {
         GuiScreen gui = event.getGui();
         GuiScreen curGui = Minecraft.getMinecraft().currentScreen;
-        if (gui instanceof GuiDisconnected && !(gui instanceof GuiProgressDisconnected))
+        if (gui instanceof GuiDisconnected)
         {
             GuiDisconnected dc = (GuiDisconnected) gui;
-            if (reasonField == null)
-            {
-                reasonField = ReflectionHelper.findField(gui.getClass(), "field_146306_a", "reason");
-                reasonField.setAccessible(true);
-            }
-
-            if (messageField == null)
-            {
-                messageField = ReflectionHelper.findField(gui.getClass(), "field_146304_f", "message");
-                messageField.setAccessible(true);
-            }
-
-            if (parentField == null)
-            {
-                parentField = ReflectionHelper.findField(gui.getClass(), "field_146307_h", "parentScreen");
-                parentField.setAccessible(true);
-            }
 
             try
             {
+
+                if (reasonField == null)
+                {
+                    reasonField = ReflectionHelper.findField(gui.getClass(), "field_146306_a", "reason");
+                    reasonField.setAccessible(true);
+                }
+
+                if (messageField == null)
+                {
+                    messageField = ReflectionHelper.findField(gui.getClass(), "field_146304_f", "message");
+                    messageField.setAccessible(true);
+                }
+
+                if (parentField == null)
+                {
+                    parentField = ReflectionHelper.findField(gui.getClass(), "field_146307_h", "parentScreen");
+                    parentField.setAccessible(true);
+                }
                 String reason = (String) reasonField.get(dc);
                 ITextComponent message = (ITextComponent) messageField.get(dc);
 
                 if(curGui instanceof GuiProgressDisconnected)
                 {
-                    if (message.getFormattedText().contains("Server is still pre-generating!"))
+                    if (message.getUnformattedText().contains("Server is still pre-generating!"))
                     {
                         GuiProgressDisconnected curDiscon = (GuiProgressDisconnected) curGui;
                         curDiscon.update(reason, message);
                         event.setCanceled(true);
                     }
-                } else if (message.getFormattedText().contains("Server is still pre-generating!"))
+                } else if (message.getUnformattedText().contains("Server is still pre-generating!"))
                 {
-                    if (lastNetworkManager == null)
-                        return;
                     event.setGui(new GuiProgressDisconnected((GuiScreen) parentField.get(dc), reason, message, lastNetworkManager));
                     lastNetworkManager = null;
                 }
             }
-            catch (IllegalAccessException e)
+            catch (Throwable e)
             {
                 e.printStackTrace();
             }
         } else if(gui instanceof GuiConnecting) {
-            lastNetworkManager = getNetworkManager((GuiConnecting) gui);
+            //lastNetworkManager = getNetworkManager((GuiConnecting) gui);
         }
     }
 
