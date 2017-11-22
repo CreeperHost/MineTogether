@@ -1,5 +1,7 @@
 package net.creeperhost.creeperhost.gui;
 
+import com.google.common.base.Splitter;
+import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.common.IOrderValidation;
 import net.creeperhost.creeperhost.common.RegexValidator;
@@ -7,10 +9,20 @@ import net.creeperhost.creeperhost.gui.element.TextFieldDetails;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.api.Order;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiConfirmOpenLink;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GuiPersonalDetails extends GuiGetServer{
 
@@ -22,6 +34,8 @@ public class GuiPersonalDetails extends GuiGetServer{
     private boolean loggingIn;
     private String loggingInError = "";
     private boolean loggedIn;
+    private boolean isSure;
+    private boolean orderPressed;
 
     public GuiPersonalDetails(int stepId, Order order){
         super(stepId, order);
@@ -33,12 +47,29 @@ public class GuiPersonalDetails extends GuiGetServer{
         return Util.localize("gui.personal_details");
     }
 
+    private ITextComponent info2 = null;
+
     @Override
     public void initGui(){
         super.initGui();
 
         this.loginButton = new GuiButton(80085, this.width/2-40, (this.height / 2) - 10, 80, 20, Util.localize("button.login"));
         loginButton.visible = loginMode;
+
+        if (orderPressed && !isSure) {
+            loginButton.displayString = Util.localize("button.order");
+            loginButton.enabled = true;
+            loginButton.visible = true;
+            buttonNext.visible = false;
+        } else if (loggingIn) {
+            loginButton.displayString = Util.localize("button.logging");
+            loginButton.enabled = false;
+        } else if (loggedIn) {
+            loginButton.displayString = Util.localize("button.done");
+            loginButton.enabled = false;
+        } else if (!loggingInError.isEmpty()) {
+            loginButton.displayString = Util.localize("button.logintryagain");
+        }
         this.buttonList.add(loginButton);
 
         fields = new ArrayList<TextFieldDetails>();
@@ -130,6 +161,47 @@ public class GuiPersonalDetails extends GuiGetServer{
         this.fields.add(countryField);
 
         this.fields.add(new TextFieldDetails(this, 9, Util.localize("info.phone"), this.order.phone, x+5, 175, fieldWidths, 20, defaultValidators));
+
+        String info2Text = Util.localize("order.info2");
+
+        final String regex = "\\((.*?)\\|(.*?)\\)";
+
+        final Pattern pattern = Pattern.compile(regex);
+        final Matcher matcher = pattern.matcher(info2Text);
+
+        int lastEnd = 0;
+
+        ITextComponent component = null;
+
+        while (matcher.find()) {
+
+            int start = matcher.start();
+            int end = matcher.end();
+
+            String part = info2Text.substring(lastEnd, start);
+            if (part.length() > 0)
+            {
+                if (component == null)
+                    component = new TextComponentString(part);
+                else
+                    component.appendText(part);
+            }
+
+            lastEnd = end;
+            ITextComponent link = new TextComponentString(matcher.group(1));
+            Style style = link.getStyle();
+            style.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, matcher.group(2)));
+            style.setColor(TextFormatting.BLUE);
+            style.setUnderlined(true);
+            style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(Util.localize("order.url"))));
+
+            if (component == null)
+                component = link;
+            else
+                component.appendSibling(link);
+        }
+
+        info2 = component;
     }
 
     @Override
@@ -137,7 +209,7 @@ public class GuiPersonalDetails extends GuiGetServer{
         super.updateScreen();
 
         this.buttonNext.enabled = true;
-        this.loginButton.visible = loginMode;
+        this.loginButton.visible = loginMode || (orderPressed && !isSure);
 
         for(TextFieldDetails field : this.fields){
             field.checkPendingValidations();
@@ -236,28 +308,61 @@ public class GuiPersonalDetails extends GuiGetServer{
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        for(TextFieldDetails field : this.fields)
+        if (!orderPressed || isSure)
         {
-            if (loginMode)
+            for (TextFieldDetails field : this.fields)
             {
-                if (field.getId() < 2) {
+                if (loginMode)
+                {
+                    if (field.getId() < 2)
+                    {
+                        field.drawTextBox();
+                    }
+                }
+                else
+                {
                     field.drawTextBox();
                 }
-            } else {
-                field.drawTextBox();
             }
-        }
 
-        if (loginMode) {
-            if (loggingIn)
+            if (loginMode)
             {
-                this.drawCenteredString(fontRendererObj, Util.localize("details.login"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-            } else if(!loggingInError.isEmpty()) {
-                this.drawCenteredString(fontRendererObj, Util.localize("details.loginerror") + loggingInError, this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-            } else if(loggedIn) {
-                this.drawCenteredString(fontRendererObj, Util.localize("details.loginsuccess"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-            } else {
-                this.drawCenteredString(fontRendererObj, Util.localize("details.accountexists"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                if (loggingIn)
+                {
+                    this.drawCenteredString(fontRendererObj, Util.localize("details.login"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                }
+                else if (!loggingInError.isEmpty())
+                {
+                    this.drawCenteredString(fontRendererObj, Util.localize("details.loginerror") + loggingInError, this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                }
+                else if (loggedIn)
+                {
+                    this.drawCenteredString(fontRendererObj, Util.localize("details.loginsuccess"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                }
+                else
+                {
+                    this.drawCenteredString(fontRendererObj, Util.localize("details.accountexists"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                }
+            }
+        } else {
+            int info2Start = (this.height / 2) - 50;
+
+            this.drawCenteredString(fontRendererObj, Util.localize("order.info1"), this.width / 2, (this.height / 2) - 60, 0xFFFFFF);
+            this.drawCenteredString(fontRendererObj, info2.getFormattedText(), this.width / 2, (this.height / 2) - 50, 0xFFFFFF);
+            this.drawCenteredString(fontRendererObj, Util.localize("order.info3"), this.width / 2, (this.height / 2) - 30, 0xFFFFFF);
+            this.drawCenteredString(fontRendererObj, Util.localize("order.info4"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+
+            if (mouseY >= info2Start && mouseY <= info2Start + fontRendererObj.FONT_HEIGHT)
+            {
+                ITextComponent component = getComponent(mouseX, mouseY);
+
+                if (component != null)
+                {
+                    HoverEvent event = component.getStyle().getHoverEvent();
+                    if (event != null)
+                        if (event.getAction() == HoverEvent.Action.SHOW_TEXT)
+                            this.drawHoveringText(Splitter.on("\n").splitToList(event.getValue().getFormattedText()), mouseX, mouseY);
+                }
             }
         }
     }
@@ -266,15 +371,82 @@ public class GuiPersonalDetails extends GuiGetServer{
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException{
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
+        int info2Start = (this.height / 2) - 50;
+
+        if (orderPressed && !isSure && mouseY >= info2Start && mouseY <= info2Start + fontRendererObj.FONT_HEIGHT)
+        {
+            ITextComponent comp = getComponent(mouseX, mouseY);
+
+            ClickEvent clickevent = comp.getStyle().getClickEvent();
+            if (clickevent != null && clickevent.getAction() == ClickEvent.Action.OPEN_URL)
+            {
+                try
+                {
+                    URI uri = new URI(clickevent.getValue());
+                    Class<?> oclass = Class.forName("java.awt.Desktop");
+                    Object object = oclass.getMethod("getDesktop").invoke(null);
+                    oclass.getMethod("browse", URI.class).invoke(object, uri);
+                }
+                catch (Throwable t)
+                {
+                    CreeperHost.logger.error("Can\'t open url for " + clickevent, t);
+                }
+                return;
+            }
+        }
+
         for(TextFieldDetails field : this.fields){
             field.myMouseClicked(mouseX, mouseY, mouseButton);
         }
     }
 
+    private ITextComponent getComponent(int mouseX, int mouseY)
+    {
+        int stringWidth = fontRendererObj.getStringWidth(info2.getFormattedText());
+        int begin = (width / 2) - (stringWidth / 2);
+
+        if (info2 instanceof TextComponentBase)
+        {
+            TextComponentBase comp = (TextComponentBase) info2;
+
+            int prevWidth = begin;
+
+            for (ITextComponent inner: comp)
+            {
+                StringBuilder stringbuilder = new StringBuilder();
+                String s = inner.getUnformattedComponentText();
+
+                if (!s.isEmpty())
+                {
+                    stringbuilder.append(inner.getStyle().getFormattingCode());
+                    stringbuilder.append(s);
+                    stringbuilder.append(TextFormatting.RESET);
+                }
+                int width = fontRendererObj.getStringWidth(stringbuilder.toString());
+                if (mouseX >= prevWidth && mouseX <= prevWidth + width)
+                {
+                    return inner;
+                }
+                prevWidth += width;
+            }
+        }
+        return null;
+    }
+
+
+    private String prevLoginString;
+    private boolean prevLoginVisible;
+    private boolean prevLoginEnabled;
+
     @Override
     protected void actionPerformed(final GuiButton button) throws IOException
     {
         if (button.id == 80085) {
+            if (orderPressed && !isSure) {
+                isSure = true;
+                actionPerformed(buttonNext);
+                return;
+            }
             loggingIn = true;
             button.enabled = false;
             button.displayString = Util.localize("button.logging");
@@ -303,9 +475,36 @@ public class GuiPersonalDetails extends GuiGetServer{
             };
             Thread thread = new Thread(runnable);
             thread.start();
-        } else {
-            super.actionPerformed(button);
+            return;
+        } else if (button.id == buttonNext.id && !isSure) {
+            orderPressed = true;
+            buttonNext.visible = false;
+            prevLoginString = loginButton.displayString;
+            loginButton.displayString = Util.localize("button.order");
+            prevLoginVisible = loginButton.visible;
+            loginButton.visible = true;
+            prevLoginEnabled = loginButton.enabled;
+            loginButton.enabled = true;
+            return;
+        } else if (button.id == buttonNext.id && !isSure) {
+            orderPressed = true;
+            buttonNext.visible = false;
+            prevLoginString = loginButton.displayString;
+            loginButton.displayString = Util.localize("button.order");
+            prevLoginVisible = loginButton.visible;
+            loginButton.visible = true;
+            prevLoginEnabled = loginButton.enabled;
+            loginButton.enabled = true;
+            return;
+        } else if (button.id == buttonPrev.id && orderPressed) {
+            orderPressed = false;
+            buttonNext.visible = true;
+            loginButton.displayString = prevLoginString;
+            loginButton.visible = prevLoginVisible;
+            loginButton.enabled = prevLoginEnabled;
+            return;
         }
+        super.actionPerformed(button);
     }
 
     public void validationChanged(TextFieldDetails details, boolean valid, IOrderValidation validator, IOrderValidation.ValidationPhase phase) {

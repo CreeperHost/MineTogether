@@ -1,5 +1,6 @@
 package net.creeperhost.creeperhost.gui;
 
+import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.Order;
 import net.minecraft.client.gui.GuiButton;
@@ -19,7 +20,8 @@ public abstract class GuiGetServer extends GuiScreen{
 
     protected final Order order;
 
-    public GuiGetServer(int stepId, Order order){
+    public GuiGetServer(int stepId, Order order) {
+        CreeperHost.instance.updateCurse();
         this.stepId = stepId;
         this.order = order;
     }
@@ -34,7 +36,18 @@ public abstract class GuiGetServer extends GuiScreen{
         this.buttonPrev.enabled = this.stepId > 0;
         this.buttonList.add(this.buttonPrev);
 
-        this.buttonNext = new GuiButton(-2, this.width-90, y, 80, 20, ((this.stepId + 1) == STEP_AMOUNT) ? Util.localize("button.done") : Util.localize("button.next"));
+        String nextStr = "";
+
+        if ((this.stepId + 1) == STEP_AMOUNT)
+        {
+            nextStr = Util.localize("button.done");
+        } else if (this.stepId == 3) {
+            nextStr = Util.localize("button.order");
+        } else {
+            nextStr = Util.localize("button.next");
+        }
+
+        this.buttonNext = new GuiButton(-2, this.width-90, y, 80, 20, nextStr);
         this.buttonList.add(buttonNext);
 
         this.buttonCancel = new GuiButton(-3, this.width/2-40, y, 80, 20, Util.localize("button.cancel"));

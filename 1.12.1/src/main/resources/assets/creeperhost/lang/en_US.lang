@@ -62,6 +62,14 @@ creeperhost.order.ordersuccess=Order successful! Please click the button below t
 creeperhost.order.ordermodpack=Your server will then be set up with the latest modpack version!
 creeperhost.order.ordercancel=Cancel order
 
+creeperhost.order.info1=To continue to place an order, please click the "Place order" button below.
+creeperhost.order.info2=By continuing, you agree to CreeperHost's (Terms Of Service|https://creeper.host/tos) and (Policies|https://creeper.host/policies).
+
+creeperhost.order.info3=An order and invoice will be generated, but you are under no obligation to pay.
+creeperhost.order.info4=They will be automatically cancelled after 72 hours if no payment is received.
+
+creeperhost.order.url=Click to open in your web browser
+
 creeperhost.button.prev=Previous Step
 creeperhost.button.next=Next Step
 creeperhost.button.cancel=Cancel

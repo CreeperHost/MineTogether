@@ -114,19 +114,21 @@ public class CreeperHost implements ICreeperHostMod
         }
 
         if (Config.getInstance().isCreeperhostEnabled() && implement == null) {
-            Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
             CreeperHost.instance.implementations.remove(implement);
             CreeperHostAPI.registerImplementation(implement = new CreeperHostServerHost());
-        }
-
-        if(!Config.getInstance().curseProjectID.equals(lastCurse) && Config.getInstance().isCreeperhostEnabled())
-        {
-            Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
         }
 
         if (!Config.getInstance().isCreeperhostEnabled()) {
             CreeperHost.instance.implementations.remove(implement);
             implement = null;
+        }
+    }
+
+    public void updateCurse()
+    {
+        if(!Config.getInstance().curseProjectID.equals(lastCurse) && Config.getInstance().isCreeperhostEnabled())
+        {
+            Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
         }
 
         lastCurse = Config.getInstance().curseProjectID;
