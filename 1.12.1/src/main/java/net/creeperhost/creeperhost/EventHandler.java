@@ -7,10 +7,10 @@ import net.creeperhost.creeperhost.gui.GuiProgressDisconnected;
 import net.creeperhost.creeperhost.gui.GuiServerInfo;
 import net.creeperhost.creeperhost.gui.element.ButtonCreeper;
 import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostServerSelectionList;
+import net.creeperhost.creeperhost.gui.serverlist.GuiMultiplayerPublic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.GuiConnecting;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -20,7 +20,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -29,11 +28,10 @@ import org.lwjgl.input.Keyboard;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static net.creeperhost.creeperhost.serverstuffs.CreeperHostServer.logger;
-
 public class EventHandler {
     
-    private static final int BUTTON_ID = 30051988;
+    private static final int MAIN_BUTTON_ID = 30051988;
+    private static final int MP_BUTTON_ID = 8008135;
     
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
 
@@ -136,9 +134,9 @@ public class EventHandler {
                 return;
             List<GuiButton> buttonList = event.getButtonList();
             if (buttonList != null) {
-                buttonList.add(new ButtonCreeper(BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
+                buttonList.add(new ButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
             }
-        } else if(Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null && gui instanceof GuiMultiplayer && lastInitialized != gui) {
+        } else if(Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null && gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui) {
             GuiMultiplayer mpGUI = (GuiMultiplayer) gui;
             try {
                 if (serverListSelectorField == null) {
@@ -162,6 +160,11 @@ public class EventHandler {
             {
                 CreeperHost.logger.warn("Reflection to alter server list failed.", e);
             }
+        }
+
+        if(Config.getInstance().isServerListEnabled() && gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
+        {
+            event.getButtonList().add(new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, Util.localize("multiplayer.public")));
         }
     }
 
@@ -187,13 +190,15 @@ public class EventHandler {
     
     @SubscribeEvent
     public void onActionPerformed(ActionPerformedEvent.Pre event) {
-        if (!Config.getInstance().isMainMenuEnabled() || CreeperHost.instance.getImplementation() == null)
-            return;
         GuiScreen gui = event.getGui();
+        GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu) {
-            GuiButton button = event.getButton();
-            if (button != null && button.id == BUTTON_ID) {
+            if (button != null && button.id == MAIN_BUTTON_ID) {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+            }
+        } else if (gui instanceof GuiMultiplayer) {
+            if (button != null && button.id == MP_BUTTON_ID) {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(gui));
             }
         }
     }

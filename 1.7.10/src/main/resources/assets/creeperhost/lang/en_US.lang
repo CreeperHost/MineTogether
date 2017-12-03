@@ -110,5 +110,9 @@ creeperhost.config.sivintegration=SIV integration
 creeperhost.config.sivintegration.tooltip=Whether SIV integration is enabled. If so, hold down Shift + TAB to see in game (if SIP is installed)
 creeperhost.config.pregendiameter=Pre-generate diameter
 creeperhost.config.pregendiameter.tooltip=If over 0, enables option for pre-gen of world on the server of specified chunk diameter. Requires mod on server.
+creeperhost.config.serverlistenabled=Public server list
+creeperhost.config.serverlistenabled.tooltip=Whether the public server list is enabled
 
 creeperhost.pregen.refresh=Will automatically refresh!
+
+creeperhost.multiplayer.public=Public server list

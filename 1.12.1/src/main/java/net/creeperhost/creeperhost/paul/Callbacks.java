@@ -12,10 +12,54 @@ import net.creeperhost.creeperhost.api.OrderSummary;
 import net.creeperhost.creeperhost.api.AvailableResult;
 
 import com.google.gson.*;
+import net.creeperhost.creeperhost.common.Config;
+import net.minecraft.client.multiplayer.ServerData;
 
 public final class Callbacks {
 
     public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
+
+    private static Util.CachedValue<Map<String, String>> serverListCache;
+    public static Map<String, String> getServerList()
+    {
+        if (serverListCache == null)
+        {
+            serverListCache = new Util.CachedValue<Map<String, String>>(30000, new Util.CachedValue.ICacheCallback<Map<String, String>>()
+            {
+                @Override
+                public Map<String, String> get()
+                {
+                    Map<String, String> map = new HashMap<String, String>();
+                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/list", "{\"projectid\": " + Config.getInstance().curseProjectID + "}", true, false);
+
+                    Config defaultConfig = new Config();
+                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
+                    {
+                        map.put("127.0.0.1:25565", "No project ID! Please fix the CreeperHost config.");
+                        return map;
+                    }
+
+                    JsonElement jElement = new JsonParser().parse(resp);
+                    if (jElement.isJsonObject())
+                    {
+                        JsonObject object = jElement.getAsJsonObject();
+                        JsonArray array = object.getAsJsonArray("servers");
+                        if (array != null)
+                            for (JsonElement serverEl : array) {
+                                JsonObject server = (JsonObject)serverEl;
+                                String name = server.get("name").getAsString();
+                                String host = server.get("ip").getAsString();
+                                String port = server.get("port").getAsString();
+                                map.put(host + ":" + port, name);
+                            }
+                    }
+
+                    return map;
+                }
+            });
+        }
+        return serverListCache.get();
+    }
 
     public static Map<String, String> getAllServerLocations(){
         IServerHost implementation = CreeperHost.instance.getImplementation();

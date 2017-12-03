@@ -31,6 +31,8 @@ public class CreeperHostServerSelectionList extends ServerSelectionList
     }
 
     public void replaceList(List list) {
+        if (ourList == list)
+            return;
         ourList = list;
         ourList.add(new CreeperHostEntry(ourParent, new ServerData("","127.0.0.1", false), true));
     }

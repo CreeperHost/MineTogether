@@ -11,6 +11,7 @@ import net.creeperhost.creeperhost.gui.GuiGetServer;
 import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostEntry;
 import net.creeperhost.creeperhost.api.Order;
 import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostServerSelectionList;
+import net.creeperhost.creeperhost.gui.serverlist.GuiMultiplayerPublic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.GuiConnecting;
@@ -31,7 +32,8 @@ import java.util.List;
 
 public class EventHandler{
 
-    private static final int BUTTON_ID = 30051988;
+    private static final int MAIN_BUTTON_ID = 30051988;
+    private static final int MP_BUTTON_ID = 8008135;
 
     private static Field parentScreenField;
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
@@ -137,9 +139,9 @@ public class EventHandler{
                 return;
             List<GuiButton> buttonList = event.buttonList;
             if (buttonList != null) {
-                buttonList.add(new ButtonCreeper(BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
+                buttonList.add(new ButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
             }
-        } else if(Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null && gui instanceof GuiMultiplayer && lastInitialized != gui) {
+        } else if(Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null && gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui) {
             GuiMultiplayer mpGUI = (GuiMultiplayer) gui;
             try
             {
@@ -165,6 +167,11 @@ public class EventHandler{
                 CreeperHost.logger.warn("Reflection to alter server list failed.", e);
             }
         }
+
+        if(Config.getInstance().isServerListEnabled() && gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
+        {
+            event.buttonList.add(new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, Util.localize("multiplayer.public")));
+        }
     }
 
     @SubscribeEvent
@@ -189,13 +196,15 @@ public class EventHandler{
 
     @SubscribeEvent
     public void onActionPerformed(ActionPerformedEvent.Pre event){
-        if (!Config.getInstance().isMainMenuEnabled() || CreeperHost.instance.getImplementation() == null)
-            return;
         GuiScreen gui = Util.getGuiFromEvent(event);
+        GuiButton button = Util.getButton(event);
         if(gui instanceof GuiMainMenu){
-            GuiButton button = Util.getButton(event);
-            if(button != null && button.id == BUTTON_ID){
+            if(button != null && button.id == MAIN_BUTTON_ID){
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+            }
+        } else if (gui instanceof GuiMultiplayer) {
+            if (button != null && button.id == MP_BUTTON_ID) {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(gui));
             }
         }
     }

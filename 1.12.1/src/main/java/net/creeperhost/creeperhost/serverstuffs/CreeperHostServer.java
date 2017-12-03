@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.creeperhost.CreeperHost;
+import net.creeperhost.creeperhost.Util;
+import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.common.Pair;
 import net.creeperhost.creeperhost.serverstuffs.command.PregenCommand;
 import net.creeperhost.creeperhost.serverstuffs.hacky.IPlayerKicker;
@@ -11,6 +13,7 @@ import net.creeperhost.creeperhost.serverstuffs.pregen.PregenTask;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.PropertyManager;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeVersion;
@@ -20,6 +23,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -96,9 +100,67 @@ public class CreeperHostServer
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
     }
 
+    public boolean serverOn;
+
+    @Mod.EventHandler
+    public void serverStarted (FMLServerStartedEvent event)
+    {
+        final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server != null && !server.isSinglePlayer())
+        {
+            PropertyManager manager = new PropertyManager(new File("server.properties"));
+            final boolean serverPublic = manager.getBooleanProperty("public", false);
+            final String displayName = manager.getStringProperty("displayname", "Fill this in, and curseprojectid, if you have set the server to public!");
+            final String serverIP = manager.getStringProperty("server-ip", "");
+            final String projectid = manager.getStringProperty("curseprojectid", "");
+            serverOn = true;
+            if (serverPublic)
+            {
+                if (projectid.isEmpty())
+                {
+                    CreeperHostServer.logger.warn("projectid in server.properties is not set - please set this to a curse project ID to use the public server list!");
+                    return;
+                }
+                Thread thread = new Thread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        while (serverOn)
+                        {
+                            Map send = new HashMap<String, String>();
+
+                            if (!serverIP.isEmpty())
+                            {
+                                send.put("ip", serverIP);
+                            }
+                            send.put("name", displayName);
+                            send.put("projectid", projectid);
+                            send.put("port", String.valueOf(server.getServerPort()));
+
+                            Util.putWebResponse("https://api.creeper.host/serverlist/update", new Gson().toJson(send), true, true);
+
+                            try
+                            {
+                                Thread.sleep(120000);
+                            }
+                            catch (InterruptedException e)
+                            {
+                                // meh
+                            }
+                        }
+                    }
+                });
+                thread.setDaemon(true);
+                thread.start();
+            }
+        }
+    }
+
     @Mod.EventHandler
     public void serverStopping(FMLServerStoppingEvent event)
     {
+        serverOn = false;
         serializePreload();
         pregenTasks.clear();
     }

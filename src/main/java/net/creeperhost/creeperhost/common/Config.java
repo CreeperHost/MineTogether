@@ -17,6 +17,7 @@ public class Config
     private boolean serverHostButtonImage;
     private boolean serverHostMenuImage;
     private boolean sivIntegration;
+    private boolean serverListEnabled;
 
     private int pregenDiameter = 120;
 
@@ -32,6 +33,7 @@ public class Config
         serverHostButtonImage = true;
         serverHostMenuImage = true;
         sivIntegration = true;
+        serverListEnabled = true;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
@@ -89,6 +91,11 @@ public class Config
     public boolean isServerHostMenuImage()
     {
         return serverHostMenuImage;
+    }
+
+    public boolean isServerListEnabled()
+    {
+        return serverListEnabled;
     }
 
     public int getPregenDiameter() { return pregenDiameter; }
