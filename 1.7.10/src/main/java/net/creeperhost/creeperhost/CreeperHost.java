@@ -54,15 +54,12 @@ public class CreeperHost implements ICreeperHostMod
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
-        if (event.getSide() == Side.SERVER) {
-            logger.info("Client side only mod - not doing anything on the server!");
-            return;
+        if (event.getSide() != Side.SERVER) {
+            EventHandler eventHandler = new EventHandler();
+            FMLCommonHandler.instance().bus().register(eventHandler);
+            MinecraftForge.EVENT_BUS.register(eventHandler);
         }
 
-        EventHandler eventHandler = new EventHandler();
-
-        FMLCommonHandler.instance().bus().register(eventHandler);
-        MinecraftForge.EVENT_BUS.register(eventHandler);
         configFile = event.getSuggestedConfigurationFile();
 
         InputStream configStream = null;

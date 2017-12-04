@@ -27,7 +27,6 @@ import java.util.Random;
         modid = CreeperHost.MOD_ID,
         name = CreeperHost.NAME,
         version = CreeperHost.VERSION,
-        clientSideOnly = true,
         acceptableRemoteVersions="*",
         acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2",
         guiFactory = "net.creeperhost.creeperhost.gui.config.GuiCreeperConfigFactory"
@@ -53,12 +52,10 @@ public class CreeperHost implements ICreeperHostMod
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
-        if (event.getSide() == Side.SERVER) {
-            logger.info("Client side only mod - not doing anything on the server!");
-            return;
+        if (event.getSide() != Side.SERVER) {
+            MinecraftForge.EVENT_BUS.register(new EventHandler());
         }
 
-        MinecraftForge.EVENT_BUS.register(new EventHandler());
         configFile = event.getSuggestedConfigurationFile();
 
         InputStream configStream = null;

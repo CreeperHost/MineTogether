@@ -18,6 +18,7 @@ allprojects {
 
 dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.2.4'
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
 }
 
 repositories {

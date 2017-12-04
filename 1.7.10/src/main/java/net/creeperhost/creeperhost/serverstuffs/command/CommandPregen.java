@@ -13,7 +13,7 @@ import net.minecraftforge.common.DimensionManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PregenCommand extends CommandBase
+public class CommandPregen extends CommandBase
 {
 
     @Override

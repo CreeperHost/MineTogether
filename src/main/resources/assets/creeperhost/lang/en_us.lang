@@ -116,3 +116,5 @@ creeperhost.config.serverlistenabled.tooltip=Whether the public server list is e
 creeperhost.pregen.refresh=Will automatically refresh!
 
 creeperhost.multiplayer.public=Public server list
+creeperhost.multiplayer.button.public=List: Public
+creeperhost.multiplayer.button.private=List: Invite

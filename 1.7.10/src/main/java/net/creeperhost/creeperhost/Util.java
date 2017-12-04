@@ -340,20 +340,21 @@ public final class Util{
             this.callback = callback;
         }
 
-        public T get()
+        public T get(Object... args)
         {
-            if (System.currentTimeMillis() < invalidTime && cachedValue != null)
+            if (System.currentTimeMillis() < invalidTime && !callback.needsRefresh(args) && cachedValue != null)
             {
                 return cachedValue;
             }
-            cachedValue = callback.get();
+            cachedValue = callback.get(args);
             invalidTime = validTime + System.currentTimeMillis();
             return cachedValue;
         }
 
         public interface ICacheCallback<T>
         {
-            T get();
+            T get(Object... args);
+            boolean needsRefresh(Object... args);
         }
     }
 }

@@ -1,9 +1,10 @@
 package net.creeperhost.creeperhost.paul;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.GameProfileRepository;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import cpw.mods.fml.common.FMLCommonHandler;
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.AvailableResult;
@@ -11,27 +12,42 @@ import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.api.Order;
 import net.creeperhost.creeperhost.api.OrderSummary;
 import net.creeperhost.creeperhost.common.Config;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerProfileCache;
+import net.minecraft.util.Session;
 
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public final class Callbacks {
 
     public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
 
     private static Util.CachedValue<Map<String, String>> serverListCache;
-    public static Map<String, String> getServerList()
+    public static Map<String, String> getServerList(boolean isPublic)
     {
         if (serverListCache == null)
         {
             serverListCache = new Util.CachedValue<Map<String, String>>(30000, new Util.CachedValue.ICacheCallback<Map<String, String>>()
             {
+                private boolean lastRequest;
+                private String playerHash;
                 @Override
-                public Map<String, String> get()
+                public Map<String, String> get(Object... args)
                 {
+                    boolean isPublic = (Boolean)args[0];
+                    lastRequest = isPublic;
+                    CreeperHost.logger.info("Loading " + (isPublic ? "public" : "private") + " server list.");
                     Map<String, String> map = new HashMap<String, String>();
-                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/list", "{\"projectid\": " + Config.getInstance().curseProjectID + "}", true, false);
 
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
@@ -40,25 +56,77 @@ public final class Callbacks {
                         return map;
                     }
 
+                    Map<String, String> jsonPass = new HashMap<String, String>();
+                    jsonPass.put("projectid", Config.getInstance().curseProjectID);
+                    if (!isPublic)
+                    {
+                        if (playerHash == null)
+                        {
+                            try
+                            {
+                                Minecraft mc = Minecraft.getMinecraft();
+                                Session session = mc.getSession();
+                                boolean online = true;
+                                if (session.getToken().length() != 32 || session.getPlayerID().length() != 32)
+                                {
+                                    online = false;
+                                }
+
+                                UUID uuid;
+
+                                if (online)
+                                {
+                                    PlayerProfileCache playerprofilecache = new PlayerProfileCache(FMLCommonHandler.instance().getMinecraftServerInstance(), new File(mc.mcDataDir, MinecraftServer.field_152367_a.getName()));
+                                    uuid = playerprofilecache.func_152655_a(Minecraft.getMinecraft().getSession().getUsername()).getId();
+                                } else {
+                                    uuid = EntityPlayer.func_146094_a(new GameProfile(null, session.getUsername().toLowerCase()));
+                                }
+
+                                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                                byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
+                                playerHash = (new HexBinaryAdapter()).marshal(hash);
+                            }
+                            catch (NoSuchAlgorithmException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        jsonPass.put("hash", playerHash);
+                    }
+
+                    Gson gson = new Gson();
+                    String jsonString = gson.toJson(jsonPass);
+
+                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
+
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
                     {
                         JsonObject object = jElement.getAsJsonObject();
                         JsonArray array = object.getAsJsonArray("servers");
-                        for (JsonElement serverEl : array) {
-                            JsonObject server = (JsonObject)serverEl;
-                            String name = server.get("name").getAsString();
-                            String host = server.get("ip").getAsString();
-                            String port = server.get("port").getAsString();
-                            map.put(host + ":" + port, name);
-                        }
+                        if (array != null)
+                            for (JsonElement serverEl : array) {
+                                JsonObject server = (JsonObject)serverEl;
+                                String name = server.get("name").getAsString();
+                                String host = server.get("ip").getAsString();
+                                String port = server.get("port").getAsString();
+                                map.put(host + ":" + port, name);
+                            }
                     }
 
                     return map;
                 }
+
+                @Override
+                public boolean needsRefresh(Object... args)
+                {
+                    boolean isPublic = (Boolean)args[0];
+                    return isPublic != lastRequest;
+                }
             });
         }
-        return serverListCache.get();
+        return serverListCache.get(isPublic);
     }
 
     public static Map<String, String> getAllServerLocations(){

@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PregenCommand extends CommandBase
+public class CommandPregen extends CommandBase
 {
     /**
      * Gets the name of the command

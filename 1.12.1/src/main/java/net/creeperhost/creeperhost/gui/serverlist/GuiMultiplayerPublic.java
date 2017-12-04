@@ -2,14 +2,19 @@ package net.creeperhost.creeperhost.gui.serverlist;
 
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
+import net.creeperhost.creeperhost.common.ZipUtils;
+import net.minecraft.client.AnvilConverterException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.network.LanServerDetector;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.world.chunk.storage.AnvilSaveConverter;
+import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Keyboard;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
@@ -17,11 +22,19 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
 {
     private boolean initialized;
     private GuiScreen parent;
+    private GuiButton modeToggle;
+    public boolean isPublic = true;
 
     public GuiMultiplayerPublic(GuiScreen parentScreen)
     {
         super(parentScreen);
         parent = parentScreen;
+    }
+
+    public GuiMultiplayerPublic(GuiScreen parentScreen, boolean isPublic)
+    {
+        this(parentScreen);
+        this.isPublic = isPublic;
     }
 
     @Override
@@ -37,7 +50,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         else
         {
             this.initialized = true;
-            setServerList(new ServerListPublic(this.mc));
+            setServerList(new ServerListPublic(this.mc, this));
             ourSavedServerList.loadServerList();
             setLanServerList(new LanServerDetector.LanServerList());
 
@@ -48,7 +61,6 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             }
             catch (Exception exception)
             {
-                CreeperHost.logger.warn("Unable to start LAN server detection: {}", (Object)exception.getMessage());
             }
 
             setServerListSelector(new ServerSelectionListPublic(this, this.mc, this.width, this.height, 32, this.height - 64, 36));
@@ -91,6 +103,8 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
                 button.displayString = I18n.format("selectServer.refresh");
             }
         }
+        modeToggle = new GuiButton(80085, width - 5 - 100, 5, 100, 20, Util.localize(isPublic ? "multiplayer.button.public" : "multiplayer.button.private"));
+        buttonList.add(modeToggle);
     }
 
     @Override
@@ -98,10 +112,39 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     {
         if (button.id == 3)
         {
-            Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(parent));
+            refresh();
+            /*try
+            {
+
+                AnvilSaveConverter converter = (AnvilSaveConverter) Minecraft.getMinecraft().getSaveLoader();
+                WorldSummary worldSummary = converter.getSaveList().get(0);
+
+                System.out.println(worldSummary.getFileName() + " " + worldSummary.getDisplayName());
+
+                File folder = new File(converter.savesDirectory, worldSummary.getFileName());
+                File zip = new File(converter.savesDirectory, worldSummary.getFileName() + ".zip");
+
+                ZipUtils.zipIt(zip.getPath(), folder.getPath());
+
+                System.out.println(ZipUtils.uploadFile(zip));
+
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }*/ // comment out world zipping and uploading stuff for now, moar work on other features!
             return;
+        } else if (button.id == modeToggle.id) {
+            isPublic = !isPublic;
+            button.displayString = Util.localize(isPublic ? "multiplayer.button.public" : "multiplayer.button.private");
+            refresh();
         }
         super.actionPerformed(button);
+    }
+
+    private void refresh()
+    {
+        Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(parent, isPublic));
     }
 
     @Override

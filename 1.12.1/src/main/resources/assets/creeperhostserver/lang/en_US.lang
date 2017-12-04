@@ -5,3 +5,13 @@ creeperhostserver.command.pregen.alreadyexists=Pregen task already exists for di
 creeperhostserver.command.pregen.usage1=chpregen current|dimID xDiameter zDiameter [chunksPerTick, default 5]
 creeperhostserver.command.pregen.usage2=- OR -
 creeperhostserver.command.pregen.usage3=chpregen current|dimID xDiameter zDiameter xStartChunk zStartChunk [chunksPerTick, default 5]
+
+creeperhostserver.commands.invite.list=There are %d (out of %d seen) invited players:
+creeperhostserver.commands.invite.reloaded=Reloaded the invite list
+creeperhostserver.commands.invite.add.success=Added %s to the invite list
+creeperhostserver.commands.invite.add.failed=Could not add %s to the invite list
+creeperhostserver.commands.invite.add.usage=/invite add <player>
+creeperhostserver.commands.invite.remove.success=Removed %s from the invite list
+creeperhostserver.commands.invite.remove.failed=Could not remove %s from the invite list
+creeperhostserver.commands.invite.remove.usage=/invite remove <player>
+creeperhostserver.commands.invite.usage=/invite <list|add|remove|reload>

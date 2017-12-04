@@ -6,25 +6,36 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class ServerListPublic extends ServerList
 {
+    private final GuiMultiplayerPublic owner;
     private List<ServerData> servers;
 
-    public ServerListPublic(Minecraft mcIn)
+    public ServerListPublic(Minecraft mcIn, GuiMultiplayerPublic owner)
     {
       super(mcIn);
+      this.owner = owner;
     }
 
     @Override
     public void loadServerList()
     {
+        if (owner == null)
+            return; // to handle the super constructor calling us before we're ready.
         if (servers == null) servers = Lists.newArrayList();
         servers.clear();
-        Map <String, String> map = Callbacks.getServerList();
-        for(Map.Entry<String, String> server : map.entrySet())
+        Map <String, String> map = Callbacks.getServerList(owner.isPublic);
+
+        List<Map.Entry<String,String>> list = new ArrayList<Map.Entry<String,String>>(map.entrySet());
+
+        Collections.shuffle(list);
+
+        for(Map.Entry<String, String> server: list)
         {
             servers.add(new ServerData(server.getValue(), server.getKey(), false));
         }

@@ -1,15 +1,14 @@
 package net.creeperhost.creeperhost.serverstuffs;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
-import cpw.mods.fml.server.FMLServerHandler;
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
+import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.common.Pair;
-import net.creeperhost.creeperhost.serverstuffs.command.PregenCommand;
+import net.creeperhost.creeperhost.serverstuffs.command.CommandInvite;
+import net.creeperhost.creeperhost.serverstuffs.command.CommandPregen;
 import net.creeperhost.creeperhost.serverstuffs.pregen.PregenTask;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -69,11 +68,25 @@ public class CreeperHostServer
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
     {
-        event.registerServerCommand(new PregenCommand());
+        event.registerServerCommand(new CommandPregen());
+        event.registerServerCommand(new CommandInvite());
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
     }
 
     public boolean serverOn = false;
+    private enum Discoverability
+    {
+        UNLISTED,
+        PUBLIC,
+        INVITE
+    }
+
+    public static int updateID;
+
+    public static class InviteClass {
+        public int id;
+        public ArrayList<String> hash;
+    }
 
     @Mod.EventHandler
     public void serverStarted (FMLServerStartedEvent event)
@@ -82,16 +95,27 @@ public class CreeperHostServer
         if (server != null && !server.isSinglePlayer())
         {
             PropertyManager manager = new PropertyManager(new File("server.properties"));
-            final boolean serverPublic = manager.getBooleanProperty("public", false);
+            String discoverModeString = manager.getStringProperty("discoverability", "unlisted");
             final String displayName = manager.getStringProperty("displayname", "Fill this in, and curseprojectid, if you have set the server to public!");
             final String serverIP = manager.getStringProperty("server-ip", "");
-            final String projectid = manager.getStringProperty("curseprojectid", "");
+            final String projectid = Config.getInstance().curseProjectID;
+
+
+            Discoverability discoverModeTemp = Discoverability.UNLISTED;
             serverOn = true;
-            if (serverPublic)
+            try {
+                discoverModeTemp = Discoverability.valueOf(discoverModeString.toUpperCase());
+            } catch(IllegalArgumentException e) {
+            }
+
+            final Discoverability discoverMode = discoverModeTemp;
+
+            if (discoverMode != Discoverability.UNLISTED)
             {
-                if (projectid.isEmpty())
+                Config defConfig = new Config();
+                if (projectid.isEmpty() || projectid.equals(defConfig.curseProjectID))
                 {
-                    CreeperHostServer.logger.warn("projectid in server.properties is not set - please set this to a curse project ID to use the public server list!");
+                    CreeperHostServer.logger.warn("Curse project ID in creeperhost.cfg not set correctly - please set this to utilize the server list feature.");
                     return;
                 }
                 Thread thread = new Thread(new Runnable()
@@ -99,6 +123,7 @@ public class CreeperHostServer
                     @Override
                     public void run()
                     {
+                        boolean first = true;
                         while (serverOn)
                         {
                             Map send = new HashMap<String, String>();
@@ -111,11 +136,33 @@ public class CreeperHostServer
                             send.put("projectid", projectid);
                             send.put("port", String.valueOf(server.getServerPort()));
 
-                            Util.putWebResponse("https://api.creeper.host/serverlist/update", new Gson().toJson(send), true, true);
+                            send.put("invite-only", discoverMode == Discoverability.INVITE ? "1" : "0");
+
+                            Gson gson = new Gson();
+
+                            String sendStr = gson.toJson(send);
+
+                            String resp = Util.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
+
+                            JsonElement jElement = new JsonParser().parse(resp);
+                            if (jElement.isJsonObject())
+                            {
+                                JsonObject jObject = jElement.getAsJsonObject();
+                                if (jObject.get("status").getAsString().equals("success"))
+                                {
+                                    CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
+                                }
+                            }
+
+                            if (first)
+                            {
+                                CommandInvite.reloadInvites(new String[0]);
+                                first = false;
+                            }
 
                             try
                             {
-                                Thread.sleep(120000);
+                                Thread.sleep(90000);
                             }
                             catch (InterruptedException e)
                             {

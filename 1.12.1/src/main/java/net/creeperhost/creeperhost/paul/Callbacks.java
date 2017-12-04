@@ -1,9 +1,16 @@
 package net.creeperhost.creeperhost.paul;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.GameProfileRepository;
+import com.mojang.authlib.minecraft.BaseMinecraftSessionService;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.IServerHost;
@@ -13,24 +20,36 @@ import net.creeperhost.creeperhost.api.AvailableResult;
 
 import com.google.gson.*;
 import net.creeperhost.creeperhost.common.Config;
-import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerProfileCache;
+import net.minecraft.tileentity.TileEntitySkull;
+import net.minecraft.util.Session;
+import scala.collection.parallel.ParIterableLike;
+
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 public final class Callbacks {
 
     public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
 
     private static Util.CachedValue<Map<String, String>> serverListCache;
-    public static Map<String, String> getServerList()
+    public static Map<String, String> getServerList(boolean isPublic)
     {
         if (serverListCache == null)
         {
             serverListCache = new Util.CachedValue<Map<String, String>>(30000, new Util.CachedValue.ICacheCallback<Map<String, String>>()
             {
+                private boolean lastRequest;
+                private String playerHash;
                 @Override
-                public Map<String, String> get()
+                public Map<String, String> get(Object... args)
                 {
-                    Map<String, String> map = new HashMap<String, String>();
-                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/list", "{\"projectid\": " + Config.getInstance().curseProjectID + "}", true, false);
+                    boolean isPublic = (Boolean)args[0];
+                    lastRequest = isPublic;
+                    CreeperHost.logger.info("Loading " + (isPublic ? "public" : "private") + " server list.");
+                    Map<String, String> map = new LinkedHashMap<String, String>();
 
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
@@ -38,6 +57,52 @@ public final class Callbacks {
                         map.put("127.0.0.1:25565", "No project ID! Please fix the CreeperHost config.");
                         return map;
                     }
+
+                    Map<String, String> jsonPass = new HashMap<String, String>();
+                    jsonPass.put("projectid", Config.getInstance().curseProjectID);
+                    if (!isPublic)
+                    {
+                        if (playerHash == null)
+                        {
+                            try
+                            {
+                                Minecraft mc = Minecraft.getMinecraft();
+                                Session session = mc.getSession();
+                                boolean online = true;
+                                if (session.getToken().length() != 32 || session.getPlayerID().length() != 32)
+                                {
+                                    online = false;
+                                }
+
+                                UUID uuid;
+
+                                if (online)
+                                {
+                                    YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(mc.getProxy(), UUID.randomUUID().toString());
+                                    GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
+                                    PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository, new File(mc.mcDataDir, MinecraftServer.USER_CACHE_FILE.getName()));
+                                    uuid = playerprofilecache.getGameProfileForUsername(Minecraft.getMinecraft().getSession().getUsername()).getId();
+                                } else {
+                                    uuid = EntityPlayer.getOfflineUUID(session.getUsername().toLowerCase());
+                                }
+
+                                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                                byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
+                                playerHash = (new HexBinaryAdapter()).marshal(hash);
+                            }
+                            catch (NoSuchAlgorithmException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        jsonPass.put("hash", playerHash);
+                    }
+
+                    Gson gson = new Gson();
+                    String jsonString = gson.toJson(jsonPass);
+
+                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
 
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
@@ -56,9 +121,16 @@ public final class Callbacks {
 
                     return map;
                 }
+
+                @Override
+                public boolean needsRefresh(Object... args)
+                {
+                    boolean isPublic = (Boolean)args[0];
+                    return isPublic != lastRequest;
+                }
             });
         }
-        return serverListCache.get();
+        return serverListCache.get(isPublic);
     }
 
     public static Map<String, String> getAllServerLocations(){
