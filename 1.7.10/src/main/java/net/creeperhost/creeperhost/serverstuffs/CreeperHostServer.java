@@ -49,7 +49,7 @@ public class CreeperHostServer
 {
     public static final String MOD_ID = "creeperhostserver";
     public static final String NAME = "CreeperHostServer";
-    private static Logger logger;
+    public static Logger logger;
 
     private MinecraftServer server;
 
@@ -144,20 +144,24 @@ public class CreeperHostServer
 
                             String resp = Util.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
 
-                            JsonElement jElement = new JsonParser().parse(resp);
-                            if (jElement.isJsonObject())
-                            {
-                                JsonObject jObject = jElement.getAsJsonObject();
-                                if (jObject.get("status").getAsString().equals("success"))
+                            try {
+                                JsonElement jElement = new JsonParser().parse(resp);
+                                if (jElement.isJsonObject())
                                 {
-                                    CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
-                                }
-                            }
+                                    JsonObject jObject = jElement.getAsJsonObject();
+                                    if (jObject.get("status").getAsString().equals("success"))
+                                    {
+                                        CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
+                                    }
 
-                            if (first)
-                            {
-                                CommandInvite.reloadInvites(new String[0]);
-                                first = false;
+                                    if (first)
+                                    {
+                                        CommandInvite.reloadInvites(new String[0]);
+                                        first = false;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                // so our thread doens't go byebye
                             }
 
                             try

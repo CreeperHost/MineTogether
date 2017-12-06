@@ -3,6 +3,7 @@ package net.creeperhost.creeperhost.serverstuffs.command;
 import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.FMLCommonHandler;
+import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.serverstuffs.CreeperHostServer;
 import net.minecraft.command.CommandBase;
@@ -166,6 +167,7 @@ public class CommandInvite extends CommandBase
 
         CreeperHostServer.InviteClass invite = new CreeperHostServer.InviteClass();
         invite.hash = tempHash;
+        invite.id = CreeperHostServer.updateID;
         Util.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
     }
 
@@ -191,7 +193,9 @@ public class CommandInvite extends CommandBase
         CreeperHostServer.InviteClass invite = new CreeperHostServer.InviteClass();
         invite.hash = tempHash;
         invite.id = CreeperHostServer.updateID;
-        Util.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
+        CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
+        CreeperHostServer.logger.debug("Response from revoke endpoint " + resp);
     }
 
     public static void reloadInvites(String[] prevNames)

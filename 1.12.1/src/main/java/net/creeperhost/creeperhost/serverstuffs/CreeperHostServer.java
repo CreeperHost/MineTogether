@@ -128,6 +128,8 @@ public class CreeperHostServer
             final String displayName = manager.getStringProperty("displayname", "Fill this in, and curseprojectid, if you have set the server to public!");
             final String serverIP = manager.getStringProperty("server-ip", "");
             final String projectid = Config.getInstance().curseProjectID;
+
+
             Discoverability discoverModeTemp = Discoverability.UNLISTED;
             serverOn = true;
             try {
@@ -142,7 +144,7 @@ public class CreeperHostServer
                 Config defConfig = new Config();
                 if (projectid.isEmpty() || projectid.equals(defConfig.curseProjectID))
                 {
-                    CreeperHostServer.logger.error("Curse project ID in creeperhost.cfg not set correctly - please set this to utilize the server list feature.");
+                    CreeperHostServer.logger.warn("Curse project ID in creeperhost.cfg not set correctly - please set this to utilize the server list feature.");
                     return;
                 }
                 Thread thread = new Thread(new Runnable()
@@ -171,20 +173,24 @@ public class CreeperHostServer
 
                             String resp = Util.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
 
-                            JsonElement jElement = new JsonParser().parse(resp);
-                            if (jElement.isJsonObject())
-                            {
-                                JsonObject jObject = jElement.getAsJsonObject();
-                                if (jObject.get("status").getAsString().equals("success"))
+                            try {
+                                JsonElement jElement = new JsonParser().parse(resp);
+                                if (jElement.isJsonObject())
                                 {
-                                    CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
-                                }
-                            }
+                                    JsonObject jObject = jElement.getAsJsonObject();
+                                    if (jObject.get("status").getAsString().equals("success"))
+                                    {
+                                        CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
+                                    }
 
-                            if (first)
-                            {
-                                CommandInvite.reloadInvites(new String[0]);
-                                first = false;
+                                    if (first)
+                                    {
+                                        CommandInvite.reloadInvites(new String[0]);
+                                        first = false;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                // so our thread doens't go byebye
                             }
 
                             try
