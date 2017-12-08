@@ -7,15 +7,23 @@ import net.minecraft.client.gui.GuiScreen;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiList extends GuiListExtended{
+public class GuiList extends GuiListExtended
+{
 
     public final GuiScreen gui;
-    private final List<GuiListEntry> options = new ArrayList<GuiListEntry>();
+    private List<GuiListEntry> options;
     private int currSelected = -1;
 
     public GuiList(GuiScreen gui, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn){
         super(mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
         this.gui = gui;
+        options = new ArrayList<GuiListEntry>();
+    }
+
+    public GuiList(GuiScreen gui, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn, GuiList list)
+    {
+        this(gui, mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
+        this.options = list.options;
     }
 
     public void addEntry(GuiListEntry entry){
@@ -39,6 +47,11 @@ public class GuiList extends GuiListExtended{
             this.currSelected = -1;
             return null;
         }
+    }
+
+    public void clearList()
+    {
+        options = new ArrayList<GuiListEntry>();
     }
 
     @Override

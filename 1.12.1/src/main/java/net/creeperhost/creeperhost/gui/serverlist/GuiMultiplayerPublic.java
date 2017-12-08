@@ -2,19 +2,14 @@ package net.creeperhost.creeperhost.gui.serverlist;
 
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
-import net.creeperhost.creeperhost.common.ZipUtils;
-import net.minecraft.client.AnvilConverterException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.network.LanServerDetector;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.world.chunk.storage.AnvilSaveConverter;
-import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Keyboard;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 

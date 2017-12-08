@@ -1,16 +1,10 @@
 package net.creeperhost.creeperhost.paul;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.GameProfileRepository;
-import com.mojang.authlib.minecraft.BaseMinecraftSessionService;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.api.IServerHost;
@@ -20,13 +14,6 @@ import net.creeperhost.creeperhost.api.AvailableResult;
 
 import com.google.gson.*;
 import net.creeperhost.creeperhost.common.Config;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerProfileCache;
-import net.minecraft.tileentity.TileEntitySkull;
-import net.minecraft.util.Session;
-import scala.collection.parallel.ParIterableLike;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -35,6 +22,123 @@ public final class Callbacks {
     public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
 
     private static Util.CachedValue<Map<String, String>> serverListCache;
+
+    private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
+    public static String getPlayerHash(UUID uuid)
+    {
+        if (hashCache.containsKey(uuid))
+            return hashCache.get(uuid);
+
+        String playerHash;
+        try
+        {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
+            playerHash = (new HexBinaryAdapter()).marshal(hash);
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+        hashCache.put(uuid, playerHash);
+        return playerHash;
+    }
+
+    private static String friendCode;
+    public static String getFriendCode()
+    {
+        if (friendCode != null)
+            return friendCode;
+
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/friendCode", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            JsonElement status = obj.get("status");
+            if (status.getAsString().equals("success"))
+            {
+                friendCode = obj.get("code").getAsString();
+            }
+        }
+        return friendCode;
+    }
+
+    public static void addFriend(String code, String display)
+    {
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+            sendMap.put("target", code);
+            sendMap.put("display", display);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        CreeperHost.logger.info(sendStr);
+        CreeperHost.logger.info(Util.putWebResponse("https://api.creeper.host/serverlist/requestfriend", sendStr, true, false));
+    }
+
+    private static Util.CachedValue<Map<String, Boolean>> friendsList = null;
+    public static Map<String,Boolean> getFriendsList(boolean force)
+    {
+        if (friendsList == null)
+            friendsList = new Util.CachedValue<Map<String, Boolean>>(10000, new Util.CachedValue.ICacheCallback<Map<String, Boolean>>()
+            {
+                @Override
+                public Map<String, Boolean> get(Object... args)
+                {
+                    Map<String, String> sendMap = new HashMap<String, String>();
+                    {
+                        sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
+                    }
+
+                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, false);
+
+                    Map<String, Boolean> tempMap = new HashMap<String, Boolean>();
+                    System.out.println(resp);
+
+                    JsonElement el = new JsonParser().parse(resp);
+                    if(el.isJsonObject())
+                    {
+
+                        JsonObject obj = el.getAsJsonObject();
+                        if (obj.get("status").getAsString().equals("success"))
+                        {
+                            JsonArray array = obj.getAsJsonArray("friends");
+                            for (JsonElement friendEl : array) {
+                                JsonObject friend = (JsonObject)friendEl;
+                                String name = "null";
+                                if (!friend.get("name").isJsonNull())
+                                {
+                                    name = friend.get("name").getAsString();
+                                }
+                                boolean accepted = friend.get("accepted").getAsBoolean();
+                                tempMap.put(name, accepted);
+                            }
+                        }
+                    }
+                    return tempMap;
+                }
+
+                @Override
+                public boolean needsRefresh(Object... args)
+                {
+                    return args.length > 0 && args[0].equals(true);
+                }
+            });
+        return friendsList.get(force);
+    }
+
     public static Map<String, String> getServerList(boolean isPublic)
     {
         if (serverListCache == null)
@@ -64,36 +168,8 @@ public final class Callbacks {
                     {
                         if (playerHash == null)
                         {
-                            try
-                            {
-                                Minecraft mc = Minecraft.getMinecraft();
-                                Session session = mc.getSession();
-                                boolean online = true;
-                                if (session.getToken().length() != 32 || session.getPlayerID().length() != 32)
-                                {
-                                    online = false;
-                                }
 
-                                UUID uuid;
 
-                                if (online)
-                                {
-                                    YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(mc.getProxy(), UUID.randomUUID().toString());
-                                    GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
-                                    PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository, new File(mc.mcDataDir, MinecraftServer.USER_CACHE_FILE.getName()));
-                                    uuid = playerprofilecache.getGameProfileForUsername(Minecraft.getMinecraft().getSession().getUsername()).getId();
-                                } else {
-                                    uuid = EntityPlayer.getOfflineUUID(session.getUsername().toLowerCase());
-                                }
-
-                                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                                byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
-                                playerHash = (new HexBinaryAdapter()).marshal(hash);
-                            }
-                            catch (NoSuchAlgorithmException e)
-                            {
-                                e.printStackTrace();
-                            }
                         }
 
                         jsonPass.put("hash", playerHash);

@@ -6,11 +6,13 @@ import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.CreeperHostServerHost;
+import net.creeperhost.creeperhost.proxy.IProxy;
 import net.creeperhost.creeperhost.siv.QueryGetter;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.IOUtils;
@@ -41,6 +43,9 @@ public class CreeperHost implements ICreeperHostMod
 
     @Mod.Instance(value="creeperhost", owner="creeperhost")
     public static CreeperHost instance;
+
+    @SidedProxy(clientSide="net.creeperhost.creeperhost.proxy.Client", serverSide="net.creeperhost.creeperhost.proxy.Server")
+    public static IProxy proxy;
 
     public ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
     public IServerHost currentImplementation;
