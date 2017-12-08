@@ -52,7 +52,7 @@ public class GuiFriendsList extends GuiScreen
         if (list == null)
             list = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
         else
-            list = new GuiList(this, mc, width, height, 32, this.height - 64, 36, list);
+            list.setDimensions(width, height, 32, this.height-64);
 
         if (first)
         {
@@ -65,7 +65,7 @@ public class GuiFriendsList extends GuiScreen
         buttonAdd = new GuiButton(1, this.width / 2 - 40, y, 80, 20, Util.localize("multiplayer.button.addfriend"));
         buttonList.add(buttonAdd);
         buttonInvite = new GuiButton(2, 10, y, 80, 20, Util.localize("multiplayer.button.invite"));
-        buttonInvite.enabled = false;
+        buttonInvite.enabled = list.getCurrSelected() != null;
         buttonList.add(buttonInvite);
         friendDisplayString = Util.localize("multiplayer.friendcode", friendCode);
         int friendWidth = fontRendererObj.getStringWidth(friendDisplayString);

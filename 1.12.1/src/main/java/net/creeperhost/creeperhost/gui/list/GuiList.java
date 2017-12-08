@@ -21,13 +21,6 @@ public class GuiList<T extends GuiListEntry> extends GuiListExtended
         options = new ArrayList<T>();
     }
 
-    public GuiList(GuiScreen gui, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn, GuiList<T> list)
-    {
-        this(gui, mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
-        options.addAll(list.options);
-        //TODO: Fix unselected and disappearing entries
-    }
-
     public void addEntry(T entry){
         this.options.add(entry);
     }
