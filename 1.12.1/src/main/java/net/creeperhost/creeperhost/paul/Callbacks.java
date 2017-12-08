@@ -14,6 +14,7 @@ import net.creeperhost.creeperhost.api.AvailableResult;
 
 import com.google.gson.*;
 import net.creeperhost.creeperhost.common.Config;
+import net.creeperhost.creeperhost.gui.serverlist.Friend;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -22,6 +23,22 @@ public final class Callbacks {
     public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
 
     private static Util.CachedValue<Map<String, String>> serverListCache;
+
+    public static void inviteFriend(Friend friend)
+    {
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+            sendMap.put("target", friend.getCode());
+            sendMap.put("server", String.valueOf(CreeperHost.instance.curServerId));
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/invitefriend", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+    }
 
     private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
     public static String getPlayerHash(UUID uuid)
@@ -88,14 +105,14 @@ public final class Callbacks {
         CreeperHost.logger.info(Util.putWebResponse("https://api.creeper.host/serverlist/requestfriend", sendStr, true, false));
     }
 
-    private static Util.CachedValue<Map<String, Boolean>> friendsList = null;
-    public static Map<String,Boolean> getFriendsList(boolean force)
+    private static Util.CachedValue<ArrayList<Friend>> friendsList = null;
+    public static ArrayList<Friend> getFriendsList(boolean force)
     {
         if (friendsList == null)
-            friendsList = new Util.CachedValue<Map<String, Boolean>>(10000, new Util.CachedValue.ICacheCallback<Map<String, Boolean>>()
+            friendsList = new Util.CachedValue<ArrayList<Friend>>(10000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>()
             {
                 @Override
-                public Map<String, Boolean> get(Object... args)
+                public ArrayList<Friend> get(Object... args)
                 {
                     Map<String, String> sendMap = new HashMap<String, String>();
                     {
@@ -104,7 +121,7 @@ public final class Callbacks {
 
                     String resp = Util.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, false);
 
-                    Map<String, Boolean> tempMap = new HashMap<String, Boolean>();
+                    ArrayList<Friend> tempArr = new ArrayList<Friend>();
                     System.out.println(resp);
 
                     JsonElement el = new JsonParser().parse(resp);
@@ -118,16 +135,19 @@ public final class Callbacks {
                             for (JsonElement friendEl : array) {
                                 JsonObject friend = (JsonObject)friendEl;
                                 String name = "null";
+                                String code = "null";
                                 if (!friend.get("name").isJsonNull())
                                 {
                                     name = friend.get("name").getAsString();
                                 }
+                                code = friend.get("hash").toString();
+
                                 boolean accepted = friend.get("accepted").getAsBoolean();
-                                tempMap.put(name, accepted);
+                                tempArr.add(new Friend(name, code, accepted));
                             }
                         }
                     }
-                    return tempMap;
+                    return tempArr;
                 }
 
                 @Override

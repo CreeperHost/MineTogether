@@ -3,6 +3,7 @@ package net.creeperhost.creeperhost.serverstuffs;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.creeperhost.CreeperHost;
+import net.creeperhost.creeperhost.PacketHandler;
 import net.creeperhost.creeperhost.Util;
 import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.common.Pair;
@@ -11,6 +12,7 @@ import net.creeperhost.creeperhost.serverstuffs.command.CommandPregen;
 import net.creeperhost.creeperhost.serverstuffs.hacky.IPlayerKicker;
 import net.creeperhost.creeperhost.serverstuffs.pregen.PregenTask;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.PropertyManager;
@@ -27,6 +29,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
@@ -117,6 +120,8 @@ public class CreeperHostServer
         public ArrayList<String> hash;
     }
 
+    Discoverability discoverMode = Discoverability.UNLISTED;
+
     @Mod.EventHandler
     public void serverStarted (FMLServerStartedEvent event)
     {
@@ -130,14 +135,12 @@ public class CreeperHostServer
             final String projectid = Config.getInstance().curseProjectID;
 
 
-            Discoverability discoverModeTemp = Discoverability.UNLISTED;
+
             serverOn = true;
             try {
-                discoverModeTemp = Discoverability.valueOf(discoverModeString.toUpperCase());
+                discoverMode = Discoverability.valueOf(discoverModeString.toUpperCase());
             } catch(IllegalArgumentException e) {
             }
-
-            final Discoverability discoverMode = discoverModeTemp;
 
             if (discoverMode != Discoverability.UNLISTED)
             {
@@ -218,12 +221,22 @@ public class CreeperHostServer
         pregenTasks.clear();
     }
 
+    WeakHashMap<EntityPlayerMP, Boolean> playersJoined = new WeakHashMap<EntityPlayerMP, Boolean>();
     @SubscribeEvent
     public void entityJoinWorld(EntityJoinWorldEvent event)
     {
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (server == null || server.isSinglePlayer())
             return;
+
+        if (event.getEntity() instanceof EntityPlayerMP)
+        {
+            if (!playersJoined.containsKey(event.getEntity()))
+            {
+                playersJoined.put((EntityPlayerMP)event.getEntity(), null);
+                PacketHandler.INSTANCE.sendTo(new PacketHandler.ServerIDMessage(updateID), (EntityPlayerMP) event.getEntity());
+            }
+        }
         Entity entity = event.getEntity();
         if (entity instanceof EntityPlayerMP)
         {

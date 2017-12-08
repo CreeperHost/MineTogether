@@ -19,6 +19,7 @@ import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -263,6 +264,12 @@ public class EventHandler {
         }
 
         CreeperHost.instance.saveConfig();
+    }
+
+    @SubscribeEvent
+    public void clientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent evt)
+    {
+        CreeperHost.instance.curServerId = -1;
     }
     
 }

@@ -118,3 +118,8 @@ creeperhost.pregen.refresh=Will automatically refresh!
 creeperhost.multiplayer.public=Public server list
 creeperhost.multiplayer.button.public=List: Public
 creeperhost.multiplayer.button.private=List: Invite
+
+creeperhost.multiplayer.friendcode=Unique code: %s
+creeperhost.multiplayer.button.invite=Invite friend
+creeperhost.multiplayer.button.addfriend=Add friend
+creeperhost.multiplayer.button.copy=Copy

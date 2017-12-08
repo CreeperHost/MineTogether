@@ -14,6 +14,10 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -54,11 +58,14 @@ public class CreeperHost implements ICreeperHostMod
 
     private QueryGetter queryGetter;
     private String lastCurse = "";
+    public int curServerId = -1;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
         if (event.getSide() != Side.SERVER) {
             MinecraftForge.EVENT_BUS.register(new EventHandler());
+            proxy.registerKeys();
+            PacketHandler.packetRegister();
         }
 
         configFile = event.getSuggestedConfigurationFile();

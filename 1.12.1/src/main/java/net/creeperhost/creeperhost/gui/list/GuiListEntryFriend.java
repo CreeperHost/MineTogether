@@ -1,18 +1,23 @@
 package net.creeperhost.creeperhost.gui.list;
 
+import net.creeperhost.creeperhost.gui.serverlist.Friend;
+
 public class GuiListEntryFriend extends GuiListEntry {
 
-  public final String displayName;
-  public final boolean status;
+  private final Friend friend;
 
-  public GuiListEntryFriend(GuiList list, String displayName, boolean status){
+  public GuiListEntryFriend(GuiList list, Friend friend){
     super(list);
-    this.displayName = displayName;
-    this.status = status;
+    this.friend = friend;
   }
 
   @Override
   public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected){
-    this.mc.fontRendererObj.drawString(this.displayName, x+5, y+5, 16777215);
+    this.mc.fontRendererObj.drawString(friend.getName(), x+5, y+5, 16777215);
+  }
+
+  public Friend getFriend()
+  {
+    return friend;
   }
 }
