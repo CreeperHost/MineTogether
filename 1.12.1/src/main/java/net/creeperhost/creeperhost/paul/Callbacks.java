@@ -15,6 +15,7 @@ import net.creeperhost.creeperhost.api.AvailableResult;
 import com.google.gson.*;
 import net.creeperhost.creeperhost.common.Config;
 import net.creeperhost.creeperhost.gui.serverlist.Friend;
+import net.creeperhost.creeperhost.gui.serverlist.Invite;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -24,7 +25,42 @@ public final class Callbacks {
 
     private static Util.CachedValue<Map<String, String>> serverListCache;
 
-    public static void inviteFriend(Friend friend)
+    public static Invite getInvite()
+    {
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/friendinvites", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            if (obj.get("status").getAsString().equals("success"))
+            {
+                JsonArray invites = obj.getAsJsonArray("invites");
+
+                for(JsonElement inviteEl: invites)
+                {
+                    JsonObject invite = inviteEl.getAsJsonObject();
+                    JsonObject server = invite.getAsJsonObject("server");
+                    String name = server.get("name").getAsString();
+                    String ip = server.get("ip").getAsString();
+                    int port = server.get("port").getAsInt();
+                    int project = server.get("project").getAsInt();
+                    String by = invite.get("by").getAsString();
+                    return new Invite(name, ip, port, project, by);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean inviteFriend(Friend friend)
     {
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
@@ -38,6 +74,18 @@ public final class Callbacks {
         String resp = Util.putWebResponse("https://api.creeper.host/serverlist/invitefriend", sendStr, true, false);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
+
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            if (obj.get("status").getAsString().equals("success"))
+            {
+                return true;
+            }
+        }
+        CreeperHost.logger.error("Unable to invite friend.");
+        CreeperHost.logger.error(resp);
+        return false;
     }
 
     private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
@@ -85,12 +133,15 @@ public final class Callbacks {
             if (status.getAsString().equals("success"))
             {
                 friendCode = obj.get("code").getAsString();
+            } else {
+                CreeperHost.logger.error("Unable to get friendcode.");
+                CreeperHost.logger.error(resp);
             }
         }
         return friendCode;
     }
 
-    public static void addFriend(String code, String display)
+    public static boolean addFriend(String code, String display)
     {
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
@@ -101,8 +152,21 @@ public final class Callbacks {
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        CreeperHost.logger.info(sendStr);
-        CreeperHost.logger.info(Util.putWebResponse("https://api.creeper.host/serverlist/requestfriend", sendStr, true, false));
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/requestfriend", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            JsonElement status = obj.get("status");
+            if (!status.getAsString().equals("success"))
+            {
+                CreeperHost.logger.error("Unable to add friend.");
+                CreeperHost.logger.error(resp);
+                return false;
+            }
+        }
+        return true;
     }
 
     private static Util.CachedValue<ArrayList<Friend>> friendsList = null;
@@ -122,7 +186,6 @@ public final class Callbacks {
                     String resp = Util.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, false);
 
                     ArrayList<Friend> tempArr = new ArrayList<Friend>();
-                    System.out.println(resp);
 
                     JsonElement el = new JsonParser().parse(resp);
                     if(el.isJsonObject())
@@ -135,12 +198,12 @@ public final class Callbacks {
                             for (JsonElement friendEl : array) {
                                 JsonObject friend = (JsonObject)friendEl;
                                 String name = "null";
-                                String code = "null";
+
                                 if (!friend.get("name").isJsonNull())
                                 {
                                     name = friend.get("name").getAsString();
                                 }
-                                code = friend.get("hash").toString();
+                                String code = friend.get("hash").getAsString();
 
                                 boolean accepted = friend.get("accepted").getAsBoolean();
                                 tempArr.add(new Friend(name, code, accepted));

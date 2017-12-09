@@ -1,8 +1,8 @@
 [
 {
-  "modid": "creeperhost",
-  "name": "CreeperHost",
-  "description": "Mod which allows you to purchase a server in game, and view server stats!",
+  "modid": "minetogether",
+  "name": "MineTogether",
+  "description": "Mod which allows you to purchase a server in game, view server stats, and invite friends to servers or see public servers!",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
@@ -14,9 +14,9 @@
   "dependencies": []
 },
 {
-  "modid": "creeperhostserver",
-  "name": "CreeperHostServer",
-  "description": "Companion server side mod to allow you to pregen chunks",
+  "modid": "minetogetherserver",
+  "name": "MineTogetherServer",
+  "description": "Companion server side mod to allow you to pregen chunks, and to allow listed on public server list.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",

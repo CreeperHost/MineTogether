@@ -2,8 +2,11 @@ package net.creeperhost.creeperhost.proxy;
 
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import net.creeperhost.creeperhost.gui.GuiFriendsList;
+import net.creeperhost.creeperhost.CreeperHost;
+import net.creeperhost.creeperhost.gui.serverlist.GuiFriendsList;
+import net.creeperhost.creeperhost.gui.serverlist.GuiInvited;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
@@ -11,34 +14,22 @@ import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.Session;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.lwjgl.input.Keyboard;
+import scala.collection.parallel.ParIterableLike;
 
 import java.io.File;
 import java.util.UUID;
 
 public class Client implements IProxy
 {
-    private KeyBinding openGuiKey;
+    public KeyBinding openGuiKey;
 
     @Override
     public void registerKeys()
     {
         openGuiKey = new KeyBinding("minetogether.opengui", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_F, "key.categories.general");
         ClientRegistry.registerKeyBinding(openGuiKey);
-        MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    @SubscribeEvent
-    public void onKeyInput(InputEvent.KeyInputEvent event)
-    {
-        if (openGuiKey.isPressed())
-        {
-            openFriendsGui();
-        }
     }
 
 
@@ -46,7 +37,13 @@ public class Client implements IProxy
     public void openFriendsGui()
     {
         Minecraft mc = Minecraft.getMinecraft();
-        mc.displayGuiScreen(new GuiFriendsList(mc.currentScreen));
+        if (CreeperHost.instance.handledInvite == null)
+        {
+            mc.displayGuiScreen(new GuiFriendsList(mc.currentScreen));
+        } else {
+            mc.displayGuiScreen(new GuiInvited(CreeperHost.instance.handledInvite, mc.currentScreen));
+            CreeperHost.instance.handledInvite = null;
+        }
     }
 
     private UUID cache;

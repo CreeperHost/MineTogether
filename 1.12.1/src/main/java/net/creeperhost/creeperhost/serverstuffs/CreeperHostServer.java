@@ -50,14 +50,14 @@ import java.util.concurrent.TimeUnit;
 )
 public class CreeperHostServer
 {
-    public static final String MOD_ID = "creeperhostserver";
-    public static final String NAME = "CreeperHostServer";
+    public static final String MOD_ID = "minetogetherserver";
+    public static final String NAME = "MineTogetherServer";
     public static Logger logger;
 
     @SidedProxy(clientSide = "net.creeperhost.creeperhost.serverstuffs.ClientProxy", serverSide = "net.creeperhost.creeperhost.serverstuffs.ServerProxy")
     public static IServerProxy proxy;
 
-    @Mod.Instance(value = "creeperhostserver")
+    @Mod.Instance(value = "minetogetherserver")
     public static CreeperHostServer INSTANCE;
 
     private HashMap<Integer, PregenTask> pregenTasks = new HashMap<Integer, PregenTask>();

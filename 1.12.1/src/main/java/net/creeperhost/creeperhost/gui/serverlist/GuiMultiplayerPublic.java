@@ -83,19 +83,19 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         super.createButtons();
         for(GuiButton button: buttonList)
         {
-            if (button.id != 0 && button.id != 1 && button.id != 3)
+            if (button.id != 0 && button.id != 1 && button.id != 3 && button.id != 7)
             {
                 button.visible = false;
-            }
-
-            if (button.id == 1) // original connect button
+            } else if (button.id == 1) // original connect button
             {
                 button.displayString = I18n.format("selectServer.add");
-            }
-
-            if (button.id == 3) // original add button
+            } else if (button.id == 3) // original add button
             {
                 button.displayString = I18n.format("selectServer.refresh");
+            } else if (button.id == 7) // original edit button
+            {
+                button.displayString = Util.localize("multiplayer.friends");
+                button.enabled = true;
             }
         }
         modeToggle = new GuiButton(80085, width - 5 - 100, 5, 100, 20, Util.localize(isPublic ? "multiplayer.button.public" : "multiplayer.button.private"));
@@ -108,31 +108,15 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         if (button.id == 3)
         {
             refresh();
-            /*try
-            {
-
-                AnvilSaveConverter converter = (AnvilSaveConverter) Minecraft.getMinecraft().getSaveLoader();
-                WorldSummary worldSummary = converter.getSaveList().get(0);
-
-                System.out.println(worldSummary.getFileName() + " " + worldSummary.getDisplayName());
-
-                File folder = new File(converter.savesDirectory, worldSummary.getFileName());
-                File zip = new File(converter.savesDirectory, worldSummary.getFileName() + ".zip");
-
-                ZipUtils.zipIt(zip.getPath(), folder.getPath());
-
-                System.out.println(ZipUtils.uploadFile(zip));
-
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }*/ // comment out world zipping and uploading stuff for now, moar work on other features!
             return;
         } else if (button.id == modeToggle.id) {
             isPublic = !isPublic;
             button.displayString = Util.localize(isPublic ? "multiplayer.button.public" : "multiplayer.button.private");
             refresh();
+            return;
+        } else if (button.id == 7) {
+            CreeperHost.proxy.openFriendsGui();
+            return;
         }
         super.actionPerformed(button);
     }

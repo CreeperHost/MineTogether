@@ -4,6 +4,7 @@ import net.creeperhost.creeperhost.api.CreeperHostAPI;
 import net.creeperhost.creeperhost.api.ICreeperHostMod;
 import net.creeperhost.creeperhost.api.IServerHost;
 import net.creeperhost.creeperhost.common.Config;
+import net.creeperhost.creeperhost.gui.serverlist.Invite;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.paul.CreeperHostServerHost;
 import net.creeperhost.creeperhost.proxy.IProxy;
@@ -22,6 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.Sys;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -40,12 +42,12 @@ import java.util.Random;
 public class CreeperHost implements ICreeperHostMod
 {
 
-    public static final String MOD_ID = "creeperhost";
-    public static final String NAME = "CreeperHost";
+    public static final String MOD_ID = "minetogether";
+    public static final String NAME = "MineTogether";
     public static final String VERSION = "@VERSION@";
-    public static final Logger logger = LogManager.getLogger("creeperhost");
+    public static final Logger logger = LogManager.getLogger("minetogether");
 
-    @Mod.Instance(value="creeperhost", owner="creeperhost")
+    @Mod.Instance(value="minetogether", owner="minetogether")
     public static CreeperHost instance;
 
     @SidedProxy(clientSide="net.creeperhost.creeperhost.proxy.Client", serverSide="net.creeperhost.creeperhost.proxy.Server")
@@ -59,6 +61,7 @@ public class CreeperHost implements ICreeperHostMod
     private QueryGetter queryGetter;
     private String lastCurse = "";
     public int curServerId = -1;
+    public Invite handledInvite;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
@@ -78,7 +81,16 @@ public class CreeperHost implements ICreeperHostMod
                 configStream = new FileInputStream(configFile);
                 configString = IOUtils.toString(configStream);
             } else {
-                configString = "{}";
+                File parent = configFile.getParentFile();
+                File tempConfigFile = new File(parent, "creeperhost.cfg");
+                if (tempConfigFile.exists())
+                {
+                    configStream = new FileInputStream(tempConfigFile);
+                    configString = IOUtils.toString(configStream);
+                } else {
+                    configString = "{}";
+                }
+
             }
 
             Config.loadConfig(configString);
@@ -122,9 +134,10 @@ public class CreeperHost implements ICreeperHostMod
             }
         }
 
-        if (Config.getInstance().isCreeperhostEnabled() && implement == null) {
+        if (Config.getInstance().isCreeperhostEnabled() && implement != null) {
             CreeperHost.instance.implementations.remove(implement);
-            CreeperHostAPI.registerImplementation(implement = new CreeperHostServerHost());
+            implement = new CreeperHostServerHost();
+            CreeperHostAPI.registerImplementation(implement);
         }
 
         if (!Config.getInstance().isCreeperhostEnabled()) {
@@ -194,5 +207,24 @@ public class CreeperHost implements ICreeperHostMod
             makeQueryGetter();
         }
         return queryGetter;
+    }
+
+    String toastText;
+    long endTime;
+    long fadeTime;
+    public Invite invite;
+    public Object inviteLock = new Object();
+
+    public void displayToast(String text, int duration)
+    {
+        toastText = text;
+        endTime = System.currentTimeMillis() + duration;
+        fadeTime = endTime + 500;
+    }
+
+    public void clearToast(boolean fade)
+    {
+        endTime = System.currentTimeMillis();
+        fadeTime = endTime + (fade ? 500 : 0);
     }
 }

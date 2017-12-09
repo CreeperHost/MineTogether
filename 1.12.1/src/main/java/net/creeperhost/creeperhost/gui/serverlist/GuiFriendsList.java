@@ -1,4 +1,4 @@
-package net.creeperhost.creeperhost.gui;
+package net.creeperhost.creeperhost.gui.serverlist;
 
 import net.creeperhost.creeperhost.CreeperHost;
 import net.creeperhost.creeperhost.Util;
@@ -7,11 +7,10 @@ import net.creeperhost.creeperhost.gui.list.GuiList;
 import net.creeperhost.creeperhost.gui.list.GuiListEntryFriend;
 import net.creeperhost.creeperhost.gui.serverlist.Friend;
 import net.creeperhost.creeperhost.paul.Callbacks;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
 
+import javax.security.auth.callback.Callback;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
@@ -26,6 +25,7 @@ public class GuiFriendsList extends GuiScreen
     private GuiButton buttonCancel;
     private GuiButton buttonInvite;
     private GuiButton buttonCopy;
+    private GuiButton buttonRefresh;
     private GuiTextField codeEntry;
     private GuiTextField displayEntry;
 
@@ -33,16 +33,12 @@ public class GuiFriendsList extends GuiScreen
     private String friendCode;
     private boolean first = true;
     private String friendDisplayString;
-    private int alertColour;
-    private long alertTime;
-    private String alertText;
-    private int alertWidth;
-    private long fadeTime;
 
     public GuiFriendsList(GuiScreen currentScreen)
     {
         this.parent = currentScreen;
         friendCode = Callbacks.getFriendCode();
+        CreeperHost.instance.clearToast(false);
     }
 
     @Override
@@ -62,6 +58,8 @@ public class GuiFriendsList extends GuiScreen
         int y = this.height-60;
         buttonCancel = new GuiButton(0, this.width - 90, y, 80, 20, Util.localize("button.cancel"));
         buttonList.add(buttonCancel);
+        buttonRefresh = new GuiButton(1337, this.width - 90, y + 30, 80, 20, Util.localize("multiplayer.button.refresh"));
+        buttonList.add(buttonRefresh);
         buttonAdd = new GuiButton(1, this.width / 2 - 40, y, 80, 20, Util.localize("multiplayer.button.addfriend"));
         buttonList.add(buttonAdd);
         buttonInvite = new GuiButton(2, 10, y, 80, 20, Util.localize("multiplayer.button.invite"));
@@ -87,6 +85,12 @@ public class GuiFriendsList extends GuiScreen
     }
 
     @Override
+    public void onGuiClosed()
+    {
+        CreeperHost.instance.clearToast(false);
+    }
+
+    @Override
     protected void actionPerformed(GuiButton button) throws IOException{
         if (button.id == buttonCancel.id)
         {
@@ -105,20 +109,30 @@ public class GuiFriendsList extends GuiScreen
                 buttonInvite.visible = false;
             } else if (!codeEntry.getText().isEmpty()){
                 Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
-                list.addEntry(new GuiListEntryFriend(list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
                 addFriend = false;
+                list.addEntry(new GuiListEntryFriend(list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
                 buttonInvite.visible = true;
+                showAlert(Util.localize("multiplayer.friendsent"), 0x00FF00, 5000);
             }
 
         } else if (button.id == buttonInvite.id && button.enabled && button.visible) {
             if (CreeperHost.instance.curServerId == -1)
             {
-                showAlert("Server not public!", 0xFF0000, 5000);
+                showAlert(Util.localize("multiplayer.notinvite"), 0xFF0000, 5000);
+                return;
             } else {
-                //TODO: Actually invite
-                showAlert("Invite sent!", 0x00FF00, 5000);
+                boolean ret = Callbacks.inviteFriend(list.getCurrSelected().getFriend());
+                if (ret)
+                {
+                    Callbacks.inviteFriend(list.getCurrSelected().getFriend());
+                    showAlert(Util.localize("multiplayer.invitesent"), 0x00FF00, 5000);
+                }
+                else
+                {
+                    showAlert(Util.localize("multiplayer.couldnotinvite"), 0xFF0000, 5000);
+                }
+
             }
-            Callbacks.inviteFriend(list.getCurrSelected().getFriend());
         } else if (button.id == buttonCopy.id) {
             Toolkit.getDefaultToolkit()
                 .getSystemClipboard()
@@ -126,7 +140,9 @@ public class GuiFriendsList extends GuiScreen
                   new StringSelection(friendCode),
                   null
                 );
-            showAlert("Copied to clipboard", 0x00FF00, 5000);
+            showAlert("Copied to clipboard.", 0x00FF00, 5000);
+        } else if (button.id == buttonRefresh.id) {
+            refreshFriendsList(false);
         }
     }
 
@@ -139,34 +155,14 @@ public class GuiFriendsList extends GuiScreen
             this.list.drawScreen(mouseX, mouseY, partialTicks);
         else
         {
+            this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.othercode"), this.width / 2, this.height / 2 - 60, 0xFFFFFF);
+            this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.displayname"), this.width / 2, this.height / 2 - 10, 0xFFFFFF);
             this.codeEntry.drawTextBox();
             this.displayEntry.drawTextBox();
         }
 
-        this.drawCenteredString(this.fontRendererObj, Util.localize("gui.get_server"), this.width/2, 10, -1);
+        this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width/2, 10, -1);
         this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
-        if (alertText != null)
-        {
-            long curTime = System.currentTimeMillis();
-            if (alertTime > curTime)
-            {
-                float alpha = 1;
-                int alphaHex = (int)(alpha * 255) << 24;
-                GlStateManager.enableBlend();
-                this.drawString(fontRendererObj, alertText, width - 10 - alertWidth, this.height - 20, alertColour | alphaHex);
-            } else if (fadeTime > curTime) {
-                long alertFadeDiff = fadeTime - alertTime;
-                long currDiff = fadeTime - curTime;
-                float alpha = (float)currDiff / (float)alertFadeDiff;
-                int alphaHex = (int)(alpha * 255) << 24;
-                GlStateManager.enableBlend();
-                this.drawString(fontRendererObj, alertText, width - 10 - alertWidth, this.height - 20, alertColour | alphaHex);
-            } else {
-                alertTime = 0;
-                alertText = null;
-            }
-
-        }
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
@@ -200,7 +196,10 @@ public class GuiFriendsList extends GuiScreen
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.list.mouseClicked(mouseX, mouseY, mouseButton);
         if (list.getCurrSelected() != null)
-            this.buttonInvite.enabled = true;
+            if (list.getCurrSelected().getFriend().isAccepted())
+                this.buttonInvite.enabled = true;
+            else
+                this.buttonInvite.enabled = false;
         else
             this.buttonInvite.enabled = false;
     }
@@ -213,11 +212,6 @@ public class GuiFriendsList extends GuiScreen
 
     private void showAlert(String text, int colour, int time)
     {
-        alertText = text;
-        alertColour = colour;
-        alertColour = alertColour << 32;
-        alertTime = System.currentTimeMillis() + time;
-        fadeTime = alertTime + 500;
-        alertWidth = fontRendererObj.getStringWidth(text);
+        CreeperHost.instance.displayToast(text, time);
     }
 }
