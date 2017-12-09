@@ -88,7 +88,7 @@ public class GuiInvited extends GuiScreen
         this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.invite"), this.width/2, 10, -1);
 
         this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.invited", invite.by), this.width/2, yBase, -1);
-        server.func_192634_a(0, (this.width / 2) - 125, yBase + 20, 250, 36, Integer.MAX_VALUE, Integer.MAX_VALUE,    false, partialTicks);
+        Util.getWrapper().draw(server, 0, (this.width / 2) - 125, yBase + 20, 250, 36, Integer.MAX_VALUE, Integer.MAX_VALUE,false);
         this.drawCenteredString(this.fontRendererObj, Util.localize(canConnect ? "multiplayer.join" : "multiplayer.cantjoin", invite.by), this.width/2, yBase + 36 + 30, -1);
 
         super.drawScreen(mouseX, mouseY, partialTicks);

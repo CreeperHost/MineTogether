@@ -118,3 +118,27 @@ creeperhost.pregen.refresh=Will automatically refresh!
 creeperhost.multiplayer.public=Public server list
 creeperhost.multiplayer.button.public=List: Public
 creeperhost.multiplayer.button.private=List: Invite
+
+creeperhost.multiplayer.friendcode=Unique code: %s
+creeperhost.multiplayer.button.invite=Invite friend
+creeperhost.multiplayer.button.addfriend=Add friend
+creeperhost.multiplayer.button.copy=Copy
+creeperhost.multiplayer.button.refresh=Refresh
+creeperhost.multiplayer.friends=Friends list
+creeperhost.multiplayer.othercode=Friends unique code
+creeperhost.multiplayer.displayname=Friends display name
+
+creeperhost.multiplayer.friendsent=Friend request sent!
+creeperhost.multiplayer.copied=Copied to clipboard
+creeperhost.multiplayer.invitesent=Invite sent!
+creeperhost.multiplayer.notinvite=Couldn't invite - server not public/mod not on server
+creeperhost.multiplayer.couldnotinvite=Invite could not be sent - not accepted?
+creeperhost.multiplayer.invitetoast=Server invite. Press %s or check friends list!
+
+creeperhost.multiplayer.invite=Server invite
+creeperhost.multiplayer.invited=You were invited to the below server by %s
+creeperhost.multiplayer.join=Do you wish to join the server?
+creeperhost.multiplayer.cantjoin=Unfortunately, the server isn't running the correct pack, so you cannot connect.
+creeperhost.multiplayer.addlist=Add to your server list? Applies for both Cancel and Connect.
+creeperhost.multiplayer.cancel=Cancel
+creeperhost.multiplayer.connect=Connect

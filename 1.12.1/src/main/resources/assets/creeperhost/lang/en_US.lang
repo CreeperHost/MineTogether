@@ -133,7 +133,7 @@ creeperhost.multiplayer.copied=Copied to clipboard
 creeperhost.multiplayer.invitesent=Invite sent!
 creeperhost.multiplayer.notinvite=Couldn't invite - server not public/mod not on server
 creeperhost.multiplayer.couldnotinvite=Invite could not be sent - not accepted?
-creeperhost.multiplayer.invitetoast=Server invite. Press %s or check friends list to see details.
+creeperhost.multiplayer.invitetoast=Server invite. Press %s or check friends list!
 
 creeperhost.multiplayer.invite=Server invite
 creeperhost.multiplayer.invited=You were invited to the below server by %s

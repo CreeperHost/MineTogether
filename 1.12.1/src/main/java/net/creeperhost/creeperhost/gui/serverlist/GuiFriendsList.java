@@ -26,8 +26,8 @@ public class GuiFriendsList extends GuiScreen
     private GuiButton buttonInvite;
     private GuiButton buttonCopy;
     private GuiButton buttonRefresh;
-    private GuiTextField codeEntry;
-    private GuiTextField displayEntry;
+    private GuiTextFieldCompat codeEntry;
+    private GuiTextFieldCompat displayEntry;
 
     private boolean addFriend = false;
     private String friendCode;
@@ -191,8 +191,8 @@ public class GuiFriendsList extends GuiScreen
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException{
-        this.codeEntry.mouseClicked(mouseX, mouseY, mouseButton);
-        this.displayEntry.mouseClicked(mouseX, mouseY, mouseButton);
+        this.codeEntry.myMouseClicked(mouseX, mouseY, mouseButton);
+        this.displayEntry.myMouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.list.mouseClicked(mouseX, mouseY, mouseButton);
         if (list.getCurrSelected() != null)

@@ -2,6 +2,7 @@ package net.creeperhost.creeperhost;
 
 import net.creeperhost.creeperhost.gui.hacky.IBufferProxy;
 import net.creeperhost.creeperhost.gui.hacky.IBufferProxyGetter;
+import net.creeperhost.creeperhost.gui.hacky.IServerListEntryWrapper;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.ForgeVersion;
 
@@ -228,6 +229,35 @@ public final class Util{
         }
 
         return proxyGetter.get();
+    }
+
+    private static IServerListEntryWrapper wrapper;
+    public static IServerListEntryWrapper getWrapper() {
+        if (wrapper == null) {
+            String className = "net.creeperhost.creeperhost.gui.hacky.ServerListEntryWrapperNew";
+            String mcVersion;
+            try {
+                /*
+                We need to get this at runtime as Java is smart and interns final fields.
+                Certainly not the dirtiest hack we do in this codebase.
+                */
+                mcVersion = (String) ForgeVersion.class.getField("mcVersion").get(null);
+            } catch (Throwable e) {
+                mcVersion = "unknown"; // will default to new method
+            }
+            if (oldVersions.contains(mcVersion)) {
+                className = "net.creeperhost.creeperhost.gui.hacky.ServerListEntryWrapperOld";
+            }
+
+            try {
+                Class clazz = Class.forName(className);
+                wrapper = (IServerListEntryWrapper) clazz.newInstance();
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+        }
+
+        return wrapper;
     }
 
     public static class CachedValue<T>

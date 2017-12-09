@@ -297,7 +297,10 @@ public class EventHandler {
     private Thread inviteCheckThread;
 
     private int inviteTicks = -1;
-@SubscribeEvent
+
+    GuiScreen fakeGui = new GuiScreen() {};
+
+    @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
     {
         inviteTicks = (inviteTicks + 1) % 20;
@@ -385,7 +388,10 @@ public class EventHandler {
     private final ResourceLocation earlyResource = new ResourceLocation("textures/gui/achievement/achievement_background.png");
     private final ResourceLocation newResouce = new ResourceLocation("textures/gui/toasts.png");
 
-    public ResourceLocation getToastResourceLocation() {
+    int u = 0;
+    int v = 0;
+
+    private ResourceLocation getToastResourceLocation() {
         if (mcVersion == null)
             try {
                 /*
@@ -396,11 +402,13 @@ public class EventHandler {
             } catch (Throwable e) {
                 mcVersion = "unknown"; // will default to new method
             }
-        String[] split = mcVersion.split(".");
+        String[] split = mcVersion.split("\\.");
         if (split.length >= 2)
         {
-            if (split[2].equals("10") || split[2].equals("11") || split[2].equals("9") || split[2].equals("7"))
+            if (split[1].equals("10") || split[1].equals("11") || split[1].equals("9") || split[1].equals("7"))
             {
+                u = 96;
+                v = 202;
                 return earlyResource;
             }
         }
@@ -423,7 +431,7 @@ public class EventHandler {
                 GlStateManager.color(1.0F, 1.0F, 1.0F, alpha);
                 mc.renderEngine.bindTexture(getToastResourceLocation());
                 ScaledResolution res = new ScaledResolution(mc);
-                drawTexturedModalRect(res.getScaledWidth() - 160, 0, 0, 0, 160, 32);
+                drawTexturedModalRect(res.getScaledWidth() - 160, 0, u, v, 160, 32);
                 GlStateManager.enableBlend();
                 int textColour = (0xFFFFFF << 32) | ((int)(alpha * 255) << 24);
                 mc.fontRendererObj.drawSplitString(CreeperHost.instance.toastText, res.getScaledWidth() - 160 + 5, 6, 160, textColour);
@@ -449,11 +457,12 @@ public class EventHandler {
         }
     }
 
-    private float zLevel = 0;
+    //private float zLevel = 0;
 
     private void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
     {
-        float f = 0.00390625F;
+        fakeGui.drawTexturedModalRect(x, y, textureX, textureY, width, height);
+/*        float f = 0.00390625F;
         float f1 = 0.00390625F;
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
@@ -462,7 +471,7 @@ public class EventHandler {
         bufferbuilder.pos((double)(x + width), (double)(y + height), (double)this.zLevel).tex((double)((float)(textureX + width) * 0.00390625F), (double)((float)(textureY + height) * 0.00390625F)).endVertex();
         bufferbuilder.pos((double)(x + width), (double)(y + 0), (double)this.zLevel).tex((double)((float)(textureX + width) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
         bufferbuilder.pos((double)(x + 0), (double)(y + 0), (double)this.zLevel).tex((double)((float)(textureX + 0) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
-        tessellator.draw();
+        tessellator.draw();*/
     }
     
 }
