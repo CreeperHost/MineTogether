@@ -134,7 +134,7 @@ public class CreeperHost implements ICreeperHostMod
             }
         }
 
-        if (Config.getInstance().isCreeperhostEnabled() && implement != null) {
+        if (Config.getInstance().isCreeperhostEnabled()) {
             CreeperHost.instance.implementations.remove(implement);
             implement = new CreeperHostServerHost();
             CreeperHostAPI.registerImplementation(implement);
