@@ -213,7 +213,7 @@ public class CreeperHost implements ICreeperHostMod
     long endTime;
     long fadeTime;
     public Invite invite;
-    public Object inviteLock = new Object();
+    public final Object inviteLock = new Object();
 
     public void displayToast(String text, int duration)
     {

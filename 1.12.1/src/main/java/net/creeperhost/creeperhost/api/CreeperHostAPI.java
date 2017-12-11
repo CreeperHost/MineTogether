@@ -11,7 +11,6 @@ public class CreeperHostAPI
         if (Loader.isModLoaded("minetogether"))
         {
             Object mod = Loader.instance().getIndexedModList().get("minetogether").getMod();
-            System.out.println(mod);
             ((ICreeperHostMod) mod).registerImplementation(plugin);
         }
     }

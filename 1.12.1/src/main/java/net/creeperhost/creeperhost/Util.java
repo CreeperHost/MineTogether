@@ -90,6 +90,8 @@ public final class Util{
         return postWebResponse(urlString, mapToFormString(postDataMap));
     }
 
+    private static boolean logHide;
+
     public static String methodWebResponse(String urlString, String postDataString, String method, boolean isJson, boolean silent)
     {
         try {
@@ -139,13 +141,15 @@ public final class Util{
             }
 
             rd.close();
+            logHide = false;
             return respData.toString();
         } catch (Throwable t) {
-            if (silent)
+            if (silent || logHide)
             {
                 return "error";
             }
-            CreeperHost.logger.warn("An error occurred while fetching " + urlString, t);
+            logHide = true;
+            CreeperHost.logger.warn("An error occurred while fetching " + urlString + ". Will hide repeated errors.", t);
         }
 
         return "error";

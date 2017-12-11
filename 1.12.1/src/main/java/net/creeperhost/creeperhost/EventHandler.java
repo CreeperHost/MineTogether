@@ -2,15 +2,12 @@ package net.creeperhost.creeperhost;
 
 import net.creeperhost.creeperhost.api.Order;
 import net.creeperhost.creeperhost.common.Config;
-import net.creeperhost.creeperhost.gui.serverlist.GuiFriendsList;
+import net.creeperhost.creeperhost.gui.serverlist.*;
 import net.creeperhost.creeperhost.gui.GuiGetServer;
 import net.creeperhost.creeperhost.gui.GuiProgressDisconnected;
 import net.creeperhost.creeperhost.gui.GuiServerInfo;
 import net.creeperhost.creeperhost.gui.element.ButtonCreeper;
 import net.creeperhost.creeperhost.gui.mpreplacement.CreeperHostServerSelectionList;
-import net.creeperhost.creeperhost.gui.serverlist.Friend;
-import net.creeperhost.creeperhost.gui.serverlist.GuiInvited;
-import net.creeperhost.creeperhost.gui.serverlist.GuiMultiplayerPublic;
 import net.creeperhost.creeperhost.paul.Callbacks;
 import net.creeperhost.creeperhost.proxy.Client;
 import net.minecraft.client.Minecraft;
@@ -319,15 +316,19 @@ public class EventHandler {
                     {
                         while (Config.getInstance().isServerListEnabled())
                         {
-                            synchronized (CreeperHost.instance.inviteLock)
-                            {
+                            Invite tempInvite = null;
+
                                 try {
-                                    CreeperHost.instance.invite = Callbacks.getInvite();
+                                    tempInvite = Callbacks.getInvite();
                                 } catch(Exception e)
                                 {
                                     // carry on - we'll just try again later, saves thread dying.
                                 }
 
+                            synchronized (CreeperHost.instance.inviteLock)
+                            {
+                                if (tempInvite != null)
+                                    CreeperHost.instance.invite = tempInvite;
                             }
 
                             try
@@ -367,7 +368,7 @@ public class EventHandler {
                     if (friend.getCode().equals(CreeperHost.instance.handledInvite.by))
                     {
                         friendName = friend.getName();
-                        CreeperHost.instance.handledInvite.by = friend.getName();
+                        CreeperHost.instance.handledInvite.by = friendName;
                         break;
                     }
                 }
@@ -444,7 +445,7 @@ public class EventHandler {
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event)
     {
-        if (((Client)CreeperHost.proxy).openGuiKey.isPressed())
+        if (Config.getInstance().isServerListEnabled() && ((Client)CreeperHost.proxy).openGuiKey.isPressed())
         {
             if (CreeperHost.instance.handledInvite != null)
             {
