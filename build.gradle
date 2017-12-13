@@ -7,7 +7,7 @@ apply plugin: 'idea'
 version = "1.8.1"
 
 allprojects {
-    group= "net.creeperhost.creeperhost"
+    group= "net.creeperhost.minetogether"
     archivesBaseName = "minetogether"
 
     sourceCompatibility = targetCompatibility = "1.6"
