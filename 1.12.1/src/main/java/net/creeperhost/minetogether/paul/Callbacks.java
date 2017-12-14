@@ -16,6 +16,7 @@ import com.google.gson.*;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.serverlist.Friend;
 import net.creeperhost.minetogether.gui.serverlist.Invite;
+import net.creeperhost.minetogether.gui.serverlist.Server;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -23,7 +24,7 @@ public final class Callbacks {
 
     public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
 
-    private static Util.CachedValue<Map<String, String>> serverListCache;
+    private static Util.CachedValue<List<Server>> serverListCache;
 
     public static Invite getInvite()
     {
@@ -222,27 +223,27 @@ public final class Callbacks {
         return friendsList.get(force);
     }
 
-    public static Map<String, String> getServerList(boolean isPublic)
+    public static List<Server> getServerList(boolean isPublic)
     {
         if (serverListCache == null)
         {
-            serverListCache = new Util.CachedValue<Map<String, String>>(30000, new Util.CachedValue.ICacheCallback<Map<String, String>>()
+            serverListCache = new Util.CachedValue<List<Server>>(30000, new Util.CachedValue.ICacheCallback<List<Server>>()
             {
                 private boolean lastRequest;
                 private String playerHash;
                 @Override
-                public Map<String, String> get(Object... args)
+                public List<Server> get(Object... args)
                 {
                     boolean isPublic = (Boolean)args[0];
                     lastRequest = isPublic;
                     CreeperHost.logger.info("Loading " + (isPublic ? "public" : "private") + " server list.");
-                    Map<String, String> map = new LinkedHashMap<String, String>();
+                    List<Server> list = new ArrayList<Server>();
 
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
-                        map.put("127.0.0.1:25565", "No project ID! Please fix the CreeperHost config.");
-                        return map;
+                        list.add(new Server("No project ID! Please fix the CreeperHost config.", "127.0.0.1:25565", 0, 0));
+                        return list;
                     }
 
                     Map<String, String> jsonPass = new HashMap<String, String>();
@@ -251,8 +252,7 @@ public final class Callbacks {
                     {
                         if (playerHash == null)
                         {
-
-
+                            playerHash = getPlayerHash(CreeperHost.proxy.getUUID());
                         }
 
                         jsonPass.put("hash", playerHash);
@@ -274,11 +274,14 @@ public final class Callbacks {
                                 String name = server.get("name").getAsString();
                                 String host = server.get("ip").getAsString();
                                 String port = server.get("port").getAsString();
-                                map.put(host + ":" + port, name);
+                                int uptime = server.get("uptime").getAsInt();
+                                int players = server.get("expected_players").getAsInt();
+
+                                list.add(new Server(name, host + ":" + port, uptime, players));
                             }
                     }
 
-                    return map;
+                    return list;
                 }
 
                 @Override

@@ -11,6 +11,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static net.creeperhost.minetogether.gui.serverlist.GuiMultiplayerPublic.*;
+import static net.creeperhost.minetogether.gui.serverlist.GuiMultiplayerPublic.SortOrder.*;
+
 public class ServerListPublic extends ServerList
 {
     private final GuiMultiplayerPublic owner;
@@ -29,15 +32,28 @@ public class ServerListPublic extends ServerList
             return; // to handle the super constructor calling us before we're ready.
         if (servers == null) servers = Lists.newArrayList();
         servers.clear();
-        Map <String, String> map = Callbacks.getServerList(owner.isPublic);
+        List<Server> list = Callbacks.getServerList(owner.isPublic);
 
-        List<Map.Entry<String,String>> list = new ArrayList<Map.Entry<String,String>>(map.entrySet());
-
-        Collections.shuffle(list);
-
-        for(Map.Entry<String, String> server: list)
+        switch (owner.sortOrder)
         {
-            servers.add(new ServerData(server.getValue(), server.getKey(), false));
+            default:
+            case RANDOM:
+                Collections.shuffle(list);
+                break;
+            case PLAYER:
+                Collections.sort(list, new Server.PlayerComparator());
+                break;
+            case UPTIME:
+                Collections.sort(list, new Server.UptimeComparator());
+                break;
+            case NAME:
+                Collections.sort(list, new Server.NameComparator());
+                break;
+        }
+
+        for(Server server: list)
+        {
+            servers.add(new ServerData(server.displayName, server.host, false));
         }
     }
 

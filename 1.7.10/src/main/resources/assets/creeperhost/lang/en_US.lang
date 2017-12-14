@@ -129,6 +129,12 @@ creeperhost.multiplayer.friends=Friends list
 creeperhost.multiplayer.othercode=Friends unique code
 creeperhost.multiplayer.displayname=Friends display name
 
+creeperhost.multiplayer.sort=Sort: %s
+creeperhost.multiplayer.sort.random=Random
+creeperhost.multiplayer.sort.player=Players
+creeperhost.multiplayer.sort.name=Name
+creeperhost.multiplayer.sort.uptime=Uptime
+
 creeperhost.multiplayer.friendsent=Friend request sent!
 creeperhost.multiplayer.copied=Copied to clipboard
 creeperhost.multiplayer.invitesent=Invite sent!

@@ -57,16 +57,11 @@ public class CreeperHost implements ICreeperHostMod
     public int curServerId = -1;
     public Invite handledInvite;
 
+    public boolean active = true;
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
-        if (event.getSide() != Side.SERVER) {
-            MinecraftForge.EVENT_BUS.register(new EventHandler());
-            proxy.registerKeys();
-            PacketHandler.packetRegister();
-        }
-
         configFile = event.getSuggestedConfigurationFile();
-
         InputStream configStream = null;
         try
         {
@@ -90,8 +85,8 @@ public class CreeperHost implements ICreeperHostMod
             Config.loadConfig(configString);
         } catch (Throwable t)
         {
-            logger.error("Unable to read config", t);
-            throw new RuntimeException("Fatal error, unable to read config");
+            logger.error("Fatal error, unable to read config. Not starting mod.", t);
+            active = false;
         } finally {
             try {
                 if (configStream != null) {
@@ -99,10 +94,17 @@ public class CreeperHost implements ICreeperHostMod
                 }
             } catch (Throwable t) {
             }
-
+            if (!active)
+                return;
         }
 
         saveConfig();
+
+        if (event.getSide() != Side.SERVER) {
+            MinecraftForge.EVENT_BUS.register(new EventHandler());
+            proxy.registerKeys();
+            PacketHandler.packetRegister();
+        }
     }
 
     private Random randomGenerator;

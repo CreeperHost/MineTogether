@@ -98,7 +98,8 @@ public class CreeperHostServer
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
     {
-        //event.registerServerCommand(new CommandPregen());
+        if (!CreeperHost.instance.active)
+            return;
         event.registerServerCommand(new CommandInvite());
         event.registerServerCommand(new CommandPregen());
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
@@ -127,6 +128,8 @@ public class CreeperHostServer
     @Mod.EventHandler
     public void serverStarted (FMLServerStartedEvent event)
     {
+        if (!CreeperHost.instance.active)
+            return;
         final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (server != null && !server.isSinglePlayer())
         {
@@ -209,9 +212,9 @@ public class CreeperHostServer
                                         tries = 0;
                                         CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
                                         if (jObject.has("secret"))
-                                            CreeperHostServer.secret = jObject.get("secret").getAsString();;
+                                            CreeperHostServer.secret = jObject.get("secret").getAsString();
                                     } else {
-                                        if (tries >= 5){
+                                        if (tries >= 4){
                                             CreeperHostServer.logger.error("Unable to do call to server list - disabling for 45 minutes. Reason: " + jObject.get("message").getAsString());
                                             tries = 0;
                                             sleepTime = 60 * 1000 * 45;
@@ -251,6 +254,8 @@ public class CreeperHostServer
     @Mod.EventHandler
     public void serverStopping(FMLServerStoppingEvent event)
     {
+        if (!CreeperHost.instance.active)
+            return;
         serverOn = false;
         serializePreload();
         pregenTasks.clear();
@@ -260,6 +265,8 @@ public class CreeperHostServer
     @SubscribeEvent
     public void entityJoinWorld(EntityJoinWorldEvent event)
     {
+        if (!CreeperHost.instance.active)
+            return;
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (server == null || server.isSinglePlayer())
             return;
@@ -291,6 +298,8 @@ public class CreeperHostServer
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e)
     {
+        if (!CreeperHost.instance.active)
+            return;
         MinecraftForge.EVENT_BUS.register(this);
         logger = e.getModLog();
         setupPlayerKicker();
@@ -299,6 +308,8 @@ public class CreeperHostServer
     @SubscribeEvent
     public void worldTick(TickEvent.WorldTickEvent e)
     {
+        if (!CreeperHost.instance.active)
+            return;
         if (e.phase == TickEvent.Phase.END)
         {
             return;

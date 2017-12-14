@@ -15,10 +15,35 @@ import java.lang.reflect.Field;
 
 public class GuiMultiplayerPublic extends GuiMultiplayer
 {
+
+    public enum SortOrder
+    {
+        RANDOM("multiplayer.sort.random"),
+        PLAYER("multiplayer.sort.player"),
+        NAME("multiplayer.sort.name"),
+        UPTIME("multiplayer.sort.uptime");
+
+        private static SortOrder[] vals = values();
+
+        public String translate;
+
+        SortOrder(String translate)
+        {
+            this.translate = translate;
+        }
+
+        public SortOrder next()
+        {
+            return vals[(this.ordinal()+1) % vals.length];
+        }
+    }
+
     private boolean initialized;
     private GuiScreen parent;
     private GuiButton modeToggle;
+    private GuiButton sortOrderButton;
     public boolean isPublic = true;
+    public SortOrder sortOrder = SortOrder.RANDOM;
 
     public GuiMultiplayerPublic(GuiScreen parentScreen)
     {
@@ -26,10 +51,11 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         parent = parentScreen;
     }
 
-    public GuiMultiplayerPublic(GuiScreen parentScreen, boolean isPublic)
+    public GuiMultiplayerPublic(GuiScreen parentScreen, boolean isPublic, SortOrder order)
     {
         this(parentScreen);
         this.isPublic = isPublic;
+        sortOrder = order;
     }
 
     @Override
@@ -98,7 +124,9 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
                 button.enabled = true;
             }
         }
-        modeToggle = new GuiButton(80085, width - 5 - 100, 5, 100, 20, Util.localize(isPublic ? "multiplayer.button.public" : "multiplayer.button.private"));
+        modeToggle = new GuiButton(80085, width - 5 - 80, 5, 80, 20, Util.localize(isPublic ? "multiplayer.button.public" : "multiplayer.button.private"));
+        sortOrderButton = new GuiButton(80085101, width - 5 - 80 - 80, 5, 80, 20, Util.localize("multiplayer.sort", Util.localize(sortOrder.translate)));
+        buttonList.add(sortOrderButton);
         buttonList.add(modeToggle);
     }
 
@@ -117,13 +145,18 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         } else if (button.id == 7) {
             CreeperHost.proxy.openFriendsGui();
             return;
+        } else if (button.id == sortOrderButton.id) {
+            sortOrder = sortOrder.next();
+            sortOrderButton.displayString = Util.localize("multiplayer.sort", Util.localize(sortOrder.translate));
+            refresh();
+            return;
         }
         super.actionPerformed(button);
     }
 
     private void refresh()
     {
-        Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(parent, isPublic));
+        Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(parent, isPublic, sortOrder));
     }
 
     @Override
