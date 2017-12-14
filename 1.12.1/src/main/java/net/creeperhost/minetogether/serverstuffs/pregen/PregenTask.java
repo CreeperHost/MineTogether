@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public class PregenTask
 {
+    public boolean preventJoin = true;
     public int dimension;
     public transient ArrayList<Pair<Integer, Integer>> chunksToGen;
     public int chunksPerTick;
@@ -27,7 +28,7 @@ public class PregenTask
     public transient int lastChunksDone = 0;
     public transient String lastPregenString = "No status yet!";
 
-    public PregenTask (int dimension, int minX, int maxX, int minZ, int maxZ, int chunksPerTick)
+    public PregenTask(int dimension, int minX, int maxX, int minZ, int maxZ, int chunksPerTick, boolean preventJoin)
     {
         this.dimension = dimension;
         this.chunksPerTick = chunksPerTick;
@@ -37,6 +38,7 @@ public class PregenTask
         this.maxZ = maxZ;
         this.storedCurX = minX;
         this.storedCurZ = minZ;
+        this.preventJoin = preventJoin;
 
         init();
     }

@@ -14,7 +14,7 @@ import net.creeperhost.minetogether.serverstuffs.pregen.PregenTask;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.PropertyManager;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeVersion;
@@ -57,8 +57,9 @@ public class CreeperHostServer
 
     @Mod.Instance(value = "minetogetherserver")
     public static CreeperHostServer INSTANCE;
+    private static String secret;
 
-    private HashMap<Integer, PregenTask> pregenTasks = new HashMap<Integer, PregenTask>();
+    public HashMap<Integer, PregenTask> pregenTasks = new HashMap<Integer, PregenTask>();
 
     public static Thread getThreadByName(String threadName) {
         for (Thread t : Thread.getAllStackTraces().keySet()) {
@@ -97,8 +98,9 @@ public class CreeperHostServer
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
     {
-        event.registerServerCommand(new CommandPregen());
+        //event.registerServerCommand(new CommandPregen());
         event.registerServerCommand(new CommandInvite());
+        event.registerServerCommand(new CommandPregen());
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
     }
 
@@ -120,19 +122,35 @@ public class CreeperHostServer
 
     Discoverability discoverMode = Discoverability.UNLISTED;
 
+    int tries = 0;
+
     @Mod.EventHandler
     public void serverStarted (FMLServerStartedEvent event)
     {
         final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (server != null && !server.isSinglePlayer())
         {
-            PropertyManager manager = new PropertyManager(new File("server.properties"));
-            String discoverModeString = manager.getStringProperty("discoverability", "unlisted");
-            final String displayName = manager.getStringProperty("displayname", "Fill this in, and curseprojectid, if you have set the server to public!");
-            final String serverIP = manager.getStringProperty("server-ip", "");
+            DedicatedServer dediServer = (DedicatedServer) server;
+            String discoverModeString = dediServer.getStringProperty("discoverability", "unlisted");
+            String displayNameTemp = dediServer.getStringProperty("displayname", "Fill this in if you have set the server to public!");
+            final String serverIP = dediServer.getStringProperty("server-ip", "");
             final String projectid = Config.getInstance().curseProjectID;
 
+            if (displayNameTemp.equals("Fill this in if you have set the server to public!") && discoverModeString.equals("unlisted"))
+            {
+                File outProperties = new File("minetogether.properties");
+                if (outProperties.exists())
+                {
+                    MineTogetherPropertyManager manager = new MineTogetherPropertyManager(outProperties);
+                    displayNameTemp = manager.getStringProperty("displayname", "Fill this in if you have set the server to public!");
+                    discoverModeString = manager.getStringProperty("discoverability", "unlisted");
+                } else {
+                    displayNameTemp = "Unknown";
+                    discoverModeString = "unlisted";
+                }
+            }
 
+            final String displayName = displayNameTemp;
 
             serverOn = true;
             try {
@@ -162,17 +180,24 @@ public class CreeperHostServer
                             {
                                 send.put("ip", serverIP);
                             }
+
+                            if (CreeperHostServer.secret != null)
+                                send.put("secret", CreeperHostServer.secret);
                             send.put("name", displayName);
                             send.put("projectid", projectid);
                             send.put("port", String.valueOf(server.getServerPort()));
 
                             send.put("invite-only", discoverMode == Discoverability.INVITE ? "1" : "0");
 
+                            send.put("version", 2);
+
                             Gson gson = new Gson();
 
                             String sendStr = gson.toJson(send);
 
                             String resp = Util.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
+
+                            int sleepTime = 90000;
 
                             try {
                                 JsonElement jElement = new JsonParser().parse(resp);
@@ -181,7 +206,19 @@ public class CreeperHostServer
                                     JsonObject jObject = jElement.getAsJsonObject();
                                     if (jObject.get("status").getAsString().equals("success"))
                                     {
+                                        tries = 0;
                                         CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
+                                        if (jObject.has("secret"))
+                                            CreeperHostServer.secret = jObject.get("secret").getAsString();;
+                                    } else {
+                                        if (tries >= 5){
+                                            CreeperHostServer.logger.error("Unable to do call to server list - disabling for 45 minutes. Reason: " + jObject.get("message").getAsString());
+                                            tries = 0;
+                                            sleepTime = 60 * 1000 * 45;
+                                        } else {
+                                            CreeperHostServer.logger.error("Unable to do call to server list - will try again in 90 seconds. Reason: " + jObject.get("message").getAsString());
+                                            tries++;
+                                        }
                                     }
 
                                     if (first)
@@ -196,7 +233,7 @@ public class CreeperHostServer
 
                             try
                             {
-                                Thread.sleep(90000);
+                                Thread.sleep(sleepTime);
                             }
                             catch (InterruptedException e)
                             {
@@ -240,9 +277,12 @@ public class CreeperHostServer
         {
             for (PregenTask task : pregenTasks.values())
             {
-                kicker.kickPlayer((EntityPlayerMP) entity, "Server is still pre-generating!\n" + task.lastPregenString);
-                logger.error("Kicked player " + entity.getName() + " as still pre-generating");
-                break;
+                if (task.preventJoin)
+                {
+                    kicker.kickPlayer((EntityPlayerMP) entity, "Server is still pre-generating!\n" + task.lastPregenString);
+                    logger.error("Kicked player " + entity.getName() + " as still pre-generating");
+                    break;
+                }
             }
             event.setCanceled(true);
         }
@@ -428,12 +468,12 @@ public class CreeperHostServer
         }
     }
 
-    public boolean createTask(int dimension, int xMin, int xMax, int zMin, int zMax, int chunksPerTick)
+    public boolean createTask(int dimension, int xMin, int xMax, int zMin, int zMax, int chunksPerTick, boolean preventJoin)
     {
         if (pregenTasks.get(dimension) != null)
             return false;
 
-        pregenTasks.put(dimension, new PregenTask(dimension, xMin, xMax, zMin, zMax, chunksPerTick));
+        pregenTasks.put(dimension, new PregenTask(dimension, xMin, xMax, zMin, zMax, chunksPerTick, preventJoin));
 
         return true;
     }

@@ -1,10 +1,15 @@
 creeperhostserver.command.pregen.wrongconsole=Cannot use "current" in the console! Please specify a dimension ID.
-creeperhostserver.command.pregen.wrong=Not enough arguments!
+creeperhostserver.command.pregen.wrong=Not enough arguments! Type "/help chpregen" in order to view usage.
 creeperhostserver.command.pregen.added=Pregen task added!
+creeperhostserver.command.pregen.removed=Pregen task added!
 creeperhostserver.command.pregen.alreadyexists=Pregen task already exists for dimension. Only one task may exist per dimension!
-creeperhostserver.command.pregen.usage1=chpregen current|dimID xDiameter zDiameter [chunksPerTick, default 5]
+creeperhostserver.command.pregen.noexists=Pregen task doesn't exist for dimension.
+creeperhostserver.command.pregen.dimensionnoexists=Dimension doesn't exist
+creeperhostserver.command.pregen.usage1=/chpregen current|dimID xDiameter zDiameter [chunksPerTick, default 5] [preventJoin, default true]
 creeperhostserver.command.pregen.usage2=- OR -
-creeperhostserver.command.pregen.usage3=chpregen current|dimID xDiameter zDiameter xStartChunk zStartChunk [chunksPerTick, default 5]
+creeperhostserver.command.pregen.usage3=/chpregen current|dimID xDiameter zDiameter xStartChunk zStartChunk [chunksPerTick, default 5] [preventJoin, default true]
+creeperhostserver.command.pregen.usage4=- OR -
+creeperhostserver.command.pregen.usage5=/chpregen remove current|dimID
 
 creeperhostserver.commands.invite.list=There are %d (out of %d seen) invited players:
 creeperhostserver.commands.invite.reloaded=Reloaded the invite list

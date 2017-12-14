@@ -14,7 +14,7 @@
   "dependencies": []
 },
 {
-  "modid": "minetogether",
+  "modid": "minetogetherserver",
   "name": "MineTogetherServer",
   "description": "Companion server side mod to allow you to pregen chunks, and to allow listed on public server list.",
   "version": "${version}",

@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.serverstuffs.command;
 
+import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.serverstuffs.CreeperHostServer;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -18,20 +19,12 @@ import java.util.List;
 
 public class CommandPregen extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
-    @Override
+        @Override
     public String getName()
     {
-        return "chpregen";
+            return "chpregen";
     }
 
-    /**
-     * Gets the usage string for the command.
-     *
-     * @param sender The ICommandSender who is requesting usage details
-     */
     @Override
     public String getUsage(ICommandSender sender)
     {
@@ -41,75 +34,139 @@ public class CommandPregen extends CommandBase
         TextComponentTranslation chatcomponenttranslation2 = new TextComponentTranslation("creeperhostserver.command.pregen.usage2");
         chatcomponenttranslation2.getStyle().setColor(TextFormatting.RED);
         sender.sendMessage(chatcomponenttranslation2);
-        return "creeperhostserver.command.pregen.usage3";
+        TextComponentTranslation chatcomponenttranslation3 = new TextComponentTranslation("creeperhostserver.command.pregen.usage3");
+        chatcomponenttranslation3.getStyle().setColor(TextFormatting.RED);
+        sender.sendMessage(chatcomponenttranslation3);
+        TextComponentTranslation chatcomponenttranslation4 = new TextComponentTranslation("creeperhostserver.command.pregen.usage4");
+        chatcomponenttranslation4.getStyle().setColor(TextFormatting.RED);
+        sender.sendMessage(chatcomponenttranslation4);
+        return "creeperhostserver.command.pregen.usage5";
     }
 
-    /**
-     * Callback for when the command is executed
-     *
-     * @param server The server instance
-     * @param sender The sender who executed the command
-     * @param args   The arguments that were passed
-     */
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
-        if (args.length < 3 || args.length >= 7)
+        int xDiameterPos = -1;
+        int yDiameterPos = -1;
+        int dimensionPos = -1;
+        int xStartChunkPos = -1;
+        int yStartChunkPos = -1;
+        int chunksPerTickPos = -1;
+        int preventJoinPos = -1;
+        if (args.length <= 1)
+        {
             throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
-        int dimension, xRadius, zRadius;
-        dimension = xRadius = zRadius = 0;
-        int chunksPerTick = 5;
-        World world = null;
-
-        if (args.length >= 3)
-        {
-            if (args[0].equals("current"))
+        } else if (args.length == 2) {
+            if (args[0].equals("remove"))
             {
-                if (sender.getCommandSenderEntity() == null)
-                    throw new WrongUsageException("creeperhostserver.command.pregen.wrongconsole");
-                world = sender.getEntityWorld();
-                dimension = world.provider.getDimension();
+                int dimension = -999;
+                if (args[1].equals("current"))
+                {
+                    if (sender.getCommandSenderEntity() == null)
+                        throw new WrongUsageException("creeperhostserver.command.pregen.wrongconsole");
+                    World world = sender.getEntityWorld();
+                    dimension = world.provider.getDimension();
+                } else {
+                    dimension = parseInt(args[1]);
+                }
+                if (!CreeperHostServer.INSTANCE.pregenTasks.containsKey(dimension))
+                {
+                    throw new WrongUsageException("creeperhostserver.command.pregen.noexists");
+                }
+
+                CreeperHostServer.INSTANCE.pregenTasks.get(dimension).chunksToGen = new ArrayList<Pair<Integer, Integer>>();
+                sender.sendMessage(new TextComponentTranslation("creeperhostserver.command.pregen.removed"));
+                return;
             } else {
-                dimension = parseInt(args[0]);
-                world = sender.getEntityWorld();
+                throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
             }
-
-            xRadius = parseInt(args[1]);
-            zRadius = parseInt(args[2]);
-
-            if (args.length == 4) {
-                chunksPerTick = parseInt(args[3]);
+        } else if (args.length == 3) {
+            dimensionPos = 0;
+            xDiameterPos = 1;
+            yDiameterPos = 2;
+        } else if (args.length == 4) {
+            dimensionPos = 0;
+            xDiameterPos = 1;
+            yDiameterPos = 2;
+            chunksPerTickPos = 3;
+        } else if (args.length == 5) {
+            dimensionPos = 0;
+            xDiameterPos = 1;
+            yDiameterPos = 2;
+            if (args[4].equals("true") || args[4].equals("false")) {
+                preventJoinPos = 4;
+            } else {
+                xStartChunkPos = 3;
+                yStartChunkPos = 4;
             }
+        } else if (args.length == 6) {
+            dimensionPos = 0;
+            xDiameterPos = 1;
+            yDiameterPos = 2;
+            xStartChunkPos = 3;
+            yStartChunkPos = 4;
+            chunksPerTickPos = 5;
+        } else if (args.length == 7) {
+            dimensionPos = 0;
+            xDiameterPos = 1;
+            yDiameterPos = 2;
+            xStartChunkPos = 3;
+            yStartChunkPos = 4;
+            chunksPerTickPos = 5;
+            preventJoinPos = 6;
+        } else if (args.length > 7) {
+            throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
         }
 
-        int xCenter, zCenter;
-        xCenter = zCenter = 0;
-
-         if (args.length >= 5)
-         {
-             xCenter = parseInt(args[3]);
-             zCenter = parseInt(args[4]);
-         }
-         else
-         {
-             BlockPos spawnPoint = world.getSpawnPoint();
-             xCenter = spawnPoint.getX() >> 4;
-             zCenter = spawnPoint.getZ() >> 4;
-         }
-
-        if (args.length == 6)
+        int dimension;
+        if (args[dimensionPos].equals("current"))
         {
-            chunksPerTick = parseInt(args[5]);
+            if (sender.getCommandSenderEntity() == null)
+                throw new WrongUsageException("creeperhostserver.command.pregen.wrongconsole");
+
+            dimension = sender.getEntityWorld().provider.getDimension();
+        } else {
+            dimension = parseInt(args[dimensionPos]);
+        }
+        int xDiameter = parseInt(args[xDiameterPos]);
+        int zDiameter = parseInt(args[yDiameterPos]);
+        int xStartChunk;
+        int zStartChunk;
+        if (xStartChunkPos == -1)
+        {
+            World world = DimensionManager.getWorld(dimension);
+
+            if (world != null)
+            {
+                BlockPos spawnPoint = world.getSpawnPoint();
+                xStartChunk = spawnPoint.getX();
+                zStartChunk = spawnPoint.getZ();
+            } else {
+                throw new WrongUsageException("creeperhostserver.command.pregen.dimensionnoexists");
+            }
+        } else {
+            xStartChunk = parseInt(args[xStartChunkPos]);
+            zStartChunk = parseInt(args[yStartChunkPos]);
         }
 
-        // We have all the info; time to create a task!
+        int chunksPerTick = 5;
+        if (chunksPerTickPos != -1)
+        {
+            chunksPerTick = parseInt(args[chunksPerTickPos]);
+        }
 
-        int chunkMinX = xCenter - (xRadius / 2);
-        int chunkMaxX = xCenter + (xRadius / 2);
-        int chunkMinZ = zCenter - (zRadius / 2);
-        int chunkMaxZ = zCenter + (zRadius / 2);
+        boolean preventJoin = true;
+        if (preventJoinPos != -1)
+        {
+            preventJoin = args[preventJoinPos].equals("true");
+        }
 
-        if (CreeperHostServer.INSTANCE.createTask(dimension, chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick))
+        int chunkMinX = xStartChunk - (xDiameter / 2);
+        int chunkMaxX = xStartChunk + (xDiameter / 2);
+        int chunkMinZ = zStartChunk - (zDiameter / 2);
+        int chunkMaxZ = zStartChunk + (zDiameter / 2);
+
+        if (CreeperHostServer.INSTANCE.createTask(dimension, chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick, preventJoin))
             sender.sendMessage(new TextComponentTranslation("creeperhostserver.command.pregen.added"));
         else
             throw new WrongUsageException("creeperhostserver.command.pregen.alreadyexists");
@@ -118,18 +175,27 @@ public class CommandPregen extends CommandBase
     @Override
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
     {
-        System.out.println(args);
-        if (args.length == 1)
-        {
-            List<String> completions = new ArrayList<String>();
-            completions.add("current");
-            Integer[] dimensions = DimensionManager.getStaticDimensionIDs();
-            for (int dimension : dimensions)
-            {
-                completions.add(String.valueOf(dimension));
-            }
-            return getListOfStringsMatchingLastWord(args, completions);
-        }
-        return super.getTabCompletions(server, sender, args, targetPos);
+          Integer[] dimensions = DimensionManager.getStaticDimensionIDs();
+          if (args.length == 1)
+          {
+              List<String> completions = new ArrayList<String>();
+              completions.add("current");
+              completions.add("remove");
+              for (int dimension : dimensions)
+              {
+                  completions.add(String.valueOf(dimension));
+              }
+              return getListOfStringsMatchingLastWord(args, completions);
+          } else if (args.length == 2 && args[0].equals("remove"))
+          {
+              List<String> completions = new ArrayList<String>();
+              completions.add("current");
+              for (int dimension : dimensions)
+              {
+                  completions.add(String.valueOf(dimension));
+              }
+              return getListOfStringsMatchingLastWord(args, completions);
+          }
+          return super.getTabCompletions(server, sender, args, targetPos);
     }
 }

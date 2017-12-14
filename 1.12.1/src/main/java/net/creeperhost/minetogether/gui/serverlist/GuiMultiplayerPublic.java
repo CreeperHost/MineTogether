@@ -238,4 +238,11 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             CreeperHost.logger.error("Unable to set server list", e);
         }
     }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
+        super.drawScreen(mouseX, mouseY, partialTicks);
+        drawCenteredString(fontRendererObj, Util.localize("multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
+    }
 }
