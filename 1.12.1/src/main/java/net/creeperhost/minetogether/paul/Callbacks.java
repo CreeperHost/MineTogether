@@ -277,7 +277,12 @@ public final class Callbacks {
                                 String name = server.get("name").getAsString();
                                 String host = server.get("ip").getAsString();
                                 String port = server.get("port").getAsString();
-                                String country = server.has("country") ? server.get("country").getAsString() : "";
+                                String country = "UNK";
+                                if (server.has("location"))
+                                {
+                                    JsonObject el = server.getAsJsonObject("location");
+                                    country = el.get("country_code").getAsString();
+                                }
                                 country = country.toUpperCase();
                                 EnumFlag flag = null;
                                 if (!country.isEmpty())
