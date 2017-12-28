@@ -79,6 +79,7 @@ public class ServerSelectionListPublic extends ServerSelectionList
             case LOCATION:
                 Collections.sort(ourList, Server.LocationComparator.INSTANCE);
         }
+        amountScrolled = 0;
     }
 
     private static Field serverListInternetField;
