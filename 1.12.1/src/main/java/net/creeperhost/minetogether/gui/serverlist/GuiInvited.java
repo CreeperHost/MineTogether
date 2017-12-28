@@ -4,7 +4,6 @@ import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.common.Config;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ServerListEntryNormal;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraftforge.fml.client.config.GuiCheckBox;
@@ -14,7 +13,7 @@ import java.io.IOException;
 public class GuiInvited extends GuiScreen
 {
     private final Invite invite;
-    private final ServerListEntryNormal server;
+    private final ServerListEntryPublic server;
     private final GuiScreen parent;
     private final boolean canConnect;
     private GuiButton connectButton;
@@ -26,7 +25,7 @@ public class GuiInvited extends GuiScreen
     {
         this.invite = invite;
         this.parent = parent;
-        server = new MockServerListEntryNormal(new ServerData(invite.name, invite.ip + ":" + invite.port, false));
+        server = new ServerListEntryPublic(new MockServerListEntryNormal(new ServerData(invite.name, invite.ip + ":" + invite.port, false)));
         canConnect = invite.project == Integer.valueOf(Config.getInstance().curseProjectID);
     }
 
@@ -88,7 +87,7 @@ public class GuiInvited extends GuiScreen
         this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.invite"), this.width/2, 10, -1);
 
         this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.invited", invite.by), this.width/2, yBase, -1);
-        Util.getWrapper().draw(server, 0, (this.width / 2) - 125, yBase + 20, 250, 36, Integer.MAX_VALUE, Integer.MAX_VALUE,false);
+        server.ourDrawEntry(0, (this.width / 2) - 125, yBase + 20, 250, 36, Integer.MAX_VALUE, Integer.MAX_VALUE,false);
         this.drawCenteredString(this.fontRendererObj, Util.localize(canConnect ? "multiplayer.join" : "multiplayer.cantjoin", invite.by), this.width/2, yBase + 36 + 30, -1);
 
         super.drawScreen(mouseX, mouseY, partialTicks);

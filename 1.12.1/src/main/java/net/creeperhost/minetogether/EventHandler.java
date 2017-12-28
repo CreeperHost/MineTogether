@@ -36,7 +36,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventHandler {
+public class EventHandler
+{
     
     private static final int MAIN_BUTTON_ID = 30051988;
     private static final int MP_BUTTON_ID = 8008135;
@@ -471,5 +472,4 @@ public class EventHandler {
         bufferbuilder.pos((double)(x + 0), (double)(y + 0), (double)this.zLevel).tex((double)((float)(textureX + 0) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
         tessellator.draw();*/
     }
-    
 }

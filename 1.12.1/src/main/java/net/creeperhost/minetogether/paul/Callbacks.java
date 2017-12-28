@@ -14,6 +14,7 @@ import net.creeperhost.minetogether.api.AvailableResult;
 
 import com.google.gson.*;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.gui.serverlist.EnumFlag;
 import net.creeperhost.minetogether.gui.serverlist.Friend;
 import net.creeperhost.minetogether.gui.serverlist.Invite;
 import net.creeperhost.minetogether.gui.serverlist.Server;
@@ -242,7 +243,7 @@ public final class Callbacks {
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
-                        list.add(new Server("No project ID! Please fix the CreeperHost config.", "127.0.0.1:25565", 0, 0));
+                        list.add(new Server("No project ID! Please fix the CreeperHost config.", "127.0.0.1:25565", 0, 0, null));
                         return list;
                     }
 
@@ -269,16 +270,34 @@ public final class Callbacks {
                         JsonObject object = jElement.getAsJsonObject();
                         JsonArray array = object.getAsJsonArray("servers");
                         if (array != null)
-                            for (JsonElement serverEl : array) {
-                                JsonObject server = (JsonObject)serverEl;
+                        {
+                            for (JsonElement serverEl : array)
+                            {
+                                JsonObject server = (JsonObject) serverEl;
                                 String name = server.get("name").getAsString();
                                 String host = server.get("ip").getAsString();
                                 String port = server.get("port").getAsString();
+                                String country = server.has("country") ? server.get("country").getAsString() : "";
+                                country = country.toUpperCase();
+                                EnumFlag flag = null;
+                                if (!country.isEmpty())
+                                {
+                                    try
+                                    {
+                                        flag = EnumFlag.valueOf(country);
+                                    }
+                                    catch (IllegalArgumentException ignored)
+                                    {
+                                        flag = EnumFlag.UNKNOWN;
+                                    }
+                                }
+
                                 int uptime = server.get("uptime").getAsInt();
                                 int players = server.get("expected_players").getAsInt();
 
-                                list.add(new Server(name, host + ":" + port, uptime, players));
+                                list.add(new Server(name, host + ":" + port, uptime, players, flag));
                             }
+                        }
                     }
 
                     return list;
@@ -310,19 +329,22 @@ public final class Callbacks {
         return CreeperHost.instance.getImplementation().getNameAvailable(name);
     }
 
+    private static String userCountry;
     public static String getUserCountry() {
-        try {
-            String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
+        if (userCountry == null)
+            try {
+                String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
 
-            JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
+                JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
 
-            jObject = jObject.getAsJsonObject("customer");
+                jObject = jObject.getAsJsonObject("customer");
 
-            return jObject.getAsJsonPrimitive("country").getAsString();
-        } catch (Throwable t) {
-            CreeperHost.logger.error("Unable to get user's country automatically, assuming USA", t);
-        }
-        return "US"; // default
+                userCountry = jObject.getAsJsonPrimitive("country").getAsString();
+            } catch (Throwable t) {
+                CreeperHost.logger.error("Unable to get user's country automatically, assuming USA", t);
+                userCountry = "US"; // default
+            }
+        return userCountry;
     }
 
     public static String getRecommendedLocation()
@@ -622,5 +644,6 @@ public final class Callbacks {
         put("YE", "Yemen");
         put("ZM", "Zambia");
         put("ZW", "Zimbabwe");
+        put("UNKNOWN", "Unknown");
     }};
 }

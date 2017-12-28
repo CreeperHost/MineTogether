@@ -6,6 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.network.LanServerDetector;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Keyboard;
@@ -21,7 +23,8 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         RANDOM("multiplayer.sort.random"),
         PLAYER("multiplayer.sort.player"),
         NAME("multiplayer.sort.name"),
-        UPTIME("multiplayer.sort.uptime");
+        UPTIME("multiplayer.sort.uptime"),
+        LOCATION("multiplayer.sort.location");
 
         private static SortOrder[] vals = values();
 
@@ -84,7 +87,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             {
             }
 
-            setServerListSelector(new ServerSelectionListPublic(this, this.mc, this.width, this.height, 32, this.height - 64, 36));
+            setServerListSelector(new ServerSelectionListPublic(this, this.mc, this.width, this.height, 32, this.height - 64, 46));
             ourServerListSelector.updateOnlineServers(this.ourSavedServerList);
         }
 
@@ -126,8 +129,8 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
         modeToggle = new GuiButton(80085, width - 5 - 80, 5, 80, 20, Util.localize(isPublic ? "multiplayer.button.public" : "multiplayer.button.private"));
         sortOrderButton = new GuiButton(80085101, width - 5 - 80 - 80, 5, 80, 20, Util.localize("multiplayer.sort", Util.localize(sortOrder.translate)));
-        buttonList.add(sortOrderButton);
         buttonList.add(modeToggle);
+        buttonList.add(sortOrderButton);
     }
 
     @Override
@@ -148,7 +151,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         } else if (button.id == sortOrderButton.id) {
             sortOrder = sortOrder.next();
             sortOrderButton.displayString = Util.localize("multiplayer.sort", Util.localize(sortOrder.translate));
-            refresh();
+            ourServerListSelector.sort();
             return;
         }
         super.actionPerformed(button);
@@ -188,9 +191,9 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         super.drawCenteredString(fontRendererIn, text, x, y, color);
     }
 
-    private ServerList ourSavedServerList = null;
+    private ServerListPublic ourSavedServerList = null;
     private static Field savedServerListField;
-    private void setServerList(ServerList serverList)
+    private void setServerList(ServerListPublic serverList)
     {
         ourSavedServerList = serverList;
         if (savedServerListField == null)
@@ -251,9 +254,9 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
     }
 
-    private ServerSelectionList ourServerListSelector = null;
+    private ServerSelectionListPublic ourServerListSelector = null;
     private static Field serverListSelectorField;
-    private void setServerListSelector(ServerSelectionList list)
+    private void setServerListSelector(ServerSelectionListPublic list)
     {
         ourServerListSelector = list;
         if (serverListSelectorField == null)
@@ -276,6 +279,17 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        GlStateManager.disableRescaleNormal(); // fix colour when hovering
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableLighting();
+        GlStateManager.disableDepth();
+
         drawCenteredString(fontRendererObj, Util.localize("multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
+
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
+        RenderHelper.enableStandardItemLighting();
+        GlStateManager.enableRescaleNormal();
     }
 }

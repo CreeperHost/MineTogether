@@ -116,7 +116,7 @@ creeperhost.config.serverlistenabled.tooltip=Whether the public server list is e
 creeperhost.pregen.refresh=Will automatically refresh!
 
 creeperhost.multiplayer.public=Public server list
-creeperhost.multiplayer.public.random=Servers are in random order and are not endorsed
+creeperhost.multiplayer.public.random=Servers are not endorsed!
 creeperhost.multiplayer.button.public=List: Public
 creeperhost.multiplayer.button.private=List: Invite
 

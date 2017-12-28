@@ -11,8 +11,10 @@ public class MockServerListEntryNormal extends ServerListEntryNormal
     super(p_i45048_1_, serverIn);
   }
 
+  public static final GuiMockMultiplayer mockMP = new GuiMockMultiplayer();
+
   public MockServerListEntryNormal(ServerData serverIn)
   {
-    super(new GuiMockMultiplayer(), serverIn);
+    super(mockMP, serverIn);
   }
 }
