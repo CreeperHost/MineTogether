@@ -59,7 +59,7 @@ public class ServerSelectionListPublic extends ServerSelectionList
         sort();
     }
 
-    public void sort()
+    public void sort(boolean resetScroll)
     {
         switch (ourParent.sortOrder)
         {
@@ -78,8 +78,17 @@ public class ServerSelectionListPublic extends ServerSelectionList
                 break;
             case LOCATION:
                 Collections.sort(ourList, Server.LocationComparator.INSTANCE);
+                break;
+            case PING:
+                Collections.sort(ourList, Server.PingComparator.INSTANCE);
+                break;
         }
-        amountScrolled = 0;
+        if (resetScroll) amountScrolled = 0;
+    }
+
+    public void sort()
+    {
+        sort(true);
     }
 
     private static Field serverListInternetField;
@@ -100,6 +109,22 @@ public class ServerSelectionListPublic extends ServerSelectionList
         catch (IllegalAccessException e)
         {
             CreeperHost.logger.warn("Reflection to get server list failed.", e);
+        }
+    }
+
+    private long nextSort;
+
+    @Override
+    protected void drawBackground()
+    {
+        if (!ourParent.sortOrder.constant)
+            return;
+        // NOOP usually - we're going to use this as something that will be called regularly so we can update sorting
+        long curTime = System.currentTimeMillis();
+        if (nextSort <= curTime)
+        {
+            nextSort = curTime + 500;
+            sort(false);
         }
     }
 }

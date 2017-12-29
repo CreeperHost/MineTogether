@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.gui.serverlist;
 
 import net.creeperhost.minetogether.paul.Callbacks;
 
-import javax.xml.stream.Location;
 import java.util.Comparator;
 
 public class Server
@@ -35,7 +34,7 @@ public class Server
         private NameComparator()
         {
         }
-        
+
         @Override
         public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2) {
             String str1 = o1.getServerData().server.displayName;
@@ -55,7 +54,7 @@ public class Server
         private PlayerComparator()
         {
         }
-        
+
         @Override
         public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
         {
@@ -68,11 +67,11 @@ public class Server
     public static class UptimeComparator implements Comparator<ServerListEntryPublic>
     {
         public static final UptimeComparator INSTANCE = new UptimeComparator();
-        
+
         private UptimeComparator()
         {
         }
-        
+
         @Override
         public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
         {
@@ -81,15 +80,15 @@ public class Server
                 : 0;
         }
     }
-    
+
     public static class LocationComparator extends NameComparator
     {
         public static final LocationComparator INSTANCE = new LocationComparator();
-        
+
         private LocationComparator()
         {
         }
-        
+
         @Override
         public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
         {
@@ -125,6 +124,31 @@ public class Server
                 }
                 return res;
             }
+        }
+    }
+
+    public static class PingComparator implements Comparator<ServerListEntryPublic>
+    {
+        public static final PingComparator INSTANCE = new PingComparator();
+
+        private PingComparator()
+        {
+        }
+
+        @Override
+        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
+        {
+            if (o1.getServerData().pingToServer < 0)
+            {
+                return 1;
+            }
+            if (o2.getServerData().pingToServer < 0)
+            {
+                return -1;
+            }
+            return o1.getServerData().pingToServer < o2.getServerData().pingToServer ? -1
+              : o1.getServerData().pingToServer > o2.getServerData().pingToServer ? 1
+              : 0;
         }
     }
 }

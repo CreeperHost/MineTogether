@@ -24,15 +24,23 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         PLAYER("multiplayer.sort.player"),
         NAME("multiplayer.sort.name"),
         UPTIME("multiplayer.sort.uptime"),
-        LOCATION("multiplayer.sort.location");
+        LOCATION("multiplayer.sort.location"),
+        PING("multiplayer.sort.ping", true);
 
         private static SortOrder[] vals = values();
+        public final boolean constant;
 
         public String translate;
 
-        SortOrder(String translate)
+
+        SortOrder(String translate, boolean constant)
         {
             this.translate = translate;
+            this.constant = constant;
+        }
+        SortOrder(String translate)
+        {
+            this(translate, false);
         }
 
         public SortOrder next()
