@@ -60,6 +60,16 @@ public class ServerListEntryPublic extends ServerListEntryNormal
     }
 
     @Override
+    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
+    {
+        if (x <= 32)
+        {
+            x = 33;
+        }
+        return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
+    }
+
+    @Override
     public ServerDataPublic func_148296_a()
     {
         return (ServerDataPublic) super.func_148296_a();

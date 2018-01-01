@@ -37,6 +37,16 @@ public class ServerListEntryPublic extends ServerListEntryNormal
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
 
+    @Override
+    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
+    {
+        if (x <= 32)
+        {
+            x = 33;
+        }
+        return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
+    }
+
     private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
     public void ourDrawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {

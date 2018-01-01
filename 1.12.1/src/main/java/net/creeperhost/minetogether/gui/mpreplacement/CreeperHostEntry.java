@@ -130,10 +130,6 @@ public class CreeperHostEntry extends ServerListEntryNormal
     {
     }
 
-    /**
-     * Called when the mouse is clicked within this entry. Returning true means that something within this entry was
-     * clicked and the list should not be dragged.
-     */
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
     {
         if (x >= 303 - stringWidth - 2 && x <= 303 - 3 && y >= 0 && y <= 7)
@@ -147,9 +143,6 @@ public class CreeperHostEntry extends ServerListEntryNormal
         return true;
     }
 
-    /**
-     * Fired when the mouse button is released. Arguments: index, x, y, mouseEvent, relativeX, relativeY
-     */
     public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY)
     {
     }
