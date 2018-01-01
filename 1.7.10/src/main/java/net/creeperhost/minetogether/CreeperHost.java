@@ -2,13 +2,16 @@ package net.creeperhost.minetogether;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.relauncher.Side;
 import net.creeperhost.minetogether.api.CreeperHostAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
+import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.siv.QueryGetter;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
@@ -33,13 +36,16 @@ import java.util.Random;
 public class CreeperHost implements ICreeperHostMod
 {
 
-    public static final String MOD_ID = "creeperhost";
-    public static final String NAME = "CreeperHost";
+    public static final String MOD_ID = "minetogether";
+    public static final String NAME = "MineTogether";
     public static final String VERSION = "@VERSION@";
-    public static final Logger logger = LogManager.getLogger("creeperhost");
+    public static final Logger logger = LogManager.getLogger("minetogether");
 
-    @Mod.Instance(value="creeperhost")
+    @Mod.Instance(value="minetogether")
     public static CreeperHost instance;
+
+    @SidedProxy(clientSide="net.creeperhost.minetogether.proxy.Client", serverSide="net.creeperhost.minetogether.proxy.Server")
+    public static IProxy proxy;
 
     public ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
     public IServerHost currentImplementation;
@@ -47,17 +53,14 @@ public class CreeperHost implements ICreeperHostMod
 
     private QueryGetter queryGetter;
     private String lastCurse = "";
+    public int curServerId = -1;
+    public Invite handledInvite;
+
+    public boolean active = true;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
-        if (event.getSide() != Side.SERVER) {
-            EventHandler eventHandler = new EventHandler();
-            FMLCommonHandler.instance().bus().register(eventHandler);
-            MinecraftForge.EVENT_BUS.register(eventHandler);
-        }
-
         configFile = event.getSuggestedConfigurationFile();
-
         InputStream configStream = null;
         try
         {
@@ -66,14 +69,23 @@ public class CreeperHost implements ICreeperHostMod
                 configStream = new FileInputStream(configFile);
                 configString = IOUtils.toString(configStream);
             } else {
-                configString = "{}";
+                File parent = configFile.getParentFile();
+                File tempConfigFile = new File(parent, "creeperhost.cfg");
+                if (tempConfigFile.exists())
+                {
+                    configStream = new FileInputStream(tempConfigFile);
+                    configString = IOUtils.toString(configStream);
+                } else {
+                    configString = "{}";
+                }
+
             }
 
             Config.loadConfig(configString);
         } catch (Throwable t)
         {
-            logger.error("Unable to read config", t);
-            throw new RuntimeException("Fatal error, unable to read config");
+            logger.error("Fatal error, unable to read config. Not starting mod.", t);
+            active = false;
         } finally {
             try {
                 if (configStream != null) {
@@ -81,10 +93,19 @@ public class CreeperHost implements ICreeperHostMod
                 }
             } catch (Throwable t) {
             }
-
+            if (!active)
+                return;
         }
 
         saveConfig();
+
+        if (event.getSide() != Side.SERVER) {
+            EventHandler handler = new EventHandler();
+            MinecraftForge.EVENT_BUS.register(handler);
+            FMLCommonHandler.instance().bus().register(handler);
+            proxy.registerKeys();
+            PacketHandler.packetRegister();
+        }
     }
 
     private CreeperHostServerHost implement;
@@ -179,5 +200,24 @@ public class CreeperHost implements ICreeperHostMod
             makeQueryGetter();
         }
         return queryGetter;
+    }
+
+    String toastText;
+    long endTime;
+    long fadeTime;
+    public Invite invite;
+    public final Object inviteLock = new Object();
+
+    public void displayToast(String text, int duration)
+    {
+        toastText = text;
+        endTime = System.currentTimeMillis() + duration;
+        fadeTime = endTime + 500;
+    }
+
+    public void clearToast(boolean fade)
+    {
+        endTime = System.currentTimeMillis();
+        fadeTime = endTime + (fade ? 500 : 0);
     }
 }

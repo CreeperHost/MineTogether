@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.serverstuffs.pregen;
 
 import net.creeperhost.minetogether.common.Pair;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 
 import java.util.ArrayList;
@@ -27,6 +27,8 @@ public class PregenTask
     public int totalChunks = 0;
     public transient int lastChunksDone = 0;
     public transient String lastPregenString = "No status yet!";
+    public transient int chunkLoadCount;
+    public transient int curChunksPerTick;
 
     public PregenTask(int dimension, int minX, int maxX, int minZ, int maxZ, int chunksPerTick, boolean preventJoin)
     {
@@ -48,9 +50,9 @@ public class PregenTask
         startTime = 0;
         if (chunksToGen != null) return;
 
+        WorldServer world = DimensionManager.getWorld(dimension);
         if (diameterX > 0 && totalChunks == 0) // only the first time
         {
-            World world = DimensionManager.getWorld(dimension);
             BlockPos pos = world.getSpawnPoint();
             minX = (pos.getX() << 4) - (diameterX / 2);
             maxX = (pos.getX() << 4) + (diameterX / 2);
@@ -63,6 +65,7 @@ public class PregenTask
 
         chunksDone = 0;
         totalChunks = 0;
+        chunkLoadCount = world.getChunkProvider().getLoadedChunkCount();
 
         ArrayList<Pair<Integer, Integer>> chunks = new ArrayList<Pair<Integer, Integer>>();
 
@@ -79,6 +82,8 @@ public class PregenTask
         }
 
         chunksToGen = chunks;
+
+        curChunksPerTick = chunksPerTick;
 
     }
 }

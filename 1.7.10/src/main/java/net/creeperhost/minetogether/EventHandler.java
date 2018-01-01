@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether;
 
 import cpw.mods.fml.client.event.ConfigChangedEvent;
+import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent;
 import net.creeperhost.minetogether.common.Config;
@@ -10,30 +11,44 @@ import net.creeperhost.minetogether.gui.element.ButtonCreeper;
 import net.creeperhost.minetogether.gui.GuiGetServer;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
-import net.creeperhost.minetogether.gui.serverlist.GuiMultiplayerPublic;
+import net.creeperhost.minetogether.gui.serverlist.data.Friend;
+import net.creeperhost.minetogether.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
+import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
+import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
+import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.proxy.Client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.GuiConnecting;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
-public class EventHandler{
+public class EventHandler {
 
     private static final int MAIN_BUTTON_ID = 30051988;
     private static final int MP_BUTTON_ID = 8008135;
+    private static final int FRIEND_BUTTON_ID = 1337420;
 
-    private static Field parentScreenField;
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
 
     private GuiMultiplayer lastInitialized = null;
@@ -85,9 +100,7 @@ public class EventHandler{
                     }
                 } else if (message.getFormattedText().contains("Server is still pre-generating!"))
                 {
-                    /*if (lastNetworkManager == null)
-                        return;*/
-                    event.gui = new GuiProgressDisconnected((GuiScreen) parentField.get(dc), reason, message, null);
+                    event.gui = new GuiProgressDisconnected((GuiScreen) parentField.get(dc), reason, message, lastNetworkManager);
                     lastNetworkManager = null;
                 }
             }
@@ -166,9 +179,13 @@ public class EventHandler{
             }
         }
 
-        if(Config.getInstance().isServerListEnabled() && gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
+        if(Config.getInstance().isServerListEnabled())
         {
-            event.buttonList.add(new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, Util.localize("multiplayer.public")));
+            if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
+                event.buttonList.add(new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.public")));
+            if (gui instanceof GuiIngameMenu)
+                event.buttonList.add(new GuiButton(FRIEND_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends")));
+
         }
     }
 
@@ -204,6 +221,9 @@ public class EventHandler{
             if (button != null && button.id == MP_BUTTON_ID) {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(gui));
             }
+        } else if (gui instanceof GuiIngameMenu && button.id == FRIEND_BUTTON_ID)
+        {
+            CreeperHost.proxy.openFriendsGui();
         }
     }
 
@@ -266,5 +286,169 @@ public class EventHandler{
         }
 
         CreeperHost.instance.saveConfig();
+    }
+
+    @SubscribeEvent
+    public void clientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent evt)
+    {
+        CreeperHost.instance.curServerId = -1;
+    }
+
+    Minecraft mc = Minecraft.getMinecraft();
+    private Thread inviteCheckThread;
+
+    private int inviteTicks = -1;
+
+    GuiScreen fakeGui = new GuiScreen() {};
+
+    @SubscribeEvent
+    public void onClientTick(TickEvent.ClientTickEvent evt)
+    {
+        inviteTicks = (inviteTicks + 1) % 20;
+        if (inviteTicks != 0)
+            return;
+
+        if (Config.getInstance().isServerListEnabled())
+        {
+            if (inviteCheckThread == null)
+            {
+                inviteCheckThread = new Thread(new Runnable()
+                {
+
+                    @Override
+                    public void run()
+                    {
+                        while (Config.getInstance().isServerListEnabled())
+                        {
+                            Invite tempInvite = null;
+
+                            try {
+                                tempInvite = Callbacks.getInvite();
+                            } catch(Exception e)
+                            {
+                                // carry on - we'll just try again later, saves thread dying.
+                            }
+
+                            synchronized (CreeperHost.instance.inviteLock)
+                            {
+                                if (tempInvite != null)
+                                    CreeperHost.instance.invite = tempInvite;
+                            }
+
+                            try
+                            {
+                                Thread.sleep(15000);
+                            }
+                            catch (InterruptedException e)
+                            {
+                            }
+                        }
+                    }
+                });
+                inviteCheckThread.setDaemon(true);
+                inviteCheckThread.setName("MineTogether invite check thread");
+                inviteCheckThread.start();
+            }
+
+            boolean handled = false;
+            synchronized (CreeperHost.instance.inviteLock)
+            {
+                if (CreeperHost.instance.invite != null)
+                {
+                    CreeperHost.instance.handledInvite = CreeperHost.instance.invite;
+                    CreeperHost.instance.invite = null;
+
+                    handled = true;
+                }
+            }
+
+            if (handled)
+            {
+                ArrayList<Friend> friendsList = Callbacks.getFriendsList(true);
+                String friendName = "Unknown";
+
+                for(Friend friend : friendsList)
+                {
+                    if (friend.getCode().equals(CreeperHost.instance.handledInvite.by))
+                    {
+                        friendName = friend.getName();
+                        CreeperHost.instance.handledInvite.by = friendName;
+                        break;
+                    }
+                }
+                if (mc.currentScreen != null && mc.currentScreen instanceof GuiFriendsList)
+                {
+                    CreeperHost.proxy.openFriendsGui();
+                } else {
+                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", GameSettings.getKeyDisplayString(((Client)CreeperHost.proxy).openGuiKey.getKeyCode())), 15000);
+                }
+
+            }
+
+        }
+    }
+
+    String mcVersion;
+
+    private final ResourceLocation earlyResource = new ResourceLocation("textures/gui/achievement/achievement_background.png");
+
+    int u = 0;
+    int v = 0;
+
+    private ResourceLocation getToastResourceLocation() {
+        u = 96;
+        v = 202;
+        return earlyResource;
+    }
+
+    @SubscribeEvent
+    public void guiRendered(TickEvent.RenderTickEvent evt)
+    {
+        if (CreeperHost.instance.toastText != null)
+        {
+            long curTime = System.currentTimeMillis();
+            if (CreeperHost.instance.fadeTime > curTime)
+            {
+                long fadeDiff = CreeperHost.instance.fadeTime - CreeperHost.instance.endTime;
+                long curFade = Math.min(CreeperHost.instance.fadeTime - curTime, fadeDiff);
+                float alpha = (float)curFade / (float)fadeDiff;
+
+                RenderHelper.disableStandardItemLighting();
+                GL11.glColor4f(1.0F, 1.0F, 1.0F, alpha);
+                mc.renderEngine.bindTexture(getToastResourceLocation());
+                ScaledResolution res = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+                drawTexturedModalRect(res.getScaledWidth() - 160, 0, u, v, 160, 32);
+                GL11.glEnable(GL11.GL_BLEND);
+                OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                int textColour = (0xFFFFFF << 32) | ((int)(alpha * 255) << 24);
+                mc.fontRenderer.drawSplitString(CreeperHost.instance.toastText, res.getScaledWidth() - 160 + 5, 6, 160, textColour);
+            } else {
+                CreeperHost.instance.toastText = null;
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onKeyInput(InputEvent.KeyInputEvent event)
+    {
+        if (Config.getInstance().isServerListEnabled() && ((Client)CreeperHost.proxy).openGuiKey.isPressed())
+        {
+            if (CreeperHost.instance.handledInvite != null)
+            {
+                CreeperHost.instance.clearToast(false);
+                mc.displayGuiScreen(new GuiInvited(CreeperHost.instance.handledInvite, mc.currentScreen));
+                CreeperHost.instance.handledInvite = null;
+            }
+            else
+                CreeperHost.proxy.openFriendsGui();
+        }
+    }
+
+    //private float zLevel = 0;
+
+    private void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
+    {
+        fakeGui.drawTexturedModalRect(x, y, textureX, textureY, width, height);
     }
 }

@@ -2,12 +2,16 @@ package net.creeperhost.minetogether;
 
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.serverlist.*;
 import net.creeperhost.minetogether.gui.GuiGetServer;
 import net.creeperhost.minetogether.gui.GuiProgressDisconnected;
 import net.creeperhost.minetogether.gui.GuiServerInfo;
 import net.creeperhost.minetogether.gui.element.ButtonCreeper;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
+import net.creeperhost.minetogether.gui.serverlist.data.Friend;
+import net.creeperhost.minetogether.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
+import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
+import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
 import net.minecraft.client.Minecraft;
@@ -15,6 +19,7 @@ import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -175,9 +180,9 @@ public class EventHandler
         if(Config.getInstance().isServerListEnabled())
         {
             if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
-                event.getButtonList().add(new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, Util.localize("multiplayer.public")));
+                event.getButtonList().add(new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.public")));
             if (gui instanceof GuiIngameMenu)
-                event.getButtonList().add(new GuiButton(FRIEND_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, Util.localize("multiplayer.friends")));
+                event.getButtonList().add(new GuiButton(FRIEND_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends")));
 
         }
     }
@@ -374,7 +379,7 @@ public class EventHandler
                 {
                     CreeperHost.proxy.openFriendsGui();
                 } else {
-                    CreeperHost.instance.displayToast(Util.localize("multiplayer.invitetoast",((Client)CreeperHost.proxy).openGuiKey.getDisplayName()), 15000);
+                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast",((Client)CreeperHost.proxy).openGuiKey.getDisplayName()), 15000);
                 }
 
             }
@@ -461,15 +466,5 @@ public class EventHandler
     private void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
     {
         fakeGui.drawTexturedModalRect(x, y, textureX, textureY, width, height);
-/*        float f = 0.00390625F;
-        float f1 = 0.00390625F;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos((double)(x + 0), (double)(y + height), (double)this.zLevel).tex((double)((float)(textureX + 0) * 0.00390625F), (double)((float)(textureY + height) * 0.00390625F)).endVertex();
-        bufferbuilder.pos((double)(x + width), (double)(y + height), (double)this.zLevel).tex((double)((float)(textureX + width) * 0.00390625F), (double)((float)(textureY + height) * 0.00390625F)).endVertex();
-        bufferbuilder.pos((double)(x + width), (double)(y + 0), (double)this.zLevel).tex((double)((float)(textureX + width) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
-        bufferbuilder.pos((double)(x + 0), (double)(y + 0), (double)this.zLevel).tex((double)((float)(textureX + 0) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
-        tessellator.draw();*/
     }
 }

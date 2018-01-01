@@ -23,7 +23,7 @@ public final class Util{
     private static List<String> cookies;
 
     public static String localize(String key, Object... format){
-        return I18n.format(CreeperHost.instance.getImplementation().getLocalizationRoot()+"."+key, format);
+        return I18n.format((CreeperHost.instance.getImplementation() == null ? "creeperhost" : CreeperHost.instance.getImplementation().getLocalizationRoot()) + "."+key, format);
     }
 
     public static String getWebResponse(String urlString) {

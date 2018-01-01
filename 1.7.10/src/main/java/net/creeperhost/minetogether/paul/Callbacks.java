@@ -1,8 +1,6 @@
 package net.creeperhost.minetogether.paul;
 
 import com.google.gson.*;
-import com.mojang.authlib.GameProfile;
-import cpw.mods.fml.common.FMLCommonHandler;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.AvailableResult;
@@ -10,48 +8,268 @@ import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.common.Config;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerProfileCache;
-import net.minecraft.util.Session;
+import net.creeperhost.minetogether.gui.serverlist.data.EnumFlag;
+import net.creeperhost.minetogether.gui.serverlist.data.Friend;
+import net.creeperhost.minetogether.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.gui.serverlist.data.Server;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-import java.io.File;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public final class Callbacks {
 
     public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
 
-    private static Util.CachedValue<Map<String, String>> serverListCache;
-    public static Map<String, String> getServerList(boolean isPublic)
+    private static Util.CachedValue<List<Server>> serverListCache;
+
+    public static Invite getInvite()
+    {
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/friendinvites", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            if (obj.get("status").getAsString().equals("success"))
+            {
+                JsonArray invites = obj.getAsJsonArray("invites");
+
+                for(JsonElement inviteEl: invites)
+                {
+                    JsonObject invite = inviteEl.getAsJsonObject();
+                    JsonObject server = invite.getAsJsonObject("server");
+                    String host = server.get("ip").getAsString();
+                    int project = server.get("project").getAsInt();
+                    String by = invite.get("by").getAsString();
+                    String name = server.get("name").getAsString();
+                    String port = server.get("port").getAsString();
+                    String country = "UNK";
+                    String subdivision = "Unknown";
+                    if (server.has("location"))
+                    {
+                        JsonObject el = server.getAsJsonObject("location");
+                        country = el.get("country_code").getAsString();
+                        subdivision = el.get("subdivision").getAsString();
+                    }
+                    country = country.toUpperCase();
+                    EnumFlag flag = null;
+                    if (!country.isEmpty())
+                    {
+                        try
+                        {
+                            flag = EnumFlag.valueOf(country);
+                        }
+                        catch (IllegalArgumentException ignored)
+                        {
+                            flag = EnumFlag.UNKNOWN;
+                        }
+                    }
+
+                    int uptime = server.get("uptime").getAsInt();
+                    int players = server.get("expected_players").getAsInt();
+
+                    Server serverEl = new Server(name, host + ":" + port, uptime, players, flag, subdivision);
+                    return new Invite(serverEl, project, by);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean inviteFriend(Friend friend)
+    {
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+            sendMap.put("target", friend.getCode());
+            sendMap.put("server", String.valueOf(CreeperHost.instance.curServerId));
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/invitefriend", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            if (obj.get("status").getAsString().equals("success"))
+            {
+                return true;
+            }
+        }
+        CreeperHost.logger.error("Unable to invite friend.");
+        CreeperHost.logger.error(resp);
+        return false;
+    }
+
+    private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
+    public static String getPlayerHash(UUID uuid)
+    {
+        if (hashCache.containsKey(uuid))
+            return hashCache.get(uuid);
+
+        String playerHash;
+        try
+        {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
+            playerHash = (new HexBinaryAdapter()).marshal(hash);
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+        hashCache.put(uuid, playerHash);
+        return playerHash;
+    }
+
+    private static String friendCode;
+    public static String getFriendCode()
+    {
+        if (friendCode != null)
+            return friendCode;
+
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/friendCode", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            JsonElement status = obj.get("status");
+            if (status.getAsString().equals("success"))
+            {
+                friendCode = obj.get("code").getAsString();
+            } else {
+                CreeperHost.logger.error("Unable to get friendcode.");
+                CreeperHost.logger.error(resp);
+            }
+        }
+        return friendCode;
+    }
+
+    public static boolean addFriend(String code, String display)
+    {
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+            sendMap.put("target", code);
+            sendMap.put("display", display);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/requestfriend", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            JsonElement status = obj.get("status");
+            if (!status.getAsString().equals("success"))
+            {
+                CreeperHost.logger.error("Unable to add friend.");
+                CreeperHost.logger.error(resp);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static Util.CachedValue<ArrayList<Friend>> friendsList = null;
+    public static ArrayList<Friend> getFriendsList(boolean force)
+    {
+        if (friendsList == null)
+            friendsList = new Util.CachedValue<ArrayList<Friend>>(10000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>()
+            {
+                @Override
+                public ArrayList<Friend> get(Object... args)
+                {
+                    Map<String, String> sendMap = new HashMap<String, String>();
+                    {
+                        sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
+                    }
+
+                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, false);
+
+                    ArrayList<Friend> tempArr = new ArrayList<Friend>();
+
+                    JsonElement el = new JsonParser().parse(resp);
+                    if(el.isJsonObject())
+                    {
+
+                        JsonObject obj = el.getAsJsonObject();
+                        if (obj.get("status").getAsString().equals("success"))
+                        {
+                            JsonArray array = obj.getAsJsonArray("friends");
+                            for (JsonElement friendEl : array) {
+                                JsonObject friend = (JsonObject)friendEl;
+                                String name = "null";
+
+                                if (!friend.get("name").isJsonNull())
+                                {
+                                    name = friend.get("name").getAsString();
+                                }
+                                String code = friend.get("hash").getAsString();
+
+                                boolean accepted = friend.get("accepted").getAsBoolean();
+                                tempArr.add(new Friend(name, code, accepted));
+                            }
+                        }
+                    }
+                    return tempArr;
+                }
+
+                @Override
+                public boolean needsRefresh(Object... args)
+                {
+                    return args.length > 0 && args[0].equals(true);
+                }
+            });
+        return friendsList.get(force);
+    }
+
+    public static List<Server> getServerList(boolean isPublic)
     {
         if (serverListCache == null)
         {
-            serverListCache = new Util.CachedValue<Map<String, String>>(30000, new Util.CachedValue.ICacheCallback<Map<String, String>>()
+            serverListCache = new Util.CachedValue<List<Server>>(30000, new Util.CachedValue.ICacheCallback<List<Server>>()
             {
                 private boolean lastRequest;
                 private String playerHash;
                 @Override
-                public Map<String, String> get(Object... args)
+                public List<Server> get(Object... args)
                 {
                     boolean isPublic = (Boolean)args[0];
                     lastRequest = isPublic;
                     CreeperHost.logger.info("Loading " + (isPublic ? "public" : "private") + " server list.");
-                    Map<String, String> map = new HashMap<String, String>();
+                    List<Server> list = new ArrayList<Server>();
 
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
-                        map.put("127.0.0.1:25565", "No project ID! Please fix the CreeperHost config.");
-                        return map;
+                        list.add(new Server("No project ID! Please fix the MineTogether config.", "127.0.0.1:25565", 0, 0, null, "Unknown"));
+                        return list;
                     }
 
                     Map<String, String> jsonPass = new HashMap<String, String>();
@@ -60,34 +278,7 @@ public final class Callbacks {
                     {
                         if (playerHash == null)
                         {
-                            try
-                            {
-                                Minecraft mc = Minecraft.getMinecraft();
-                                Session session = mc.getSession();
-                                boolean online = true;
-                                if (session.getToken().length() != 32 || session.getPlayerID().length() != 32)
-                                {
-                                    online = false;
-                                }
-
-                                UUID uuid;
-
-                                if (online)
-                                {
-                                    PlayerProfileCache playerprofilecache = new PlayerProfileCache(FMLCommonHandler.instance().getMinecraftServerInstance(), new File(mc.mcDataDir, MinecraftServer.field_152367_a.getName()));
-                                    uuid = playerprofilecache.func_152655_a(Minecraft.getMinecraft().getSession().getUsername()).getId();
-                                } else {
-                                    uuid = EntityPlayer.func_146094_a(new GameProfile(null, session.getUsername().toLowerCase()));
-                                }
-
-                                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                                byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
-                                playerHash = (new HexBinaryAdapter()).marshal(hash);
-                            }
-                            catch (NoSuchAlgorithmException e)
-                            {
-                                e.printStackTrace();
-                            }
+                            playerHash = getPlayerHash(CreeperHost.proxy.getUUID());
                         }
 
                         jsonPass.put("hash", playerHash);
@@ -104,16 +295,44 @@ public final class Callbacks {
                         JsonObject object = jElement.getAsJsonObject();
                         JsonArray array = object.getAsJsonArray("servers");
                         if (array != null)
-                            for (JsonElement serverEl : array) {
-                                JsonObject server = (JsonObject)serverEl;
+                        {
+                            for (JsonElement serverEl : array)
+                            {
+                                JsonObject server = (JsonObject) serverEl;
                                 String name = server.get("name").getAsString();
                                 String host = server.get("ip").getAsString();
                                 String port = server.get("port").getAsString();
-                                map.put(host + ":" + port, name);
+                                String country = "UNK";
+                                String subdivision = "Unknown";
+                                if (server.has("location"))
+                                {
+                                    JsonObject el = server.getAsJsonObject("location");
+                                    country = el.get("country_code").getAsString();
+                                    subdivision = el.get("subdivision").getAsString();
+                                }
+                                country = country.toUpperCase();
+                                EnumFlag flag = null;
+                                if (!country.isEmpty())
+                                {
+                                    try
+                                    {
+                                        flag = EnumFlag.valueOf(country);
+                                    }
+                                    catch (IllegalArgumentException ignored)
+                                    {
+                                        flag = EnumFlag.UNKNOWN;
+                                    }
+                                }
+
+                                int uptime = server.get("uptime").getAsInt();
+                                int players = server.get("expected_players").getAsInt();
+
+                                list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision));
                             }
+                        }
                     }
 
-                    return map;
+                    return list;
                 }
 
                 @Override
@@ -142,19 +361,22 @@ public final class Callbacks {
         return CreeperHost.instance.getImplementation().getNameAvailable(name);
     }
 
+    private static String userCountry;
     public static String getUserCountry() {
-        try {
-            String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
+        if (userCountry == null)
+            try {
+                String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
 
-            JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
+                JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
 
-            jObject = jObject.getAsJsonObject("customer");
+                jObject = jObject.getAsJsonObject("customer");
 
-            return jObject.getAsJsonPrimitive("country").getAsString();
-        } catch (Throwable t) {
-            CreeperHost.logger.error("Unable to get user's country automatically, assuming USA", t);
-        }
-        return "US"; // default
+                userCountry = jObject.getAsJsonPrimitive("country").getAsString();
+            } catch (Throwable t) {
+                CreeperHost.logger.error("Unable to get user's country automatically, assuming USA", t);
+                userCountry = "US"; // default
+            }
+        return userCountry;
     }
 
     public static String getRecommendedLocation()

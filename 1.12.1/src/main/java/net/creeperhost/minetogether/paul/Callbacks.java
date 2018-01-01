@@ -14,10 +14,10 @@ import net.creeperhost.minetogether.api.AvailableResult;
 
 import com.google.gson.*;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.serverlist.EnumFlag;
-import net.creeperhost.minetogether.gui.serverlist.Friend;
-import net.creeperhost.minetogether.gui.serverlist.Invite;
-import net.creeperhost.minetogether.gui.serverlist.Server;
+import net.creeperhost.minetogether.gui.serverlist.data.EnumFlag;
+import net.creeperhost.minetogether.gui.serverlist.data.Friend;
+import net.creeperhost.minetogether.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.gui.serverlist.data.Server;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -50,12 +50,38 @@ public final class Callbacks {
                 {
                     JsonObject invite = inviteEl.getAsJsonObject();
                     JsonObject server = invite.getAsJsonObject("server");
-                    String name = server.get("name").getAsString();
-                    String ip = server.get("ip").getAsString();
-                    int port = server.get("port").getAsInt();
+                    String host = server.get("ip").getAsString();
                     int project = server.get("project").getAsInt();
                     String by = invite.get("by").getAsString();
-                    return new Invite(name, ip, port, project, by);
+                    String name = server.get("name").getAsString();
+                    String port = server.get("port").getAsString();
+                    String country = "UNK";
+                    String subdivision = "Unknown";
+                    if (server.has("location"))
+                    {
+                        JsonObject el = server.getAsJsonObject("location");
+                        country = el.get("country_code").getAsString();
+                        subdivision = el.get("subdivision").getAsString();
+                    }
+                    country = country.toUpperCase();
+                    EnumFlag flag = null;
+                    if (!country.isEmpty())
+                    {
+                        try
+                        {
+                            flag = EnumFlag.valueOf(country);
+                        }
+                        catch (IllegalArgumentException ignored)
+                        {
+                            flag = EnumFlag.UNKNOWN;
+                        }
+                    }
+
+                    int uptime = server.get("uptime").getAsInt();
+                    int players = server.get("expected_players").getAsInt();
+
+                    Server serverEl = new Server(name, host + ":" + port, uptime, players, flag, subdivision);
+                    return new Invite(serverEl, project, by);
                 }
             }
         }
@@ -243,7 +269,7 @@ public final class Callbacks {
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
-                        list.add(new Server("No project ID! Please fix the CreeperHost config.", "127.0.0.1:25565", 0, 0, null));
+                        list.add(new Server("No project ID! Please fix the MineTogether config.", "127.0.0.1:25565", 0, 0, null, "Unknown"));
                         return list;
                     }
 
@@ -278,10 +304,12 @@ public final class Callbacks {
                                 String host = server.get("ip").getAsString();
                                 String port = server.get("port").getAsString();
                                 String country = "UNK";
+                                String subdivision = "Unknown";
                                 if (server.has("location"))
                                 {
                                     JsonObject el = server.getAsJsonObject("location");
                                     country = el.get("country_code").getAsString();
+                                    subdivision = el.get("subdivision").getAsString();
                                 }
                                 country = country.toUpperCase();
                                 EnumFlag flag = null;
@@ -300,7 +328,7 @@ public final class Callbacks {
                                 int uptime = server.get("uptime").getAsInt();
                                 int players = server.get("expected_players").getAsInt();
 
-                                list.add(new Server(name, host + ":" + port, uptime, players, flag));
+                                list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision));
                             }
                         }
                     }

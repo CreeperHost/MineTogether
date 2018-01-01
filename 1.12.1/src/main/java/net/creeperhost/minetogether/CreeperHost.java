@@ -4,7 +4,7 @@ import net.creeperhost.minetogether.api.CreeperHostAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.serverlist.Invite;
+import net.creeperhost.minetogether.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.IProxy;

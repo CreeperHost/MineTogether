@@ -2,13 +2,14 @@ package net.creeperhost.minetogether.serverstuffs.pregen;
 
 import net.creeperhost.minetogether.common.Pair;
 import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 
 import java.util.ArrayList;
 
 public class PregenTask
 {
+    public boolean preventJoin = true;
     public int dimension;
     public transient ArrayList<Pair<Integer, Integer>> chunksToGen;
     public int chunksPerTick;
@@ -26,8 +27,10 @@ public class PregenTask
     public int totalChunks = 0;
     public transient int lastChunksDone = 0;
     public transient String lastPregenString = "No status yet!";
+    public transient int chunkLoadCount;
+    public transient int curChunksPerTick;
 
-    public PregenTask(int dimension, int minX, int maxX, int minZ, int maxZ, int chunksPerTick)
+    public PregenTask(int dimension, int minX, int maxX, int minZ, int maxZ, int chunksPerTick, boolean preventJoin)
     {
         this.dimension = dimension;
         this.chunksPerTick = chunksPerTick;
@@ -37,19 +40,19 @@ public class PregenTask
         this.maxZ = maxZ;
         this.storedCurX = minX;
         this.storedCurZ = minZ;
+        this.preventJoin = preventJoin;
 
         init();
     }
 
     public void init()
     {
+        startTime = 0;
         if (chunksToGen != null) return;
 
-        startTime = 0;
-
+        WorldServer world = DimensionManager.getWorld(dimension);
         if (diameterX > 0 && totalChunks == 0) // only the first time
         {
-            World world = DimensionManager.getWorld(dimension);
             ChunkCoordinates pos = world.getSpawnPoint();
             minX = (pos.posX << 4) - (diameterX / 2);
             maxX = (pos.posX << 4) + (diameterX / 2);
@@ -62,6 +65,7 @@ public class PregenTask
 
         chunksDone = 0;
         totalChunks = 0;
+        chunkLoadCount = world.getChunkProvider().getLoadedChunkCount();
 
         ArrayList<Pair<Integer, Integer>> chunks = new ArrayList<Pair<Integer, Integer>>();
 
@@ -78,6 +82,8 @@ public class PregenTask
         }
 
         chunksToGen = chunks;
+
+        curChunksPerTick = chunksPerTick;
 
     }
 }

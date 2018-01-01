@@ -16,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.common.MinecraftForge;
@@ -126,7 +127,7 @@ public class CreeperHostServer
     int tries = 0;
 
     @Mod.EventHandler
-    public void serverStarted (FMLServerStartedEvent event)
+    public void serverStarted(FMLServerStartedEvent event)
     {
         if (!CreeperHost.instance.active)
             return;
@@ -270,18 +271,15 @@ public class CreeperHostServer
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (server == null || server.isSinglePlayer())
             return;
-
-        if (event.getEntity() instanceof EntityPlayerMP)
-        {
-            if (!playersJoined.containsKey(event.getEntity()))
-            {
-                playersJoined.put((EntityPlayerMP)event.getEntity(), null);
-                PacketHandler.INSTANCE.sendTo(new PacketHandler.ServerIDMessage(updateID), (EntityPlayerMP) event.getEntity());
-            }
-        }
         Entity entity = event.getEntity();
         if (entity instanceof EntityPlayerMP)
         {
+            if (!playersJoined.containsKey(entity))
+            {
+                playersJoined.put((EntityPlayerMP)entity, null);
+                PacketHandler.INSTANCE.sendTo(new PacketHandler.ServerIDMessage(updateID), (EntityPlayerMP) entity);
+            }
+
             for (PregenTask task : pregenTasks.values())
             {
                 if (task.preventJoin)
@@ -318,7 +316,7 @@ public class CreeperHostServer
         if (!FMLCommonHandler.instance().getMinecraftServerInstance().isServerRunning())
             return;
 
-        World world = e.world;
+        WorldServer world = (WorldServer) e.world;
 
         int dimension = world.provider.getDimension();
 
@@ -397,6 +395,28 @@ public class CreeperHostServer
             task.lastPregenString = "Pre-generating chunks for dimension " + dimension + ", current speed " + chunksDelta + " every 10 seconds." + "\n" + task.chunksDone + "/" + task.totalChunks + " " + time + " remaining";
 
             logger.info(task.lastPregenString);
+
+            if (task.curChunksPerTick == 0)
+            {
+                if (world.getChunkProvider().getLoadedChunkCount() < task.chunkLoadCount)
+                {
+                    logger.info("Chunks appear to be unloading now - going to tentatively restart the pregen.");
+                    task.curChunksPerTick = 1;
+                }
+            }
+
+            if (world.getChunkProvider().getLoadedChunkCount() >= task.chunkLoadCount + (chunksDelta * 2))
+            {
+                // handle runaway unloading - if we've stored up the equivalent of 20 seconds worth of chunks not being unloaded, if a mod is doing bad(tm) things.
+                task.chunkLoadCount = world.getChunkProvider().getLoadedChunkCount();
+                task.curChunksPerTick--; // slow it down nelly
+                if (task.curChunksPerTick == 0)
+                {
+                    logger.info("Frozen chunk generating as it appears that chunks aren't being unloaded fast enough. Will check the status in another 10 seconds.");
+                } // not gong to log slowing down or speeding up
+            } else if(task.curChunksPerTick < task.chunksPerTick) {
+                task.curChunksPerTick++; // things seem ok for now. Lets raise it back up
+            }
 
             serializePreload();
 
