@@ -1,5 +1,7 @@
 package net.creeperhost.minetogether.gui.serverlist.gui;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
@@ -180,20 +182,10 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     {
         if (sortOrderButton.dropdownOpen)
         {
-            super.func_146793_a(null);
+            this.ourTooltip = null;
         } else {
-            super.func_146793_a(text);
+            this.ourTooltip = text;
         }
-    }
-
-    @Override
-    public void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color)
-    {
-        if (text.equals(I18n.format("multiplayer.title")))
-        {
-            text = I18n.format("creeperhost.multiplayer.public");
-        }
-        super.drawCenteredString(fontRendererIn, text, x, y, color);
     }
 
     private ServerList ourSavedServerList = null;
@@ -280,21 +272,29 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
     }
 
+
+    private String ourTooltip;
+
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void drawScreen(int mouseX, int p_73863_2_, float p_73863_3_)
     {
-        super.drawScreen(mouseX, mouseY, partialTicks);
-
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        RenderHelper.disableStandardItemLighting();
-        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-
+        this.ourTooltip = null;
+        super.drawScreen(mouseX, p_73863_2_, p_73863_3_);
         drawCenteredString(fontRendererObj, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
 
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        RenderHelper.enableStandardItemLighting();
-        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        if (this.ourTooltip != null)
+        {
+            this.func_146283_a(Lists.newArrayList(Splitter.on("\n").split(this.ourTooltip)), mouseX, p_73863_2_);
+        }
+    }
+
+    @Override
+    public void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color)
+    {
+        if (text.equals(I18n.format("multiplayer.title")))
+        {
+            text = I18n.format("creeperhost.multiplayer.public");
+        }
+        super.drawCenteredString(fontRendererIn, text, x, y, color);
     }
 }

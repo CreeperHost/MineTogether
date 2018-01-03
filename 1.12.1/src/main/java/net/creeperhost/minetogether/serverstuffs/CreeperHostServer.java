@@ -175,6 +175,7 @@ public class CreeperHostServer
                     @Override
                     public void run()
                     {
+                        CreeperHostServer.logger.info("Enabling server list. Servers found to be breaking Mojang's EULA may be removed if complaints are received.");
                         boolean first = true;
                         while (serverOn)
                         {

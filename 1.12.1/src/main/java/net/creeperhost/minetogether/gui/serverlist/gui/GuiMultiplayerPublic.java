@@ -1,5 +1,7 @@
 package net.creeperhost.minetogether.gui.serverlist.gui;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
@@ -188,20 +190,10 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     {
         if (sortOrderButton.dropdownOpen)
         {
-            super.setHoveringText(null);
+            this.ourTooltip = null;
         } else {
-            super.setHoveringText(text);
+            this.ourTooltip = text;
         }
-    }
-
-    @Override
-    public void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color)
-    {
-        if (text.equals(I18n.format("multiplayer.title")))
-        {
-            text = I18n.format("creeperhost.multiplayer.public");
-        }
-        super.drawCenteredString(fontRendererIn, text, x, y, color);
     }
 
     private ServerListPublic ourSavedServerList = null;
@@ -288,21 +280,29 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
     }
 
+    private String ourTooltip;
+
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+        ourTooltip = null;
         super.drawScreen(mouseX, mouseY, partialTicks);
-
-        GlStateManager.disableRescaleNormal(); // fix colour when hovering
-        RenderHelper.disableStandardItemLighting();
-        GlStateManager.disableLighting();
-        GlStateManager.disableDepth();
 
         drawCenteredString(fontRendererObj, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
 
-        GlStateManager.enableLighting();
-        GlStateManager.enableDepth();
-        RenderHelper.enableStandardItemLighting();
-        GlStateManager.enableRescaleNormal();
+        if (this.ourTooltip != null)
+        {
+            this.drawHoveringText(Lists.newArrayList(Splitter.on("\n").split(ourTooltip)), mouseX, mouseY);
+        }
+    }
+
+    @Override
+    public void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color)
+    {
+        if (text.equals(I18n.format("multiplayer.title")))
+        {
+            text = I18n.format("creeperhost.multiplayer.public");
+        }
+        super.drawCenteredString(fontRendererIn, text, x, y, color);
     }
 }
