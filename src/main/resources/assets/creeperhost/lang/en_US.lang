@@ -151,3 +151,6 @@ creeperhost.multiplayer.cantjoin=Unfortunately, the server isn't running the cor
 creeperhost.multiplayer.addlist=Add to your server list? Applies for both Cancel and Connect.
 creeperhost.multiplayer.cancel=Cancel
 creeperhost.multiplayer.connect=Connect
+
+minetogether.keys=MineTogether
+minetogether.key.friends=Open Friends List

@@ -25,7 +25,7 @@ public class Client implements IProxy
     @Override
     public void registerKeys()
     {
-        openGuiKey = new KeyBinding("minetogether.opengui", Keyboard.KEY_F, "key.categories.general");
+        openGuiKey = new KeyBinding("minetogether.key.friends", Keyboard.KEY_M, "minetogether.keys");
         Minecraft.getMinecraft().gameSettings.keyBindings = ArrayUtils.add(Minecraft.getMinecraft().gameSettings.keyBindings, openGuiKey);
     }
 

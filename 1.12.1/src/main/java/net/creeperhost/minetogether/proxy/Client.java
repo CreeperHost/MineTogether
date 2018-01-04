@@ -26,7 +26,7 @@ public class Client implements IProxy
     @Override
     public void registerKeys()
     {
-        openGuiKey = new KeyBinding("minetogether.opengui", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_F, "key.categories.general");
+        openGuiKey = new KeyBinding("minetogether.key.friends", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_M, "minetogether.keys");
         ClientRegistry.registerKeyBinding(openGuiKey);
     }
 
