@@ -28,16 +28,21 @@ public class GuiCreeperConfig extends GuiConfig
 
         List<IConfigElement> array = new ArrayList<IConfigElement>();
         Field[] fields = Config.class.getDeclaredFields();
-        for (Field field : fields) {
-            if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers())) {
+        for (Field field : fields)
+        {
+            if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
+            {
                 continue;
             }
             Object defValue = null;
-            try {
+            try
+            {
                 field.setAccessible(true);
                 defValue = field.get(defaultConfig);
 
-            } catch (Throwable t) {
+            }
+            catch (Throwable t)
+            {
             }
 
             array.add(new ReflectionConfigElement(field, defValue));
@@ -45,7 +50,8 @@ public class GuiCreeperConfig extends GuiConfig
         return array;
     }
 
-    private static String getTitle(GuiScreen parent) {
+    private static String getTitle(GuiScreen parent)
+    {
         return I18n.format("creeperhost.config.title");
     }
 }

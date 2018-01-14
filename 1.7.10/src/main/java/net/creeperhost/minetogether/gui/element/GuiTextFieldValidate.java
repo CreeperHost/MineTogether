@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 public class GuiTextFieldValidate extends GuiTextField
 {
     Pattern pattern;
+
     public GuiTextFieldValidate(FontRenderer p_i1032_1_, int p_i1032_2_, int p_i1032_3_, int p_i1032_4_, int p_i1032_5_, String regexStr)
     {
         super(p_i1032_1_, p_i1032_2_, p_i1032_3_, p_i1032_4_, p_i1032_5_);
@@ -26,7 +27,8 @@ public class GuiTextFieldValidate extends GuiTextField
         super.writeText(textWrite);
         String afterWrite = this.getText();
         Matcher matcher = pattern.matcher(afterWrite);
-        if (!matcher.matches()) {
+        if (!matcher.matches())
+        {
             this.setText(beforeWrite);
             this.setCursorPosition(prevPos);
         }
@@ -36,7 +38,8 @@ public class GuiTextFieldValidate extends GuiTextField
     public void setText(String p_146180_1_)
     {
         Matcher matcher = pattern.matcher(p_146180_1_);
-        if (matcher.matches()) {
+        if (matcher.matches())
+        {
             super.setText(p_146180_1_);
         }
     }

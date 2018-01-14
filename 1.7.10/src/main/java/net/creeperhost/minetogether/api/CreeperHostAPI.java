@@ -7,7 +7,8 @@ import cpw.mods.fml.common.Loader;
  */
 public class CreeperHostAPI
 {
-    public static void registerImplementation(IServerHost plugin) {
+    public static void registerImplementation(IServerHost plugin)
+    {
         if (Loader.isModLoaded("minetogether"))
         {
             Object mod = Loader.instance().getIndexedModList().get("minetogether").getMod();

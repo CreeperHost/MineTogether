@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.gui.hacky;
 
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 
 /**
@@ -11,7 +11,8 @@ public class BufferProxyOld implements IBufferProxy
 {
     private VertexBuffer buffer;
 
-    public BufferProxyOld() {
+    public BufferProxyOld()
+    {
         buffer = Tessellator.getInstance().getBuffer();
     }
 

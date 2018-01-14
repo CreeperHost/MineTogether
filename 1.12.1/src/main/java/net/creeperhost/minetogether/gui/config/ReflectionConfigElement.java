@@ -19,8 +19,21 @@ public class ReflectionConfigElement implements IConfigElement
 
     final Field field;
     final Object defValue;
+    private HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>> lookupEntry = new HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>>()
+    {{
+        put("boolean", GuiConfigEntries.BooleanEntry.class);
+        put("String", GuiConfigEntries.StringEntry.class);
+        put("int", GuiConfigEntries.IntegerEntry.class);
+    }};
+    private HashMap<String, ConfigGuiType> lookup = new HashMap<String, ConfigGuiType>()
+    {{
+        put("boolean", ConfigGuiType.BOOLEAN);
+        put("String", ConfigGuiType.STRING);
+        put("int", ConfigGuiType.INTEGER);
+    }};
 
-    ReflectionConfigElement(Field field, Object defValue) {
+    ReflectionConfigElement(Field field, Object defValue)
+    {
         this.field = field;
         this.defValue = defValue;
     }
@@ -30,12 +43,6 @@ public class ReflectionConfigElement implements IConfigElement
     {
         return true;
     }
-
-    private HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>> lookupEntry = new HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>>() {{
-        put("boolean", GuiConfigEntries.BooleanEntry.class);
-        put("String", GuiConfigEntries.StringEntry.class);
-        put("int", GuiConfigEntries.IntegerEntry.class);
-    }};
 
     @Override
     public Class<? extends GuiConfigEntries.IConfigEntry> getConfigEntryClass()
@@ -78,12 +85,6 @@ public class ReflectionConfigElement implements IConfigElement
     {
         return null;
     }
-
-    private HashMap<String, ConfigGuiType> lookup = new HashMap<String, ConfigGuiType>() {{
-        put("boolean", ConfigGuiType.BOOLEAN);
-        put("String", ConfigGuiType.STRING);
-        put("int", ConfigGuiType.INTEGER);
-    }};
 
     @Override
     public ConfigGuiType getType()
@@ -159,7 +160,8 @@ public class ReflectionConfigElement implements IConfigElement
         {
             field.setAccessible(true);
             return field.get(Config.getInstance());
-        } catch (Throwable e)
+        }
+        catch (Throwable e)
         {
         }
         return null;
@@ -178,7 +180,8 @@ public class ReflectionConfigElement implements IConfigElement
         {
             field.setAccessible(true);
             field.set(Config.getInstance(), value);
-        } catch (Throwable e)
+        }
+        catch (Throwable e)
         {
         }
     }

@@ -19,7 +19,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-public final class Callbacks {
+public final class Callbacks
+{
 
     public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
 
@@ -45,7 +46,7 @@ public final class Callbacks {
             {
                 JsonArray invites = obj.getAsJsonArray("invites");
 
-                for(JsonElement inviteEl: invites)
+                for (JsonElement inviteEl : invites)
                 {
                     JsonObject invite = inviteEl.getAsJsonObject();
                     JsonObject server = invite.getAsJsonObject("server");
@@ -116,6 +117,7 @@ public final class Callbacks {
     }
 
     private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
+
     public static String getPlayerHash(UUID uuid)
     {
         if (hashCache.containsKey(uuid))
@@ -138,6 +140,7 @@ public final class Callbacks {
     }
 
     private static String friendCode;
+
     public static String getFriendCode()
     {
         if (friendCode != null)
@@ -160,7 +163,9 @@ public final class Callbacks {
             if (status.getAsString().equals("success"))
             {
                 friendCode = obj.get("code").getAsString();
-            } else {
+            }
+            else
+            {
                 CreeperHost.logger.error("Unable to get friendcode.");
                 CreeperHost.logger.error(resp);
             }
@@ -197,6 +202,7 @@ public final class Callbacks {
     }
 
     private static Util.CachedValue<ArrayList<Friend>> friendsList = null;
+
     public static ArrayList<Friend> getFriendsList(boolean force)
     {
         if (friendsList == null)
@@ -215,15 +221,16 @@ public final class Callbacks {
                     ArrayList<Friend> tempArr = new ArrayList<Friend>();
 
                     JsonElement el = new JsonParser().parse(resp);
-                    if(el.isJsonObject())
+                    if (el.isJsonObject())
                     {
 
                         JsonObject obj = el.getAsJsonObject();
                         if (obj.get("status").getAsString().equals("success"))
                         {
                             JsonArray array = obj.getAsJsonArray("friends");
-                            for (JsonElement friendEl : array) {
-                                JsonObject friend = (JsonObject)friendEl;
+                            for (JsonElement friendEl : array)
+                            {
+                                JsonObject friend = (JsonObject) friendEl;
                                 String name = "null";
 
                                 if (!friend.get("name").isJsonNull())
@@ -257,10 +264,11 @@ public final class Callbacks {
             {
                 private boolean lastRequest;
                 private String playerHash;
+
                 @Override
                 public List<Server> get(Object... args)
                 {
-                    boolean isPublic = (Boolean)args[0];
+                    boolean isPublic = (Boolean) args[0];
                     lastRequest = isPublic;
                     CreeperHost.logger.info("Loading " + (isPublic ? "public" : "private") + " server list.");
                     List<Server> list = new ArrayList<Server>();
@@ -338,7 +346,7 @@ public final class Callbacks {
                 @Override
                 public boolean needsRefresh(Object... args)
                 {
-                    boolean isPublic = (Boolean)args[0];
+                    boolean isPublic = (Boolean) args[0];
                     return isPublic != lastRequest;
                 }
             });
@@ -346,25 +354,31 @@ public final class Callbacks {
         return serverListCache.get(isPublic);
     }
 
-    public static Map<String, String> getAllServerLocations(){
+    public static Map<String, String> getAllServerLocations()
+    {
         IServerHost implementation = CreeperHost.instance.getImplementation();
         if (locationCache.get(implementation) == null)
             locationCache.put(implementation, implementation.getAllServerLocations());
         return locationCache.get(implementation);
     }
 
-    public static Map<String, String> getCountries() {
+    public static Map<String, String> getCountries()
+    {
         return countries;
     }
 
-    public static AvailableResult getNameAvailable(String name) {
+    public static AvailableResult getNameAvailable(String name)
+    {
         return CreeperHost.instance.getImplementation().getNameAvailable(name);
     }
 
     private static String userCountry;
-    public static String getUserCountry() {
+
+    public static String getUserCountry()
+    {
         if (userCountry == null)
-            try {
+            try
+            {
                 String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
 
                 JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
@@ -372,7 +386,9 @@ public final class Callbacks {
                 jObject = jObject.getAsJsonObject("customer");
 
                 userCountry = jObject.getAsJsonPrimitive("country").getAsString();
-            } catch (Throwable t) {
+            }
+            catch (Throwable t)
+            {
                 CreeperHost.logger.error("Unable to get user's country automatically, assuming USA", t);
                 userCountry = "US"; // default
             }
@@ -384,7 +400,8 @@ public final class Callbacks {
         return CreeperHost.instance.getImplementation().getRecommendedLocation();
     }
 
-    public static OrderSummary getSummary(Order order) {
+    public static OrderSummary getSummary(Order order)
+    {
         return CreeperHost.instance.getImplementation().getSummary(order);
     }
 
@@ -409,24 +426,32 @@ public final class Callbacks {
         return CreeperHost.instance.getImplementation().createOrder(order);
     }
 
-    public static String getVersionFromCurse(String curse) {
+    public static String getVersionFromCurse(String curse)
+    {
         String resp = Util.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
-        try {
+        try
+        {
             JsonElement jElement = new JsonParser().parse(resp);
             JsonObject jObject = jElement.getAsJsonObject();
-            if (jObject.getAsJsonPrimitive("status").getAsString().equals("success")) {
+            if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
+            {
                 return jObject.getAsJsonPrimitive("id").getAsString();
-            } else {
+            }
+            else
+            {
                 return "0";
             }
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             t.printStackTrace();
         }
 
         return "0";
     }
 
-    private static Map<String, String> countries = new LinkedHashMap<String, String>() {{
+    private static Map<String, String> countries = new LinkedHashMap<String, String>()
+    {{
         put("GB", "United Kingdom");
         put("US", "United States");
         put("NZ", "New Zealand");

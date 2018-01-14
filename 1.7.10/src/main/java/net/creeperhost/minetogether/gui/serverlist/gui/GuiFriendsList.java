@@ -12,7 +12,6 @@ import net.minecraft.client.gui.GuiTextField;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class GuiFriendsList extends GuiScreen
@@ -46,14 +45,14 @@ public class GuiFriendsList extends GuiScreen
         if (list == null)
             list = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
         else
-            list.func_148122_a(width, height, 32, this.height-64);
+            list.func_148122_a(width, height, 32, this.height - 64);
 
         if (first)
         {
             first = false;
             refreshFriendsList(true);
         }
-        int y = this.height-60;
+        int y = this.height - 60;
         buttonCancel = new GuiButton(0, this.width - 90, y, 80, 20, Util.localize("button.cancel"));
         buttonList.add(buttonCancel);
         buttonRefresh = new GuiButton(1337, this.width - 90, y + 30, 80, 20, Util.localize("multiplayer.button.refresh"));
@@ -75,7 +74,7 @@ public class GuiFriendsList extends GuiScreen
     {
         ArrayList<Friend> friends = Callbacks.getFriendsList(force);
         list.clearList();
-        for(Friend friend: friends)
+        for (Friend friend : friends)
         {
             GuiListEntryFriend friendEntry = new GuiListEntryFriend(list, friend);
             list.addEntry(friendEntry);
@@ -101,12 +100,16 @@ public class GuiFriendsList extends GuiScreen
                 buttonInvite.visible = true;
                 codeEntry.setText("");
             }
-        } else if (button.id == buttonAdd.id) {
+        }
+        else if (button.id == buttonAdd.id)
+        {
             if (!addFriend)
             {
                 addFriend = true;
                 buttonInvite.visible = false;
-            } else if (!codeEntry.getText().isEmpty()){
+            }
+            else if (!codeEntry.getText().isEmpty())
+            {
                 Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
                 addFriend = false;
                 list.addEntry(new GuiListEntryFriend(list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
@@ -114,12 +117,16 @@ public class GuiFriendsList extends GuiScreen
                 showAlert(Util.localize("multiplayer.friendsent"), 0x00FF00, 5000);
             }
 
-        } else if (button.id == buttonInvite.id && button.enabled && button.visible) {
+        }
+        else if (button.id == buttonInvite.id && button.enabled && button.visible)
+        {
             if (CreeperHost.instance.curServerId == -1)
             {
                 showAlert(Util.localize("multiplayer.notinvite"), 0xFF0000, 5000);
                 return;
-            } else {
+            }
+            else
+            {
                 boolean ret = Callbacks.inviteFriend(list.getCurrSelected().getFriend());
                 if (ret)
                 {
@@ -132,15 +139,19 @@ public class GuiFriendsList extends GuiScreen
                 }
 
             }
-        } else if (button.id == buttonCopy.id) {
+        }
+        else if (button.id == buttonCopy.id)
+        {
             Toolkit.getDefaultToolkit()
                 .getSystemClipboard()
                 .setContents(
-                  new StringSelection(friendCode),
-                  null
+                    new StringSelection(friendCode),
+                    null
                 );
             showAlert("Copied to clipboard.", 0x00FF00, 5000);
-        } else if (button.id == buttonRefresh.id) {
+        }
+        else if (button.id == buttonRefresh.id)
+        {
             refreshFriendsList(false);
         }
     }
@@ -160,7 +171,7 @@ public class GuiFriendsList extends GuiScreen
             this.displayEntry.drawTextBox();
         }
 
-        this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width/2, 10, -1);
+        this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

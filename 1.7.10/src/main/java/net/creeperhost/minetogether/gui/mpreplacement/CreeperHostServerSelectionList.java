@@ -25,16 +25,18 @@ public class CreeperHostServerSelectionList extends ServerSelectionList
     }
 
     @Override
-    public void func_148195_a(ServerList p_148195_1_) {
+    public void func_148195_a(ServerList p_148195_1_)
+    {
         super.func_148195_a(p_148195_1_);
-        ourList.add(new CreeperHostEntry(ourParent, new ServerData("","127.0.0.1", false), true));
+        ourList.add(new CreeperHostEntry(ourParent, new ServerData("", "127.0.0.1", false), true));
     }
 
-    public void replaceList(List list) {
+    public void replaceList(List list)
+    {
         if (ourList == list)
             return;
         ourList = list;
-        ourList.add(new CreeperHostEntry(ourParent, new ServerData("","127.0.0.1", false), true));
+        ourList.add(new CreeperHostEntry(ourParent, new ServerData("", "127.0.0.1", false), true));
     }
 
 }

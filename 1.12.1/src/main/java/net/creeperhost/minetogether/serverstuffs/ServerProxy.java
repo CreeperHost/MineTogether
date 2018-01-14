@@ -22,7 +22,7 @@ public class ServerProxy implements IServerProxy
             {
                 field = Thread.class.getDeclaredField("target");
                 field.setAccessible(true);
-                server = ReflectionHelper.findField(ServerHangWatchdog.class,"field_180249_b", "server");
+                server = ReflectionHelper.findField(ServerHangWatchdog.class, "field_180249_b", "server");
                 server.setAccessible(true);
             }
             catch (Throwable e)
@@ -35,7 +35,7 @@ public class ServerProxy implements IServerProxy
         {
             return true;
         }
-        
+
         CreeperHostServer.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
 
         try

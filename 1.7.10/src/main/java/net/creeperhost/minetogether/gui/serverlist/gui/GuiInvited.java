@@ -10,7 +10,6 @@ import net.creeperhost.minetogether.gui.serverlist.gui.elements.MockServerListEn
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerListEntryPublic;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.resources.I18n;
@@ -62,7 +61,8 @@ public class GuiInvited extends GuiScreen
             savedServerList.addServerData(server.func_148296_a());
             savedServerList.saveServerList();
             mc.displayGuiScreen(parent);
-        } else if (button.id == connectButton.id)
+        }
+        else if (button.id == connectButton.id)
         {
             if (addToServerList)
             {
@@ -77,7 +77,8 @@ public class GuiInvited extends GuiScreen
                 this.mc.loadWorld(null);
             }
             FMLClientHandler.instance().connectToServer(null, server.func_148296_a());
-        } else if (button.id == checkBox.id)
+        }
+        else if (button.id == checkBox.id)
         {
             addToServerList = checkBox.isChecked();
         }
@@ -89,11 +90,11 @@ public class GuiInvited extends GuiScreen
         drawBackground(0);
         int yBase = this.height / 2 - (106 / 2);
 
-        this.drawCenteredString(this.fontRendererObj, I18n.format("creeperhost.multiplayer.invite"), this.width/2, 10, -1);
+        this.drawCenteredString(this.fontRendererObj, I18n.format("creeperhost.multiplayer.invite"), this.width / 2, 10, -1);
 
-        this.drawCenteredString(this.fontRendererObj, I18n.format("creeperhost.multiplayer.invited", invite.by), this.width/2, yBase, -1);
-        server.drawEntry(0, (this.width / 2) - 125, yBase + 20, 250, 36, Tessellator.instance, Integer.MAX_VALUE, Integer.MAX_VALUE,false);
-        this.drawCenteredString(this.fontRendererObj, Util.localize(canConnect ? "multiplayer.join" : "multiplayer.cantjoin", invite.by), this.width/2, yBase + 36 + 30, -1);
+        this.drawCenteredString(this.fontRendererObj, I18n.format("creeperhost.multiplayer.invited", invite.by), this.width / 2, yBase, -1);
+        server.drawEntry(0, (this.width / 2) - 125, yBase + 20, 250, 36, Tessellator.instance, Integer.MAX_VALUE, Integer.MAX_VALUE, false);
+        this.drawCenteredString(this.fontRendererObj, Util.localize(canConnect ? "multiplayer.join" : "multiplayer.cantjoin", invite.by), this.width / 2, yBase + 36 + 30, -1);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 

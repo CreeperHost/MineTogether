@@ -7,7 +7,9 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.*;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
@@ -55,7 +57,9 @@ public class CommandPregen extends CommandBase
         if (args.length <= 1)
         {
             throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
-        } else if (args.length == 2) {
+        }
+        else if (args.length == 2)
+        {
             if (args[0].equals("remove"))
             {
                 int dimension = -999;
@@ -65,7 +69,9 @@ public class CommandPregen extends CommandBase
                         throw new WrongUsageException("creeperhostserver.command.pregen.wrongconsole");
                     World world = sender.getEntityWorld();
                     dimension = world.provider.dimensionId;
-                } else {
+                }
+                else
+                {
                     dimension = parseInt(sender, args[1]);
                 }
                 if (!CreeperHostServer.INSTANCE.pregenTasks.containsKey(dimension))
@@ -76,36 +82,51 @@ public class CommandPregen extends CommandBase
                 CreeperHostServer.INSTANCE.pregenTasks.get(dimension).chunksToGen = new ArrayList<Pair<Integer, Integer>>();
                 sender.addChatMessage(new ChatComponentText("creeperhostserver.command.pregen.removed"));
                 return;
-            } else {
+            }
+            else
+            {
                 throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
             }
-        } else if (args.length == 3) {
+        }
+        else if (args.length == 3)
+        {
             dimensionPos = 0;
             xDiameterPos = 1;
             yDiameterPos = 2;
-        } else if (args.length == 4) {
+        }
+        else if (args.length == 4)
+        {
             dimensionPos = 0;
             xDiameterPos = 1;
             yDiameterPos = 2;
             chunksPerTickPos = 3;
-        } else if (args.length == 5) {
+        }
+        else if (args.length == 5)
+        {
             dimensionPos = 0;
             xDiameterPos = 1;
             yDiameterPos = 2;
-            if (args[4].equals("true") || args[4].equals("false")) {
+            if (args[4].equals("true") || args[4].equals("false"))
+            {
                 preventJoinPos = 4;
-            } else {
+            }
+            else
+            {
                 xStartChunkPos = 3;
                 yStartChunkPos = 4;
             }
-        } else if (args.length == 6) {
+        }
+        else if (args.length == 6)
+        {
             dimensionPos = 0;
             xDiameterPos = 1;
             yDiameterPos = 2;
             xStartChunkPos = 3;
             yStartChunkPos = 4;
             chunksPerTickPos = 5;
-        } else if (args.length == 7) {
+        }
+        else if (args.length == 7)
+        {
             dimensionPos = 0;
             xDiameterPos = 1;
             yDiameterPos = 2;
@@ -113,7 +134,9 @@ public class CommandPregen extends CommandBase
             yStartChunkPos = 4;
             chunksPerTickPos = 5;
             preventJoinPos = 6;
-        } else if (args.length > 7) {
+        }
+        else if (args.length > 7)
+        {
             throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
         }
 
@@ -124,7 +147,9 @@ public class CommandPregen extends CommandBase
                 throw new WrongUsageException("creeperhostserver.command.pregen.wrongconsole");
 
             dimension = sender.getEntityWorld().provider.dimensionId;
-        } else {
+        }
+        else
+        {
             dimension = parseInt(sender, args[dimensionPos]);
         }
         int xDiameter = parseInt(sender, args[xDiameterPos]);
@@ -140,10 +165,14 @@ public class CommandPregen extends CommandBase
                 ChunkCoordinates spawnPoint = world.getSpawnPoint();
                 xStartChunk = spawnPoint.posX;
                 zStartChunk = spawnPoint.posZ;
-            } else {
+            }
+            else
+            {
                 throw new WrongUsageException("creeperhostserver.command.pregen.dimensionnoexists");
             }
-        } else {
+        }
+        else
+        {
             xStartChunk = parseInt(sender, args[xStartChunkPos]);
             zStartChunk = parseInt(sender, args[yStartChunkPos]);
         }
@@ -185,7 +214,8 @@ public class CommandPregen extends CommandBase
                 completions.add(String.valueOf(dimension));
             }
             return getListOfStringsFromIterableMatchingLastWord(args, completions);
-        } else if (args.length == 2 && args[0].equals("remove"))
+        }
+        else if (args.length == 2 && args[0].equals("remove"))
         {
             List<String> completions = new ArrayList<String>();
             completions.add("current");

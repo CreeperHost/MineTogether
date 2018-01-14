@@ -1,18 +1,21 @@
 package net.creeperhost.minetogether.gui.mpreplacement;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.GuiGetServer;
-import net.creeperhost.minetogether.api.Order;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.ServerListEntryNormal;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 //import org.lwjgl.opengl.GL11;
 
@@ -32,14 +35,16 @@ public class CreeperHostEntry extends ServerListEntryNormal
     private final String cross;
     private final int stringWidth;
 
-    protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn) {
+    protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn)
+    {
         super(p_i45048_1_, serverIn);
         serverIcon = Config.getInstance().isServerHostMenuImage() ? CreeperHost.instance.getImplementation().getMenuIcon() : new ResourceLocation("creeperhost", "textures/nobrandmp.png");
         cross = new String(Character.toChars(10006));
         stringWidth = this.mc.fontRenderer.getStringWidth(cross);
     }
 
-    public CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn, boolean diffSig) {
+    public CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn, boolean diffSig)
+    {
         this(p_i45048_1_, serverIn);
     }
 
@@ -47,12 +52,16 @@ public class CreeperHostEntry extends ServerListEntryNormal
     private int lastHeight;
     private ScaledResolution res = null;
 
-    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, Tessellator p_148279_6, int mouseX, int mouseY, boolean isHovering) {
+    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, Tessellator p_148279_6, int mouseX, int mouseY, boolean isHovering)
+    {
 
-        if (isHovering) {
+        if (isHovering)
+        {
             if (transparency <= 1.0F)
                 transparency += 0.04;
-        } else {
+        }
+        else
+        {
             if (transparency >= 0.5F)
                 transparency -= 0.04;
         }
@@ -77,8 +86,10 @@ public class CreeperHostEntry extends ServerListEntryNormal
 
         this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
 
-        if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7) {
-            if (lastWidth != this.mc.displayWidth || lastHeight != this.mc.displayHeight || res == null) {
+        if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
+        {
+            if (lastWidth != this.mc.displayWidth || lastHeight != this.mc.displayHeight || res == null)
+            {
                 res = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
                 lastWidth = this.mc.displayWidth;
                 lastHeight = this.mc.displayHeight;
@@ -145,14 +156,14 @@ public class CreeperHostEntry extends ServerListEntryNormal
     // Taken from Gui.class in order to avoid protected access
     private void drawGradientRect(int zLevel, int p_73733_1_, int p_73733_2_, int p_73733_3_, int p_73733_4_, int p_73733_5_, int p_73733_6_)
     {
-        float f = (float)(p_73733_5_ >> 24 & 255) / 255.0F;
-        float f1 = (float)(p_73733_5_ >> 16 & 255) / 255.0F;
-        float f2 = (float)(p_73733_5_ >> 8 & 255) / 255.0F;
-        float f3 = (float)(p_73733_5_ & 255) / 255.0F;
-        float f4 = (float)(p_73733_6_ >> 24 & 255) / 255.0F;
-        float f5 = (float)(p_73733_6_ >> 16 & 255) / 255.0F;
-        float f6 = (float)(p_73733_6_ >> 8 & 255) / 255.0F;
-        float f7 = (float)(p_73733_6_ & 255) / 255.0F;
+        float f = (float) (p_73733_5_ >> 24 & 255) / 255.0F;
+        float f1 = (float) (p_73733_5_ >> 16 & 255) / 255.0F;
+        float f2 = (float) (p_73733_5_ >> 8 & 255) / 255.0F;
+        float f3 = (float) (p_73733_5_ & 255) / 255.0F;
+        float f4 = (float) (p_73733_6_ >> 24 & 255) / 255.0F;
+        float f5 = (float) (p_73733_6_ >> 16 & 255) / 255.0F;
+        float f6 = (float) (p_73733_6_ >> 8 & 255) / 255.0F;
+        float f7 = (float) (p_73733_6_ & 255) / 255.0F;
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
@@ -161,11 +172,11 @@ public class CreeperHostEntry extends ServerListEntryNormal
         Tessellator tessellator = Tessellator.instance;
         tessellator.startDrawingQuads();
         tessellator.setColorRGBA_F(f1, f2, f3, f);
-        tessellator.addVertex((double)p_73733_3_, (double)p_73733_2_, (double)zLevel);
-        tessellator.addVertex((double)p_73733_1_, (double)p_73733_2_, (double)zLevel);
+        tessellator.addVertex((double) p_73733_3_, (double) p_73733_2_, (double) zLevel);
+        tessellator.addVertex((double) p_73733_1_, (double) p_73733_2_, (double) zLevel);
         tessellator.setColorRGBA_F(f5, f6, f7, f4);
-        tessellator.addVertex((double)p_73733_1_, (double)p_73733_4_, (double)zLevel);
-        tessellator.addVertex((double)p_73733_3_, (double)p_73733_4_, (double)zLevel);
+        tessellator.addVertex((double) p_73733_1_, (double) p_73733_4_, (double) zLevel);
+        tessellator.addVertex((double) p_73733_3_, (double) p_73733_4_, (double) zLevel);
         tessellator.draw();
         GL11.glShadeModel(GL11.GL_FLAT);
         GL11.glDisable(GL11.GL_BLEND);

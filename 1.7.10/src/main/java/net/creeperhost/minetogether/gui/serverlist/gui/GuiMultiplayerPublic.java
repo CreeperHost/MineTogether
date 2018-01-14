@@ -4,7 +4,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerListPublic;
@@ -13,11 +12,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.network.LanServerDetector;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import java.lang.reflect.Field;
 
@@ -107,19 +103,22 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     public void func_146794_g()
     {
         super.func_146794_g();
-        for(Object obj: buttonList)
+        for (Object obj : buttonList)
         {
             GuiButton button = (GuiButton) obj;
             if (button.id != 0 && button.id != 1 && button.id != 3 && button.id != 7)
             {
                 button.visible = false;
-            } else if (button.id == 1) // original connect button
+            }
+            else if (button.id == 1) // original connect button
             {
                 button.displayString = I18n.format("selectServer.add");
-            } else if (button.id == 3) // original add button
+            }
+            else if (button.id == 3) // original add button
             {
                 button.displayString = I18n.format("selectServer.refresh");
-            } else if (button.id == 7) // original edit button
+            }
+            else if (button.id == 7) // original edit button
             {
                 button.displayString = I18n.format("creeperhost.multiplayer.friends");
                 button.enabled = true;
@@ -138,14 +137,20 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         {
             refresh();
             return;
-        } else if (button.id == modeToggle.id) {
+        }
+        else if (button.id == modeToggle.id)
+        {
             isPublic = !isPublic;
             button.displayString = I18n.format(isPublic ? "creeperhost.multiplayer.button.public" : "creeperhost.multiplayer.button.private");
             refresh();
-        } else if (button.id == 7) {
+        }
+        else if (button.id == 7)
+        {
             CreeperHost.proxy.openFriendsGui();
             return;
-        } else if (button.id == sortOrderButton.id) {
+        }
+        else if (button.id == sortOrderButton.id)
+        {
             sortOrder = sortOrderButton.getSelected();
             ourServerListSelector.sort();
             return;
@@ -165,7 +170,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         GuiListExtended.IGuiListEntry entry = this.ourServerListSelector.func_148193_k() < 0 ? null : this.ourServerListSelector.getListEntry(this.ourServerListSelector.func_148193_k());
         ServerList savedServerList = new ServerListNoEdit(this.mc);
         savedServerList.loadServerList();
-        savedServerList.addServerData(((ServerListEntryNormal)entry).func_148296_a());
+        savedServerList.addServerData(((ServerListEntryNormal) entry).func_148296_a());
         savedServerList.saveServerList();
 
         Minecraft mc = Minecraft.getMinecraft();
@@ -184,13 +189,16 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         if (sortOrderButton.dropdownOpen)
         {
             this.ourTooltip = null;
-        } else {
+        }
+        else
+        {
             this.ourTooltip = text;
         }
     }
 
     private ServerList ourSavedServerList = null;
     private static Field savedServerListField;
+
     private void setServerList(ServerList serverList)
     {
         ourSavedServerList = serverList;
@@ -212,6 +220,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
 
     private LanServerDetector.ThreadLanServerFind ourLanServerDetector = null;
     private static Field lanServerDetectorField;
+
     private void setLanServerDetector(LanServerDetector.ThreadLanServerFind detector)
     {
         ourLanServerDetector = detector;
@@ -233,6 +242,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
 
     private LanServerDetector.LanServerList ourLanServerList = null;
     private static Field lanServerListField;
+
     private void setLanServerList(LanServerDetector.LanServerList detector)
     {
         ourLanServerList = detector;
@@ -254,6 +264,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
 
     private ServerSelectionListPublic ourServerListSelector = null;
     private static Field serverListSelectorField;
+
     private void setServerListSelector(ServerSelectionListPublic list)
     {
         ourServerListSelector = list;

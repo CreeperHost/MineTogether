@@ -7,10 +7,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
-import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.common.Config;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.ResourceLocation;
@@ -49,20 +49,25 @@ public class CreeperHostServerHost implements IServerHost
     public Map<String, String> getAllServerLocations()
     {
         Map<String, String> rawMap = new HashMap<String, String>();
-        try {
+        try
+        {
 
             String jsonData = Util.getWebResponse("https://www.creeperhost.net/json/locations");
 
-            Type type = new TypeToken<Map<String, String>>(){}.getType();
+            Type type = new TypeToken<Map<String, String>>()
+            {
+            }.getType();
             Gson g = new Gson();
             JsonElement el = new JsonParser().parse(jsonData);
             rawMap = g.fromJson(el.getAsJsonObject().get("nameMap"), type);
-        } catch(Exception e)
+        }
+        catch (Exception e)
         {
             CreeperHost.logger.error("Unable to fetch server locations" + e);
             locations.put("no", "Unable to fetch server locations");
         }
-        for(Map.Entry<String, String> entry : rawMap.entrySet()) {
+        for (Map.Entry<String, String> entry : rawMap.entrySet())
+        {
             String key = entry.getKey();
             String value = entry.getValue();
             locations.put(key, value);
@@ -74,17 +79,21 @@ public class CreeperHostServerHost implements IServerHost
     public OrderSummary getSummary(Order order)
     {
 
-        if (order.country.isEmpty()) {
+        if (order.country.isEmpty())
+        {
             order.country = Callbacks.getUserCountry();
         }
 
-        if (order.serverLocation.isEmpty()) {
+        if (order.serverLocation.isEmpty())
+        {
             order.serverLocation = Callbacks.getRecommendedLocation();
         }
 
-        try {
+        try
+        {
             String version = Config.getInstance().getVersion();
-            if (version.equals("0")) {
+            if (version.equals("0"))
+            {
                 return new OrderSummary("quote.curseerror");
             }
             String url = "https://www.creeperhost.net/json/order/mc/" + version + "/recommend/" + order.playerAmount;
@@ -97,7 +106,8 @@ public class CreeperHostServerHost implements IServerHost
             String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
 
             String applyPromo = Util.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
-            if (applyPromo.equals("error")) {
+            if (applyPromo.equals("error"))
+            {
                 return new OrderSummary("quote.promoerror");
             }
 
@@ -111,7 +121,8 @@ public class CreeperHostServerHost implements IServerHost
             double subTotal = jObject.getAsJsonPrimitive("Subtotal").getAsDouble();
             double discount = jObject.getAsJsonPrimitive("Discount").getAsDouble();
             double tax = jObject.getAsJsonPrimitive("Tax").getAsDouble();
-            if (tax <= 0) {
+            if (tax <= 0)
+            {
                 tax = 0.00;
             }
             double total = jObject.getAsJsonPrimitive("Total").getAsDouble();
@@ -140,7 +151,8 @@ public class CreeperHostServerHost implements IServerHost
 
             ArrayList<String> vpsFeatures = new ArrayList<String>();
 
-            while (matcher.find()) {
+            while (matcher.find())
+            {
                 String group = matcher.group(1);
                 vpsFeatures.add(group);
             }
@@ -156,7 +168,9 @@ public class CreeperHostServerHost implements IServerHost
 
             return new OrderSummary(recommended, vpsDisplay, vpsFeatures, vpsIncluded, preDiscount, subTotal, total, tax, discount, suffix, prefix, id);
 
-        } catch(Throwable t) {
+        }
+        catch (Throwable t)
+        {
             CreeperHost.logger.error("Unable to fetch summary", t);
             return null;
         }
@@ -176,7 +190,9 @@ public class CreeperHostServerHost implements IServerHost
             String message = jObject.getAsJsonPrimitive("message").getAsString();
 
             return new AvailableResult(statusBool, message);
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             CreeperHost.logger.error("Unable to check if name available", t);
         }
 
@@ -190,13 +206,14 @@ public class CreeperHostServerHost implements IServerHost
         {
             String response = Util.postWebResponse("https://www.creeperhost.net/json/account/exists", new HashMap<String, String>()
             {{
-                    put("email", email);
-                }});
+                put("email", email);
+            }});
 
             if (response.equals("error"))
             {
                 // Something went wrong, so lets just pretend everything fine and don't change the validation status
-            } else
+            }
+            else
             {
                 JsonElement jElement = new JsonParser().parse(response);
                 JsonObject jObject = jElement.getAsJsonObject();
@@ -205,7 +222,9 @@ public class CreeperHostServerHost implements IServerHost
                     return false;
                 }
             }
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             CreeperHost.logger.error("Unable to check if email exists", t);
             return false;
         }
@@ -215,25 +234,35 @@ public class CreeperHostServerHost implements IServerHost
     @Override
     public String doLogin(final String username, final String password)
     {
-        try {
-            String response = Util.postWebResponse("https://www.creeperhost.net/json/account/login", new HashMap<String, String>(){{
+        try
+        {
+            String response = Util.postWebResponse("https://www.creeperhost.net/json/account/login", new HashMap<String, String>()
+            {{
                 put("email", username);
                 put("password", password);
             }});
 
-            if (response.equals("error")) {
+            if (response.equals("error"))
+            {
                 // Something went wrong, so lets just pretend everything fine and don't change the validation status
-            } else {
+            }
+            else
+            {
                 JsonElement jElement = new JsonParser().parse(response);
                 JsonObject jObject = jElement.getAsJsonObject();
-                if (jObject.getAsJsonPrimitive("status").getAsString().equals("error")) {
+                if (jObject.getAsJsonPrimitive("status").getAsString().equals("error"))
+                {
                     return jObject.getAsJsonPrimitive("message").getAsString();
-                } else {
+                }
+                else
+                {
                     return "success:" + jObject.getAsJsonPrimitive("currency").getAsString() + ":" + jObject.getAsJsonPrimitive("userid").getAsString();
                 }
             }
             return "Unknown Error";
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             CreeperHost.logger.error("Unable to do login", t);
             return "Unknown Error";
         }
@@ -242,8 +271,10 @@ public class CreeperHostServerHost implements IServerHost
     @Override
     public String createAccount(final Order order)
     {
-        try {
-            String response = Util.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>() {{
+        try
+        {
+            String response = Util.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>()
+            {{
                 put("servername", order.name);
                 put("modpack", Config.getInstance().getVersion());
                 put("email", order.emailAddress);
@@ -259,19 +290,27 @@ public class CreeperHostServerHost implements IServerHost
                 put("pcode", order.zip);
                 put("currency", order.currency);
             }});
-            if (response.equals("error")) {
+            if (response.equals("error"))
+            {
                 // Something went wrong, so lets just pretend everything fine and don't change the validation status
-            } else {
+            }
+            else
+            {
                 JsonElement jElement = new JsonParser().parse(response);
                 JsonObject jObject = jElement.getAsJsonObject();
-                if (jObject.getAsJsonPrimitive("status").getAsString().equals("error")) {
+                if (jObject.getAsJsonPrimitive("status").getAsString().equals("error"))
+                {
                     return jObject.getAsJsonPrimitive("message").getAsString();
-                } else {
+                }
+                else
+                {
                     return "success:" + jObject.getAsJsonPrimitive("currency").getAsString() + ":" + jObject.getAsJsonPrimitive("userid").getAsString();
                 }
             }
             return "Unknown error";
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             CreeperHost.logger.error("Unable to create account", t);
             return "Unknown error";
         }
@@ -280,38 +319,52 @@ public class CreeperHostServerHost implements IServerHost
     @Override
     public String createOrder(final Order order)
     {
-        try {
-            String response = Util.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" +order.productID + "/" + order.serverLocation, new HashMap<String, String>() {{
+        try
+        {
+            String response = Util.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + order.serverLocation, new HashMap<String, String>()
+            {{
                 put("name", order.name);
                 put("swid", Config.getInstance().getVersion());
                 if (order.pregen)
                     put("pregen", String.valueOf(Config.getInstance().getPregenDiameter()));
             }});
 
-            if (response.equals("error")) {
+            if (response.equals("error"))
+            {
 
-            } else {
+            }
+            else
+            {
                 JsonElement jElement = new JsonParser().parse(response);
                 JsonObject jObject = jElement.getAsJsonObject();
-                if (jObject.getAsJsonPrimitive("status").getAsString().equals("success")) {
+                if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
+                {
                     jObject = jObject.getAsJsonObject("more");
                     return "success:" + jObject.getAsJsonPrimitive("invoiceid").getAsString() + ":" + jObject.getAsJsonPrimitive("orderid").getAsString();
-                } else {
+                }
+                else
+                {
                     return jObject.getAsJsonPrimitive("message").getAsString();
                 }
             }
             return "Unknown error";
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             CreeperHost.logger.error("Unable to create order");
             return "Unknown error";
         }
     }
 
     @Override
-    public boolean cancelOrder(int orderNum) {
-        try {
+    public boolean cancelOrder(int orderNum)
+    {
+        try
+        {
             String response = Util.getWebResponse("https://www.creeperhost.net/json/order/" + orderNum + "/cancel");
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             CreeperHost.logger.error("Unable to cancel order");
             return false;
         }
@@ -339,7 +392,8 @@ public class CreeperHostServerHost implements IServerHost
     @Override
     public String getRecommendedLocation()
     {
-        try {
+        try
+        {
             String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
 
             JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
@@ -347,7 +401,9 @@ public class CreeperHostServerHost implements IServerHost
             jObject = jObject.getAsJsonObject("datacentre");
 
             return jObject.getAsJsonPrimitive("name").getAsString();
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
         }
         return ""; // default
     }

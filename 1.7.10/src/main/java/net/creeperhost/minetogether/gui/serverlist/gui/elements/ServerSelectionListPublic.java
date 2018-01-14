@@ -45,8 +45,9 @@ public class ServerSelectionListPublic extends ServerSelectionList
     {
         ourList.clear();
 
-        if (serverList instanceof ServerListPublic) {
-            ServerListPublic pub = (ServerListPublic)serverList;
+        if (serverList instanceof ServerListPublic)
+        {
+            ServerListPublic pub = (ServerListPublic) serverList;
             for (int i = 0; i < pub.countServers(); ++i)
             {
                 ourList.add(new ServerListEntryPublic(ourParent, new ServerListEntryNormalPubConstructor(ourParent, pub.getServerData(i))));
@@ -89,11 +90,13 @@ public class ServerSelectionListPublic extends ServerSelectionList
     }
 
     private static Field serverListInternetField;
+
     private void makeOurList()
     {
         if (serverListInternetField == null)
         {
-            if (serverListInternetField == null) {
+            if (serverListInternetField == null)
+            {
                 serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "field_148198_l", "serverListInternet");
                 serverListInternetField.setAccessible(true);
             }

@@ -2,16 +2,6 @@ package net.creeperhost.minetogether.serverstuffs.command;
 
 import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
-
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.Nullable;
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.serverstuffs.CreeperHostServer;
 import net.minecraft.command.CommandBase;
@@ -25,8 +15,68 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+import javax.annotation.Nullable;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class CommandInvite extends CommandBase
 {
+    public static void reloadInvites(String[] prevNames)
+    {
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        Gson gson = new Gson();
+        UserListWhitelist whitelistedPlayers = server.getPlayerList().getWhitelistedPlayers();
+        final ArrayList<String> tempHash = new ArrayList<String>();
+        final ArrayList<String> removeHash = new ArrayList<String>();
+
+        try
+        {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            for (String name : whitelistedPlayers.getKeys())
+            {
+                byte[] hash = digest.digest(whitelistedPlayers.getByName(name).getId().toString().getBytes(Charset.forName("UTF-8")));
+
+                tempHash.add((new HexBinaryAdapter()).marshal(hash));
+            }
+
+            for (String name : prevNames)
+            {
+                if (whitelistedPlayers.getByName(name) == null)
+                {
+                    byte[] hash = digest.digest(whitelistedPlayers.getByName(name).getId().toString().getBytes(Charset.forName("UTF-8")));
+
+                    removeHash.add((new HexBinaryAdapter()).marshal(hash));
+                }
+            }
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
+
+        CreeperHostServer.InviteClass invite = new CreeperHostServer.InviteClass();
+        invite.hash = tempHash;
+        invite.id = CreeperHostServer.updateID;
+
+        CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
+        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
+        CreeperHostServer.logger.debug("Response from add endpoint " + resp);
+        if (!removeHash.isEmpty())
+        {
+            invite = new CreeperHostServer.InviteClass();
+            invite.id = CreeperHostServer.updateID;
+            invite.hash = tempHash;
+            CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
+            resp = Util.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
+            CreeperHostServer.logger.debug("Response from revoke endpoint " + resp);
+        }
+    }
+
     @Override
     public String getName()
     {
@@ -56,7 +106,7 @@ public class CommandInvite extends CommandBase
         {
             if ("list".equals(args[0]))
             {
-                sender.sendMessage(new TextComponentTranslation("creeperhostserver.commands.invite.list", new Object[] {server.getPlayerList().getWhitelistedPlayerNames().length, server.getPlayerList().getAvailablePlayerDat().length}));
+                sender.sendMessage(new TextComponentTranslation("creeperhostserver.commands.invite.list", new Object[]{server.getPlayerList().getWhitelistedPlayerNames().length, server.getPlayerList().getAvailablePlayerDat().length}));
                 String[] astring = server.getPlayerList().getWhitelistedPlayerNames();
                 sender.sendMessage(new TextComponentString(joinNiceString(astring)));
             }
@@ -71,12 +121,12 @@ public class CommandInvite extends CommandBase
 
                 if (gameprofile == null)
                 {
-                    throw new CommandException("creeperhostserver.commands.invite.add.failed", new Object[] {args[1]});
+                    throw new CommandException("creeperhostserver.commands.invite.add.failed", new Object[]{args[1]});
                 }
 
                 server.getPlayerList().addWhitelistedPlayer(gameprofile);
                 inviteUser(gameprofile);
-                notifyCommandListener(sender, this, "creeperhostserver.commands.invite.add.success", new Object[] {args[1]});
+                notifyCommandListener(sender, this, "creeperhostserver.commands.invite.add.success", new Object[]{args[1]});
             }
             else if ("remove".equals(args[0]))
             {
@@ -89,12 +139,12 @@ public class CommandInvite extends CommandBase
 
                 if (gameprofile1 == null)
                 {
-                    throw new CommandException("creeperhostserver.commands.invite.remove.failed", new Object[] {args[1]});
+                    throw new CommandException("creeperhostserver.commands.invite.remove.failed", new Object[]{args[1]});
                 }
 
                 server.getPlayerList().removePlayerFromWhitelist(gameprofile1);
                 removeUser(gameprofile1);
-                notifyCommandListener(sender, this, "creeperhostserver.commands.invite.remove.success", new Object[] {args[1]});
+                notifyCommandListener(sender, this, "creeperhostserver.commands.invite.remove.success", new Object[]{args[1]});
             }
             else if ("reload".equals(args[0]))
             {
@@ -102,7 +152,9 @@ public class CommandInvite extends CommandBase
                 server.getPlayerList().reloadWhitelist();
                 reloadInvites(prevNames);
                 notifyCommandListener(sender, this, "creeperhostserver.commands.invite.reloaded", new Object[0]);
-            } else {
+            }
+            else
+            {
                 throw new WrongUsageException("creeperhostserver.commands.invite.usage", new Object[0]);
             }
         }
@@ -113,7 +165,7 @@ public class CommandInvite extends CommandBase
     {
         if (args.length == 1)
         {
-            return getListOfStringsMatchingLastWord(args, new String[] {"list", "add", "remove", "reload"});
+            return getListOfStringsMatchingLastWord(args, new String[]{"list", "add", "remove", "reload"});
         }
         else
         {
@@ -192,56 +244,5 @@ public class CommandInvite extends CommandBase
         CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
         String resp = Util.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
         CreeperHostServer.logger.debug("Response from revoke endpoint " + resp);
-    }
-
-    public static void reloadInvites(String[] prevNames)
-    {
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        Gson gson = new Gson();
-        UserListWhitelist whitelistedPlayers = server.getPlayerList().getWhitelistedPlayers();
-        final ArrayList<String> tempHash = new ArrayList<String>();
-        final ArrayList<String> removeHash = new ArrayList<String>();
-
-        try
-        {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            for (String name : whitelistedPlayers.getKeys())
-            {
-                byte[] hash = digest.digest(whitelistedPlayers.getByName(name).getId().toString().getBytes(Charset.forName("UTF-8")));
-
-                tempHash.add((new HexBinaryAdapter()).marshal(hash));
-            }
-
-            for (String name : prevNames)
-            {
-                if (whitelistedPlayers.getByName(name) == null)
-                {
-                    byte[] hash = digest.digest(whitelistedPlayers.getByName(name).getId().toString().getBytes(Charset.forName("UTF-8")));
-
-                    removeHash.add((new HexBinaryAdapter()).marshal(hash));
-                }
-            }
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
-        }
-
-        CreeperHostServer.InviteClass invite = new CreeperHostServer.InviteClass();
-        invite.hash = tempHash;
-        invite.id = CreeperHostServer.updateID;
-
-        CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
-        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
-        CreeperHostServer.logger.debug("Response from add endpoint " + resp);
-        if (!removeHash.isEmpty())
-        {
-            invite = new CreeperHostServer.InviteClass();
-            invite.id = CreeperHostServer.updateID;
-            invite.hash = tempHash;
-            CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
-            resp = Util.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
-            CreeperHostServer.logger.debug("Response from revoke endpoint " + resp);
-        }
     }
 }

@@ -2,7 +2,14 @@ package net.creeperhost.minetogether.serverstuffs;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.PacketHandler;
 import net.creeperhost.minetogether.Util;
@@ -15,19 +22,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.dedicated.PropertyManager;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.event.FMLServerStoppingEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -39,10 +38,10 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Mod(
-        modid = CreeperHostServer.MOD_ID,
-        name = CreeperHostServer.NAME,
-        version = CreeperHost.VERSION,
-        acceptableRemoteVersions="*"
+    modid = CreeperHostServer.MOD_ID,
+    name = CreeperHostServer.NAME,
+    version = CreeperHost.VERSION,
+    acceptableRemoteVersions = "*"
 )
 public class CreeperHostServer
 {
@@ -65,6 +64,7 @@ public class CreeperHostServer
     }
 
     public boolean serverOn = false;
+
     private enum Discoverability
     {
         UNLISTED,
@@ -74,7 +74,8 @@ public class CreeperHostServer
 
     public static int updateID;
 
-    public static class InviteClass {
+    public static class InviteClass
+    {
         public int id;
         public ArrayList<String> hash;
     }
@@ -105,7 +106,9 @@ public class CreeperHostServer
                     MineTogetherPropertyManager manager = new MineTogetherPropertyManager(outProperties);
                     displayNameTemp = manager.getStringProperty("displayname", "Fill this in if you have set the server to public!");
                     discoverModeString = manager.getStringProperty("discoverability", "unlisted");
-                } else {
+                }
+                else
+                {
                     displayNameTemp = "Unknown";
                     discoverModeString = "unlisted";
                 }
@@ -114,9 +117,12 @@ public class CreeperHostServer
             final String displayName = displayNameTemp;
 
             serverOn = true;
-            try {
+            try
+            {
                 discoverMode = Discoverability.valueOf(discoverModeString.toUpperCase());
-            } catch(IllegalArgumentException e) {
+            }
+            catch (IllegalArgumentException e)
+            {
             }
 
             if (discoverMode != Discoverability.UNLISTED)
@@ -161,7 +167,8 @@ public class CreeperHostServer
 
                             int sleepTime = 90000;
 
-                            try {
+                            try
+                            {
                                 JsonElement jElement = new JsonParser().parse(resp);
                                 if (jElement.isJsonObject())
                                 {
@@ -172,12 +179,17 @@ public class CreeperHostServer
                                         CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
                                         if (jObject.has("secret"))
                                             CreeperHostServer.secret = jObject.get("secret").getAsString();
-                                    } else {
-                                        if (tries >= 4){
+                                    }
+                                    else
+                                    {
+                                        if (tries >= 4)
+                                        {
                                             CreeperHostServer.logger.error("Unable to do call to server list - disabling for 45 minutes. Reason: " + jObject.get("message").getAsString());
                                             tries = 0;
                                             sleepTime = 60 * 1000 * 45;
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             CreeperHostServer.logger.error("Unable to do call to server list - will try again in 90 seconds. Reason: " + jObject.get("message").getAsString());
                                             tries++;
                                         }
@@ -189,7 +201,9 @@ public class CreeperHostServer
                                         first = false;
                                     }
                                 }
-                            } catch (Exception e) {
+                            }
+                            catch (Exception e)
+                            {
                                 // so our thread doens't go byebye
                             }
 
@@ -221,6 +235,7 @@ public class CreeperHostServer
     }
 
     WeakHashMap<EntityPlayerMP, Boolean> playersJoined = new WeakHashMap<EntityPlayerMP, Boolean>();
+
     @SubscribeEvent
     public void entityJoinWorld(EntityJoinWorldEvent event)
     {
@@ -232,7 +247,7 @@ public class CreeperHostServer
         {
             if (!playersJoined.containsKey(entity))
             {
-                playersJoined.put((EntityPlayerMP)entity, null);
+                playersJoined.put((EntityPlayerMP) entity, null);
                 PacketHandler.INSTANCE.sendTo(new PacketHandler.ServerIDMessage(updateID), (EntityPlayerMP) entity);
             }
 
@@ -240,8 +255,8 @@ public class CreeperHostServer
             {
                 if (task.preventJoin)
                     ((EntityPlayerMP) entity).playerNetServerHandler.kickPlayerFromServer("Server is still pre-generating!\n" + task.lastPregenString);
-                    logger.error("Kicked player " + ((EntityPlayerMP) entity).getDisplayName() + " as still pre-generating");
-                    break;
+                logger.error("Kicked player " + ((EntityPlayerMP) entity).getDisplayName() + " as still pre-generating");
+                break;
             }
 
         }
@@ -317,26 +332,26 @@ public class CreeperHostServer
 
             long deltaTime = curTime - task.startTime;
 
-            double timePerChunk = (double)deltaTime / (double)task.chunksDone;
+            double timePerChunk = (double) deltaTime / (double) task.chunksDone;
 
             long chunksRemaining = task.totalChunks - task.chunksDone;
 
             long estimatedTime = (long) (chunksRemaining * timePerChunk);
 
             long days = TimeUnit.MILLISECONDS
-                    .toDays(estimatedTime);
+                .toDays(estimatedTime);
             estimatedTime -= TimeUnit.DAYS.toMillis(days);
 
             long hours = TimeUnit.MILLISECONDS
-                    .toHours(estimatedTime);
+                .toHours(estimatedTime);
             estimatedTime -= TimeUnit.HOURS.toMillis(hours);
 
             long minutes = TimeUnit.MILLISECONDS
-                    .toMinutes(estimatedTime);
+                .toMinutes(estimatedTime);
             estimatedTime -= TimeUnit.MINUTES.toMillis(minutes);
 
             long seconds = TimeUnit.MILLISECONDS
-                    .toSeconds(estimatedTime);
+                .toSeconds(estimatedTime);
 
             String time = days + " day(s) " + hours + " hour(s) " + minutes + " minute(s) " + seconds + " second(s)";
 
@@ -362,7 +377,9 @@ public class CreeperHostServer
                 {
                     logger.info("Frozen chunk generating as it appears that chunks aren't being unloaded fast enough. Will check the status in another 10 seconds.");
                 } // not gong to log slowing down or speeding up
-            } else if(task.curChunksPerTick < task.chunksPerTick) {
+            }
+            else if (task.curChunksPerTick < task.chunksPerTick)
+            {
                 task.curChunksPerTick++; // things seem ok for now. Lets raise it back up
             }
 
@@ -375,7 +392,7 @@ public class CreeperHostServer
             if (world.getChunkProvider().chunkExists(pair.getLeft(), pair.getRight()))
             {
                 world.getChunkProvider().provideChunk(pair.getLeft(), pair.getRight());
-                ((ChunkProviderServer)world.getChunkProvider()).unloadChunksIfNotNearSpawn(pair.getLeft(), pair.getRight());
+                ((ChunkProviderServer) world.getChunkProvider()).unloadChunksIfNotNearSpawn(pair.getLeft(), pair.getRight());
             }
             task.storedCurX = pair.getLeft();
             task.storedCurZ = pair.getRight();
@@ -393,8 +410,8 @@ public class CreeperHostServer
     public File getSaveFolder()
     {
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-            if (server != null && !server.isSinglePlayer())
-                return server.getFile("");
+        if (server != null && !server.isSinglePlayer())
+            return server.getFile("");
         return DimensionManager.getCurrentSaveRootDirectory();
     }
 

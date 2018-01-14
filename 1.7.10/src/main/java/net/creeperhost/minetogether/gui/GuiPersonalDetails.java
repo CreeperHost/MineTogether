@@ -3,11 +3,11 @@ package net.creeperhost.minetogether.gui;
 import com.google.common.base.Splitter;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.IOrderValidation;
 import net.creeperhost.minetogether.common.RegexValidator;
 import net.creeperhost.minetogether.gui.element.TextFieldDetails;
 import net.creeperhost.minetogether.paul.Callbacks;
-import net.creeperhost.minetogether.api.Order;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GuiPersonalDetails extends GuiGetServer{
+public class GuiPersonalDetails extends GuiGetServer
+{
 
     public List<TextFieldDetails> fields = null;
     public TextFieldDetails focusedField;
@@ -32,47 +33,57 @@ public class GuiPersonalDetails extends GuiGetServer{
     private boolean isSure = false;
     private boolean orderPressed = false;
 
-    public GuiPersonalDetails(int stepId, Order order){
+    public GuiPersonalDetails(int stepId, Order order)
+    {
         super(stepId, order);
         order.clientID = "";
     }
 
     @Override
-    public String getStepName(){
+    public String getStepName()
+    {
         return Util.localize("gui.personal_details");
     }
 
     private IChatComponent info2 = null;
 
     @Override
-    public void initGui(){
+    public void initGui()
+    {
         super.initGui();
 
-        this.loginButton = new GuiButton(80085, this.width/2-40, (this.height / 2) - 10, 80, 20, Util.localize("button.login"));
+        this.loginButton = new GuiButton(80085, this.width / 2 - 40, (this.height / 2) - 10, 80, 20, Util.localize("button.login"));
         loginButton.visible = loginMode;
 
-        this.loginButton = new GuiButton(80085, this.width/2-40, (this.height / 2) - 10, 80, 20, Util.localize("button.login"));
+        this.loginButton = new GuiButton(80085, this.width / 2 - 40, (this.height / 2) - 10, 80, 20, Util.localize("button.login"));
         loginButton.visible = loginMode;
 
-        if (orderPressed && !isSure) {
+        if (orderPressed && !isSure)
+        {
             loginButton.displayString = Util.localize("button.order");
             loginButton.enabled = true;
             loginButton.visible = true;
             buttonNext.visible = false;
-        } else if (loggingIn) {
+        }
+        else if (loggingIn)
+        {
             loginButton.displayString = Util.localize("button.logging");
             loginButton.enabled = false;
-        } else if (loggedIn) {
+        }
+        else if (loggedIn)
+        {
             loginButton.displayString = Util.localize("button.done");
             loginButton.enabled = false;
-        } else if (!loggingInError.isEmpty()) {
+        }
+        else if (!loggingInError.isEmpty())
+        {
             loginButton.displayString = Util.localize("button.logintryagain");
         }
         this.buttonList.add(loginButton);
 
         fields = new ArrayList<TextFieldDetails>();
 
-        int x = this.width/2;
+        int x = this.width / 2;
 
         int fieldWidths = 185;
 
@@ -140,25 +151,25 @@ public class GuiPersonalDetails extends GuiGetServer{
             }
         });
 
-        this.fields.add(new TextFieldDetails(this, 0, Util.localize("info.e_mail"), this.order.emailAddress, x-205, 55, fieldWidths, 20, emailValidators));
+        this.fields.add(new TextFieldDetails(this, 0, Util.localize("info.e_mail"), this.order.emailAddress, x - 205, 55, fieldWidths, 20, emailValidators));
 
         // Validation done, I guess - the website itself doesn't do any password strength validation etc so I won't force it here
 
-        this.fields.add(new TextFieldDetails(this, 1, Util.localize("info.password"), this.order.password, x+5, 55, fieldWidths, 20, defaultValidators, "*"));
+        this.fields.add(new TextFieldDetails(this, 1, Util.localize("info.password"), this.order.password, x + 5, 55, fieldWidths, 20, defaultValidators, "*"));
 
-        this.fields.add(new TextFieldDetails(this, 2, Util.localize("info.first_name"), this.order.firstName, x-205, 85, fieldWidths, 20, defaultValidators));
-        this.fields.add(new TextFieldDetails(this, 3, Util.localize("info.last_name"), this.order.lastName, x+5, 85, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 2, Util.localize("info.first_name"), this.order.firstName, x - 205, 85, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 3, Util.localize("info.last_name"), this.order.lastName, x + 5, 85, fieldWidths, 20, defaultValidators));
 
-        this.fields.add(new TextFieldDetails(this, 4, Util.localize("info.address"), this.order.address, x-205, 115, fieldWidths, 20, defaultValidators));
-        this.fields.add(new TextFieldDetails(this, 5, Util.localize("info.city"), this.order.city, x+5, 115, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 4, Util.localize("info.address"), this.order.address, x - 205, 115, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 5, Util.localize("info.city"), this.order.city, x + 5, 115, fieldWidths, 20, defaultValidators));
 
-        this.fields.add(new TextFieldDetails(this, 6, Util.localize("info.zip"), this.order.zip, x-205, 145, fieldWidths, 20, defaultValidators));
-        this.fields.add(new TextFieldDetails(this, 7, Util.localize("info.state"), this.order.state, x+5, 145, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 6, Util.localize("info.zip"), this.order.zip, x - 205, 145, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 7, Util.localize("info.state"), this.order.state, x + 5, 145, fieldWidths, 20, defaultValidators));
 
-        TextFieldDetails countryField = new TextFieldDetails(this, 8, Util.localize("info.country"), Callbacks.getCountries().get(this.order.country), x-205, 175, fieldWidths, 20, defaultValidators, false);
+        TextFieldDetails countryField = new TextFieldDetails(this, 8, Util.localize("info.country"), Callbacks.getCountries().get(this.order.country), x - 205, 175, fieldWidths, 20, defaultValidators, false);
         this.fields.add(countryField);
 
-        this.fields.add(new TextFieldDetails(this, 9, Util.localize("info.phone"), this.order.phone, x+5, 175, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 9, Util.localize("info.phone"), this.order.phone, x + 5, 175, fieldWidths, 20, defaultValidators));
 
         String info2Text = Util.localize("order.info2");
 
@@ -171,7 +182,8 @@ public class GuiPersonalDetails extends GuiGetServer{
 
         IChatComponent component = null;
 
-        while (matcher.find()) {
+        while (matcher.find())
+        {
 
             int start = matcher.start();
             int end = matcher.end();
@@ -203,17 +215,20 @@ public class GuiPersonalDetails extends GuiGetServer{
     }
 
     @Override
-    public void updateScreen(){
+    public void updateScreen()
+    {
         super.updateScreen();
 
         this.buttonNext.enabled = true;
         this.loginButton.visible = loginMode || (orderPressed && !isSure);
 
-        for(TextFieldDetails field : this.fields){
+        for (TextFieldDetails field : this.fields)
+        {
             field.checkPendingValidations();
             field.updateCursorCounter();
 
-            if(!field.isValidated){
+            if (!field.isValidated)
+            {
                 this.buttonNext.enabled = false;
             }
         }
@@ -224,14 +239,17 @@ public class GuiPersonalDetails extends GuiGetServer{
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode) {
+    protected void keyTyped(char typedChar, int keyCode)
+    {
         TextFieldDetails field = this.focusedField;
 
         if (focusedField == null)
             return;
-        if (keyCode == 15) {
+        if (keyCode == 15)
+        {
             int adjustAm = 1;
-            if (isShiftKeyDown()) {
+            if (isShiftKeyDown())
+            {
                 adjustAm = -1;
             }
 
@@ -244,11 +262,15 @@ public class GuiPersonalDetails extends GuiGetServer{
                 newField = fieldsSize - 1;
 
             TextFieldDetails newF = null;
-            while (newF == null) {
+            while (newF == null)
+            {
                 TextFieldDetails tempField = fields.get(newField);
-                if (tempField.canBeFocused()) {
+                if (tempField.canBeFocused())
+                {
                     newF = tempField;
-                } else {
+                }
+                else
+                {
                     newField = (newField + adjustAm) % fieldsSize;
                     if (newField == -1)
                         newField = fieldsSize - 1;
@@ -258,7 +280,9 @@ public class GuiPersonalDetails extends GuiGetServer{
             newF.setFocused(true);
 
             return;
-        } else if(field.textboxKeyTyped(typedChar, keyCode)){
+        }
+        else if (field.textboxKeyTyped(typedChar, keyCode))
+        {
             int id = field.getId();
             String text = field.getText().trim();
 
@@ -302,7 +326,8 @@ public class GuiPersonalDetails extends GuiGetServer{
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks){
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -342,7 +367,9 @@ public class GuiPersonalDetails extends GuiGetServer{
                     this.drawCenteredString(fontRendererObj, Util.localize("details.accountexists"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
                 }
             }
-        } else {
+        }
+        else
+        {
             int info2Start = (this.height / 2) - 50;
 
             this.drawCenteredString(fontRendererObj, Util.localize("order.info1"), this.width / 2, (this.height / 2) - 60, 0xFFFFFF);
@@ -406,8 +433,10 @@ public class GuiPersonalDetails extends GuiGetServer{
     @Override
     protected void actionPerformed(final GuiButton button)
     {
-        if (button.id == 80085) {
-            if (orderPressed && !isSure) {
+        if (button.id == 80085)
+        {
+            if (orderPressed && !isSure)
+            {
                 isSure = true;
                 actionPerformed(buttonNext);
                 return;
@@ -422,14 +451,17 @@ public class GuiPersonalDetails extends GuiGetServer{
                 {
                     String result = Callbacks.doLogin(order.emailAddress, order.password);
                     String[] resultSplit = result.split(":");
-                    if (resultSplit[0].equals("success")) {
+                    if (resultSplit[0].equals("success"))
+                    {
                         order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
                         order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
                         loggingIn = false;
                         loggedIn = true;
                         loggingInError = "";
                         button.displayString = Util.localize("button.done");
-                    } else {
+                    }
+                    else
+                    {
                         loggingIn = false;
                         loggedIn = false;
                         loggingInError = result;
@@ -441,7 +473,9 @@ public class GuiPersonalDetails extends GuiGetServer{
             Thread thread = new Thread(runnable);
             thread.start();
             return;
-        } else if (button.id == buttonNext.id && !isSure) {
+        }
+        else if (button.id == buttonNext.id && !isSure)
+        {
             orderPressed = true;
             buttonNext.visible = false;
             prevLoginString = loginButton.displayString;
@@ -451,7 +485,9 @@ public class GuiPersonalDetails extends GuiGetServer{
             prevLoginEnabled = loginButton.enabled;
             loginButton.enabled = true;
             return;
-        } else if (button.id == buttonPrev.id && orderPressed) {
+        }
+        else if (button.id == buttonPrev.id && orderPressed)
+        {
             orderPressed = false;
             buttonNext.visible = true;
             loginButton.displayString = prevLoginString;
@@ -463,7 +499,8 @@ public class GuiPersonalDetails extends GuiGetServer{
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
+    {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         int info2Start = (this.height / 2) - 50;
 
@@ -488,24 +525,33 @@ public class GuiPersonalDetails extends GuiGetServer{
                 return;
             }
         }
-        for(TextFieldDetails field : this.fields){
+        for (TextFieldDetails field : this.fields)
+        {
             field.mouseClicked(mouseX, mouseY, mouseButton);
         }
     }
 
-    public void validationChanged(TextFieldDetails details, boolean valid, IOrderValidation validator, IOrderValidation.ValidationPhase phase) {
-        if (details.getId() == 0) {
-            if (!valid && validator.getName().equals("NotEmailExistsValidator") && !validator.isAsync()) {
+    public void validationChanged(TextFieldDetails details, boolean valid, IOrderValidation validator, IOrderValidation.ValidationPhase phase)
+    {
+        if (details.getId() == 0)
+        {
+            if (!valid && validator.getName().equals("NotEmailExistsValidator") && !validator.isAsync())
+            {
                 isEmailValid = false;
                 loginMode = true;
                 loginButton.visible = true;
                 loginButton.enabled = true;
-            } else {
+            }
+            else
+            {
                 loginMode = false;
                 loginButton.visible = false;
-                if (phase.equals(IOrderValidation.ValidationPhase.FOCUSLOST)) {
+                if (phase.equals(IOrderValidation.ValidationPhase.FOCUSLOST))
+                {
                     isEmailValid = true;
-                } else {
+                }
+                else
+                {
                     isEmailValid = false;
                 }
             }
@@ -515,9 +561,12 @@ public class GuiPersonalDetails extends GuiGetServer{
     public void validationChangedDeferred(TextFieldDetails textFieldDetails, DefferedValidation pendingValidation)
     {
         textFieldDetails.setEnabled(true);
-        if (!pendingValidation.isValid("")) {
+        if (!pendingValidation.isValid(""))
+        {
             validationChanged(textFieldDetails, false, pendingValidation, pendingValidation.getPhase());
-        } else {
+        }
+        else
+        {
             validationChanged(textFieldDetails, true, null, pendingValidation.getPhase());
         }
     }

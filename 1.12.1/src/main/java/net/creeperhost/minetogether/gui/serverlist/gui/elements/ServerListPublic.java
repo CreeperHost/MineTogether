@@ -18,8 +18,8 @@ public class ServerListPublic extends ServerList
 
     public ServerListPublic(Minecraft mcIn, GuiMultiplayerPublic owner)
     {
-      super(mcIn);
-      this.owner = owner;
+        super(mcIn);
+        this.owner = owner;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ServerListPublic extends ServerList
         servers.clear();
         List<Server> list = Callbacks.getServerList(owner.isPublic);
 
-        for(Server server: list)
+        for (Server server : list)
         {
             servers.add(new ServerDataPublic(server));
         }
@@ -52,7 +52,7 @@ public class ServerListPublic extends ServerList
     @Override
     public void addServerData(ServerData server)
     {
-        this.servers.add((ServerDataPublic)server);
+        this.servers.add((ServerDataPublic) server);
     }
 
     @Override

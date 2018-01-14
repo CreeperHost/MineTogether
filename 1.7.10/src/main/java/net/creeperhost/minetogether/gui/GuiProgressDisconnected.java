@@ -43,7 +43,7 @@ public class GuiProgressDisconnected extends GuiDisconnected
         this.lastConnectAttempt = System.currentTimeMillis();
         if (lastNetworkManager != null)
         {
-            InetSocketAddress address = (InetSocketAddress)lastNetworkManager.getSocketAddress();
+            InetSocketAddress address = (InetSocketAddress) lastNetworkManager.getSocketAddress();
             ip = address.getHostName() + ":" + address.getPort();
         }
     }
@@ -77,7 +77,7 @@ public class GuiProgressDisconnected extends GuiDisconnected
         int left = this.width / 2 - (loadingWidth / 2);
         int top = this.height / 2 - (loadingHeight / 2) + 45;
 
-        int loadingPercentWidth = (int) (((double)loadingWidth / (double)100) * (double)percent);
+        int loadingPercentWidth = (int) (((double) loadingWidth / (double) 100) * (double) percent);
 
         drawRect(left - 1, top - 1, left + loadingWidth + 1, top + loadingHeight + 1, loadingOutsideColour);
         drawRect(left, top, left + loadingWidth, top + loadingHeight, loadingBackColour);
@@ -85,12 +85,12 @@ public class GuiProgressDisconnected extends GuiDisconnected
 
         for (int i = 0; i < this.buttonList.size(); ++i)
         {
-            ((GuiButton)this.buttonList.get(i)).drawButton(this.mc, mouseX, mouseY);
+            ((GuiButton) this.buttonList.get(i)).drawButton(this.mc, mouseX, mouseY);
         }
 
         for (int j = 0; j < this.labelList.size(); ++j)
         {
-            ((GuiLabel)this.labelList.get(j)).func_146159_a(this.mc, mouseX, mouseY);
+            ((GuiLabel) this.labelList.get(j)).func_146159_a(this.mc, mouseX, mouseY);
         }
 
         if (false)
@@ -137,7 +137,7 @@ public class GuiProgressDisconnected extends GuiDisconnected
                 String[] split = match.split("/");
                 int done = Integer.parseInt(split[0]);
                 int total = Integer.parseInt(split[1]);
-                percent = ((double)done / (double)total) * (double)100;
+                percent = ((double) done / (double) total) * (double) 100;
                 break;
             }
         }

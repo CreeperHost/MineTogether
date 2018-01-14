@@ -20,51 +20,52 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class CreeperHostEntry extends ServerListEntryNormal
 {
+    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/hidebtn.png");
+    protected static final ResourceLocation MPPARTNER_TEXTURES = new ResourceLocation("creeperhost", "textures/mppartner.png");
     private final Minecraft mc = Minecraft.getMinecraft();
     private final String cross;
     private final int stringWidth;
-
     private ResourceLocation serverIcon;
-    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/hidebtn.png");
-    protected static final ResourceLocation MPPARTNER_TEXTURES = new ResourceLocation("creeperhost", "textures/mppartner.png");
-
     private GuiMultiplayer ourMP;
 
     private float transparency = 0.5F;
-
-    protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn) {
+    private int lastWidth;
+    private int lastHeight;
+    private ScaledResolution res = null;
+    protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn)
+    {
         super(p_i45048_1_, serverIn);
         ourMP = p_i45048_1_;
         serverIcon = Config.getInstance().isServerHostMenuImage() ? CreeperHost.instance.getImplementation().getMenuIcon() : new ResourceLocation("creeperhost", "textures/nobrandmp.png");
         cross = new String(Character.toChars(10006));
         stringWidth = this.mc.fontRendererObj.getStringWidth(cross);
     }
-
-    public CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn, boolean diffSig) {
+    public CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn, boolean diffSig)
+    {
         this(p_i45048_1_, serverIn);
     }
 
-    private int lastWidth;
-    private int lastHeight;
-    private ScaledResolution res = null;
-
-
-    public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float newthingy) {
+    public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float newthingy)
+    {
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
 
     // < 1.12 compat
-    public void func_180790_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering) {
+    public void func_180790_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
+    {
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
 
     public void ourDrawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
 
-        if (isHovering) {
+        if (isHovering)
+        {
             if (transparency <= 1.0F)
                 transparency += 0.04;
-        } else {
+        }
+        else
+        {
             if (transparency >= 0.5F)
                 transparency -= 0.04;
         }
@@ -75,7 +76,7 @@ public class CreeperHostEntry extends ServerListEntryNormal
         Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
 
         mc.getTextureManager().bindTexture(MPPARTNER_TEXTURES);
-        Gui.drawModalRectWithCustomSizedTexture(x + 35, y, 0.0F, 0.0F, 46, 10, 46F , 10F);
+        Gui.drawModalRectWithCustomSizedTexture(x + 35, y, 0.0F, 0.0F, 46, 10, 46F, 10F);
 
         int transparentString = (int) (transparency * 254) << 24;
         GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
@@ -89,8 +90,10 @@ public class CreeperHostEntry extends ServerListEntryNormal
 
         this.mc.fontRendererObj.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
 
-        if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7) {
-            if (lastWidth != this.mc.displayWidth || lastHeight != this.mc.displayHeight || res == null) {
+        if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
+        {
+            if (lastWidth != this.mc.displayWidth || lastHeight != this.mc.displayHeight || res == null)
+            {
                 res = new ScaledResolution(this.mc);
                 lastWidth = this.mc.displayWidth;
                 lastHeight = this.mc.displayHeight;
@@ -122,7 +125,7 @@ public class CreeperHostEntry extends ServerListEntryNormal
 
             GlStateManager.color(1.0F, 1.0F, 1.0F, transparency);
             mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-            Gui.drawModalRectWithCustomSizedTexture(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60F , 10F);
+            Gui.drawModalRectWithCustomSizedTexture(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60F, 10F);
         }
     }
 

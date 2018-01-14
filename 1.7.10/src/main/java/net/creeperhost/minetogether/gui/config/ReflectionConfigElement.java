@@ -1,10 +1,10 @@
 package net.creeperhost.minetogether.gui.config;
 
-import net.creeperhost.minetogether.common.Config;
 import cpw.mods.fml.client.config.ConfigGuiType;
 import cpw.mods.fml.client.config.GuiConfigEntries;
 import cpw.mods.fml.client.config.GuiEditArrayEntries;
 import cpw.mods.fml.client.config.IConfigElement;
+import net.creeperhost.minetogether.common.Config;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -20,7 +20,8 @@ public class ReflectionConfigElement implements IConfigElement
     final Field field;
     final Object defValue;
 
-    ReflectionConfigElement(Field field, Object defValue) {
+    ReflectionConfigElement(Field field, Object defValue)
+    {
         this.field = field;
         this.defValue = defValue;
     }
@@ -31,7 +32,8 @@ public class ReflectionConfigElement implements IConfigElement
         return true;
     }
 
-    private HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>> lookupEntry = new HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>>() {{
+    private HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>> lookupEntry = new HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>>()
+    {{
         put("boolean", GuiConfigEntries.BooleanEntry.class);
         put("String", GuiConfigEntries.StringEntry.class);
     }};
@@ -78,7 +80,8 @@ public class ReflectionConfigElement implements IConfigElement
         return null;
     }
 
-    private HashMap<String, ConfigGuiType> lookup = new HashMap<String, ConfigGuiType>() {{
+    private HashMap<String, ConfigGuiType> lookup = new HashMap<String, ConfigGuiType>()
+    {{
         put("boolean", ConfigGuiType.BOOLEAN);
         put("String", ConfigGuiType.STRING);
     }};
@@ -157,7 +160,8 @@ public class ReflectionConfigElement implements IConfigElement
         {
             field.setAccessible(true);
             return field.get(Config.getInstance());
-        } catch (Throwable e)
+        }
+        catch (Throwable e)
         {
         }
         return null;
@@ -176,7 +180,8 @@ public class ReflectionConfigElement implements IConfigElement
         {
             field.setAccessible(true);
             field.set(Config.getInstance(), value);
-        } catch (Throwable e)
+        }
+        catch (Throwable e)
         {
         }
     }

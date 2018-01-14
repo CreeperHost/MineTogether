@@ -1,12 +1,13 @@
 package net.creeperhost.minetogether.serverstuffs;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.SERVER)
 public class MineTogetherPropertyManager
@@ -48,7 +49,7 @@ public class MineTogetherPropertyManager
         }
         else
         {
-            CreeperHostServer.logger.warn("{} does not exist", (Object)propertiesFile);
+            CreeperHostServer.logger.warn("{} does not exist", (Object) propertiesFile);
             this.generateNewProperties();
         }
     }

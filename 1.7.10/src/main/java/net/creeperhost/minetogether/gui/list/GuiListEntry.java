@@ -4,12 +4,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.renderer.Tessellator;
 
-public class GuiListEntry implements GuiListExtended.IGuiListEntry{
+public class GuiListEntry implements GuiListExtended.IGuiListEntry
+{
 
     protected final Minecraft mc;
     protected final GuiList list;
 
-    public GuiListEntry(GuiList list){
+    public GuiListEntry(GuiList list)
+    {
         this.list = list;
         this.mc = this.list.gui.mc;
     }
@@ -20,22 +22,27 @@ public class GuiListEntry implements GuiListExtended.IGuiListEntry{
     }*/
 
     @Override
-    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, Tessellator p_148279_6_, int mouseX, int mouseY, boolean isSelected){
+    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, Tessellator p_148279_6_, int mouseX, int mouseY, boolean isSelected)
+    {
     }
 
     @Override
-    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY){
-        if(this.list.getCurrSelected() != this){
+    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY)
+    {
+        if (this.list.getCurrSelected() != this)
+        {
             this.list.setCurrSelected(this);
             return true;
         }
-        else{
+        else
+        {
             return false;
         }
     }
 
     @Override
-    public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY){
+    public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY)
+    {
 
     }
 }

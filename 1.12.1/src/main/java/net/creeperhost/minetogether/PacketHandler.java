@@ -30,6 +30,7 @@ public class PacketHandler implements IMessageHandler<PacketHandler.ServerIDMess
     public static class ServerIDMessage implements IMessage
     {
         int serverID;
+
         public ServerIDMessage(int serverID)
         {
             this.serverID = serverID;

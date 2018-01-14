@@ -22,7 +22,8 @@ public abstract class DefferedValidation implements IOrderValidation
 
     public abstract String getMessageReal();
 
-    public void doAsync(final String string) {
+    public void doAsync(final String string)
+    {
         Runnable runnable = new Runnable()
         {
             @Override
@@ -37,7 +38,8 @@ public abstract class DefferedValidation implements IOrderValidation
         thread.start();
     }
 
-    public boolean isValid(String string) {
+    public boolean isValid(String string)
+    {
         // We don't actually use the string. Passed for interface compatibility.
         return isDone && result;
     }
@@ -63,7 +65,8 @@ public abstract class DefferedValidation implements IOrderValidation
         this.phase = phase;
     }
 
-    public void reset() {
+    public void reset()
+    {
         isDone = false;
         result = false;
     }

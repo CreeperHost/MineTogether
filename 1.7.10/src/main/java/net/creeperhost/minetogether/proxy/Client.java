@@ -1,8 +1,6 @@
 package net.creeperhost.minetogether.proxy;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.GameProfileRepository;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
@@ -37,13 +35,16 @@ public class Client implements IProxy
         if (CreeperHost.instance.handledInvite == null)
         {
             mc.displayGuiScreen(new GuiFriendsList(mc.currentScreen));
-        } else {
+        }
+        else
+        {
             mc.displayGuiScreen(new GuiInvited(CreeperHost.instance.handledInvite, mc.currentScreen));
             CreeperHost.instance.handledInvite = null;
         }
     }
 
     private UUID cache;
+
     @Override
     public UUID getUUID()
     {
@@ -63,7 +64,9 @@ public class Client implements IProxy
         {
             PlayerProfileCache playerprofilecache = new PlayerProfileCache(MinecraftServer.getServer(), new File(mc.mcDataDir, MinecraftServer.field_152367_a.getName()));
             uuid = playerprofilecache.func_152655_a(Minecraft.getMinecraft().getSession().getUsername()).getId();
-        } else {
+        }
+        else
+        {
             uuid = EntityPlayer.func_146094_a(new GameProfile(null, session.getUsername().toLowerCase()));
         }
         cache = uuid;

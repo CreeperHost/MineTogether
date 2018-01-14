@@ -53,7 +53,7 @@ public class CommandInvite extends CommandBase
         {
             if ("list".equals(args[0]))
             {
-                sender.addChatMessage(new ChatComponentTranslation("creeperhostserver.commands.invite.list", new Object[] {MinecraftServer.getServer().getConfigurationManager().func_152598_l().length, server.func_152358_ax().func_152654_a().length}));
+                sender.addChatMessage(new ChatComponentTranslation("creeperhostserver.commands.invite.list", new Object[]{MinecraftServer.getServer().getConfigurationManager().func_152598_l().length, server.func_152358_ax().func_152654_a().length}));
                 String[] astring = server.getConfigurationManager().func_152598_l();
                 sender.addChatMessage(new ChatComponentText(joinNiceString(astring)));
             }
@@ -68,12 +68,12 @@ public class CommandInvite extends CommandBase
 
                 if (gameprofile == null)
                 {
-                    throw new CommandException("creeperhostserver.commands.invite.add.failed", new Object[] {args[1]});
+                    throw new CommandException("creeperhostserver.commands.invite.add.failed", new Object[]{args[1]});
                 }
 
                 server.getConfigurationManager().func_152601_d(gameprofile);
                 inviteUser(gameprofile);
-                func_152373_a(sender, this, "creeperhostserver.commands.invite.add.success", new Object[] {args[1]});
+                func_152373_a(sender, this, "creeperhostserver.commands.invite.add.success", new Object[]{args[1]});
             }
             else if ("remove".equals(args[0]))
             {
@@ -86,12 +86,12 @@ public class CommandInvite extends CommandBase
 
                 if (gameprofile1 == null)
                 {
-                    throw new CommandException("creeperhostserver.commands.invite.remove.failed", new Object[] {args[1]});
+                    throw new CommandException("creeperhostserver.commands.invite.remove.failed", new Object[]{args[1]});
                 }
 
                 server.getConfigurationManager().func_152597_c(gameprofile1);
                 removeUser(gameprofile1);
-                func_152373_a(sender, this, "creeperhostserver.commands.invite.remove.success", new Object[] {args[1]});
+                func_152373_a(sender, this, "creeperhostserver.commands.invite.remove.success", new Object[]{args[1]});
             }
             else if ("reload".equals(args[0]))
             {
@@ -99,7 +99,9 @@ public class CommandInvite extends CommandBase
                 server.getConfigurationManager().loadWhiteList();
                 reloadInvites(prevNames);
                 func_152373_a(sender, this, "creeperhostserver.commands.invite.reloaded", new Object[0]);
-            } else {
+            }
+            else
+            {
                 throw new WrongUsageException("creeperhostserver.commands.invite.usage", new Object[0]);
             }
         }
@@ -114,7 +116,7 @@ public class CommandInvite extends CommandBase
              * Returns a List of strings (chosen from the given strings) which the last word in the given string array
              * is a beginning-match for. (Tab completion).
              */
-            return getListOfStringsMatchingLastWord(p_71516_2_, new String[] {"on", "off", "list", "add", "remove", "reload"});
+            return getListOfStringsMatchingLastWord(p_71516_2_, new String[]{"on", "off", "list", "add", "remove", "reload"});
         }
         else
         {

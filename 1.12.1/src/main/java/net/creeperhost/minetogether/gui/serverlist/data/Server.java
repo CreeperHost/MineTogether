@@ -39,11 +39,13 @@ public class Server
         }
 
         @Override
-        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2) {
+        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
+        {
             String str1 = o1.getServerData().server.displayName;
             String str2 = o2.getServerData().server.displayName;
             int res = String.CASE_INSENSITIVE_ORDER.compare(str1, str2);
-            if (res == 0) {
+            if (res == 0)
+            {
                 res = str1.compareTo(str2);
             }
             return res;
@@ -98,18 +100,28 @@ public class Server
             if (o1.getServerData().server.flag == null)
             {
                 return 1;
-            } else if (o2.getServerData().server.flag == null) {
+            }
+            else if (o2.getServerData().server.flag == null)
+            {
                 return -1;
-            } else if (o1.getServerData().server.flag == o2.getServerData().server.flag) {
+            }
+            else if (o1.getServerData().server.flag == o2.getServerData().server.flag)
+            {
                 return super.compare(o1, o2);
-            } else if (o1.getServerData().server.flag.name().equals(Callbacks.getUserCountry())) {
+            }
+            else if (o1.getServerData().server.flag.name().equals(Callbacks.getUserCountry()))
+            {
                 if (o2.getServerData().server.flag.name().equals(Callbacks.getUserCountry()))
                 {
                     return super.compare(o1, o2);
-                } else {
+                }
+                else
+                {
                     return -1;
                 }
-            } else if (o2.getServerData().server.flag.name().equals(Callbacks.getUserCountry())) {
+            }
+            else if (o2.getServerData().server.flag.name().equals(Callbacks.getUserCountry()))
+            {
                 if (o1.getServerData().server.flag.name().equals(Callbacks.getUserCountry()))
                 {
                     return super.compare(o1, o2);
@@ -118,11 +130,14 @@ public class Server
                 {
                     return 1;
                 }
-            } else {
+            }
+            else
+            {
                 String str1 = o1.getServerData().server.flag.name();
                 String str2 = o2.getServerData().server.flag.name();
                 int res = String.CASE_INSENSITIVE_ORDER.compare(str1, str2);
-                if (res == 0) {
+                if (res == 0)
+                {
                     res = str1.compareTo(str2);
                 }
                 return res;
@@ -154,8 +169,8 @@ public class Server
                 return -1;
             }
             return o1.getServerData().pingToServer < o2.getServerData().pingToServer ? -1
-              : o1.getServerData().pingToServer > o2.getServerData().pingToServer ? 1
-              : 0;
+                : o1.getServerData().pingToServer > o2.getServerData().pingToServer ? 1
+                : 0;
         }
     }
 }

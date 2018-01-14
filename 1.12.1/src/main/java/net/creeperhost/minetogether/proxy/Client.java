@@ -22,6 +22,7 @@ import java.util.UUID;
 public class Client implements IProxy
 {
     public KeyBinding openGuiKey;
+    private UUID cache;
 
     @Override
     public void registerKeys()
@@ -30,7 +31,6 @@ public class Client implements IProxy
         ClientRegistry.registerKeyBinding(openGuiKey);
     }
 
-
     @Override
     public void openFriendsGui()
     {
@@ -38,13 +38,14 @@ public class Client implements IProxy
         if (CreeperHost.instance.handledInvite == null)
         {
             mc.displayGuiScreen(new GuiFriendsList(mc.currentScreen));
-        } else {
+        }
+        else
+        {
             mc.displayGuiScreen(new GuiInvited(CreeperHost.instance.handledInvite, mc.currentScreen));
             CreeperHost.instance.handledInvite = null;
         }
     }
 
-    private UUID cache;
     @Override
     public UUID getUUID()
     {
@@ -66,7 +67,9 @@ public class Client implements IProxy
             GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
             PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository, new File(mc.mcDataDir, MinecraftServer.USER_CACHE_FILE.getName()));
             uuid = playerprofilecache.getGameProfileForUsername(Minecraft.getMinecraft().getSession().getUsername()).getId();
-        } else {
+        }
+        else
+        {
             uuid = EntityPlayer.getOfflineUUID(session.getUsername().toLowerCase());
         }
         cache = uuid;

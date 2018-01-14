@@ -14,6 +14,7 @@ public class ServerListNoEdit extends ServerList
 {
     private Minecraft mc;
     private ArrayList<Boolean> servers;
+
     public ServerListNoEdit(Minecraft p_i1194_1_)
     {
         super(p_i1194_1_);
@@ -44,10 +45,11 @@ public class ServerListNoEdit extends ServerList
                 {
                     serverBytes[i] = 0;
                 }
-            } else {
+            }
+            else
+            {
                 serverBytes = nbttagcompound.getByteArray("servers");
             }
-
 
 
             int count = countServers();
@@ -75,10 +77,10 @@ public class ServerListNoEdit extends ServerList
         int numOfServers = countServers();
         byte[] serverBytes = new byte[numOfServers];
 
-        for(int i = 0; i < numOfServers; i++)
+        for (int i = 0; i < numOfServers; i++)
         {
             boolean editStatus = i < servers.size() && servers.get(i);
-            serverBytes[i] = editStatus ? (byte)1 : (byte)0;
+            serverBytes[i] = editStatus ? (byte) 1 : (byte) 0;
         }
 
         try

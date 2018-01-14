@@ -1,38 +1,41 @@
 package net.creeperhost.minetogether.gui;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-//import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-//import net.minecraft.util.text.TextFormatting;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import java.util.*;
+
+//import net.minecraft.client.renderer.GlStateManager;
+//import net.minecraft.util.text.TextFormatting;
 
 /**
  * @author Koen Beckers (K-4U)
  */
 @SideOnly(Side.CLIENT)
-public class GuiServerInfo extends GuiScreen {
-    
+public class GuiServerInfo extends GuiScreen
+{
+
     boolean isPlayerOpped = true; //TODO: Make me get fetched.
 
     long ticks;
 
-    public GuiServerInfo() {
+    public GuiServerInfo()
+    {
     }
 
     private String header;
 
     public static <K, V extends Comparable<? super V>> Map<K, V>
-    sortByValue( Map<K, V> map )
+    sortByValue(Map<K, V> map)
     {
         List<Map.Entry<K, V>> list =
-                new LinkedList<Map.Entry<K, V>>( map.entrySet() );
+            new LinkedList<Map.Entry<K, V>>(map.entrySet());
         Collections.sort(list, new Comparator<Map.Entry<K, V>>()
         {
             public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2)
@@ -44,16 +47,18 @@ public class GuiServerInfo extends GuiScreen {
         Map<K, V> result = new LinkedHashMap<K, V>();
         for (Map.Entry<K, V> entry : list)
         {
-            result.put( entry.getKey(), entry.getValue() );
+            result.put(entry.getKey(), entry.getValue());
         }
         return result;
     }
 
-    public void doTick() {
+    public void doTick()
+    {
         ticks++;
     }
-    
-    public boolean renderServerInfo() {
+
+    public boolean renderServerInfo()
+    {
 
         Map<String, Integer> myList = new LinkedHashMap<String, Integer>();
 
@@ -61,18 +66,22 @@ public class GuiServerInfo extends GuiScreen {
         int j = 0;
         int k = 0;
 
-        try {
+        try
+        {
 
-            if (CreeperHost.instance.getQueryGetter().getExtendedServerData() == null) {
+            if (CreeperHost.instance.getQueryGetter().getExtendedServerData() == null)
+            {
                 return false;
             }
 
             Map<String, Double> tpsInfo = CreeperHost.instance.getQueryGetter().getExtendedServerData().getTPS(mc.thePlayer.dimension);
             String color = "\u00a7" + "f";
-            if (tpsInfo.get("tps") < 20) {
+            if (tpsInfo.get("tps") < 20)
+            {
                 color = "\u00a7" + "e";
             }
-            if (tpsInfo.get("tps") < 10) {
+            if (tpsInfo.get("tps") < 10)
+            {
                 color = "\u00a7" + "c";
             }
 
@@ -90,11 +99,14 @@ public class GuiServerInfo extends GuiScreen {
             }*/
 
             Map<String, Integer> entities = CreeperHost.instance.getQueryGetter().getExtendedServerData().getEntitiesInDimension(Minecraft.getMinecraft().theWorld.provider.dimensionId);
-            for(Map.Entry entity: entities.entrySet()){
+            for (Map.Entry entity : entities.entrySet())
+            {
                 String key = (String) entity.getKey();
-                if (key.length() >= 9 && key.contains("item.tile.") || key.contains("item.item.")) {
+                if (key.length() >= 9 && key.contains("item.tile.") || key.contains("item.item."))
+                {
                     key = key.substring(5);
-                    if (!key.contains(".name")) {
+                    if (!key.contains(".name"))
+                    {
                         key = key + ".name";
                     }
                 }
@@ -103,7 +115,8 @@ public class GuiServerInfo extends GuiScreen {
 
                 int keyLength = key.length();
 
-                if (keyLength >= 15) {
+                if (keyLength >= 15)
+                {
                     for (int end = 15; end <= keyLength; end++)
                     {
                         int start = end - 15;
@@ -114,21 +127,26 @@ public class GuiServerInfo extends GuiScreen {
 
                     int work = (keyLength - 15) + 12;
 
-                    int start = (int)Math.floor(ticks / 20) % work;
-                    if (start <= 5) {
+                    int start = (int) Math.floor(ticks / 20) % work;
+                    if (start <= 5)
+                    {
                         start = 0;
-                    } else {
+                    }
+                    else
+                    {
                         start -= 6;
                     }
 
-                    if (start + 15 > keyLength) {
+                    if (start + 15 > keyLength)
+                    {
                         start = keyLength - 15;
                     }
 
                     int end = start + 15;
 
                     key = key.substring(start, end);
-                }  else
+                }
+                else
                 {
                     k = this.mc.fontRenderer.getStringWidth(key);
                     i = Math.max(i, k);
@@ -136,12 +154,14 @@ public class GuiServerInfo extends GuiScreen {
 
                 Double value = (Double) entity.getValue();
                 int finalVal = value.intValue();
-                myList.put( key, finalVal);
+                myList.put(key, finalVal);
             }
 
             myList = sortByValue(myList);
 
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
 
@@ -206,7 +226,8 @@ public class GuiServerInfo extends GuiScreen {
         int k4 = 0;
         for (Map.Entry<String, Integer> entString : myList.entrySet())
         {
-            if (k4 == 60) {
+            if (k4 == 60)
+            {
                 break;
             }
             int l4 = k4 / i4;
@@ -254,7 +275,8 @@ public class GuiServerInfo extends GuiScreen {
         return true;
     }
 
-    public boolean getIsPlayerOpped() {
+    public boolean getIsPlayerOpped()
+    {
         return isPlayerOpped;
     }
 }

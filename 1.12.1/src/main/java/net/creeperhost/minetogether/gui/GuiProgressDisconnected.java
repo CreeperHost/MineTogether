@@ -22,10 +22,13 @@ import java.util.regex.Pattern;
 public class GuiProgressDisconnected extends GuiScreen
 {
 
+    private final GuiScreen parentScreen;
+    double percent = 0;
+    Pattern pattern = Pattern.compile("(\\d+/\\d+).*");
+    Field cancelField = null;
     private String ourReason;
     private ITextComponent ourMessage;
     private List<String> multilineMessage;
-    private final GuiScreen parentScreen;
     private int textHeight;
     private long lastConnectAttempt;
     private NetworkManager lastNetworkManager;
@@ -41,12 +44,10 @@ public class GuiProgressDisconnected extends GuiScreen
         this.lastConnectAttempt = System.currentTimeMillis();
         if (lastNetworkManager != null)
         {
-            InetSocketAddress address = (InetSocketAddress)lastNetworkManager.getRemoteAddress();
+            InetSocketAddress address = (InetSocketAddress) lastNetworkManager.getRemoteAddress();
             ip = address.getHostName() + ":" + address.getPort();
         }
     }
-
-    double percent = 0;
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
@@ -75,7 +76,7 @@ public class GuiProgressDisconnected extends GuiScreen
         int left = this.width / 2 - (loadingWidth / 2);
         int top = this.height / 2 - (loadingHeight / 2) + 45;
 
-        int loadingPercentWidth = (int) (((double)loadingWidth / (double)100) * (double)percent);
+        int loadingPercentWidth = (int) (((double) loadingWidth / (double) 100) * (double) percent);
 
         drawRect(left - 1, top - 1, left + loadingWidth + 1, top + loadingHeight + 1, loadingOutsideColour);
         drawRect(left, top, left + loadingWidth, top + loadingHeight, loadingBackColour);
@@ -109,8 +110,6 @@ public class GuiProgressDisconnected extends GuiScreen
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, Math.min(this.height / 2 + 80, this.height - 30), I18n.format("gui.toMenu")));
     }
 
-    Pattern pattern = Pattern.compile("(\\d+/\\d+).*");
-
     public void update(String reason, ITextComponent message)
     {
         lastConnectAttempt = System.currentTimeMillis();
@@ -127,13 +126,11 @@ public class GuiProgressDisconnected extends GuiScreen
                 String[] split = match.split("/");
                 int done = Integer.parseInt(split[0]);
                 int total = Integer.parseInt(split[1]);
-                percent = ((double)done / (double)total) * (double)100;
+                percent = ((double) done / (double) total) * (double) 100;
                 break;
             }
         }
     }
-
-    Field cancelField = null;
 
     protected void actionPerformed(GuiButton button) throws IOException
     {

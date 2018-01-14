@@ -53,8 +53,7 @@ public class DropdownButton<E extends Enum> extends GuiButton
             {
                 j = packedFGColour;
             }
-            else
-            if (!this.enabled)
+            else if (!this.enabled)
             {
                 j = 10526880;
             }
@@ -68,7 +67,7 @@ public class DropdownButton<E extends Enum> extends GuiButton
             if (dropdownOpen)
             {
                 drawY += 1;
-                for(E e: possibleVals)
+                for (E e : possibleVals)
                 {
                     drawY += height - 2;
                     boolean ourHovered = x >= this.xPosition && y >= drawY && x < this.xPosition + this.width && y < drawY + this.height - 2;
@@ -143,7 +142,7 @@ public class DropdownButton<E extends Enum> extends GuiButton
     {
         E clickedElement = null;
         int y = yPosition + 1;
-        for (E e: possibleVals)
+        for (E e : possibleVals)
         {
             y += height - 2;
             if (mouseX >= this.xPosition && mouseY >= y && mouseX < this.xPosition + this.width && mouseY < y + this.height - 2)

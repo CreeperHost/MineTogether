@@ -47,10 +47,10 @@ public class GuiWell
         float f1 = 32.0F;
         tessellator.startDrawingQuads();
         tessellator.setColorOpaque_I(2105376);
-        tessellator.addVertexWithUV((double)this.left, (double)this.bottom, 0.0D, (double)((float)this.left / f1), (double)((float)this.bottom / f1));
-        tessellator.addVertexWithUV((double)this.right, (double)this.bottom, 0.0D, (double)((float)this.right / f1), (double)((float)this.bottom / f1));
-        tessellator.addVertexWithUV((double)this.right, (double)this.top, 0.0D, (double)((float)this.right / f1), (double)((float)this.top / f1));
-        tessellator.addVertexWithUV((double)this.left, (double)this.top, 0.0D, (double)((float)this.left / f1), (double)((float)this.top/ f1));
+        tessellator.addVertexWithUV((double) this.left, (double) this.bottom, 0.0D, (double) ((float) this.left / f1), (double) ((float) this.bottom / f1));
+        tessellator.addVertexWithUV((double) this.right, (double) this.bottom, 0.0D, (double) ((float) this.right / f1), (double) ((float) this.bottom / f1));
+        tessellator.addVertexWithUV((double) this.right, (double) this.top, 0.0D, (double) ((float) this.right / f1), (double) ((float) this.top / f1));
+        tessellator.addVertexWithUV((double) this.left, (double) this.top, 0.0D, (double) ((float) this.left / f1), (double) ((float) this.top / f1));
         tessellator.draw();
 
 
@@ -63,19 +63,19 @@ public class GuiWell
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         tessellator.startDrawingQuads();
         tessellator.setColorRGBA_I(0, 0);
-        tessellator.addVertexWithUV((double)this.left, (double)(this.top + b0), 0.0D, 0.0D, 1.0D);
-        tessellator.addVertexWithUV((double)this.right, (double)(this.top + b0), 0.0D, 1.0D, 1.0D);
+        tessellator.addVertexWithUV((double) this.left, (double) (this.top + b0), 0.0D, 0.0D, 1.0D);
+        tessellator.addVertexWithUV((double) this.right, (double) (this.top + b0), 0.0D, 1.0D, 1.0D);
         tessellator.setColorRGBA_I(0, 255);
-        tessellator.addVertexWithUV((double)this.right, (double)this.top, 0.0D, 1.0D, 0.0D);
-        tessellator.addVertexWithUV((double)this.left, (double)this.top, 0.0D, 0.0D, 0.0D);
+        tessellator.addVertexWithUV((double) this.right, (double) this.top, 0.0D, 1.0D, 0.0D);
+        tessellator.addVertexWithUV((double) this.left, (double) this.top, 0.0D, 0.0D, 0.0D);
         tessellator.draw();
         tessellator.startDrawingQuads();
         tessellator.setColorRGBA_I(0, 255);
-        tessellator.addVertexWithUV((double)this.left, (double)this.bottom, 0.0D, 0.0D, 1.0D);
-        tessellator.addVertexWithUV((double)this.right, (double)this.bottom, 0.0D, 1.0D, 1.0D);
+        tessellator.addVertexWithUV((double) this.left, (double) this.bottom, 0.0D, 0.0D, 1.0D);
+        tessellator.addVertexWithUV((double) this.right, (double) this.bottom, 0.0D, 1.0D, 1.0D);
         tessellator.setColorRGBA_I(0, 0);
-        tessellator.addVertexWithUV((double)this.right, (double)(this.bottom - b0), 0.0D, 1.0D, 0.0D);
-        tessellator.addVertexWithUV((double)this.left, (double)(this.bottom - b0), 0.0D, 0.0D, 0.0D);
+        tessellator.addVertexWithUV((double) this.right, (double) (this.bottom - b0), 0.0D, 1.0D, 0.0D);
+        tessellator.addVertexWithUV((double) this.left, (double) (this.bottom - b0), 0.0D, 0.0D, 0.0D);
         tessellator.draw();
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -90,15 +90,18 @@ public class GuiWell
 
         int topStart = this.top + 15;
 
-        for (String line: lines)
+        for (String line : lines)
         {
-            if (centeredF) {
+            if (centeredF)
+            {
                 int stringWidth = fontRenderer.getStringWidth(line);
                 fontRenderer.drawStringWithShadow(line, this.left + ((this.right - this.left) / 2) - (stringWidth / 2), topStart, 0xFFFFFF);
-            } else {
+            }
+            else
+            {
                 fontRenderer.drawStringWithShadow(line, this.left, topStart, 0xFFFFFF);
             }
-            topStart+= 10;
+            topStart += 10;
         }
 
     }

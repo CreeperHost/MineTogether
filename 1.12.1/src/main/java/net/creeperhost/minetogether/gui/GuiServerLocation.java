@@ -1,37 +1,42 @@
 package net.creeperhost.minetogether.gui;
 
 import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntry;
 import net.creeperhost.minetogether.gui.list.GuiListEntryLocation;
 import net.creeperhost.minetogether.paul.Callbacks;
-import net.creeperhost.minetogether.api.Order;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class GuiServerLocation extends GuiGetServer{
+public class GuiServerLocation extends GuiGetServer
+{
 
     private GuiList list;
 
-    public GuiServerLocation(int stepId, Order order){
+    public GuiServerLocation(int stepId, Order order)
+    {
         super(stepId, order);
     }
 
     @Override
-    public void initGui(){
+    public void initGui()
+    {
         super.initGui();
 
-        this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height-36, 36);
+        this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height - 36, 36);
 
         Map<String, String> locations = Callbacks.getAllServerLocations();
 
         String topEntryName = "";
 
-        for(Map.Entry<String, String> entry : locations.entrySet()){
+        for (Map.Entry<String, String> entry : locations.entrySet())
+        {
             GuiListEntryLocation listEntry = new GuiListEntryLocation(this.list, entry.getKey(), entry.getValue());
 
-            if(this.order.serverLocation.equals(listEntry.locationName)){
+            if (this.order.serverLocation.equals(listEntry.locationName))
+            {
                 topEntryName = entry.getKey();
                 this.list.addEntry(listEntry);
                 this.list.setCurrSelected(listEntry);
@@ -39,9 +44,10 @@ public class GuiServerLocation extends GuiGetServer{
             }
         }
 
-        for(Map.Entry<String, String> entry : locations.entrySet())
+        for (Map.Entry<String, String> entry : locations.entrySet())
         {
-            if (topEntryName.equals(entry.getKey())) {
+            if (topEntryName.equals(entry.getKey()))
+            {
                 continue;
             }
             GuiListEntryLocation listEntry = new GuiListEntryLocation(this.list, entry.getKey(), entry.getValue());
@@ -50,35 +56,41 @@ public class GuiServerLocation extends GuiGetServer{
     }
 
     @Override
-    public String getStepName(){
+    public String getStepName()
+    {
         return Util.localize("gui.server_location");
     }
 
     @Override
-    public void updateScreen(){
+    public void updateScreen()
+    {
         super.updateScreen();
 
         this.buttonNext.enabled = this.list.getCurrSelected() != null;
     }
 
     @Override
-    public void onGuiClosed(){
+    public void onGuiClosed()
+    {
         super.onGuiClosed();
 
         GuiListEntry entry = this.list.getCurrSelected();
-        if(entry instanceof GuiListEntryLocation){
-            this.order.serverLocation = ((GuiListEntryLocation)entry).locationName;
+        if (entry instanceof GuiListEntryLocation)
+        {
+            this.order.serverLocation = ((GuiListEntryLocation) entry).locationName;
         }
     }
 
     @Override
-    public void handleMouseInput() throws IOException{
+    public void handleMouseInput() throws IOException
+    {
         super.handleMouseInput();
         this.list.handleMouseInput();
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks){
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
         this.drawDefaultBackground();
         this.list.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -86,13 +98,15 @@ public class GuiServerLocation extends GuiGetServer{
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException{
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.list.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     @Override
-    protected void mouseReleased(int mouseX, int mouseY, int state){
+    protected void mouseReleased(int mouseX, int mouseY, int state)
+    {
         super.mouseReleased(mouseX, mouseY, state);
         this.list.mouseReleased(mouseX, mouseY, state);
     }

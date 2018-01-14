@@ -1,18 +1,19 @@
 package net.creeperhost.minetogether.gui;
 
 import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.api.Order;
+import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.gui.element.GuiWell;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryCountry;
 import net.creeperhost.minetogether.paul.Callbacks;
-import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.api.OrderSummary;
 import net.minecraft.client.gui.GuiButton;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-public class GuiQuote extends GuiGetServer{
+public class GuiQuote extends GuiGetServer
+{
 
     private GuiList list;
     private boolean countryEnabled = false;
@@ -25,17 +26,19 @@ public class GuiQuote extends GuiGetServer{
     private boolean firstTime = true;
     private boolean countryOnRelease;
 
-    public GuiQuote(int stepId, Order order){
+    public GuiQuote(int stepId, Order order)
+    {
         super(stepId, order);
     }
 
     public OrderSummary summary;
 
     @Override
-    public void initGui(){
+    public void initGui()
+    {
         super.initGui();
 
-        this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height-36, 36);
+        this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height - 36, 36);
 
         this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, 67, this.height - 88, Util.localize("quote.vpsfeatures"), new ArrayList<String>(), true, 0);
         this.wellRight = new GuiWell(this.mc, this.width, 67, this.height - 88, Util.localize("quote.vpsincluded"), new ArrayList<String>(), true, (this.width / 2) + 10);
@@ -51,11 +54,14 @@ public class GuiQuote extends GuiGetServer{
 
         this.buttonList.add(countryButton);
 
-        if (summary == null) {
+        if (summary == null)
+        {
             if (!refreshing)
                 updateSummary();
             countryButton.visible = false;
-       } else {
+        }
+        else
+        {
 
 
             this.wellRight.lines = summary.serverIncluded;
@@ -64,11 +70,13 @@ public class GuiQuote extends GuiGetServer{
 
 
             Map<String, String> locations = Callbacks.getCountries();
-            for(Map.Entry<String, String> entry : locations.entrySet()){
+            for (Map.Entry<String, String> entry : locations.entrySet())
+            {
                 GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
                 list.addEntry(listEntry);
 
-                if(order.country.equals(listEntry.countryID)){
+                if (order.country.equals(listEntry.countryID))
+                {
                     list.setCurrSelected(listEntry);
                 }
             }
@@ -77,7 +85,8 @@ public class GuiQuote extends GuiGetServer{
 
     }
 
-    private void updateSummary() {
+    private void updateSummary()
+    {
 
         countryButton.visible = false;
         refreshing = true;
@@ -85,7 +94,8 @@ public class GuiQuote extends GuiGetServer{
 
         final Order order = this.order;
 
-        Runnable runnable = new Runnable() {
+        Runnable runnable = new Runnable()
+        {
 
             @Override
             public void run()
@@ -95,14 +105,17 @@ public class GuiQuote extends GuiGetServer{
                 order.productID = summary.productID;
                 order.currency = summary.currency;
 
-                if (firstTime) {
+                if (firstTime)
+                {
                     firstTime = false;
                     Map<String, String> locations = Callbacks.getCountries();
-                    for(Map.Entry<String, String> entry : locations.entrySet()){
+                    for (Map.Entry<String, String> entry : locations.entrySet())
+                    {
                         GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
                         list.addEntry(listEntry);
 
-                        if(order.country.equals(listEntry.countryID)){
+                        if (order.country.equals(listEntry.countryID))
+                        {
                             list.setCurrSelected(listEntry);
                         }
                     }
@@ -121,12 +134,14 @@ public class GuiQuote extends GuiGetServer{
     }
 
     @Override
-    public String getStepName(){
+    public String getStepName()
+    {
         return Util.localize("gui.quote");
     }
 
     @Override
-    public void updateScreen(){
+    public void updateScreen()
+    {
         super.updateScreen();
 
         this.buttonNext.enabled = this.list.getCurrSelected() != null && !countryEnabled && !refreshing;
@@ -136,17 +151,22 @@ public class GuiQuote extends GuiGetServer{
     @Override
     protected void actionPerformed(GuiButton button)
     {
-        if (button.id == 8008135) {
+        if (button.id == 8008135)
+        {
             countryOnRelease = true;
         }
 
-        if (countryEnabled && button.id == buttonPrev.id) {
+        if (countryEnabled && button.id == buttonPrev.id)
+        {
             this.countryEnabled = false;
             this.buttonPrev.displayString = Util.localize("button.prev");
-            if (changed) {
+            if (changed)
+            {
                 changed = false;
                 updateSummary();
-            } else {
+            }
+            else
+            {
                 countryButton.visible = true;
             }
             return;
@@ -155,18 +175,23 @@ public class GuiQuote extends GuiGetServer{
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks){
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
         this.drawDefaultBackground();
 
-        if (countryEnabled) {
+        if (countryEnabled)
+        {
             this.list.drawScreen(mouseX, mouseY, partialTicks);
-        } else {
+        }
+        else
+        {
             if (!refreshing)
             {
-                if (!summary.summaryError.isEmpty()) {
+                if (!summary.summaryError.isEmpty())
+                {
                     super.drawScreen(mouseX, mouseY, partialTicks);
-                    this.drawCenteredString(this.fontRendererObj, Util.localize("quote.error"), this.width/2, 50, -1);
-                    this.drawCenteredString(this.fontRendererObj, Util.localize(summary.summaryError), this.width/2, 60, -1);
+                    this.drawCenteredString(this.fontRendererObj, Util.localize("quote.error"), this.width / 2, 50, -1);
+                    this.drawCenteredString(this.fontRendererObj, Util.localize(summary.summaryError), this.width / 2, 60, -1);
                     countryButton.visible = false;
                     buttonNext.visible = false;
                     buttonPrev.visible = false;
@@ -217,8 +242,10 @@ public class GuiQuote extends GuiGetServer{
                 int stringStart = this.fontRendererObj.getStringWidth(Util.localize("quote.figures")) / 2;
 
                 this.drawString(this.fontRendererObj, Util.localize("quote.figures"), start + middle - stringStart, this.height - 80, 0xFFFFFF);
-            } else {
-                this.drawCenteredString(this.fontRendererObj, Util.localize("quote.refreshing"), this.width/2, 50, -1);
+            }
+            else
+            {
+                this.drawCenteredString(this.fontRendererObj, Util.localize("quote.refreshing"), this.width / 2, 50, -1);
             }
 
         }
@@ -227,12 +254,13 @@ public class GuiQuote extends GuiGetServer{
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
+    {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if (this.countryEnabled)
         {
             this.list.func_148179_a(mouseX, mouseY, mouseButton);
-            GuiListEntryCountry country = (GuiListEntryCountry)this.list.getCurrSelected();
+            GuiListEntryCountry country = (GuiListEntryCountry) this.list.getCurrSelected();
             order.country = country.countryID;
             changed = true;
         }
@@ -242,10 +270,12 @@ public class GuiQuote extends GuiGetServer{
     @Override
     protected void mouseMovedOrUp(int p_146286_1_, int p_146286_2_, int p_146286_3_)
     {
-        if (this.countryEnabled) {
+        if (this.countryEnabled)
+        {
             this.list.func_148181_b(p_146286_1_, p_146286_2_, p_146286_3_);
         }
-        if (countryOnRelease && p_146286_3_ >= 0) {
+        if (countryOnRelease && p_146286_3_ >= 0)
+        {
             countryOnRelease = false;
             this.countryEnabled = !this.countryEnabled;
             this.buttonPrev.displayString = "Back to quote";

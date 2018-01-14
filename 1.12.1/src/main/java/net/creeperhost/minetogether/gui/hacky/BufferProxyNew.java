@@ -11,7 +11,8 @@ public class BufferProxyNew implements IBufferProxy
 {
     private BufferBuilder buffer;
 
-    public BufferProxyNew() {
+    public BufferProxyNew()
+    {
         buffer = Tessellator.getInstance().getBuffer();
     }
 

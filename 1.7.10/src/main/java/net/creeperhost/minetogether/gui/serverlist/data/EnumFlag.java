@@ -272,7 +272,8 @@ public enum EnumFlag
 
     private static EnumFlag[] vals = values();
 
-    public static EnumFlag random()  {
+    public static EnumFlag random()
+    {
         return vals[random.nextInt(vals.length)];
     }
 }

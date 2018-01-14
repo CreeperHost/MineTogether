@@ -4,17 +4,18 @@ import cpw.mods.fml.client.config.GuiCheckBox;
 import cpw.mods.fml.client.config.GuiSlider;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.AvailableResult;
+import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldValidate;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.Constants;
-import net.creeperhost.minetogether.api.Order;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-public class GuiGeneralServerInfo extends GuiGetServer {
+public class GuiGeneralServerInfo extends GuiGetServer
+{
 
     private GuiTextField nameField;
     private GuiSlider slotSlider;
@@ -28,19 +29,21 @@ public class GuiGeneralServerInfo extends GuiGetServer {
 
     private GuiCheckBox pregen;
 
-    public GuiGeneralServerInfo(int stepId, Order order){
+    public GuiGeneralServerInfo(int stepId, Order order)
+    {
         super(stepId, order);
         lockIcon = new ResourceLocation("creeperhost", "textures/lock.png");
     }
 
     @Override
-    public void initGui(){
+    public void initGui()
+    {
         super.initGui();
 
-        int halfWidth = this.width/2;
-        int halfHeight = this.height/2;
+        int halfWidth = this.width / 2;
+        int halfHeight = this.height / 2;
 
-        this.nameField = new GuiTextFieldValidate(this.fontRendererObj, halfWidth-100, halfHeight-50, 200, 20, "([A-Za-z0-9]*)");
+        this.nameField = new GuiTextFieldValidate(this.fontRendererObj, halfWidth - 100, halfHeight - 50, 200, 20, "([A-Za-z0-9]*)");
         this.nameField.setMaxStringLength(Constants.MAX_SERVER_NAME_LENGTH);
         this.nameField.setText(this.order.name.isEmpty() ? Util.getDefaultName() : this.order.name);
         this.order.name = this.nameField.getText().trim();
@@ -71,21 +74,26 @@ public class GuiGeneralServerInfo extends GuiGetServer {
     }
 
     @Override
-    public void updateScreen(){
+    public void updateScreen()
+    {
         super.updateScreen();
         this.nameField.updateCursorCounter();
 
         final String nameToCheck = this.nameField.getText().trim();
         boolean isEmpty = nameToCheck.isEmpty();
 
-        if (lastKeyTyped + 400 < System.currentTimeMillis() && !nameChecked) {
+        if (lastKeyTyped + 400 < System.currentTimeMillis() && !nameChecked)
+        {
             nameChecked = true;
             if (isEmpty)
             {
                 message = "Name cannot be blank";
                 isAcceptable = false;
-            } else {
-                Runnable task = new Runnable() {
+            }
+            else
+            {
+                Runnable task = new Runnable()
+                {
                     @Override
                     public void run()
                     {
@@ -106,13 +114,17 @@ public class GuiGeneralServerInfo extends GuiGetServer {
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode){
+    protected void keyTyped(char typedChar, int keyCode)
+    {
         String nameFieldOldValue = nameField.getText();
-        if(!this.nameField.textboxKeyTyped(typedChar, keyCode)){
+        if (!this.nameField.textboxKeyTyped(typedChar, keyCode))
+        {
             super.keyTyped(typedChar, keyCode);
         }
-        else {
-            if (!nameFieldOldValue.equals(nameField.getText())) {
+        else
+        {
+            if (!nameFieldOldValue.equals(nameField.getText()))
+            {
                 nameChecked = false;
                 message = "Name not yet checked";
                 this.order.name = this.nameField.getText().trim();
@@ -122,17 +134,21 @@ public class GuiGeneralServerInfo extends GuiGetServer {
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks){
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width/2, this.height/2-65, -1);
+        this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width / 2, this.height / 2 - 65, -1);
 
         int colour;
 
-        if (nameChecked && isAcceptable) {
+        if (nameChecked && isAcceptable)
+        {
             colour = 0x00FF00;
-        } else {
+        }
+        else
+        {
             colour = 0xFF0000;
         }
 
@@ -152,14 +168,16 @@ public class GuiGeneralServerInfo extends GuiGetServer {
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton){
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
+    {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
         order.pregen = pregen.isChecked();
     }
 
     @Override
-    public String getStepName(){
+    public String getStepName()
+    {
         return Util.localize("gui.general_info");
     }
 

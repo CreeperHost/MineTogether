@@ -7,15 +7,15 @@ import net.minecraft.client.multiplayer.ServerData;
 
 public class MockServerListEntryNormal extends ServerListEntryNormal
 {
-  protected MockServerListEntryNormal(GuiMultiplayer p_i45048_1_, ServerData serverIn)
-  {
-    super(p_i45048_1_, serverIn);
-  }
+    protected MockServerListEntryNormal(GuiMultiplayer p_i45048_1_, ServerData serverIn)
+    {
+        super(p_i45048_1_, serverIn);
+    }
 
-  public static final GuiMockMultiplayer mockMP = new GuiMockMultiplayer();
+    public static final GuiMockMultiplayer mockMP = new GuiMockMultiplayer();
 
-  public MockServerListEntryNormal(ServerData serverIn)
-  {
-    super(mockMP, serverIn);
-  }
+    public MockServerListEntryNormal(ServerData serverIn)
+    {
+        super(mockMP, serverIn);
+    }
 }

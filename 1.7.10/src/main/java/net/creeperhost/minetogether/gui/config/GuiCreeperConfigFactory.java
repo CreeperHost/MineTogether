@@ -1,8 +1,8 @@
 package net.creeperhost.minetogether.gui.config;
 
+import cpw.mods.fml.client.IModGuiFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import cpw.mods.fml.client.IModGuiFactory;
 
 import java.util.Set;
 

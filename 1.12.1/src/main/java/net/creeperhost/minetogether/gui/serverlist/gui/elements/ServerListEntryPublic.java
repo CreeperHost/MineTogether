@@ -15,6 +15,7 @@ public class ServerListEntryPublic extends ServerListEntryNormal
 {
     public final ServerListEntryNormal wrapped;
     public final GuiMultiplayer owner;
+    private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
 
     public ServerListEntryPublic(GuiMultiplayer mp, ServerListEntryNormal wrapped)
     {
@@ -28,12 +29,14 @@ public class ServerListEntryPublic extends ServerListEntryNormal
         this(wrapped.mockMP, wrapped);
     }
 
-    public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float newthingy) {
+    public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float newthingy)
+    {
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
 
     // < 1.12 compat
-    public void func_180790_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering) {
+    public void func_180790_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
+    {
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
 
@@ -47,10 +50,9 @@ public class ServerListEntryPublic extends ServerListEntryNormal
         return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
     }
 
-    private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
     public void ourDrawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
-        Util.getWrapper().draw(wrapped, slotIndex, x, y, listWidth, slotHeight, mouseX > (listWidth / 2) ? mouseX : Integer.MAX_VALUE, mouseY,false);
+        Util.getWrapper().draw(wrapped, slotIndex, x, y, listWidth, slotHeight, mouseX > (listWidth / 2) ? mouseX : Integer.MAX_VALUE, mouseY, false);
 
         Server server = getServerData().server;
         EnumFlag flag = server.flag;
@@ -62,9 +64,9 @@ public class ServerListEntryPublic extends ServerListEntryNormal
         int flagHeight = flag.height / (flag.width / flagWidth);
         Gui.drawScaledCustomSizeModalRect(x + listWidth - 5 - flagWidth, y + slotHeight - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
         if (mouseX >= x + listWidth - 5 - flagWidth
-          && mouseX <= x + listWidth - 5
-          && mouseY >= y + slotHeight - flagHeight
-          && mouseY <= y + slotHeight - flagHeight + flagHeight)
+            && mouseX <= x + listWidth - 5
+            && mouseY >= y + slotHeight - flagHeight
+            && mouseY <= y + slotHeight - flagHeight + flagHeight)
         {
             String countryName = Callbacks.getCountries().get(flag.name());
             if (countryName == null)

@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.gui.serverlist.data;
 
-import net.creeperhost.minetogether.gui.serverlist.data.Server;
 import net.minecraft.client.multiplayer.ServerData;
 
 public class ServerDataPublic extends ServerData

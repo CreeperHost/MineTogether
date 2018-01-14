@@ -1,11 +1,11 @@
 package net.creeperhost.minetogether.gui.config;
 
+import cpw.mods.fml.client.config.GuiConfig;
+import cpw.mods.fml.client.config.IConfigElement;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.common.Config;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
-import cpw.mods.fml.client.config.GuiConfig;
-import cpw.mods.fml.client.config.IConfigElement;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -28,16 +28,21 @@ public class GuiCreeperConfig extends GuiConfig
 
         List<IConfigElement> array = new ArrayList<IConfigElement>();
         Field[] fields = Config.class.getDeclaredFields();
-        for (Field field : fields) {
-            if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers())) {
+        for (Field field : fields)
+        {
+            if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
+            {
                 continue;
             }
             Object defValue = null;
-            try {
+            try
+            {
                 field.setAccessible(true);
                 defValue = field.get(defaultConfig);
 
-            } catch (Throwable t) {
+            }
+            catch (Throwable t)
+            {
             }
 
             array.add(new ReflectionConfigElement(field, defValue));
@@ -45,7 +50,8 @@ public class GuiCreeperConfig extends GuiConfig
         return array;
     }
 
-    private static String getTitle(GuiScreen parent) {
+    private static String getTitle(GuiScreen parent)
+    {
         return I18n.format("creeperhost.config.title");
     }
 }

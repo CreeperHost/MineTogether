@@ -69,10 +69,13 @@ public class PregenTask
 
         ArrayList<Pair<Integer, Integer>> chunks = new ArrayList<Pair<Integer, Integer>>();
 
-        for (int curX = minX; curX <= maxX; curX++) {
+        for (int curX = minX; curX <= maxX; curX++)
+        {
             if (curX < storedCurX)
-                continue;;
-            for(int curZ = minZ; curZ <= maxZ; curZ++) {
+                continue;
+            ;
+            for (int curZ = minZ; curZ <= maxZ; curZ++)
+            {
                 if (curX == storedCurX && curZ <= storedCurZ)
                     continue;
 

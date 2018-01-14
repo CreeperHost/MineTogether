@@ -50,7 +50,7 @@ public class MineTogetherPropertyManager
         }
         else
         {
-            CreeperHostServer.logger.warn("{} does not exist", (Object)propertiesFile);
+            CreeperHostServer.logger.warn("{} does not exist", (Object) propertiesFile);
             this.generateNewProperties();
         }
     }

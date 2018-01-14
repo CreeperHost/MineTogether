@@ -44,20 +44,63 @@ import java.util.List;
 
 public class EventHandler
 {
-    
+
     private static final int MAIN_BUTTON_ID = 30051988;
     private static final int MP_BUTTON_ID = 8008135;
     private static final int FRIEND_BUTTON_ID = 1337420;
 
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
-
-    private GuiMultiplayer lastInitialized = null;
     private static Field reasonField = null;
     private static Field messageField = null;
     private static Field parentField = null;
     private static Field networkManagerField = null;
-
     private static NetworkManager lastNetworkManager = null;
+    private static Field serverListSelectorField;
+    private static Field serverListInternetField;
+    private static int ticks = 0;
+    private final ResourceLocation earlyResource = new ResourceLocation("textures/gui/achievement/achievement_background.png");
+    private final ResourceLocation newResouce = new ResourceLocation("textures/gui/toasts.png");
+    Field serverListField = null;
+    Field editButtonField = null;
+    Minecraft mc = Minecraft.getMinecraft();
+    GuiScreen fakeGui = new GuiScreen()
+    {
+    };
+    String mcVersion;
+    int u = 0;
+    int v = 0;
+    private GuiMultiplayer lastInitialized = null;
+    private ServerListNoEdit ourServerList;
+    private boolean hasJoinedWorld;
+    private Thread inviteCheckThread;
+    private int inviteTicks = -1;
+
+    public static NetworkManager getNetworkManager(GuiConnecting con)
+    {
+        long time = System.currentTimeMillis() + 5000;
+        try
+        {
+            if (networkManagerField == null)
+            {
+                networkManagerField = ReflectionHelper.findField(con.getClass(), "field_146373_h", "networkManager");
+                networkManagerField.setAccessible(true);
+            }
+
+            NetworkManager manager = null;
+            while (manager == null) // loop to wait until networkManager is set.
+            {
+                if (System.currentTimeMillis() > time)
+                    break;
+                manager = (NetworkManager) networkManagerField.get(con);
+            }
+
+            return manager;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
 
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
@@ -91,7 +134,7 @@ public class EventHandler
                 String reason = (String) reasonField.get(dc);
                 ITextComponent message = (ITextComponent) messageField.get(dc);
 
-                if(curGui instanceof GuiProgressDisconnected)
+                if (curGui instanceof GuiProgressDisconnected)
                 {
                     if (message.getUnformattedText().contains("Server is still pre-generating!"))
                     {
@@ -99,7 +142,8 @@ public class EventHandler
                         curDiscon.update(reason, message);
                         event.setCanceled(true);
                     }
-                } else if (message.getUnformattedText().contains("Server is still pre-generating!"))
+                }
+                else if (message.getUnformattedText().contains("Server is still pre-generating!"))
                 {
                     event.setGui(new GuiProgressDisconnected((GuiScreen) parentField.get(dc), reason, message, lastNetworkManager));
                     lastNetworkManager = null;
@@ -108,64 +152,43 @@ public class EventHandler
             catch (Throwable e)
             {
             }
-        } else if(gui instanceof GuiConnecting) {
+        }
+        else if (gui instanceof GuiConnecting)
+        {
             //lastNetworkManager = getNetworkManager((GuiConnecting) gui);
         }
     }
 
-    public static NetworkManager getNetworkManager(GuiConnecting con)
-    {
-        long time = System.currentTimeMillis() + 5000;
-        try
-        {
-            if (networkManagerField == null)
-            {
-                networkManagerField = ReflectionHelper.findField(con.getClass(), "field_146373_h", "networkManager");
-                networkManagerField.setAccessible(true);
-            }
-
-            NetworkManager manager = null;
-            while (manager == null) // loop to wait until networkManager is set.
-            {
-                if (System.currentTimeMillis() > time)
-                    break;
-                manager = (NetworkManager) networkManagerField.get(con);
-            }
-
-            return manager;
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-    }
-
-    Field serverListField = null;
-    Field editButtonField = null;
-    private ServerListNoEdit ourServerList;
-
     @SubscribeEvent
-    public void onInitGui(InitGuiEvent.Post event) {
+    public void onInitGui(InitGuiEvent.Post event)
+    {
         final GuiScreen gui = event.getGui();
-        if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu) {
+        if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu)
+        {
             CreeperHost.instance.setRandomImplementation();
             if (CreeperHost.instance.getImplementation() == null)
                 return;
             List<GuiButton> buttonList = event.getButtonList();
-            if (buttonList != null) {
+            if (buttonList != null)
+            {
                 buttonList.add(new ButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
             }
-        } else if(gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui) {
+        }
+        else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
+        {
             GuiMultiplayer mpGUI = (GuiMultiplayer) gui;
             if (Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null)
             {
-                try {
-                    if (serverListSelectorField == null) {
+                try
+                {
+                    if (serverListSelectorField == null)
+                    {
                         serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146803_h", "serverListSelector");
                         serverListSelectorField.setAccessible(true);
                     }
 
-                    if (serverListInternetField == null) {
+                    if (serverListInternetField == null)
+                    {
                         serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "field_148198_l", "serverListInternet");
                         serverListInternetField.setAccessible(true);
                     }
@@ -176,13 +199,14 @@ public class EventHandler
                     ourList.replaceList(serverListInternet);
                     serverListInternetField.set(ourList, serverListInternet);
                     serverListSelectorField.set(mpGUI, ourList);
-                } catch (Throwable e)
+                }
+                catch (Throwable e)
                 {
                     CreeperHost.logger.warn("Reflection to alter server list failed.", e);
                 }
             }
 
-            if(Config.getInstance().isServerListEnabled())
+            if (Config.getInstance().isServerListEnabled())
             {
                 try
                 {
@@ -205,7 +229,7 @@ public class EventHandler
 
         }
 
-        if(Config.getInstance().isServerListEnabled())
+        if (Config.getInstance().isServerListEnabled())
         {
             if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
             {
@@ -244,12 +268,14 @@ public class EventHandler
                     event.getButtonList().add(editButton = new GuiButton(7, gui.width / 2 - 154, gui.height - 28, 70, 20, I18n.format("selectServer.edit"))
                     {
 
-                        public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_) {
+                        public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+                        {
                             myDrawButton(p_191745_1_, p_191745_2_, p_191745_3_);
                         }
 
                         // < 1.12 compat
-                        public void func_146112_a(Minecraft mc, int mouseX, int mouseY) {
+                        public void func_146112_a(Minecraft mc, int mouseX, int mouseY)
+                        {
                             myDrawButton(mc, mouseX, mouseY);
                         }
 
@@ -264,9 +290,11 @@ public class EventHandler
                                     enabled = false;
                                     if (hovered)
                                     {
-                                        ((GuiMultiplayer)gui).setHoveringText("Cannot edit as was added from public server list!");
+                                        ((GuiMultiplayer) gui).setHoveringText("Cannot edit as was added from public server list!");
                                     }
-                                } else {
+                                }
+                                else
+                                {
                                     enabled = true;
                                 }
                             }
@@ -292,8 +320,7 @@ public class EventHandler
                                 {
                                     j = packedFGColour;
                                 }
-                                else
-                                if (!this.enabled)
+                                else if (!this.enabled)
                                 {
                                     j = 10526880;
                                 }
@@ -332,75 +359,84 @@ public class EventHandler
     }
 
     @SubscribeEvent
-    public void serverLoginEvent(FMLNetworkEvent.ClientConnectedToServerEvent event) {
+    public void serverLoginEvent(FMLNetworkEvent.ClientConnectedToServerEvent event)
+    {
         hasJoinedWorld = false;
     }
 
-    private boolean hasJoinedWorld;
-
     @SubscribeEvent
-    public void onEntityJoinedWorld(EntityJoinWorldEvent event) {
+    public void onEntityJoinedWorld(EntityJoinWorldEvent event)
+    {
         if (!Config.getInstance().isSivIntegration())
             return;
-        if (event.getWorld().isRemote && !hasJoinedWorld && Minecraft.getMinecraft().player != null) {
+        if (event.getWorld().isRemote && !hasJoinedWorld && Minecraft.getMinecraft().player != null)
+        {
             hasJoinedWorld = true;
             CreeperHost.instance.makeQueryGetter();
-            if(CreeperHost.instance.getQueryGetter() != null) {
+            if (CreeperHost.instance.getQueryGetter() != null)
+            {
                 CreeperHost.instance.getQueryGetter().run();
             }
         }
     }
-    
+
     @SubscribeEvent
-    public void onActionPerformed(ActionPerformedEvent.Pre event) {
+    public void onActionPerformed(ActionPerformedEvent.Pre event)
+    {
         GuiScreen gui = event.getGui();
         GuiButton button = event.getButton();
-        if (gui instanceof GuiMainMenu) {
-            if (button != null && button.id == MAIN_BUTTON_ID) {
+        if (gui instanceof GuiMainMenu)
+        {
+            if (button != null && button.id == MAIN_BUTTON_ID)
+            {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
             }
-        } else if (gui instanceof GuiMultiplayer) {
-            if (button != null && button.id == MP_BUTTON_ID) {
+        }
+        else if (gui instanceof GuiMultiplayer)
+        {
+            if (button != null && button.id == MP_BUTTON_ID)
+            {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(gui));
             }
-        } else if (gui instanceof GuiIngameMenu && button.id == FRIEND_BUTTON_ID)
+        }
+        else if (gui instanceof GuiIngameMenu && button.id == FRIEND_BUTTON_ID)
         {
             CreeperHost.proxy.openFriendsGui();
         }
     }
-    
-    private static Field serverListSelectorField;
-    private static Field serverListInternetField;
-    
+
     @SubscribeEvent
-    public void onRenderGameOverlay(RenderGameOverlayEvent event) {
+    public void onRenderGameOverlay(RenderGameOverlayEvent event)
+    {
         if (!Config.getInstance().isSivIntegration())
             return;
         if (event.getType() != RenderGameOverlayEvent.ElementType.PLAYER_LIST)
         {
             return;
         }
-        if (!(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) || Minecraft.getMinecraft().isIntegratedServerRunning() || !guiServerInfo.getIsPlayerOpped()) {
+        if (!(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) || Minecraft.getMinecraft().isIntegratedServerRunning() || !guiServerInfo.getIsPlayerOpped())
+        {
             return;
         }
-        
+
         Minecraft mc = Minecraft.getMinecraft();
 
         ScaledResolution resolution = new ScaledResolution(mc);
         guiServerInfo.setWorldAndResolution(mc, resolution.getScaledWidth(), resolution.getScaledHeight());
-        if (guiServerInfo.renderServerInfo()) {
+        if (guiServerInfo.renderServerInfo())
+        {
             event.setCanceled(true);
         }
     }
-    
-    
-    private static int ticks = 0;
+
     @SubscribeEvent
-    public void tickEvent(TickEvent.ClientTickEvent event){
+    public void tickEvent(TickEvent.ClientTickEvent event)
+    {
         if (!Config.getInstance().isSivIntegration())
             return;
         guiServerInfo.doTick();
-        if (!((Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) && Minecraft.getMinecraft().gameSettings.keyBindPlayerList.isKeyDown()) || Minecraft.getMinecraft().isIntegratedServerRunning() || !guiServerInfo.getIsPlayerOpped()) {
+        if (!((Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) && Minecraft.getMinecraft().gameSettings.keyBindPlayerList.isKeyDown()) || Minecraft.getMinecraft().isIntegratedServerRunning() || !guiServerInfo.getIsPlayerOpped())
+        {
             return;
         }
 
@@ -417,14 +453,18 @@ public class EventHandler
                 }
             }
             ticks--;
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             // Catch _ALL_ errors. We should _NEVER_ crash.
         }
     }
 
     @SubscribeEvent
-    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs) {
-        if (!CreeperHost.MOD_ID.equals(eventArgs.getModID())) {
+    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs)
+    {
+        if (!CreeperHost.MOD_ID.equals(eventArgs.getModID()))
+        {
             return;
         }
 
@@ -436,13 +476,6 @@ public class EventHandler
     {
         CreeperHost.instance.curServerId = -1;
     }
-
-    Minecraft mc = Minecraft.getMinecraft();
-    private Thread inviteCheckThread;
-
-    private int inviteTicks = -1;
-
-    GuiScreen fakeGui = new GuiScreen() {};
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
@@ -465,12 +498,14 @@ public class EventHandler
                         {
                             Invite tempInvite = null;
 
-                                try {
-                                    tempInvite = Callbacks.getInvite();
-                                } catch(Exception e)
-                                {
-                                    // carry on - we'll just try again later, saves thread dying.
-                                }
+                            try
+                            {
+                                tempInvite = Callbacks.getInvite();
+                            }
+                            catch (Exception e)
+                            {
+                                // carry on - we'll just try again later, saves thread dying.
+                            }
 
                             synchronized (CreeperHost.instance.inviteLock)
                             {
@@ -510,7 +545,7 @@ public class EventHandler
                 ArrayList<Friend> friendsList = Callbacks.getFriendsList(true);
                 String friendName = "Unknown";
 
-                for(Friend friend : friendsList)
+                for (Friend friend : friendsList)
                 {
                     if (friend.getCode().equals(CreeperHost.instance.handledInvite.by))
                     {
@@ -522,8 +557,10 @@ public class EventHandler
                 if (mc.currentScreen != null && mc.currentScreen instanceof GuiFriendsList)
                 {
                     CreeperHost.proxy.openFriendsGui();
-                } else {
-                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast",((Client)CreeperHost.proxy).openGuiKey.getDisplayName()), 15000);
+                }
+                else
+                {
+                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 15000);
                 }
 
             }
@@ -531,23 +568,19 @@ public class EventHandler
         }
     }
 
-    String mcVersion;
-
-    private final ResourceLocation earlyResource = new ResourceLocation("textures/gui/achievement/achievement_background.png");
-    private final ResourceLocation newResouce = new ResourceLocation("textures/gui/toasts.png");
-
-    int u = 0;
-    int v = 0;
-
-    private ResourceLocation getToastResourceLocation() {
+    private ResourceLocation getToastResourceLocation()
+    {
         if (mcVersion == null)
-            try {
+            try
+            {
                 /*
                 We need to get this at runtime as Java is smart and interns final fields.
                 Certainly not the dirtiest hack we do in this codebase.
                 */
                 mcVersion = (String) ForgeVersion.class.getField("mcVersion").get(null);
-            } catch (Throwable e) {
+            }
+            catch (Throwable e)
+            {
                 mcVersion = "unknown"; // will default to new method
             }
         String[] split = mcVersion.split("\\.");
@@ -573,7 +606,7 @@ public class EventHandler
             {
                 long fadeDiff = CreeperHost.instance.fadeTime - CreeperHost.instance.endTime;
                 long curFade = Math.min(CreeperHost.instance.fadeTime - curTime, fadeDiff);
-                float alpha = (float)curFade / (float)fadeDiff;
+                float alpha = (float) curFade / (float) fadeDiff;
 
                 RenderHelper.disableStandardItemLighting();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, alpha);
@@ -581,9 +614,11 @@ public class EventHandler
                 ScaledResolution res = new ScaledResolution(mc);
                 drawTexturedModalRect(res.getScaledWidth() - 160, 0, u, v, 160, 32);
                 GlStateManager.enableBlend();
-                int textColour = (0xFFFFFF << 32) | ((int)(alpha * 255) << 24);
+                int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
                 mc.fontRendererObj.drawSplitString(CreeperHost.instance.toastText, res.getScaledWidth() - 160 + 5, 6, 160, textColour);
-            } else {
+            }
+            else
+            {
                 CreeperHost.instance.toastText = null;
             }
         }
@@ -592,7 +627,7 @@ public class EventHandler
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event)
     {
-        if (Config.getInstance().isServerListEnabled() && ((Client)CreeperHost.proxy).openGuiKey.isPressed())
+        if (Config.getInstance().isServerListEnabled() && ((Client) CreeperHost.proxy).openGuiKey.isPressed())
         {
             if (CreeperHost.instance.handledInvite != null)
             {
