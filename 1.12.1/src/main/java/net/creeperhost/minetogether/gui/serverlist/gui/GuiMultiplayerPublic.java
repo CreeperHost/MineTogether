@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
+import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerListPublic;
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerSelectionListPublic;
 import net.minecraft.client.Minecraft;
@@ -170,7 +171,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     public void connectToSelected()
     {
         GuiListExtended.IGuiListEntry entry = this.ourServerListSelector.getSelected() < 0 ? null : this.ourServerListSelector.getListEntry(this.ourServerListSelector.getSelected());
-        ServerList savedServerList = new ServerList(this.mc);
+        ServerList savedServerList = new ServerListNoEdit(this.mc);
         savedServerList.loadServerList();
         savedServerList.addServerData(((ServerListEntryNormal)entry).getServerData());
         savedServerList.saveServerList();

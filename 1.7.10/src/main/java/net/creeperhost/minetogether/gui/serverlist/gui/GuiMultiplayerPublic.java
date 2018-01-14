@@ -6,6 +6,7 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
+import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerListPublic;
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerSelectionListPublic;
 import net.minecraft.client.Minecraft;
@@ -162,7 +163,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     public void func_146796_h()
     {
         GuiListExtended.IGuiListEntry entry = this.ourServerListSelector.func_148193_k() < 0 ? null : this.ourServerListSelector.getListEntry(this.ourServerListSelector.func_148193_k());
-        ServerList savedServerList = new ServerList(this.mc);
+        ServerList savedServerList = new ServerListNoEdit(this.mc);
         savedServerList.loadServerList();
         savedServerList.addServerData(((ServerListEntryNormal)entry).func_148296_a());
         savedServerList.saveServerList();

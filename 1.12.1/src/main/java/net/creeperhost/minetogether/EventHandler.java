@@ -9,6 +9,7 @@ import net.creeperhost.minetogether.gui.element.ButtonCreeper;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.creeperhost.minetogether.gui.serverlist.data.Friend;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
@@ -106,7 +107,6 @@ public class EventHandler
             }
             catch (Throwable e)
             {
-                e.printStackTrace();
             }
         } else if(gui instanceof GuiConnecting) {
             //lastNetworkManager = getNetworkManager((GuiConnecting) gui);
@@ -140,9 +140,13 @@ public class EventHandler
         }
     }
 
+    Field serverListField = null;
+    Field editButtonField = null;
+    private ServerListNoEdit ourServerList;
+
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event) {
-        GuiScreen gui = event.getGui();
+        final GuiScreen gui = event.getGui();
         if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu) {
             CreeperHost.instance.setRandomImplementation();
             if (CreeperHost.instance.getImplementation() == null)
@@ -151,36 +155,176 @@ public class EventHandler
             if (buttonList != null) {
                 buttonList.add(new ButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
             }
-        } else if(Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null && gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui) {
+        } else if(gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui) {
             GuiMultiplayer mpGUI = (GuiMultiplayer) gui;
-            try {
-                if (serverListSelectorField == null) {
-                    serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146803_h", "serverListSelector");
-                    serverListSelectorField.setAccessible(true);
-                }
-    
-                if (serverListInternetField == null) {
-                    serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "field_148198_l", "serverListInternet");
-                    serverListInternetField.setAccessible(true);
-                }
-    
-                ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
-                List serverListInternet = (List) serverListInternetField.get(serverListSelector); // Get the list from inside it
-                CreeperHostServerSelectionList ourList = new CreeperHostServerSelectionList(mpGUI, Minecraft.getMinecraft(), mpGUI.width, mpGUI.height, 32, mpGUI.height - 64, 36);
-                ourList.replaceList(serverListInternet);
-                serverListInternetField.set(ourList, serverListInternet);
-                serverListSelectorField.set(mpGUI, ourList);
-                lastInitialized = mpGUI;
-            } catch (Throwable e)
+            if (Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null)
             {
-                CreeperHost.logger.warn("Reflection to alter server list failed.", e);
+                try {
+                    if (serverListSelectorField == null) {
+                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146803_h", "serverListSelector");
+                        serverListSelectorField.setAccessible(true);
+                    }
+
+                    if (serverListInternetField == null) {
+                        serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "field_148198_l", "serverListInternet");
+                        serverListInternetField.setAccessible(true);
+                    }
+
+                    ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
+                    List serverListInternet = (List) serverListInternetField.get(serverListSelector); // Get the list from inside it
+                    CreeperHostServerSelectionList ourList = new CreeperHostServerSelectionList(mpGUI, Minecraft.getMinecraft(), mpGUI.width, mpGUI.height, 32, mpGUI.height - 64, 36);
+                    ourList.replaceList(serverListInternet);
+                    serverListInternetField.set(ourList, serverListInternet);
+                    serverListSelectorField.set(mpGUI, ourList);
+                } catch (Throwable e)
+                {
+                    CreeperHost.logger.warn("Reflection to alter server list failed.", e);
+                }
             }
+
+            if(Config.getInstance().isServerListEnabled())
+            {
+                try
+                {
+                    if (serverListField == null)
+                    {
+                        serverListField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146804_i", "savedServerList");
+                        serverListField.setAccessible(true);
+                    }
+
+                    ourServerList = new ServerListNoEdit(Minecraft.getMinecraft());
+                    serverListField.set(mpGUI, ourServerList);
+                    ourServerList.loadServerList();
+                }
+                catch (IllegalAccessException e)
+                {
+                }
+            }
+
+            lastInitialized = mpGUI;
+
         }
 
         if(Config.getInstance().isServerListEnabled())
         {
             if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
+            {
                 event.getButtonList().add(new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.public")));
+                GuiButton editButton = null;
+                for (int i = 0; i < event.getButtonList().size(); i++)
+                {
+                    GuiButton button = event.getButtonList().get(i);
+                    if (button.id == 7)
+                    {
+                        editButton = button;
+                        break;
+                    }
+                }
+
+                if (editButton != null)
+                {
+                    event.getButtonList().remove(editButton);
+                    ServerSelectionList list = null;
+
+                    if (serverListSelectorField == null)
+                    {
+                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146803_h", "serverListSelector");
+                        serverListSelectorField.setAccessible(true);
+                    }
+
+                    try
+                    {
+                        list = (ServerSelectionList) serverListSelectorField.get(gui);
+                    }
+                    catch (IllegalAccessException e)
+                    {
+                    }
+
+                    final ServerSelectionList finalList = list;
+                    event.getButtonList().add(editButton = new GuiButton(7, gui.width / 2 - 154, gui.height - 28, 70, 20, I18n.format("selectServer.edit"))
+                    {
+
+                        public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_) {
+                            myDrawButton(p_191745_1_, p_191745_2_, p_191745_3_);
+                        }
+
+                        // < 1.12 compat
+                        public void func_146112_a(Minecraft mc, int mouseX, int mouseY) {
+                            myDrawButton(mc, mouseX, mouseY);
+                        }
+
+                        public void myDrawButton(Minecraft p_146112_1_, int p_146112_2_, int p_146112_3_)
+                        {
+                            int placeInList = finalList.getSelected();
+                            GuiListExtended.IGuiListEntry iguilistentry = placeInList < 0 ? null : finalList.getListEntry(placeInList);
+                            if (iguilistentry instanceof ServerListEntryNormal)
+                            {
+                                if (ourServerList.isLocked(placeInList))
+                                {
+                                    enabled = false;
+                                    if (hovered)
+                                    {
+                                        ((GuiMultiplayer)gui).setHoveringText("Cannot edit as was added from public server list!");
+                                    }
+                                } else {
+                                    enabled = true;
+                                }
+                            }
+
+                            // Below copied from GuiButton code to avoid having to use reflection logic to call the right function
+
+                            if (this.visible)
+                            {
+                                FontRenderer fontrenderer = p_146112_1_.fontRendererObj;
+                                p_146112_1_.getTextureManager().bindTexture(BUTTON_TEXTURES);
+                                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                                this.hovered = p_146112_2_ >= this.xPosition && p_146112_3_ >= this.yPosition && p_146112_2_ < this.xPosition + this.width && p_146112_3_ < this.yPosition + this.height;
+                                int i = this.getHoverState(this.hovered);
+                                GlStateManager.enableBlend();
+                                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                                this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
+                                this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+                                this.mouseDragged(p_146112_1_, p_146112_2_, p_146112_3_);
+                                int j = 14737632;
+
+                                if (packedFGColour != 0)
+                                {
+                                    j = packedFGColour;
+                                }
+                                else
+                                if (!this.enabled)
+                                {
+                                    j = 10526880;
+                                }
+                                else if (this.hovered)
+                                {
+                                    j = 16777120;
+                                }
+
+                                this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, j);
+                            }
+                        }
+                    });
+
+                    editButton.enabled = false;
+
+                    if (editButtonField == null)
+                    {
+                        editButtonField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146810_r", "btnEditServer"); //TODO: Needs non srg name
+                        editButtonField.setAccessible(true);
+                    }
+
+                    try
+                    {
+                        editButtonField.set(gui, editButton);
+                    }
+                    catch (IllegalAccessException e)
+                    {
+                    }
+                }
+            }
+
             if (gui instanceof GuiIngameMenu)
                 event.getButtonList().add(new GuiButton(FRIEND_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends")));
 
