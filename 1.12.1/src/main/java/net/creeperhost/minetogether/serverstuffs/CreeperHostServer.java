@@ -13,6 +13,8 @@ import net.creeperhost.minetogether.serverstuffs.hacky.IPlayerKicker;
 import net.creeperhost.minetogether.serverstuffs.pregen.PregenTask;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.WorldServer;
@@ -29,6 +31,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -73,7 +76,7 @@ public class CreeperHostServer
     public IPlayerKicker kicker;
     Discoverability discoverMode = Discoverability.UNLISTED;
     int tries = 0;
-    WeakHashMap<EntityPlayerMP, Boolean> playersJoined = new WeakHashMap<EntityPlayerMP, Boolean>();
+    ArrayList<UUID> playersJoined = new ArrayList<UUID>();
     private boolean needsToBeKilled = true;
     private boolean watchdogKilled = false;
     private boolean watchdogChecked = false;
@@ -271,32 +274,41 @@ public class CreeperHostServer
     }
 
     @SubscribeEvent
-    public void entityJoinWorld(EntityJoinWorldEvent event)
+        public void clientConnectedtoServer(FMLNetworkEvent.ServerConnectionFromClientEvent event)
     {
         if (!CreeperHost.instance.active)
             return;
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        if (server == null || server.isSinglePlayer())
+        if (server == null || server.isSinglePlayer() || discoverMode != Discoverability.PUBLIC)
             return;
-        Entity entity = event.getEntity();
-        if (entity instanceof EntityPlayerMP)
+
+        INetHandlerPlayServer handler = event.getHandler();
+        if (handler instanceof NetHandlerPlayServer)
         {
-            if (!playersJoined.containsKey(entity))
-            {
-                playersJoined.put((EntityPlayerMP) entity, null);
-                PacketHandler.INSTANCE.sendTo(new PacketHandler.ServerIDMessage(updateID), (EntityPlayerMP) entity);
-            }
+            EntityPlayerMP entity = ((NetHandlerPlayServer)handler).playerEntity;
+            playersJoined.add(entity.getUniqueID());
+        }
+    }
+
+    @SubscribeEvent
+    public void entityJoinedWorld(EntityJoinWorldEvent event)
+    {
+        if (playersJoined.contains(event.getEntity().getUniqueID()))
+        {
+            EntityPlayerMP entity = (EntityPlayerMP) event.getEntity();
+            logger.info("Sending ID packet to client {}", entity.getName());
+            PacketHandler.INSTANCE.sendTo(new PacketHandler.ServerIDMessage(updateID), entity);
 
             for (PregenTask task : pregenTasks.values())
             {
                 if (task.preventJoin)
                 {
-                    kicker.kickPlayer((EntityPlayerMP) entity, "Server is still pre-generating!\n" + task.lastPregenString);
+                    kicker.kickPlayer(entity, "Server is still pre-generating!\n" + task.lastPregenString);
                     logger.error("Kicked player " + entity.getName() + " as still pre-generating");
                     break;
                 }
             }
-            event.setCanceled(true);
+            playersJoined.remove(entity.getUniqueID());
         }
     }
 

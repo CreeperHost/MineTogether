@@ -16,7 +16,6 @@ public class PacketHandler implements IMessageHandler<PacketHandler.ServerIDMess
 
     public static void packetRegister()
     {
-        System.out.println("Registering packet handler");
         INSTANCE.registerMessage(PacketHandler.class, ServerIDMessage.class, 0, Side.CLIENT);
     }
 
