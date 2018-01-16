@@ -22,6 +22,7 @@ public final class Util
 {
 
     private static List<String> cookies;
+    private static Random random = new Random();
 
     public static String localize(String key, Object... format)
     {
@@ -178,8 +179,6 @@ public final class Util
     {
         return methodWebResponse(urlString, body, "PUT", isJson, isSilent);
     }
-
-    private static Random random = new Random();
 
     public static String getDefaultName()
     {

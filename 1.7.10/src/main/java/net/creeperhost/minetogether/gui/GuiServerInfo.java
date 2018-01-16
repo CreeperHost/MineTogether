@@ -24,12 +24,11 @@ public class GuiServerInfo extends GuiScreen
     boolean isPlayerOpped = true; //TODO: Make me get fetched.
 
     long ticks;
+    private String header;
 
     public GuiServerInfo()
     {
     }
-
-    private String header;
 
     public static <K, V extends Comparable<? super V>> Map<K, V>
     sortByValue(Map<K, V> map)

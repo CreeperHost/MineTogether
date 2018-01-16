@@ -18,8 +18,10 @@ import java.util.List;
 public class ServerSelectionListPublic extends ServerSelectionList
 {
 
+    private static Field serverListInternetField;
     private List<ServerListEntryPublic> ourList;
     private GuiMultiplayerPublic ourParent;
+    private long nextSort;
 
     public ServerSelectionListPublic(GuiMultiplayerPublic ownerIn, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
     {
@@ -89,8 +91,6 @@ public class ServerSelectionListPublic extends ServerSelectionList
         sort(true);
     }
 
-    private static Field serverListInternetField;
-
     private void makeOurList()
     {
         if (serverListInternetField == null)
@@ -111,8 +111,6 @@ public class ServerSelectionListPublic extends ServerSelectionList
             CreeperHost.logger.warn("Reflection to get server list failed.", e);
         }
     }
-
-    private long nextSort;
 
     @Override
     protected void drawBackground()

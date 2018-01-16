@@ -12,18 +12,34 @@ public abstract class GuiGetServer extends GuiScreen
 
     private static final int STEP_AMOUNT = 5;
     protected final int stepId;
-
+    protected final Order order;
     protected GuiButton buttonPrev;
     protected GuiButton buttonNext;
     protected GuiButton buttonCancel;
-
-    protected final Order order;
 
     public GuiGetServer(int stepId, Order order)
     {
         CreeperHost.instance.updateCurse();
         this.stepId = stepId;
         this.order = order;
+    }
+
+    public static GuiScreen getByStep(int step, Order order)
+    {
+        switch (step)
+        {
+            case 0:
+            default:
+                return new GuiGeneralServerInfo(0, order);
+            case 1:
+                return new GuiQuote(1, order);
+            case 2:
+                return new GuiServerLocation(2, order);
+            case 3:
+                return new GuiPersonalDetails(3, order);
+            case 4:
+                return new GuiOrderDetails(4, order);
+        }
     }
 
     @Override
@@ -95,24 +111,6 @@ public abstract class GuiGetServer extends GuiScreen
         else
         {
             super.actionPerformed(button);
-        }
-    }
-
-    public static GuiScreen getByStep(int step, Order order)
-    {
-        switch (step)
-        {
-            case 0:
-            default:
-                return new GuiGeneralServerInfo(0, order);
-            case 1:
-                return new GuiQuote(1, order);
-            case 2:
-                return new GuiServerLocation(2, order);
-            case 3:
-                return new GuiPersonalDetails(3, order);
-            case 4:
-                return new GuiOrderDetails(4, order);
         }
     }
 

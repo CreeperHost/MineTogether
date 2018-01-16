@@ -15,6 +15,7 @@ public class ServerListEntryPublic extends ServerListEntryNormal
 {
     public final ServerListEntryNormal wrapped;
     public final GuiMultiplayer owner;
+    private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
 
     public ServerListEntryPublic(GuiMultiplayer mp, ServerListEntryNormal wrapped)
     {
@@ -23,13 +24,11 @@ public class ServerListEntryPublic extends ServerListEntryNormal
         this.wrapped = wrapped;
     }
 
+
     public ServerListEntryPublic(MockServerListEntryNormal wrapped)
     {
         this(wrapped.mockMP, wrapped);
     }
-
-
-    private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
 
     @Override
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, Tessellator tessellator, int mouseX, int mouseY, boolean isHovering)

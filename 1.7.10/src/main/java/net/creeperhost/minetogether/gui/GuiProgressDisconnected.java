@@ -23,10 +23,13 @@ import java.util.regex.Pattern;
 public class GuiProgressDisconnected extends GuiDisconnected
 {
 
+    private final GuiScreen parentScreen;
+    double percent = 0;
+    Pattern pattern = Pattern.compile("(\\d+/\\d+).*");
+    Field cancelField = null;
     private String ourReason;
     private IChatComponent ourMessage;
     private List<String> multilineMessage;
-    private final GuiScreen parentScreen;
     private int textHeight;
     private long lastConnectAttempt;
     private NetworkManager lastNetworkManager;
@@ -47,8 +50,6 @@ public class GuiProgressDisconnected extends GuiDisconnected
             ip = address.getHostName() + ":" + address.getPort();
         }
     }
-
-    double percent = 0;
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
@@ -119,8 +120,6 @@ public class GuiProgressDisconnected extends GuiDisconnected
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, Math.min(this.height / 2 + 80, this.height - 30), I18n.format("gui.toMenu")));
     }
 
-    Pattern pattern = Pattern.compile("(\\d+/\\d+).*");
-
     public void update(String reason, IChatComponent message)
     {
         lastConnectAttempt = System.currentTimeMillis();
@@ -142,8 +141,6 @@ public class GuiProgressDisconnected extends GuiDisconnected
             }
         }
     }
-
-    Field cancelField = null;
 
     @Override
     protected void actionPerformed(GuiButton button)

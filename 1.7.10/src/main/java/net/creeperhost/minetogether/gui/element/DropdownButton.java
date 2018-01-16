@@ -138,6 +138,12 @@ public class DropdownButton<E extends Enum> extends GuiButton
         return selected;
     }
 
+    public void setSelected(E selected)
+    {
+        this.selected = selected;
+        displayString = I18n.format(baseButtonText, I18n.format(translateBase + selected.name().toLowerCase()));
+    }
+
     private E getClickedElement(int mouseX, int mouseY)
     {
         E clickedElement = null;
@@ -153,11 +159,5 @@ public class DropdownButton<E extends Enum> extends GuiButton
 
         }
         return clickedElement;
-    }
-
-    public void setSelected(E selected)
-    {
-        this.selected = selected;
-        displayString = I18n.format(baseButtonText, I18n.format(translateBase + selected.name().toLowerCase()));
     }
 }

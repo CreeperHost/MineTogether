@@ -15,6 +15,7 @@ import java.util.Map;
 public class GuiQuote extends GuiGetServer
 {
 
+    public OrderSummary summary;
     private GuiList list;
     private boolean countryEnabled = false;
     private GuiWell wellLeft;
@@ -30,8 +31,6 @@ public class GuiQuote extends GuiGetServer
     {
         super(stepId, order);
     }
-
-    public OrderSummary summary;
 
     @Override
     public void initGui()

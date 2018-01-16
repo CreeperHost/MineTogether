@@ -26,18 +26,6 @@ public class GuiList<T extends GuiListEntry> extends GuiListExtended
         this.options.add(entry);
     }
 
-    public void setCurrSelected(T entry)
-    {
-        if (entry != null)
-        {
-            this.currSelected = this.options.indexOf(entry);
-        }
-        else
-        {
-            this.currSelected = -1;
-        }
-    }
-
     public T getCurrSelected()
     {
         if (this.currSelected >= 0 && this.options.size() > this.currSelected)
@@ -48,6 +36,18 @@ public class GuiList<T extends GuiListEntry> extends GuiListExtended
         {
             this.currSelected = -1;
             return null;
+        }
+    }
+
+    public void setCurrSelected(T entry)
+    {
+        if (entry != null)
+        {
+            this.currSelected = this.options.indexOf(entry);
+        }
+        else
+        {
+            this.currSelected = -1;
         }
     }
 

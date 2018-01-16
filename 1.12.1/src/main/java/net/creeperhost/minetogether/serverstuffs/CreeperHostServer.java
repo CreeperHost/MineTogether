@@ -274,7 +274,7 @@ public class CreeperHostServer
     }
 
     @SubscribeEvent
-        public void clientConnectedtoServer(FMLNetworkEvent.ServerConnectionFromClientEvent event)
+    public void clientConnectedtoServer(FMLNetworkEvent.ServerConnectionFromClientEvent event)
     {
         if (!CreeperHost.instance.active)
             return;

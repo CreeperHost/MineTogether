@@ -24,14 +24,18 @@ public class GuiPersonalDetails extends GuiGetServer
 
     public List<TextFieldDetails> fields = null;
     public TextFieldDetails focusedField;
-    private boolean loginMode;
     public boolean isEmailValid = false;
+    private boolean loginMode;
     private GuiButton loginButton;
     private boolean loggingIn;
     private String loggingInError = "";
     private boolean loggedIn;
     private boolean isSure = false;
     private boolean orderPressed = false;
+    private IChatComponent info2 = null;
+    private String prevLoginString;
+    private boolean prevLoginVisible;
+    private boolean prevLoginEnabled;
 
     public GuiPersonalDetails(int stepId, Order order)
     {
@@ -44,8 +48,6 @@ public class GuiPersonalDetails extends GuiGetServer
     {
         return Util.localize("gui.personal_details");
     }
-
-    private IChatComponent info2 = null;
 
     @Override
     public void initGui()
@@ -425,10 +427,6 @@ public class GuiPersonalDetails extends GuiGetServer
         }
         return null;
     }
-
-    private String prevLoginString;
-    private boolean prevLoginVisible;
-    private boolean prevLoginEnabled;
 
     @Override
     protected void actionPerformed(final GuiButton button)

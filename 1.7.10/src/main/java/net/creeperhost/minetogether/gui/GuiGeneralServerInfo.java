@@ -17,16 +17,13 @@ import org.lwjgl.opengl.GL11;
 public class GuiGeneralServerInfo extends GuiGetServer
 {
 
+    private static ResourceLocation lockIcon;
     private GuiTextField nameField;
     private GuiSlider slotSlider;
-
     private long lastKeyTyped;
     private boolean isAcceptable = false;
     private boolean nameChecked = false;
     private String message = "Name can not be blank";
-
-    private static ResourceLocation lockIcon;
-
     private GuiCheckBox pregen;
 
     public GuiGeneralServerInfo(int stepId, Order order)

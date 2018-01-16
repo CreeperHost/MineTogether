@@ -19,6 +19,7 @@ import java.util.UUID;
 public class Client implements IProxy
 {
     public KeyBinding openGuiKey;
+    private UUID cache;
 
     @Override
     public void registerKeys()
@@ -26,7 +27,6 @@ public class Client implements IProxy
         openGuiKey = new KeyBinding("minetogether.key.friends", Keyboard.KEY_M, "minetogether.keys");
         Minecraft.getMinecraft().gameSettings.keyBindings = ArrayUtils.add(Minecraft.getMinecraft().gameSettings.keyBindings, openGuiKey);
     }
-
 
     @Override
     public void openFriendsGui()
@@ -42,8 +42,6 @@ public class Client implements IProxy
             CreeperHost.instance.handledInvite = null;
         }
     }
-
-    private UUID cache;
 
     @Override
     public UUID getUUID()

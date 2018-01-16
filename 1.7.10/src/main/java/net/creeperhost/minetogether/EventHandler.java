@@ -51,14 +51,57 @@ public class EventHandler
     private static final int FRIEND_BUTTON_ID = 1337420;
 
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
-
-    private GuiMultiplayer lastInitialized = null;
     private static Field reasonField = null;
     private static Field messageField = null;
     private static Field parentField = null;
     private static Field networkManagerField = null;
-
     private static NetworkManager lastNetworkManager = null;
+    private static Field serverListSelectorField;
+    private static Field serverListInternetField;
+    private static int ticks = 0;
+    private final ResourceLocation earlyResource = new ResourceLocation("textures/gui/achievement/achievement_background.png");
+    Field serverListField = null;
+    Field editButtonField = null;
+    Minecraft mc = Minecraft.getMinecraft();
+    GuiScreen fakeGui = new GuiScreen()
+    {
+    };
+    String mcVersion;
+    int u = 0;
+    int v = 0;
+    private GuiMultiplayer lastInitialized = null;
+    private ServerListNoEdit ourServerList;
+    private boolean hasJoinedWorld;
+    private Thread inviteCheckThread;
+    private int inviteTicks = -1;
+
+    public static NetworkManager getNetworkManager(GuiConnecting con)
+    {
+        long time = System.currentTimeMillis() + 3000;
+        try
+        {
+            if (networkManagerField == null)
+            {
+                networkManagerField = ReflectionHelper.findField(GuiConnecting.class, "field_146371_g", "networkManager");
+                networkManagerField.setAccessible(true);
+            }
+
+            NetworkManager manager = null;
+            while (manager == null) // loop to wait until networkManager is set.
+            {
+                if (System.currentTimeMillis() > time)
+                    break;
+                manager = (NetworkManager) networkManagerField.get(con);
+            }
+
+            return manager;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
@@ -115,38 +158,6 @@ public class EventHandler
             //lastNetworkManager = getNetworkManager((GuiConnecting) gui);
         }
     }
-
-    public static NetworkManager getNetworkManager(GuiConnecting con)
-    {
-        long time = System.currentTimeMillis() + 3000;
-        try
-        {
-            if (networkManagerField == null)
-            {
-                networkManagerField = ReflectionHelper.findField(GuiConnecting.class, "field_146371_g", "networkManager");
-                networkManagerField.setAccessible(true);
-            }
-
-            NetworkManager manager = null;
-            while (manager == null) // loop to wait until networkManager is set.
-            {
-                if (System.currentTimeMillis() > time)
-                    break;
-                manager = (NetworkManager) networkManagerField.get(con);
-            }
-
-            return manager;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    Field serverListField = null;
-    Field editButtonField = null;
-    private ServerListNoEdit ourServerList;
 
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event)
@@ -310,8 +321,6 @@ public class EventHandler
         hasJoinedWorld = false;
     }
 
-    private boolean hasJoinedWorld;
-
     @SubscribeEvent
     public void onEntityJoinedWorld(EntityJoinWorldEvent event)
     {
@@ -353,9 +362,6 @@ public class EventHandler
         }
     }
 
-    private static Field serverListSelectorField;
-    private static Field serverListInternetField;
-
     @SubscribeEvent
     public void onRenderGameOverlay(RenderGameOverlayEvent event)
     {
@@ -379,8 +385,6 @@ public class EventHandler
             event.setCanceled(true);
         }
     }
-
-    private static int ticks = 0;
 
     @SubscribeEvent
     public void tickEvent(TickEvent.ClientTickEvent event)
@@ -429,15 +433,6 @@ public class EventHandler
     {
         CreeperHost.instance.curServerId = -1;
     }
-
-    Minecraft mc = Minecraft.getMinecraft();
-    private Thread inviteCheckThread;
-
-    private int inviteTicks = -1;
-
-    GuiScreen fakeGui = new GuiScreen()
-    {
-    };
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
@@ -529,13 +524,6 @@ public class EventHandler
 
         }
     }
-
-    String mcVersion;
-
-    private final ResourceLocation earlyResource = new ResourceLocation("textures/gui/achievement/achievement_background.png");
-
-    int u = 0;
-    int v = 0;
 
     private ResourceLocation getToastResourceLocation()
     {

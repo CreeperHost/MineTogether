@@ -10,6 +10,7 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.network.FMLNetworkEvent;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.PacketHandler;
 import net.creeperhost.minetogether.Util;
@@ -18,8 +19,9 @@ import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.serverstuffs.command.CommandInvite;
 import net.creeperhost.minetogether.serverstuffs.command.CommandPregen;
 import net.creeperhost.minetogether.serverstuffs.pregen.PregenTask;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.World;
@@ -51,9 +53,13 @@ public class CreeperHostServer
 
     @Mod.Instance(value = "minetogetherserver")
     public static CreeperHostServer INSTANCE;
+    public static int updateID;
     private static String secret;
-
     public HashMap<Integer, PregenTask> pregenTasks = new HashMap<Integer, PregenTask>();
+    public boolean serverOn = false;
+    Discoverability discoverMode = Discoverability.UNLISTED;
+    int tries = 0;
+    ArrayList<UUID> playersJoined = new ArrayList<UUID>();
 
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
@@ -62,27 +68,6 @@ public class CreeperHostServer
         event.registerServerCommand(new CommandPregen());
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
     }
-
-    public boolean serverOn = false;
-
-    private enum Discoverability
-    {
-        UNLISTED,
-        PUBLIC,
-        INVITE
-    }
-
-    public static int updateID;
-
-    public static class InviteClass
-    {
-        public int id;
-        public ArrayList<String> hash;
-    }
-
-    Discoverability discoverMode = Discoverability.UNLISTED;
-
-    int tries = 0;
 
     @Mod.EventHandler
     public void serverStarted(FMLServerStartedEvent event)
@@ -234,31 +219,42 @@ public class CreeperHostServer
         pregenTasks.clear();
     }
 
-    WeakHashMap<EntityPlayerMP, Boolean> playersJoined = new WeakHashMap<EntityPlayerMP, Boolean>();
+    @SubscribeEvent
+    public void clientConnectedtoServer(FMLNetworkEvent.ServerConnectionFromClientEvent event)
+    {
+        if (!CreeperHost.instance.active)
+            return;
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server == null || server.isSinglePlayer() || discoverMode != Discoverability.PUBLIC)
+            return;
+
+        INetHandlerPlayServer handler = event.handler;
+        if (handler instanceof NetHandlerPlayServer)
+        {
+            EntityPlayerMP entity = ((NetHandlerPlayServer) handler).playerEntity;
+            playersJoined.add(entity.getUniqueID());
+        }
+    }
 
     @SubscribeEvent
-    public void entityJoinWorld(EntityJoinWorldEvent event)
+    public void entityJoinedWorld(EntityJoinWorldEvent event)
     {
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        if (server == null || server.isSinglePlayer())
-            return;
-        Entity entity = event.entity;
-        if (entity instanceof EntityPlayerMP)
+        if (playersJoined.contains(event.entity.getUniqueID()))
         {
-            if (!playersJoined.containsKey(entity))
-            {
-                playersJoined.put((EntityPlayerMP) entity, null);
-                PacketHandler.INSTANCE.sendTo(new PacketHandler.ServerIDMessage(updateID), (EntityPlayerMP) entity);
-            }
+            EntityPlayerMP entity = (EntityPlayerMP) event.entity;
+            logger.info("Sending ID packet to client {}", entity.getDisplayName());
+            PacketHandler.INSTANCE.sendTo(new PacketHandler.ServerIDMessage(updateID), entity);
 
             for (PregenTask task : pregenTasks.values())
             {
                 if (task.preventJoin)
-                    ((EntityPlayerMP) entity).playerNetServerHandler.kickPlayerFromServer("Server is still pre-generating!\n" + task.lastPregenString);
-                logger.error("Kicked player " + ((EntityPlayerMP) entity).getDisplayName() + " as still pre-generating");
-                break;
+                {
+                    entity.playerNetServerHandler.kickPlayerFromServer("Server is still pre-generating!\n" + task.lastPregenString);
+                    logger.error("Kicked player " + entity.getDisplayName() + " as still pre-generating");
+                    break;
+                }
             }
-
+            playersJoined.remove(entity.getUniqueID());
         }
     }
 
@@ -474,5 +470,18 @@ public class CreeperHostServer
         pregenTasks.put(dimension, new PregenTask(dimension, xMin, xMax, zMin, zMax, chunksPerTick, preventJoin));
 
         return true;
+    }
+
+    private enum Discoverability
+    {
+        UNLISTED,
+        PUBLIC,
+        INVITE
+    }
+
+    public static class InviteClass
+    {
+        public int id;
+        public ArrayList<String> hash;
     }
 }

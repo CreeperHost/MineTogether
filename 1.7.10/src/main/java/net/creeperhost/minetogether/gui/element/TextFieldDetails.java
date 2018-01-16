@@ -16,10 +16,10 @@ public class TextFieldDetails extends GuiTextField
     private final String displayString;
     private final boolean canBeFocused;
     private final int ourID;
-    private String censorText = "";
     public boolean isValidated;
-    private boolean isChangeValidated = false;
     public String validationError = "";
+    private String censorText = "";
+    private boolean isChangeValidated = false;
     private String acceptString = new String(Character.toChars(10004));
     private String denyString = new String(Character.toChars(10006));
     private ArrayList<IOrderValidation> validators;

@@ -49,17 +49,21 @@ public class CreeperHost implements ICreeperHostMod
 
     @SidedProxy(clientSide = "net.creeperhost.minetogether.proxy.Client", serverSide = "net.creeperhost.minetogether.proxy.Server")
     public static IProxy proxy;
-
+    public final Object inviteLock = new Object();
     public ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
     public IServerHost currentImplementation;
     public File configFile;
-
-    private QueryGetter queryGetter;
-    private String lastCurse = "";
     public int curServerId = -1;
     public Invite handledInvite;
-
     public boolean active = true;
+    public Invite invite;
+    String toastText;
+    long endTime;
+    long fadeTime;
+    private QueryGetter queryGetter;
+    private String lastCurse = "";
+    private CreeperHostServerHost implement;
+    private Random randomGenerator;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -125,8 +129,6 @@ public class CreeperHost implements ICreeperHostMod
         }
     }
 
-    private CreeperHostServerHost implement;
-
     public void saveConfig()
     {
         FileOutputStream configOut = null;
@@ -177,8 +179,6 @@ public class CreeperHost implements ICreeperHostMod
 
         lastCurse = Config.getInstance().curseProjectID;
     }
-
-    private Random randomGenerator;
 
     public void setRandomImplementation()
     {
@@ -237,12 +237,6 @@ public class CreeperHost implements ICreeperHostMod
         }
         return queryGetter;
     }
-
-    String toastText;
-    long endTime;
-    long fadeTime;
-    public Invite invite;
-    public final Object inviteLock = new Object();
 
     public void displayToast(String text, int duration)
     {

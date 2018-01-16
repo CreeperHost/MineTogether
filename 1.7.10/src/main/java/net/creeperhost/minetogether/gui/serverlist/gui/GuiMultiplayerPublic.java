@@ -20,38 +20,21 @@ import java.lang.reflect.Field;
 public class GuiMultiplayerPublic extends GuiMultiplayer
 {
 
-    public enum SortOrder
-    {
-        RANDOM("multiplayer.sort.random"),
-        PLAYER("multiplayer.sort.player"),
-        NAME("multiplayer.sort.name"),
-        UPTIME("multiplayer.sort.uptime"),
-        LOCATION("multiplayer.sort.location"),
-        PING("multiplayer.sort.ping", true);
-
-        public final boolean constant;
-
-        public String translate;
-
-        SortOrder(String translate, boolean constant)
-        {
-            this.translate = translate;
-            this.constant = constant;
-        }
-
-        SortOrder(String translate)
-        {
-            this(translate, false);
-
-        }
-    }
-
+    private static Field savedServerListField;
+    private static Field lanServerDetectorField;
+    private static Field lanServerListField;
+    private static Field serverListSelectorField;
+    public boolean isPublic = true;
+    public SortOrder sortOrder = SortOrder.RANDOM;
     private boolean initialized;
     private GuiScreen parent;
     private GuiButton modeToggle;
     private DropdownButton<SortOrder> sortOrderButton;
-    public boolean isPublic = true;
-    public SortOrder sortOrder = SortOrder.RANDOM;
+    private ServerList ourSavedServerList = null;
+    private LanServerDetector.ThreadLanServerFind ourLanServerDetector = null;
+    private LanServerDetector.LanServerList ourLanServerList = null;
+    private ServerSelectionListPublic ourServerListSelector = null;
+    private String ourTooltip;
 
     public GuiMultiplayerPublic(GuiScreen parentScreen)
     {
@@ -163,7 +146,6 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(parent, isPublic, sortOrder));
     }
 
-
     @Override
     public void func_146796_h()
     {
@@ -196,9 +178,6 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
     }
 
-    private ServerList ourSavedServerList = null;
-    private static Field savedServerListField;
-
     private void setServerList(ServerList serverList)
     {
         ourSavedServerList = serverList;
@@ -217,9 +196,6 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             CreeperHost.logger.error("Unable to set server list", e);
         }
     }
-
-    private LanServerDetector.ThreadLanServerFind ourLanServerDetector = null;
-    private static Field lanServerDetectorField;
 
     private void setLanServerDetector(LanServerDetector.ThreadLanServerFind detector)
     {
@@ -240,9 +216,6 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
     }
 
-    private LanServerDetector.LanServerList ourLanServerList = null;
-    private static Field lanServerListField;
-
     private void setLanServerList(LanServerDetector.LanServerList detector)
     {
         ourLanServerList = detector;
@@ -262,9 +235,6 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
     }
 
-    private ServerSelectionListPublic ourServerListSelector = null;
-    private static Field serverListSelectorField;
-
     private void setServerListSelector(ServerSelectionListPublic list)
     {
         ourServerListSelector = list;
@@ -283,9 +253,6 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             CreeperHost.logger.error("Unable to set server list", e);
         }
     }
-
-
-    private String ourTooltip;
 
     @Override
     public void drawScreen(int mouseX, int p_73863_2_, float p_73863_3_)
@@ -308,5 +275,31 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             text = I18n.format("creeperhost.multiplayer.public");
         }
         super.drawCenteredString(fontRendererIn, text, x, y, color);
+    }
+
+    public enum SortOrder
+    {
+        RANDOM("multiplayer.sort.random"),
+        PLAYER("multiplayer.sort.player"),
+        NAME("multiplayer.sort.name"),
+        UPTIME("multiplayer.sort.uptime"),
+        LOCATION("multiplayer.sort.location"),
+        PING("multiplayer.sort.ping", true);
+
+        public final boolean constant;
+
+        public String translate;
+
+        SortOrder(String translate, boolean constant)
+        {
+            this.translate = translate;
+            this.constant = constant;
+        }
+
+        SortOrder(String translate)
+        {
+            this(translate, false);
+
+        }
     }
 }

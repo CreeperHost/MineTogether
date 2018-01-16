@@ -22,18 +22,18 @@ import org.lwjgl.opengl.GL11;
 @SideOnly(Side.CLIENT)
 public class CreeperHostEntry extends ServerListEntryNormal
 {
-    private final Minecraft mc = Minecraft.getMinecraft();
-
-    private ResourceLocation serverIcon;
     protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/hidebtn.png");
     protected static final ResourceLocation MPPARTNER_TEXTURES = new ResourceLocation("creeperhost", "textures/mppartner.png");
-    private float transparency = 0.5F;
-
-    private int exitX = 0;
-    private int exitY = 0;
-
+    private final Minecraft mc = Minecraft.getMinecraft();
     private final String cross;
     private final int stringWidth;
+    private ResourceLocation serverIcon;
+    private float transparency = 0.5F;
+    private int exitX = 0;
+    private int exitY = 0;
+    private int lastWidth;
+    private int lastHeight;
+    private ScaledResolution res = null;
 
     protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn)
     {
@@ -47,10 +47,6 @@ public class CreeperHostEntry extends ServerListEntryNormal
     {
         this(p_i45048_1_, serverIn);
     }
-
-    private int lastWidth;
-    private int lastHeight;
-    private ScaledResolution res = null;
 
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, Tessellator p_148279_6, int mouseX, int mouseY, boolean isHovering)
     {

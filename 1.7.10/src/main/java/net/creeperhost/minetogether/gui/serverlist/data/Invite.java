@@ -6,8 +6,8 @@ public class Invite
     public final String name;
     public final String ip;
     public final int project;
-    public String by;
     public final Server server;
+    public String by;
 
     public Invite(Server server, int project, String by)
     {

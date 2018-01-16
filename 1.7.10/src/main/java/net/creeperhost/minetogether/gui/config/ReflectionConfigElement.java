@@ -19,6 +19,16 @@ public class ReflectionConfigElement implements IConfigElement
 
     final Field field;
     final Object defValue;
+    private HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>> lookupEntry = new HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>>()
+    {{
+        put("boolean", GuiConfigEntries.BooleanEntry.class);
+        put("String", GuiConfigEntries.StringEntry.class);
+    }};
+    private HashMap<String, ConfigGuiType> lookup = new HashMap<String, ConfigGuiType>()
+    {{
+        put("boolean", ConfigGuiType.BOOLEAN);
+        put("String", ConfigGuiType.STRING);
+    }};
 
     ReflectionConfigElement(Field field, Object defValue)
     {
@@ -31,12 +41,6 @@ public class ReflectionConfigElement implements IConfigElement
     {
         return true;
     }
-
-    private HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>> lookupEntry = new HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>>()
-    {{
-        put("boolean", GuiConfigEntries.BooleanEntry.class);
-        put("String", GuiConfigEntries.StringEntry.class);
-    }};
 
     @Override
     public Class<? extends GuiConfigEntries.IConfigEntry> getConfigEntryClass()
@@ -79,12 +83,6 @@ public class ReflectionConfigElement implements IConfigElement
     {
         return null;
     }
-
-    private HashMap<String, ConfigGuiType> lookup = new HashMap<String, ConfigGuiType>()
-    {{
-        put("boolean", ConfigGuiType.BOOLEAN);
-        put("String", ConfigGuiType.STRING);
-    }};
 
     @Override
     public ConfigGuiType getType()
