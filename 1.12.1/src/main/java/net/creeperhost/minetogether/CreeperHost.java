@@ -119,11 +119,12 @@ public class CreeperHost implements ICreeperHostMod
 
         saveConfig();
 
+        PacketHandler.packetRegister();
+
         if (event.getSide() != Side.SERVER)
         {
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();
-            PacketHandler.packetRegister();
         }
     }
 
