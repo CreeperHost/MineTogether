@@ -109,14 +109,11 @@ subprojects {
     rootProject.build.dependsOn build
     rootProject.uploadArchives.dependsOn uploadArchives
     
-    fileupload {
-        println(jar.outputs.files.getFiles())
-        url = 'https://transfer.sh/test.jar'
-        file = jar.archivePath
-        params.'type' = 'new'
-        /*auth {
-            username = 'admin'
-            password = 'pass1234'
-        }*/
+    task transfer(type:Exec) {
+        commandLine "/usr/bin/curl",  "--silent", "--upload-file", jar.outputs.files.getFiles()[0], "https://transfer.sh/" + jar.archiveName
+    }
+    
+    transfer.doLast {
+        println '\n'
     }
 }
