@@ -151,25 +151,25 @@ public class GuiPersonalDetails extends GuiGetServer
             }
         });
 
-        this.fields.add(new TextFieldDetails(this, 0, Util.localize("info.e_mail"), this.order.emailAddress, x - 205, 55, fieldWidths, 20, emailValidators));
+        this.fields.add(new TextFieldDetails(this, 0, Util.localize("info.e_mail"), this.order.emailAddress, x - 205, 45, fieldWidths, 20, emailValidators));
 
         // Validation done, I guess - the website itself doesn't do any password strength validation etc so I won't force it here
 
-        this.fields.add(new TextFieldDetails(this, 1, Util.localize("info.password"), this.order.password, x + 5, 55, fieldWidths, 20, defaultValidators, "*"));
+        this.fields.add(new TextFieldDetails(this, 1, Util.localize("info.password"), this.order.password, x + 5, 45, fieldWidths, 20, defaultValidators, "*"));
 
-        this.fields.add(new TextFieldDetails(this, 2, Util.localize("info.first_name"), this.order.firstName, x - 205, 85, fieldWidths, 20, defaultValidators));
-        this.fields.add(new TextFieldDetails(this, 3, Util.localize("info.last_name"), this.order.lastName, x + 5, 85, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 2, Util.localize("info.first_name"), this.order.firstName, x - 205, 75, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 3, Util.localize("info.last_name"), this.order.lastName, x + 5, 75, fieldWidths, 20, defaultValidators));
 
-        this.fields.add(new TextFieldDetails(this, 4, Util.localize("info.address"), this.order.address, x - 205, 115, fieldWidths, 20, defaultValidators));
-        this.fields.add(new TextFieldDetails(this, 5, Util.localize("info.city"), this.order.city, x + 5, 115, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 4, Util.localize("info.address"), this.order.address, x - 205, 105, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 5, Util.localize("info.city"), this.order.city, x + 5, 105, fieldWidths, 20, defaultValidators));
 
-        this.fields.add(new TextFieldDetails(this, 6, Util.localize("info.zip"), this.order.zip, x - 205, 145, fieldWidths, 20, defaultValidators));
-        this.fields.add(new TextFieldDetails(this, 7, Util.localize("info.state"), this.order.state, x + 5, 145, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 6, Util.localize("info.zip"), this.order.zip, x - 205, 135, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 7, Util.localize("info.state"), this.order.state, x + 5, 135, fieldWidths, 20, defaultValidators));
 
-        TextFieldDetails countryField = new TextFieldDetails(this, 8, Util.localize("info.country"), Callbacks.getCountries().get(this.order.country), x - 205, 175, fieldWidths, 20, defaultValidators, false);
+        TextFieldDetails countryField = new TextFieldDetails(this, 8, Util.localize("info.country"), Callbacks.getCountries().get(this.order.country), x - 205, 165, fieldWidths, 20, defaultValidators, false);
         this.fields.add(countryField);
 
-        this.fields.add(new TextFieldDetails(this, 9, Util.localize("info.phone"), this.order.phone, x + 5, 175, fieldWidths, 20, defaultValidators));
+        this.fields.add(new TextFieldDetails(this, 9, Util.localize("info.phone"), this.order.phone, x + 5, 165, fieldWidths, 20, defaultValidators));
 
         String info2Text = Util.localize("order.info2");
 
@@ -330,6 +330,11 @@ public class GuiPersonalDetails extends GuiGetServer
     {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        if ((!orderPressed || !isSure) && !loginMode)
+        {
+            this.drawCenteredString(fontRendererObj, "No data will be sent until you complete the order.", this.width / 2, this.height - 45, 0xFFFFFF);
+        }
 
         if (!orderPressed || isSure)
         {

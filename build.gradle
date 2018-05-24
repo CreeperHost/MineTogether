@@ -1,18 +1,19 @@
 evaluationDependsOnChildren() // gotta make sure the children happen first
+import groovy.json.JsonSlurper
 
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'net.anshulverma.gradle:gradle-fileupload-plugin:1.0.4'
+        classpath 'org.codehaus.groovy:groovy-json:2.4.1'
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: 'net.anshulverma.gradle.fileupload'
 
 version = "1.8.7"
 
@@ -109,13 +110,18 @@ subprojects {
     rootProject.build.dependsOn build
     rootProject.uploadArchives.dependsOn uploadArchives
     
-    task transfer(type:Exec) {
-        commandLine "/usr/bin/curl",  "--silent", "--upload-file", jar.outputs.files.getFiles()[0], "https://transfer.sh/" + jar.archiveName
+    task transfer() {
+        doLast {
+            def out = new ByteArrayOutputStream()
+            exec {
+                commandLine "/usr/bin/curl",  "--silent", "--user", "$System.env.UPUSER", "--upload-file", jar.outputs.files.getFiles()[0], "https://upload.fdn.redstone.tech/minetogether/builds/" + jar.archiveName
+                standardOutput = out
+            }
+            
+            def json = new JsonSlurper().parseText(out.toString())
+            println(json.result)
+        }
     }
     
-    //transfer.dependsOn build
-    
-    transfer.doLast {
-        println '\n'
-    }
+    transfer.shouldRunAfter rootProject.build
 }
