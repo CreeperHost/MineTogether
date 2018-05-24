@@ -1,8 +1,18 @@
 evaluationDependsOnChildren() // gotta make sure the children happen first
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'net.anshulverma.gradle:gradle-fileupload-plugin:1.0.4'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'net.anshulverma.gradle.fileupload'
 
 version = "1.8.7"
 
@@ -99,7 +109,7 @@ subprojects {
     rootProject.build.dependsOn build
     rootProject.uploadArchives.dependsOn uploadArchives
     
-    fileupload (type: Exec) {
+    fileupload {
         println(jar.outputs.files.getFiles())
         url = 'https://transfer.sh/test.jar'
         file = jar.archivePath
