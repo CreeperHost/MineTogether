@@ -113,6 +113,8 @@ subprojects {
         commandLine "/usr/bin/curl",  "--silent", "--upload-file", jar.outputs.files.getFiles()[0], "https://transfer.sh/" + jar.archiveName
     }
     
+    //transfer.dependsOn build
+    
     transfer.doLast {
         println '\n'
     }
