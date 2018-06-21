@@ -117,13 +117,6 @@ public class TextFieldDetails extends GuiTextFieldCompat
 
         GlStateManager.scale(0.5F, 0.5F, 0.5F);
 
-        if (!this.isFocused() && this.getText().trim().isEmpty())
-        {
-            int x = this.xPosition + 4;
-            int y = this.yPosition + (this.height - 8) / 2;
-
-            this.gui.mc.fontRendererObj.drawStringWithShadow("\u00A7o" + this.displayString, x, y, 14737632);
-        }
     }
 
     public boolean canBeFocused()

@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.gui.serverlist.gui.elements;
 
 import net.creeperhost.minetogether.Util;
-import net.creeperhost.minetogether.gui.serverlist.data.EnumFlag;
+import net.creeperhost.minetogether.serverlist.data.EnumFlag;
 import net.creeperhost.minetogether.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.gui.serverlist.data.ServerDataPublic;
 import net.creeperhost.minetogether.paul.Callbacks;

@@ -1,13 +1,21 @@
 package net.creeperhost.minetogether;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.api.Order;
+import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.GuiGetServer;
 import net.creeperhost.minetogether.gui.GuiProgressDisconnected;
 import net.creeperhost.minetogether.gui.GuiServerInfo;
+import net.creeperhost.minetogether.gui.chat.GuiOurChat;
 import net.creeperhost.minetogether.gui.element.ButtonCreeper;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
-import net.creeperhost.minetogether.gui.serverlist.data.Friend;
+import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
@@ -36,8 +44,12 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.apache.commons.io.IOUtils;
 import org.lwjgl.input.Keyboard;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +59,7 @@ public class EventHandler
 
     private static final int MAIN_BUTTON_ID = 30051988;
     private static final int MP_BUTTON_ID = 8008135;
+    private static final int CHAT_BUTTON_ID = 800813;
     private static final int FRIEND_BUTTON_ID = 1337420;
 
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
@@ -102,11 +115,66 @@ public class EventHandler
         }
     }
 
+    boolean first = true;
+
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
     {
         GuiScreen gui = event.getGui();
         GuiScreen curGui = Minecraft.getMinecraft().currentScreen;
+
+        if (gui instanceof GuiMainMenu && (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled()))
+        {
+            if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
+            {
+                event.setGui(new GuiGDPR());
+            } else {
+                if (first)
+                {
+                    first = false;
+                    if (Config.getInstance().isChatEnabled())
+                    {
+                        CreeperHost.instance.mutedUsersFile = new File("minetogether-mutedusers.json");
+                        InputStream mutedUsersStream = null;
+                        try
+                        {
+                            String configString;
+                            if (CreeperHost.instance.mutedUsersFile.exists())
+                            {
+                                mutedUsersStream = new FileInputStream(CreeperHost.instance.mutedUsersFile);
+                                configString = IOUtils.toString(mutedUsersStream);
+                            }
+                            else
+                            {
+                                configString = "[]";
+                            }
+
+                            Gson gson = new Gson();
+                            CreeperHost.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>(){}.getType());
+                        }
+                        catch (Throwable t)
+                        {
+                        }
+                        finally
+                        {
+                            try
+                            {
+                                if (mutedUsersStream != null)
+                                {
+                                    mutedUsersStream.close();
+                                }
+                            }
+                            catch (Throwable t)
+                            {
+                            }
+                        }
+
+                        new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
+                    }
+                }
+            }
+        }
+
         if (gui instanceof GuiDisconnected)
         {
             GuiDisconnected dc = (GuiDisconnected) gui;
@@ -172,6 +240,8 @@ public class EventHandler
             if (buttonList != null)
             {
                 buttonList.add(new ButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
+                buttonList.add(new ButtonCreeper(CHAT_BUTTON_ID, gui.width / 2 + 104 + 30, gui.height / 4 + 48 + 72 + 12));
+
             }
         }
         else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
@@ -223,6 +293,11 @@ public class EventHandler
                 catch (IllegalAccessException e)
                 {
                 }
+            }
+
+            if (Config.getInstance().isChatEnabled())
+            {
+                event.getButtonList().add(new GuiButton(-9000, 0, 0, "penis"));
             }
 
             lastInitialized = mpGUI;
@@ -390,6 +465,10 @@ public class EventHandler
             if (button != null && button.id == MAIN_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+            }
+            if (button != null && button.id == CHAT_BUTTON_ID)
+            {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat());
             }
         }
         else if (gui instanceof GuiMultiplayer)
@@ -563,6 +642,20 @@ public class EventHandler
                     CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 15000);
                 }
 
+            }
+
+
+            String friend;
+
+            synchronized (CreeperHost.instance.friendLock)
+            {
+                friend = CreeperHost.instance.friend;
+                CreeperHost.instance.friend = null;
+            }
+
+            if (friend != null)
+            {
+                CreeperHost.instance.displayToast(I18n.format("Your friend %s has come online!", friend), 15000);
             }
 
         }

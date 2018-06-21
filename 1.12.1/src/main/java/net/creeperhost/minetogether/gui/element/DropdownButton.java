@@ -6,27 +6,32 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 
-public class DropdownButton<E extends Enum> extends GuiButton
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class DropdownButton<E extends DropdownButton.IDropdownOption> extends GuiButton
 {
     public boolean dropdownOpen;
-    public String translateBase;
     private E selected;
-    private E[] possibleVals;
+    private List<E> possibleVals;
     private String baseButtonText;
+    private final boolean dynamic;
+    public boolean wasJustClosed = false;
 
-    public DropdownButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, String translateBase, E def)
+    public DropdownButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, E def, boolean dynamic)
     {
         super(buttonId, x, y, widthIn, heightIn, buttonText);
-        this.translateBase = translateBase;
         this.selected = def;
-        possibleVals = (E[]) def.getClass().getEnumConstants();
+        possibleVals = (List<E>) def.getPossibleVals();
         baseButtonText = buttonText;
-        displayString = I18n.format(baseButtonText, I18n.format(translateBase + selected.name().toLowerCase()));
+        displayString = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected)));
+        this.dynamic = dynamic;
     }
 
-    public DropdownButton(int buttonId, int x, int y, String buttonText, String translateBase, E def)
+    public DropdownButton(int buttonId, int x, int y, String buttonText, E def, boolean dynamic)
     {
-        this(buttonId, x, y, 200, 20, buttonText, translateBase, def);
+        this(buttonId, x, y, 200, 20, buttonText, def, dynamic);
     }
 
     @Override
@@ -89,7 +94,7 @@ public class DropdownButton<E extends Enum> extends GuiButton
                     this.drawTexturedModalRect(this.xPosition, drawY, 0, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
                     this.drawTexturedModalRect(this.xPosition + this.width / 2, drawY, 200 - this.width / 2, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
 
-                    String name = I18n.format(translateBase + e.name().toLowerCase());
+                    String name = I18n.format(e.getTranslate(selected));
                     int textColour = 14737632;
 
                     if (packedFGColour != 0)
@@ -120,27 +125,35 @@ public class DropdownButton<E extends Enum> extends GuiButton
         {
             if (pressed)
             {
-                dropdownOpen = false;
+                close();
                 return false; // selection not changed, so no need to return true which will trigger actionPerformed.
             }
             E clickedElement = getClickedElement(mouseX, mouseY);
             if (clickedElement != null)
             {
                 setSelected(clickedElement);
-                dropdownOpen = false;
+                close();
                 return true;
             }
+            close();
+            return false;
         }
-        else
+        else if (pressed)
         {
-            if (pressed)
+            dropdownOpen = true;
+            if (dynamic)
             {
-                dropdownOpen = true;
-                return false; // selection not changed, so no need to return true which will trigger actionPerformed.
+                selected.updateDynamic();
+                possibleVals = (List<E>) selected.getPossibleVals();
             }
         }
 
         return false; // at this stage we've handled all the "true" options, so it ain't been pressed
+    }
+
+    public void close() {
+        dropdownOpen = false;
+        wasJustClosed = true;
     }
 
     public E getSelected()
@@ -151,23 +164,32 @@ public class DropdownButton<E extends Enum> extends GuiButton
     public void setSelected(E selected)
     {
         this.selected = selected;
-        displayString = I18n.format(baseButtonText, I18n.format(translateBase + selected.name().toLowerCase()));
+        displayString = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected)));
     }
 
     private E getClickedElement(int mouseX, int mouseY)
     {
         E clickedElement = null;
         int y = yPosition + 1;
-        for (E e : possibleVals)
+        for (IDropdownOption e : possibleVals)
         {
             y += height - 2;
             if (mouseX >= this.xPosition && mouseY >= y && mouseX < this.xPosition + this.width && mouseY < y + this.height - 2)
             {
-                clickedElement = e;
+                clickedElement = (E)e;
                 break;
             }
 
         }
         return clickedElement;
+    }
+
+    public interface IDropdownOption
+    {
+        List<IDropdownOption> getPossibleVals();
+
+        String getTranslate(IDropdownOption current);
+
+        default void updateDynamic(){}
     }
 }

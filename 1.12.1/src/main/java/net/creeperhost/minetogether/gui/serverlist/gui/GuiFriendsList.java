@@ -5,7 +5,7 @@ import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
-import net.creeperhost.minetogether.gui.serverlist.data.Friend;
+import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;

@@ -312,6 +312,7 @@ public final class Util
         private ICacheCallback<T> callback;
         private T cachedValue;
         private long validTime;
+        private final static Object lock = new Object();
 
         public CachedValue(int validTime, ICacheCallback<T> callback)
         {
@@ -326,7 +327,10 @@ public final class Util
             {
                 return cachedValue;
             }
-            cachedValue = callback.get(args);
+            synchronized (lock)
+            {
+                cachedValue = callback.get(args); // make sure only one request at any one time - shouldn't cause much of an issue, but I am working with threads soooo
+            }
             invalidTime = validTime + System.currentTimeMillis();
             return cachedValue;
         }

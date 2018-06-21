@@ -18,6 +18,7 @@ public class Config
     private boolean serverHostMenuImage;
     private boolean sivIntegration;
     private boolean serverListEnabled;
+    private boolean chatEnabled;
 
     private int pregenDiameter = 120;
 
@@ -34,6 +35,7 @@ public class Config
         serverHostMenuImage = true;
         sivIntegration = true;
         serverListEnabled = true;
+        chatEnabled = true;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
@@ -102,6 +104,21 @@ public class Config
 
     public void setMpMenuEnabled(boolean value){
         mpMenuEnabled = value;
+    }
+
+    public void setServerListEnabled(boolean value)
+    {
+        serverListEnabled = value;
+    }
+
+    public void setChatEnabled(boolean value)
+    {
+        chatEnabled = value;
+    }
+
+    public boolean isChatEnabled()
+    {
+        return chatEnabled;
     }
 
     public static void makeConfig(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {

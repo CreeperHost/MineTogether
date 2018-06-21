@@ -17,6 +17,8 @@ import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 
 public class GuiMultiplayerPublic extends GuiMultiplayer
 {
@@ -120,7 +122,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             }
         }
         modeToggle = new GuiButton(80085, width - 5 - 80, 5, 80, 20, I18n.format(isPublic ? "creeperhost.multiplayer.button.public" : "creeperhost.multiplayer.button.private"));
-        sortOrderButton = new DropdownButton<SortOrder>(80085101, width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", "creeperhost.multiplayer.sort.", sortOrder);
+        sortOrderButton = new DropdownButton<>(80085101, width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false);
         buttonList.add(modeToggle);
         buttonList.add(sortOrderButton);
     }
@@ -291,16 +293,18 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         super.drawCenteredString(fontRendererIn, text, x, y, color);
     }
 
-    public enum SortOrder
+    public enum SortOrder implements DropdownButton.IDropdownOption
     {
-        RANDOM("multiplayer.sort.random"),
-        PLAYER("multiplayer.sort.player"),
-        NAME("multiplayer.sort.name"),
-        UPTIME("multiplayer.sort.uptime"),
-        LOCATION("multiplayer.sort.location"),
-        PING("multiplayer.sort.ping", true);
+        RANDOM("random"),
+        PLAYER("player"),
+        NAME("name"),
+        UPTIME("uptime"),
+        LOCATION("location"),
+        PING("ping", true);
 
         public final boolean constant;
+
+        private static List<DropdownButton.IDropdownOption> enumCache;
 
         public String translate;
 
@@ -313,6 +317,21 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         SortOrder(String translate)
         {
             this(translate, false);
+        }
+
+        @Override
+        public String getTranslate(DropdownButton.IDropdownOption current)
+        {
+            return "creeperhost.multiplayer.sort." + translate;
+        }
+
+        @Override
+        public List<DropdownButton.IDropdownOption> getPossibleVals()
+        {
+            if (enumCache == null)
+                enumCache = Arrays.asList(SortOrder.values());
+
+            return enumCache;
         }
     }
 }

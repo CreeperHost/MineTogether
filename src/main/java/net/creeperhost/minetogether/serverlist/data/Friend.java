@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui.serverlist.data;
+package net.creeperhost.minetogether.serverlist.data;
 
 public class Friend
 {

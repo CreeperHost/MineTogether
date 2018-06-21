@@ -8,8 +8,8 @@ import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.serverlist.data.EnumFlag;
-import net.creeperhost.minetogether.gui.serverlist.data.Friend;
+import net.creeperhost.minetogether.serverlist.data.EnumFlag;
+import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.gui.serverlist.data.Server;
 

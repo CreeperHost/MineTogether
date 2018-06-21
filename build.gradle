@@ -21,15 +21,15 @@ allprojects {
     group= "net.creeperhost.minetogether"
     archivesBaseName = "minetogether"
 
-    sourceCompatibility = targetCompatibility = "1.6"
+    sourceCompatibility = targetCompatibility = "1.8"
     compileJava {
-        sourceCompatibility = targetCompatibility = "1.6"
+        sourceCompatibility = targetCompatibility = "1.8"
         options.encoding = "UTF-8"
     }
 }
 
 compileJava {
-    sourceCompatibility = targetCompatibility = "1.6"
+    sourceCompatibility = targetCompatibility = "1.8"
     options.encoding = "UTF-8"
 }
 

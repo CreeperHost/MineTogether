@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.gui.list;
 
-import net.creeperhost.minetogether.gui.serverlist.data.Friend;
+import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.minecraft.util.text.TextComponentString;
 
 public class GuiListEntryFriend extends GuiListEntry
