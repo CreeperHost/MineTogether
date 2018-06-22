@@ -275,13 +275,15 @@ public class CreeperHost implements ICreeperHostMod, IChatHost
 
     final Object friendLock = new Object();
     String friend = null;
+    boolean friendMessage = false;
 
     @Override
-    public void friendOnline(String name)
+    public void friendEvent(String name, boolean isMessage)
     {
         synchronized (friendLock)
         {
             friend = ChatHandler.getNameForUser(name);
+            friendMessage = isMessage;
         }
     }
 

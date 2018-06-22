@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.chat;
 
+import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
@@ -33,6 +34,7 @@ public class GuiOurChat extends GuiScreen
     private GuiScrollingChat chat;
     private GuiTextFieldLockable send;
     private DropdownButton<Target> targetDropdownButton;
+    private GuiButton friendsButton;
     private static String playerName = Minecraft.getMinecraft().getSession().getUsername();
     private String currentTarget = ChatHandler.CHANNEL;
     private DropdownButton<Menu> menuDropdownButton;
@@ -46,8 +48,8 @@ public class GuiOurChat extends GuiScreen
         buttonList.add(targetDropdownButton = new DropdownButton<>(-1337, width - 5 - 160, 5, 160, 20, "Chat: %s", Target.getMainTarget(), true));
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
-        strings.add("Request Friend");
-        buttonList.add(menuDropdownButton = new DropdownButton<Menu>(-1337, -1000, -1000, 160, 20, "Menu", new Menu(strings), true));
+        buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 160, 20, "Menu", new Menu(strings), true));
+        buttonList.add(friendsButton = new GuiButton(-80088, width - 100 - 5, height - 5 - 20, 100, 20, "Friends list"));
         send.setMaxStringLength(120);
         send.setFocused(true);
     }
@@ -78,6 +80,8 @@ public class GuiOurChat extends GuiScreen
 
     }
 
+    boolean disabledDueToConnection = false;
+
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
@@ -89,17 +93,25 @@ public class GuiOurChat extends GuiScreen
         if (status != ChatHandler.ConnectionStatus.CONNECTED)
         {
             send.setDisabled("Cannot send messages as not connected");
+            disabledDueToConnection = true;
         } else if(!currentTarget.equals(ChatHandler.CHANNEL) && !ChatHandler.friends.containsKey(currentTarget)) {
             send.setDisabled("Cannot send messages as friend is not online");
-        } else {
+            disabledDueToConnection = true;
+        } else if (disabledDueToConnection)
+        {
+            disabledDueToConnection = false;
             send.setEnabled(true);
+            processBadwords();
         }
         drawCenteredString(fontRendererObj, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
         ITextComponent comp = new TextComponentString("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
         comp.appendSibling(new TextComponentString(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
         drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
         super.drawScreen(mouseX, mouseY, partialTicks);
-
+        if(!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
+        {
+            drawHoveringText(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
+        }
     }
 
     @Override
@@ -112,9 +124,47 @@ public class GuiOurChat extends GuiScreen
                 CreeperHost.instance.muteUser(activeDropdown);
                 chat.updateLines(currentTarget);
             }
+        } else if (button == friendsButton) {
+            CreeperHost.proxy.openFriendsGui();
         }
         chat.actionPerformed(button);
         super.actionPerformed(button);
+    }
+
+    boolean disabledDueToBadwords = false;
+    public void processBadwords()
+    {
+        String text = send.getText().replaceAll(ChatHandler.badwordsFormat, "");
+        boolean veryNaughty = false;
+        for(String bad: ChatHandler.badwords)
+        {
+            if(bad.startsWith("(")  && bad.endsWith(")"))
+            {
+                if (text.matches(bad))
+                {
+                    veryNaughty = true;
+                    break;
+                }
+            }
+            if (text.toLowerCase().contains(bad.toLowerCase()))
+            {
+                veryNaughty = true;
+                break;
+            }
+        }
+
+        if (veryNaughty)
+        {
+            send.setDisabled("Cannot send message as contains content which may not be suitable for all audiences");
+            disabledDueToBadwords = true;
+            return;
+        }
+
+        if (disabledDueToBadwords)
+        {
+            disabledDueToBadwords = false;
+            send.setEnabled(true);
+        }
     }
 
     @Override
@@ -143,12 +193,28 @@ public class GuiOurChat extends GuiScreen
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         super.keyTyped(typedChar, keyCode);
-        if (keyCode == 28 || keyCode == 156)
+        if ((keyCode == 28 || keyCode == 156) && send.getOurEnabled() && !send.getText().trim().isEmpty())
         {
             ChatHandler.sendMessage(currentTarget, send.getText());
             send.setText("");
+            return;
         }
+
+        boolean ourEnabled = send.getOurEnabled();
+
+        if (!ourEnabled)
+        {
+            send.setEnabled(true);
+        }
+
         send.textboxKeyTyped(typedChar, keyCode);
+
+        if (!ourEnabled)
+        {
+            send.setEnabled(false);
+        }
+
+        processBadwords();
     }
 
     private static Field field;
@@ -397,7 +463,7 @@ public class GuiOurChat extends GuiScreen
         }
 
         @Override
-        public String getTranslate(DropdownButton.IDropdownOption current)
+        public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
         {
             return option;
         }

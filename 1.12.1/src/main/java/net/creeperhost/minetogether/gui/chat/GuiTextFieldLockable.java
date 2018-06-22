@@ -17,24 +17,30 @@ public class GuiTextFieldLockable extends GuiTextFieldCompat
     }
 
     @Override
+    public boolean getEnableBackgroundDrawing() {
+        return false;
+    }
+
+    @Override
     public void drawTextBox()
     {
-        if (!this.ourEnabled && this.getText().trim().isEmpty())
-        {
-            String tempText = getText();
-            int tempCursor = getCursorPosition();
-            setText("");
-            super.drawTextBox();
-            setText(tempText);
-            setCursorPosition(tempCursor);
-            int x = this.xPosition + 4;
-            int y = this.yPosition + (this.height - 8) / 2;
+        int colour = this.ourEnabled ? -6250336 : 0xFFFF0000;
 
-            fontRenderer.drawStringWithShadow("\u00A7o" + this.disableText, x, y, 14737632);
-            return;
-        }
+        drawRect(this.xPosition - 1, this.yPosition - 1, this.xPosition + this.width + 1, this.yPosition + this.height + 1, colour);
+        drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, -16777216);
 
         super.drawTextBox();
+
+        int x = this.xPosition + 4;
+        int y = this.yPosition + (this.height - 8) / 2;
+
+
+        if (this.getText().trim().isEmpty() && !this.getOurEnabled())
+        {
+            fontRenderer.drawStringWithShadow("\u00A7o" + this.disableText, x, y, 14737632);
+        }
+
+        return;
     }
 
     @Override
@@ -48,5 +54,18 @@ public class GuiTextFieldLockable extends GuiTextFieldCompat
     {
         setEnabled(false);
         disableText = message;
+    }
+
+    public boolean isHovered(int mouseX, int mouseY)
+    {
+       return mouseX >= this.xPosition && mouseX < this.xPosition + this.width && mouseY >= this.yPosition && mouseY < this.yPosition + this.height;
+    }
+
+    public boolean getOurEnabled() {
+        return ourEnabled;
+    }
+
+    public String getDisabledMessage() {
+        return disableText;
     }
 }

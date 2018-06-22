@@ -7,5 +7,5 @@ import java.util.List;
 public interface IChatHost
 {
     List<Friend> getFriends();
-    void friendOnline(String name);
+    void friendEvent(String name, boolean isMessage);
 }

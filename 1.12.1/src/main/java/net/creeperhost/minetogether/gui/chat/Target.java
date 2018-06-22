@@ -8,6 +8,7 @@ import net.minecraft.util.text.TextComponentUtils;
 import net.minecraft.util.text.TextFormatting;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ class Target implements DropdownButton.IDropdownOption
     }
 
     @Override
-    public String getTranslate(DropdownButton.IDropdownOption currentDO)
+    public String getTranslate(DropdownButton.IDropdownOption currentDO, boolean dropdownOpen)
     {
         Target current = (Target) currentDO;
         boolean newMessages = false;
@@ -38,12 +39,15 @@ class Target implements DropdownButton.IDropdownOption
                 Target target = (Target) targetObj;
                 if (ChatHandler.hasNewMessages(target.getInternalTarget()))
                 {
-                    newMessages = true;
-                    break;
+                    if (!dropdownOpen)
+                    {
+                        newMessages = true;
+                        break;
+                    }
                 }
             }
         } else {
-            newMessages = ChatHandler.hasNewMessages(getMainTarget().getInternalTarget());
+            newMessages = ChatHandler.hasNewMessages(getInternalTarget());
         }
         if (newMessages)
         {
@@ -76,21 +80,23 @@ class Target implements DropdownButton.IDropdownOption
 
         ArrayList<Target> oldVals = possibleValsCache;
 
+        HashSet<Target> tempSet = new HashSet<>();
+
         possibleValsCache = new ArrayList<>();
-        possibleValsCache.add(new Target("Main", ChatHandler.CHANNEL));
-        if (current != null && !possibleValsCache.contains(current))
-            possibleValsCache.add(current);
+        tempSet.add(new Target("Main", ChatHandler.CHANNEL));
+        if (current != null && !tempSet.contains(current))
+            tempSet.add(current);
 
         for (Map.Entry<String, String> friend : ChatHandler.friends.entrySet())
         {
             Target tempTarget = new Target(friend.getValue(), friend.getKey());
-            if (!possibleValsCache.contains(tempTarget))
+            if (!tempSet.contains(tempTarget))
             {
                 if (oldVals.contains(tempTarget))
                 {
                     tempTarget = oldVals.get(oldVals.indexOf(tempTarget));
                 }
-                possibleValsCache.add(tempTarget);
+                tempSet.add(tempTarget);
             }
 
         }
@@ -103,11 +109,14 @@ class Target implements DropdownButton.IDropdownOption
              {
                  if (target.getInternalTarget().equals(chat))
                  {
-                     possibleValsCache.add(target);
+                     tempSet.add(target);
                      break;
                  }
              }
         }
+
+        possibleValsCache = new ArrayList<>(tempSet);
+
         updating = false;
         oldFriends = ChatHandler.friends;
         oldMessagesSize = chatSize;
@@ -116,6 +125,13 @@ class Target implements DropdownButton.IDropdownOption
     public static Target getMainTarget()
     {
         updateCache();
+        for (Target defTar: possibleValsCache)
+        {
+            if(defTar.getInternalTarget().equals(ChatHandler.CHANNEL))
+            {
+                return defTar;
+            }
+        }
         return possibleValsCache.get(0);
     }
 

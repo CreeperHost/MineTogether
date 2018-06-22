@@ -230,6 +230,8 @@ public class EventHandler
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event)
     {
+        boolean buttonDrawn = false;
+
         final GuiScreen gui = event.getGui();
         if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu)
         {
@@ -240,7 +242,6 @@ public class EventHandler
             if (buttonList != null)
             {
                 buttonList.add(new ButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
-                buttonList.add(new ButtonCreeper(CHAT_BUTTON_ID, gui.width / 2 + 104 + 30, gui.height / 4 + 48 + 72 + 12));
 
             }
         }
@@ -276,6 +277,7 @@ public class EventHandler
                 }
             }
 
+
             if (Config.getInstance().isServerListEnabled())
             {
                 try
@@ -295,11 +297,6 @@ public class EventHandler
                 }
             }
 
-            if (Config.getInstance().isChatEnabled())
-            {
-                event.getButtonList().add(new GuiButton(-9000, 0, 0, "penis"));
-            }
-
             lastInitialized = mpGUI;
 
         }
@@ -309,6 +306,7 @@ public class EventHandler
             if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
             {
                 event.getButtonList().add(new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.public")));
+                buttonDrawn = true;
                 GuiButton editButton = null;
                 for (int i = 0; i < event.getButtonList().size(); i++)
                 {
@@ -428,7 +426,31 @@ public class EventHandler
             }
 
             if (gui instanceof GuiIngameMenu)
+            {
+                buttonDrawn = true;
                 event.getButtonList().add(new GuiButton(FRIEND_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends")));
+
+            }
+
+        }
+
+        if (Config.getInstance().isChatEnabled())
+        {
+            if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
+            {
+                int x = gui.width - 20 - 5;
+                if (buttonDrawn)
+                    x -= 99;
+                event.getButtonList().add(new ButtonCreeper(CHAT_BUTTON_ID, x, 5, 1));
+            }
+
+            if (gui instanceof GuiIngameMenu)
+            {
+                int x = gui.width - 20 - 5;
+                if (buttonDrawn)
+                    x -= 99;
+                event.getButtonList().add(new ButtonCreeper(CHAT_BUTTON_ID, x, 5, 1));
+            }
 
         }
     }
@@ -466,10 +488,6 @@ public class EventHandler
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
             }
-            if (button != null && button.id == CHAT_BUTTON_ID)
-            {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat());
-            }
         }
         else if (gui instanceof GuiMultiplayer)
         {
@@ -477,10 +495,22 @@ public class EventHandler
             {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(gui));
             }
+            if (button != null && button.id == CHAT_BUTTON_ID)
+            {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat());
+            }
         }
-        else if (gui instanceof GuiIngameMenu && button.id == FRIEND_BUTTON_ID)
+        else if (gui instanceof GuiIngameMenu)
         {
-            CreeperHost.proxy.openFriendsGui();
+            if (button != null && button.id == FRIEND_BUTTON_ID)
+            {
+                CreeperHost.proxy.openFriendsGui();
+            }
+
+            if (button != null && button.id == CHAT_BUTTON_ID)
+            {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat());
+            }
         }
     }
 
@@ -639,23 +669,27 @@ public class EventHandler
                 }
                 else
                 {
-                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 15000);
+                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000);
                 }
 
             }
 
-
             String friend;
+            boolean friendMessage;
 
             synchronized (CreeperHost.instance.friendLock)
             {
                 friend = CreeperHost.instance.friend;
+                friendMessage = CreeperHost.instance.friendMessage;
                 CreeperHost.instance.friend = null;
             }
 
             if (friend != null)
             {
-                CreeperHost.instance.displayToast(I18n.format("Your friend %s has come online!", friend), 15000);
+                if (friendMessage && Minecraft.getMinecraft().currentScreen instanceof GuiOurChat)
+                    return;
+
+                CreeperHost.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000);
             }
 
         }

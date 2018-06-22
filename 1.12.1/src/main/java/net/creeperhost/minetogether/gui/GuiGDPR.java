@@ -28,7 +28,7 @@ public class GuiGDPR extends GuiScreen
         "\n" +
         "In order to provide this, we need to send a hash of your Minecraft UUID to our servers which may be identifying information.\n" +
         "\n" +
-        "We only use this in order to find servers which you are invited to, and to provide an in game friends list." +
+        "We only use this in order to find servers which you are invited to, and to provide an in game friends list.\n" +
         "\n" +
         "To view a copy of our privacy policy, please click (here|https://www.creeperhost.net/privacy).\n" +
         "\n" +

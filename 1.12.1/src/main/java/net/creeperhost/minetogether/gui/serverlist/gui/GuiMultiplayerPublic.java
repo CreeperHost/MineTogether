@@ -320,7 +320,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
 
         @Override
-        public String getTranslate(DropdownButton.IDropdownOption current)
+        public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
         {
             return "creeperhost.multiplayer.sort." + translate;
         }

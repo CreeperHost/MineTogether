@@ -25,7 +25,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
         this.selected = def;
         possibleVals = (List<E>) def.getPossibleVals();
         baseButtonText = buttonText;
-        displayString = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected)));
+        displayString = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected, false)));
         this.dynamic = dynamic;
     }
 
@@ -94,7 +94,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
                     this.drawTexturedModalRect(this.xPosition, drawY, 0, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
                     this.drawTexturedModalRect(this.xPosition + this.width / 2, drawY, 200 - this.width / 2, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
 
-                    String name = I18n.format(e.getTranslate(selected));
+                    String name = I18n.format(e.getTranslate(selected, true));
                     int textColour = 14737632;
 
                     if (packedFGColour != 0)
@@ -164,7 +164,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
     public void setSelected(E selected)
     {
         this.selected = selected;
-        displayString = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected)));
+        displayString = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected, false)));
     }
 
     private E getClickedElement(int mouseX, int mouseY)
@@ -188,7 +188,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
     {
         List<IDropdownOption> getPossibleVals();
 
-        String getTranslate(IDropdownOption current);
+        String getTranslate(IDropdownOption currentDO, boolean dropdownOpen);
 
         default void updateDynamic(){}
     }

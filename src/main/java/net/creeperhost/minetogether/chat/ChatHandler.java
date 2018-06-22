@@ -33,11 +33,13 @@ public class ChatHandler
     private static int tries = 0;
     private static boolean inited = false;
     public static List<String> badwords;
+    public static String badwordsFormat;
 
     public static void init(String nick, IChatHost _host)
     {
         if (inited) return;
         badwords = ChatUtil.getBadWords();
+        badwordsFormat = ChatUtil.getAllowedCharactersRegex();
         IRC_SERVER = ChatUtil.getIRCServerDetails();
         host = _host;
         intentionalShutdown = false;
@@ -113,7 +115,7 @@ public class ChatHandler
         {
             if(!oldFriends.containsKey(friend.getKey()))
             {
-                host.friendOnline(friend.getKey());
+                host.friendEvent(friend.getKey(), false);
             }
         }
     }
@@ -252,6 +254,7 @@ public class ChatHandler
                         messages.put(user, new LimitedSizeQueue<>(150));
                     }
                     addMessageToChat(user, user, message);
+                    host.friendEvent(user, true);
                 }
             }
         }

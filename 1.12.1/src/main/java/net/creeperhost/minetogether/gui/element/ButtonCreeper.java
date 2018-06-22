@@ -11,10 +11,17 @@ public class ButtonCreeper extends GuiButton
 {
 
     private static ResourceLocation buttonImg = new ResourceLocation("creeperhost", "textures/nobrand.png");
+    private final int index;
+
+    public ButtonCreeper(int buttonID, int xPos, int yPos, int index)
+    {
+        super(buttonID, xPos, yPos, 20, 20, "");
+        this.index = index;
+    }
 
     public ButtonCreeper(int buttonID, int xPos, int yPos)
     {
-        super(buttonID, xPos, yPos, 20, 20, "");
+        this(buttonID, xPos, yPos, 0);
     }
 
     public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
@@ -39,7 +46,7 @@ public class ButtonCreeper extends GuiButton
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
             boolean over = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-            this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, over ? this.height : 0, this.width, this.height);
+            this.drawTexturedModalRect(this.xPosition, this.yPosition, index * 20, over ? this.height : 0, this.width, this.height);
         }
     }
 }
