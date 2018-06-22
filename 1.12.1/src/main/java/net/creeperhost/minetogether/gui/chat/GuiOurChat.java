@@ -87,6 +87,7 @@ public class GuiOurChat extends GuiScreen
     {
         ChatHandler.ConnectionStatus status = ChatHandler.connectionStatus;
         drawDefaultBackground();
+        targetDropdownButton.updateDisplayString();
         chat.drawScreen(mouseX, mouseY, partialTicks);
         send.setFocused(true);
         send.drawTextBox();

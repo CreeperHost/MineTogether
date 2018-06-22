@@ -674,6 +674,10 @@ public class EventHandler
 
             }
 
+        }
+
+        if(Config.getInstance().isChatEnabled())
+        {
             String friend;
             boolean friendMessage;
 
@@ -688,10 +692,8 @@ public class EventHandler
             {
                 if (friendMessage && Minecraft.getMinecraft().currentScreen instanceof GuiOurChat)
                     return;
-
                 CreeperHost.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000);
             }
-
         }
     }
 

@@ -23,7 +23,7 @@ public class ChatHandler
     public static final Object ircLock = new Object();
     public static HashMap<String, Boolean> newMessages = new HashMap<>();
     private static ChatUtil.IRCServer IRC_SERVER;
-    public static final String CHANNEL = "#MineTogether";
+    public static String CHANNEL = "#MineTogether";
     public static ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
 
     public static HashMap<String, LimitedSizeQueue<Pair<String, String>>> messages = null;
@@ -41,6 +41,7 @@ public class ChatHandler
         badwords = ChatUtil.getBadWords();
         badwordsFormat = ChatUtil.getAllowedCharactersRegex();
         IRC_SERVER = ChatUtil.getIRCServerDetails();
+        CHANNEL = IRC_SERVER.channel;
         host = _host;
         intentionalShutdown = false;
         tries = 0;

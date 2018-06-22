@@ -13,7 +13,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -59,19 +58,20 @@ public class ChatUtil
         String resp = getWebResponse("https://api.creeper.host/serverlist/chatserver");
         if (resp.equals("error"))
         {
-            return new IRCServer("irc.esper.net", 6697, true);
+            return new IRCServer("irc.esper.net", 6697, true, "#MineTogether");
         }
         JsonParser parser = new JsonParser();
         JsonObject parse = parser.parse(resp).getAsJsonObject();
         if (parse.get("status").getAsString().equals("success"))
         {
+            String channel = parse.get("channel").getAsString();
             JsonObject server = parse.getAsJsonObject("server");
             String address = server.get("address").getAsString();
             int port = server.get("port").getAsInt();
             boolean ssl = server.get("ssl").getAsBoolean();
-            return new IRCServer(address, port, ssl);
+            return new IRCServer(address, port, ssl, channel);
         } else {
-            return new IRCServer("irc.esper.net", 6697, true);
+            return new IRCServer("irc.esper.net", 6697, true, "#MineTogether");
         }
     }
 
@@ -236,12 +236,14 @@ public class ChatUtil
         public final String address;
         public final int port;
         public final boolean ssl;
+        public final String channel;
 
-        public IRCServer(String address, int port, boolean ssl)
+        public IRCServer(String address, int port, boolean ssl, String channel)
         {
             this.address = address;
             this.port = port;
             this.ssl = ssl;
+            this.channel = channel;
         }
     }
 }

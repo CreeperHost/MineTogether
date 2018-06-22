@@ -164,6 +164,11 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
     public void setSelected(E selected)
     {
         this.selected = selected;
+        updateDisplayString();
+    }
+
+    public void updateDisplayString()
+    {
         displayString = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected, false)));
     }
 
