@@ -8,10 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.GuiGDPR;
-import net.creeperhost.minetogether.gui.GuiGetServer;
-import net.creeperhost.minetogether.gui.GuiProgressDisconnected;
-import net.creeperhost.minetogether.gui.GuiServerInfo;
+import net.creeperhost.minetogether.gui.*;
 import net.creeperhost.minetogether.gui.chat.GuiOurChat;
 import net.creeperhost.minetogether.gui.element.ButtonCreeper;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
@@ -61,6 +58,7 @@ public class EventHandler
     private static final int MP_BUTTON_ID = 8008135;
     private static final int CHAT_BUTTON_ID = 800813;
     private static final int FRIEND_BUTTON_ID = 1337420;
+    private static final int MINIGAMES_BUTTON_ID = 0xdeadbeef;
 
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
     private static Field reasonField = null;
@@ -242,7 +240,7 @@ public class EventHandler
             if (buttonList != null)
             {
                 buttonList.add(new ButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
-
+                buttonList.add(new ButtonCreeper(MINIGAMES_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12 - 50));
             }
         }
         else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
@@ -487,6 +485,10 @@ public class EventHandler
             if (button != null && button.id == MAIN_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+            }
+            if (button != null && button.id == MINIGAMES_BUTTON_ID)
+            {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames());
             }
         }
         else if (gui instanceof GuiMultiplayer)

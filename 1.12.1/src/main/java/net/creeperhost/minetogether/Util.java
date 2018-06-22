@@ -37,6 +37,7 @@ public final class Util
     }};
     private static IBufferProxyGetter proxyGetter;
     private static IServerListEntryWrapper wrapper;
+    private static String mcVersion;
 
     public static String localize(String key, Object... format)
     {
@@ -306,6 +307,24 @@ public final class Util
         return wrapper;
     }
 
+    public static String getMinecraftVersion()
+    {
+        if (mcVersion == null)
+            try
+            {
+                /*
+                We need to get this at runtime as Java is smart and interns final fields.
+                Certainly not the dirtiest hack we do in this codebase.
+                */
+                mcVersion = (String) ForgeVersion.class.getField("mcVersion").get(null);
+            }
+            catch (Throwable e)
+            {
+                mcVersion = "unknown"; // will default to new method
+            }
+        return mcVersion;
+    }
+
     public static class CachedValue<T>
     {
         private long invalidTime;
@@ -329,7 +348,9 @@ public final class Util
             }
             synchronized (lock)
             {
-                cachedValue = callback.get(args); // make sure only one request at any one time - shouldn't cause much of an issue, but I am working with threads soooo
+                T temp = callback.get(args);
+                if (temp != null)
+                    cachedValue = temp; // make sure only one request at any one time - shouldn't cause much of an issue, but I am working with threads soooo
             }
             invalidTime = validTime + System.currentTimeMillis();
             return cachedValue;
