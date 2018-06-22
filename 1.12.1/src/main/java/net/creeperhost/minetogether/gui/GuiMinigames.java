@@ -1,9 +1,14 @@
 package net.creeperhost.minetogether.gui;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Minigame;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
+import net.creeperhost.minetogether.gui.element.GuiTextFieldCompatCensor;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -14,13 +19,16 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.GuiScrollingList;
+import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GuiMinigames extends GuiScreen
 {
@@ -30,6 +38,9 @@ public class GuiMinigames extends GuiScreen
     private static HashMap<Integer, ResourceLocation> minigameTexturesCache = new HashMap<>();
     private static HashMap<Integer, Pair<Integer, Integer>> minigameTexturesSize = new HashMap<>();
     private GuiButton settingsButton;
+    private static File credentialsFile = new File("config/minetogether/credentials.json");
+    private static String key = "";
+    private static String secret = "";
 
     public GuiMinigames()
     {
@@ -72,6 +83,26 @@ public class GuiMinigames extends GuiScreen
         if (button == settingsButton)
         {
             Minecraft.getMinecraft().displayGuiScreen(new Settings());
+        }
+    }
+
+    private void loadCredentials()
+    {
+        if (credentialsFile.exists())
+        {
+            try {
+                String creds = FileUtils.readFileToString(credentialsFile);
+                JsonParser parser = new JsonParser();
+                JsonElement el = parser.parse(creds);
+                if (el.isJsonObject())
+                {
+                    JsonObject obj = el.getAsJsonObject();
+                    key = obj.get("key").getAsString();
+                    secret = obj.get("secret").getAsString();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -154,27 +185,29 @@ public class GuiMinigames extends GuiScreen
         public GuiTextFieldCompat keyField;
         public GuiTextFieldCompat keySecret;
         public GuiButton cancelButton;
-        public GuiButton saveButton;
+        public GuiButton loginButton;
 
         @Override
         public void initGui() {
             super.initGui();
             keyField = new GuiTextFieldCompat(80856, fontRendererObj, width / 2 - 100, height / 2 - 20, 200, 20);
-            keySecret = new GuiTextFieldCompat(80855, fontRendererObj, width / 2 - 100, height / 2 + 10, 200, 20);
+            keySecret = new GuiTextFieldCompatCensor(80855, fontRendererObj, width / 2 - 100, height / 2 + 10, 200, 20);
             buttonList.add(cancelButton = new GuiButton(8085, width - 10 - 100, height - 5 - 20, 100, 20, "Cancel"));
-            buttonList.add(saveButton = new GuiButton(8089, 5, height - 5 - 20, 100, 20, "Save"));
+            buttonList.add(loginButton = new GuiButton(8089, 5, height - 5 - 20, 100, 20, "Save"));
         }
 
         @Override
         protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
             keyField.myMouseClicked(mouseX, mouseY, mouseButton);
             keySecret.myMouseClicked(mouseX, mouseY, mouseButton);
+            super.mouseClicked(mouseX, mouseY, mouseButton);
         }
 
         @Override
         protected void keyTyped(char typedChar, int keyCode) throws IOException {
             keyField.textboxKeyTyped(typedChar, keyCode);
             keySecret.textboxKeyTyped(typedChar, keyCode);
+            super.keyTyped(typedChar, keyCode);
         }
 
         @Override
@@ -192,8 +225,24 @@ public class GuiMinigames extends GuiScreen
             if (button == cancelButton)
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiMinigames.this);
-            } else if (button == saveButton) {
+            } else if (button == loginButton) {
+                Map<String, String> credentials = new HashMap<>();
+                credentials.put("email", keyField.getText());
+                credentials.put("password", keySecret.getText());
+                String resp = Util.postWebResponse("https://staging-panel.creeper.host/mt.php", credentials);
 
+                JsonParser parser = new JsonParser();
+                JsonElement el = parser.parse(resp);
+                if (el.isJsonObject())
+                {
+                    JsonObject obj = el.getAsJsonObject();
+                    if (obj.get("success").getAsBoolean())
+                    {
+                        String key = obj.get("key").getAsString();
+                        String secret = obj.get("secret").getAsString();
+
+                    }
+                }
             }
         }
     }

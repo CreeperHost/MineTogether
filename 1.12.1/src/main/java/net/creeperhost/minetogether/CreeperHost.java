@@ -79,7 +79,7 @@ public class CreeperHost implements ICreeperHostMod, IChatHost
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        File gdprFile = new File("minetogether-gdpr.txt");
+        File gdprFile = new File("config/minetogether/gdpr.txt");
         gdpr = new GDPR(gdprFile);
         ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
 

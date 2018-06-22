@@ -132,7 +132,7 @@ public class EventHandler
                     first = false;
                     if (Config.getInstance().isChatEnabled())
                     {
-                        CreeperHost.instance.mutedUsersFile = new File("minetogether-mutedusers.json");
+                        CreeperHost.instance.mutedUsersFile = new File("config/minetogether/mutedusers.json");
                         InputStream mutedUsersStream = null;
                         try
                         {
@@ -144,6 +144,7 @@ public class EventHandler
                             }
                             else
                             {
+                                CreeperHost.instance.mutedUsersFile.getParentFile().mkdirs();
                                 configString = "[]";
                             }
 

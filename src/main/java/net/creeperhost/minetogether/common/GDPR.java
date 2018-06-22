@@ -71,6 +71,7 @@ public class GDPR
 
         try
         {
+            gdprFile.getParentFile().mkdirs();
             Properties properties = new Properties();
             fileoutputstream = new FileOutputStream(this.gdprFile);
             properties.setProperty("gdpr", "false");
