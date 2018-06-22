@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.chat;
 
+import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.serverlist.data.Friend;
@@ -28,14 +29,14 @@ public class ChatHandler
 
     public static HashMap<String, LimitedSizeQueue<Pair<String, String>>> messages = null;
     private static Client client = null;
-    private static IChatHost host;
+    private static IHost host;
     private static boolean intentionalShutdown = false;
     private static int tries = 0;
     private static boolean inited = false;
     public static List<String> badwords;
     public static String badwordsFormat;
 
-    public static void init(String nick, IChatHost _host)
+    public static void init(String nick, IHost _host)
     {
         if (inited) return;
         badwords = ChatUtil.getBadWords();

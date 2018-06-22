@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.*;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.serverlist.data.EnumFlag;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
@@ -291,7 +292,7 @@ public final class Callbacks
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/friendinvites", sendStr, true, false);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/friendinvites", sendStr, true, false);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
@@ -354,7 +355,7 @@ public final class Callbacks
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/invitefriend", sendStr, true, false);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invitefriend", sendStr, true, false);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
 
@@ -404,7 +405,7 @@ public final class Callbacks
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/friendCode", sendStr, true, false);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/friendCode", sendStr, true, false);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
@@ -435,7 +436,7 @@ public final class Callbacks
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/requestfriend", sendStr, true, false);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/requestfriend", sendStr, true, false);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
@@ -466,7 +467,7 @@ public final class Callbacks
                         sendMap.put("project", Config.getInstance().curseProjectID);
                     }
 
-                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/mgtemplates", new Gson().toJson(sendMap), true, false);
+                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/mgtemplates", new Gson().toJson(sendMap), true, false);
 
                     JsonParser parser = new JsonParser();
 
@@ -507,7 +508,7 @@ public final class Callbacks
                         sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
                     }
 
-                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, false);
+                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, false);
 
                     ArrayList<Friend> tempArr = new ArrayList<Friend>();
 
@@ -586,7 +587,7 @@ public final class Callbacks
                     Gson gson = new Gson();
                     String jsonString = gson.toJson(jsonPass);
 
-                    String resp = Util.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
+                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
 
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
@@ -668,7 +669,7 @@ public final class Callbacks
         if (userCountry == null)
             try
             {
-                String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
+                String freeGeoIP = WebUtils.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
 
                 JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
 
@@ -716,7 +717,7 @@ public final class Callbacks
 
     public static String getVersionFromCurse(String curse)
     {
-        String resp = Util.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
+        String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
         try
         {
             JsonElement jElement = new JsonParser().parse(resp);

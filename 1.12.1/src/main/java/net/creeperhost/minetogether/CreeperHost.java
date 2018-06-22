@@ -1,12 +1,11 @@
 package net.creeperhost.minetogether;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.api.CreeperHostAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.chat.IChatHost;
+import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.GDPR;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
@@ -15,7 +14,6 @@ import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.siv.QueryGetter;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -31,7 +29,6 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.Random;
 
 @Mod(
@@ -42,7 +39,7 @@ import java.util.Random;
     acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2",
     guiFactory = "net.creeperhost.minetogether.gui.config.GuiCreeperConfigFactory"
 )
-public class CreeperHost implements ICreeperHostMod, IChatHost
+public class CreeperHost implements ICreeperHostMod, IHost
 {
 
     public static final String MOD_ID = "minetogether";
@@ -285,6 +282,11 @@ public class CreeperHost implements ICreeperHostMod, IChatHost
             friend = ChatHandler.getNameForUser(name);
             friendMessage = isMessage;
         }
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
     }
 
     public void muteUser(String user)

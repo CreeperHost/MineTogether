@@ -1,12 +1,14 @@
 package net.creeperhost.minetogether.gui;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Minigame;
+import net.creeperhost.minetogether.aries.Aries;
 import net.creeperhost.minetogether.common.Pair;
+import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompatCensor;
 import net.creeperhost.minetogether.paul.Callbacks;
@@ -44,7 +46,7 @@ public class GuiMinigames extends GuiScreen
 
     public GuiMinigames()
     {
-
+        loadCredentials();
     }
 
     @Override
@@ -86,6 +88,13 @@ public class GuiMinigames extends GuiScreen
         }
     }
 
+    private boolean areCredentialsValid()
+    {
+        Aries aries = new Aries(key, secret);
+        Map resp = aries.doApiCall("os", "systemstate");
+        return true;
+    }
+
     private void loadCredentials()
     {
         if (credentialsFile.exists())
@@ -103,6 +112,21 @@ public class GuiMinigames extends GuiScreen
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            credentialsFile.getParentFile().mkdirs();
+        }
+    }
+
+    private void saveCredentials()
+    {
+        credentialsFile.getParentFile().mkdirs();
+
+        HashMap<String, String> creds = new HashMap<>();
+        creds.put("key", key);
+        creds.put("secret", secret);
+        try {
+            FileUtils.writeStringToFile(credentialsFile, new Gson().toJson(creds));
+        } catch (IOException e) {
         }
     }
 
@@ -229,7 +253,7 @@ public class GuiMinigames extends GuiScreen
                 Map<String, String> credentials = new HashMap<>();
                 credentials.put("email", keyField.getText());
                 credentials.put("password", keySecret.getText());
-                String resp = Util.postWebResponse("https://staging-panel.creeper.host/mt.php", credentials);
+                String resp = WebUtils.postWebResponse("https://staging-panel.creeper.host/mt.php", credentials);
 
                 JsonParser parser = new JsonParser();
                 JsonElement el = parser.parse(resp);
@@ -238,9 +262,9 @@ public class GuiMinigames extends GuiScreen
                     JsonObject obj = el.getAsJsonObject();
                     if (obj.get("success").getAsBoolean())
                     {
-                        String key = obj.get("key").getAsString();
-                        String secret = obj.get("secret").getAsString();
-
+                        key = obj.get("key").getAsString();
+                        secret = obj.get("secret").getAsString();
+                        saveCredentials();
                     }
                 }
             }

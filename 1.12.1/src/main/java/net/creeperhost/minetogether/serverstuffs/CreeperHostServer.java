@@ -4,14 +4,13 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.PacketHandler;
-import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.Pair;
+import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.serverstuffs.command.CommandInvite;
 import net.creeperhost.minetogether.serverstuffs.command.CommandPregen;
 import net.creeperhost.minetogether.serverstuffs.hacky.IPlayerKicker;
 import net.creeperhost.minetogether.serverstuffs.pregen.PregenTask;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.INetHandlerPlayServer;
@@ -202,7 +201,7 @@ public class CreeperHostServer
 
                             String sendStr = gson.toJson(send);
 
-                            String resp = Util.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
+                            String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
 
                             int sleepTime = 90000;
 

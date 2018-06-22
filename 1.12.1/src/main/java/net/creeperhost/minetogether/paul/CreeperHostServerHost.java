@@ -12,6 +12,7 @@ import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.common.WebUtils;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.ResourceLocation;
 
@@ -52,7 +53,7 @@ public class CreeperHostServerHost implements IServerHost
         try
         {
 
-            String jsonData = Util.getWebResponse("https://www.creeperhost.net/json/locations");
+            String jsonData = WebUtils.getWebResponse("https://www.creeperhost.net/json/locations");
 
             Type type = new TypeToken<Map<String, String>>()
             {
@@ -98,20 +99,20 @@ public class CreeperHostServerHost implements IServerHost
             }
             String url = "https://www.creeperhost.net/json/order/mc/" + version + "/recommend/" + order.playerAmount;
 
-            String resp = Util.getWebResponse(url);
+            String resp = WebUtils.getWebResponse(url);
 
             JsonElement jElement = new JsonParser().parse(resp);
 
             JsonObject jObject = jElement.getAsJsonObject();
             String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
 
-            String applyPromo = Util.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
+            String applyPromo = WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
             if (applyPromo.equals("error"))
             {
                 return new OrderSummary("quote.promoerror");
             }
 
-            String summary = Util.getWebResponse("https://www.creeperhost.net/json/order/" + order.country + "/" + recommended + "/" + "summary");
+            String summary = WebUtils.getWebResponse("https://www.creeperhost.net/json/order/" + order.country + "/" + recommended + "/" + "summary");
 
             jElement = new JsonParser().parse(summary);
 
@@ -127,7 +128,7 @@ public class CreeperHostServerHost implements IServerHost
             }
             double total = jObject.getAsJsonPrimitive("Total").getAsDouble();
 
-            String currency = Util.getWebResponse("https://www.creeperhost.net/json/currency/" + order.country);
+            String currency = WebUtils.getWebResponse("https://www.creeperhost.net/json/currency/" + order.country);
 
             jElement = new JsonParser().parse(currency);
 
@@ -136,7 +137,7 @@ public class CreeperHostServerHost implements IServerHost
             String suffix = jObject.getAsJsonPrimitive("suffix").getAsString();
             String id = jObject.getAsJsonPrimitive("id").getAsString();
 
-            String product = Util.getWebResponse("https://www.creeperhost.net/json/products/" + recommended);
+            String product = WebUtils.getWebResponse("https://www.creeperhost.net/json/products/" + recommended);
 
             jElement = new JsonParser().parse(product);
 
@@ -182,7 +183,7 @@ public class CreeperHostServerHost implements IServerHost
     {
         try
         {
-            String result = Util.getWebResponse("https://www.creeperhost.net/json/availability/" + name);
+            String result = WebUtils.getWebResponse("https://www.creeperhost.net/json/availability/" + name);
             JsonElement jElement = new JsonParser().parse(result);
             JsonObject jObject = jElement.getAsJsonObject();
             String status = jObject.getAsJsonPrimitive("status").getAsString();
@@ -204,7 +205,7 @@ public class CreeperHostServerHost implements IServerHost
     {
         try
         {
-            String response = Util.postWebResponse("https://www.creeperhost.net/json/account/exists", new HashMap<String, String>()
+            String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/account/exists", new HashMap<String, String>()
             {{
                 put("email", email);
             }});
@@ -236,7 +237,7 @@ public class CreeperHostServerHost implements IServerHost
     {
         try
         {
-            String response = Util.postWebResponse("https://www.creeperhost.net/json/account/login", new HashMap<String, String>()
+            String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/account/login", new HashMap<String, String>()
             {{
                 put("email", username);
                 put("password", password);
@@ -273,7 +274,7 @@ public class CreeperHostServerHost implements IServerHost
     {
         try
         {
-            String response = Util.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>()
+            String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>()
             {{
                 put("servername", order.name);
                 put("modpack", Config.getInstance().getVersion());
@@ -321,7 +322,7 @@ public class CreeperHostServerHost implements IServerHost
     {
         try
         {
-            String response = Util.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + order.serverLocation, new HashMap<String, String>()
+            String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + order.serverLocation, new HashMap<String, String>()
             {{
                 put("name", order.name);
                 put("swid", Config.getInstance().getVersion());
@@ -361,7 +362,7 @@ public class CreeperHostServerHost implements IServerHost
     {
         try
         {
-            String response = Util.getWebResponse("https://www.creeperhost.net/json/order/" + orderNum + "/cancel");
+            String response = WebUtils.getWebResponse("https://www.creeperhost.net/json/order/" + orderNum + "/cancel");
         }
         catch (Throwable t)
         {
@@ -394,7 +395,7 @@ public class CreeperHostServerHost implements IServerHost
     {
         try
         {
-            String freeGeoIP = Util.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
+            String freeGeoIP = WebUtils.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
 
             JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
 

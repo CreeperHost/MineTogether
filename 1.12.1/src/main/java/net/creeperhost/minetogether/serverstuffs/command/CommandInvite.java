@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.serverstuffs.command;
 
 import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
-import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.serverstuffs.CreeperHostServer;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -64,7 +64,7 @@ public class CommandInvite extends CommandBase
         invite.id = CreeperHostServer.updateID;
 
         CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
-        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
         CreeperHostServer.logger.debug("Response from add endpoint " + resp);
         if (!removeHash.isEmpty())
         {
@@ -72,7 +72,7 @@ public class CommandInvite extends CommandBase
             invite.id = CreeperHostServer.updateID;
             invite.hash = tempHash;
             CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
-            resp = Util.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
+            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
             CreeperHostServer.logger.debug("Response from revoke endpoint " + resp);
         }
     }
@@ -211,7 +211,7 @@ public class CommandInvite extends CommandBase
         invite.hash = tempHash;
         invite.id = CreeperHostServer.updateID;
         CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
-        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
         CreeperHostServer.logger.debug("Response from add endpoint " + resp);
     }
 
@@ -242,7 +242,7 @@ public class CommandInvite extends CommandBase
         invite.hash = tempHash;
         invite.id = CreeperHostServer.updateID;
         CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
-        String resp = Util.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
         CreeperHostServer.logger.debug("Response from revoke endpoint " + resp);
     }
 }
