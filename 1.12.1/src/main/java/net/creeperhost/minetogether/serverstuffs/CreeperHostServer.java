@@ -71,10 +71,10 @@ public class CreeperHostServer
         add("1.11.2");
     }};
     public HashMap<Integer, PregenTask> pregenTasks = new HashMap<Integer, PregenTask>();
-    public boolean serverOn;
+    public static boolean serverOn;
     public IPlayerKicker kicker;
     Discoverability discoverMode = Discoverability.UNLISTED;
-    int tries = 0;
+    static int tries = 0;
     ArrayList<UUID> playersJoined = new ArrayList<UUID>();
     private boolean needsToBeKilled = true;
     private boolean watchdogKilled = false;
@@ -171,95 +171,102 @@ public class CreeperHostServer
                     CreeperHostServer.logger.warn("Curse project ID in creeperhost.cfg not set correctly - please set this to utilize the server list feature.");
                     return;
                 }
-                Thread thread = new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        CreeperHostServer.logger.info("Enabling server list. Servers found to be breaking Mojang's EULA may be removed if complaints are received.");
-                        boolean first = true;
-                        while (serverOn)
-                        {
-                            Map send = new HashMap<String, String>();
-
-                            if (!serverIP.isEmpty())
-                            {
-                                send.put("ip", serverIP);
-                            }
-
-                            if (CreeperHostServer.secret != null)
-                                send.put("secret", CreeperHostServer.secret);
-                            send.put("name", displayName);
-                            send.put("projectid", projectid);
-                            send.put("port", String.valueOf(server.getServerPort()));
-
-                            send.put("invite-only", discoverMode == Discoverability.INVITE ? "1" : "0");
-
-                            send.put("version", 2);
-
-                            Gson gson = new Gson();
-
-                            String sendStr = gson.toJson(send);
-
-                            String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
-
-                            int sleepTime = 90000;
-
-                            try
-                            {
-                                JsonElement jElement = new JsonParser().parse(resp);
-                                if (jElement.isJsonObject())
-                                {
-                                    JsonObject jObject = jElement.getAsJsonObject();
-                                    if (jObject.get("status").getAsString().equals("success"))
-                                    {
-                                        tries = 0;
-                                        CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
-                                        if (jObject.has("secret"))
-                                            CreeperHostServer.secret = jObject.get("secret").getAsString();
-                                    }
-                                    else
-                                    {
-                                        if (tries >= 4)
-                                        {
-                                            CreeperHostServer.logger.error("Unable to do call to server list - disabling for 45 minutes. Reason: " + jObject.get("message").getAsString());
-                                            tries = 0;
-                                            sleepTime = 60 * 1000 * 45;
-                                        }
-                                        else
-                                        {
-                                            CreeperHostServer.logger.error("Unable to do call to server list - will try again in 90 seconds. Reason: " + jObject.get("message").getAsString());
-                                            tries++;
-                                        }
-                                    }
-
-                                    if (first)
-                                    {
-                                        CommandInvite.reloadInvites(new String[0]);
-                                        first = false;
-                                    }
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                // so our thread doens't go byebye
-                            }
-
-                            try
-                            {
-                                Thread.sleep(sleepTime);
-                            }
-                            catch (InterruptedException e)
-                            {
-                                // meh
-                            }
-                        }
-                    }
-                });
-                thread.setDaemon(true);
-                thread.start();
+                startMinetogetherThread(serverIP, displayName, projectid, server.getServerPort(), discoverMode);
             }
         }
+    }
+
+    static Thread mtThread;
+    public static boolean isActive;
+    public static boolean failed;
+
+    public static void startMinetogetherThread(String serverIP, String displayName, String projectid, int port, Discoverability discoverMode)
+    {
+        mtThread = new Thread(() ->
+        {
+            CreeperHostServer.logger.info("Enabling server list. Servers found to be breaking Mojang's EULA may be removed if complaints are received.");
+            boolean first = true;
+            while (serverOn)
+            {
+                Map send = new HashMap<String, String>();
+
+                if (!serverIP.isEmpty())
+                {
+                    send.put("ip", serverIP);
+                }
+
+                if (CreeperHostServer.secret != null)
+                    send.put("secret", CreeperHostServer.secret);
+                send.put("name", displayName);
+                send.put("projectid", projectid);
+                send.put("port", String.valueOf(port));
+
+                send.put("invite-only", discoverMode == Discoverability.INVITE ? "1" : "0");
+
+                send.put("version", 2);
+
+                Gson gson = new Gson();
+
+                String sendStr = gson.toJson(send);
+
+                String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
+
+                int sleepTime = 90000;
+
+                try
+                {
+                    JsonElement jElement = new JsonParser().parse(resp);
+                    if (jElement.isJsonObject())
+                    {
+                        JsonObject jObject = jElement.getAsJsonObject();
+                        if (jObject.get("status").getAsString().equals("success"))
+                        {
+                            tries = 0;
+                            CreeperHostServer.updateID = jObject.get("id").getAsNumber().intValue();
+                            if (jObject.has("secret"))
+                                CreeperHostServer.secret = jObject.get("secret").getAsString();
+                            isActive = true;
+                        }
+                        else
+                        {
+                            if (tries >= 4)
+                            {
+                                CreeperHostServer.logger.error("Unable to do call to server list - disabling for 45 minutes. Reason: " + jObject.get("message").getAsString());
+                                tries = 0;
+                                sleepTime = 60 * 1000 * 45;
+                            }
+                            else
+                            {
+                                CreeperHostServer.logger.error("Unable to do call to server list - will try again in 90 seconds. Reason: " + jObject.get("message").getAsString());
+                                tries++;
+                            }
+                            failed = true;
+                        }
+
+                        if (first)
+                        {
+                            CommandInvite.reloadInvites(new String[0]);
+                            first = false;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    // so our thread doens't go byebye
+                }
+
+                try
+                {
+                    Thread.sleep(sleepTime);
+                }
+                catch (InterruptedException e)
+                {
+                    // meh
+                }
+            }
+        });
+        mtThread.setDaemon(true);
+        mtThread.start();
     }
 
     @Mod.EventHandler
@@ -564,7 +571,7 @@ public class CreeperHostServer
         }
     }
 
-    private enum Discoverability
+    public enum Discoverability
     {
         UNLISTED,
         PUBLIC,

@@ -29,6 +29,10 @@ public class CommandInvite extends CommandBase
     public static void reloadInvites(String[] prevNames)
     {
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server == null)
+        {
+            return;
+        }
         Gson gson = new Gson();
         UserListWhitelist whitelistedPlayers = server.getPlayerList().getWhitelistedPlayers();
         final ArrayList<String> tempHash = new ArrayList<String>();
