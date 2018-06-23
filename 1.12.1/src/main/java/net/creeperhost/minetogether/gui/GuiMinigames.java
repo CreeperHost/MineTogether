@@ -557,6 +557,7 @@ public class GuiMinigames extends GuiScreen
     public class StartMinigame extends GuiScreen implements IStateHandler
     {
         private final Minigame minigame;
+        private int port;
         private String ip;
         private int ticks = 0;
         private ItemStack stack = new ItemStack(Items.BEEF, 1);
@@ -596,8 +597,8 @@ public class GuiMinigames extends GuiScreen
                         {
                             try {
                                 State.pushState(State.MINIGAME_ACTIVE);
-                                ip = map.get("ip").toString() + ":" + map.get("port").toString();
-                                int port = Double.valueOf(map.get("port").toString()).intValue();
+                                ip = map.get("ip").toString();
+                                port = Double.valueOf(map.get("port").toString()).intValue();
                                 CreeperHostServer.serverOn = true;
                                 CreeperHostServer.startMinetogetherThread(map.get("ip").toString(), "Minigame: " + Minecraft.getMinecraft().getSession().getUsername(), Config.getInstance().curseProjectID, port, CreeperHostServer.Discoverability.INVITE);
                                 while (true) {
@@ -608,6 +609,7 @@ public class GuiMinigames extends GuiScreen
                                         State.pushState(State.MINIGAME_FAILED);
                                         break;
                                     }
+                                    Thread.sleep(1000);
                                 }
                             } catch(Exception e) {
                                 e.printStackTrace();
@@ -684,7 +686,7 @@ public class GuiMinigames extends GuiScreen
             super.actionPerformed(button);
             if (button == joinServerButton)
             {
-                FMLClientHandler.instance().connectToServer(null, new ServerData("", ip, false));
+                FMLClientHandler.instance().connectToServerAtStartup(ip, port);
             }
         }
     }
