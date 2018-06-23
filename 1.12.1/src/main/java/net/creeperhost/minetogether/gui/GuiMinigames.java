@@ -15,6 +15,7 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -31,22 +32,27 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 
 public class GuiMinigames extends GuiScreen
 {
     private List<Minigame> minigames;
     private GuiScrollingMinigames minigameScroll;
-    private boolean first = true;
     private static HashMap<Integer, ResourceLocation> minigameTexturesCache = new HashMap<>();
     private static HashMap<Integer, Pair<Integer, Integer>> minigameTexturesSize = new HashMap<>();
     private GuiButton settingsButton;
     private static File credentialsFile = new File("config/minetogether/credentials.json");
     private static String key = "";
     private static String secret = "";
+    private boolean credentialsValid = false;
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    private String loginFailureMessage;
+    private static Settings settings;
 
     public GuiMinigames()
     {
         loadCredentials();
+        executor.submit(() -> minigames = Callbacks.getMinigames(false));
     }
 
     @Override
@@ -62,12 +68,8 @@ public class GuiMinigames extends GuiScreen
     {
         drawDefaultBackground();
         minigameScroll.drawScreen(mouseX, mouseY, partialTicks);
-        if (first)
-        {
-            first = false;
-            minigames = Callbacks.getMinigames(false);
-        }
         super.drawScreen(mouseX, mouseY, partialTicks);
+        drawStatusString();
     }
 
     protected void drawTextureAt(int p_178012_1_, int p_178012_2_, int texturew, int textureh, int width, int height, ResourceLocation p_178012_3_)
@@ -84,7 +86,7 @@ public class GuiMinigames extends GuiScreen
     {
         if (button == settingsButton)
         {
-            Minecraft.getMinecraft().displayGuiScreen(new Settings());
+            Minecraft.getMinecraft().displayGuiScreen(settings = new Settings());
         }
     }
 
@@ -92,7 +94,18 @@ public class GuiMinigames extends GuiScreen
     {
         Aries aries = new Aries(key, secret);
         Map resp = aries.doApiCall("os", "systemstate");
-        return true;
+        System.out.println(resp.containsKey("status") && resp.get("status").equals("success"));
+        return resp.containsKey("status") && resp.get("status").equals("success");
+    }
+
+    private Future<Boolean> checkCredentials()
+    {
+        return executor.submit( () -> {
+            State.pushState(State.CHECKING_CREDENTIALS);
+            credentialsValid = areCredentialsValid();
+            State.pushState(credentialsValid ? State.CREDENTIALS_OK : State.CREDENTIALS_INVALID);
+            return credentialsValid;
+        });
     }
 
     private void loadCredentials()
@@ -115,6 +128,7 @@ public class GuiMinigames extends GuiScreen
         } else {
             credentialsFile.getParentFile().mkdirs();
         }
+        checkCredentials();
     }
 
     private void saveCredentials()
@@ -127,6 +141,131 @@ public class GuiMinigames extends GuiScreen
         try {
             FileUtils.writeStringToFile(credentialsFile, new Gson().toJson(creds));
         } catch (IOException e) {
+        }
+    }
+
+    private void drawStatusString()
+    {
+        String drawText;
+        int drawColour;
+        State state = State.getCurrentState();
+        switch (state)
+        {
+            case LOGGING_IN:
+                drawText = "Logging in...";
+                drawColour = 0xFFFFFFFF;
+                break;
+            case LOGIN_FAILURE:
+                drawText = loginFailureMessage;
+                drawColour = 0xFFFFFFFF;
+                break;
+            case CREDENTIALS_OK:
+                drawText = "Credentials are stored and are valid";
+                drawColour = 0xFF00FF00;
+                break;
+            case STARTING_MINIGAME:
+                drawText = "Starting Minigame";
+                drawColour = 0xFFFFFFFF;
+                break;
+            case CREDENTIALS_INVALID:
+                drawText = "No credentials found or are invalid - please log in";
+                drawColour = 0xFFFF0000;
+                break;
+            case TWOFACTOR_FAILURE:
+                drawText = loginFailureMessage;
+                drawColour = 0xFFFF0000;
+                break;
+            case TWOFACTOR_NEEDED:
+                drawText = loginFailureMessage;
+                drawColour = 0xFFFFFFFF;
+                break;
+
+            case CHECKING_CREDENTIALS:
+            default:
+                drawText = "Checking credentials...";
+                drawColour = 0xFFFFFFFF;
+        }
+
+        drawCenteredSplitString(drawText, width / 2, height / 2, drawColour);
+    }
+
+    private void drawCenteredSplitString(String drawText, int x, int y, int width, int drawColour)
+    {
+
+        List<String> strings = fontRendererObj.listFormattedStringToWidth(drawText, width);
+        for(String str: strings)
+        {
+            drawCenteredString(fontRendererObj, str, x, y, drawColour);
+            y += fontRendererObj.FONT_HEIGHT;
+        }
+    }
+
+    private enum State {
+        LOGGING_IN, CHECKING_CREDENTIALS, CREDENTIALS_OK, CREDENTIALS_INVALID, LOGIN_FAILURE, TWOFACTOR_NEEDED, STARTING_MINIGAME, LOGIN_SUCCESS, TWOFACTOR_FAILURE;
+
+        private static State currentState = CHECKING_CREDENTIALS;
+
+        public static void pushState(State state)
+        {
+            switch (state) {
+                case LOGGING_IN:
+                    if (GuiMinigames.settings != null) {
+                        GuiMinigames.settings.emailField.setEnabled(false);
+                        GuiMinigames.settings.passwordField.setEnabled(false);
+                        GuiMinigames.settings.oneCodeField.setEnabled(false);
+                    }
+                    break;
+                case TWOFACTOR_NEEDED:
+                    if (GuiMinigames.settings != null) {
+                        GuiMinigames.settings.emailField.setVisible(false);
+                        GuiMinigames.settings.passwordField.setVisible(false);
+                        GuiMinigames.settings.oneCodeField.setVisible(true);
+                        GuiMinigames.settings.oneCodeField.setEnabled(true);
+                        GuiMinigames.settings.emailLabel.visible = false;
+                        GuiMinigames.settings.passwordLabel.visible = false;
+                        GuiMinigames.settings.oneCodeLabel.visible = true;
+                    }
+                    break;
+                case CREDENTIALS_OK:
+                    if (GuiMinigames.settings != null)
+                    {
+                        GuiMinigames.settings.emailField.setVisible(false);
+                        GuiMinigames.settings.passwordField.setVisible(false);
+                        GuiMinigames.settings.oneCodeField.setVisible(false);
+                        GuiMinigames.settings.emailLabel.visible = false;
+                        GuiMinigames.settings.passwordLabel.visible = false;
+                        GuiMinigames.settings.oneCodeLabel.visible = false;
+                    }
+                    break;
+                case LOGIN_FAILURE:
+                    if (GuiMinigames.settings != null)
+                    {
+                        GuiMinigames.settings.emailField.setEnabled(true);
+                        GuiMinigames.settings.passwordField.setEnabled(true);
+                        GuiMinigames.settings.emailField.setVisible(true);
+                        GuiMinigames.settings.passwordField.setVisible(true);
+                        GuiMinigames.settings.emailLabel.visible = true;
+                        GuiMinigames.settings.passwordLabel.visible = true;
+                    }
+                    break;
+                case TWOFACTOR_FAILURE:
+                    if (GuiMinigames.settings != null)
+                    {
+                        GuiMinigames.settings.oneCodeField.setEnabled(true);
+                        GuiMinigames.settings.oneCodeField.setVisible(true);
+                        GuiMinigames.settings.oneCodeLabel.visible = true;
+                    }
+            }
+            currentState = state;
+        }
+
+        public static State getCurrentState()
+        {
+            return currentState;
+        }
+
+        public static void refreshState() {
+            pushState(currentState);
         }
     }
 
@@ -206,41 +345,73 @@ public class GuiMinigames extends GuiScreen
     }
 
     public class Settings extends GuiScreen {
-        public GuiTextFieldCompat keyField;
-        public GuiTextFieldCompat keySecret;
+        public GuiTextFieldCompat emailField;
+        public GuiLabel emailLabel;
+        public GuiTextFieldCompat passwordField;
+        public GuiLabel passwordLabel;
+        public GuiTextFieldCompat oneCodeField;
+        public GuiLabel oneCodeLabel;
         public GuiButton cancelButton;
         public GuiButton loginButton;
+        public GuiButton loginAgainButton;
+        private boolean previous2fa;
 
         @Override
         public void initGui() {
             super.initGui();
-            keyField = new GuiTextFieldCompat(80856, fontRendererObj, width / 2 - 100, height / 2 - 20, 200, 20);
-            keySecret = new GuiTextFieldCompatCensor(80855, fontRendererObj, width / 2 - 100, height / 2 + 10, 200, 20);
+            labelList.clear();
+
+            emailField = new GuiTextFieldCompat(80856, fontRendererObj, width / 2 - 100, height / 2 - 20, 200, 20);
+            labelList.add(emailLabel = new GuiLabel(fontRendererObj, 80856, emailField.xPosition, emailField.yPosition - 10, 200, 20, 0xFFFFFFFF));
+            emailLabel.addLine("Email");
+
+            oneCodeField = new GuiTextFieldCompat(808567, fontRendererObj, width / 2 - 100, emailField.yPosition - 10, 200, 20);
+            labelList.add(oneCodeLabel = new GuiLabel(fontRendererObj, 80856, oneCodeField.xPosition, oneCodeField.yPosition - 10, 200, 20, 0xFFFFFFFF));
+            oneCodeLabel.addLine("One-time code");
+
+            passwordField = new GuiTextFieldCompatCensor(80855, fontRendererObj, width / 2 - 100, height / 2 + 10, 200, 20);
+            labelList.add(passwordLabel = new GuiLabel(fontRendererObj, 80856, passwordField.xPosition, passwordField.yPosition - 10, 200, 20, 0xFFFFFFFF));
+            passwordLabel.addLine("Password");
+
             buttonList.add(cancelButton = new GuiButton(8085, width - 10 - 100, height - 5 - 20, 100, 20, "Cancel"));
             buttonList.add(loginButton = new GuiButton(8089, 5, height - 5 - 20, 100, 20, "Save"));
+            buttonList.add(loginAgainButton = new GuiButton(8090, width / 2 - 50, height / 2 - 10, 100, 20, "Login again"));
+
+            State.refreshState();
         }
 
         @Override
         protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-            keyField.myMouseClicked(mouseX, mouseY, mouseButton);
-            keySecret.myMouseClicked(mouseX, mouseY, mouseButton);
+            emailField.myMouseClicked(mouseX, mouseY, mouseButton);
+            passwordField.myMouseClicked(mouseX, mouseY, mouseButton);
+            oneCodeField.myMouseClicked(mouseX, mouseY, mouseButton);
             super.mouseClicked(mouseX, mouseY, mouseButton);
         }
 
         @Override
         protected void keyTyped(char typedChar, int keyCode) throws IOException {
-            keyField.textboxKeyTyped(typedChar, keyCode);
-            keySecret.textboxKeyTyped(typedChar, keyCode);
+            emailField.textboxKeyTyped(typedChar, keyCode);
+            passwordField.textboxKeyTyped(typedChar, keyCode);
+            oneCodeField.textboxKeyTyped(typedChar, keyCode);
+            if (oneCodeField.getText().trim().length() == 6)
+            {
+                actionPerformed(loginButton);
+            }
             super.keyTyped(typedChar, keyCode);
         }
 
         @Override
         public void drawScreen(int mouseX, int mouseY, float partialTicks) {
             drawDefaultBackground();
-            keyField.drawTextBox();
-            keySecret.drawTextBox();
+            emailField.drawTextBox();
+            passwordField.drawTextBox();
+            oneCodeField.drawTextBox();
             super.drawScreen(mouseX, mouseY, partialTicks);
-
+            if (State.getCurrentState() == State.CREDENTIALS_OK)
+            {
+                drawCenteredSplitString("You have valid credentials. If you wish to change your credentials, please log in again.",width / 2, height / 2 - 30, 0xFFFFFFFF);
+            }
+            drawStatusString();
         }
 
         @Override
@@ -250,23 +421,57 @@ public class GuiMinigames extends GuiScreen
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiMinigames.this);
             } else if (button == loginButton) {
-                Map<String, String> credentials = new HashMap<>();
-                credentials.put("email", keyField.getText());
-                credentials.put("password", keySecret.getText());
-                String resp = WebUtils.postWebResponse("https://staging-panel.creeper.host/mt.php", credentials);
+                executor.submit(
+                        () -> {
+                    Map<String, String> credentials = new HashMap<>();
+                    credentials.put("email", emailField.getText());
+                    credentials.put("password", passwordField.getText());
+                    credentials.put("oneCode", oneCodeField.getText());
+                    State.pushState(State.LOGGING_IN);
+                    String resp = WebUtils.postWebResponse("https://staging-panel.creeper.host/mt.php", credentials);
 
-                JsonParser parser = new JsonParser();
-                JsonElement el = parser.parse(resp);
-                if (el.isJsonObject())
-                {
-                    JsonObject obj = el.getAsJsonObject();
-                    if (obj.get("success").getAsBoolean())
+
+                    System.out.println(resp);
+
+
+                    JsonParser parser = new JsonParser();
+                    JsonElement el = parser.parse(resp);
+                    if (el.isJsonObject())
                     {
-                        key = obj.get("key").getAsString();
-                        secret = obj.get("secret").getAsString();
-                        saveCredentials();
+                        JsonObject obj = el.getAsJsonObject();
+                        if (obj.get("success").getAsBoolean())
+                        {
+                            key = obj.get("key").getAsString();
+                            secret = obj.get("secret").getAsString();
+                            try {
+                                if (checkCredentials().get())
+                                {
+                                    saveCredentials();
+                                }
+                            } catch (InterruptedException e) {
+                            } catch (ExecutionException e) {
+                            }
+                        } else {
+                            if (obj.has("_2fa") && !obj.get("_2fa").isJsonNull() && obj.get("_2fa").getAsBoolean())
+                            {
+                                if (previous2fa)
+                                {
+                                    State.pushState(State.TWOFACTOR_FAILURE);
+                                    loginFailureMessage = "Invalid code. Please try again or reset it by logging into the CreeperPanel";
+                                }
+                                State.pushState(State.TWOFACTOR_NEEDED);
+                                loginFailureMessage = "Please enter your two-factor code";
+                                previous2fa = true;
+                                return;
+                            }
+                            State.pushState(State.LOGIN_FAILURE);
+                            String tempLoginFailure = obj.get("message").getAsString();
+                            loginFailureMessage = tempLoginFailure.isEmpty() ? "Login failed. Please ensure you have entered your username and password correctly." : loginFailureMessage;
+                        }
                     }
-                }
+                });
+            } else if (button == loginAgainButton) {
+                State.pushState(State.CREDENTIALS_INVALID);
             }
         }
     }
