@@ -588,6 +588,7 @@ public class EventHandler
     public void clientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent evt)
     {
         CreeperHost.instance.curServerId = -1;
+        CreeperHostServer.serverOn = false;
     }
 
     @SubscribeEvent

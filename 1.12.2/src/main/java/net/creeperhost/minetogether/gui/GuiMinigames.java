@@ -60,6 +60,7 @@ public class GuiMinigames extends GuiScreen
 
     public GuiMinigames()
     {
+        State.pushState(State.CHECKING_CREDENTIALS);
         current = this;
         loadCredentials();
         executor.submit(() -> minigames = Callbacks.getMinigames(false));
@@ -99,7 +100,7 @@ public class GuiMinigames extends GuiScreen
         if (button == settingsButton)
         {
             Minecraft.getMinecraft().displayGuiScreen(settings = new Settings());
-        } else if (button == spinupButton) {
+        } else if (button == spinupButton && State.getCurrentState() == State.CREDENTIALS_OK && minigameScroll.getMinigame() != null) {
             Minecraft.getMinecraft().displayGuiScreen(new StartMinigame(minigameScroll.getMinigame()));
         }
     }
@@ -407,7 +408,7 @@ public class GuiMinigames extends GuiScreen
         }
 
         public Minigame getMinigame() {
-            return minigames.get(selectedIndex);
+            return selectedIndex >= 0 ? minigames.get(selectedIndex) : null;
         }
     }
 
@@ -577,7 +578,7 @@ public class GuiMinigames extends GuiScreen
                 Aries aries = new Aries(key, secret);
 
                 Map creditResp = aries.doApiCall("billing", "credit");
-                System.out.println(creditResp);
+
                 if (creditResp.get("status").equals("success"))
                 {
                     String credit = creditResp.get("credit").toString();
@@ -639,6 +640,7 @@ public class GuiMinigames extends GuiScreen
         @Override
         public void updateScreen() {
             super.updateScreen();
+            spinupButton.enabled = minigameScroll != null && State.getCurrentState() == State.CREDENTIALS_OK && minigameScroll.getMinigame() != null;
             ticks++;
         }
 
@@ -647,7 +649,7 @@ public class GuiMinigames extends GuiScreen
             drawDefaultBackground();
             drawStatusString(width / 2, height / 2);
             super.drawScreen(mouseX, mouseY, partialTicks);
-            if (State.getCurrentState() != State.READY_TO_JOIN)
+            if (State.getCurrentState() != State.READY_TO_JOIN && State.getCurrentState() != State.MINIGAME_FAILED)
                 loadingSpin(partialTicks);
         }
 
@@ -678,8 +680,9 @@ public class GuiMinigames extends GuiScreen
                 joinServerButton.enabled = true;
                 joinServerButton.visible = true;
             } else if (state == State.MINIGAME_FAILED) {
-                joinServerButton.enabled = false;
-                joinServerButton.visible = false;
+                joinServerButton.enabled = true;
+                joinServerButton.visible = true;
+                joinServerButton.displayString = "Go back";
             }
         }
 
@@ -689,7 +692,10 @@ public class GuiMinigames extends GuiScreen
             super.actionPerformed(button);
             if (button == joinServerButton)
             {
-                FMLClientHandler.instance().connectToServerAtStartup(ip, port);
+                if (State.getCurrentState() == State.READY_TO_JOIN)
+                    FMLClientHandler.instance().connectToServerAtStartup(ip, port);
+                else
+                    Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames());
             }
         }
     }

@@ -468,11 +468,7 @@ public final class Callbacks
                         sendMap.put("project", Config.getInstance().curseProjectID);
                     }
 
-                    System.out.println(sendMap);
-
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/mgtemplates", new Gson().toJson(sendMap), true, false);
-
-                    System.out.println(resp);
 
                     JsonParser parser = new JsonParser();
 

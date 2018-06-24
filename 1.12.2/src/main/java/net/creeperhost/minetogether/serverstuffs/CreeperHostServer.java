@@ -211,10 +211,6 @@ public class CreeperHostServer
 
                 String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
 
-                System.out.println(resp);
-
-                System.out.println(sendStr);
-
                 int sleepTime = 90000;
 
                 try
