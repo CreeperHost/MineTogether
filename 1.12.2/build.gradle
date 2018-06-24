@@ -1,0 +1,21 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "http://files.minecraftforge.net/maven" }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+minecraft {
+    version = "1.12.2-14.23.4.2712"
+    runDir = "run"
+
+    mappings = "snapshot_20161220"
+    makeObfSourceJar = false
+
+    replaceIn "CreeperHost.java"
+    replace "@VERSION@", project.version.toString()
+}

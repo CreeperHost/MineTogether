@@ -1,0 +1,30 @@
+[
+{
+  "modid": "minetogether",
+  "name": "MineTogether",
+  "description": "Mod which allows you to purchase a server in game, view server stats, and invite friends to servers or see public servers!",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Ellpeck", "Cloudhunter", "K4Unl"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+},
+{
+  "modid": "minetogetherserver",
+  "name": "MineTogetherServer",
+  "description": "Companion server side mod to allow you to pregen chunks, and to allow listed on public server list.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Cloudhunter"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": ["creeperhost"]
+}
+]

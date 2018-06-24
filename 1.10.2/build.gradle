@@ -22,25 +22,25 @@ minecraft {
 }
 
 dependencies {
-    compile project(':1.12.1')
+    compile project(':1.12.2')
 }
 
 task reObfJar {
-    jar.dependsOn ':1.12.1:reobfJar'
+    jar.dependsOn ':1.12.2:reobfJar'
 }
 
-jar.dependsOn ':1.12.1:jar'
-sourceJar.dependsOn ':1.12.1:sourceJar'
+jar.dependsOn ':1.12.2:jar'
+sourceJar.dependsOn ':1.12.2:sourceJar'
 
 gradle.taskGraph.whenReady { graph ->
     if (graph.hasTask(tasks.jar)) {
         tasks.jar {
-            from zipTree(project(':1.12.1').tasks['jar'].archivePath)
+            from zipTree(project(':1.12.2').tasks['jar'].archivePath)
         }
     }
     if (graph.hasTask(tasks.sourceJar)) {
         tasks.sourceJar {
-            from zipTree(project(':1.12.1').tasks['sourceJar'].archivePath)
+            from zipTree(project(':1.12.2').tasks['sourceJar'].archivePath)
         }
     }
 }
