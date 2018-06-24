@@ -60,8 +60,8 @@ public class GuiMinigames extends GuiScreen
 
     public GuiMinigames()
     {
-        State.pushState(State.CHECKING_CREDENTIALS);
         current = this;
+        State.pushState(State.CHECKING_CREDENTIALS);
         loadCredentials();
         executor.submit(() -> minigames = Callbacks.getMinigames(false));
     }

@@ -38,7 +38,6 @@ dependencies {
     compileOnly group: 'commons-io', name: 'commons-io', version: '2.4'
 	compileOnly group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.1'
     compile 'org.kitteh.irc:client-lib:4.0.2'
-
 }
 
 repositories {
@@ -112,7 +111,7 @@ subprojects {
     rootProject.setupCiWorkspace.dependsOn setupCiWorkspace
     rootProject.build.dependsOn build
     rootProject.uploadArchives.dependsOn uploadArchives
-    
+	
     task transfer() {
         doLast {
             def out = new ByteArrayOutputStream()
