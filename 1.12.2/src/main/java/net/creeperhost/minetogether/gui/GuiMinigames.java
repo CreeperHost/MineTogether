@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import static net.creeperhost.minetogether.paul.Callbacks.getPlayerHash;
+
 public class GuiMinigames extends GuiScreen
 {
     private static GuiMinigames current;
@@ -57,6 +59,8 @@ public class GuiMinigames extends GuiScreen
     ExecutorService executor = Executors.newFixedThreadPool(2);
     private String loginFailureMessage;
     private static Settings settings;
+    private String credit = "Retrieving...";
+    private String creditType = "none";
 
     public GuiMinigames()
     {
@@ -82,6 +86,19 @@ public class GuiMinigames extends GuiScreen
         drawDefaultBackground();
         minigameScroll.drawScreen(mouseX, mouseY, partialTicks);
         super.drawScreen(mouseX, mouseY, partialTicks);
+        String creditStr;
+        switch (creditType)
+        {
+            case "credit":
+                creditStr = credit + " credit(s)";
+                break;
+            default:
+            case "currency":
+            case "none":
+                creditStr = credit;
+        }
+
+        drawString(fontRendererObj, creditStr, 5, 5, 0xFFFFFFFF);
         drawStatusString(width / 2, height - 40);
     }
 
@@ -118,6 +135,17 @@ public class GuiMinigames extends GuiScreen
             try {
                 State.pushState(State.CHECKING_CREDENTIALS);
                 credentialsValid = areCredentialsValid();
+
+                Map<String, String> map = new HashMap<>();
+                map.put("key2", key);
+                map.put("secret2", secret);
+                map.put("hash", Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()));
+
+                String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/minigamecredit", new Gson().toJson(map), true, false);
+                System.out.println(resp);
+                Map creditResp = new Gson().fromJson(resp, Map.class);
+                credit = String.valueOf(creditResp.get("credit"));
+                creditType = String.valueOf(creditResp.get("responsetype"));
                 State.pushState(credentialsValid ? State.CREDENTIALS_OK : State.CREDENTIALS_INVALID);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -190,7 +218,7 @@ public class GuiMinigames extends GuiScreen
                 drawColour = 0xFF00FF00;
                 break;
             case MINIGAME_FAILED:
-                drawText = "Minigame launch failed. Please try again";
+                drawText = "Minigame launch failed.";
                 drawColour = 0xFFFF0000;
                 break;
             case READY_TO_JOIN:
@@ -198,7 +226,7 @@ public class GuiMinigames extends GuiScreen
                 drawColour = 0xFFFFFFFF;
                 break;
             case CREDENTIALS_INVALID:
-                drawText = "No credentials found or are invalid - please log in";
+                drawText = "No credentials found - trial mode";
                 drawColour = 0xFFFF0000;
                 break;
             case TWOFACTOR_FAILURE:
@@ -558,6 +586,7 @@ public class GuiMinigames extends GuiScreen
     public class StartMinigame extends GuiScreen implements IStateHandler
     {
         private final Minigame minigame;
+        private String failedReason = "";
         private int port;
         private String ip;
         private int ticks = 0;
@@ -572,58 +601,63 @@ public class GuiMinigames extends GuiScreen
 
             executor.submit(() ->
             {
-                String url = minigame.template;
-                int ram = minigame.ram;
+                try {
+                    String url = minigame.template;
+                    int ram = minigame.ram;
 
-                Aries aries = new Aries(key, secret);
+                    Aries aries = new Aries(key, secret);
 
-                Map creditResp = aries.doApiCall("billing", "credit");
+                    Map creditResp = aries.doApiCall("minetogether", "minigamecredit");
 
-                if (creditResp.get("status").equals("success"))
-                {
-                    String credit = creditResp.get("credit").toString();
-                    if (true) // credit check here
-                    {
-                        Map<String, String> sendMap = new HashMap<>();
+                    System.out.println(creditResp);
 
-                        sendMap.put("custom", url);
-                        sendMap.put("game", "custom");
-                        sendMap.put("ram", String.valueOf(ram));
-                        sendMap.put("time", String.valueOf(1));
-
-                        Map map = aries.doApiCall("billing", "spinupminigame", sendMap);
-                        System.out.println(map);
-
-                        if (map.get("status").equals("success"))
+                    if (creditResp.get("status").equals("success")) {
+                        String credit = creditResp.get("credit").toString();
+                        if (true) // credit check here
                         {
-                            try {
-                                State.pushState(State.MINIGAME_ACTIVE);
-                                ip = map.get("ip").toString();
-                                port = Double.valueOf(map.get("port").toString()).intValue();
-                                CreeperHostServer.serverOn = true;
-                                CreeperHostServer.startMinetogetherThread(map.get("ip").toString(), "Minigame: " + Minecraft.getMinecraft().getSession().getUsername(), Config.getInstance().curseProjectID, port, CreeperHostServer.Discoverability.INVITE);
-                                while (true) {
-                                    if (CreeperHostServer.isActive) {
-                                        State.pushState(State.READY_TO_JOIN);
-                                        CreeperHost.instance.curServerId = CreeperHostServer.updateID;
-                                        break;
-                                    } else if (CreeperHostServer.failed) {
-                                        State.pushState(State.MINIGAME_FAILED);
-                                        break;
+                            Map<String, String> sendMap = new HashMap<>();
+
+                            sendMap.put("id", String.valueOf(minigame.id));
+                            sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
+                            sendMap.put("key", key);
+                            sendMap.put("secret", secret);
+
+                            Map map = aries.doApiCall("minetogether", "trialminigame", sendMap);
+                            System.out.println(map);
+
+                            if (map.get("status").equals("success")) {
+                                try {
+                                    State.pushState(State.MINIGAME_ACTIVE);
+                                    ip = map.get("ip").toString();
+                                    port = Double.valueOf(map.get("port").toString()).intValue();
+                                    CreeperHostServer.serverOn = true;
+                                    CreeperHostServer.startMinetogetherThread(map.get("ip").toString(), "Minigame: " + Minecraft.getMinecraft().getSession().getUsername(), Config.getInstance().curseProjectID, port, CreeperHostServer.Discoverability.INVITE);
+                                    while (true) {
+                                        if (CreeperHostServer.isActive) {
+                                            State.pushState(State.READY_TO_JOIN);
+                                            CreeperHost.instance.curServerId = CreeperHostServer.updateID;
+                                            break;
+                                        } else if (CreeperHostServer.failed) {
+                                            State.pushState(State.MINIGAME_FAILED);
+                                            break;
+                                        }
+                                        Thread.sleep(1000);
                                     }
-                                    Thread.sleep(1000);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                            } catch(Exception e) {
-                                e.printStackTrace();
+                            } else {
+                                failedReason = (String) map.get("message");
+                                State.pushState(State.MINIGAME_FAILED);
                             }
                         } else {
-                            State.pushState(State.MINIGAME_FAILED);
+                            State.pushState(State.NOT_ENOUGH_CREDIT);
                         }
                     } else {
-                        State.pushState(State.NOT_ENOUGH_CREDIT);
+                        State.pushState(State.UNKNOWN_ERROR);
                     }
-                } else {
-                    State.pushState(State.UNKNOWN_ERROR);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         }
@@ -640,14 +674,21 @@ public class GuiMinigames extends GuiScreen
         @Override
         public void updateScreen() {
             super.updateScreen();
-            spinupButton.enabled = minigameScroll != null && State.getCurrentState() == State.CREDENTIALS_OK && minigameScroll.getMinigame() != null;
+            spinupButton.enabled = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null;
             ticks++;
         }
 
         @Override
         public void drawScreen(int mouseX, int mouseY, float partialTicks) {
             drawDefaultBackground();
-            drawStatusString(width / 2, height / 2);
+            if (State.getCurrentState() == State.MINIGAME_FAILED)
+            {
+                drawCenteredSplitString("Minigame failed. Reason: " + failedReason, width / 2, height / 2, width, 0xFFFF0000);
+            }
+            else
+            {
+                drawStatusString(width / 2, height / 2);
+            }
             super.drawScreen(mouseX, mouseY, partialTicks);
             if (State.getCurrentState() != State.READY_TO_JOIN && State.getCurrentState() != State.MINIGAME_FAILED)
                 loadingSpin(partialTicks);

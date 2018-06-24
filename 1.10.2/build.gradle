@@ -6,11 +6,12 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-		classpath "com.github.jengelman.gradle.plugins:shadow:2.0.4"
+		classpath "com.github.jengelman.gradle.plugins:shadow:2.0.0"
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: "com.github.johnrengelman.shadow"
+
 
 minecraft {
     version = "1.10.2-12.18.3.2281"
@@ -45,4 +46,20 @@ gradle.taskGraph.whenReady { graph ->
             from zipTree(project(':1.12.2').tasks['sourceJar'].archivePath)
         }
     }
+}
+
+shadowJar {
+	// Only shadow fluent-hc
+	dependencies {
+		include(dependency('org.kitteh.irc:client-lib:4.0.2'))
+	}
+
+	// Relocate fluent-hc to prevent conflicts with other mods that include it
+	relocate 'org.kitteh.irc', 'net.creeperhost.minetogether.org.kitteh.irc'
+
+	classifier '' // Replace the default JAR
+}
+
+reobf {
+	shadowJar {} // Reobfuscate the shadowed JAR
 }

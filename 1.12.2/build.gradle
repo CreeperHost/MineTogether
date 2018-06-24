@@ -5,9 +5,11 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+		classpath "com.github.jengelman.gradle.plugins:shadow:2.0.0"
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: "com.github.johnrengelman.shadow"
 
 minecraft {
     version = "1.12.2-14.23.4.2712"
@@ -18,4 +20,20 @@ minecraft {
 
     replaceIn "CreeperHost.java"
     replace "@VERSION@", project.version.toString()
+}
+
+shadowJar {
+	// Only shadow fluent-hc
+	dependencies {
+		include(dependency('org.kitteh.irc:client-lib:4.0.2'))
+	}
+
+	// Relocate fluent-hc to prevent conflicts with other mods that include it
+	relocate 'org.kitteh.irc', 'net.creeperhost.minetogether.org.kitteh.irc'
+
+	classifier '' // Replace the default JAR
+}
+
+reobf {
+	shadowJar {} // Reobfuscate the shadowed JAR
 }

@@ -21,7 +21,9 @@ public class Aries {
         Map<String, String> tempData = new HashMap<>();
         tempData.putAll(credentials);
         tempData.put("data", new Gson().toJson(extraData));
-        return new Gson().fromJson(WebUtils.postWebResponse("https://api.creeper.host/" + daemon + "/" + action, tempData), Map.class);
+        String resp = WebUtils.postWebResponse("https://api.creeper.host/" + daemon + "/" + action, tempData);
+        System.out.println(resp);
+        return new Gson().fromJson(resp, Map.class);
     }
 
     public Map doApiCall(String daemon, String action)

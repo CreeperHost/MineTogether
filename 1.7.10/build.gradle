@@ -6,9 +6,12 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+		//classpath "com.github.jengelman.gradle.plugins:shadow:2.0.0"
     }
 }
 apply plugin: 'forge'
+//apply plugin: "com.github.johnrengelman.shadow"
+
 
 task sourceJar(type: Jar) {
     classifier = 'sources'

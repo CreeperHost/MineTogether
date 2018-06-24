@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.api.CreeperHostAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.common.HostHolder;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.GDPR;
@@ -76,6 +77,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        HostHolder.host = this;
         File gdprFile = new File("config/minetogether/gdpr.txt");
         gdpr = new GDPR(gdprFile);
         ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
