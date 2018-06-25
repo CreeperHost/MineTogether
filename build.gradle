@@ -71,6 +71,11 @@ subprojects {
         duplicatesStrategy = 'exclude'
         from rootProject.sourceSets.main.output
     }
+	
+	shadowJar {
+		duplicatesStrategy = 'exclude'
+		from rootProject.sourceSets.main.output
+	}
 
     sourceJar {
         duplicatesStrategy = 'exclude'

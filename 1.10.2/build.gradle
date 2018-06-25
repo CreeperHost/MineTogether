@@ -32,7 +32,12 @@ task reObfJar {
     jar.dependsOn ':1.12.2:reobfJar'
 }
 
+//task reobfShadowJar {
+//	jar.dependsOn ':1.12.2:reobfShadowJar'
+//}
+
 jar.dependsOn ':1.12.2:jar'
+shadowJar.dependsOn ':1.12.2:shadowJar'
 sourceJar.dependsOn ':1.12.2:sourceJar'
 
 gradle.taskGraph.whenReady { graph ->
@@ -41,6 +46,11 @@ gradle.taskGraph.whenReady { graph ->
             from zipTree(project(':1.12.2').tasks['jar'].archivePath)
         }
     }
+	if (graph.hasTask(tasks.shadowJar)) {
+		tasks.shadowJar {
+			from zipTree(project(':1.12.2').tasks['shadowJar'].archivePath)
+		}
+	}
     if (graph.hasTask(tasks.sourceJar)) {
         tasks.sourceJar {
             from zipTree(project(':1.12.2').tasks['sourceJar'].archivePath)
@@ -49,10 +59,12 @@ gradle.taskGraph.whenReady { graph ->
 }
 
 shadowJar {
-	// Only shadow fluent-hc
+	// Only shadow kitteh
 	dependencies {
 		include(dependency('org.kitteh.irc:client-lib:4.0.2'))
 	}
+	
+	//from zipTree(project(':1.12.2').tasks['jar'].archivePath)
 
 	// Relocate fluent-hc to prevent conflicts with other mods that include it
 	relocate 'org.kitteh.irc', 'net.creeperhost.minetogether.org.kitteh.irc'
@@ -63,3 +75,5 @@ shadowJar {
 reobf {
 	shadowJar {} // Reobfuscate the shadowed JAR
 }
+
+reobfShadowJar.dependsOn ':1.12.2:shadowJar'
