@@ -81,34 +81,47 @@ public class GuiMinigames extends GuiScreen
     }
 
     Minigame lastMinigame = null;
+
+    public boolean spinDown = "";
+
+    public GuiMinigames(boolean b) {
+        super();
+    }
+
     @Override
     public void updateScreen()
     {
         Minigame minigame = minigameScroll.getMinigame();
         if (lastMinigame != minigame)
         {
-            executor.submit(() -> {
-                try {
-                    Map<String, String> sendMap = new HashMap<>();
+            if (minigame == null)
+            {
+                quote = -1;
+            } else {
+                executor.submit(() -> {
+                    try {
+                        Map<String, String> sendMap = new HashMap<>();
 
-                    sendMap.put("id", String.valueOf(minigame.id));
-                    sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
-                    sendMap.put("key2", key);
-                    sendMap.put("secret2", secret);
+                        sendMap.put("id", String.valueOf(minigame.id));
+                        sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
+                        sendMap.put("key2", key);
+                        sendMap.put("secret2", secret);
 
-                    Aries aries = new Aries(key, secret);
+                        Aries aries = new Aries(key, secret);
 
-                    Map map = aries.doApiCall("minetogether", "minigamequote", sendMap);
+                        Map map = aries.doApiCall("minetogether", "minigamequote", sendMap);
 
-                    if (map.get("status").equals("success")) {
-                        quote = Float.valueOf(String.valueOf(map.get("quote")));
-                    } else {
-                        quote = -1;
+                        if (map.get("status").equals("success")) {
+                            quote = Float.valueOf(String.valueOf(map.get("quote")));
+                        } else {
+                            quote = -1;
+                        }
+                    } catch (Throwable t) {
+                        t.printStackTrace();
                     }
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            });
+                });
+            }
+
         }
         lastMinigame = minigame;
     }
@@ -134,7 +147,7 @@ public class GuiMinigames extends GuiScreen
         switch (creditType)
         {
             case "credit":
-                creditStr = credit + " trial credit" + (credit == 1 ? "" : "s");
+                creditStr = (int)credit + " trial credit" + (credit == 1 ? "" : "s");
                 break;
             default:
             case "none":
@@ -148,16 +161,37 @@ public class GuiMinigames extends GuiScreen
         drawString(fontRendererObj, creditStr, 5, 5, 0xFFFFFFFF);
         drawStatusString(width / 2, height - 40);
 
+        String currencyFormat = String.valueOf((int)quote);;
+
         if (quote > 0)
         {
             double exchangedQuote = round(quote * exchangeRate, 2);
-            curPrefix = "$";
-            String formattedQuote = "Estimated cost: " + curPrefix + new DecimalFormat("0.00##").format(exchangedQuote) + curSuffix + (curPrefix.equals("£") ? "" : "*");
+            String first = "";
+            switch(creditType)
+            {
+                case "credit":
+                    first = "Credit" + (quote > 1 ? "s" : "") + " needed: ";
+                    break;
+                default:
+                case "none":
+                    first = "";
+                    break;
+                case "currency":
+                    first = "Estimated cost: ";
+                    currencyFormat = new DecimalFormat("0.00##").format(exchangedQuote);
+            }
+
+            String formattedQuote = first + curPrefix + currencyFormat + curSuffix;
             drawString(fontRendererObj, formattedQuote, 5, height - 15, 0xFFFFFFFF);
             int stringLen = fontRendererObj.getStringWidth(formattedQuote);
-            if (!curPrefix.equals("£") && mouseX >= 5 && mouseX <= 5 + stringLen && mouseY >= height - 15 && mouseY <= height - 5)
+            if (!creditType.equals("credit") && !curPrefix.equals("£") && mouseX >= 5 && mouseX <= 5 + stringLen && mouseY >= height - 15 && mouseY <= height - 5)
             {
                 drawHoveringText(Arrays.asList("Figure provided based on exchange rate of " + exchangeRate), mouseX, mouseY);
+            } else {
+                if (spinupButton.isMouseOver() && credit < quote)
+                {
+                    drawHoveringText(Arrays.asList("Cannot start minigame as you do not have enough credit"), mouseX, mouseY);
+                }
             }
         }
     }
@@ -740,6 +774,8 @@ public class GuiMinigames extends GuiScreen
 
                             Map map = aries.doApiCall("minetogether", "startminigame", sendMap);
 
+                            System.out.println(map);
+
                             if (map.get("status").equals("success")) {
                                 try {
                                     State.pushState(State.MINIGAME_ACTIVE);
@@ -751,6 +787,7 @@ public class GuiMinigames extends GuiScreen
                                         if (CreeperHostServer.isActive) {
                                             State.pushState(State.READY_TO_JOIN);
                                             CreeperHost.instance.curServerId = CreeperHostServer.updateID;
+                                            CreeperHost.instance.activeMinigame = String.valueOf(map.get("uuid"));
                                             break;
                                         } else if (CreeperHostServer.failed) {
                                             State.pushState(State.MINIGAME_FAILED);

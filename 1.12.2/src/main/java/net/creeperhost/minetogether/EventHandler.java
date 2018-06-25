@@ -603,6 +603,10 @@ public class EventHandler
     {
         CreeperHost.instance.curServerId = -1;
         CreeperHostServer.serverOn = false;
+        if (CreeperHost.instance.activeMinigame != null)
+        {
+            Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames(true));
+        }
     }
 
     @SubscribeEvent
