@@ -242,7 +242,6 @@ public class EventHandler
             if (buttonList != null)
             {
                 buttonList.add(new ButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
-                buttonList.add(new ButtonCreeper(MINIGAMES_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12 - 50));
             }
         }
         else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
@@ -430,6 +429,21 @@ public class EventHandler
                 buttonDrawn = true;
                 event.getButtonList().add(new GuiButton(FRIEND_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends")));
 
+            }
+
+            if (gui instanceof GuiMainMenu)
+            {
+
+                int yPosition = 0;
+                for(GuiButton butt: event.getButtonList())
+                {
+                    if (butt.id == 2) {  // Multi Player
+                        yPosition = butt.yPosition;
+                        butt.width = 98;
+                    }
+                }
+
+                event.getButtonList().add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 + 2, yPosition, 98, 20, "Minigames"));
             }
 
         }

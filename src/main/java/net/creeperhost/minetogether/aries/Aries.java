@@ -22,7 +22,7 @@ public class Aries {
         tempData.putAll(credentials);
         tempData.put("data", new Gson().toJson(extraData));
         String resp = WebUtils.postWebResponse("https://api.creeper.host/" + daemon + "/" + action, tempData);
-        System.out.println(resp);
+
         return new Gson().fromJson(resp, Map.class);
     }
 

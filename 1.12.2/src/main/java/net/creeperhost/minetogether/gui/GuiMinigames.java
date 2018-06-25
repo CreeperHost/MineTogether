@@ -29,13 +29,19 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.io.FileUtils;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GLSync;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,11 +62,15 @@ public class GuiMinigames extends GuiScreen
     private static String key = "";
     private static String secret = "";
     private boolean credentialsValid = false;
-    ExecutorService executor = Executors.newFixedThreadPool(2);
+    ExecutorService executor = Executors.newFixedThreadPool(3);
     private String loginFailureMessage;
     private static Settings settings;
-    private String credit = "Retrieving...";
+    private float credit = -1;
     private String creditType = "none";
+    private float exchangeRate;
+    private float quote = -1;
+    private String curPrefix = "";
+    private String curSuffix = "";
 
     public GuiMinigames()
     {
@@ -68,6 +78,39 @@ public class GuiMinigames extends GuiScreen
         State.pushState(State.CHECKING_CREDENTIALS);
         loadCredentials();
         executor.submit(() -> minigames = Callbacks.getMinigames(false));
+    }
+
+    Minigame lastMinigame = null;
+    @Override
+    public void updateScreen()
+    {
+        Minigame minigame = minigameScroll.getMinigame();
+        if (lastMinigame != minigame)
+        {
+            executor.submit(() -> {
+                try {
+                    Map<String, String> sendMap = new HashMap<>();
+
+                    sendMap.put("id", String.valueOf(minigame.id));
+                    sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
+                    sendMap.put("key2", key);
+                    sendMap.put("secret2", secret);
+
+                    Aries aries = new Aries(key, secret);
+
+                    Map map = aries.doApiCall("minetogether", "minigamequote", sendMap);
+
+                    if (map.get("status").equals("success")) {
+                        quote = Float.valueOf(String.valueOf(map.get("quote")));
+                    } else {
+                        quote = -1;
+                    }
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+        }
+        lastMinigame = minigame;
     }
 
     @Override
@@ -84,22 +127,48 @@ public class GuiMinigames extends GuiScreen
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawDefaultBackground();
+        spinupButton.enabled = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null && credit >= quote;
         minigameScroll.drawScreen(mouseX, mouseY, partialTicks);
         super.drawScreen(mouseX, mouseY, partialTicks);
         String creditStr;
         switch (creditType)
         {
             case "credit":
-                creditStr = credit + " credit(s)";
+                creditStr = credit + " trial credit" + (credit == 1 ? "" : "s");
                 break;
             default:
-            case "currency":
             case "none":
-                creditStr = credit;
+                creditStr = "Retrieving...";
+                break;
+            case "currency":
+                String formattedCredit = new DecimalFormat("0.00##").format(credit);
+                creditStr = "CreeperHost credit: " + curPrefix + formattedCredit + curSuffix;
         }
 
         drawString(fontRendererObj, creditStr, 5, 5, 0xFFFFFFFF);
         drawStatusString(width / 2, height - 40);
+
+        if (quote > 0)
+        {
+            double exchangedQuote = round(quote * exchangeRate, 2);
+            curPrefix = "$";
+            String formattedQuote = "Estimated cost: " + curPrefix + new DecimalFormat("0.00##").format(exchangedQuote) + curSuffix + (curPrefix.equals("£") ? "" : "*");
+            drawString(fontRendererObj, formattedQuote, 5, height - 15, 0xFFFFFFFF);
+            int stringLen = fontRendererObj.getStringWidth(formattedQuote);
+            if (!curPrefix.equals("£") && mouseX >= 5 && mouseX <= 5 + stringLen && mouseY >= height - 15 && mouseY <= height - 5)
+            {
+                drawHoveringText(Arrays.asList("Figure provided based on exchange rate of " + exchangeRate), mouseX, mouseY);
+            }
+        }
+    }
+
+    public static double round(double value, int places)
+    {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
     protected void drawTextureAt(int p_178012_1_, int p_178012_2_, int texturew, int textureh, int width, int height, ResourceLocation p_178012_3_)
@@ -117,7 +186,7 @@ public class GuiMinigames extends GuiScreen
         if (button == settingsButton)
         {
             Minecraft.getMinecraft().displayGuiScreen(settings = new Settings());
-        } else if (button == spinupButton && State.getCurrentState() == State.CREDENTIALS_OK && minigameScroll.getMinigame() != null) {
+        } else if (button == spinupButton && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null) {
             Minecraft.getMinecraft().displayGuiScreen(new StartMinigame(minigameScroll.getMinigame()));
         }
     }
@@ -135,18 +204,38 @@ public class GuiMinigames extends GuiScreen
             try {
                 State.pushState(State.CHECKING_CREDENTIALS);
                 credentialsValid = areCredentialsValid();
+                try {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("key2", key);
+                    map.put("secret2", secret);
+                    map.put("hash", Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()));
 
-                Map<String, String> map = new HashMap<>();
-                map.put("key2", key);
-                map.put("secret2", secret);
-                map.put("hash", Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()));
+                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/minigamecredit", new Gson().toJson(map), true, false);
+                    Map creditResp = new Gson().fromJson(resp, Map.class);
+                    credit = Float.parseFloat(String.valueOf(creditResp.get("credit")));
+                    creditType = String.valueOf(creditResp.get("responsetype"));
+                    if (creditType.equals("currency"))
+                    {
+                        Map creditMap = (Map)creditResp.get("currency");
+                        exchangeRate = Float.valueOf(String.valueOf(creditMap.get("exchange_rate")));
+                        curPrefix = String.valueOf(creditMap.get("prefix"));
+                        if (curPrefix.equals("null"))
+                            curPrefix = "";
+                        curSuffix = String.valueOf(creditMap.get("suffix"));
+                        if (curSuffix.equals("null"))
+                            curSuffix = "";
+                    } else {
+                        exchangeRate = 1;
+                        curPrefix = "";
+                        curSuffix = "";
+                    }
+                    State.pushState(credentialsValid ? State.CREDENTIALS_OK : State.CREDENTIALS_INVALID);
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
 
-                String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/minigamecredit", new Gson().toJson(map), true, false);
-                System.out.println(resp);
-                Map creditResp = new Gson().fromJson(resp, Map.class);
-                credit = String.valueOf(creditResp.get("credit"));
-                creditType = String.valueOf(creditResp.get("responsetype"));
-                State.pushState(credentialsValid ? State.CREDENTIALS_OK : State.CREDENTIALS_INVALID);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -427,11 +516,26 @@ public class GuiMinigames extends GuiScreen
                 x = (int) (x / scale);
                 y = (int) (y / scale);
 
+                int gameWidth = (int) (fontRendererObj.getStringWidth(minigames.get(slotIdx).displayName) * scale);
+                int newX = (width / 2) + (gameWidth / 2);
+
                 drawCenteredString(fontRendererObj, minigames.get(slotIdx).displayName, x, y, 0xFFFFFFFF);
 
                 GlStateManager.popMatrix();
 
-                drawCenteredString(fontRendererObj, minigames.get(slotIdx).displayVersion, width / 2, slotTop + 12, 0xFFAAAAAA);
+                drawString(fontRendererObj, " by " + minigames.get(slotIdx).author, newX, slotTop + 2, 0xFFAAAAAA);
+
+                String displayDescription = minigames.get(slotIdx).displayDescription;
+                if (fontRendererObj.getStringWidth(displayDescription) > (width - 96) * 2)
+                {
+                    while (fontRendererObj.getStringWidth(displayDescription + "...") > (width - 96) * 2)
+                    {
+                        displayDescription = displayDescription.substring(0, displayDescription.lastIndexOf(" "));
+                    }
+                    displayDescription += "...";
+                }
+
+                drawCenteredSplitString(displayDescription, width / 2, slotTop + 12, width - 84, 0xFFAAAAAA);
             }
         }
 
@@ -484,6 +588,17 @@ public class GuiMinigames extends GuiScreen
 
         @Override
         protected void keyTyped(char typedChar, int keyCode) throws IOException {
+            if (keyCode == Keyboard.KEY_TAB)
+            {
+                if (emailField.isFocused())
+                {
+                    emailField.setFocused(false);
+                    passwordField.setFocused(true);
+                } else if (passwordField.isFocused()) {
+                    passwordField.setFocused(false);
+                    emailField.setFocused(true);
+                }
+            }
             emailField.textboxKeyTyped(typedChar, keyCode);
             passwordField.textboxKeyTyped(typedChar, keyCode);
             oneCodeField.textboxKeyTyped(typedChar, keyCode);
@@ -499,12 +614,14 @@ public class GuiMinigames extends GuiScreen
             drawDefaultBackground();
             emailField.drawTextBox();
             passwordField.drawTextBox();
-            oneCodeField.drawTextBox();
-            super.drawScreen(mouseX, mouseY, partialTicks);
+            oneCodeField.drawTextBox();super.drawScreen(mouseX, mouseY, partialTicks);
             if (State.getCurrentState() == State.CREDENTIALS_OK)
             {
                 drawCenteredSplitString("You have valid credentials. If you wish to change your credentials, please log in again.",width / 2, height / 2 - 30, width, 0xFFFFFFFF);
+            } else {
+                drawCenteredSplitString("If you would like to use your CreeperHost credit balance instead of the free minigame credits, please login with your CreeperHost username and password here.",width / 2, height / 2 - 60, width, 0xFFFFFFFF);
             }
+
             drawStatusString(width / 2, height - 40);
         }
 
@@ -520,7 +637,7 @@ public class GuiMinigames extends GuiScreen
                     key = "";
                     secret = "";
                     saveCredentials();
-                    State.pushState(State.CREDENTIALS_INVALID);
+                    checkCredentials();
                 } else {
                     executor.submit(() ->
                     {
@@ -532,8 +649,6 @@ public class GuiMinigames extends GuiScreen
                         State.pushState(State.LOGGING_IN);
                         String resp = WebUtils.postWebResponse("https://staging-panel.creeper.host/mt.php", credentials);
 
-
-                        System.out.println(resp);
 
                         JsonParser parser = new JsonParser();
                         JsonElement el = parser.parse(resp);
@@ -565,6 +680,9 @@ public class GuiMinigames extends GuiScreen
                                         return;
                                     }
                                     State.pushState(State.TWOFACTOR_NEEDED);
+                                    oneCodeField.setFocused(true);
+                                    emailField.setFocused(false);
+                                    passwordField.setFocused(false);
                                     loginFailureMessage = "Please enter your two-factor code";
                                     previous2fa = true;
                                     oneCodeField.setText("");
@@ -609,8 +727,6 @@ public class GuiMinigames extends GuiScreen
 
                     Map creditResp = aries.doApiCall("minetogether", "minigamecredit");
 
-                    System.out.println(creditResp);
-
                     if (creditResp.get("status").equals("success")) {
                         String credit = creditResp.get("credit").toString();
                         if (true) // credit check here
@@ -619,11 +735,10 @@ public class GuiMinigames extends GuiScreen
 
                             sendMap.put("id", String.valueOf(minigame.id));
                             sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
-                            sendMap.put("key", key);
-                            sendMap.put("secret", secret);
+                            sendMap.put("key2", key);
+                            sendMap.put("secret2", secret);
 
-                            Map map = aries.doApiCall("minetogether", "trialminigame", sendMap);
-                            System.out.println(map);
+                            Map map = aries.doApiCall("minetogether", "startminigame", sendMap);
 
                             if (map.get("status").equals("success")) {
                                 try {
@@ -674,7 +789,6 @@ public class GuiMinigames extends GuiScreen
         @Override
         public void updateScreen() {
             super.updateScreen();
-            spinupButton.enabled = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null;
             ticks++;
         }
 
