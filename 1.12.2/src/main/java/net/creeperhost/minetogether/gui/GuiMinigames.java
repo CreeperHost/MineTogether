@@ -63,7 +63,7 @@ public class GuiMinigames extends GuiScreen
     private static String secret = "";
     private boolean credentialsValid = false;
     ExecutorService executor = Executors.newFixedThreadPool(3);
-    private String loginFailureMessage;
+    private String loginFailureMessage = "";
     private static Settings settings;
     private float credit = -1;
     private String creditType = "none";
@@ -82,15 +82,17 @@ public class GuiMinigames extends GuiScreen
 
     Minigame lastMinigame = null;
 
-    public boolean spinDown = "";
+    public boolean spinDown = false;
 
-    public GuiMinigames(boolean b) {
+    public GuiMinigames(boolean spinDown) {
         super();
+        this.spinDown = spinDown;
     }
 
     @Override
     public void updateScreen()
     {
+        ticks++;
         Minigame minigame = minigameScroll.getMinigame();
         if (lastMinigame != minigame)
         {
@@ -126,6 +128,28 @@ public class GuiMinigames extends GuiScreen
         lastMinigame = minigame;
     }
 
+    private int ticks = 0;
+    private ItemStack stack = new ItemStack(Items.BEEF, 1);
+
+    private void loadingSpin(float partialTicks)
+    {
+        int rotateTickMax = 30;
+        int throbTickMax = 20;
+        int rotateTicks = ticks % rotateTickMax;
+        int throbTicks = ticks % throbTickMax;
+        GlStateManager.translate(width / 2, height / 2 + 20 + 10, 0);
+        GlStateManager.pushMatrix();
+        float scale = 1F + ((throbTicks >= (throbTickMax / 2) ? (throbTickMax - (throbTicks + partialTicks)) : (throbTicks + partialTicks)) * (2F / throbTickMax));
+        GlStateManager.scale(scale, scale, scale);
+        GlStateManager.rotate((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
+        GlStateManager.pushMatrix();
+
+        itemRender.renderItemAndEffectIntoGUI(stack, -8, -8);
+
+        GlStateManager.popMatrix();
+        GlStateManager.popMatrix();
+    }
+
     @Override
     public void initGui()
     {
@@ -140,59 +164,65 @@ public class GuiMinigames extends GuiScreen
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawDefaultBackground();
-        spinupButton.enabled = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null && credit >= quote;
-        minigameScroll.drawScreen(mouseX, mouseY, partialTicks);
-        super.drawScreen(mouseX, mouseY, partialTicks);
-        String creditStr;
-        switch (creditType)
-        {
-            case "credit":
-                creditStr = (int)credit + " trial credit" + (credit == 1 ? "" : "s");
-                break;
-            default:
-            case "none":
-                creditStr = "Retrieving...";
-                break;
-            case "currency":
-                String formattedCredit = new DecimalFormat("0.00##").format(credit);
-                creditStr = "CreeperHost credit: " + curPrefix + formattedCredit + curSuffix;
-        }
-
-        drawString(fontRendererObj, creditStr, 5, 5, 0xFFFFFFFF);
-        drawStatusString(width / 2, height - 40);
-
-        String currencyFormat = String.valueOf((int)quote);;
-
-        if (quote > 0)
-        {
-            double exchangedQuote = round(quote * exchangeRate, 2);
-            String first = "";
-            switch(creditType)
+        if (!spinDown) {
+            spinupButton.enabled = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null && credit >= quote;
+            spinupButton.enabled = true;
+            minigameScroll.drawScreen(mouseX, mouseY, partialTicks);
+            super.drawScreen(mouseX, mouseY, partialTicks);
+            String creditStr;
+            switch (creditType)
             {
                 case "credit":
-                    first = "Credit" + (quote > 1 ? "s" : "") + " needed: ";
+                    creditStr = (int)credit + " trial credit" + (credit == 1 ? "" : "s");
                     break;
                 default:
                 case "none":
-                    first = "";
+                    creditStr = "Retrieving...";
                     break;
                 case "currency":
-                    first = "Estimated cost: ";
-                    currencyFormat = new DecimalFormat("0.00##").format(exchangedQuote);
+                    String formattedCredit = new DecimalFormat("0.00##").format(credit);
+                    creditStr = "CreeperHost credit: " + curPrefix + formattedCredit + curSuffix;
             }
 
-            String formattedQuote = first + curPrefix + currencyFormat + curSuffix;
-            drawString(fontRendererObj, formattedQuote, 5, height - 15, 0xFFFFFFFF);
-            int stringLen = fontRendererObj.getStringWidth(formattedQuote);
-            if (!creditType.equals("credit") && !curPrefix.equals("£") && mouseX >= 5 && mouseX <= 5 + stringLen && mouseY >= height - 15 && mouseY <= height - 5)
+            drawString(fontRendererObj, creditStr, 5, 5, 0xFFFFFFFF);
+            drawStatusString(width / 2, height - 40);
+
+            String currencyFormat = String.valueOf((int)quote);;
+
+            if (quote > 0)
             {
-                drawHoveringText(Arrays.asList("Figure provided based on exchange rate of " + exchangeRate), mouseX, mouseY);
-            } else {
-                if (spinupButton.isMouseOver() && credit < quote)
+                double exchangedQuote = round(quote * exchangeRate, 2);
+                String first = "";
+                switch(creditType)
                 {
-                    drawHoveringText(Arrays.asList("Cannot start minigame as you do not have enough credit"), mouseX, mouseY);
+                    case "credit":
+                        first = "Credit" + (quote > 1 ? "s" : "") + " needed: ";
+                        break;
+                    default:
+                    case "none":
+                        first = "";
+                        break;
+                    case "currency":
+                        first = "Estimated cost: ";
+                        currencyFormat = new DecimalFormat("0.00##").format(exchangedQuote);
+                }
+
+                String formattedQuote = first + curPrefix + currencyFormat + curSuffix;
+                drawString(fontRendererObj, formattedQuote, 5, height - 15, 0xFFFFFFFF);
+                int stringLen = fontRendererObj.getStringWidth(formattedQuote);
+                if (!creditType.equals("credit") && !curPrefix.equals("£") && mouseX >= 5 && mouseX <= 5 + stringLen && mouseY >= height - 15 && mouseY <= height - 5)
+                {
+                    drawHoveringText(Arrays.asList("Figure provided based on exchange rate of " + exchangeRate), mouseX, mouseY);
+                } else {
+                    if (spinupButton.isMouseOver() && credit < quote)
+                    {
+                        drawHoveringText(Arrays.asList("Cannot start minigame as you do not have enough credit"), mouseX, mouseY);
+                    }
                 }
             }
+        } else {
+            drawCenteredSplitString("Spinning down minigame", width / 2, height / 2, width, 0xFFFFFFFF);
+            loadingSpin(partialTicks);
         }
     }
 
@@ -369,6 +399,13 @@ public class GuiMinigames extends GuiScreen
         drawCenteredSplitString(drawText, x, y, width, drawColour);
     }
 
+    private void doSpindown()
+    {
+        executor.submit(() -> {
+
+        });
+    }
+
     private void drawCenteredSplitString(String drawText, int x, int y, int width, int drawColour)
     {
 
@@ -414,6 +451,11 @@ public class GuiMinigames extends GuiScreen
                         GuiMinigames.settings.loginButton.displayString = "Log in again";
                         GuiMinigames.settings.loginButton.enabled = true;
                         GuiMinigames.settings.loginButton.visible = true;
+                    }
+
+                    if (GuiMinigames.current.spinDown)
+                    {
+                        GuiMinigames.current.doSpindown();
                     }
                     break;
                 case CHECKING_CREDENTIALS:
@@ -675,59 +717,58 @@ public class GuiMinigames extends GuiScreen
                 } else {
                     executor.submit(() ->
                     {
-                        Map<String, String> credentials = new HashMap<>();
-                        credentials.put("email", emailField.getText());
-                        credentials.put("password", passwordField.getText());
-                        credentials.put("oneCode", oneCodeField.getText().replaceAll("[^0-9]", ""));
+                        try {
+                            Map<String, String> credentials = new HashMap<>();
+                            credentials.put("email", emailField.getText());
+                            credentials.put("password", passwordField.getText());
+                            credentials.put("oneCode", oneCodeField.getText().replaceAll("[^0-9]", ""));
 
-                        State.pushState(State.LOGGING_IN);
-                        String resp = WebUtils.postWebResponse("https://staging-panel.creeper.host/mt.php", credentials);
+                            State.pushState(State.LOGGING_IN);
+                            String resp = WebUtils.postWebResponse("https://staging-panel.creeper.host/mt.php", credentials);
 
 
-                        JsonParser parser = new JsonParser();
-                        JsonElement el = parser.parse(resp);
-                        if (el.isJsonObject())
-                        {
-                            JsonObject obj = el.getAsJsonObject();
-                            if (obj.get("success").getAsBoolean())
-                            {
-                                key = obj.get("key").getAsString();
-                                secret = obj.get("secret").getAsString();
-                                try {
-                                    if (checkCredentials().get())
-                                    {
-                                        saveCredentials();
+                            JsonParser parser = new JsonParser();
+                            JsonElement el = parser.parse(resp);
+                            if (el.isJsonObject()) {
+                                JsonObject obj = el.getAsJsonObject();
+                                if (obj.get("success").getAsBoolean()) {
+                                    key = obj.get("key").getAsString();
+                                    secret = obj.get("secret").getAsString();
+                                    try {
+                                        if (checkCredentials().get()) {
+                                            saveCredentials();
+                                        }
+                                    } catch (InterruptedException e) {
+                                    } catch (ExecutionException e) {
                                     }
-                                } catch (InterruptedException e) {
-                                } catch (ExecutionException e) {
-                                }
-                                emailField.setText("");
-                                passwordField.setText("");
-                                oneCodeField.setText("");
-                            } else {
-                                if (obj.has("_2fa") && !obj.get("_2fa").isJsonNull() && obj.get("_2fa").getAsBoolean())
-                                {
-                                    if (previous2fa)
-                                    {
-                                        State.pushState(State.TWOFACTOR_FAILURE);
-                                        loginFailureMessage = "Invalid code. Please try again or reset it by logging into the CreeperPanel";
+                                    emailField.setText("");
+                                    passwordField.setText("");
+                                    oneCodeField.setText("");
+                                } else {
+                                    if (obj.has("_2fa") && !obj.get("_2fa").isJsonNull() && obj.get("_2fa").getAsBoolean()) {
+                                        if (previous2fa) {
+                                            loginFailureMessage = "Invalid code. Please try again or reset it by logging into the CreeperPanel";
+                                            State.pushState(State.TWOFACTOR_FAILURE);
+                                            return;
+                                        }
+                                        loginFailureMessage = "Please enter your two-factor code";
+                                        State.pushState(State.TWOFACTOR_NEEDED);
+                                        oneCodeField.setFocused(true);
+                                        emailField.setFocused(false);
+                                        passwordField.setFocused(false);
+                                        previous2fa = true;
+                                        oneCodeField.setText("");
                                         return;
                                     }
-                                    State.pushState(State.TWOFACTOR_NEEDED);
-                                    oneCodeField.setFocused(true);
-                                    emailField.setFocused(false);
-                                    passwordField.setFocused(false);
-                                    loginFailureMessage = "Please enter your two-factor code";
-                                    previous2fa = true;
+                                    String tempLoginFailure = obj.get("message").isJsonNull() ? "" : obj.get("message").getAsString();
+                                    loginFailureMessage = tempLoginFailure.isEmpty() ? "Login failed. Please ensure you have entered your username and password correctly." : tempLoginFailure;
+                                    State.pushState(State.LOGIN_FAILURE);
+                                    passwordField.setText("");
                                     oneCodeField.setText("");
-                                    return;
                                 }
-                                State.pushState(State.LOGIN_FAILURE);
-                                String tempLoginFailure = obj.get("message").getAsString();
-                                loginFailureMessage = tempLoginFailure.isEmpty() ? "Login failed. Please ensure you have entered your username and password correctly." : tempLoginFailure;
-                                passwordField.setText("");
-                                oneCodeField.setText("");
                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     });
                 }
@@ -741,8 +782,6 @@ public class GuiMinigames extends GuiScreen
         private String failedReason = "";
         private int port;
         private String ip;
-        private int ticks = 0;
-        private ItemStack stack = new ItemStack(Items.BEEF, 1);
         private GuiButton joinServerButton;
 
         public StartMinigame(Minigame minigame)
@@ -788,6 +827,7 @@ public class GuiMinigames extends GuiScreen
                                             State.pushState(State.READY_TO_JOIN);
                                             CreeperHost.instance.curServerId = CreeperHostServer.updateID;
                                             CreeperHost.instance.activeMinigame = String.valueOf(map.get("uuid"));
+                                            CreeperHost.instance.trialMinigame = map.get("type").equals("trial");
                                             break;
                                         } else if (CreeperHostServer.failed) {
                                             State.pushState(State.MINIGAME_FAILED);
@@ -815,18 +855,18 @@ public class GuiMinigames extends GuiScreen
         }
 
         @Override
+        public void updateScreen()
+        {
+            ticks++;
+        }
+
+        @Override
         public void initGui() {
             super.initGui();
             buttonList.add(joinServerButton = new GuiButton(800008, width / 2 - 50, height / 2 + 20, 100, 20,"Join server"));
             joinServerButton.enabled = false;
             joinServerButton.visible = false;
             State.refreshState();
-        }
-
-        @Override
-        public void updateScreen() {
-            super.updateScreen();
-            ticks++;
         }
 
         @Override
@@ -843,25 +883,6 @@ public class GuiMinigames extends GuiScreen
             super.drawScreen(mouseX, mouseY, partialTicks);
             if (State.getCurrentState() != State.READY_TO_JOIN && State.getCurrentState() != State.MINIGAME_FAILED)
                 loadingSpin(partialTicks);
-        }
-
-        private void loadingSpin(float partialTicks)
-        {
-            int rotateTickMax = 30;
-            int throbTickMax = 20;
-            int rotateTicks = ticks % rotateTickMax;
-            int throbTicks = ticks % throbTickMax;
-            GlStateManager.translate(width / 2, height / 2 + 20 + 10, 0);
-            GlStateManager.pushMatrix();
-            float scale = 1F + ((throbTicks >= (throbTickMax / 2) ? (throbTickMax - (throbTicks + partialTicks)) : (throbTicks + partialTicks)) * (2F / throbTickMax));
-            GlStateManager.scale(scale, scale, scale);
-            GlStateManager.rotate((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
-            GlStateManager.pushMatrix();
-
-            itemRender.renderItemAndEffectIntoGUI(stack, -8, -8);
-
-            GlStateManager.popMatrix();
-            GlStateManager.popMatrix();
         }
 
         @Override

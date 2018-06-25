@@ -224,6 +224,12 @@ public class EventHandler
         else if (gui instanceof GuiConnecting)
         {
             //lastNetworkManager = getNetworkManager((GuiConnecting) gui);
+        } else if (gui instanceof GuiMultiplayer) {
+            if (!CreeperHost.instance.trialMinigame && CreeperHost.instance.activeMinigame != null)
+            {
+                CreeperHost.instance.trialMinigame = true;
+                event.setGui(new GuiMinigames(true));
+            }
         }
     }
 
@@ -603,10 +609,6 @@ public class EventHandler
     {
         CreeperHost.instance.curServerId = -1;
         CreeperHostServer.serverOn = false;
-        if (CreeperHost.instance.activeMinigame != null)
-        {
-            Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames(true));
-        }
     }
 
     @SubscribeEvent

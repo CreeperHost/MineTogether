@@ -30,7 +30,7 @@ public class GuiGDPR extends GuiScreen
         "\n" +
         "We only use this in order to find servers which you are invited to, and to provide an in game friends list.\n" +
         "\n" +
-        "To view a copy of our privacy policy, please click (here|https://www.creeperhost.net/privacy).\n" +
+        "To view our privacy policy, please click (here|https://www.creeperhost.net/privacy). To view our TOS, please click (here|https://www.creeperhost.net/tos).\n" +
         "\n" +
         "If you consent to this, please press Accept. Otherwise, press Decline. If you decline this, the feature will be disabled.\n";
 
