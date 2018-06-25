@@ -60,7 +60,7 @@ public class CreeperHostServer
     @Mod.Instance(value = "minetogetherserver")
     public static CreeperHostServer INSTANCE;
     public static int updateID;
-    private static String secret;
+    public static String secret;
     private static ArrayList<String> oldVersions = new ArrayList<String>()
     {{
         add("1.9");

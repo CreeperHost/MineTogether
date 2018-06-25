@@ -85,7 +85,7 @@ public class GuiMinigames extends GuiScreen
     public boolean spinDown = false;
 
     public GuiMinigames(boolean spinDown) {
-        super();
+        this();
         this.spinDown = spinDown;
     }
 
@@ -166,7 +166,6 @@ public class GuiMinigames extends GuiScreen
         drawDefaultBackground();
         if (!spinDown) {
             spinupButton.enabled = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null && credit >= quote;
-            spinupButton.enabled = true;
             minigameScroll.drawScreen(mouseX, mouseY, partialTicks);
             super.drawScreen(mouseX, mouseY, partialTicks);
             String creditStr;
@@ -223,6 +222,10 @@ public class GuiMinigames extends GuiScreen
         } else {
             drawCenteredSplitString("Spinning down minigame", width / 2, height / 2, width, 0xFFFFFFFF);
             loadingSpin(partialTicks);
+            if (doSpindown)
+            {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
+            }
         }
     }
 
@@ -363,7 +366,7 @@ public class GuiMinigames extends GuiScreen
                 drawColour = 0xFF00FF00;
                 break;
             case STARTING_MINIGAME:
-                drawText = "Starting Minigame";
+                drawText = "Starting Minigame. This may take up to 60 seconds!";
                 drawColour = 0xFFFFFFFF;
                 break;
             case MINIGAME_ACTIVE:
@@ -399,11 +402,37 @@ public class GuiMinigames extends GuiScreen
         drawCenteredSplitString(drawText, x, y, width, drawColour);
     }
 
+    private boolean doSpindown = false;
+
     private void doSpindown()
     {
+        final boolean[] started = {false};
         executor.submit(() -> {
+            Map<String, String> sendMap = new HashMap<>();
 
+            Aries aries = new Aries(key, secret);
+
+            sendMap.put("uuid", CreeperHost.instance.activeMinigame);
+            sendMap.put("key2", key);
+            sendMap.put("secret2", secret);
+
+            CreeperHost.instance.activeMinigame = null;
+
+
+            started[0] = true;
+
+            Map map = aries.doApiCall("minetogether", "stopminigame", sendMap);
         });
+
+        while (!started[0])
+        {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+            }
+        }
+
+        doSpindown = true;
     }
 
     private void drawCenteredSplitString(String drawText, int x, int y, int width, int drawColour)
@@ -812,8 +841,6 @@ public class GuiMinigames extends GuiScreen
                             sendMap.put("secret2", secret);
 
                             Map map = aries.doApiCall("minetogether", "startminigame", sendMap);
-
-                            System.out.println(map);
 
                             if (map.get("status").equals("success")) {
                                 try {

@@ -609,6 +609,8 @@ public class EventHandler
     {
         CreeperHost.instance.curServerId = -1;
         CreeperHostServer.serverOn = false;
+        CreeperHostServer.updateID = -1;
+        CreeperHostServer.secret = null;
     }
 
     @SubscribeEvent
