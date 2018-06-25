@@ -37,7 +37,6 @@ task reObfJar {
 //}
 
 jar.dependsOn ':1.12.2:jar'
-shadowJar.dependsOn ':1.12.2:shadowJar'
 sourceJar.dependsOn ':1.12.2:sourceJar'
 
 gradle.taskGraph.whenReady { graph ->
@@ -62,12 +61,14 @@ shadowJar {
 	// Only shadow kitteh
 	dependencies {
 		include(dependency('org.kitteh.irc:client-lib:4.0.2'))
+		include(dependency('net.engio:mbassador:1.3.1'))
 	}
 	
 	//from zipTree(project(':1.12.2').tasks['jar'].archivePath)
 
 	// Relocate fluent-hc to prevent conflicts with other mods that include it
 	relocate 'org.kitteh.irc', 'net.creeperhost.minetogether.org.kitteh.irc'
+	relocate 'net.engio.mbassy', 'net.creeperhost.minetogether.net.engio.mbassy'
 
 	classifier '' // Replace the default JAR
 }
@@ -76,4 +77,4 @@ reobf {
 	shadowJar {} // Reobfuscate the shadowed JAR
 }
 
-reobfShadowJar.dependsOn ':1.12.2:shadowJar'
+shadowJar.dependsOn ':1.12.2:reobfShadowJar'
