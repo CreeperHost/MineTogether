@@ -64,7 +64,9 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public Invite invite;
     public GDPR gdpr;
     public String activeMinigame;
+    public int minigameID;
     public boolean trialMinigame;
+    public long joinTime;
     String toastText;
     long endTime;
     long fadeTime;

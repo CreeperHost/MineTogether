@@ -27,7 +27,6 @@ public final class Callbacks
     private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
     private static String friendCode;
     private static Util.CachedValue<ArrayList<Friend>> friendsList = null;
-    private static Util.CachedValue<ArrayList<Minigame>> minigameList;
     private static String userCountry;
     private static Map<String, String> countries = new LinkedHashMap<String, String>()
     {{
@@ -454,46 +453,32 @@ public final class Callbacks
         return true;
     }
 
-    public static ArrayList<Minigame> getMinigames(boolean force)
+    public static ArrayList<Minigame> getMinigames(boolean isModded)
     {
-        if (minigameList == null)
-            minigameList = new Util.CachedValue<ArrayList<Minigame>>(10000, new Util.CachedValue.ICacheCallback<ArrayList<Minigame>>()
+
+        Map<String, String> sendMap = new HashMap<>();
+        {
+            sendMap.put("mc", Util.getMinecraftVersion());
+            sendMap.put("project", isModded ? Config.getInstance().curseProjectID : String.valueOf(0));
+        }
+
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/mgtemplates", new Gson().toJson(sendMap), true, false);
+
+        JsonParser parser = new JsonParser();
+
+        Gson gson = new Gson();
+
+        JsonElement parse = parser.parse(resp);
+        if (parse.isJsonObject())
+        {
+            JsonObject obj = parse.getAsJsonObject();
+            if (obj.get("status").getAsString().equals("success"))
             {
-                @Override
-                public ArrayList<Minigame> get(Object... args)
-                {
-                    Map<String, String> sendMap = new HashMap<String, String>();
-                    {
-                        sendMap.put("mc", Util.getMinecraftVersion());
-                        sendMap.put("project", Config.getInstance().curseProjectID);
-                    }
+                return gson.fromJson(obj.get("templates"), new TypeToken<List<Minigame>>(){}.getType());
+            }
+        }
 
-                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/mgtemplates", new Gson().toJson(sendMap), true, false);
-
-                    JsonParser parser = new JsonParser();
-
-                    Gson gson = new Gson();
-
-                    JsonElement parse = parser.parse(resp);
-                    if (parse.isJsonObject())
-                    {
-                        JsonObject obj = parse.getAsJsonObject();
-                        if (obj.get("status").getAsString().equals("success"))
-                        {
-                            return gson.fromJson(obj.get("templates"), new TypeToken<List<Minigame>>(){}.getType());
-                        }
-                    }
-
-                    return null;
-                }
-
-                @Override
-                public boolean needsRefresh(Object... args)
-                {
-                    return args.length > 0 && args[0].equals(true);
-                }
-            });
-        return minigameList.get(force);
+        return null;
     }
 
     public static ArrayList<Friend> getFriendsList(boolean force)

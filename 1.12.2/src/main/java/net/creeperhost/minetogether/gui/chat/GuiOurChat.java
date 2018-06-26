@@ -1,12 +1,10 @@
 package net.creeperhost.minetogether.gui.chat;
 
-import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
-import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -45,10 +43,10 @@ public class GuiOurChat extends GuiScreen
     {
         chat = new GuiScrollingChat(10);
         send = new GuiTextFieldLockable(8008, mc.fontRendererObj, 10, this.height - 50, width - 20, 20);
-        buttonList.add(targetDropdownButton = new DropdownButton<>(-1337, width - 5 - 160, 5, 160, 20, "Chat: %s", Target.getMainTarget(), true));
+        buttonList.add(targetDropdownButton = new DropdownButton<>(-1337, width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true));
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
-        buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 160, 20, "Menu", new Menu(strings), true));
+        buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new Menu(strings), true));
         buttonList.add(friendsButton = new GuiButton(-80088, width - 100 - 5, height - 5 - 20, 100, 20, "Friends list"));
         send.setMaxStringLength(120);
         send.setFocused(true);

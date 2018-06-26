@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.api.Order;
+import net.creeperhost.minetogether.aries.Aries;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.*;
@@ -50,7 +51,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EventHandler
 {
@@ -178,6 +181,20 @@ public class EventHandler
         if (gui instanceof GuiDisconnected)
         {
             GuiDisconnected dc = (GuiDisconnected) gui;
+
+            if (CreeperHost.instance.activeMinigame != null && CreeperHost.instance.joinTime + 30000 < System.currentTimeMillis())
+            {
+                Aries aries = new Aries("", "");
+                Thread thread = new Thread(() -> {
+                    Map<String, String> sendMap = new HashMap<>();
+                    sendMap.put("id", String.valueOf(CreeperHost.instance.minigameID));
+                    Map result = aries.doApiCall("minetogether", "failedminigame", sendMap);
+                    CreeperHost.instance.getLogger().error("Failed to start minigame {} {}", CreeperHost.instance.minigameID, result);
+                });
+                thread.setName("Failed Thread");
+                thread.setDaemon(false);
+                thread.start();
+            }
 
             try
             {
@@ -522,6 +539,10 @@ public class EventHandler
             if (button != null && button.id == CHAT_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat());
+            }
+            if (button != null && button.id == MINIGAMES_BUTTON_ID)
+            {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames());
             }
         }
         else if (gui instanceof GuiIngameMenu)

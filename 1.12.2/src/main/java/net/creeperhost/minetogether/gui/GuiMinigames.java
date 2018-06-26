@@ -41,10 +41,7 @@ import java.math.RoundingMode;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 import static net.creeperhost.minetogether.paul.Callbacks.getPlayerHash;
@@ -53,6 +50,7 @@ public class GuiMinigames extends GuiScreen
 {
     private static GuiMinigames current;
     private List<Minigame> minigames;
+    private List<Minigame> vanillaMinigames;
     private GuiScrollingMinigames minigameScroll;
     private static HashMap<Integer, ResourceLocation> minigameTexturesCache = new HashMap<>();
     private static HashMap<Integer, Pair<Integer, Integer>> minigameTexturesSize = new HashMap<>();
@@ -72,12 +70,17 @@ public class GuiMinigames extends GuiScreen
     private String curPrefix = "";
     private String curSuffix = "";
 
+    private boolean isModded = true;
+    private GuiActiveFake moddedButton;
+    private GuiActiveFake vanillaButton;
+
     public GuiMinigames()
     {
         current = this;
         State.pushState(State.CHECKING_CREDENTIALS);
         loadCredentials();
-        executor.submit(() -> minigames = Callbacks.getMinigames(false));
+        refreshMinigames();
+        isModded = true;
     }
 
     Minigame lastMinigame = null;
@@ -87,6 +90,27 @@ public class GuiMinigames extends GuiScreen
     public GuiMinigames(boolean spinDown) {
         this();
         this.spinDown = spinDown;
+    }
+
+    private void refreshMinigames()
+    {
+        executor.submit(() ->
+        {
+            List<Minigame> minigameTemp = Callbacks.getMinigames(true);
+            List<Minigame> tempVanilla = new ArrayList<>();
+            List<Minigame> tempModded = new ArrayList<>();
+            for(Minigame minigame : minigameTemp)
+            {
+                if (minigame.project == 0)
+                    tempVanilla.add(minigame);
+                else
+                    tempModded.add(minigame);
+
+            }
+            minigames = tempModded;
+            vanillaMinigames = tempVanilla;
+        });
+
     }
 
     @Override
@@ -156,7 +180,11 @@ public class GuiMinigames extends GuiScreen
         super.initGui();
         minigameScroll = new GuiScrollingMinigames(34);
         buttonList.add(settingsButton = new GuiButton(808, width - 10 - 100, 5, 100, 20, "Login"));
-        buttonList.add(spinupButton = new GuiButton(808, width - 10 - 100, height - 5 - 20, 100, 20, "Start minigame"));
+        buttonList.add(spinupButton = new GuiButton(809, width - 10 - 100, height - 5 - 20, 100, 20, "Start minigame"));
+        buttonList.add(moddedButton = new GuiActiveFake(0xb00b, 10, 30, (width / 2) - 5, 20, "Modded"));
+        buttonList.add(vanillaButton = new GuiActiveFake(0xb00b5, width - 10 - ((width / 2) - 10), 30, (width / 2) - 5, 20, "Vanilla"));
+        moddedButton.setActive(isModded);
+        vanillaButton.setActive(!isModded);
         State.refreshState();
     }
 
@@ -182,6 +210,8 @@ public class GuiMinigames extends GuiScreen
                     String formattedCredit = new DecimalFormat("0.00##").format(credit);
                     creditStr = "CreeperHost credit: " + curPrefix + formattedCredit + curSuffix;
             }
+
+            drawCenteredString(fontRendererObj, "MineTogether Minigames", width / 2, 5, 0xFFFFFFFF);
 
             drawString(fontRendererObj, creditStr, 5, 5, 0xFFFFFFFF);
             drawStatusString(width / 2, height - 40);
@@ -255,6 +285,17 @@ public class GuiMinigames extends GuiScreen
             Minecraft.getMinecraft().displayGuiScreen(settings = new Settings());
         } else if (button == spinupButton && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null) {
             Minecraft.getMinecraft().displayGuiScreen(new StartMinigame(minigameScroll.getMinigame()));
+        } else if (button == vanillaButton) {
+            isModded = false;
+            minigameScroll.clearSelected();
+            vanillaButton.setActive(true);
+            moddedButton.setActive(false);
+        } else if (button == moddedButton)
+        {
+            isModded = true;
+            minigameScroll.clearSelected();
+            moddedButton.setActive(true);
+            vanillaButton.setActive(false);
         }
     }
 
@@ -555,13 +596,37 @@ public class GuiMinigames extends GuiScreen
         }
     }
 
+    private class GuiActiveFake extends GuiButton {
+
+        private boolean active;
+
+        public GuiActiveFake(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText) {
+            super(buttonId, x, y, widthIn, heightIn, buttonText);
+        }
+
+        public void setActive(boolean active)
+        {
+            this.active = active;
+        }
+
+        @Override
+        public void func_191745_a(Minecraft p_191745_1_, int mouseX, int mouseY, float p_191745_4_) {
+            if (active) {
+                mouseX = xPosition + 1;
+                mouseY = yPosition + 1;
+            }
+            super.func_191745_a(p_191745_1_, mouseX, mouseY, p_191745_4_);
+        }
+    }
+
     private class GuiScrollingMinigames extends GuiScrollingList {
         public GuiScrollingMinigames(int entryHeight) {
-            super(Minecraft.getMinecraft(), GuiMinigames.this.width - 20, GuiMinigames.this.height - 30, 30, GuiMinigames.this.height - 50, 10, entryHeight, GuiMinigames.this.width, GuiMinigames.this.height);
+            super(Minecraft.getMinecraft(), GuiMinigames.this.width - 20, GuiMinigames.this.height - 50, 50, GuiMinigames.this.height - 50, 10, entryHeight, GuiMinigames.this.width, GuiMinigames.this.height);
         }
 
         @Override
         protected int getSize() {
+            List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
             return minigames == null ? 1 : minigames.size();
         }
 
@@ -582,6 +647,7 @@ public class GuiMinigames extends GuiScreen
 
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
+            List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
             if (minigames == null) {
                 drawCenteredString(fontRendererObj, "Loading minigames...", width / 2, slotTop, 0xFFFFFFFF);
             } else {
@@ -645,7 +711,12 @@ public class GuiMinigames extends GuiScreen
         }
 
         public Minigame getMinigame() {
+            List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
             return selectedIndex >= 0 ? minigames.get(selectedIndex) : null;
+        }
+
+        public void clearSelected() {
+            selectedIndex = -1;
         }
     }
 
@@ -854,6 +925,7 @@ public class GuiMinigames extends GuiScreen
                                             State.pushState(State.READY_TO_JOIN);
                                             CreeperHost.instance.curServerId = CreeperHostServer.updateID;
                                             CreeperHost.instance.activeMinigame = String.valueOf(map.get("uuid"));
+                                            CreeperHost.instance.minigameID = minigame.id;
                                             CreeperHost.instance.trialMinigame = map.get("type").equals("trial");
                                             break;
                                         } else if (CreeperHostServer.failed) {
@@ -932,9 +1004,10 @@ public class GuiMinigames extends GuiScreen
             super.actionPerformed(button);
             if (button == joinServerButton)
             {
-                if (State.getCurrentState() == State.READY_TO_JOIN)
+                if (State.getCurrentState() == State.READY_TO_JOIN) {
+                    CreeperHost.instance.joinTime = System.currentTimeMillis();
                     FMLClientHandler.instance().connectToServerAtStartup(ip, port);
-                else
+                } else
                     Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames());
             }
         }
