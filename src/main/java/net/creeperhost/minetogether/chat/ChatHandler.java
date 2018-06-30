@@ -11,13 +11,17 @@ import org.kitteh.irc.client.library.event.channel.ChannelJoinEvent;
 import org.kitteh.irc.client.library.event.channel.ChannelMessageEvent;
 import org.kitteh.irc.client.library.event.channel.ChannelPartEvent;
 import org.kitteh.irc.client.library.event.channel.UnexpectedChannelLeaveViaKickEvent;
+import org.kitteh.irc.client.library.event.client.ClientConnectionClosedEvent;
 import org.kitteh.irc.client.library.event.client.ClientConnectionEndedEvent;
+import org.kitteh.irc.client.library.event.client.ClientConnectionEstablishedEvent;
+import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent;
 import org.kitteh.irc.client.library.event.helper.UnexpectedChannelLeaveEvent;
 import org.kitteh.irc.client.library.event.user.PrivateMessageEvent;
 import org.kitteh.irc.client.library.event.user.UserQuitEvent;
 import org.kitteh.irc.client.library.util.Format;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class ChatHandler
 {
@@ -30,33 +34,38 @@ public class ChatHandler
     public static HashMap<String, LimitedSizeQueue<Pair<String, String>>> messages = null;
     private static Client client = null;
     private static IHost host;
-    private static boolean intentionalShutdown = false;
-    private static int tries = 0;
+    public static int tries = 0;
     private static boolean inited = false;
     public static List<String> badwords;
     public static String badwordsFormat;
+    static String initedString = null;
 
     public static void init(String nick, IHost _host)
     {
         if (inited) return;
+        initedString = nick;
         badwords = ChatUtil.getBadWords();
         badwordsFormat = ChatUtil.getAllowedCharactersRegex();
         IRC_SERVER = ChatUtil.getIRCServerDetails();
         CHANNEL = IRC_SERVER.channel;
         host = _host;
-        intentionalShutdown = false;
         tries = 0;
-        if (client == null)
+
+        synchronized (ircLock)
         {
-            synchronized (ircLock)
-            {
-                messages = new HashMap<>();
-            }
-            client = Client.builder().nick(nick).realName("https://minetogether.io").user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).buildAndConnect();
-            client.getEventManager().registerEventListener(new Listener());
-            client.addChannel(CHANNEL);
+            messages = new HashMap<>();
         }
+        client = Client.builder().nick(nick).realName("https://minetogether.io").user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) -> {} /* noop */).buildAndConnect();
+        client.getEventManager().registerEventListener(new Listener());
+        client.addChannel(CHANNEL);
+
         inited = true;
+    }
+
+    public static void reInit()
+    {
+        inited = false;
+        init(initedString, host);
     }
 
     private static void addMessageToChat(String target, String user, String message)
@@ -126,8 +135,13 @@ public class ChatHandler
     {
         if (currentTarget.equals(CHANNEL))
             client.getChannel(CHANNEL).get().sendMessage(text);
-        else
+        else if(client.getChannel(CHANNEL).get().getUser(currentTarget).isPresent())
             client.getChannel(CHANNEL).get().getUser(currentTarget).get().sendMessage(text);
+        else
+        {
+            updateFriends(client.getChannel(CHANNEL).get().getUsers());
+            return;
+        }
 
         synchronized (ircLock)
         {
@@ -161,7 +175,6 @@ public class ChatHandler
             {
                 if (tries >= 4)
                 {
-                    intentionalShutdown = true;
                     client.shutdown();
                     addMessageToChat(CHANNEL, "System", "Unable to rejoin chat. Disconnected from server");
                 }
@@ -171,27 +184,36 @@ public class ChatHandler
         }
 
         @Handler
+        public void onConnected(ClientNegotiationCompleteEvent event)
+        {
+            tries = 0;
+        }
+
+        @Handler
         public void onQuit(ClientConnectionEndedEvent event)
         {
             String cause = "Unknown";
             if (event.getCause().isPresent())
                 cause = event.getCause().get().getMessage();
+            else if ((event instanceof ClientConnectionClosedEvent) && ((ClientConnectionClosedEvent)event).getLastMessage().isPresent())
+                cause = ((ClientConnectionClosedEvent)event).getLastMessage().get();
+
+            tries++;
+
 
             synchronized (ircLock)
             {
+                connectionStatus = ConnectionStatus.DISCONNECTED;
+                if (tries >= 5)
+                {
+                    event.setAttemptReconnect(false);
+                    addMessageToChat(CHANNEL, "System", Format.stripAll("Disconnected (Reason: " + cause + "). Too many tries, not reconnecting"));
+                    return;
+                }
                 addMessageToChat(CHANNEL, "System", Format.stripAll("Disconnected (Reason: " + cause + "). Reconnecting"));
-                connectionStatus = ConnectionStatus.CONNECTED;
+                event.setReconnectionDelay(10000);
+                event.setAttemptReconnect(true);
             }
-
-            if (tries >= 4)
-            {
-                event.setAttemptReconnect(false);
-                addMessageToChat(CHANNEL, "System", Format.stripAll("Disconnected (Reason: " + cause + "). Too many tries, not reconnecting"));
-            }
-
-            tries++;
-            event.setReconnectionDelay(5000);
-            event.setAttemptReconnect(true);
         }
 
         @Handler
@@ -202,6 +224,7 @@ public class ChatHandler
                 synchronized (ircLock)
                 {
                     connectionStatus = ConnectionStatus.CONNECTED;
+                    addMessageToChat(CHANNEL, "System", Format.stripAll("Server joined"));
                 }
             }
 

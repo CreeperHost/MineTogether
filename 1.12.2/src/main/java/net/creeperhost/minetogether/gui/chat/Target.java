@@ -15,7 +15,7 @@ import java.util.Map;
 class Target implements DropdownButton.IDropdownOption
 {
     private final String targetName;
-    private static ArrayList<Target> possibleValsCache;
+    private static ArrayList<Target> possibleValsCache = new ArrayList<>();
     private static boolean updating = false;
     private final String internalTarget;
     private static Map<String, String> oldFriends;

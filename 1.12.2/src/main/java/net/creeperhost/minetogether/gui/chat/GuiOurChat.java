@@ -37,6 +37,7 @@ public class GuiOurChat extends GuiScreen
     private String currentTarget = ChatHandler.CHANNEL;
     private DropdownButton<Menu> menuDropdownButton;
     private String activeDropdown;
+    private GuiButton reconnectionButton;
 
     @Override
     public void initGui()
@@ -48,6 +49,8 @@ public class GuiOurChat extends GuiScreen
         strings.add("Mute");
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new Menu(strings), true));
         buttonList.add(friendsButton = new GuiButton(-80088, width - 100 - 5, height - 5 - 20, 100, 20, "Friends list"));
+        buttonList.add(reconnectionButton = new GuiButton(-80084, 5 + 80, height - 5 - 20, 100, 20, "Reconnect"));
+        reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
         send.setMaxStringLength(120);
         send.setFocused(true);
     }
@@ -69,6 +72,7 @@ public class GuiOurChat extends GuiScreen
         }
         synchronized (ChatHandler.ircLock)
         {
+            reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
             if (ChatHandler.hasNewMessages(currentTarget))
             {
                 chat.updateLines(currentTarget);
@@ -125,6 +129,8 @@ public class GuiOurChat extends GuiScreen
             }
         } else if (button == friendsButton) {
             CreeperHost.proxy.openFriendsGui();
+        } else if (button == reconnectionButton) {
+            ChatHandler.reInit();
         }
         chat.actionPerformed(button);
         super.actionPerformed(button);
@@ -248,7 +254,7 @@ public class GuiOurChat extends GuiScreen
     private static ITextComponent formatLine(Pair<String, String> message)
     {
         String inputNick = message.getLeft();
-        String outputNick = "";
+        String outputNick = inputNick;
         boolean friend = false;
         if (inputNick.startsWith("MT"))
         {

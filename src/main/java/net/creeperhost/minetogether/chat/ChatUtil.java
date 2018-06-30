@@ -56,9 +56,10 @@ public class ChatUtil
     public static IRCServer getIRCServerDetails()
     {
         String resp = getWebResponse("https://api.creeper.host/serverlist/chatserver");
+
         if (resp.equals("error"))
         {
-            return new IRCServer("irc.esper.net", 6697, true, "#MineTogether");
+            return new IRCServer("irc.minetogether.io", 6667, false, "#public");
         }
         JsonParser parser = new JsonParser();
         JsonObject parse = parser.parse(resp).getAsJsonObject();
@@ -71,7 +72,7 @@ public class ChatUtil
             boolean ssl = server.get("ssl").getAsBoolean();
             return new IRCServer(address, port, ssl, channel);
         } else {
-            return new IRCServer("irc.esper.net", 6697, true, "#MineTogether");
+            return new IRCServer("irc.minetogether.io", 6667, false, "#public");
         }
     }
 
