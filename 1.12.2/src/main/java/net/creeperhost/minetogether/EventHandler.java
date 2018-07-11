@@ -1,9 +1,6 @@
 package net.creeperhost.minetogether;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.aries.Aries;
@@ -136,7 +133,7 @@ public class EventHandler
                     first = false;
                     if (Config.getInstance().isChatEnabled())
                     {
-                        CreeperHost.instance.mutedUsersFile = new File("config/minetogether/mutedusers.json");
+                        CreeperHost.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
                         InputStream mutedUsersStream = null;
                         try
                         {
@@ -245,7 +242,7 @@ public class EventHandler
             if (!CreeperHost.instance.trialMinigame && CreeperHost.instance.activeMinigame != null)
             {
                 CreeperHost.instance.trialMinigame = true;
-                event.setGui(new GuiMinigames(true));
+                event.setGui(new GuiMinigames(null, true));
             }
         }
     }
@@ -490,6 +487,47 @@ public class EventHandler
             }
 
         }
+
+        if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
+        {
+            List<GuiButton> buttonList = event.getButtonList();
+            for(GuiButton button : buttonList)
+            {
+                if (button.id == 8)
+                {
+                    button.visible = false;
+                    button.enabled = false;
+                }
+
+                if (button.id == 2)
+                {
+                    button.xPosition -= 7;
+                    button.width += 1;
+                }
+
+                if (button.id == 4)
+                {
+                    button.xPosition = gui.width / 2 - 8;
+                    button.yPosition = gui.height - 28;
+                    button.width -= 14;
+                }
+
+                if (button.id == 3)
+                {
+                    button.xPosition -= 25;
+                }
+
+
+                if (button.id == 0)
+                {
+                    button.xPosition += 1;
+                    button.width -= 2;
+                }
+            }
+
+            buttonList.add(new ButtonCreeper(8, gui.width / 2 + 133, gui.height - 52, 2));
+            buttonList.add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 - 50 , gui.height - 52, 75, 20, "Minigames"));
+        }
     }
 
     @SubscribeEvent
@@ -527,7 +565,7 @@ public class EventHandler
             }
             if (button != null && button.id == MINIGAMES_BUTTON_ID)
             {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames());
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames(gui));
             }
         }
         else if (gui instanceof GuiMultiplayer)
@@ -538,11 +576,11 @@ public class EventHandler
             }
             if (button != null && button.id == CHAT_BUTTON_ID)
             {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat());
+                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat(gui));
             }
             if (button != null && button.id == MINIGAMES_BUTTON_ID)
             {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames());
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames(gui));
             }
         }
         else if (gui instanceof GuiIngameMenu)
@@ -554,7 +592,7 @@ public class EventHandler
 
             if (button != null && button.id == CHAT_BUTTON_ID)
             {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat());
+                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat(gui));
             }
         }
     }

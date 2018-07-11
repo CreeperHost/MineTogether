@@ -73,9 +73,12 @@ public class GuiMinigames extends GuiScreen
     private boolean isModded = true;
     private GuiActiveFake moddedButton;
     private GuiActiveFake vanillaButton;
+    private GuiScreen parent;
+    private GuiButton cancelButton;
 
-    public GuiMinigames()
+    public GuiMinigames(GuiScreen parent)
     {
+        this.parent = parent;
         current = this;
         State.pushState(State.CHECKING_CREDENTIALS);
         loadCredentials();
@@ -87,8 +90,8 @@ public class GuiMinigames extends GuiScreen
 
     public boolean spinDown = false;
 
-    public GuiMinigames(boolean spinDown) {
-        this();
+    public GuiMinigames(GuiScreen parent, boolean spinDown) {
+        this(parent);
         this.spinDown = spinDown;
     }
 
@@ -178,11 +181,14 @@ public class GuiMinigames extends GuiScreen
     public void initGui()
     {
         super.initGui();
-        minigameScroll = new GuiScrollingMinigames(34);
+        GuiScrollingMinigames tempMinigameScroll = new GuiScrollingMinigames(34);
+        tempMinigameScroll.update(minigameScroll);
+        minigameScroll = tempMinigameScroll;
         buttonList.add(settingsButton = new GuiButton(808, width - 10 - 100, 5, 100, 20, "Login"));
         buttonList.add(spinupButton = new GuiButton(809, width - 10 - 100, height - 5 - 20, 100, 20, "Start minigame"));
         buttonList.add(moddedButton = new GuiActiveFake(0xb00b, 10, 30, (width / 2) - 5, 20, "Modded"));
         buttonList.add(vanillaButton = new GuiActiveFake(0xb00b5, width - 10 - ((width / 2) - 10), 30, (width / 2) - 5, 20, "Vanilla"));
+        buttonList.add(cancelButton = new GuiButton(909, 10, height - 5 - 20, 100, 20, "Cancel"));
         moddedButton.setActive(isModded);
         vanillaButton.setActive(!isModded);
         State.refreshState();
@@ -237,9 +243,9 @@ public class GuiMinigames extends GuiScreen
                 }
 
                 String formattedQuote = first + curPrefix + currencyFormat + curSuffix;
-                drawString(fontRendererObj, formattedQuote, 5, height - 15, 0xFFFFFFFF);
+                drawString(fontRendererObj, formattedQuote, 5, height - 40, 0xFFFFFFFF);
                 int stringLen = fontRendererObj.getStringWidth(formattedQuote);
-                if (!creditType.equals("credit") && !curPrefix.equals("£") && mouseX >= 5 && mouseX <= 5 + stringLen && mouseY >= height - 15 && mouseY <= height - 5)
+                if (!creditType.equals("credit") && !curPrefix.equals("£") && mouseX >= 5 && mouseX <= 5 + stringLen && mouseY >= height - 40 && mouseY <= height - 30)
                 {
                     drawHoveringText(Arrays.asList("Figure provided based on exchange rate of " + exchangeRate), mouseX, mouseY);
                 } else {
@@ -296,6 +302,9 @@ public class GuiMinigames extends GuiScreen
             minigameScroll.clearSelected();
             moddedButton.setActive(true);
             vanillaButton.setActive(false);
+        } else if (button == cancelButton)
+        {
+            this.mc.displayGuiScreen(parent);
         }
     }
 
@@ -718,6 +727,18 @@ public class GuiMinigames extends GuiScreen
         public void clearSelected() {
             selectedIndex = -1;
         }
+
+        private int getSelected()
+        {
+            return selectedIndex;
+        }
+
+        public void update(GuiScrollingMinigames previous)
+        {
+            if (previous == null)
+                return;
+            selectedIndex = previous.getSelected();
+        }
     }
 
     public class Settings extends GuiScreen {
@@ -1008,7 +1029,7 @@ public class GuiMinigames extends GuiScreen
                     CreeperHost.instance.joinTime = System.currentTimeMillis();
                     FMLClientHandler.instance().connectToServerAtStartup(ip, port);
                 } else
-                    Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames());
+                    Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames(parent));
             }
         }
     }

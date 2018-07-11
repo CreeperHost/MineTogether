@@ -29,6 +29,7 @@ import java.util.List;
 public class GuiOurChat extends GuiScreen
 {
 
+    private final GuiScreen parent;
     private GuiScrollingChat chat;
     private GuiTextFieldLockable send;
     private DropdownButton<Target> targetDropdownButton;
@@ -38,6 +39,12 @@ public class GuiOurChat extends GuiScreen
     private DropdownButton<Menu> menuDropdownButton;
     private String activeDropdown;
     private GuiButton reconnectionButton;
+    private GuiButton cancelButton;
+
+    public GuiOurChat(GuiScreen parent)
+    {
+        this.parent = parent;
+    }
 
     @Override
     public void initGui()
@@ -48,7 +55,8 @@ public class GuiOurChat extends GuiScreen
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new Menu(strings), true));
-        buttonList.add(friendsButton = new GuiButton(-80088, width - 100 - 5, height - 5 - 20, 100, 20, "Friends list"));
+        buttonList.add(friendsButton = new GuiButton(-80088, 5, 5, 100, 20, "Friends list"));
+        buttonList.add(cancelButton = new GuiButton(-800885, width - 100 - 5, height - 5 - 20, 100, 20, "Cancel"));
         buttonList.add(reconnectionButton = new GuiButton(-80084, 5 + 80, height - 5 - 20, 100, 20, "Reconnect"));
         reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
         send.setMaxStringLength(120);
@@ -131,6 +139,8 @@ public class GuiOurChat extends GuiScreen
             CreeperHost.proxy.openFriendsGui();
         } else if (button == reconnectionButton) {
             ChatHandler.reInit();
+        } else if (button == cancelButton) {
+            this.mc.displayGuiScreen(parent);
         }
         chat.actionPerformed(button);
         super.actionPerformed(button);

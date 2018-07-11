@@ -137,7 +137,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         if (event.getSide() != Side.SERVER)
         {
             HostHolder.host = this;
-            File gdprFile = new File("config/minetogether/gdpr.txt");
+            File gdprFile = new File("local/minetogether/gdpr.txt");
             gdpr = new GDPR(gdprFile);
             ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
             MinecraftForge.EVENT_BUS.register(new EventHandler());
