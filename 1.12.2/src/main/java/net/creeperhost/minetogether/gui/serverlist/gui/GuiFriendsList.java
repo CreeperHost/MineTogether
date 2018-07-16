@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.gui.serverlist.gui;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
@@ -42,6 +43,11 @@ public class GuiFriendsList extends GuiScreen
     @Override
     public void initGui()
     {
+        if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
+        {
+            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiFriendsList(parent)));
+            return;
+        }
         super.initGui();
         if (list == null)
             list = new GuiList(this, mc, width, height, 32, this.height - 64, 36);

@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.gui.serverlist.gui;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerListPublic;
@@ -55,6 +56,12 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     @Override
     public void initGui()
     {
+        if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
+        {
+            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMultiplayerPublic(parent, isPublic, sortOrder)));
+            return;
+        }
+
         Keyboard.enableRepeatEvents(true);
         this.buttonList.clear();
 

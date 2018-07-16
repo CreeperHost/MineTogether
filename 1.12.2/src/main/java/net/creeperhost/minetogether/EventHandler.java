@@ -126,8 +126,10 @@ public class EventHandler
         {
             if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
             {
-                event.setGui(new GuiGDPR());
-            } else {
+                //event.setGui(new GuiGDPR());
+            }
+            else
+            {
                 if (first)
                 {
                     first = false;
@@ -150,7 +152,9 @@ public class EventHandler
                             }
 
                             Gson gson = new Gson();
-                            CreeperHost.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>(){}.getType());
+                            CreeperHost.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>()
+                            {
+                            }.getType());
                         }
                         catch (Throwable t)
                         {
@@ -168,9 +172,8 @@ public class EventHandler
                             {
                             }
                         }
-
-                        new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
                     }
+                    CreeperHost.instance.startChat();
                 }
             }
         }
@@ -182,7 +185,8 @@ public class EventHandler
             if (CreeperHost.instance.activeMinigame != null && CreeperHost.instance.joinTime + 30000 < System.currentTimeMillis())
             {
                 Aries aries = new Aries("", "");
-                Thread thread = new Thread(() -> {
+                Thread thread = new Thread(() ->
+                {
                     Map<String, String> sendMap = new HashMap<>();
                     sendMap.put("id", String.valueOf(CreeperHost.instance.minigameID));
                     Map result = aries.doApiCall("minetogether", "failedminigame", sendMap);
@@ -238,7 +242,9 @@ public class EventHandler
         else if (gui instanceof GuiConnecting)
         {
             //lastNetworkManager = getNetworkManager((GuiConnecting) gui);
-        } else if (gui instanceof GuiMultiplayer) {
+        }
+        else if (gui instanceof GuiMultiplayer)
+        {
             if (!CreeperHost.instance.trialMinigame && CreeperHost.instance.activeMinigame != null)
             {
                 CreeperHost.instance.trialMinigame = true;
@@ -466,6 +472,46 @@ public class EventHandler
                 event.getButtonList().add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 + 2, yPosition, 98, 20, "Minigames"));
             }
 
+            if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
+            {
+                List<GuiButton> buttonList = event.getButtonList();
+                for(GuiButton button : buttonList)
+                {
+                    if (button.id == 8)
+                    {
+                        button.visible = false;
+                        button.enabled = false;
+                    }
+
+                    if (button.id == 2)
+                    {
+                        button.xPosition -= 7;
+                        button.width += 1;
+                    }
+
+                    if (button.id == 4)
+                    {
+                        button.xPosition = gui.width / 2 - 8;
+                        button.yPosition = gui.height - 28;
+                        button.width -= 14;
+                    }
+
+                    if (button.id == 3)
+                    {
+                        button.xPosition -= 25;
+                    }
+
+
+                    if (button.id == 0)
+                    {
+                        button.xPosition += 1;
+                        button.width -= 2;
+                    }
+                }
+
+                buttonList.add(new ButtonCreeper(8, gui.width / 2 + 133, gui.height - 52, 2));
+                buttonList.add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 - 50 , gui.height - 52, 75, 20, "Minigames"));
+            }
         }
 
         if (Config.getInstance().isChatEnabled())
@@ -485,48 +531,6 @@ public class EventHandler
                     x -= 99;
                 event.getButtonList().add(new ButtonCreeper(CHAT_BUTTON_ID, x, 5, 1));
             }
-
-        }
-
-        if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
-        {
-            List<GuiButton> buttonList = event.getButtonList();
-            for(GuiButton button : buttonList)
-            {
-                if (button.id == 8)
-                {
-                    button.visible = false;
-                    button.enabled = false;
-                }
-
-                if (button.id == 2)
-                {
-                    button.xPosition -= 7;
-                    button.width += 1;
-                }
-
-                if (button.id == 4)
-                {
-                    button.xPosition = gui.width / 2 - 8;
-                    button.yPosition = gui.height - 28;
-                    button.width -= 14;
-                }
-
-                if (button.id == 3)
-                {
-                    button.xPosition -= 25;
-                }
-
-
-                if (button.id == 0)
-                {
-                    button.xPosition += 1;
-                    button.width -= 2;
-                }
-            }
-
-            buttonList.add(new ButtonCreeper(8, gui.width / 2 + 133, gui.height - 52, 2));
-            buttonList.add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 - 50 , gui.height - 52, 75, 20, "Minigames"));
         }
     }
 
@@ -680,7 +684,7 @@ public class EventHandler
         if (inviteTicks != 0)
             return;
 
-        if (Config.getInstance().isServerListEnabled())
+        if (Config.getInstance().isServerListEnabled() && CreeperHost.instance.gdpr.hasAcceptedGDPR())
         {
             if (inviteCheckThread == null)
             {

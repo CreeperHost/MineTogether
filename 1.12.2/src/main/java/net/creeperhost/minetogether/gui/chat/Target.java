@@ -20,11 +20,18 @@ class Target implements DropdownButton.IDropdownOption
     private final String internalTarget;
     private static Map<String, String> oldFriends;
     private static int oldMessagesSize;
+    private final boolean isChannel;
 
-    private Target(String targetName, String internalTarget)
+    private Target(String targetName, String internalTarget, boolean isChannel)
     {
         this.internalTarget = internalTarget;
         this.targetName = targetName;
+        this.isChannel = isChannel;
+    }
+
+    private Target(String targetName, String internalTarget)
+    {
+        this(targetName, internalTarget, false);
     }
 
     @Override
@@ -72,6 +79,8 @@ class Target implements DropdownButton.IDropdownOption
 
     public static void updateCache(Target current)
     {
+        if (ChatHandler.messages == null) return;
+
         int chatSize = ChatHandler.messages.size();
         if (updating || oldFriends == ChatHandler.friends && chatSize == oldMessagesSize)
             return;
@@ -82,8 +91,17 @@ class Target implements DropdownButton.IDropdownOption
 
         HashSet<Target> tempSet = new HashSet<>();
 
+        // lets check if main has changed its internal target
+        if (current != null && current.targetName.equals("Main"))
+        {
+            if (!current.internalTarget.equals(ChatHandler.CHANNEL))
+            {
+                current = new Target("Main", ChatHandler.CHANNEL, true);
+            }
+        }
+
         possibleValsCache = new ArrayList<>();
-        tempSet.add(new Target("Main", ChatHandler.CHANNEL));
+        tempSet.add(new Target("Main", ChatHandler.CHANNEL, true));
         if (current != null && !tempSet.contains(current))
             tempSet.add(current);
 
@@ -132,7 +150,7 @@ class Target implements DropdownButton.IDropdownOption
                 return defTar;
             }
         }
-        return possibleValsCache.get(0);
+        return possibleValsCache.size() > 0 ? possibleValsCache.get(0) : new Target("Main", ChatHandler.CHANNEL, true);
     }
 
     @Override
@@ -156,5 +174,10 @@ class Target implements DropdownButton.IDropdownOption
     public int hashCode()
     {
         return internalTarget.hashCode() + targetName.hashCode();
+    }
+
+    public boolean isChannel()
+    {
+        return isChannel;
     }
 }

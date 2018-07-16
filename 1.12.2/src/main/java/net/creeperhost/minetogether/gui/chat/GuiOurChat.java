@@ -4,6 +4,7 @@ import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
+import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -49,6 +50,12 @@ public class GuiOurChat extends GuiScreen
     @Override
     public void initGui()
     {
+        if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
+        {
+            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiOurChat(parent)));
+            return;
+        }
+
         chat = new GuiScrollingChat(10);
         send = new GuiTextFieldLockable(8008, mc.fontRendererObj, 10, this.height - 50, width - 20, 20);
         buttonList.add(targetDropdownButton = new DropdownButton<>(-1337, width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true));
@@ -105,13 +112,16 @@ public class GuiOurChat extends GuiScreen
         {
             send.setDisabled("Cannot send messages as not connected");
             disabledDueToConnection = true;
-        } else if(!currentTarget.equals(ChatHandler.CHANNEL) && !ChatHandler.friends.containsKey(currentTarget)) {
+        } else if(!targetDropdownButton.getSelected().isChannel() && !ChatHandler.friends.containsKey(currentTarget)) {
             send.setDisabled("Cannot send messages as friend is not online");
             disabledDueToConnection = true;
         } else if (disabledDueToConnection)
         {
             disabledDueToConnection = false;
             send.setEnabled(true);
+            Target.updateCache();
+            if (!targetDropdownButton.getSelected().getPossibleVals().contains(targetDropdownButton.getSelected()))
+                targetDropdownButton.setSelected(Target.getMainTarget());
             processBadwords();
         }
         drawCenteredString(fontRendererObj, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
@@ -338,7 +348,7 @@ public class GuiOurChat extends GuiScreen
 
         protected void updateLines(String key)
         {
-            if(ChatHandler.messages.size() == 0)
+            if(ChatHandler.messages == null || ChatHandler.messages.size() == 0)
                 return;
             ArrayList<ITextComponent> oldLines = lines;
             int listHeight = this.getContentHeight() - (this.bottom - this.top - 4);

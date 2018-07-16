@@ -180,6 +180,11 @@ public class GuiMinigames extends GuiScreen
     @Override
     public void initGui()
     {
+        if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
+        {
+            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMinigames(parent)));
+            return;
+        }
         super.initGui();
         GuiScrollingMinigames tempMinigameScroll = new GuiScrollingMinigames(34);
         tempMinigameScroll.update(minigameScroll);

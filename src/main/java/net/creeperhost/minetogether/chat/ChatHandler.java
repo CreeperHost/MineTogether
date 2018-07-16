@@ -54,10 +54,16 @@ public class ChatHandler
         synchronized (ircLock)
         {
             messages = new HashMap<>();
+            new Thread(() ->
+            { // start in thread as can hold up the UI thread for some reason.
+                client = Client.builder().nick(nick).realName("https://minetogether.io").user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) ->
+                {
+                } /* noop */).buildAndConnect();
+                client.getEventManager().registerEventListener(new Listener());
+                client.addChannel(CHANNEL);
+            }).start();
         }
-        client = Client.builder().nick(nick).realName("https://minetogether.io").user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) -> {} /* noop */).buildAndConnect();
-        client.getEventManager().registerEventListener(new Listener());
-        client.addChannel(CHANNEL);
+
 
         inited = true;
     }
@@ -85,6 +91,7 @@ public class ChatHandler
 
     public static String getNameForUser(String nick)
     {
+        nick = nick.substring(0, 17); // should fix where people join and get ` on their name for friends if connection issues etc
         if(friends.containsKey(nick))
         {
             return friends.get(nick);
