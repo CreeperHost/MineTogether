@@ -133,7 +133,7 @@ public class CreeperHostServer
             DedicatedServer dediServer = (DedicatedServer) server;
             String discoverModeString = dediServer.getStringProperty("discoverability", "unlisted");
             String displayNameTemp = dediServer.getStringProperty("displayname", "Fill this in if you have set the server to public!");
-            final String serverIP = dediServer.getStringProperty("server-ip", "");
+            String serverIP = dediServer.getStringProperty("server-ip", "");
             final String projectid = Config.getInstance().curseProjectID;
 
             if (displayNameTemp.equals("Fill this in if you have set the server to public!") && discoverModeString.equals("unlisted"))
@@ -144,6 +144,7 @@ public class CreeperHostServer
                     MineTogetherPropertyManager manager = new MineTogetherPropertyManager(outProperties);
                     displayNameTemp = manager.getStringProperty("displayname", "Fill this in if you have set the server to public!");
                     discoverModeString = manager.getStringProperty("discoverability", "unlisted");
+                    serverIP = dediServer.getStringProperty("server-ip", "");
                 }
                 else
                 {
