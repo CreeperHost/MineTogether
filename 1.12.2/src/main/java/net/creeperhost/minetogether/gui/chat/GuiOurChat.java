@@ -26,6 +26,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GuiOurChat extends GuiScreen
 {
@@ -214,13 +216,34 @@ public class GuiOurChat extends GuiScreen
         }
     }
 
+    final Pattern pattern = Pattern.compile("(^Anon(?:ymous)?(\\d+)$)", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         super.keyTyped(typedChar, keyCode);
         if ((keyCode == 28 || keyCode == 156) && send.getOurEnabled() && !send.getText().trim().isEmpty())
         {
-            ChatHandler.sendMessage(currentTarget, send.getText());
+            String text = send.getText();
+            String[] split = text.split(" ");
+            for(int i = 0; i < split.length; i++)
+            {
+                String word = split[i];
+                final String subst = "Anonymous$2";
+
+                final Matcher matcher = pattern.matcher(word);
+
+                final String result = matcher.replaceAll(subst);
+
+                String justNick = result.replaceAll("[^A-Za-z0-9]", "");
+
+                String tempWord = ChatHandler.anonUsersReverse.get(justNick);
+                if(tempWord != null)
+                    split[i] = result.replaceAll(justNick, tempWord);
+            }
+
+            text = String.join(" ", split);
+            ChatHandler.sendMessage(currentTarget, text);
             send.setText("");
             return;
         }
@@ -311,6 +334,25 @@ public class GuiOurChat extends GuiScreen
         {
             messageStr = messageStr.replace(swear, StringUtils.repeat("*", swear.length()));
         }
+
+        String[] split = messageStr.split(" ");
+        for (int i = 0; i < split.length; i++)
+        {
+            String splitStr = split[i];
+            if(splitStr.startsWith("MT"))
+            {
+                String justNick = splitStr.replaceAll("[^A-Za-z0-9]", "");
+                String userName = ChatHandler.getNameForUser(justNick);
+                // TODO: Handle us - maybe highlight?
+                if (userName != null)
+                {
+                    splitStr = splitStr.replaceAll(justNick, userName);
+                    split[i] = splitStr;
+                }
+            }
+        }
+
+        messageStr = String.join(" ", split);
 
         ITextComponent messageComp = new TextComponentString(messageStr).setStyle(new Style().setColor(TextFormatting.WHITE));
 

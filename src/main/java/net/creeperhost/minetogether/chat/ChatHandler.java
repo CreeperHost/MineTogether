@@ -6,17 +6,17 @@ import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.engio.mbassy.listener.Handler;
 import org.kitteh.irc.client.library.Client;
+import org.kitteh.irc.client.library.element.Channel;
 import org.kitteh.irc.client.library.element.User;
-import org.kitteh.irc.client.library.event.channel.ChannelJoinEvent;
-import org.kitteh.irc.client.library.event.channel.ChannelMessageEvent;
-import org.kitteh.irc.client.library.event.channel.ChannelPartEvent;
-import org.kitteh.irc.client.library.event.channel.UnexpectedChannelLeaveViaKickEvent;
+import org.kitteh.irc.client.library.element.mode.ChannelUserMode;
+import org.kitteh.irc.client.library.event.channel.*;
 import org.kitteh.irc.client.library.event.client.ClientConnectionClosedEvent;
 import org.kitteh.irc.client.library.event.client.ClientConnectionEndedEvent;
 import org.kitteh.irc.client.library.event.client.ClientConnectionEstablishedEvent;
 import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent;
 import org.kitteh.irc.client.library.event.helper.UnexpectedChannelLeaveEvent;
 import org.kitteh.irc.client.library.event.user.PrivateMessageEvent;
+import org.kitteh.irc.client.library.event.user.PrivateNoticeEvent;
 import org.kitteh.irc.client.library.event.user.UserQuitEvent;
 import org.kitteh.irc.client.library.util.Format;
 
@@ -59,6 +59,7 @@ public class ChatHandler
                 client = Client.builder().nick(nick).realName("https://minetogether.io").user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) ->
                 {
                 } /* noop */).buildAndConnect();
+                ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(false); // no longer does a WHO;
                 client.getEventManager().registerEventListener(new Listener());
                 client.addChannel(CHANNEL);
             }).start();
@@ -86,7 +87,8 @@ public class ChatHandler
     }
 
     public static HashMap<String, String> friends = new HashMap<>();
-    private static HashMap<String, String> anonUsers = new HashMap<>();
+    public static HashMap<String, String> anonUsers = new HashMap<>();
+    public static HashMap<String, String> anonUsersReverse = new HashMap<>();
     private static Random random = new Random();
 
     public static String getNameForUser(String nick)
@@ -102,19 +104,20 @@ public class ChatHandler
             {
                 return anonUsers.get(nick);
             } else {
-                String anonymousNick = "Anonymous" + random.nextInt(999);
+                String anonymousNick = "Anonymous" + random.nextInt(10000);
                 while (anonUsers.containsValue(anonymousNick))
                 {
-                    anonymousNick = "Anonymous" + random.nextInt(999);
+                    anonymousNick = "Anonymous" + random.nextInt(10000);
                 }
                 anonUsers.put(nick, anonymousNick);
+                anonUsersReverse.put(anonymousNick, nick);
                 return anonymousNick;
             }
         }
         return null;
     }
 
-    private static void updateFriends(List<User> users)
+    private static void updateFriends(List<String> users)
     {
         List<Friend> friendsCall = host.getFriends();
         HashMap<String, String> oldFriends = friends;
@@ -122,9 +125,9 @@ public class ChatHandler
         for(Friend friend: friendsCall)
         {
             String friendCode = "MT" + friend.getCode().substring(0, 15);
-            for (User user: users)
+            for (String user: users)
             {
-                if (user.getNick().equals(friendCode))
+                if (user.equals(friendCode))
                     friends.put(friendCode, friend.getName());
             }
         }
@@ -146,7 +149,7 @@ public class ChatHandler
             client.getChannel(CHANNEL).get().getUser(currentTarget).get().sendMessage(text);
         else
         {
-            updateFriends(client.getChannel(CHANNEL).get().getUsers());
+            updateFriends(client.getChannel(CHANNEL).get().getNicknames());
             return;
         }
 
@@ -235,7 +238,7 @@ public class ChatHandler
                 }
             }
 
-            updateFriends(event.getChannel().getUsers());
+            updateFriends(event.getChannel().getNicknames());
         }
 
         @Handler
@@ -268,7 +271,71 @@ public class ChatHandler
                 addMessageToChat(CHANNEL, user.getNick(), Format.stripAll(message));
             }
 
-            updateFriends(client.getChannel(CHANNEL).get().getUsers());
+            updateFriends(client.getChannel(CHANNEL).get().getNicknames());
+        }
+
+        @Handler
+        public void onChannelNotice(ChannelNoticeEvent event)
+        {
+            Optional<SortedSet<ChannelUserMode>> userModes = event.getChannel().getUserModes(event.getActor());
+            if (userModes.isPresent())
+            {
+                SortedSet<ChannelUserMode> channelUserModes = userModes.get();
+                boolean valid = false;
+                for(ChannelUserMode mode: channelUserModes)
+                {
+                    switch (mode.getNickPrefix())
+                    {
+                        case '@':
+                        case '~':
+                            valid = true;
+                    }
+                }
+
+                if (valid)
+                {
+                    synchronized (ircLock)
+                    {
+                        addMessageToChat(CHANNEL, "System", event.getMessage());
+                    }
+                }
+            }
+
+        }
+
+        @Handler
+        public void onNotice(PrivateNoticeEvent event)
+        {
+            User user = event.getActor();
+            Optional<Channel> optchannel = client.getChannel(CHANNEL);
+            if (optchannel.isPresent())
+            {
+                Channel channel = optchannel.get();
+                Optional<SortedSet<ChannelUserMode>> userModesOpt = channel.getUserModes(user);
+                if (userModesOpt.isPresent())
+                {
+                    SortedSet<ChannelUserMode> channelUserModes = userModesOpt.get();
+                    boolean valid = false;
+                    for(ChannelUserMode mode: channelUserModes)
+                    {
+                        switch (mode.getNickPrefix())
+                        {
+                            case '@':
+                            case '~':
+                                valid = true;
+                        }
+                    }
+
+                    if (valid)
+                    {
+                        synchronized (ircLock)
+                        {
+                            addMessageToChat(CHANNEL, "System", event.getMessage());
+                        }
+                    }
+                }
+            }
+
         }
 
         @Handler

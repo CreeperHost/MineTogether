@@ -3,6 +3,7 @@ package net.creeperhost.minetogether;
 import net.creeperhost.minetogether.gui.hacky.IBufferProxy;
 import net.creeperhost.minetogether.gui.hacky.IBufferProxyGetter;
 import net.creeperhost.minetogether.gui.hacky.IServerListEntryWrapper;
+import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.ForgeVersion;
 
@@ -197,11 +198,18 @@ public final class Util
             return cachedValue;
         }
 
+        public T getCachedValue(Object... args)
+        {
+            return cachedValue;
+        }
+
         public interface ICacheCallback<T>
         {
             T get(Object... args);
 
             boolean needsRefresh(Object... args);
+
+
         }
     }
 }

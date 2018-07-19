@@ -481,6 +481,8 @@ public final class Callbacks
         return null;
     }
 
+    static boolean friendsGetting;
+
     public static ArrayList<Friend> getFriendsList(boolean force)
     {
         if (friendsList == null)
@@ -489,12 +491,17 @@ public final class Callbacks
                 @Override
                 public ArrayList<Friend> get(Object... args)
                 {
+                    if (friendsGetting)
+                    {
+                        return friendsList.getCachedValue(args);
+                    }
+                    friendsGetting = true;
                     Map<String, String> sendMap = new HashMap<String, String>();
                     {
                         sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
                     }
 
-                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, false);
+                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
 
                     ArrayList<Friend> tempArr = new ArrayList<Friend>();
 
@@ -522,6 +529,7 @@ public final class Callbacks
                             }
                         }
                     }
+                    friendsGetting = false;
                     return tempArr;
                 }
 
