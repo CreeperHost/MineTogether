@@ -10,27 +10,23 @@ import net.creeperhost.minetogether.aries.Aries;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.common.WebUtils;
+import net.creeperhost.minetogether.gui.element.GuiActiveFake;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompatCensor;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.serverstuffs.CreeperHostServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.GuiScrollingList;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.io.FileUtils;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GLSync;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -40,7 +36,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -607,29 +602,6 @@ public class GuiMinigames extends GuiScreen
 
         public static void refreshState() {
             pushState(currentState);
-        }
-    }
-
-    private class GuiActiveFake extends GuiButton {
-
-        private boolean active;
-
-        public GuiActiveFake(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText) {
-            super(buttonId, x, y, widthIn, heightIn, buttonText);
-        }
-
-        public void setActive(boolean active)
-        {
-            this.active = active;
-        }
-
-        @Override
-        public void func_191745_a(Minecraft p_191745_1_, int mouseX, int mouseY, float p_191745_4_) {
-            if (active) {
-                mouseX = xPosition + 1;
-                mouseY = yPosition + 1;
-            }
-            super.func_191745_a(p_191745_1_, mouseX, mouseY, p_191745_4_);
         }
     }
 

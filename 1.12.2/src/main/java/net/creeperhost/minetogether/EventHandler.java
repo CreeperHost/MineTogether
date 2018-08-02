@@ -4,10 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.aries.Aries;
-import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.*;
-import net.creeperhost.minetogether.gui.chat.GuiOurChat;
+import net.creeperhost.minetogether.gui.chat.GuiMTChat;
+import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
+import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.gui.element.ButtonCreeper;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.creeperhost.minetogether.serverlist.data.Friend;
@@ -115,6 +116,7 @@ public class EventHandler
     }
 
     boolean first = true;
+    boolean chatReplaced = false;
 
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
@@ -135,6 +137,18 @@ public class EventHandler
                     first = false;
                     if (Config.getInstance().isChatEnabled())
                     {
+
+                        if (!isChatReplaced)
+                        {
+                            isChatReplaced = true;
+                            try {
+                                Field field = ReflectionHelper.findField(GuiIngame.class,"persistantChatGUI"); //TODO: Srg name
+                                field.set(Minecraft.getMinecraft().ingameGUI, new GuiNewChatOurs(Minecraft.getMinecraft()));
+                            } catch (IllegalAccessException e) {
+                            }
+                        }
+
+                        CreeperHost.instance.getNameForUser("");
                         CreeperHost.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
                         InputStream mutedUsersStream = null;
                         try
@@ -250,6 +264,10 @@ public class EventHandler
                 CreeperHost.instance.trialMinigame = true;
                 event.setGui(new GuiMinigames(null, true));
             }
+        }
+        else if (gui instanceof GuiChat && Config.getInstance().isChatEnabled())
+        {
+            event.setGui(new GuiChatOurs());
         }
     }
 
@@ -540,6 +558,8 @@ public class EventHandler
         hasJoinedWorld = false;
     }
 
+    boolean isChatReplaced = false;
+
     @SubscribeEvent
     public void onEntityJoinedWorld(EntityJoinWorldEvent event)
     {
@@ -580,7 +600,7 @@ public class EventHandler
             }
             if (button != null && button.id == CHAT_BUTTON_ID)
             {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat(gui));
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMTChat(gui));
             }
             if (button != null && button.id == MINIGAMES_BUTTON_ID)
             {
@@ -596,7 +616,7 @@ public class EventHandler
 
             if (button != null && button.id == CHAT_BUTTON_ID)
             {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiOurChat(gui));
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMTChat(gui));
             }
         }
     }
@@ -781,7 +801,7 @@ public class EventHandler
 
             if (friend != null)
             {
-                if (friendMessage && Minecraft.getMinecraft().currentScreen instanceof GuiOurChat)
+                if (friendMessage && Minecraft.getMinecraft().currentScreen instanceof GuiMTChat)
                     return;
                 CreeperHost.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000);
             }

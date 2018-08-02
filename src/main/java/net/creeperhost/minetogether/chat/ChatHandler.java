@@ -38,7 +38,7 @@ public class ChatHandler
     private static boolean inited = false;
     public static List<String> badwords;
     public static String badwordsFormat;
-    static String initedString = null;
+    public static String initedString = null;
 
     public static void init(String nick, IHost _host)
     {
@@ -82,39 +82,20 @@ public class ChatHandler
         {
             messages.put(target, tempQueue = new LimitedSizeQueue<>(150));
         }
-        tempQueue.add(new Pair<>(user, message));
+        Pair messagePair = new Pair<>(user, message);
+        tempQueue.add(messagePair);
+        host.messageReceived(target, messagePair);
         newMessages.put(target, new Boolean(true));
     }
 
     public static HashMap<String, String> friends = new HashMap<>();
     public static HashMap<String, String> anonUsers = new HashMap<>();
     public static HashMap<String, String> anonUsersReverse = new HashMap<>();
-    private static Random random = new Random();
+    public static Random random = new Random();
 
     public static String getNameForUser(String nick)
     {
-        nick = nick.substring(0, 17); // should fix where people join and get ` on their name for friends if connection issues etc
-        if(friends.containsKey(nick))
-        {
-            return friends.get(nick);
-        }
-        if (nick.startsWith("MT"))
-        {
-            if(anonUsers.containsKey(nick))
-            {
-                return anonUsers.get(nick);
-            } else {
-                String anonymousNick = "Anonymous" + random.nextInt(10000);
-                while (anonUsers.containsValue(anonymousNick))
-                {
-                    anonymousNick = "Anonymous" + random.nextInt(10000);
-                }
-                anonUsers.put(nick, anonymousNick);
-                anonUsersReverse.put(anonymousNick, nick);
-                return anonymousNick;
-            }
-        }
-        return null;
+        return host.getNameForUser(nick);
     }
 
     private static void updateFriends(List<String> users)

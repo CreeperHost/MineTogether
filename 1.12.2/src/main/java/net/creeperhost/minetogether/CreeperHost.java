@@ -1,20 +1,21 @@
 package net.creeperhost.minetogether;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.api.CreeperHostAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.common.HostHolder;
-import net.creeperhost.minetogether.common.IHost;
-import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.common.GDPR;
+import net.creeperhost.minetogether.common.*;
+import net.creeperhost.minetogether.gui.chat.GuiMTChat;
+import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.siv.QueryGetter;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -29,8 +30,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 @Mod(
     modid = CreeperHost.MOD_ID,
@@ -292,6 +292,106 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Override
     public Logger getLogger() {
         return logger;
+    }
+
+    @Override
+    public void messageReceived(String target, Pair messagePair)
+    {
+        if (!Config.getInstance().isChatEnabled() || !target.equals(ChatHandler.CHANNEL)) return;
+        GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+        ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+    }
+
+    private static boolean anonLoaded = false;
+
+    public String getNameForUser(String nick)
+    {
+        if (!anonLoaded)
+        {
+            File anonUsersFile = new File("local/minetogether/anonusers.json");
+            InputStream anonUsersStream = null;
+            try
+            {
+                String configString;
+                if (anonUsersFile.exists())
+                {
+                    anonUsersStream = new FileInputStream(anonUsersFile);
+                    configString = IOUtils.toString(anonUsersStream);
+                }
+                else
+                {
+                    anonUsersFile.getParentFile().mkdirs();
+                    configString = "{}";
+                }
+
+                Gson gson = new Gson();
+                ChatHandler.anonUsers = gson.fromJson(configString, new TypeToken<HashMap<String, String>>()
+                {
+                }.getType());
+                ChatHandler.anonUsersReverse = new HashMap<>();
+                for(Map.Entry<String, String> entry : ChatHandler.anonUsers.entrySet())
+                {
+                    ChatHandler.anonUsersReverse.put(entry.getValue(), entry.getKey());
+                }
+            }
+            catch (Throwable t)
+            {
+            }
+            finally
+            {
+                try
+                {
+                    if (anonUsersStream != null)
+                    {
+                        anonUsersStream.close();
+                    }
+                }
+                catch (Throwable t)
+                {
+                }
+            }
+            anonLoaded = true;
+        }
+
+        if (nick.length() < 16)
+            return null;
+
+        nick = nick.substring(0, 17); // should fix where people join and get ` on their name for friends if connection issues etc
+        if(ChatHandler.friends.containsKey(nick))
+        {
+            return ChatHandler.friends.get(nick);
+        }
+        if (nick.startsWith("MT"))
+        {
+            if(ChatHandler.anonUsers.containsKey(nick))
+            {
+                return ChatHandler.anonUsers.get(nick);
+            } else {
+                String anonymousNick = "User" + ChatHandler.random.nextInt(10000);
+                while (ChatHandler.anonUsers.containsValue(anonymousNick))
+                {
+                    anonymousNick = "User" + ChatHandler.random.nextInt(10000);
+                }
+                ChatHandler.anonUsers.put(nick, anonymousNick);
+                ChatHandler.anonUsersReverse.put(anonymousNick, nick);
+                saveAnonFile();
+                return anonymousNick;
+            }
+        }
+        return null;
+    }
+
+    public void saveAnonFile()
+    {
+        Gson gson = new Gson();
+        File anonUsersFile = new File("local/minetogether/anonusers.json");
+        try
+        {
+            FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers));
+        }
+        catch (IOException e)
+        {
+        }
     }
 
     public void muteUser(String user)
