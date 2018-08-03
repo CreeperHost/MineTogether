@@ -41,6 +41,7 @@ public class WebUtils {
             while ((line = rd.readLine()) != null)
             {
                 respData.append(line);
+                respData.append("\n");
             }
 
             List<String> setCookies = conn.getHeaderFields().get("Set-Cookie");
