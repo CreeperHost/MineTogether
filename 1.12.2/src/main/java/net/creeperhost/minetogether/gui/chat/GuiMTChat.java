@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -63,6 +64,7 @@ public class GuiMTChat extends GuiScreen
         buttonList.add(targetDropdownButton = new DropdownButton<>(-1337, width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true));
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
+        strings.add("Add friend");
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new Menu(strings), true));
         buttonList.add(friendsButton = new GuiButton(-80088, 5, 5, 100, 20, "Friends list"));
         buttonList.add(cancelButton = new GuiButton(-800885, width - 100 - 5, height - 5 - 20, 100, 20, "Cancel"));
@@ -146,6 +148,8 @@ public class GuiMTChat extends GuiScreen
             {
                 CreeperHost.instance.muteUser(activeDropdown);
                 chat.updateLines(currentTarget);
+            } else if (menuDropdownButton.getSelected().option.equals("Add friend")) {
+                ChatHandler.sendFriendRequest(activeDropdown, "Testes"); // TODO: Ask for desired name
             }
         } else if (button == friendsButton) {
             CreeperHost.proxy.openFriendsGui();
@@ -284,6 +288,32 @@ public class GuiMTChat extends GuiScreen
         ClickEvent event = component.getStyle().getClickEvent();
         if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
+            String eventValue = event.getValue();
+            if (eventValue.contains(":"))
+            {
+                String[] split = eventValue.split(":");
+                if (split.length < 3)
+                    return false;
+
+                String friendCode = split[1];
+
+                StringBuilder builder = new StringBuilder();
+
+                String chatInternalName = split[2];
+
+                for(int i = 3; i < split.length; i++)
+                    builder.append(split[i]).append(" ");
+
+                String friendName = builder.toString().trim();
+
+                new Thread(()->Callbacks.addFriend(friendCode, friendName)).start();
+
+                String desiredName = playerName;
+
+                ChatHandler.acceptFriendRequest(chatInternalName, desiredName);
+
+                return true;
+            }
             int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
             menuDropdownButton.xPosition = mouseX;
             menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
@@ -298,6 +328,47 @@ public class GuiMTChat extends GuiScreen
     {
         String inputNick = message.getLeft();
         String outputNick = inputNick;
+
+        if (inputNick.contains(":"))
+        {
+            String[] split = inputNick.split(":");
+            switch(split[0])
+            {
+                case "FR":
+                    if (split.length < 2)
+                        return null;
+                    String nick = split[1];
+                    nick = ChatHandler.getNameForUser(nick);
+                    if (!nick.startsWith("User"))
+                        return null;
+
+                    String cmdStr = message.getRight();
+                    String[] cmdSplit = cmdStr.split(" ");
+
+                    if (cmdSplit.length < 2)
+                        return null;
+
+                    String friendCode = cmdSplit[0];
+
+                    StringBuilder nameBuilder = new StringBuilder();
+
+                    for (int i = 1; i < cmdSplit.length; i++)
+                        nameBuilder.append(cmdSplit[i]);
+
+                    String friendName = nameBuilder.toString();
+
+                    ITextComponent base = new TextComponentString("");
+
+                    ITextComponent userComp = new TextComponentString(friendName + " (" + nick + ") would like to add you as a friend. Click to ");
+
+                    ITextComponent accept = new TextComponentString("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
+
+                    userComp.appendSibling(accept);
+
+                    return userComp;
+            }
+        }
+
         boolean friend = false;
         if (inputNick.startsWith("MT"))
         {

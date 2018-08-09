@@ -15,6 +15,7 @@ import org.kitteh.irc.client.library.event.client.ClientConnectionEndedEvent;
 import org.kitteh.irc.client.library.event.client.ClientConnectionEstablishedEvent;
 import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent;
 import org.kitteh.irc.client.library.event.helper.UnexpectedChannelLeaveEvent;
+import org.kitteh.irc.client.library.event.user.PrivateCtcpQueryEvent;
 import org.kitteh.irc.client.library.event.user.PrivateMessageEvent;
 import org.kitteh.irc.client.library.event.user.PrivateNoticeEvent;
 import org.kitteh.irc.client.library.event.user.UserQuitEvent;
@@ -88,6 +89,11 @@ public class ChatHandler
         newMessages.put(target, new Boolean(true));
     }
 
+    public static void addStatusMessage(String message)
+    {
+        addMessageToChat(CHANNEL, "System", message);
+    }
+
     public static HashMap<String, String> friends = new HashMap<>();
     public static HashMap<String, String> anonUsers = new HashMap<>();
     public static HashMap<String, String> anonUsersReverse = new HashMap<>();
@@ -152,7 +158,7 @@ public class ChatHandler
             StringBuilder builder = new StringBuilder("FRIENDREQ ").append(host.getFriendCode()).append(" ").append(desiredName);
             user.sendCtcpMessage(builder.toString());
         } else {
-            // failure
+            addMessageToChat(CHANNEL, "System", "User is not online.");
         }
     }
 
@@ -164,6 +170,26 @@ public class ChatHandler
     public static void setMessagesRead(String target)
     {
         newMessages.put(target, false);
+    }
+
+    public static void acceptFriendRequest(String chatInternalName, String desiredName)
+    {
+        Optional<Channel> channelOpt = client.getChannel(CHANNEL);
+        if (!channelOpt.isPresent())
+            return;
+
+        Channel channel = channelOpt.get();
+
+        Optional<User> userOpt = channel.getUser(chatInternalName);
+
+        if (!userOpt.isPresent())
+            return;
+
+        User user = userOpt.get();
+
+        user.sendCtcpMessage("FRIENDACC " + host.getFriendCode() + " " + desiredName);
+
+        addMessageToChat(CHANNEL, "System", "Friend request accepted.");
     }
 
     public static class Listener
@@ -352,6 +378,31 @@ public class ChatHandler
                     addMessageToChat(user, user, message);
                     host.friendEvent(user, true);
                 }
+            }
+        }
+
+        @Handler
+        public void onCTCP(PrivateCtcpQueryEvent event)
+        {
+            if (event.isToClient())
+            {
+                String message = event.getMessage();
+                String[] split = message.split(" ");
+                if (split.length < 3)
+                    return;
+
+                if (!split[0].equals("FRIENDREQ"))
+                    return;
+
+                StringBuilder builder = new StringBuilder();
+                for(int i = 1; i < split.length; i++)
+                {
+                    builder.append(split[i]).append(" ");
+                }
+
+                String chatMessage = builder.toString().trim();
+
+                addMessageToChat(CHANNEL, "FR:" + event.getActor().getNick(), chatMessage);
             }
         }
     }
