@@ -15,4 +15,6 @@ public interface IHost
     Logger getLogger();
 
     void messageReceived(String target, Pair messagePair);
+
+    String getFriendCode();
 }

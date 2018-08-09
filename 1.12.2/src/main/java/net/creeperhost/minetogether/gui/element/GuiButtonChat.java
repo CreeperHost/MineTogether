@@ -1,10 +1,13 @@
 package net.creeperhost.minetogether.gui.element;
 
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.gui.GuiGDPR;
+import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextFormatting;
 
@@ -40,7 +43,7 @@ public class GuiButtonChat extends GuiButton {
 
             int l1 = 200;
 
-            if (((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).unread)
+            if (CreeperHost.instance.gdpr.hasAcceptedGDPR() && ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).unread)
             {
                 j = fontrenderer.getColorCode('b');
             }
@@ -62,7 +65,8 @@ public class GuiButtonChat extends GuiButton {
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
         boolean ret = super.mousePressed(mc, mouseX, mouseY);
         if (ret)
-            ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).unread = false;
+            if (CreeperHost.instance.gdpr.hasAcceptedGDPR())
+               ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).unread = false;
 
         return ret;
     }

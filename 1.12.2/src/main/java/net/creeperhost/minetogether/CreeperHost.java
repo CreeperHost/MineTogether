@@ -407,9 +407,9 @@ public class CreeperHost implements ICreeperHostMod, IHost
         }
     }
 
-    public void startChat()
+    @Override
+    public String getFriendCode()
     {
-
-        new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
+        return Callbacks.getFriendCode();
     }
 }

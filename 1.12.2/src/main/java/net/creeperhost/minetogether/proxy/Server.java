@@ -21,4 +21,10 @@ public class Server implements IProxy
     {
         return null;
     }
+
+    @Override
+    public void startChat()
+    {
+
+    }
 }

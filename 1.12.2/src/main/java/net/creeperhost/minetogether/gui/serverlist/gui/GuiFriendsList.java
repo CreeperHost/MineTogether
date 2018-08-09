@@ -25,6 +25,8 @@ public class GuiFriendsList extends GuiScreen
     private GuiButton buttonInvite;
     private GuiButton buttonCopy;
     private GuiButton buttonRefresh;
+    private GuiButton buttonChat;
+    private GuiButton buttonRemove;
     private GuiTextFieldCompat codeEntry;
     private GuiTextFieldCompat displayEntry;
 
@@ -59,22 +61,45 @@ public class GuiFriendsList extends GuiScreen
             first = false;
             refreshFriendsList(true);
         }
+
         int y = this.height - 60;
-        buttonCancel = new GuiButton(0, this.width - 90, y, 80, 20, Util.localize("button.cancel"));
+
+        int margin = 10;
+        int buttons = 3;
+        int buttonWidth = 80;
+
+        int totalButtonSize = (buttonWidth * buttons);
+        int nonButtonSpace = (width - (margin * 2)) - totalButtonSize;
+
+        int spaceInbetween = (nonButtonSpace / (buttons - 1)) + buttonWidth;
+
+        int buttonX = margin;
+
+        buttonCancel = new GuiButton(0, buttonX, y, buttonWidth, 20, Util.localize("button.cancel"));
         buttonList.add(buttonCancel);
-        buttonRefresh = new GuiButton(1337, this.width - 90, y + 30, 80, 20, Util.localize("multiplayer.button.refresh"));
-        buttonList.add(buttonRefresh);
-        buttonAdd = new GuiButton(1, this.width / 2 - 40, y, 80, 20, Util.localize("multiplayer.button.addfriend"));
+        buttonX += spaceInbetween;
+        buttonAdd = new GuiButton(1, buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.addfriend"));
         buttonList.add(buttonAdd);
-        buttonInvite = new GuiButton(2, 10, y, 80, 20, Util.localize("multiplayer.button.invite"));
+        buttonX += spaceInbetween;
+        /*buttonRemove = new GuiButton(2, buttonX, y, buttonWidth, 20, "Remove friend");
+        buttonList.add(buttonRemove);
+        buttonX += spaceInbetween;*/
+        /*buttonChat = new GuiButton(3, buttonX, y, buttonWidth, 20, "Open chat");
+        buttonList.add(buttonChat);
+        buttonX += spaceInbetween;*/
+        buttonInvite = new GuiButton(4, buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.invite"));
         buttonInvite.enabled = list.getCurrSelected() != null;
         buttonList.add(buttonInvite);
+
+        codeEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 - 50, 160, 20);
+        displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 + 0, 160, 20);
+
         friendDisplayString = Util.localize("multiplayer.friendcode", friendCode);
         int friendWidth = fontRendererObj.getStringWidth(friendDisplayString);
         buttonCopy = new GuiButton(4, 10 + friendWidth + 3, this.height - 26, 80, 20, Util.localize("multiplayer.button.copy"));
         buttonList.add(buttonCopy);
-        codeEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 - 50, 160, 20);
-        displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 + 0, 160, 20);
+        buttonRefresh = new GuiButton(1337, this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"));
+        buttonList.add(buttonRefresh);
     }
 
     protected void refreshFriendsList(boolean force)
@@ -97,7 +122,7 @@ public class GuiFriendsList extends GuiScreen
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
-        if (button.id == buttonCancel.id)
+        if (button == buttonCancel)
         {
             if (!addFriend)
                 mc.displayGuiScreen(parent);
@@ -108,7 +133,7 @@ public class GuiFriendsList extends GuiScreen
                 codeEntry.setText("");
             }
         }
-        else if (button.id == buttonAdd.id)
+        else if (button == buttonAdd)
         {
             if (!addFriend)
             {
@@ -125,7 +150,7 @@ public class GuiFriendsList extends GuiScreen
             }
 
         }
-        else if (button.id == buttonInvite.id && button.enabled && button.visible)
+        else if (button == buttonInvite && button.enabled && button.visible)
         {
             if (CreeperHost.instance.curServerId == -1)
             {
@@ -147,7 +172,7 @@ public class GuiFriendsList extends GuiScreen
 
             }
         }
-        else if (button.id == buttonCopy.id)
+        else if (button == buttonCopy)
         {
             Toolkit.getDefaultToolkit()
                 .getSystemClipboard()
@@ -157,7 +182,7 @@ public class GuiFriendsList extends GuiScreen
                 );
             showAlert("Copied to clipboard.", 0x00FF00, 5000);
         }
-        else if (button.id == buttonRefresh.id)
+        else if (button == buttonRefresh)
         {
             refreshFriendsList(false);
         }

@@ -116,7 +116,6 @@ public class EventHandler
     }
 
     boolean first = true;
-    boolean chatReplaced = false;
 
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
@@ -135,59 +134,7 @@ public class EventHandler
                 if (first)
                 {
                     first = false;
-                    if (Config.getInstance().isChatEnabled())
-                    {
-
-                        if (!isChatReplaced)
-                        {
-                            isChatReplaced = true;
-                            try {
-                                Field field = ReflectionHelper.findField(GuiIngame.class,"persistantChatGUI"); //TODO: Srg name
-                                field.set(Minecraft.getMinecraft().ingameGUI, new GuiNewChatOurs(Minecraft.getMinecraft()));
-                            } catch (IllegalAccessException e) {
-                            }
-                        }
-
-                        CreeperHost.instance.getNameForUser("");
-                        CreeperHost.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
-                        InputStream mutedUsersStream = null;
-                        try
-                        {
-                            String configString;
-                            if (CreeperHost.instance.mutedUsersFile.exists())
-                            {
-                                mutedUsersStream = new FileInputStream(CreeperHost.instance.mutedUsersFile);
-                                configString = IOUtils.toString(mutedUsersStream);
-                            }
-                            else
-                            {
-                                CreeperHost.instance.mutedUsersFile.getParentFile().mkdirs();
-                                configString = "[]";
-                            }
-
-                            Gson gson = new Gson();
-                            CreeperHost.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>()
-                            {
-                            }.getType());
-                        }
-                        catch (Throwable t)
-                        {
-                        }
-                        finally
-                        {
-                            try
-                            {
-                                if (mutedUsersStream != null)
-                                {
-                                    mutedUsersStream.close();
-                                }
-                            }
-                            catch (Throwable t)
-                            {
-                            }
-                        }
-                    }
-                    CreeperHost.instance.startChat();
+                    CreeperHost.proxy.startChat();
                 }
             }
         }
@@ -557,8 +504,6 @@ public class EventHandler
     {
         hasJoinedWorld = false;
     }
-
-    boolean isChatReplaced = false;
 
     @SubscribeEvent
     public void onEntityJoinedWorld(EntityJoinWorldEvent event)

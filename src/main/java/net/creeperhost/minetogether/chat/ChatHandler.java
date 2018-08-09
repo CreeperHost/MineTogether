@@ -105,11 +105,14 @@ public class ChatHandler
         friends = new HashMap<>();
         for(Friend friend: friendsCall)
         {
-            String friendCode = "MT" + friend.getCode().substring(0, 15);
-            for (String user: users)
+            if (friend.isAccepted()) // why did I never do this before?
             {
-                if (user.equals(friendCode))
-                    friends.put(friendCode, friend.getName());
+                String friendCode = "MT" + friend.getCode().substring(0, 15);
+                for (String user : users)
+                {
+                    if (user.equals(friendCode))
+                        friends.put(friendCode, friend.getName());
+                }
             }
         }
 
@@ -137,6 +140,19 @@ public class ChatHandler
         synchronized (ircLock)
         {
             addMessageToChat(currentTarget, client.getNick(), text);
+        }
+    }
+
+    public static void sendFriendRequest(String target, String desiredName)
+    {
+        Optional<User> userOpt = client.getChannel(CHANNEL).get().getUser(target);
+        if (userOpt.isPresent())
+        {
+            User user = userOpt.get();
+            StringBuilder builder = new StringBuilder("FRIENDREQ ").append(host.getFriendCode()).append(" ").append(desiredName);
+            user.sendCtcpMessage(builder.toString());
+        } else {
+            // failure
         }
     }
 

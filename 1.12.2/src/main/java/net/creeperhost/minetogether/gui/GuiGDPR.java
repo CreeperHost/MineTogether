@@ -53,10 +53,10 @@ public class GuiGDPR extends GuiScreen
         this.parent = parent;
     }
 
-    public GuiGDPR(GuiScreen parent, IScreenGetter getter)
+    public GuiGDPR(GuiScreen parent, IScreenGetter getterIn)
     {
         this(parent);
-        this.getter = getter;
+        getter = getterIn;
     }
 
     @Override
@@ -65,8 +65,8 @@ public class GuiGDPR extends GuiScreen
         if (button == acceptButton)
         {
             CreeperHost.instance.gdpr.setAcceptedGDPR();
-            CreeperHost.instance.startChat();
-            Minecraft.getMinecraft().displayGuiScreen(getter == null ? null : getter.method());
+            CreeperHost.proxy.startChat();
+            Minecraft.getMinecraft().displayGuiScreen(getter == null ? parent : getter.method());
         } else if (button == declineButton) {
             Minecraft.getMinecraft().displayGuiScreen(parent);
         } else {

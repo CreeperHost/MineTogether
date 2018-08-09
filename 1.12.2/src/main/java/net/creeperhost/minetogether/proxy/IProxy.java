@@ -9,4 +9,6 @@ public interface IProxy
     void openFriendsGui();
 
     UUID getUUID();
+
+    void startChat();
 }

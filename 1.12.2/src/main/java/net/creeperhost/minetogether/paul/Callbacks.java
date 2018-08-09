@@ -453,6 +453,33 @@ public final class Callbacks
         return true;
     }
 
+    public static boolean removeFriend(String friendHash)
+    {
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<>();
+        {
+            sendMap.put("hash", hash);
+            sendMap.put("target", friendHash);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/removefriend", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            JsonElement status = obj.get("status");
+            if (!status.getAsString().equals("success"))
+            {
+                CreeperHost.logger.error("Unable to remove friend.");
+                CreeperHost.logger.error(resp);
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static ArrayList<Minigame> getMinigames(boolean isModded)
     {
 
@@ -486,7 +513,7 @@ public final class Callbacks
     public static ArrayList<Friend> getFriendsList(boolean force)
     {
         if (friendsList == null)
-            friendsList = new Util.CachedValue<ArrayList<Friend>>(10000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>()
+            friendsList = new Util.CachedValue<ArrayList<Friend>>(60000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>()
             {
                 @Override
                 public ArrayList<Friend> get(Object... args)
