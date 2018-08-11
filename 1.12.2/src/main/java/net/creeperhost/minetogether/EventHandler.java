@@ -281,6 +281,18 @@ public class EventHandler
                     ourServerList = new ServerListNoEdit(Minecraft.getMinecraft());
                     serverListField.set(mpGUI, ourServerList);
                     ourServerList.loadServerList();
+
+
+                    if (serverListSelectorField == null)
+                    {
+                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146803_h", "serverListSelector");
+                        serverListSelectorField.setAccessible(true);
+                    }
+
+                    ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
+                    serverListSelector.updateOnlineServers(ourServerList);
+
+
                 }
                 catch (IllegalAccessException e)
                 {
