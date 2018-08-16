@@ -97,7 +97,7 @@ public class GDPR
             Properties properties = new Properties();
             fileoutputstream = new FileOutputStream(this.gdprFile);
             properties.setProperty("gdpr", "false");
-            properties.store(fileoutputstream, "By changing the setting below to TRUE you are indicating your agreement to CreeperHost's privacy policy (https://www.creeperhost.net/privacy) and Terms of Service (https://www.creeperhost.net/tos).");
+            properties.store(fileoutputstream, "By changing the setting below to your mac address you are indicating your agreement to CreeperHost's privacy policy (https://www.creeperhost.net/privacy) and Terms of Service (https://www.creeperhost.net/tos).");
         }
         catch (Exception exception)
         {

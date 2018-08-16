@@ -596,6 +596,10 @@ public class EventHandler
         }
     }
 
+    private boolean updateNeeded = false;
+
+    private Thread updateThread = null;
+
     @SubscribeEvent
     public void tickEvent(TickEvent.ClientTickEvent event)
     {
@@ -607,17 +611,39 @@ public class EventHandler
             return;
         }
 
+        if (updateThread == null)
+        {
+            updateThread = new Thread(() -> {
+                while (true)
+                {
+                    if (updateNeeded)
+                    {
+                        updateNeeded = false;
+                        if (CreeperHost.instance.getQueryGetter() != null)
+                        {
+                            CreeperHost.instance.getQueryGetter().run();
+                        }
+                    }
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                    }
+                }
+            });
+
+            updateThread.setDaemon(true);
+            updateThread.setName("SIP Update Thread");
+
+            updateThread.start();
+        }
+
         try
         {
-
             if (ticks == 0)
             {
                 ticks = 40;
-                //Update
-                if (CreeperHost.instance.getQueryGetter() != null)
-                {
-                    CreeperHost.instance.getQueryGetter().run();
-                }
+                updateNeeded = true;
+
             }
             ticks--;
         }
