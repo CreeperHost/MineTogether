@@ -17,4 +17,6 @@ public interface IHost
     void messageReceived(String target, Pair messagePair);
 
     String getFriendCode();
+
+    void acceptFriend(String s, String trim);
 }

@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import scala.actors.threadpool.Arrays;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -34,6 +35,10 @@ public class GuiFriendsList extends GuiScreen
     private String friendCode;
     private boolean first = true;
     private String friendDisplayString;
+    private String errorText = null;
+    private String hoveringText = null;
+    private String lastHoveringText = null;
+    private ArrayList<String> hoverTextCache = null;
 
     public GuiFriendsList(GuiScreen currentScreen)
     {
@@ -108,7 +113,7 @@ public class GuiFriendsList extends GuiScreen
         list.clearList();
         for (Friend friend : friends)
         {
-            GuiListEntryFriend friendEntry = new GuiListEntryFriend(list, friend);
+            GuiListEntryFriend friendEntry = new GuiListEntryFriend(this, list, friend);
             list.addEntry(friendEntry);
         }
     }
@@ -142,11 +147,12 @@ public class GuiFriendsList extends GuiScreen
             }
             else if (!codeEntry.getText().isEmpty())
             {
-                Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
+                boolean result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
                 addFriend = false;
-                list.addEntry(new GuiListEntryFriend(list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
+                if (result)
+                    list.addEntry(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
                 buttonInvite.visible = true;
-                showAlert(Util.localize("multiplayer.friendsent"), 0x00FF00, 5000);
+                showAlert(result ? Util.localize("multiplayer.friendsent") : "Unable to add friend.", 0x00FF00, 5000);
             }
 
         }
@@ -205,7 +211,20 @@ public class GuiFriendsList extends GuiScreen
 
         this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
+
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        if (hoveringText != null)
+        {
+            if (hoveringText != lastHoveringText)
+            {
+                hoverTextCache = new ArrayList<>();
+                hoverTextCache.add(hoveringText);
+                lastHoveringText = hoveringText;
+            }
+
+            drawHoveringText(hoverTextCache, mouseX + 12, mouseY);
+        }
     }
 
     @Override
@@ -257,5 +276,10 @@ public class GuiFriendsList extends GuiScreen
     private void showAlert(String text, int colour, int time)
     {
         CreeperHost.instance.displayToast(text, time);
+    }
+
+    public void setHoveringText(String hoveringText)
+    {
+        this.hoveringText = hoveringText;
     }
 }

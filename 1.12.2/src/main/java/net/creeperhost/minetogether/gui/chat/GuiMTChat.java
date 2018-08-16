@@ -149,7 +149,7 @@ public class GuiMTChat extends GuiScreen
                 CreeperHost.instance.muteUser(activeDropdown);
                 chat.updateLines(currentTarget);
             } else if (menuDropdownButton.getSelected().option.equals("Add friend")) {
-                ChatHandler.sendFriendRequest(activeDropdown, "Testes"); // TODO: Ask for desired name
+                mc.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
             }
         } else if (button == friendsButton) {
             CreeperHost.proxy.openFriendsGui();
@@ -295,22 +295,18 @@ public class GuiMTChat extends GuiScreen
                 if (split.length < 3)
                     return false;
 
-                String friendCode = split[1];
+                String chatInternalName = split[1];
+
+                String friendCode = split[2];
 
                 StringBuilder builder = new StringBuilder();
-
-                String chatInternalName = split[2];
 
                 for(int i = 3; i < split.length; i++)
                     builder.append(split[i]).append(" ");
 
                 String friendName = builder.toString().trim();
 
-                new Thread(()->Callbacks.addFriend(friendCode, friendName)).start();
-
-                String desiredName = playerName;
-
-                ChatHandler.acceptFriendRequest(chatInternalName, desiredName);
+                Minecraft.getMinecraft().displayGuiScreen(new GuiChatFriend(this, playerName, chatInternalName, friendCode, friendName, true));
 
                 return true;
             }
@@ -335,11 +331,12 @@ public class GuiMTChat extends GuiScreen
             switch(split[0])
             {
                 case "FR":
+                { // new scope because Java is stupid
                     if (split.length < 2)
                         return null;
                     String nick = split[1];
-                    nick = ChatHandler.getNameForUser(nick);
-                    if (!nick.startsWith("User"))
+                    String nickDisplay = ChatHandler.getNameForUser(nick);
+                    if (!nickDisplay.startsWith("User"))
                         return null;
 
                     String cmdStr = message.getRight();
@@ -357,15 +354,27 @@ public class GuiMTChat extends GuiScreen
 
                     String friendName = nameBuilder.toString();
 
-                    ITextComponent base = new TextComponentString("");
+                    ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") would like to add you as a friend. Click to ");
 
-                    ITextComponent userComp = new TextComponentString(friendName + " (" + nick + ") would like to add you as a friend. Click to ");
-
-                    ITextComponent accept = new TextComponentString("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
+                    ITextComponent accept = new TextComponentString("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
 
                     userComp.appendSibling(accept);
 
                     return userComp;
+                }
+                case "FA":
+                    if (split.length < 2)
+                        return null;
+                    String nick = split[1];
+                    String nickDisplay = ChatHandler.getNameForUser(nick);
+
+                    String friendName = message.getRight();
+
+                    ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") accepted your friend request.");
+
+                    return userComp;
+
+
             }
         }
 

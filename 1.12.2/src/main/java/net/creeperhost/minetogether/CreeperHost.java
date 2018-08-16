@@ -412,4 +412,10 @@ public class CreeperHost implements ICreeperHostMod, IHost
     {
         return Callbacks.getFriendCode();
     }
+
+    @Override
+    public void acceptFriend(String friendCode, String name)
+    {
+        new Thread(() -> Callbacks.addFriend(friendCode, name)).start();
+    }
 }

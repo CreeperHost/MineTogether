@@ -10,10 +10,7 @@ import org.kitteh.irc.client.library.element.Channel;
 import org.kitteh.irc.client.library.element.User;
 import org.kitteh.irc.client.library.element.mode.ChannelUserMode;
 import org.kitteh.irc.client.library.event.channel.*;
-import org.kitteh.irc.client.library.event.client.ClientConnectionClosedEvent;
-import org.kitteh.irc.client.library.event.client.ClientConnectionEndedEvent;
-import org.kitteh.irc.client.library.event.client.ClientConnectionEstablishedEvent;
-import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent;
+import org.kitteh.irc.client.library.event.client.*;
 import org.kitteh.irc.client.library.event.helper.UnexpectedChannelLeaveEvent;
 import org.kitteh.irc.client.library.event.user.PrivateCtcpQueryEvent;
 import org.kitteh.irc.client.library.event.user.PrivateMessageEvent;
@@ -40,24 +37,26 @@ public class ChatHandler
     public static List<String> badwords;
     public static String badwordsFormat;
     public static String initedString = null;
+    private static String nick;
 
-    public static void init(String nick, IHost _host)
+    public static void init(String nickIn, IHost _host)
     {
         if (inited) return;
-        initedString = nick;
+        initedString = nickIn;
         badwords = ChatUtil.getBadWords();
         badwordsFormat = ChatUtil.getAllowedCharactersRegex();
         IRC_SERVER = ChatUtil.getIRCServerDetails();
         CHANNEL = IRC_SERVER.channel;
         host = _host;
         tries = 0;
+        nick = nickIn;
 
         synchronized (ircLock)
         {
             messages = new HashMap<>();
             new Thread(() ->
             { // start in thread as can hold up the UI thread for some reason.
-                client = Client.builder().nick(nick).realName("https://minetogether.io").user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) ->
+                client = Client.builder().nick(nickIn).realName("https://minetogether.io").user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) ->
                 {
                 } /* noop */).buildAndConnect();
                 ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(false); // no longer does a WHO;
@@ -257,7 +256,7 @@ public class ChatHandler
                 synchronized (ircLock)
                 {
                     connectionStatus = ConnectionStatus.CONNECTED;
-                    addMessageToChat(CHANNEL, "System", Format.stripAll("Server joined"));
+                    addMessageToChat(CHANNEL, "System", Format.stripAll("Chat joined"));
                 }
             }
 
@@ -391,19 +390,39 @@ public class ChatHandler
                 if (split.length < 3)
                     return;
 
-                if (!split[0].equals("FRIENDREQ"))
-                    return;
-
-                StringBuilder builder = new StringBuilder();
-                for(int i = 1; i < split.length; i++)
+                if (split[0].equals("FRIENDREQ"))
                 {
-                    builder.append(split[i]).append(" ");
+                    StringBuilder builder = new StringBuilder();
+                    for (int i = 1; i < split.length; i++)
+                    {
+                        builder.append(split[i]).append(" ");
+                    }
+
+                    String chatMessage = builder.toString().trim();
+
+                    addMessageToChat(CHANNEL, "FR:" + event.getActor().getNick(), chatMessage);
+                } else if (split[0].equals("FRIENDACC")) {
+                    StringBuilder builder = new StringBuilder();
+                    for (int i = 2; i < split.length; i++)
+                    {
+                        builder.append(split[i]).append(" ");
+                    }
+
+                    host.acceptFriend(split[1], builder.toString().trim());
+                    addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
                 }
-
-                String chatMessage = builder.toString().trim();
-
-                addMessageToChat(CHANNEL, "FR:" + event.getActor().getNick(), chatMessage);
             }
+        }
+
+        @Handler
+        public void onNickRejected(NickRejectedEvent event)
+        {
+            String attemptedNick = event.getAttemptedNick();
+
+            if (event.getAttemptedNick().contains("`"))
+                event.setNewNick(nick);
+            else
+                event.setNewNick(nick + "`");
         }
     }
 

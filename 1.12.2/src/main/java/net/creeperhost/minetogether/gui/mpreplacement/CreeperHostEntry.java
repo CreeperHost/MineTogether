@@ -101,7 +101,6 @@ public class CreeperHostEntry extends ServerListEntryNormal
 
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-
             final int tooltipX = mouseX - 72;
             final int tooltipY = mouseY + ((res.getScaledHeight() / 2 >= mouseY) ? 11 : -11);
             final int tooltipTextWidth = 56;
