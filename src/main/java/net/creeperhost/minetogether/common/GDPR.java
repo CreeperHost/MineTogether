@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
 import java.util.Properties;
 
 public class GDPR
@@ -55,6 +56,17 @@ public class GDPR
             for (int i = 0; i < mac.length; i++) {
                 sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
             }
+            String s = sb.toString();
+
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(s.getBytes());
+
+            byte byteData[] = md.digest();
+
+            sb = new StringBuilder();
+            for (int i = 0; i < byteData.length; i++)
+                sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+
             return sb.toString();
         } catch (Exception e) {
         }
