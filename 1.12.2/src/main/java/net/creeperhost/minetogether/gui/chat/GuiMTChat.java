@@ -286,6 +286,8 @@ public class GuiMTChat extends GuiScreen
     public boolean handleComponentClick(ITextComponent component)
     {
         ClickEvent event = component.getStyle().getClickEvent();
+        if (event == null)
+            return false;
         if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
             String eventValue = event.getValue();

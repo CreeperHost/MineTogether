@@ -10,6 +10,9 @@ import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiYesNo;
+import net.minecraft.client.gui.GuiYesNoCallback;
+import net.minecraft.client.resources.I18n;
 import scala.actors.threadpool.Arrays;
 
 import java.awt.*;
@@ -17,7 +20,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class GuiFriendsList extends GuiScreen
+public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
 {
     private final GuiScreen parent;
     private GuiList<GuiListEntryFriend> list;
@@ -39,6 +42,7 @@ public class GuiFriendsList extends GuiScreen
     private String hoveringText = null;
     private String lastHoveringText = null;
     private ArrayList<String> hoverTextCache = null;
+    private Friend removeFriend;
 
     public GuiFriendsList(GuiScreen currentScreen)
     {
@@ -147,12 +151,12 @@ public class GuiFriendsList extends GuiScreen
             }
             else if (!codeEntry.getText().isEmpty())
             {
-                boolean result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
+                String result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
                 addFriend = false;
-                if (result)
+                if (result == null)
                     list.addEntry(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
                 buttonInvite.visible = true;
-                showAlert(result ? Util.localize("multiplayer.friendsent") : "Unable to add friend.", 0x00FF00, 5000);
+                showAlert(result == null ? Util.localize("multiplayer.friendsent") : result, 0x00FF00, 5000);
             }
 
         }
@@ -281,5 +285,21 @@ public class GuiFriendsList extends GuiScreen
     public void setHoveringText(String hoveringText)
     {
         this.hoveringText = hoveringText;
+    }
+
+    public void removeFriend(Friend friend)
+    {
+        removeFriend = friend;
+        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.removefriend.sure1"), I18n.format("minetogether.removefriend.sure2"), 0));
+    }
+
+    @Override
+    public void confirmClicked(boolean result, int id) {
+        if (result)
+        {
+            Callbacks.removeFriend(removeFriend.getCode());
+            refreshFriendsList(true);
+        }
+        mc.displayGuiScreen(this);
     }
 }

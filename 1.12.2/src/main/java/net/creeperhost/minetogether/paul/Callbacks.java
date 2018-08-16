@@ -425,7 +425,7 @@ public final class Callbacks
         return friendCode;
     }
 
-    public static boolean addFriend(String code, String display)
+    public static String addFriend(String code, String display)
     {
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
@@ -447,10 +447,10 @@ public final class Callbacks
             {
                 CreeperHost.logger.error("Unable to add friend.");
                 CreeperHost.logger.error(resp);
-                return false;
+                return obj.get("message").getAsString();
             }
         }
-        return true;
+        return null;
     }
 
     public static boolean removeFriend(String friendHash)

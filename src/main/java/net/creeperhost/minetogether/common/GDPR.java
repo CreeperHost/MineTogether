@@ -3,6 +3,9 @@ package net.creeperhost.minetogether.common;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.UnknownHostException;
 import java.util.Properties;
 
 public class GDPR
@@ -23,10 +26,11 @@ public class GDPR
 
         try
         {
+            String hardwareAddress = identity();
             Properties properties = new Properties();
             fileinputstream = new FileInputStream(inFile);
             properties.load(fileinputstream);
-            flag = Boolean.parseBoolean(properties.getProperty("gdpr", "false"));
+            flag = properties.getProperty("gdpr", "false").equals(hardwareAddress);
         }
         catch (Exception var8)
         {
@@ -38,6 +42,24 @@ public class GDPR
         }
 
         return flag;
+    }
+
+    public static String identity()
+    {
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+
+            byte[] mac = network.getHardwareAddress();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < mac.length; i++) {
+                sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+        }
+
+        return "";
     }
 
     public boolean hasAcceptedGDPR()
@@ -52,7 +74,7 @@ public class GDPR
         {
             Properties properties = new Properties();
             fileoutputstream = new FileOutputStream(this.gdprFile);
-            properties.setProperty("gdpr", "true");
+            properties.setProperty("gdpr", identity());
             properties.store(fileoutputstream, "By changing the setting below to TRUE you are indicating your agreement to CreeperHost's privacy policy (https://www.creeperhost.net/privacy) and Terms of Service (https://www.creeperhost.net/tos).");
             acceptedGDPR = true;
         }

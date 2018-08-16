@@ -5,8 +5,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Minigame;
 import net.creeperhost.minetogether.aries.Aries;
+import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.common.WebUtils;
@@ -20,6 +22,7 @@ import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -198,6 +201,14 @@ public class GuiMinigames extends GuiScreen
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawDefaultBackground();
+        if (Config.getInstance().isChatEnabled() && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED)
+        {
+            spinupButton.visible = spinupButton.enabled = vanillaButton.visible = vanillaButton.enabled =
+            moddedButton.visible = moddedButton.enabled = settingsButton.visible = settingsButton.enabled = false;
+            drawCenteredString(fontRendererObj, I18n.format("minetogether.minigames.notavailable"), width / 2, height / 2, 0xFFFFFFFF);
+            super.drawScreen(mouseX, mouseY, partialTicks);
+            return;
+        }
         if (!spinDown) {
             spinupButton.enabled = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null && credit >= quote;
             minigameScroll.drawScreen(mouseX, mouseY, partialTicks);

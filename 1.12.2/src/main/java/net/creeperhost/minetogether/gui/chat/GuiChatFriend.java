@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.resources.I18n;
 
 import java.io.IOException;
 
@@ -38,6 +39,8 @@ public class GuiChatFriend extends GuiScreen
         drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         nameEntry.drawTextBox();
+        drawCenteredString(fontRendererObj, accept ? I18n.format("minetogether.friend.acceptgui") : I18n.format("minetogether.friend.addgui"), width / 2, 5, 0xFFFFFFFF);
+        drawCenteredString(fontRendererObj, accept ? I18n.format("minetogether.friend.acceptname") : I18n.format("minetogether.friend.addname"), width / 2, height / 2 - 30, 0xFFFFFFFF);
     }
 
     boolean first = true;

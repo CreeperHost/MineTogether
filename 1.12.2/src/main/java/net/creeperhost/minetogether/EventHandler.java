@@ -1,15 +1,13 @@
 package net.creeperhost.minetogether;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.aries.Aries;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.*;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
-import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
-import net.creeperhost.minetogether.gui.element.ButtonCreeper;
+import net.creeperhost.minetogether.gui.element.GuiButtonCreeper;
+import net.creeperhost.minetogether.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
@@ -41,12 +39,8 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import org.apache.commons.io.IOUtils;
 import org.lwjgl.input.Keyboard;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -232,7 +226,7 @@ public class EventHandler
             List<GuiButton> buttonList = event.getButtonList();
             if (buttonList != null)
             {
-                buttonList.add(new ButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
+                buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
             }
         }
         else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
@@ -486,7 +480,7 @@ public class EventHandler
                     }
                 }
 
-                buttonList.add(new ButtonCreeper(8, gui.width / 2 + 133, gui.height - 52, 2));
+                buttonList.add(new GuiButtonMultiple(8, gui.width / 2 + 133, gui.height - 52, 2));
                 buttonList.add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 - 50 , gui.height - 52, 75, 20, "Minigames"));
             }
         }
@@ -498,7 +492,7 @@ public class EventHandler
                 int x = gui.width - 20 - 5;
                 if (buttonDrawn)
                     x -= 99;
-                event.getButtonList().add(new ButtonCreeper(CHAT_BUTTON_ID, x, 5, 1));
+                event.getButtonList().add(new GuiButtonMultiple(CHAT_BUTTON_ID, x, 5, 1));
             }
 
             if (gui instanceof GuiIngameMenu)
@@ -506,7 +500,7 @@ public class EventHandler
                 int x = gui.width - 20 - 5;
                 if (buttonDrawn)
                     x -= 99;
-                event.getButtonList().add(new ButtonCreeper(CHAT_BUTTON_ID, x, 5, 1));
+                event.getButtonList().add(new GuiButtonMultiple(CHAT_BUTTON_ID, x, 5, 1));
             }
         }
     }

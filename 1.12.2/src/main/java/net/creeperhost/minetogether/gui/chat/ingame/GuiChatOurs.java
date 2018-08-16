@@ -3,9 +3,11 @@ package net.creeperhost.minetogether.gui.chat.ingame;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.GuiGDPR;
+import net.creeperhost.minetogether.gui.chat.GuiChatFriend;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.element.GuiButtonPair;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
@@ -29,6 +31,11 @@ public class GuiChatOurs extends GuiChat
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
+        if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
+        {
+            menuDropdownButton.xPosition = menuDropdownButton.yPosition = -10000;
+            menuDropdownButton.wasJustClosed = false;
+        }
     }
 
     final Pattern pattern = Pattern.compile("((?:user)?(\\d+))", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
@@ -83,8 +90,10 @@ public class GuiChatOurs extends GuiChat
         super.initGui();
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
-        buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
+        strings.add("Add friend");
         buttonList.add(switchButton = new GuiButtonPair(808, 0, height - 40, 326, 15, "Minecraft Chat" ,"MineTogether Chat", !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base));
+        buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
+        menuDropdownButton.flipped = true;
     }
 
     @Override
@@ -92,7 +101,9 @@ public class GuiChatOurs extends GuiChat
         if (button == menuDropdownButton) {
             if (menuDropdownButton.getSelected().option.equals("Mute")) {
                 CreeperHost.instance.muteUser(activeDropdown);
-                ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).setChatLine(new TextComponentString("User has been muted. You will no longer receive messages from this person."), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+                ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setChatLine(new TextComponentString("User has been muted. You will no longer receive messages from this person."), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+            } else if (menuDropdownButton.getSelected().option.equals("Add friend")) {
+                mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
             }
         } else if (button == switchButton) {
             if (CreeperHost.instance.gdpr.hasAcceptedGDPR()) {
@@ -113,22 +124,40 @@ public class GuiChatOurs extends GuiChat
     @Override
     public boolean handleComponentClick(ITextComponent component)
     {
-        if (component == null) return false;
-        if (!((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base)
+        ClickEvent event = component.getStyle().getClickEvent();
+        if (event == null)
+            return false;
+        if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
-            if (true) return false; // disable below for now, may leave disabled and need to use main chat UI for that
-            ClickEvent event = component.getStyle().getClickEvent();
-            if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
+            String eventValue = event.getValue();
+            if (eventValue.contains(":"))
             {
-                int mouseX = Mouse.getX();
-                menuDropdownButton.xPosition = mouseX;
-                menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-                menuDropdownButton.dropdownOpen = true;
-                activeDropdown = event.getValue();
+                String[] split = eventValue.split(":");
+                if (split.length < 3)
+                    return false;
+
+                String chatInternalName = split[1];
+
+                String friendCode = split[2];
+
+                StringBuilder builder = new StringBuilder();
+
+                for(int i = 3; i < split.length; i++)
+                    builder.append(split[i]).append(" ");
+
+                String friendName = builder.toString().trim();
+
+                Minecraft.getMinecraft().displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), chatInternalName, friendCode, friendName, true));
+
                 return true;
             }
+            int mouseX = Mouse.getX() * width / mc.displayWidth;
+            menuDropdownButton.xPosition = mouseX;
+            menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+            menuDropdownButton.dropdownOpen = true;
+            activeDropdown = event.getValue();
+            return true;
         }
-
         return super.handleComponentClick(component);
     }
 }

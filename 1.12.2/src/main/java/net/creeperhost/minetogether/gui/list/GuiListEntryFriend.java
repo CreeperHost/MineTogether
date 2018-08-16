@@ -66,4 +66,18 @@ public class GuiListEntryFriend extends GuiListEntry
     {
         return friend;
     }
+
+    @Override
+    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
+    {
+        int listWidth = list.getListWidth();
+        if (x >= listWidth - stringWidth - 4 && x <= listWidth - 5 && y >= 0 && y <= 7)
+        {
+            friendsList.removeFriend(friend);
+            wasHovering = false;
+            friendsList.setHoveringText(null);
+            return false;
+        }
+        return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
+    }
 }

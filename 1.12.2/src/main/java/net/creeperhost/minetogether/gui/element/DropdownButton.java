@@ -46,6 +46,8 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
         realDrawButton(mc, mouseX, mouseY, 0);
     }
 
+    public boolean flipped = false;
+
     public void realDrawButton(Minecraft mc, int x, int y, float partialTicks)
     {
         if (this.visible)
@@ -82,9 +84,15 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
             if (dropdownOpen)
             {
                 drawY += 1;
+                int yOffset = height - 2;
+                if (flipped)
+                {
+                    yOffset = -yOffset;
+                    drawY -= 1;
+                }
                 for (E e : possibleVals)
                 {
-                    drawY += height - 2;
+                    drawY += yOffset;
                     boolean ourHovered = x >= this.xPosition && y >= drawY && x < this.xPosition + this.width && y < drawY + this.height - 2;
 
                     int subHovered = ourHovered ? 2 : 0;
@@ -176,9 +184,16 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
     {
         E clickedElement = null;
         int y = yPosition + 1;
+
+        int yOffset = height - 2;
+        if (flipped)
+        {
+            yOffset = -yOffset;
+            y -= 1;
+        }
         for (IDropdownOption e : possibleVals)
         {
-            y += height - 2;
+            y += yOffset;
             if (mouseX >= this.xPosition && mouseY >= y && mouseX < this.xPosition + this.width && mouseY < y + this.height - 2)
             {
                 clickedElement = (E)e;
