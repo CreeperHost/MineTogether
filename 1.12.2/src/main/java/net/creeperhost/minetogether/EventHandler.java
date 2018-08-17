@@ -407,7 +407,7 @@ public class EventHandler
 
                     if (editButtonField == null)
                     {
-                        editButtonField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146810_r", "btnEditServer"); //TODO: Needs non srg name
+                        editButtonField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146810_r", "btnEditServer");
                         editButtonField.setAccessible(true);
                     }
 

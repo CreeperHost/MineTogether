@@ -43,7 +43,7 @@ public class GuiChatOurs extends GuiChat
     @Override
     public void sendChatMessage(String msg, boolean addToChat)
     {
-        if (((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base)
+        if (!(Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) || ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base)
         {
             super.sendChatMessage(msg, addToChat);
             return;
@@ -124,6 +124,10 @@ public class GuiChatOurs extends GuiChat
     @Override
     public boolean handleComponentClick(ITextComponent component)
     {
+        if (!(Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) || ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base)
+        {
+            return super.handleComponentClick(component);
+        }
         ClickEvent event = component.getStyle().getClickEvent();
         if (event == null)
             return false;
