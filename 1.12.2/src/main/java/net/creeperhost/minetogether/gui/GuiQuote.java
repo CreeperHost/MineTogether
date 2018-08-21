@@ -15,7 +15,6 @@ import java.util.Map;
 
 public class GuiQuote extends GuiGetServer
 {
-
     public OrderSummary summary;
     private GuiList list;
     private boolean countryEnabled = false;
@@ -33,6 +32,7 @@ public class GuiQuote extends GuiGetServer
         super(stepId, order);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
     {
@@ -82,9 +82,9 @@ public class GuiQuote extends GuiGetServer
 
     }
 
+    @SuppressWarnings("Duplicates")
     private void updateSummary()
     {
-
         countryButton.visible = false;
         refreshing = true;
         summary = null;
@@ -155,6 +155,7 @@ public class GuiQuote extends GuiGetServer
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
@@ -181,6 +182,7 @@ public class GuiQuote extends GuiGetServer
         super.actionPerformed(button);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {

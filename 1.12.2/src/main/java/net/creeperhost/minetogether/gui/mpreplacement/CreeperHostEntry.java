@@ -56,9 +56,9 @@ public class CreeperHostEntry extends ServerListEntryNormal
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
 
+    @SuppressWarnings("Duplicates")
     public void ourDrawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
-
         if (isHovering)
         {
             if (transparency <= 1.0F)
@@ -132,6 +132,7 @@ public class CreeperHostEntry extends ServerListEntryNormal
     {
     }
 
+    @SuppressWarnings("Duplicates")
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
     {
         if (x >= 303 - stringWidth - 2 && x <= 303 - 3 && y >= 0 && y <= 7)

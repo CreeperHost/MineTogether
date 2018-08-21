@@ -74,6 +74,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.buttonList.add(this.slotSlider);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void updateScreen()
     {
@@ -114,6 +115,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.buttonNext.enabled = !isEmpty && nameChecked && isAcceptable;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {

@@ -125,6 +125,7 @@ public class GuiGDPR extends GuiScreen
         return null;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
     {

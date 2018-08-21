@@ -55,6 +55,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         this(gui, id, displayString, def, x, y, width, height, validators, true);
     }
 
+    @SuppressWarnings("Duplicates")
     public void checkPendingValidations()
     {
         if (pendingValidation != null && pendingValidation.isDone())
@@ -72,6 +73,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         return ourID;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void drawTextBox()
     {
@@ -124,6 +126,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         return canBeFocused;
     }
 
+    @SuppressWarnings("Duplicates")
     private Pair<Boolean, IOrderValidation> validateAtPhase(IOrderValidation.ValidationPhase phase, String string, boolean ignoreAsync)
     {
         if (pendingValidation != null || doNotValidate)
@@ -172,6 +175,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         return validateAtPhase(phase, string, false);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void setFocused(boolean focused)
     {
@@ -202,6 +206,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         super.setFocused(focused);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void writeText(String string)
     {
@@ -226,6 +231,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         return;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void deleteFromCursor(int num)
     {
@@ -250,6 +256,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         return;
     }
 
+    @SuppressWarnings("Duplicates")
     public void setText(String string)
     {
         super.setText(string);

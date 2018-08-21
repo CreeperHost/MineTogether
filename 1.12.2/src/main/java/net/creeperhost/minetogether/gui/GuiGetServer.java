@@ -26,6 +26,7 @@ public abstract class GuiGetServer extends GuiScreen
         this.order = order;
     }
 
+    @SuppressWarnings("Duplicates")
     public static GuiScreen getByStep(int step, Order order)
     {
         switch (step)
@@ -44,6 +45,7 @@ public abstract class GuiGetServer extends GuiScreen
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
     {

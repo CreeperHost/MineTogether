@@ -53,6 +53,8 @@ public class GuiChatOurs extends GuiChat
 
     final Pattern pattern = Pattern.compile("((?:user)?(\\d+))", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
+
+    @SuppressWarnings("Duplicates")
     @Override
     public void sendChatMessage(String msg, boolean addToChat)
     {

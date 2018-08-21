@@ -28,6 +28,7 @@ public class GuiServerInfo extends GuiScreen
     {
     }
 
+    @SuppressWarnings("Duplicates")
     public static <K, V extends Comparable<? super V>> Map<K, V>
     sortByValue(Map<K, V> map)
     {
