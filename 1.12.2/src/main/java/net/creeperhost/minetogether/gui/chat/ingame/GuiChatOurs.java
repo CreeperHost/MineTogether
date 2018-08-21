@@ -11,12 +11,16 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -27,6 +31,15 @@ public class GuiChatOurs extends GuiChat
     private DropdownButton<GuiMTChat.Menu> menuDropdownButton;
     private String activeDropdown;
     private GuiButtonPair switchButton;
+    private String defaultInputFieldField = "";
+
+    public GuiChatOurs()
+    {
+        if(Keyboard.isKeyDown(Keyboard.KEY_SLASH))
+        {
+            defaultInputFieldField = "/";
+        }
+    }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
@@ -94,6 +107,8 @@ public class GuiChatOurs extends GuiChat
         buttonList.add(switchButton = new GuiButtonPair(808, 0, height - 40, 326, 15, "Minecraft Chat" ,"MineTogether Chat", !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base));
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
         menuDropdownButton.flipped = true;
+        this.inputField.setFocused(true);
+        this.inputField.setText(this.defaultInputFieldField);
     }
 
     @Override
