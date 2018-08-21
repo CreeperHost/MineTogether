@@ -9,10 +9,7 @@ public class ClientProxy implements IServerProxy
     }
 
     @Override
-    public void resuscitateWatchdog()
-    {
-
-    }
+    public void resuscitateWatchdog() {}
 
     @Override
     public boolean needsToBeKilled()

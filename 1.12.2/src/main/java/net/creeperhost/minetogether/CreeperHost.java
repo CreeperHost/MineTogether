@@ -81,6 +81,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public String ourNick;
     public File mutedUsersFile;
 
+    @SuppressWarnings("Duplicates")
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
@@ -148,6 +149,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         }
     }
 
+    @SuppressWarnings("Duplicates")
     public void saveConfig()
     {
         FileOutputStream configOut = null;

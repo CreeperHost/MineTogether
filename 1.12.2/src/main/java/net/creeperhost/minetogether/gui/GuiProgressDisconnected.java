@@ -110,6 +110,7 @@ public class GuiProgressDisconnected extends GuiScreen
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, Math.min(this.height / 2 + 80, this.height - 30), I18n.format("gui.toMenu")));
     }
 
+    @SuppressWarnings("Duplicates")
     public void update(String reason, ITextComponent message)
     {
         lastConnectAttempt = System.currentTimeMillis();

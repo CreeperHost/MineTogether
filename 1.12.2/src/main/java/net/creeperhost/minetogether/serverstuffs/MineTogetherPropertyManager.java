@@ -62,6 +62,7 @@ public class MineTogetherPropertyManager
         this.saveProperties();
     }
 
+    @SuppressWarnings("Duplicates")
     public void saveProperties()
     {
         FileOutputStream fileoutputstream = null;

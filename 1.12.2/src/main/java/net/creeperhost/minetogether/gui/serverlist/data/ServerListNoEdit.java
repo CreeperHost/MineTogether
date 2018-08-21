@@ -26,6 +26,7 @@ public class ServerListNoEdit extends ServerList
         if (mc == null) mc = Minecraft.getMinecraft();
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void loadServerList()
     {
@@ -69,6 +70,7 @@ public class ServerListNoEdit extends ServerList
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void saveServerList()
     {

@@ -45,6 +45,7 @@ public class PregenTask
         init();
     }
 
+    @SuppressWarnings("Duplicates")
     public void init()
     {
         startTime = 0;
