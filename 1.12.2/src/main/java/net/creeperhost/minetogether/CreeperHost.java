@@ -14,6 +14,7 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.serverlist.data.Friend;
+import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
 import net.creeperhost.minetogether.siv.QueryGetter;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,6 +22,8 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -417,5 +420,11 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public void acceptFriend(String friendCode, String name)
     {
         new Thread(() -> Callbacks.addFriend(friendCode, name)).start();
+    }
+
+    @Mod.EventHandler
+    public void serverStarted(FMLServerStartingEvent event)
+    {
+        event.registerServerCommand(new CommandKill());
     }
 }

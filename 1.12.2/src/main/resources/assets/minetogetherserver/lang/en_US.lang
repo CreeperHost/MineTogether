@@ -20,3 +20,6 @@ creeperhostserver.commands.invite.remove.success=Removed %s from the invite list
 creeperhostserver.commands.invite.remove.failed=Could not remove %s from the invite list
 creeperhostserver.commands.invite.remove.usage=/invite remove <player>
 creeperhostserver.commands.invite.usage=/invite <list|add|remove|reload>
+
+creeperhostserver.command.killall.wrong=Not enough arguments! Type "/help chkillall" in order to view usage.
+creeperhostserver.command.killall.usage=/chkillall EntityType [items, mobs, animals, all]
