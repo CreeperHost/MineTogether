@@ -22,6 +22,7 @@ public class GuiCreeperConfig extends GuiConfig
         super(parentScreen, getConfigElements(), CreeperHost.MOD_ID, false, false, getTitle(parentScreen));
     }
 
+    @SuppressWarnings("Duplicates")
     private static List<IConfigElement> getConfigElements()
     {
         final Config defaultConfig = new Config();

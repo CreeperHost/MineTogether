@@ -115,19 +115,24 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     {
         ArrayList<Friend> friends = Callbacks.getFriendsList(force);
         list.clearList();
-        for (Friend friend : friends)
+        if(friends != null)
         {
-            GuiListEntryFriend friendEntry = new GuiListEntryFriend(this, list, friend);
-            list.addEntry(friendEntry);
+            for (Friend friend : friends)
+            {
+                GuiListEntryFriend friendEntry = new GuiListEntryFriend(this, list, friend);
+                list.addEntry(friendEntry);
+            }
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void onGuiClosed()
     {
         CreeperHost.instance.clearToast(false);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
@@ -198,6 +203,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
@@ -254,6 +260,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         this.list.handleMouseInput();
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {

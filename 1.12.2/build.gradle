@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: "com.github.johnrengelman.shadow"
 
 minecraft {
-    version = "1.12.2-14.23.4.2712"
+    version = "1.12.2-14.23.4.2757"
     runDir = "run"
 
     mappings = "snapshot_20161220"

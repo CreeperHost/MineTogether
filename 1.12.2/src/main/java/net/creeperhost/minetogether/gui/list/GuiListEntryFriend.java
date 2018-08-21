@@ -26,6 +26,7 @@ public class GuiListEntryFriend extends GuiListEntry
         stringWidth = this.mc.fontRendererObj.getStringWidth(cross);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
     {

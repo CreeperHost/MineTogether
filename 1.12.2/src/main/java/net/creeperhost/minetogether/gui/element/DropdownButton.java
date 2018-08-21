@@ -48,6 +48,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
 
     public boolean flipped = false;
 
+    @SuppressWarnings("Duplicates")
     public void realDrawButton(Minecraft mc, int x, int y, float partialTicks)
     {
         if (this.visible)

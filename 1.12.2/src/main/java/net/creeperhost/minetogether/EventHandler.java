@@ -229,6 +229,7 @@ public class EventHandler
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event)
     {
@@ -690,6 +691,7 @@ public class EventHandler
         CreeperHostServer.secret = null;
     }
 
+    @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
     {
@@ -858,6 +860,7 @@ public class EventHandler
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event)
     {

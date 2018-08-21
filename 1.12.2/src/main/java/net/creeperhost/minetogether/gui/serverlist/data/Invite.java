@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.gui.serverlist.data;
 
 public class Invite
 {
-
     public final String name;
     public final String ip;
     public final int project;
