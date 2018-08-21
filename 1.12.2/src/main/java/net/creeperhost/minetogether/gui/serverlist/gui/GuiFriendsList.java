@@ -115,10 +115,13 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     {
         ArrayList<Friend> friends = Callbacks.getFriendsList(force);
         list.clearList();
-        for (Friend friend : friends)
+        if(friends != null)
         {
-            GuiListEntryFriend friendEntry = new GuiListEntryFriend(this, list, friend);
-            list.addEntry(friendEntry);
+            for (Friend friend : friends)
+            {
+                GuiListEntryFriend friendEntry = new GuiListEntryFriend(this, list, friend);
+                list.addEntry(friendEntry);
+            }
         }
     }
 
