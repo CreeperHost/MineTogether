@@ -11,6 +11,10 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
@@ -27,6 +31,27 @@ public class GuiChatOurs extends GuiChat
     private DropdownButton<GuiMTChat.Menu> menuDropdownButton;
     private String activeDropdown;
     private GuiButtonPair switchButton;
+    private String presetString;
+    private boolean sleep;
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        if (keyCode == 1)
+        {
+            if (sleep)
+                this.wakeFromSleep();
+            else
+                super.keyTyped(typedChar, keyCode);
+        } else {
+            super.keyTyped(typedChar, keyCode);
+        }
+    }
+
+    public GuiChatOurs(String presetString, boolean sleep) {
+        super(presetString);
+        this.presetString = presetString;
+        this.sleep = sleep;
+    }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
@@ -51,6 +76,8 @@ public class GuiChatOurs extends GuiChat
         if (msg.startsWith("/"))
         {
             super.sendChatMessage(msg, addToChat);
+            ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true;
+            return;
         } else {
             msg = net.minecraftforge.event.ForgeEventFactory.onClientSendMessage(msg);
             if (msg.isEmpty()) return;
@@ -58,7 +85,11 @@ public class GuiChatOurs extends GuiChat
             {
                 this.mc.ingameGUI.getChatGUI().addToSentMessages(msg);
             }
-            if (net.minecraftforge.client.ClientCommandHandler.instance.executeCommand(mc.player, msg) != 0) return;
+            if (net.minecraftforge.client.ClientCommandHandler.instance.executeCommand(mc.player, msg) != 0)
+            {
+                ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true;
+                return;
+            }
             if (ChatHandler.connectionStatus == ChatHandler.ConnectionStatus.CONNECTED)
             {
                 String text = msg;
@@ -87,13 +118,30 @@ public class GuiChatOurs extends GuiChat
 
     @Override
     public void initGui() {
+        if (!presetString.isEmpty())
+        {
+            if (Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
+            {
+                GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+                ourChat.base = true;
+            }
+
+        }
         super.initGui();
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         strings.add("Add friend");
-        buttonList.add(switchButton = new GuiButtonPair(808, 0, height - 40, 326, 15, "Minecraft Chat" ,"MineTogether Chat", !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base));
+
+        float f1 = mc.ingameGUI.getChatGUI().getChatScale();
+        int x = MathHelper.ceil((float)mc.ingameGUI.getChatGUI().getChatWidth() / f1) + 8;
+
+        buttonList.add(switchButton = new GuiButtonPair(808, x, height - 41, 92, 16, "Default" ,"Global", !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base, false, false, true));
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
         menuDropdownButton.flipped = true;
+        if (sleep)
+        {
+            buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height - 40, I18n.format("multiplayer.stopSleeping")));
+        }
     }
 
     @Override
@@ -105,6 +153,7 @@ public class GuiChatOurs extends GuiChat
             } else if (menuDropdownButton.getSelected().option.equals("Add friend")) {
                 mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
             }
+            return;
         } else if (button == switchButton) {
             if (CreeperHost.instance.gdpr.hasAcceptedGDPR()) {
                 GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
@@ -114,11 +163,37 @@ public class GuiChatOurs extends GuiChat
                 Minecraft.getMinecraft().displayGuiScreen(new GuiGDPR(null, () ->
                 {
                     ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = false;
-                    return new GuiChatOurs();
+                    return new GuiChatOurs(presetString, sleep);
                 }));
             }
+            return;
+        } else if (sleep && button.id == 1)
+        {
+            wakeFromSleep();
+            return;
         }
         super.actionPerformed(button);
+    }
+
+    @Override
+    public void updateScreen() {
+        if (sleep && !mc.player.isPlayerSleeping())
+        {
+            mc.displayGuiScreen(null);
+        }
+        super.updateScreen();
+    }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    private void wakeFromSleep()
+    {
+        NetHandlerPlayClient nethandlerplayclient = this.mc.player.connection;
+        nethandlerplayclient.sendPacket(new CPacketEntityAction(this.mc.player, CPacketEntityAction.Action.STOP_SLEEPING));
+
     }
 
     @Override

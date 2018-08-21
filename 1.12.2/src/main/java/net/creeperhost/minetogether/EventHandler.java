@@ -111,6 +111,8 @@ public class EventHandler
 
     boolean first = true;
 
+    Field defaultInputFieldTextField = null;
+
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
     {
@@ -208,7 +210,22 @@ public class EventHandler
         }
         else if (gui instanceof GuiChat && Config.getInstance().isChatEnabled())
         {
-            event.setGui(new GuiChatOurs());
+            String presetString = "";
+            boolean sleep = false;
+            if (gui instanceof GuiSleepMP)
+            {
+                sleep = true;
+            }
+
+            if (defaultInputFieldTextField == null)
+            {
+                defaultInputFieldTextField = ReflectionHelper.findField(GuiChat.class, "field_146409_v ", "defaultInputFieldText");
+            }
+            try {
+                presetString = (String) defaultInputFieldTextField.get(gui);
+            } catch (IllegalAccessException e) {
+            }
+            event.setGui(new GuiChatOurs(presetString, sleep));
         }
     }
 
