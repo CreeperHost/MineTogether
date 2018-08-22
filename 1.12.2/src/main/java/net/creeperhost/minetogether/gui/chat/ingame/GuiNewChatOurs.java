@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.gui.chat.ingame;
 
 import com.google.common.collect.Lists;
+import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.GuiNewChat;
@@ -163,7 +164,7 @@ public class GuiNewChatOurs extends GuiNewChat {
             tempDrawnChatLines = vanillaDrawnChatLines;
         }
 
-        if (getChatOpen())
+        if (getChatOpen() && !CreeperHost.instance.ingameChat.hasDisabledIngameChat())
         {
             float f1 = this.getChatScale();
             GlStateManager.pushMatrix();

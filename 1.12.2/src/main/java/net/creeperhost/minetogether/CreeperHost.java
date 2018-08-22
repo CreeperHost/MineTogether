@@ -66,6 +66,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public boolean active = true;
     public Invite invite;
     public GDPR gdpr;
+    public IngameChat ingameChat;
     public String activeMinigame;
     public int minigameID;
     public boolean trialMinigame;
@@ -143,6 +144,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
             HostHolder.host = this;
             File gdprFile = new File("local/minetogether/gdpr.txt");
             gdpr = new GDPR(gdprFile);
+            File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
+            ingameChat = new IngameChat(ingameChatFile);
             ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();
