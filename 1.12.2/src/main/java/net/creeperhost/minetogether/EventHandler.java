@@ -219,7 +219,14 @@ public class EventHandler
 
             if (defaultInputFieldTextField == null)
             {
-                defaultInputFieldTextField = ReflectionHelper.findField(GuiChat.class, "field_146409_v ", "defaultInputFieldText");
+                try
+                {
+                    defaultInputFieldTextField = ReflectionHelper.findField(GuiChat.class, "field_146409_v", "defaultInputFieldText");
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
             try {
                 presetString = (String) defaultInputFieldTextField.get(gui);
