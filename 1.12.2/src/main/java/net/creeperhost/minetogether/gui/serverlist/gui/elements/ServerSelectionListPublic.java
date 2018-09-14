@@ -60,6 +60,7 @@ public class ServerSelectionListPublic extends ServerSelectionList
         sort();
     }
 
+    @SuppressWarnings("Duplicates")
     public void sort(boolean resetScroll)
     {
         switch (ourParent.sortOrder)

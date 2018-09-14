@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.gui.chat.ingame;
 
 import com.google.common.collect.Lists;
+import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.GuiNewChat;
@@ -11,8 +12,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 import java.util.List;
 
 public class GuiNewChatOurs extends GuiNewChat {
@@ -41,6 +44,14 @@ public class GuiNewChatOurs extends GuiNewChat {
         super(mcIn);
         mc = mcIn;
     }
+
+    @Override
+    public int getChatWidth() {
+        return (int) (super.getChatWidth() - (16 * 0.75));
+    }
+
+    private static Field drawnChatLinesField = null;
+    private List<ChatLine> vanillaDrawnChatLines = null;
 
     @Override
     public void drawChat(int updateCounter) {
@@ -131,6 +142,43 @@ public class GuiNewChatOurs extends GuiNewChat {
                     GlStateManager.popMatrix();
                 }
             }
+        }
+
+        List<ChatLine> tempDrawnChatLines = drawnChatLines;
+
+        if (base)
+        {
+            if (vanillaDrawnChatLines == null)
+            {
+                if (drawnChatLinesField == null)
+                {
+                    drawnChatLinesField = ReflectionHelper.findField(GuiNewChat.class, "field_146253_i", "drawnChatLines");
+                }
+
+                try {
+                    vanillaDrawnChatLines = (List<ChatLine>) drawnChatLinesField.get(this);
+                } catch (IllegalAccessException e) {
+                }
+            }
+
+            tempDrawnChatLines = vanillaDrawnChatLines;
+        }
+
+        if (getChatOpen() && !CreeperHost.instance.ingameChat.hasDisabledIngameChat())
+        {
+            float f1 = this.getChatScale();
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(2.0F, 8.0F, 0.0F);
+            GlStateManager.scale(f1, f1, 1.0F);
+
+            for (int line = tempDrawnChatLines.size(); line < 8; line++) {
+                int k = MathHelper.ceil((float) this.getChatWidth() / f1);
+                int l1 = 255;
+                int j2 = -line * 9;
+                drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
+            }
+
+            GlStateManager.popMatrix();
         }
     }
 

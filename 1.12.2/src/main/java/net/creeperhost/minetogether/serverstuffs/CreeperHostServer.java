@@ -57,10 +57,12 @@ public class CreeperHostServer
     @SidedProxy(clientSide = "net.creeperhost.minetogether.serverstuffs.ClientProxy", serverSide = "net.creeperhost.minetogether.serverstuffs.ServerProxy")
     public static IServerProxy proxy;
 
+
     @Mod.Instance(value = "minetogetherserver")
     public static CreeperHostServer INSTANCE;
     public static int updateID;
     public static String secret;
+    @SuppressWarnings("Duplicates")
     private static ArrayList<String> oldVersions = new ArrayList<String>()
     {{
         add("1.9");
@@ -181,6 +183,7 @@ public class CreeperHostServer
     public static boolean isActive;
     public static boolean failed;
 
+    @SuppressWarnings("Duplicates")
     public static void startMinetogetherThread(String serverIP, String displayName, String projectid, int port, Discoverability discoverMode)
     {
         mtThread = new Thread(() ->
@@ -329,6 +332,7 @@ public class CreeperHostServer
         setupPlayerKicker();
     }
 
+    @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void worldTick(TickEvent.WorldTickEvent e)
     {
@@ -468,6 +472,7 @@ public class CreeperHostServer
         task.chunksToGen.removeAll(chunkToGen);
     }
 
+    @SuppressWarnings("Duplicates")
     public File getSaveFolder()
     {
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -481,6 +486,7 @@ public class CreeperHostServer
         serializePreload(new File(getSaveFolder(), "pregenData.json"));
     }
 
+    @SuppressWarnings("Duplicates")
     private void serializePreload(File file)
     {
         FileOutputStream pregenOut = null;
@@ -500,6 +506,7 @@ public class CreeperHostServer
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private void deserializePreload(File file)
     {
         Gson gson = new GsonBuilder().create();

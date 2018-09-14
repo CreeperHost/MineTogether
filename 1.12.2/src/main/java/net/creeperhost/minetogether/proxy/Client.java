@@ -7,6 +7,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
@@ -96,15 +97,8 @@ public class Client implements IProxy
         if (Config.getInstance().isChatEnabled())
         {
 
-            if (!isChatReplaced)
-            {
-                isChatReplaced = true;
-                try {
-                    Field field = ReflectionHelper.findField(GuiIngame.class,"field_73840_e", "persistantChatGUI");
-                    field.set(Minecraft.getMinecraft().ingameGUI, new GuiNewChatOurs(Minecraft.getMinecraft()));
-                } catch (IllegalAccessException e) {
-                }
-            }
+            if (!CreeperHost.instance.ingameChat.hasDisabledIngameChat())
+                enableIngameChat();
 
             CreeperHost.instance.getNameForUser("");
             CreeperHost.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
@@ -147,6 +141,31 @@ public class Client implements IProxy
 
             new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
         }
+    }
 
+    @Override
+    public void disableIngameChat()
+    {
+        CreeperHost.instance.ingameChat.setDisabledIngameChat(true);
+        if (isChatReplaced)
+        {
+            ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true; // don't actually remove
+        }
+    }
+
+    @Override
+    public void enableIngameChat()
+    {
+        CreeperHost.instance.ingameChat.setDisabledIngameChat(false);
+
+        if (!isChatReplaced)
+        {
+            isChatReplaced = true;
+            try {
+                Field field = ReflectionHelper.findField(GuiIngame.class,"field_73840_e", "persistantChatGUI");
+                field.set(Minecraft.getMinecraft().ingameGUI, new GuiNewChatOurs(Minecraft.getMinecraft()));
+            } catch (IllegalAccessException e) {
+            }
+        }
     }
 }

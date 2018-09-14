@@ -18,6 +18,7 @@ public class GuiTextFieldValidate extends GuiTextFieldCompat
         pattern = Pattern.compile(regexStr);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void writeText(String textWrite)
     {

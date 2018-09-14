@@ -44,6 +44,7 @@ public class GuiOrderDetails extends GuiGetServer
         return Util.localize("gui.order");
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
     {
@@ -56,6 +57,7 @@ public class GuiOrderDetails extends GuiGetServer
         buttonInvoice.visible = false;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void actionPerformed(GuiButton button) throws IOException
     {
@@ -79,6 +81,7 @@ public class GuiOrderDetails extends GuiGetServer
         }
     }
 
+    @SuppressWarnings("Duplicates")
     public void updateScreen()
     {
         super.updateScreen();
@@ -171,6 +174,7 @@ public class GuiOrderDetails extends GuiGetServer
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {

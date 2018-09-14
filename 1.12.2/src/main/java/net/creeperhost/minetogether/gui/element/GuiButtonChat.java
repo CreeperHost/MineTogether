@@ -1,15 +1,11 @@
 package net.creeperhost.minetogether.gui.element;
 
 import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.gui.GuiGDPR;
-import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.text.TextFormatting;
 
 public class GuiButtonChat extends GuiButton {
 

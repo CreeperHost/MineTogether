@@ -33,6 +33,7 @@ public class GuiInvited extends GuiScreen
         canConnect = invite.project == Integer.valueOf(Config.getInstance().curseProjectID);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
     {

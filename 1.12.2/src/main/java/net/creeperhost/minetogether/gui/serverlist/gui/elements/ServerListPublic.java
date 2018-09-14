@@ -22,6 +22,7 @@ public class ServerListPublic extends ServerList
         this.owner = owner;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void loadServerList()
     {

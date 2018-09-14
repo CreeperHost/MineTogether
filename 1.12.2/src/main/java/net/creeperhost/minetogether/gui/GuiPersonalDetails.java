@@ -50,6 +50,7 @@ public class GuiPersonalDetails extends GuiGetServer
         return Util.localize("gui.personal_details");
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
     {
@@ -214,6 +215,7 @@ public class GuiPersonalDetails extends GuiGetServer
         info2 = component;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void updateScreen()
     {
@@ -238,6 +240,7 @@ public class GuiPersonalDetails extends GuiGetServer
         this.buttonNext.enabled = this.loggedIn || this.buttonNext.enabled;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
@@ -325,6 +328,7 @@ public class GuiPersonalDetails extends GuiGetServer
         super.keyTyped(typedChar, keyCode);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
@@ -397,6 +401,7 @@ public class GuiPersonalDetails extends GuiGetServer
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
@@ -465,6 +470,7 @@ public class GuiPersonalDetails extends GuiGetServer
         return null;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected void actionPerformed(final GuiButton button) throws IOException
     {

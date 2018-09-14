@@ -104,6 +104,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         return false;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void createButtons()
     {
@@ -134,6 +135,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         buttonList.add(sortOrderButton);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {

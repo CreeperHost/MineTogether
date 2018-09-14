@@ -111,6 +111,8 @@ public class EventHandler
 
     boolean first = true;
 
+    Field defaultInputFieldTextField = null;
+
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
     {
@@ -206,12 +208,37 @@ public class EventHandler
                 event.setGui(new GuiMinigames(null, true));
             }
         }
-        else if (gui instanceof GuiChat && Config.getInstance().isChatEnabled())
+        else if (gui instanceof GuiChat && Config.getInstance().isChatEnabled() && !CreeperHost.instance.ingameChat.hasDisabledIngameChat())
         {
-            event.setGui(new GuiChatOurs());
+            String presetString = "";
+            boolean sleep = false;
+            if (gui instanceof GuiSleepMP)
+            {
+                sleep = true;
+            }
+
+            if (defaultInputFieldTextField == null)
+            {
+                try
+                {
+                    defaultInputFieldTextField = ReflectionHelper.findField(GuiChat.class, "field_146409_v", "defaultInputFieldText");
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                presetString = (String) defaultInputFieldTextField.get(gui);
+            } catch (IllegalAccessException e) {
+            }
+            event.setGui(new GuiChatOurs(presetString, sleep));
         }
     }
 
+    private GuiButton ingameChatButton = null;
+
+    @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event)
     {
@@ -487,6 +514,13 @@ public class EventHandler
 
         if (Config.getInstance().isChatEnabled())
         {
+            if (gui instanceof ScreenChatOptions)
+            {
+                int i = 11;
+                event.getButtonList().add(ingameChatButton = new GuiButton(-20, gui.width / 2 - 155 + i % 2 * 160, gui.height / 6 + 24 * (i >> 1), 150, 20, "MineTogether Chat: " + (CreeperHost.instance.ingameChat.hasDisabledIngameChat() ? "OFF" : "ON")));
+            }
+
+
             if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
             {
                 int x = gui.width - 20 - 5;
@@ -568,6 +602,17 @@ public class EventHandler
             if (button != null && button.id == CHAT_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMTChat(gui));
+            }
+        } else if (gui instanceof ScreenChatOptions) {
+            if (button == ingameChatButton)
+            {
+                boolean chatEnabled = !CreeperHost.instance.ingameChat.hasDisabledIngameChat();
+                if (chatEnabled)
+                    CreeperHost.proxy.disableIngameChat();
+                else
+                    CreeperHost.proxy.enableIngameChat();
+
+                button.displayString = "MineTogether Chat: " + (chatEnabled ? "OFF" : "ON");
             }
         }
     }
@@ -673,6 +718,7 @@ public class EventHandler
         CreeperHostServer.secret = null;
     }
 
+    @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
     {
@@ -841,6 +887,7 @@ public class EventHandler
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event)
     {

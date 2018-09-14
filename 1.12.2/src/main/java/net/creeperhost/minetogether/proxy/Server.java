@@ -27,4 +27,14 @@ public class Server implements IProxy
     {
 
     }
+
+    @Override
+    public void disableIngameChat() {
+
+    }
+
+    @Override
+    public void enableIngameChat() {
+
+    }
 }

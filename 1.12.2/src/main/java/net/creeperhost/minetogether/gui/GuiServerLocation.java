@@ -12,7 +12,6 @@ import java.util.Map;
 
 public class GuiServerLocation extends GuiGetServer
 {
-
     private GuiList list;
 
     public GuiServerLocation(int stepId, Order order)
@@ -20,6 +19,7 @@ public class GuiServerLocation extends GuiGetServer
         super(stepId, order);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
     {

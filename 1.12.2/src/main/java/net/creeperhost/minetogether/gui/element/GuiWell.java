@@ -37,6 +37,7 @@ public class GuiWell
         this.right = width;
     }
 
+    @SuppressWarnings("Duplicates")
     public void drawScreen()
     {
         GlStateManager.disableLighting();
