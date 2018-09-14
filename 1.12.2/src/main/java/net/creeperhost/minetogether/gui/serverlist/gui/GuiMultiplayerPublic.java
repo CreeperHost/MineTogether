@@ -28,11 +28,11 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     private static Field lanServerDetectorField;
     private static Field lanServerListField;
     private static Field serverListSelectorField;
-    public boolean isPublic = true;
+    public ListType listType = ListType.PUBLIC;
     public SortOrder sortOrder = SortOrder.RANDOM;
     private boolean initialized;
     private GuiScreen parent;
-    private GuiButton modeToggle;
+    private DropdownButton<ListType> modeToggle;
     private DropdownButton<SortOrder> sortOrderButton;
     private ServerListPublic ourSavedServerList = null;
     private LanServerDetector.ThreadLanServerFind ourLanServerDetector = null;
@@ -46,10 +46,10 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         parent = parentScreen;
     }
 
-    public GuiMultiplayerPublic(GuiScreen parentScreen, boolean isPublic, SortOrder order)
+    public GuiMultiplayerPublic(GuiScreen parentScreen, ListType listType, SortOrder order)
     {
         this(parentScreen);
-        this.isPublic = isPublic;
+        this.listType = listType;
         sortOrder = order;
     }
 
@@ -58,7 +58,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     {
         if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
         {
-            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMultiplayerPublic(parent, isPublic, sortOrder)));
+            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMultiplayerPublic(parent, listType, sortOrder)));
             return;
         }
 
@@ -128,7 +128,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
                 button.enabled = true;
             }
         }
-        modeToggle = new GuiButton(80085, width - 5 - 80, 5, 80, 20, I18n.format(isPublic ? "creeperhost.multiplayer.button.public" : "creeperhost.multiplayer.button.private"));
+        modeToggle = new DropdownButton<>(80085101, width - 5 - 80, 5, 80, 20, "creeperhost.multiplayer.list", listType, false);
         sortOrderButton = new DropdownButton<>(80085101, width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false);
         buttonList.add(modeToggle);
         buttonList.add(sortOrderButton);
@@ -144,8 +144,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
         else if (button.id == modeToggle.id)
         {
-            isPublic = !isPublic;
-            button.displayString = I18n.format(isPublic ? "creeperhost.multiplayer.button.public" : "creeperhost.multiplayer.button.private");
+            listType = modeToggle.getSelected();
             refresh();
             return;
         }
@@ -165,7 +164,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
 
     private void refresh()
     {
-        Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(parent, isPublic, sortOrder));
+        Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(parent, listType, sortOrder));
     }
 
     @Override
@@ -339,6 +338,28 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
                 enumCache = Arrays.asList(SortOrder.values());
 
             return enumCache;
+        }
+    }
+
+    public enum ListType implements DropdownButton.IDropdownOption
+    {
+        PUBLIC, INVITE, APPLICATION;
+
+        private static List<DropdownButton.IDropdownOption> enumCache;
+
+        @Override
+        public List<DropdownButton.IDropdownOption> getPossibleVals()
+        {
+            if (enumCache == null)
+                enumCache = Arrays.asList(ListType.values());
+
+            return enumCache;
+        }
+
+        @Override
+        public String getTranslate(DropdownButton.IDropdownOption currentDO, boolean dropdownOpen)
+        {
+            return "creeperhost.multiplayer.list." + this.name().toLowerCase();
         }
     }
 }

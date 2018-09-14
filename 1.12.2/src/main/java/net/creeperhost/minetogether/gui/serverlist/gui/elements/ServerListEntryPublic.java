@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.serverlist.gui.elements;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.serverlist.data.EnumFlag;
 import net.creeperhost.minetogether.gui.serverlist.data.Server;
@@ -16,6 +17,7 @@ public class ServerListEntryPublic extends ServerListEntryNormal
     public final ServerListEntryNormal wrapped;
     public final GuiMultiplayer owner;
     private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
+    private ResourceLocation applicationGui = new ResourceLocation("creeperhost", "textures/gui.png");
 
     public ServerListEntryPublic(GuiMultiplayer mp, ServerListEntryNormal wrapped)
     {
@@ -43,10 +45,24 @@ public class ServerListEntryPublic extends ServerListEntryNormal
     @Override
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
     {
-        if (x <= 32)
+        if (y <= 32 && x <= 32)
         {
             x = 33;
         }
+        System.out.println(slotIndex + " " + mouseX + " " + mouseY + " " + mouseEvent + " " + x + " " + y);
+        /*Server server = getServerData().server;
+        EnumFlag flag = server.flag;
+        int flagWidth = 16;
+        int flagHeight = flag.height / (flag.width / flagWidth);
+        String applicationURL = server.applicationURL;
+        if (applicationURL != null && mouseX >= x + listWidth - 5 - flagWidth
+            && mouseX <= x + listWidth - 5
+            && mouseY >= y + slotHeight - flagHeight
+            && mouseY <= y + slotHeight - flagHeight + flagHeight)
+        {
+            System.out.println(applicationURL);
+            return false;
+        }*/
         return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
     }
 
@@ -56,24 +72,40 @@ public class ServerListEntryPublic extends ServerListEntryNormal
 
         Server server = getServerData().server;
         EnumFlag flag = server.flag;
-        if (flag == null)
-            return;
-
-        Minecraft.getMinecraft().getTextureManager().bindTexture(flags);
-        int flagWidth = 16;
-        int flagHeight = flag.height / (flag.width / flagWidth);
-        Gui.drawScaledCustomSizeModalRect(x + listWidth - 5 - flagWidth, y + slotHeight - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
-        if (mouseX >= x + listWidth - 5 - flagWidth
-            && mouseX <= x + listWidth - 5
-            && mouseY >= y + slotHeight - flagHeight
-            && mouseY <= y + slotHeight - flagHeight + flagHeight)
+        String applicationURL = server.applicationURL;
+        if (flag != null)
         {
-            String countryName = Callbacks.getCountries().get(flag.name());
-            if (countryName == null)
+            Minecraft.getMinecraft().getTextureManager().bindTexture(flags);
+            int flagWidth = 16;
+            int flagHeight = flag.height / (flag.width / flagWidth);
+            Gui.drawScaledCustomSizeModalRect(x + listWidth - 5 - flagWidth, y + slotHeight - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
+            if (mouseX >= x + listWidth - 5 - flagWidth
+                && mouseX <= x + listWidth - 5
+                && mouseY >= y + slotHeight - flagHeight
+                && mouseY <= y + slotHeight - flagHeight + flagHeight)
             {
-                countryName = flag.name();
+                String countryName = Callbacks.getCountries().get(flag.name());
+                if (countryName == null)
+                {
+                    countryName = flag.name();
+                }
+                owner.setHoveringText(countryName + (server.subdivision.equals("Unknown") ? "" : "\n" + server.subdivision));
             }
-            owner.setHoveringText(countryName + (server.subdivision.equals("Unknown") ? "" : "\n" + server.subdivision));
+        }
+
+        if (applicationURL != null)
+        {
+            Minecraft.getMinecraft().getTextureManager().bindTexture(applicationGui);
+            int flagWidth = 16;
+            int flagHeight = flag.height / (flag.width / flagWidth);
+            Gui.drawScaledCustomSizeModalRect(x, y + slotHeight - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
+            if (mouseX >= x
+                && mouseX <= x + flagWidth
+                && mouseY >= y + slotHeight - flagHeight
+                && mouseY <= y + slotHeight - flagHeight + flagHeight)
+            {
+                owner.setHoveringText("Click here to open the application link in a browser window!");
+            }
         }
     }
 

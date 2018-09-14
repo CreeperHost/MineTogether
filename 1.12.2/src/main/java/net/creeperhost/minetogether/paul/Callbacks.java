@@ -335,7 +335,9 @@ public final class Callbacks
                     int uptime = server.get("uptime").getAsInt();
                     int players = server.get("expected_players").getAsInt();
 
-                    Server serverEl = new Server(name, host + ":" + port, uptime, players, flag, subdivision);
+                    String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
+
+                    Server serverEl = new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL);
                     return new Invite(serverEl, project, by);
                 }
             }
@@ -520,7 +522,8 @@ public final class Callbacks
                 {
                     if (friendsGetting)
                     {
-                        return friendsList.getCachedValue(args);
+                        if (friendsList.getCachedValue(args) != null)
+                            return friendsList.getCachedValue(args); // prevent NPE if it is called twice the first time somehow, would rather just make two calls
                     }
                     friendsGetting = true;
                     Map<String, String> sendMap = new HashMap<String, String>();
@@ -531,6 +534,12 @@ public final class Callbacks
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
 
                     ArrayList<Friend> tempArr = new ArrayList<Friend>();
+
+                    // no idea how this can return null, but apparently it can, so this will fix it.
+                    if (resp.equals("error"))
+                    {
+                        return tempArr;
+                    }
 
                     JsonElement el = new JsonParser().parse(resp);
                     if (el.isJsonObject())
@@ -569,33 +578,34 @@ public final class Callbacks
         return friendsList.get(force);
     }
 
-    public static List<Server> getServerList(boolean isPublic)
+    public static List<Server> getServerList(Enum listType)
     {
         if (serverListCache == null)
         {
-            serverListCache = new Util.CachedValue<List<Server>>(30000, new Util.CachedValue.ICacheCallback<List<Server>>()
+            serverListCache = new Util.CachedValue<>(30000, new Util.CachedValue.ICacheCallback<List<Server>>()
             {
-                private boolean lastRequest;
+                private Enum lastRequest;
                 private String playerHash;
 
                 @Override
                 public List<Server> get(Object... args)
                 {
-                    boolean isPublic = (Boolean) args[0];
-                    lastRequest = isPublic;
-                    CreeperHost.logger.info("Loading " + (isPublic ? "public" : "private") + " server list.");
+                    Enum listType = (Enum) args[0];
+                    int enumOrdinal = listType.ordinal();
+                    lastRequest = listType;
+                    CreeperHost.logger.info("Loading " + (listType.name().toLowerCase()) + " server list.");
                     List<Server> list = new ArrayList<Server>();
 
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
-                        list.add(new Server("No project ID! Please fix the MineTogether config.", "127.0.0.1:25565", 0, 0, null, "Unknown"));
+                        list.add(new Server("No project ID! Please fix the MineTogether config.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
                         return list;
                     }
 
                     Map<String, String> jsonPass = new HashMap<String, String>();
                     jsonPass.put("projectid", Config.getInstance().curseProjectID);
-                    if (!isPublic)
+                    if (enumOrdinal == 1)
                     {
                         if (playerHash == null)
                         {
@@ -604,6 +614,8 @@ public final class Callbacks
 
                         jsonPass.put("hash", playerHash);
                     }
+
+                    jsonPass.put("listType", listType.name().toLowerCase());
 
                     Gson gson = new Gson();
                     String jsonString = gson.toJson(jsonPass);
@@ -648,7 +660,11 @@ public final class Callbacks
                                 int uptime = server.get("uptime").getAsInt();
                                 int players = server.get("expected_players").getAsInt();
 
-                                list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision));
+                                String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
+
+                                applicationURL = "https://www.google.com"; // MAKE SURE TO REMOVE
+
+                                list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL));
                             }
                         }
                     }
@@ -659,12 +675,12 @@ public final class Callbacks
                 @Override
                 public boolean needsRefresh(Object... args)
                 {
-                    boolean isPublic = (Boolean) args[0];
-                    return isPublic != lastRequest;
+                    Enum listType = (Enum) args[0];
+                    return listType != lastRequest;
                 }
             });
         }
-        return serverListCache.get(isPublic);
+        return serverListCache.get(listType);
     }
 
     public static Map<String, String> getAllServerLocations()

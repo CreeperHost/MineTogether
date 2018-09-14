@@ -29,7 +29,7 @@ public class ServerListPublic extends ServerList
             return; // to handle the super constructor calling us before we're ready.
         if (servers == null) servers = Lists.newArrayList();
         servers.clear();
-        List<Server> list = Callbacks.getServerList(owner.isPublic);
+        List<Server> list = Callbacks.getServerList(owner.listType);
 
         for (Server server : list)
         {
