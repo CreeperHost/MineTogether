@@ -11,6 +11,7 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.play.client.CPacketEntityAction;
@@ -186,7 +187,25 @@ public class GuiChatOurs extends GuiChat
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        for (int i = 0; i < this.buttonList.size(); ++i)
+        {
+            ((GuiButton)this.buttonList.get(i)).func_191745_a(this.mc, mouseX, mouseY, partialTicks);
+        }
+
+        for (int j = 0; j < this.labelList.size(); ++j)
+        {
+            ((GuiLabel)this.labelList.get(j)).drawLabel(this.mc, mouseX, mouseY);
+        }
+
+        drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
+        this.inputField.drawTextBox();
+        ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
+
+        if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
+        {
+            this.handleComponentHover(itextcomponent, mouseX, mouseY);
+        }
+        //super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     private void wakeFromSleep()

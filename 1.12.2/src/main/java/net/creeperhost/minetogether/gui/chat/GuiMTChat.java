@@ -18,6 +18,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Mouse;
@@ -446,7 +447,7 @@ public class GuiMTChat extends GuiScreen
 
         messageStr = String.join(" ", split);
 
-        ITextComponent messageComp = new TextComponentString(messageStr).setStyle(new Style().setColor(TextFormatting.WHITE));
+        ITextComponent messageComp = ForgeHooks.newChatWithLinks(messageStr).setStyle(new Style().setColor(TextFormatting.WHITE));
 
         if (friend)
         {

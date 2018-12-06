@@ -71,6 +71,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public int minigameID;
     public boolean trialMinigame;
     public long joinTime;
+    public String realName;
     String toastText;
     long endTime;
     long fadeTime;
@@ -147,6 +148,25 @@ public class CreeperHost implements ICreeperHostMod, IHost
             File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
             ingameChat = new IngameChat(ingameChatFile);
             ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
+
+            HashMap<String, String> jsonObj = new HashMap<>();
+
+            int packID;
+
+            try
+            {
+                packID = Integer.parseInt(Config.getInstance().curseProjectID);
+            }
+            catch (NumberFormatException e)
+            {
+                packID = -1;
+            }
+
+            jsonObj.put("p", String.valueOf(packID));
+
+            Gson gson = new Gson();
+            realName = gson.toJson(jsonObj);
+
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();
         }

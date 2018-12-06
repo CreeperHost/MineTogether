@@ -429,7 +429,7 @@ public final class Callbacks
 
     public static String addFriend(String code, String display)
     {
-        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+            String hash = getPlayerHash(CreeperHost.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
         {
             sendMap.put("hash", hash);
@@ -558,7 +558,7 @@ public final class Callbacks
                                 {
                                     name = friend.get("name").getAsString();
                                 }
-                                String code = friend.get("hash").getAsString();
+                                String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
 
                                 boolean accepted = friend.get("accepted").getAsBoolean();
                                 tempArr.add(new Friend(name, code, accepted));

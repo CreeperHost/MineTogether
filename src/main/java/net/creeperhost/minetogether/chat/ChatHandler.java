@@ -38,10 +38,12 @@ public class ChatHandler
     public static String badwordsFormat;
     public static String initedString = null;
     private static String nick;
+    private static String realName;
 
-    public static void init(String nickIn, IHost _host)
+    public static void init(String nickIn, String realNameIn, IHost _host)
     {
         if (inited) return;
+        realName = realNameIn;
         initedString = nickIn;
         badwords = ChatUtil.getBadWords();
         badwordsFormat = ChatUtil.getAllowedCharactersRegex();
@@ -56,7 +58,7 @@ public class ChatHandler
             messages = new HashMap<>();
             new Thread(() ->
             { // start in thread as can hold up the UI thread for some reason.
-                client = Client.builder().nick(nickIn).realName("https://minetogether.io").user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) ->
+                client = Client.builder().nick(nickIn).realName(realName).user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) ->
                 {
                 } /* noop */).buildAndConnect();
                 ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(false); // no longer does a WHO;
@@ -72,7 +74,7 @@ public class ChatHandler
     public static void reInit()
     {
         inited = false;
-        init(initedString, host);
+        init(initedString, realName, host);
     }
 
     private static void addMessageToChat(String target, String user, String message)
@@ -282,11 +284,15 @@ public class ChatHandler
             }
         }
 
+        public static HashMap<String, String> realnameCache = new HashMap<>();
+
         @Handler
         public void onChannelMessage(ChannelMessageEvent event)
         {
             User user = event.getActor();
             String message = event.getMessage();
+
+            if (!realnameCache.containsKey(user.getNick())) realnameCache.put(user.getNick(), user.getRealName().get());
 
             synchronized (ircLock)
             {
