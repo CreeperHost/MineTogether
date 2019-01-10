@@ -6,9 +6,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class DropdownButton<E extends DropdownButton.IDropdownOption> extends GuiButton
 {
@@ -18,7 +16,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
     private String baseButtonText;
     private final boolean dynamic;
     public boolean wasJustClosed = false;
-
+    
     public DropdownButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, E def, boolean dynamic)
     {
         super(buttonId, x, y, widthIn, heightIn, buttonText);
@@ -28,26 +26,26 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
         displayString = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected, false)));
         this.dynamic = dynamic;
     }
-
+    
     public DropdownButton(int buttonId, int x, int y, String buttonText, E def, boolean dynamic)
     {
         this(buttonId, x, y, 200, 20, buttonText, def, dynamic);
     }
-
+    
     @Override
     public void func_191745_a(Minecraft mc, int x, int y, float partialTicks)
     {
         realDrawButton(mc, x, y, partialTicks);
     }
-
+    
     // < 1.12 compat
     public void func_146112_a(Minecraft mc, int mouseX, int mouseY)
     {
         realDrawButton(mc, mouseX, mouseY, 0);
     }
-
+    
     public boolean flipped = false;
-
+    
     @SuppressWarnings("Duplicates")
     public void realDrawButton(Minecraft mc, int x, int y, float partialTicks)
     {
@@ -66,22 +64,20 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
             this.drawTexturedModalRect(this.xPosition + this.width / 2, drawY, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
             this.mouseDragged(mc, x, y);
             int j = 14737632;
-
+            
             if (packedFGColour != 0)
             {
                 j = packedFGColour;
-            }
-            else if (!this.enabled)
+            } else if (!this.enabled)
             {
                 j = 10526880;
-            }
-            else if (this.hovered)
+            } else if (this.hovered)
             {
                 j = 16777120;
             }
-
+            
             this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, j);
-
+            
             if (dropdownOpen)
             {
                 drawY += 1;
@@ -95,22 +91,21 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
                 {
                     drawY += yOffset;
                     boolean ourHovered = x >= this.xPosition && y >= drawY && x < this.xPosition + this.width && y < drawY + this.height - 2;
-
+                    
                     int subHovered = ourHovered ? 2 : 0;
-
+                    
                     mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                     this.drawTexturedModalRect(this.xPosition, drawY, 0, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
                     this.drawTexturedModalRect(this.xPosition + this.width / 2, drawY, 200 - this.width / 2, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
-
+                    
                     String name = I18n.format(e.getTranslate(selected, true));
                     int textColour = 14737632;
-
+                    
                     if (packedFGColour != 0)
                     {
                         textColour = packedFGColour;
-                    }
-                    else if (ourHovered)
+                    } else if (ourHovered)
                     {
                         textColour = 16777120;
                     }
@@ -119,13 +114,13 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
             }
         }
     }
-
+    
     @Override
     protected int getHoverState(boolean mouseOver)
     {
         return mouseOver ? 2 : enabled ? dropdownOpen ? 2 : 1 : 0;
     }
-
+    
     @Override
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
     {
@@ -146,8 +141,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
             }
             close();
             return false;
-        }
-        else if (pressed)
+        } else if (pressed)
         {
             dropdownOpen = true;
             if (dynamic)
@@ -156,36 +150,37 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
                 possibleVals = (List<E>) selected.getPossibleVals();
             }
         }
-
+        
         return false; // at this stage we've handled all the "true" options, so it ain't been pressed
     }
-
-    public void close() {
+    
+    public void close()
+    {
         dropdownOpen = false;
         wasJustClosed = true;
     }
-
+    
     public E getSelected()
     {
         return selected;
     }
-
+    
     public void setSelected(E selected)
     {
         this.selected = selected;
         updateDisplayString();
     }
-
+    
     public void updateDisplayString()
     {
         displayString = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected, false)));
     }
-
+    
     private E getClickedElement(int mouseX, int mouseY)
     {
         E clickedElement = null;
         int y = yPosition + 1;
-
+        
         int yOffset = height - 2;
         if (flipped)
         {
@@ -197,20 +192,22 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
             y += yOffset;
             if (mouseX >= this.xPosition && mouseY >= y && mouseX < this.xPosition + this.width && mouseY < y + this.height - 2)
             {
-                clickedElement = (E)e;
+                clickedElement = (E) e;
                 break;
             }
-
+            
         }
         return clickedElement;
     }
-
+    
     public interface IDropdownOption
     {
         List<IDropdownOption> getPossibleVals();
-
+        
         String getTranslate(IDropdownOption currentDO, boolean dropdownOpen);
-
-        default void updateDynamic(){}
+        
+        default void updateDynamic()
+        {
+        }
     }
 }

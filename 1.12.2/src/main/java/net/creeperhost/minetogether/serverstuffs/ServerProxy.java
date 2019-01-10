@@ -12,7 +12,7 @@ public class ServerProxy implements IServerProxy
 {
     private Field field = null;
     private Field server = null;
-
+    
     @Override
     public boolean killWatchdog()
     {
@@ -24,8 +24,7 @@ public class ServerProxy implements IServerProxy
                 field.setAccessible(true);
                 server = ReflectionHelper.findField(ServerHangWatchdog.class, "field_180249_b", "server");
                 server.setAccessible(true);
-            }
-            catch (Throwable e)
+            } catch (Throwable e)
             {
                 return false;
             }
@@ -35,23 +34,22 @@ public class ServerProxy implements IServerProxy
         {
             return true;
         }
-
+        
         CreeperHostServer.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
-
+        
         try
         {
             ServerHangWatchdog target = (ServerHangWatchdog) field.get(watchdogThread);
             server.set(target, null);
             watchdogThread.interrupt();
             return true;
-        }
-        catch (Throwable e)
+        } catch (Throwable e)
         {
             return false;
         }
-
+        
     }
-
+    
     @Override
     public void resuscitateWatchdog()
     {
@@ -65,7 +63,7 @@ public class ServerProxy implements IServerProxy
             CreeperHostServer.logger.info("Performing CPR. Server Watchdog is alive again!");
         }
     }
-
+    
     @Override
     public boolean needsToBeKilled()
     {

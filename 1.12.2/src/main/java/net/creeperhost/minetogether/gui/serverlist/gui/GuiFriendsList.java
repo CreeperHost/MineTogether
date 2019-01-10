@@ -6,14 +6,13 @@ import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
-import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.resources.I18n;
-import scala.actors.threadpool.Arrays;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -33,7 +32,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private GuiButton buttonRemove;
     private GuiTextFieldCompat codeEntry;
     private GuiTextFieldCompat displayEntry;
-
+    
     private boolean addFriend = false;
     private String friendCode;
     private boolean first = true;
@@ -43,14 +42,14 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private String lastHoveringText = null;
     private ArrayList<String> hoverTextCache = null;
     private Friend removeFriend;
-
+    
     public GuiFriendsList(GuiScreen currentScreen)
     {
         this.parent = currentScreen;
         friendCode = Callbacks.getFriendCode();
         CreeperHost.instance.clearToast(false);
     }
-
+    
     @Override
     public void initGui()
     {
@@ -64,26 +63,26 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             list = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
         else
             list.setDimensions(width, height, 32, this.height - 64);
-
+        
         if (first)
         {
             first = false;
             refreshFriendsList(true);
         }
-
+        
         int y = this.height - 60;
-
+        
         int margin = 10;
         int buttons = 3;
         int buttonWidth = 80;
-
+        
         int totalButtonSize = (buttonWidth * buttons);
         int nonButtonSpace = (width - (margin * 2)) - totalButtonSize;
-
+        
         int spaceInbetween = (nonButtonSpace / (buttons - 1)) + buttonWidth;
-
+        
         int buttonX = margin;
-
+        
         buttonCancel = new GuiButton(0, buttonX, y, buttonWidth, 20, Util.localize("button.cancel"));
         buttonList.add(buttonCancel);
         buttonX += spaceInbetween;
@@ -99,10 +98,10 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         buttonInvite = new GuiButton(4, buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.invite"));
         buttonInvite.enabled = list.getCurrSelected() != null;
         buttonList.add(buttonInvite);
-
+        
         codeEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 - 50, 160, 20);
         displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 + 0, 160, 20);
-
+        
         friendDisplayString = Util.localize("multiplayer.friendcode", friendCode);
         int friendWidth = fontRendererObj.getStringWidth(friendDisplayString);
         buttonCopy = new GuiButton(4, 10 + friendWidth + 3, this.height - 26, 80, 20, Util.localize("multiplayer.button.copy"));
@@ -110,12 +109,12 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         buttonRefresh = new GuiButton(1337, this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"));
         buttonList.add(buttonRefresh);
     }
-
+    
     protected void refreshFriendsList(boolean force)
     {
         ArrayList<Friend> friends = Callbacks.getFriendsList(force);
         list.clearList();
-        if(friends != null)
+        if (friends != null)
         {
             for (Friend friend : friends)
             {
@@ -124,14 +123,14 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             }
         }
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void onGuiClosed()
     {
         CreeperHost.instance.clearToast(false);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
@@ -146,15 +145,13 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 buttonInvite.visible = true;
                 codeEntry.setText("");
             }
-        }
-        else if (button == buttonAdd)
+        } else if (button == buttonAdd)
         {
             if (!addFriend)
             {
                 addFriend = true;
                 buttonInvite.visible = false;
-            }
-            else if (!codeEntry.getText().isEmpty())
+            } else if (!codeEntry.getText().isEmpty())
             {
                 String result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
                 addFriend = false;
@@ -163,52 +160,46 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 buttonInvite.visible = true;
                 showAlert(result == null ? Util.localize("multiplayer.friendsent") : result, 0x00FF00, 5000);
             }
-
-        }
-        else if (button == buttonInvite && button.enabled && button.visible)
+            
+        } else if (button == buttonInvite && button.enabled && button.visible)
         {
             if (CreeperHost.instance.curServerId == -1)
             {
                 showAlert(Util.localize("multiplayer.notinvite"), 0xFF0000, 5000);
                 return;
-            }
-            else
+            } else
             {
                 boolean ret = Callbacks.inviteFriend(list.getCurrSelected().getFriend());
                 if (ret)
                 {
                     Callbacks.inviteFriend(list.getCurrSelected().getFriend());
                     showAlert(Util.localize("multiplayer.invitesent"), 0x00FF00, 5000);
-                }
-                else
+                } else
                 {
                     showAlert(Util.localize("multiplayer.couldnotinvite"), 0xFF0000, 5000);
                 }
-
             }
-        }
-        else if (button == buttonCopy)
+        } else if (button == buttonCopy)
         {
             Toolkit.getDefaultToolkit()
-                .getSystemClipboard()
-                .setContents(
-                    new StringSelection(friendCode),
-                    null
-                );
+                    .getSystemClipboard()
+                    .setContents(
+                            new StringSelection(friendCode),
+                            null
+                    );
             showAlert("Copied to clipboard.", 0x00FF00, 5000);
-        }
-        else if (button == buttonRefresh)
+        } else if (button == buttonRefresh)
         {
             refreshFriendsList(false);
         }
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawBackground(0);
-
+        
         if (!addFriend)
             this.list.drawScreen(mouseX, mouseY, partialTicks);
         else
@@ -218,12 +209,12 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             this.codeEntry.drawTextBox();
             this.displayEntry.drawTextBox();
         }
-
+        
         this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
-
+        
         super.drawScreen(mouseX, mouseY, partialTicks);
-
+        
         if (hoveringText != null)
         {
             if (hoveringText != lastHoveringText)
@@ -232,17 +223,17 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 hoverTextCache.add(hoveringText);
                 lastHoveringText = hoveringText;
             }
-
+            
             drawHoveringText(hoverTextCache, mouseX + 12, mouseY);
         }
     }
-
+    
     @Override
     public void updateScreen()
     {
         super.updateScreen();
     }
-
+    
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
@@ -252,14 +243,14 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         else if (displayEntry.isFocused())
             displayEntry.textboxKeyTyped(typedChar, keyCode);
     }
-
+    
     @Override
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
         this.list.handleMouseInput();
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
@@ -276,32 +267,33 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         else
             this.buttonInvite.enabled = false;
     }
-
+    
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);
         this.list.mouseReleased(mouseX, mouseY, state);
     }
-
+    
     private void showAlert(String text, int colour, int time)
     {
         CreeperHost.instance.displayToast(text, time);
     }
-
+    
     public void setHoveringText(String hoveringText)
     {
         this.hoveringText = hoveringText;
     }
-
+    
     public void removeFriend(Friend friend)
     {
         removeFriend = friend;
         mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.removefriend.sure1"), I18n.format("minetogether.removefriend.sure2"), 0));
     }
-
+    
     @Override
-    public void confirmClicked(boolean result, int id) {
+    public void confirmClicked(boolean result, int id)
+    {
         if (result)
         {
             Callbacks.removeFriend(removeFriend.getCode());

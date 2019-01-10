@@ -11,7 +11,7 @@ import net.minecraft.client.resources.I18n;
 
 import java.io.IOException;
 
-public class GuiChatFriend extends GuiScreen
+public class GuiChatGroup extends GuiScreen
 {
     private final String playerName;
     private final String chatInternalName;
@@ -23,7 +23,7 @@ public class GuiChatFriend extends GuiScreen
     private GuiButton cancelBtn;
     private GuiTextField nameEntry;
     
-    public GuiChatFriend(GuiScreen parent, String playerName, String chatInternalName, String friendCode, String friendName, boolean accept)
+    public GuiChatGroup(GuiScreen parent, String playerName, String chatInternalName, String friendCode, String friendName, boolean accept)
     {
         this.playerName = playerName;
         this.chatInternalName = chatInternalName;
@@ -52,7 +52,6 @@ public class GuiChatFriend extends GuiScreen
         
         buttonList.add(cancelBtn = new GuiButton(0, width / 2 - 180, height - 50, 80, 20, "Cancel"));
         buttonList.add(acceptBtn = new GuiButton(1, width / 2 + 100, height - 50, 80, 20, accept ? "Accept" : "Send request"));
-        
         nameEntry = new GuiTextFieldCompat(0, fontRendererObj, width / 2 - 100, height / 2 - 10, 200, 20);
         if (first)
             nameEntry.setText(playerName); // default to player name
@@ -70,9 +69,11 @@ public class GuiChatFriend extends GuiScreen
             return;
         } else if (button == acceptBtn)
         {
+            
             if (accept)
             {
                 ChatHandler.acceptFriendRequest(chatInternalName, nameEntry.getText().trim());
+                
                 new Thread(() -> Callbacks.addFriend(friendCode, friendName)).start();
             } else
             {
@@ -89,5 +90,12 @@ public class GuiChatFriend extends GuiScreen
         nameEntry.textboxKeyTyped(typedChar, keyCode);
         acceptBtn.enabled = nameEntry.getText().trim().length() >= 3;
         super.keyTyped(typedChar, keyCode);
+    }
+    
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    {
+        nameEntry.mouseClicked(mouseX, mouseY, mouseButton);
+        super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 }

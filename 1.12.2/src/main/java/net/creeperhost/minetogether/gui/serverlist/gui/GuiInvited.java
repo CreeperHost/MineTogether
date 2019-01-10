@@ -24,7 +24,7 @@ public class GuiInvited extends GuiScreen
     private GuiButton cancelButton;
     private GuiCheckBox checkBox;
     private boolean addToServerList = true;
-
+    
     public GuiInvited(Invite invite, GuiScreen parent)
     {
         this.invite = invite;
@@ -32,7 +32,7 @@ public class GuiInvited extends GuiScreen
         server = new ServerListEntryPublic(new MockServerListEntryNormal(new ServerDataPublic(invite.server)));
         canConnect = invite.project == Integer.valueOf(Config.getInstance().curseProjectID);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
@@ -50,7 +50,7 @@ public class GuiInvited extends GuiScreen
         checkBox = new GuiCheckBox(2, (width / 2) - (checkWidth / 2), yBase + 36 + 30 + 30, checkText, addToServerList);
         buttonList.add(checkBox);
     }
-
+    
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
@@ -62,8 +62,7 @@ public class GuiInvited extends GuiScreen
             savedServerList.addServerData(server.getServerData());
             savedServerList.saveServerList();
             mc.displayGuiScreen(parent);
-        }
-        else if (button.id == connectButton.id)
+        } else if (button.id == connectButton.id)
         {
             if (addToServerList)
             {
@@ -78,26 +77,25 @@ public class GuiInvited extends GuiScreen
                 this.mc.loadWorld(null);
             }
             net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServer(null, server.getServerData());
-        }
-        else if (button.id == checkBox.id)
+        } else if (button.id == checkBox.id)
         {
             addToServerList = checkBox.isChecked();
         }
     }
-
+    
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawBackground(0);
         int yBase = this.height / 2 - (106 / 2);
-
+        
         this.drawCenteredString(this.fontRendererObj, I18n.format("creeperhost.multiplayer.invite"), this.width / 2, 10, -1);
-
+        
         this.drawCenteredString(this.fontRendererObj, I18n.format("creeperhost.multiplayer.invited", invite.by), this.width / 2, yBase, -1);
         server.ourDrawEntry(0, (this.width / 2) - 125, yBase + 20, 250, 36, Integer.MAX_VALUE, Integer.MAX_VALUE, false);
         this.drawCenteredString(this.fontRendererObj, Util.localize(canConnect ? "multiplayer.join" : "multiplayer.cantjoin", invite.by), this.width / 2, yBase + 36 + 30, -1);
-
+        
         super.drawScreen(mouseX, mouseY, partialTicks);
-
+        
     }
 }

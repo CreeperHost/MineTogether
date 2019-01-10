@@ -4,7 +4,6 @@ import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentUtils;
 import net.minecraft.util.text.TextFormatting;
 
 import java.util.ArrayList;
@@ -21,19 +20,19 @@ class Target implements DropdownButton.IDropdownOption
     private static Map<String, String> oldFriends;
     private static int oldMessagesSize;
     private final boolean isChannel;
-
+    
     private Target(String targetName, String internalTarget, boolean isChannel)
     {
         this.internalTarget = internalTarget;
         this.targetName = targetName;
         this.isChannel = isChannel;
     }
-
+    
     private Target(String targetName, String internalTarget)
     {
         this(targetName, internalTarget, false);
     }
-
+    
     @Override
     public String getTranslate(DropdownButton.IDropdownOption currentDO, boolean dropdownOpen)
     {
@@ -41,7 +40,7 @@ class Target implements DropdownButton.IDropdownOption
         boolean newMessages = false;
         if (current == this)
         {
-            for(DropdownButton.IDropdownOption targetObj: getPossibleVals())
+            for (DropdownButton.IDropdownOption targetObj : getPossibleVals())
             {
                 Target target = (Target) targetObj;
                 if (ChatHandler.hasNewMessages(target.getInternalTarget()))
@@ -53,7 +52,8 @@ class Target implements DropdownButton.IDropdownOption
                     }
                 }
             }
-        } else {
+        } else
+        {
             newMessages = ChatHandler.hasNewMessages(getInternalTarget());
         }
         if (newMessages)
@@ -62,35 +62,35 @@ class Target implements DropdownButton.IDropdownOption
             str.appendSibling(new TextComponentString(" \u2022").setStyle(new Style().setColor(TextFormatting.RED)));
             return str.getFormattedText();
         }
-
+        
         return targetName;
     }
-
+    
     @Override
     public void updateDynamic()
     {
         updateCache(this);
     }
-
+    
     public static void updateCache()
     {
         updateCache(null);
     }
-
+    
     public static void updateCache(Target current)
     {
         if (ChatHandler.messages == null) return;
-
+        
         int chatSize = ChatHandler.messages.size();
         if (updating || oldFriends == ChatHandler.friends && chatSize == oldMessagesSize)
             return;
-
+        
         updating = true;
-
+        
         ArrayList<Target> oldVals = possibleValsCache;
-
+        
         HashSet<Target> tempSet = new HashSet<>();
-
+        
         // lets check if main has changed its internal target
         if (current != null && current.targetName.equals("Main"))
         {
@@ -99,12 +99,12 @@ class Target implements DropdownButton.IDropdownOption
                 current = new Target("Main", ChatHandler.CHANNEL, true);
             }
         }
-
+        
         possibleValsCache = new ArrayList<>();
         tempSet.add(new Target("Main", ChatHandler.CHANNEL, true));
         if (current != null && !tempSet.contains(current))
             tempSet.add(current);
-
+        
         for (Map.Entry<String, String> friend : ChatHandler.friends.entrySet())
         {
             Target tempTarget = new Target(friend.getValue(), friend.getKey());
@@ -116,66 +116,66 @@ class Target implements DropdownButton.IDropdownOption
                 }
                 tempSet.add(tempTarget);
             }
-
+            
         }
-
+        
         for (String chat : ChatHandler.messages.keySet())
         {
             if (chat.equals(ChatHandler.CHANNEL))
                 continue;
-             for(Target target: oldVals)
-             {
-                 if (target.getInternalTarget().equals(chat))
-                 {
-                     tempSet.add(target);
-                     break;
-                 }
-             }
+            for (Target target : oldVals)
+            {
+                if (target.getInternalTarget().equals(chat))
+                {
+                    tempSet.add(target);
+                    break;
+                }
+            }
         }
-
+        
         possibleValsCache = new ArrayList<>(tempSet);
-
+        
         updating = false;
         oldFriends = ChatHandler.friends;
         oldMessagesSize = chatSize;
     }
-
+    
     public static Target getMainTarget()
     {
         updateCache();
-        for (Target defTar: possibleValsCache)
+        for (Target defTar : possibleValsCache)
         {
-            if(defTar.getInternalTarget().equals(ChatHandler.CHANNEL))
+            if (defTar.getInternalTarget().equals(ChatHandler.CHANNEL))
             {
                 return defTar;
             }
         }
         return possibleValsCache.size() > 0 ? possibleValsCache.get(0) : new Target("Main", ChatHandler.CHANNEL, true);
     }
-
+    
     @Override
     public List<DropdownButton.IDropdownOption> getPossibleVals()
     {
-        return (ArrayList)possibleValsCache;
+        return (ArrayList) possibleValsCache;
     }
-
+    
     public String getInternalTarget()
     {
         return internalTarget;
     }
-
+    
     @Override
     public boolean equals(Object obj)
     {
         return obj instanceof Target && (((Target) obj).internalTarget.equals(internalTarget)) && ((Target) obj).targetName.equals(targetName);
     }
-
+    
     @Override
     public int hashCode()
     {
         return internalTarget.hashCode() + targetName.hashCode();
     }
-
+    
     public boolean isChannel()
     {
         return isChannel;

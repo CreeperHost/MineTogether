@@ -24,7 +24,7 @@ public class CommandPregen extends CommandBase
     {
         return "chpregen";
     }
-
+    
     @Override
     public String getUsage(ICommandSender sender)
     {
@@ -42,7 +42,7 @@ public class CommandPregen extends CommandBase
         sender.sendMessage(chatcomponenttranslation4);
         return "creeperhostserver.command.pregen.usage5";
     }
-
+    
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
@@ -56,8 +56,7 @@ public class CommandPregen extends CommandBase
         if (args.length <= 1)
         {
             throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
-        }
-        else if (args.length == 2)
+        } else if (args.length == 2)
         {
             if (args[0].equals("remove"))
             {
@@ -68,8 +67,7 @@ public class CommandPregen extends CommandBase
                         throw new WrongUsageException("creeperhostserver.command.pregen.wrongconsole");
                     World world = sender.getEntityWorld();
                     dimension = world.provider.getDimension();
-                }
-                else
+                } else
                 {
                     dimension = parseInt(args[1]);
                 }
@@ -77,30 +75,26 @@ public class CommandPregen extends CommandBase
                 {
                     throw new WrongUsageException("creeperhostserver.command.pregen.noexists");
                 }
-
+                
                 CreeperHostServer.INSTANCE.pregenTasks.get(dimension).chunksToGen = new ArrayList<Pair<Integer, Integer>>();
                 sender.sendMessage(new TextComponentTranslation("creeperhostserver.command.pregen.removed"));
                 return;
-            }
-            else
+            } else
             {
                 throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
             }
-        }
-        else if (args.length == 3)
+        } else if (args.length == 3)
         {
             dimensionPos = 0;
             xDiameterPos = 1;
             yDiameterPos = 2;
-        }
-        else if (args.length == 4)
+        } else if (args.length == 4)
         {
             dimensionPos = 0;
             xDiameterPos = 1;
             yDiameterPos = 2;
             chunksPerTickPos = 3;
-        }
-        else if (args.length == 5)
+        } else if (args.length == 5)
         {
             dimensionPos = 0;
             xDiameterPos = 1;
@@ -108,14 +102,12 @@ public class CommandPregen extends CommandBase
             if (args[4].equals("true") || args[4].equals("false"))
             {
                 preventJoinPos = 4;
-            }
-            else
+            } else
             {
                 xStartChunkPos = 3;
                 yStartChunkPos = 4;
             }
-        }
-        else if (args.length == 6)
+        } else if (args.length == 6)
         {
             dimensionPos = 0;
             xDiameterPos = 1;
@@ -123,8 +115,7 @@ public class CommandPregen extends CommandBase
             xStartChunkPos = 3;
             yStartChunkPos = 4;
             chunksPerTickPos = 5;
-        }
-        else if (args.length == 7)
+        } else if (args.length == 7)
         {
             dimensionPos = 0;
             xDiameterPos = 1;
@@ -133,21 +124,19 @@ public class CommandPregen extends CommandBase
             yStartChunkPos = 4;
             chunksPerTickPos = 5;
             preventJoinPos = 6;
-        }
-        else if (args.length > 7)
+        } else if (args.length > 7)
         {
             throw new WrongUsageException("creeperhostserver.command.pregen.wrong");
         }
-
+        
         int dimension;
         if (args[dimensionPos].equals("current"))
         {
             if (sender.getCommandSenderEntity() == null)
                 throw new WrongUsageException("creeperhostserver.command.pregen.wrongconsole");
-
+            
             dimension = sender.getEntityWorld().provider.getDimension();
-        }
-        else
+        } else
         {
             dimension = parseInt(args[dimensionPos]);
         }
@@ -158,47 +147,45 @@ public class CommandPregen extends CommandBase
         if (xStartChunkPos == -1)
         {
             World world = DimensionManager.getWorld(dimension);
-
+            
             if (world != null)
             {
                 BlockPos spawnPoint = world.getSpawnPoint();
                 xStartChunk = spawnPoint.getX();
                 zStartChunk = spawnPoint.getZ();
-            }
-            else
+            } else
             {
                 throw new WrongUsageException("creeperhostserver.command.pregen.dimensionnoexists");
             }
-        }
-        else
+        } else
         {
             xStartChunk = parseInt(args[xStartChunkPos]);
             zStartChunk = parseInt(args[yStartChunkPos]);
         }
-
+        
         int chunksPerTick = 5;
         if (chunksPerTickPos != -1)
         {
             chunksPerTick = parseInt(args[chunksPerTickPos]);
         }
-
+        
         boolean preventJoin = true;
         if (preventJoinPos != -1)
         {
             preventJoin = args[preventJoinPos].equals("true");
         }
-
+        
         int chunkMinX = xStartChunk - (xDiameter / 2);
         int chunkMaxX = xStartChunk + (xDiameter / 2);
         int chunkMinZ = zStartChunk - (zDiameter / 2);
         int chunkMaxZ = zStartChunk + (zDiameter / 2);
-
+        
         if (CreeperHostServer.INSTANCE.createTask(dimension, chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick, preventJoin))
             sender.sendMessage(new TextComponentTranslation("creeperhostserver.command.pregen.added"));
         else
             throw new WrongUsageException("creeperhostserver.command.pregen.alreadyexists");
     }
-
+    
     @Override
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
     {
@@ -213,8 +200,7 @@ public class CommandPregen extends CommandBase
                 completions.add(String.valueOf(dimension));
             }
             return getListOfStringsMatchingLastWord(args, completions);
-        }
-        else if (args.length == 2 && args[0].equals("remove"))
+        } else if (args.length == 2 && args[0].equals("remove"))
         {
             List<String> completions = new ArrayList<String>();
             completions.add("current");

@@ -14,46 +14,42 @@ public class MineTogetherPropertyManager
 {
     private final Properties serverProperties = new Properties();
     private final File serverPropertiesFile;
-
+    
     public MineTogetherPropertyManager(File propertiesFile)
     {
         this.serverPropertiesFile = propertiesFile;
-
+        
         if (propertiesFile.exists())
         {
             FileInputStream fileinputstream = null;
-
+            
             try
             {
                 fileinputstream = new FileInputStream(propertiesFile);
                 this.serverProperties.load(fileinputstream);
-            }
-            catch (Exception exception)
+            } catch (Exception exception)
             {
                 CreeperHostServer.logger.warn("Failed to load {}", propertiesFile, exception);
                 this.generateNewProperties();
-            }
-            finally
+            } finally
             {
                 if (fileinputstream != null)
                 {
                     try
                     {
                         fileinputstream.close();
-                    }
-                    catch (IOException ignored)
+                    } catch (IOException ignored)
                     {
                     }
                 }
             }
-        }
-        else
+        } else
         {
             CreeperHostServer.logger.warn("{} does not exist", (Object) propertiesFile);
             this.generateNewProperties();
         }
     }
-
+    
     /**
      * Generates a new properties file.
      */
@@ -61,37 +57,34 @@ public class MineTogetherPropertyManager
     {
         this.saveProperties();
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void saveProperties()
     {
         FileOutputStream fileoutputstream = null;
-
+        
         try
         {
             fileoutputstream = new FileOutputStream(this.serverPropertiesFile);
             this.serverProperties.store(fileoutputstream, "MineTogether properties");
-        }
-        catch (Exception exception)
+        } catch (Exception exception)
         {
             CreeperHostServer.logger.warn("Failed to save {}", this.serverPropertiesFile, exception);
             this.generateNewProperties();
-        }
-        finally
+        } finally
         {
             if (fileoutputstream != null)
             {
                 try
                 {
                     fileoutputstream.close();
-                }
-                catch (IOException ignored)
+                } catch (IOException ignored)
                 {
                 }
             }
         }
     }
-
+    
     public String getStringProperty(String key, String defaultValue)
     {
         if (!this.serverProperties.containsKey(key))
@@ -100,7 +93,7 @@ public class MineTogetherPropertyManager
             this.saveProperties();
             this.saveProperties();
         }
-
+        
         return this.serverProperties.getProperty(key, defaultValue);
     }
 }

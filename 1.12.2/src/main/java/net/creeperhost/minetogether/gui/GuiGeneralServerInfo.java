@@ -19,7 +19,6 @@ import java.io.IOException;
 
 public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonList.GuiResponder
 {
-
     private static final GuiSlider.FormatHelper SLIDER_FORMATTER = new GuiSlider.FormatHelper()
     {
         @Override
@@ -38,52 +37,52 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     private boolean nameChecked = false;
     private String message = "Name can not be blank";
     private GuiCheckBox pregen;
-
+    
     public GuiGeneralServerInfo(int stepId, Order order)
     {
         super(stepId, order);
         lockIcon = new ResourceLocation("creeperhost", "textures/lock.png");
     }
-
+    
     @Override
     public void initGui()
     {
         super.initGui();
-
+        
         int halfWidth = this.width / 2;
         int halfHeight = this.height / 2;
-
+        
         this.nameField = new GuiTextFieldValidate(0, this.fontRendererObj, halfWidth - 100, halfHeight - 50, 200, 20, "([A-Za-z0-9]*)");
         this.nameField.setMaxStringLength(Constants.MAX_SERVER_NAME_LENGTH);
         this.nameField.setText(this.order.name.isEmpty() ? Util.getDefaultName() : this.order.name);
         this.order.name = this.nameField.getText().trim();
-
+        
         String checkboxString = Util.localize("info.pregen");
-
+        
         int checkboxWidth = this.fontRendererObj.getStringWidth(checkboxString) + 11 + 2;
-
+        
         pregen = new GuiCheckBox(3, halfWidth - (checkboxWidth / 2), halfHeight - 8, checkboxString, order.pregen);
-
+        
         if (Config.getInstance().getPregenDiameter() > 0)
         {
             this.buttonList.add(pregen);
         }
-
+        
         this.slotSlider = new GuiSlider(this, 1, halfWidth - 100, halfHeight + 15, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;
         this.buttonList.add(this.slotSlider);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void updateScreen()
     {
         super.updateScreen();
         this.nameField.updateCursorCounter();
-
+        
         final String nameToCheck = this.nameField.getText().trim();
         boolean isEmpty = nameToCheck.isEmpty();
-
+        
         if (lastKeyTyped + 400 < System.currentTimeMillis() && !nameChecked)
         {
             nameChecked = true;
@@ -91,8 +90,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
             {
                 message = "Name cannot be blank";
                 isAcceptable = false;
-            }
-            else
+            } else
             {
                 Runnable task = new Runnable()
                 {
@@ -104,17 +102,17 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
                         message = result.getMessage();
                     }
                 };
-
+                
                 Thread thread = new Thread(task);
                 thread.start();
-
+                
                 // Done in a thread as to not hold up the UI thread
             }
         }
-
+        
         this.buttonNext.enabled = !isEmpty && nameChecked && isAcceptable;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
@@ -123,8 +121,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         if (!this.nameField.textboxKeyTyped(typedChar, keyCode))
         {
             super.keyTyped(typedChar, keyCode);
-        }
-        else
+        } else
         {
             if (!nameFieldOldValue.equals(nameField.getText()))
             {
@@ -135,41 +132,40 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
             }
         }
     }
-
+    
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
-
+        
         this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width / 2, this.height / 2 - 65, -1);
-
+        
         int colour;
-
+        
         if (nameChecked && isAcceptable)
         {
             colour = 0x00FF00;
-        }
-        else
+        } else
         {
             colour = 0xFF0000;
         }
-
+        
         this.mc.getTextureManager().bindTexture(lockIcon);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         Gui.drawModalRectWithCustomSizedTexture((this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
-
+        
         int strStart = 61;
-
+        
         this.drawCenteredString(fontRendererObj, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
         this.drawCenteredString(fontRendererObj, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);
         this.drawCenteredString(fontRendererObj, Util.localize("secure.line3"), this.width / 2, (this.height / 2) + strStart + 20, 0xFFFFFF);
-
+        
         this.nameField.drawTextBox();
-
+        
         this.drawCenteredString(fontRendererObj, message, (this.width / 2), (this.height / 2) - 26, colour);
     }
-
+    
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
@@ -177,28 +173,28 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.nameField.myMouseClicked(mouseX, mouseY, mouseButton);
         order.pregen = pregen.isChecked();
     }
-
+    
     @Override
     public String getStepName()
     {
         return Util.localize("gui.general_info");
     }
-
+    
     @Override
     public void setEntryValue(int id, boolean value)
     {
-
+    
     }
-
+    
     @Override
     public void setEntryValue(int id, float value)
     {
         this.order.playerAmount = (int) value;
     }
-
+    
     @Override
     public void setEntryValue(int id, String value)
     {
-
+    
     }
 }

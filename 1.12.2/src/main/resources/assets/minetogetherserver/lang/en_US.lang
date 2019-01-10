@@ -23,3 +23,8 @@ creeperhostserver.commands.invite.usage=/invite <list|add|remove|reload>
 
 creeperhostserver.command.killall.wrong=Not enough arguments! Type "/help chkillall" in order to view usage.
 creeperhostserver.command.killall.usage=/chkillall EntityType [items, mobs, animals, all]
+
+creeperhost.multiplayer.list.public=Public List
+creeperhost.multiplayer.list.invite=Invite List
+creeperhost.multiplayer.list.application=Application List
+creeperhost.multiplayer.list=Type:

@@ -18,36 +18,35 @@ import java.util.List;
  */
 public class ServerSelectionListPublic extends ServerSelectionList
 {
-
     private static Field serverListInternetField;
     private List<ServerListEntryPublic> ourList;
     private GuiMultiplayerPublic ourParent;
     private long nextSort;
-
+    
     public ServerSelectionListPublic(GuiMultiplayerPublic ownerIn, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
     {
         super(ownerIn, mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
         ourParent = ownerIn;
         makeOurList();
     }
-
+    
     @Override
     protected int getSize()
     {
         return super.getSize() - 1;
     }
-
+    
     @Override
     public GuiListExtended.IGuiListEntry getListEntry(int index)
     {
         return super.getListEntry(index);
     }
-
+    
     @Override
     public void updateOnlineServers(ServerList serverList)
     {
         ourList.clear();
-
+        
         if (serverList instanceof ServerListPublic)
         {
             ServerListPublic pub = (ServerListPublic) serverList;
@@ -56,10 +55,10 @@ public class ServerSelectionListPublic extends ServerSelectionList
                 ourList.add(new ServerListEntryPublic(ourParent, new ServerListEntryNormalPubConstructor(ourParent, pub.getServerData(i))));
             }
         }
-
+        
         sort();
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void sort(boolean resetScroll)
     {
@@ -87,12 +86,12 @@ public class ServerSelectionListPublic extends ServerSelectionList
         }
         if (resetScroll) amountScrolled = 0;
     }
-
+    
     public void sort()
     {
         sort(true);
     }
-
+    
     private void makeOurList()
     {
         if (serverListInternetField == null)
@@ -103,17 +102,16 @@ public class ServerSelectionListPublic extends ServerSelectionList
                 serverListInternetField.setAccessible(true);
             }
         }
-
+        
         try
         {
             ourList = (List<ServerListEntryPublic>) serverListInternetField.get(this);
-        }
-        catch (IllegalAccessException e)
+        } catch (IllegalAccessException e)
         {
             CreeperHost.logger.warn("Reflection to get server list failed.", e);
         }
     }
-
+    
     @Override
     protected void drawBackground()
     {

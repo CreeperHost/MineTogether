@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class TextFieldDetails extends GuiTextFieldCompat
 {
-
+    
     private final GuiPersonalDetails gui;
     private final String displayString;
     private final boolean canBeFocused;
@@ -24,37 +24,37 @@ public class TextFieldDetails extends GuiTextFieldCompat
     private ArrayList<IOrderValidation> validators;
     private boolean doNotValidate = false;
     private DefferedValidation pendingValidation = null;
-
+    
     public TextFieldDetails(GuiPersonalDetails gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators, boolean canBeFocused)
     {
         super(id, gui.mc.fontRendererObj, x, y, width, height);
-
+        
         this.ourID = id;
-
+        
         this.validators = validators;
         this.gui = gui;
         this.canBeFocused = canBeFocused;
         this.displayString = displayString;
-
+        
         this.setText(def);
-
+        
         setFocused(true);
         setFocused(false); // make sure focused trigger ran
-
+        
         this.setMaxStringLength(64);
     }
-
+    
     public TextFieldDetails(GuiPersonalDetails gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators, String censorText)
     {
         this(gui, id, displayString, def, x, y, width, height, validators);
         this.censorText = censorText;
     }
-
+    
     public TextFieldDetails(GuiPersonalDetails gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators)
     {
         this(gui, id, displayString, def, x, y, width, height, validators, true);
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void checkPendingValidations()
     {
@@ -67,12 +67,12 @@ public class TextFieldDetails extends GuiTextFieldCompat
             pendingValidation = null;
         }
     }
-
+    
     public int getId()
     {
         return ourID;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void drawTextBox()
@@ -80,52 +80,50 @@ public class TextFieldDetails extends GuiTextFieldCompat
         if (!this.censorText.isEmpty())
         {
             String text = this.getText();
-
+            
             double censorLength = censorText.length();
-
+            
             double mainLength = text.length();
-
+            
             double timesRaw = mainLength / censorLength;
-
+            
             int times = (int) Math.ceil(timesRaw);
-
+            
             String obscure = new String(new char[times]).replace("\0", censorText).substring(0, (int) mainLength);
             boolean oldNotValidate = doNotValidate;
             doNotValidate = true;
             this.setText(obscure);
             super.drawTextBox();
-
+            
             this.setText(text);
             doNotValidate = oldNotValidate;
-        }
-        else
+        } else
         {
             super.drawTextBox();
         }
-
+        
         int startX = (this.xPosition + this.width + 3) / 2;
         int startY = (this.yPosition + 4) / 2;
-
+        
         GlStateManager.scale(2.0F, 2.0F, 2.0F);
-
+        
         if (isValidated)
         {
             this.drawString(this.gui.mc.fontRendererObj, acceptString, startX, startY, 0x00FF00);
-        }
-        else
+        } else
         {
             this.drawString(this.gui.mc.fontRendererObj, denyString, startX, startY, 0xFF0000);
         }
-
+        
         GlStateManager.scale(0.5F, 0.5F, 0.5F);
-
+        
     }
-
+    
     public boolean canBeFocused()
     {
         return canBeFocused;
     }
-
+    
     @SuppressWarnings("Duplicates")
     private Pair<Boolean, IOrderValidation> validateAtPhase(IOrderValidation.ValidationPhase phase, String string, boolean ignoreAsync)
     {
@@ -155,8 +153,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
                 if (validator.isValid(string))
                 {
                     continue;
-                }
-                else
+                } else
                 {
                     gui.validationChanged(this, false, validator, phase);
                     return new Pair(true, validator);
@@ -169,12 +166,12 @@ public class TextFieldDetails extends GuiTextFieldCompat
         }
         return new Pair(validatorsExist, null);
     }
-
+    
     private Pair<Boolean, IOrderValidation> validateAtPhase(IOrderValidation.ValidationPhase phase, String string)
     {
         return validateAtPhase(phase, string, false);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void setFocused(boolean focused)
@@ -184,8 +181,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
             gui.focusedField = this;
             if (!canBeFocused)
                 return; // to prevent weirdness, we set focused anyway so that tab works as expected
-        }
-        else if (this.isFocused())
+        } else if (this.isFocused())
         {
             Pair<Boolean, IOrderValidation> validatorPair = validateAtPhase(IOrderValidation.ValidationPhase.FOCUSLOST, getText());
             if (validatorPair.getLeft())
@@ -195,8 +191,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
                 {
                     validationError = validator.getValidationMessage();
                     isValidated = false;
-                }
-                else
+                } else
                 {
                     validationError = "This is fine";
                     isValidated = true;
@@ -205,7 +200,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         }
         super.setFocused(focused);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void writeText(String string)
@@ -220,8 +215,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
                 validationError = validator.getValidationMessage();
                 isValidated = false;
                 isChangeValidated = false;
-            }
-            else
+            } else
             {
                 validationError = "This is fine";
                 isValidated = true;
@@ -230,7 +224,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         }
         return;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void deleteFromCursor(int num)
@@ -245,8 +239,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
                 validationError = validator.getValidationMessage();
                 isValidated = false;
                 isChangeValidated = false;
-            }
-            else
+            } else
             {
                 validationError = "This is fine";
                 isValidated = true;
@@ -255,7 +248,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
         }
         return;
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void setText(String string)
     {
@@ -269,8 +262,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
                 validationError = validator.getValidationMessage();
                 isValidated = false;
                 isChangeValidated = false;
-            }
-            else
+            } else
             {
                 validationError = "This is fine";
                 isValidated = true;

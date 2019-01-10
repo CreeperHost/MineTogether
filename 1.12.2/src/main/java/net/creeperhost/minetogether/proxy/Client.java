@@ -7,7 +7,6 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
@@ -29,7 +28,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,14 +35,14 @@ public class Client implements IProxy
 {
     public KeyBinding openGuiKey;
     private UUID cache;
-
+    
     @Override
     public void registerKeys()
     {
         openGuiKey = new KeyBinding("minetogether.key.friends", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_M, "minetogether.keys");
         ClientRegistry.registerKeyBinding(openGuiKey);
     }
-
+    
     @Override
     public void openFriendsGui()
     {
@@ -52,14 +50,13 @@ public class Client implements IProxy
         if (CreeperHost.instance.handledInvite == null)
         {
             mc.displayGuiScreen(new GuiFriendsList(mc.currentScreen));
-        }
-        else
+        } else
         {
             mc.displayGuiScreen(new GuiInvited(CreeperHost.instance.handledInvite, mc.currentScreen));
             CreeperHost.instance.handledInvite = null;
         }
     }
-
+    
     @Override
     public UUID getUUID()
     {
@@ -72,35 +69,34 @@ public class Client implements IProxy
         {
             online = false;
         }
-
+        
         UUID uuid;
-
+        
         if (online)
         {
             YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(mc.getProxy(), UUID.randomUUID().toString());
             GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
             PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository, new File(mc.mcDataDir, MinecraftServer.USER_CACHE_FILE.getName()));
             uuid = playerprofilecache.getGameProfileForUsername(Minecraft.getMinecraft().getSession().getUsername()).getId();
-        }
-        else
+        } else
         {
             uuid = EntityPlayer.getOfflineUUID(session.getUsername().toLowerCase());
         }
         cache = uuid;
         return uuid;
     }
-
+    
     boolean isChatReplaced = false;
-
+    
     @Override
     public void startChat()
     {
         if (Config.getInstance().isChatEnabled())
         {
-
+            
             if (!CreeperHost.instance.ingameChat.hasDisabledIngameChat())
                 enableIngameChat();
-
+            
             CreeperHost.instance.getNameForUser("");
             CreeperHost.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
             InputStream mutedUsersStream = null;
@@ -111,22 +107,19 @@ public class Client implements IProxy
                 {
                     mutedUsersStream = new FileInputStream(CreeperHost.instance.mutedUsersFile);
                     configString = IOUtils.toString(mutedUsersStream);
-                }
-                else
+                } else
                 {
                     CreeperHost.instance.mutedUsersFile.getParentFile().mkdirs();
                     configString = "[]";
                 }
-
+                
                 Gson gson = new Gson();
                 CreeperHost.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>()
                 {
                 }.getType());
-            }
-            catch (Throwable t)
+            } catch (Throwable t)
             {
-            }
-            finally
+            } finally
             {
                 try
                 {
@@ -134,38 +127,39 @@ public class Client implements IProxy
                     {
                         mutedUsersStream.close();
                     }
-                }
-                catch (Throwable t)
+                } catch (Throwable t)
                 {
                 }
             }
-
+            
             new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
         }
     }
-
+    
     @Override
     public void disableIngameChat()
     {
         CreeperHost.instance.ingameChat.setDisabledIngameChat(true);
         if (isChatReplaced)
         {
-            ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true; // don't actually remove
+            ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true; // don't actually remove
         }
     }
-
+    
     @Override
     public void enableIngameChat()
     {
         CreeperHost.instance.ingameChat.setDisabledIngameChat(false);
-
+        
         if (!isChatReplaced)
         {
             isChatReplaced = true;
-            try {
-                Field field = ReflectionHelper.findField(GuiIngame.class,"field_73840_e", "persistantChatGUI");
+            try
+            {
+                Field field = ReflectionHelper.findField(GuiIngame.class, "field_73840_e", "persistantChatGUI");
                 field.set(Minecraft.getMinecraft().ingameGUI, new GuiNewChatOurs(Minecraft.getMinecraft()));
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException e)
+            {
             }
         }
     }

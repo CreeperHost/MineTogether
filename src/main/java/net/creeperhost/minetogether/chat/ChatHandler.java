@@ -67,7 +67,6 @@ public class ChatHandler
             }).start();
         }
 
-
         inited = true;
     }
 

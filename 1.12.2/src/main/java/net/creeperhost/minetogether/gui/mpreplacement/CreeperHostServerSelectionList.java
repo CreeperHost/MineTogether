@@ -14,23 +14,23 @@ import java.util.List;
  */
 public class CreeperHostServerSelectionList extends ServerSelectionList
 {
-
+    
     private List<ServerListEntryNormal> ourList;
     private GuiMultiplayer ourParent;
-
+    
     public CreeperHostServerSelectionList(GuiMultiplayer ownerIn, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
     {
         super(ownerIn, mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
         ourParent = ownerIn;
     }
-
+    
     @Override
     public void updateOnlineServers(ServerList p_148195_1_)
     {
         super.updateOnlineServers(p_148195_1_);
         ourList.add(new CreeperHostEntry(ourParent, new ServerData("", "127.0.0.1", false), true));
     }
-
+    
     public void replaceList(List list)
     {
         if (ourList == list)
@@ -38,5 +38,5 @@ public class CreeperHostServerSelectionList extends ServerSelectionList
         ourList = list;
         ourList.add(new CreeperHostEntry(ourParent, new ServerData("", "127.0.0.1", false), true));
     }
-
+    
 }

@@ -11,30 +11,30 @@ import java.util.Map;
 public interface IServerHost
 {
     ResourceLocation getButtonIcon();
-
+    
     ResourceLocation getMenuIcon();
-
+    
     Map<String, String> getAllServerLocations();
-
+    
     OrderSummary getSummary(Order order);
-
+    
     AvailableResult getNameAvailable(String name);
-
+    
     boolean doesEmailExist(String email);
-
+    
     String doLogin(String username, String password);
-
+    
     String createAccount(Order order);
-
+    
     String createOrder(Order order);
-
+    
     boolean cancelOrder(int orderNum);
-
+    
     String getLocalizationRoot();
-
+    
     String getPaymentLink(String invoiceID);
-
+    
     ServerData getServerEntry(Order order);
-
+    
     String getRecommendedLocation();
 }

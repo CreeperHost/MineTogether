@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class GuiProgressDisconnected extends GuiScreen
 {
-
+    
     private final GuiScreen parentScreen;
     double percent = 0;
     Pattern pattern = Pattern.compile("(\\d+/\\d+).*");
@@ -34,7 +34,7 @@ public class GuiProgressDisconnected extends GuiScreen
     private NetworkManager lastNetworkManager;
     private GuiConnecting captiveConnecting;
     private String ip = "";
-
+    
     public GuiProgressDisconnected(GuiScreen screen, String reasonLocalizationKey, ITextComponent chatComp, NetworkManager lastNetworkManager)
     {
         this.parentScreen = screen;
@@ -48,14 +48,14 @@ public class GuiProgressDisconnected extends GuiScreen
             ip = address.getHostName() + ":" + address.getPort();
         }
     }
-
+    
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
         this.drawCenteredString(this.fontRendererObj, this.ourReason, this.width / 2, this.height / 2 - this.textHeight / 2 - this.fontRendererObj.FONT_HEIGHT * 2, 11184810);
         int x = this.height / 2 - this.textHeight / 2;
-
+        
         if (this.multilineMessage != null)
         {
             for (String s : this.multilineMessage)
@@ -64,43 +64,43 @@ public class GuiProgressDisconnected extends GuiScreen
                 x += this.fontRendererObj.FONT_HEIGHT;
             }
         }
-
+        
         //percent = (percent + 1) % 100;
-
+        
         int loadingBackColour = 0xFF000000;
         int loadingFrontColour = 0xFF00FF00;
         int loadingOutsideColour = 0xFF222222;
-
+        
         int loadingHeight = 20;
         int loadingWidth = this.width - 60;
         int left = this.width / 2 - (loadingWidth / 2);
         int top = this.height / 2 - (loadingHeight / 2) + 45;
-
+        
         int loadingPercentWidth = (int) (((double) loadingWidth / (double) 100) * (double) percent);
-
+        
         drawRect(left - 1, top - 1, left + loadingWidth + 1, top + loadingHeight + 1, loadingOutsideColour);
         drawRect(left, top, left + loadingWidth, top + loadingHeight, loadingBackColour);
         drawRect(left, top, left + loadingPercentWidth, top + loadingHeight, loadingFrontColour);
-
+        
         if (false)
         {
             lastConnectAttempt = System.currentTimeMillis();
             captiveConnecting = new GuiConnecting(this, Minecraft.getMinecraft(), new ServerData("lol", ip, false));
             lastNetworkManager = EventHandler.getNetworkManager(captiveConnecting);
         }
-
+        
         super.drawScreen(mouseX, mouseY, partialTicks);
-
+        
         //drawCenteredString(fontRendererObj, I18n.format("creeperhost.pregen.refresh"), this.width / 2, Math.min(this.height / 2 + 60, this.height - 30), 0xFFFFFFFF);
     }
-
+    
     @Override
     public void updateScreen()
     {
         if (captiveConnecting != null)
             captiveConnecting.updateScreen();
     }
-
+    
     @Override
     public void initGui()
     {
@@ -109,7 +109,7 @@ public class GuiProgressDisconnected extends GuiScreen
         this.textHeight = this.multilineMessage.size() * this.fontRendererObj.FONT_HEIGHT;
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, Math.min(this.height / 2 + 80, this.height - 30), I18n.format("gui.toMenu")));
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void update(String reason, ITextComponent message)
     {
@@ -132,7 +132,7 @@ public class GuiProgressDisconnected extends GuiScreen
             }
         }
     }
-
+    
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.id == 0)
@@ -143,7 +143,7 @@ public class GuiProgressDisconnected extends GuiScreen
                 {
                     lastNetworkManager.closeChannel(new TextComponentString("Aborted"));
                 }
-
+                
                 try
                 {
                     if (cancelField == null)
@@ -151,10 +151,9 @@ public class GuiProgressDisconnected extends GuiScreen
                         cancelField = ReflectionHelper.findField(GuiConnecting.class, "field_146373_h", "cancel");
                     }
                     cancelField.set(captiveConnecting, true);
-                }
-                catch (Throwable e)
+                } catch (Throwable e)
                 {
-
+                
                 }
             }
             this.mc.displayGuiScreen(this.parentScreen);

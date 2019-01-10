@@ -26,8 +26,8 @@ public class GuiOrderDetails extends GuiGetServer
     private String placedOrderError = "";
     private GuiButton buttonInvoice;
     private boolean serverAdded;
-
-
+    
+    
     public GuiOrderDetails(int stepId, Order order)
     {
         super(stepId, order);
@@ -37,13 +37,13 @@ public class GuiOrderDetails extends GuiGetServer
             createdAccount = true;
         }
     }
-
+    
     @Override
     public String getStepName()
     {
         return Util.localize("gui.order");
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
@@ -56,7 +56,7 @@ public class GuiOrderDetails extends GuiGetServer
         this.buttonList.add(buttonInvoice);
         buttonInvoice.visible = false;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void actionPerformed(GuiButton button) throws IOException
@@ -73,14 +73,13 @@ public class GuiOrderDetails extends GuiGetServer
                 Class<?> oclass = Class.forName("java.awt.Desktop");
                 Object object = oclass.getMethod("getDesktop", new Class[0]).invoke((Object) null, new Object[0]);
                 oclass.getMethod("browse", new Class[]{URI.class}).invoke(object, new Object[]{new URI(CreeperHost.instance.getImplementation().getPaymentLink(invoiceID))});
-            }
-            catch (Throwable throwable)
+            } catch (Throwable throwable)
             {
                 CreeperHost.logger.error("Couldn\'t open link", throwable);
             }
         }
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void updateScreen()
     {
@@ -104,9 +103,8 @@ public class GuiOrderDetails extends GuiGetServer
                     {
                         order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
                         order.clientID = resultSplit[2] != null ? resultSplit[2] : "0"; // random test account fallback
-
-                    }
-                    else
+                        
+                    } else
                     {
                         createdAccountError = result;
                         createdAccount = true;
@@ -117,17 +115,14 @@ public class GuiOrderDetails extends GuiGetServer
             };
             Thread thread = new Thread(runnable);
             thread.start();
-        }
-        else if (creatingAccount)
+        } else if (creatingAccount)
         {
             return;
-        }
-        else if (!createdAccountError.isEmpty())
+        } else if (!createdAccountError.isEmpty())
         {
             buttonCancel.enabled = true;
             return;
-        }
-        else if (!placingOrder && !placedOrder)
+        } else if (!placingOrder && !placedOrder)
         {
             placingOrder = true;
             Runnable runnable = new Runnable()
@@ -141,8 +136,7 @@ public class GuiOrderDetails extends GuiGetServer
                     {
                         invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
                         orderNumber = Integer.valueOf(resultSplit[2]);
-                    }
-                    else
+                    } else
                     {
                         placedOrderError = result;
                     }
@@ -152,12 +146,10 @@ public class GuiOrderDetails extends GuiGetServer
             };
             Thread thread = new Thread(runnable);
             thread.start();
-        }
-        else if (placingOrder)
+        } else if (placingOrder)
         {
             return;
-        }
-        else if (placedOrderError.isEmpty())
+        } else if (placedOrderError.isEmpty())
         {
             if (!serverAdded)
             {
@@ -173,7 +165,7 @@ public class GuiOrderDetails extends GuiGetServer
             return;
         }
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
@@ -182,8 +174,7 @@ public class GuiOrderDetails extends GuiGetServer
         if (creatingAccount)
         {
             drawCenteredString(fontRendererObj, Util.localize("order.accountcreating"), this.width / 2, this.height / 2, 0xFFFFFF);
-        }
-        else if (!createdAccountError.isEmpty())
+        } else if (!createdAccountError.isEmpty())
         {
             drawCenteredString(fontRendererObj, Util.localize("order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
             List<String> list = fontRendererObj.listFormattedStringToWidth(createdAccountError, width - 30);
@@ -194,12 +185,10 @@ public class GuiOrderDetails extends GuiGetServer
                 offset += 10;
             }
             drawCenteredString(fontRendererObj, Util.localize("order.accounterrorgoback"), this.width / 2, this.height / 2 + offset, 0xFFFFFF);
-        }
-        else if (placingOrder)
+        } else if (placingOrder)
         {
             drawCenteredString(fontRendererObj, Util.localize("order.orderplacing"), this.width / 2, this.height / 2, 0xFFFFFF);
-        }
-        else if (!placedOrderError.isEmpty())
+        } else if (!placedOrderError.isEmpty())
         {
             drawCenteredString(fontRendererObj, Util.localize("order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
             List<String> list = fontRendererObj.listFormattedStringToWidth(placedOrderError, width - 30);
@@ -210,8 +199,7 @@ public class GuiOrderDetails extends GuiGetServer
                 offset += 10;
             }
             drawCenteredString(fontRendererObj, Util.localize("order.ordererrorsupport"), this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
-        }
-        else
+        } else
         {
             drawCenteredString(fontRendererObj, Util.localize("order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
             drawCenteredString(fontRendererObj, Util.localize("order.ordermodpack"), (this.width / 2) + 10, (this.height / 2) + 10, 0xFFFFFF);

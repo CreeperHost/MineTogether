@@ -7,10 +7,10 @@ import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.*;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.WebUtils;
-import net.creeperhost.minetogether.serverlist.data.EnumFlag;
-import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.gui.serverlist.data.Server;
+import net.creeperhost.minetogether.serverlist.data.EnumFlag;
+import net.creeperhost.minetogether.serverlist.data.Friend;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.nio.charset.Charset;
@@ -20,9 +20,9 @@ import java.util.*;
 
 public final class Callbacks
 {
-
+    
     public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
-
+    
     private static Util.CachedValue<List<Server>> serverListCache;
     private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
     private static String friendCode;
@@ -281,7 +281,7 @@ public final class Callbacks
         put("ZW", "Zimbabwe");
         put("UNKNOWN", "Unknown");
     }};
-
+    
     public static Invite getInvite()
     {
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
@@ -300,7 +300,7 @@ public final class Callbacks
             if (obj.get("status").getAsString().equals("success"))
             {
                 JsonArray invites = obj.getAsJsonArray("invites");
-
+                
                 for (JsonElement inviteEl : invites)
                 {
                     JsonObject invite = inviteEl.getAsJsonObject();
@@ -325,18 +325,17 @@ public final class Callbacks
                         try
                         {
                             flag = EnumFlag.valueOf(country);
-                        }
-                        catch (IllegalArgumentException ignored)
+                        } catch (IllegalArgumentException ignored)
                         {
                             flag = EnumFlag.UNKNOWN;
                         }
                     }
-
+                    
                     int uptime = server.get("uptime").getAsInt();
                     int players = server.get("expected_players").getAsInt();
-
+                    
                     String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
-
+                    
                     Server serverEl = new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL);
                     return new Invite(serverEl, project, by);
                 }
@@ -344,7 +343,7 @@ public final class Callbacks
         }
         return null;
     }
-
+    
     public static boolean inviteFriend(Friend friend)
     {
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
@@ -359,11 +358,11 @@ public final class Callbacks
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invitefriend", sendStr, true, false);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
-
+        
         if (element.isJsonObject())
         {
             JsonObject obj = element.getAsJsonObject();
-
+            
             if (obj.get("status").getAsString().equals("success"))
             {
                 return true;
@@ -373,20 +372,19 @@ public final class Callbacks
         CreeperHost.logger.error(resp);
         return false;
     }
-
+    
     public static String getPlayerHash(UUID uuid)
     {
         if (hashCache.containsKey(uuid))
             return hashCache.get(uuid);
-
+        
         String playerHash;
         try
         {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
             playerHash = (new HexBinaryAdapter()).marshal(hash);
-        }
-        catch (NoSuchAlgorithmException e)
+        } catch (NoSuchAlgorithmException e)
         {
             e.printStackTrace();
             return null;
@@ -394,12 +392,12 @@ public final class Callbacks
         hashCache.put(uuid, playerHash);
         return playerHash;
     }
-
+    
     public static String getFriendCode()
     {
         if (friendCode != null)
             return friendCode;
-
+        
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
         {
@@ -417,8 +415,7 @@ public final class Callbacks
             if (status.getAsString().equals("success"))
             {
                 friendCode = obj.get("code").getAsString();
-            }
-            else
+            } else
             {
                 CreeperHost.logger.error("Unable to get friendcode.");
                 CreeperHost.logger.error(resp);
@@ -426,10 +423,10 @@ public final class Callbacks
         }
         return friendCode;
     }
-
+    
     public static String addFriend(String code, String display)
     {
-            String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
         {
             sendMap.put("hash", hash);
@@ -454,7 +451,7 @@ public final class Callbacks
         }
         return null;
     }
-
+    
     public static boolean removeFriend(String friendHash)
     {
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
@@ -481,37 +478,39 @@ public final class Callbacks
         }
         return true;
     }
-
+    
     public static ArrayList<Minigame> getMinigames(boolean isModded)
     {
-
+        
         Map<String, String> sendMap = new HashMap<>();
         {
             sendMap.put("mc", Util.getMinecraftVersion());
             sendMap.put("project", isModded ? Config.getInstance().curseProjectID : String.valueOf(0));
         }
-
+        
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/mgtemplates", new Gson().toJson(sendMap), true, false);
-
+        
         JsonParser parser = new JsonParser();
-
+        
         Gson gson = new Gson();
-
+        
         JsonElement parse = parser.parse(resp);
         if (parse.isJsonObject())
         {
             JsonObject obj = parse.getAsJsonObject();
             if (obj.get("status").getAsString().equals("success"))
             {
-                return gson.fromJson(obj.get("templates"), new TypeToken<List<Minigame>>(){}.getType());
+                return gson.fromJson(obj.get("templates"), new TypeToken<List<Minigame>>()
+                {
+                }.getType());
             }
         }
-
+        
         return null;
     }
-
+    
     static boolean friendsGetting;
-
+    
     public static ArrayList<Friend> getFriendsList(boolean force)
     {
         if (friendsList == null)
@@ -530,21 +529,21 @@ public final class Callbacks
                     {
                         sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
                     }
-
+                    
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
-
+                    
                     ArrayList<Friend> tempArr = new ArrayList<Friend>();
-
+                    
                     // no idea how this can return null, but apparently it can, so this will fix it.
                     if (resp.equals("error"))
                     {
                         return tempArr;
                     }
-
+                    
                     JsonElement el = new JsonParser().parse(resp);
                     if (el.isJsonObject())
                     {
-
+                        
                         JsonObject obj = el.getAsJsonObject();
                         if (obj.get("status").getAsString().equals("success"))
                         {
@@ -553,13 +552,13 @@ public final class Callbacks
                             {
                                 JsonObject friend = (JsonObject) friendEl;
                                 String name = "null";
-
+                                
                                 if (!friend.get("name").isJsonNull())
                                 {
                                     name = friend.get("name").getAsString();
                                 }
                                 String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
-
+                                
                                 boolean accepted = friend.get("accepted").getAsBoolean();
                                 tempArr.add(new Friend(name, code, accepted));
                             }
@@ -568,7 +567,7 @@ public final class Callbacks
                     friendsGetting = false;
                     return tempArr;
                 }
-
+                
                 @Override
                 public boolean needsRefresh(Object... args)
                 {
@@ -577,7 +576,7 @@ public final class Callbacks
             });
         return friendsList.get(force);
     }
-
+    
     public static List<Server> getServerList(Enum listType)
     {
         if (serverListCache == null)
@@ -586,7 +585,7 @@ public final class Callbacks
             {
                 private Enum lastRequest;
                 private String playerHash;
-
+                
                 @Override
                 public List<Server> get(Object... args)
                 {
@@ -595,14 +594,14 @@ public final class Callbacks
                     lastRequest = listType;
                     CreeperHost.logger.info("Loading " + (listType.name().toLowerCase()) + " server list.");
                     List<Server> list = new ArrayList<Server>();
-
+                    
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
                         list.add(new Server("No project ID! Please fix the MineTogether config.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
                         return list;
                     }
-
+                    
                     Map<String, String> jsonPass = new HashMap<String, String>();
                     jsonPass.put("projectid", Config.getInstance().curseProjectID);
                     if (enumOrdinal == 1)
@@ -611,17 +610,17 @@ public final class Callbacks
                         {
                             playerHash = getPlayerHash(CreeperHost.proxy.getUUID());
                         }
-
+                        
                         jsonPass.put("hash", playerHash);
                     }
-
+                    
                     jsonPass.put("listType", listType.name().toLowerCase());
-
+                    
                     Gson gson = new Gson();
                     String jsonString = gson.toJson(jsonPass);
-
+                    
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
-
+                    
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
                     {
@@ -650,28 +649,27 @@ public final class Callbacks
                                     try
                                     {
                                         flag = EnumFlag.valueOf(country);
-                                    }
-                                    catch (IllegalArgumentException ignored)
+                                    } catch (IllegalArgumentException ignored)
                                     {
                                         flag = EnumFlag.UNKNOWN;
                                     }
                                 }
-
+                                
                                 int uptime = server.get("uptime").getAsInt();
                                 int players = server.get("expected_players").getAsInt();
-
+                                
                                 String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
-
+                                
                                 applicationURL = "https://www.google.com"; // MAKE SURE TO REMOVE
-
+                                
                                 list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL));
                             }
                         }
                     }
-
+                    
                     return list;
                 }
-
+                
                 @Override
                 public boolean needsRefresh(Object... args)
                 {
@@ -682,7 +680,7 @@ public final class Callbacks
         }
         return serverListCache.get(listType);
     }
-
+    
     public static Map<String, String> getAllServerLocations()
     {
         IServerHost implementation = CreeperHost.instance.getImplementation();
@@ -690,68 +688,67 @@ public final class Callbacks
             locationCache.put(implementation, implementation.getAllServerLocations());
         return locationCache.get(implementation);
     }
-
+    
     public static Map<String, String> getCountries()
     {
         return countries;
     }
-
+    
     public static AvailableResult getNameAvailable(String name)
     {
         return CreeperHost.instance.getImplementation().getNameAvailable(name);
     }
-
+    
     public static String getUserCountry()
     {
         if (userCountry == null)
             try
             {
                 String freeGeoIP = WebUtils.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
-
+                
                 JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
-
+                
                 jObject = jObject.getAsJsonObject("customer");
-
+                
                 userCountry = jObject.getAsJsonPrimitive("country").getAsString();
-            }
-            catch (Throwable t)
+            } catch (Throwable t)
             {
                 CreeperHost.logger.error("Unable to get user's country automatically, assuming USA", t);
                 userCountry = "US"; // default
             }
         return userCountry;
     }
-
+    
     public static String getRecommendedLocation()
     {
         return CreeperHost.instance.getImplementation().getRecommendedLocation();
     }
-
+    
     public static OrderSummary getSummary(Order order)
     {
         return CreeperHost.instance.getImplementation().getSummary(order);
     }
-
+    
     public static boolean doesEmailExist(final String email)
     {
         return CreeperHost.instance.getImplementation().doesEmailExist(email);
     }
-
+    
     public static String doLogin(final String email, final String password)
     {
         return CreeperHost.instance.getImplementation().doLogin(email, password);
     }
-
+    
     public static String createAccount(final Order order)
     {
         return CreeperHost.instance.getImplementation().createAccount(order);
     }
-
+    
     public static String createOrder(final Order order)
     {
         return CreeperHost.instance.getImplementation().createOrder(order);
     }
-
+    
     public static String getVersionFromCurse(String curse)
     {
         String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
@@ -762,17 +759,15 @@ public final class Callbacks
             if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
             {
                 return jObject.getAsJsonPrimitive("id").getAsString();
-            }
-            else
+            } else
             {
                 return "0";
             }
-        }
-        catch (Throwable t)
+        } catch (Throwable t)
         {
             t.printStackTrace();
         }
-
+        
         return "0";
     }
 }

@@ -12,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nullable;
@@ -26,38 +25,38 @@ public class CommandKill extends CommandBase
     {
         return "chkillall";
     }
-
+    
     @Override
     public String getUsage(ICommandSender sender)
     {
         return "creeperhostserver.command.killall.usage";
     }
-
+    
     @Override
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
-
+    
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         int killcouunt = 0;
         String target = null;
-
+        
         if (args.length == 0)
         {
             throw new WrongUsageException("creeperhostserver.command.killall.wrong");
         }
-
+        
         if (args.length >= 1)
         {
             target = args[0].toLowerCase();
         }
-        if(target != null)
+        if (target != null)
         {
             //TODO clean this up
-            if("items".equals(target) || "mobs".equals(target) || "animal".equals(target) || "all".equals(target))
+            if ("items".equals(target) || "mobs".equals(target) || "animal".equals(target) || "all".equals(target))
             {
                 List<Entity> list = server.getEntityWorld().loadedEntityList;
                 for (Entity e : list)
@@ -72,13 +71,13 @@ public class CommandKill extends CommandBase
                         server.getEntityWorld().removeEntity(e);
                         killcouunt++;
                     }
-
+                    
                     if ("animal".equals(target) && e instanceof EntityAnimal)
                     {
                         server.getEntityWorld().removeEntity(e);
                         killcouunt++;
                     }
-
+                    
                     if ("all".equals(target) && !(e instanceof EntityPlayer))
                     {
                         server.getEntityWorld().removeEntity(e);
@@ -86,14 +85,13 @@ public class CommandKill extends CommandBase
                     }
                 }
                 sender.sendMessage(new TextComponentString(TextFormatting.GREEN + "Removed " + killcouunt + " " + target + "'s" + " from the world"));
+            } else
+            {
+                throw new WrongUsageException("creeperhostserver.command.killall.usage");
             }
-            else
-                {
-                    throw new WrongUsageException("creeperhostserver.command.killall.usage");
-                }
         }
     }
-
+    
     @Override
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
     {

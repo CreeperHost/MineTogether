@@ -22,7 +22,6 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.FileUtils;
@@ -33,28 +32,31 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 @Mod(
-    modid = CreeperHost.MOD_ID,
-    name = CreeperHost.NAME,
-    version = CreeperHost.VERSION,
-    acceptableRemoteVersions = "*",
-    acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2",
-    guiFactory = "net.creeperhost.minetogether.gui.config.GuiCreeperConfigFactory"
+        modid = CreeperHost.MOD_ID,
+        name = CreeperHost.NAME,
+        version = CreeperHost.VERSION,
+        acceptableRemoteVersions = "*",
+        acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2",
+        guiFactory = "net.creeperhost.minetogether.gui.config.GuiCreeperConfigFactory"
 )
 public class CreeperHost implements ICreeperHostMod, IHost
 {
-
+    
     public static final String MOD_ID = "minetogether";
     public static final String NAME = "MineTogether";
     public static final String VERSION = "@VERSION@";
     public static final Logger logger = LogManager.getLogger("minetogether");
-    public ArrayList<String> mutedUsers = new ArrayList<>();
-
+    public static ArrayList<String> mutedUsers = new ArrayList<>();
+    
     @Mod.Instance(value = "minetogether", owner = "minetogether")
     public static CreeperHost instance;
-
+    
     @SidedProxy(clientSide = "net.creeperhost.minetogether.proxy.Client", serverSide = "net.creeperhost.minetogether.proxy.Server")
     public static IProxy proxy;
     public final Object inviteLock = new Object();
@@ -79,10 +81,10 @@ public class CreeperHost implements ICreeperHostMod, IHost
     private String lastCurse = "";
     private Random randomGenerator;
     private CreeperHostServerHost implement;
-
+    
     public String ourNick;
     public File mutedUsersFile;
-
+    
     @SuppressWarnings("Duplicates")
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -96,8 +98,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
             {
                 configStream = new FileInputStream(configFile);
                 configString = IOUtils.toString(configStream);
-            }
-            else
+            } else
             {
                 File parent = configFile.getParentFile();
                 File tempConfigFile = new File(parent, "creeperhost.cfg");
@@ -105,22 +106,17 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 {
                     configStream = new FileInputStream(tempConfigFile);
                     configString = IOUtils.toString(configStream);
-                }
-                else
+                } else
                 {
                     configString = "{}";
                 }
-
             }
-
             Config.loadConfig(configString);
-        }
-        catch (Throwable t)
+        } catch (Throwable t)
         {
             logger.error("Fatal error, unable to read config. Not starting mod.", t);
             active = false;
-        }
-        finally
+        } finally
         {
             try
             {
@@ -128,18 +124,16 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 {
                     configStream.close();
                 }
-            }
-            catch (Throwable t)
+            } catch (Throwable t)
             {
             }
             if (!active)
                 return;
         }
-
         saveConfig();
-
+        
         PacketHandler.packetRegister();
-
+        
         if (event.getSide() != Side.SERVER)
         {
             HostHolder.host = this;
@@ -148,30 +142,35 @@ public class CreeperHost implements ICreeperHostMod, IHost
             File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
             ingameChat = new IngameChat(ingameChatFile);
             ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
-
+            
             HashMap<String, String> jsonObj = new HashMap<>();
-
+            
             int packID;
-
+            
             try
             {
                 packID = Integer.parseInt(Config.getInstance().curseProjectID);
-            }
-            catch (NumberFormatException e)
+            } catch (NumberFormatException e)
             {
                 packID = -1;
             }
-
+            
             jsonObj.put("p", String.valueOf(packID));
-
+            
             Gson gson = new Gson();
-            realName = gson.toJson(jsonObj);
-
+            try //Temp fix until we cxan figure out why this fails
+            {
+                realName = gson.toJson(jsonObj);
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();
         }
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void saveConfig()
     {
@@ -181,11 +180,9 @@ public class CreeperHost implements ICreeperHostMod, IHost
             configOut = new FileOutputStream(configFile);
             IOUtils.write(Config.saveConfig(), configOut);
             configOut.close();
-        }
-        catch (Throwable t)
+        } catch (Throwable t)
         {
-        }
-        finally
+        } finally
         {
             try
             {
@@ -193,36 +190,35 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 {
                     configOut.close();
                 }
-            }
-            catch (Throwable t)
+            } catch (Throwable t)
             {
             }
         }
-
+        
         if (Config.getInstance().isCreeperhostEnabled())
         {
             CreeperHost.instance.implementations.remove(implement);
             implement = new CreeperHostServerHost();
             CreeperHostAPI.registerImplementation(implement);
         }
-
+        
         if (!Config.getInstance().isCreeperhostEnabled())
         {
             CreeperHost.instance.implementations.remove(implement);
             implement = null;
         }
     }
-
+    
     public void updateCurse()
     {
         if (!Config.getInstance().curseProjectID.equals(lastCurse) && Config.getInstance().isCreeperhostEnabled())
         {
             Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
         }
-
+        
         lastCurse = Config.getInstance().curseProjectID;
     }
-
+    
     public void setRandomImplementation()
     {
         if (randomGenerator == null)
@@ -235,18 +231,18 @@ public class CreeperHost implements ICreeperHostMod, IHost
         int random = randomGenerator.nextInt(implementations.size());
         currentImplementation = implementations.get(random);
     }
-
+    
     public IServerHost getImplementation()
     {
         return currentImplementation;
     }
-
+    
     @Override
     public void registerImplementation(IServerHost serverHost)
     {
         implementations.add(serverHost);
     }
-
+    
     public void makeQueryGetter()
     {
         try
@@ -254,27 +250,24 @@ public class CreeperHost implements ICreeperHostMod, IHost
             if (FMLClientHandler.instance().getClientToServerNetworkManager() != null)
             {
                 SocketAddress socketAddress = FMLClientHandler.instance().getClientToServerNetworkManager().getRemoteAddress();
-
+                
                 String host = "127.0.0.1";
                 int port = 25565;
-
+                
                 if (socketAddress instanceof InetSocketAddress)
                 {
                     InetSocketAddress add = (InetSocketAddress) socketAddress;
                     host = add.getHostName();
                     port = add.getPort();
                 }
-
+                
                 queryGetter = new QueryGetter(host, port);
             }
-        }
-        catch (Throwable t)
+        } catch (Throwable t)
         {
-            // Catch _ALL_ errors. We should _NEVER_ crash.
         }
-
     }
-
+    
     public QueryGetter getQueryGetter()
     {
         if (queryGetter == null)
@@ -283,30 +276,30 @@ public class CreeperHost implements ICreeperHostMod, IHost
         }
         return queryGetter;
     }
-
+    
     public void displayToast(String text, int duration)
     {
         toastText = text;
         endTime = System.currentTimeMillis() + duration;
         fadeTime = endTime + 500;
     }
-
+    
     public void clearToast(boolean fade)
     {
         endTime = System.currentTimeMillis();
         fadeTime = endTime + (fade ? 500 : 0);
     }
-
+    
     @Override
     public ArrayList<Friend> getFriends()
     {
         return Callbacks.getFriendsList(false);
     }
-
+    
     final Object friendLock = new Object();
     String friend = null;
     boolean friendMessage = false;
-
+    
     @Override
     public void friendEvent(String name, boolean isMessage)
     {
@@ -316,12 +309,13 @@ public class CreeperHost implements ICreeperHostMod, IHost
             friendMessage = isMessage;
         }
     }
-
+    
     @Override
-    public Logger getLogger() {
+    public Logger getLogger()
+    {
         return logger;
     }
-
+    
     @Override
     public void messageReceived(String target, Pair messagePair)
     {
@@ -329,9 +323,9 @@ public class CreeperHost implements ICreeperHostMod, IHost
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
         ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
     }
-
+    
     private static boolean anonLoaded = false;
-
+    
     public String getNameForUser(String nick)
     {
         if (!anonLoaded)
@@ -345,27 +339,24 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 {
                     anonUsersStream = new FileInputStream(anonUsersFile);
                     configString = IOUtils.toString(anonUsersStream);
-                }
-                else
+                } else
                 {
                     anonUsersFile.getParentFile().mkdirs();
                     configString = "{}";
                 }
-
+                
                 Gson gson = new Gson();
                 ChatHandler.anonUsers = gson.fromJson(configString, new TypeToken<HashMap<String, String>>()
                 {
                 }.getType());
                 ChatHandler.anonUsersReverse = new HashMap<>();
-                for(Map.Entry<String, String> entry : ChatHandler.anonUsers.entrySet())
+                for (Map.Entry<String, String> entry : ChatHandler.anonUsers.entrySet())
                 {
                     ChatHandler.anonUsersReverse.put(entry.getValue(), entry.getKey());
                 }
-            }
-            catch (Throwable t)
+            } catch (Throwable t)
             {
-            }
-            finally
+            } finally
             {
                 try
                 {
@@ -373,28 +364,28 @@ public class CreeperHost implements ICreeperHostMod, IHost
                     {
                         anonUsersStream.close();
                     }
-                }
-                catch (Throwable t)
+                } catch (Throwable t)
                 {
                 }
             }
             anonLoaded = true;
         }
-
+        
         if (nick.length() < 16)
             return null;
-
+        
         nick = nick.substring(0, 17); // should fix where people join and get ` on their name for friends if connection issues etc
-        if(ChatHandler.friends.containsKey(nick))
+        if (ChatHandler.friends.containsKey(nick))
         {
             return ChatHandler.friends.get(nick);
         }
         if (nick.startsWith("MT"))
         {
-            if(ChatHandler.anonUsers.containsKey(nick))
+            if (ChatHandler.anonUsers.containsKey(nick))
             {
                 return ChatHandler.anonUsers.get(nick);
-            } else {
+            } else
+            {
                 String anonymousNick = "User" + ChatHandler.random.nextInt(10000);
                 while (ChatHandler.anonUsers.containsValue(anonymousNick))
                 {
@@ -408,7 +399,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         }
         return null;
     }
-
+    
     public void saveAnonFile()
     {
         Gson gson = new Gson();
@@ -416,12 +407,11 @@ public class CreeperHost implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers));
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
         }
     }
-
+    
     public void muteUser(String user)
     {
         mutedUsers.add(user);
@@ -429,24 +419,23 @@ public class CreeperHost implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
         }
     }
-
+    
     @Override
     public String getFriendCode()
     {
         return Callbacks.getFriendCode();
     }
-
+    
     @Override
     public void acceptFriend(String friendCode, String name)
     {
         new Thread(() -> Callbacks.addFriend(friendCode, name)).start();
     }
-
+    
     @Mod.EventHandler
     public void serverStarted(FMLServerStartingEvent event)
     {

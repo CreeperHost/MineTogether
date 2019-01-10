@@ -21,12 +21,12 @@ public class GuiCreeperConfig extends GuiConfig
     {
         super(parentScreen, getConfigElements(), CreeperHost.MOD_ID, false, false, getTitle(parentScreen));
     }
-
+    
     @SuppressWarnings("Duplicates")
     private static List<IConfigElement> getConfigElements()
     {
         final Config defaultConfig = new Config();
-
+        
         List<IConfigElement> array = new ArrayList<IConfigElement>();
         Field[] fields = Config.class.getDeclaredFields();
         for (Field field : fields)
@@ -40,17 +40,16 @@ public class GuiCreeperConfig extends GuiConfig
             {
                 field.setAccessible(true);
                 defValue = field.get(defaultConfig);
-
-            }
-            catch (Throwable t)
+                
+            } catch (Throwable t)
             {
             }
-
+            
             array.add(new ReflectionConfigElement(field, defValue));
         }
         return array;
     }
-
+    
     private static String getTitle(GuiScreen parent)
     {
         return I18n.format("creeperhost.config.title");

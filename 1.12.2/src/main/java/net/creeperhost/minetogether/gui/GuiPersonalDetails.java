@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 
 public class GuiPersonalDetails extends GuiGetServer
 {
-
     public List<TextFieldDetails> fields = null;
     public TextFieldDetails focusedField;
     public boolean isEmailValid = false;
@@ -37,57 +36,54 @@ public class GuiPersonalDetails extends GuiGetServer
     private String prevLoginString;
     private boolean prevLoginVisible;
     private boolean prevLoginEnabled;
-
+    
     public GuiPersonalDetails(int stepId, Order order)
     {
         super(stepId, order);
         order.clientID = "";
     }
-
+    
     @Override
     public String getStepName()
     {
         return Util.localize("gui.personal_details");
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void initGui()
     {
         super.initGui();
-
+        
         this.loginButton = new GuiButton(80085, this.width / 2 - 40, (this.height / 2) - 10, 80, 20, Util.localize("button.login"));
         loginButton.visible = loginMode;
-
+        
         if (orderPressed && !isSure)
         {
             loginButton.displayString = Util.localize("button.order");
             loginButton.enabled = true;
             loginButton.visible = true;
             buttonNext.visible = false;
-        }
-        else if (loggingIn)
+        } else if (loggingIn)
         {
             loginButton.displayString = Util.localize("button.logging");
             loginButton.enabled = false;
-        }
-        else if (loggedIn)
+        } else if (loggedIn)
         {
             loginButton.displayString = Util.localize("button.done");
             loginButton.enabled = false;
-        }
-        else if (!loggingInError.isEmpty())
+        } else if (!loggingInError.isEmpty())
         {
             loginButton.displayString = Util.localize("button.logintryagain");
         }
         this.buttonList.add(loginButton);
-
+        
         fields = new ArrayList<TextFieldDetails>();
-
+        
         int x = this.width / 2;
-
+        
         int fieldWidths = 185;
-
+        
         ArrayList<IOrderValidation> defaultValidators = new ArrayList<IOrderValidation>();
         defaultValidators.add(new IOrderValidation()
         {
@@ -96,36 +92,36 @@ public class GuiPersonalDetails extends GuiGetServer
             {
                 return phase.equals(IOrderValidation.ValidationPhase.CHANGED);
             }
-
+            
             @Override
             public boolean isValid(String string)
             {
                 return !string.isEmpty();
             }
-
+            
             @Override
             public boolean isAsync()
             {
                 return false;
             }
-
+            
             @Override
             public String getValidationMessage()
             {
                 return "Cannot be blank";
             }
-
+            
             @Override
             public String getName()
             {
                 return "NotBlankValidator";
             }
         });
-
+        
         ArrayList<IOrderValidation> emailValidators = new ArrayList<IOrderValidation>(defaultValidators);
-
+        
         emailValidators.add(new RegexValidator("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])", "Invalid email address"));
-
+        
         emailValidators.add(new DefferedValidation()
         {
             @Override
@@ -133,62 +129,61 @@ public class GuiPersonalDetails extends GuiGetServer
             {
                 return phase.equals(ValidationPhase.FOCUSLOST);
             }
-
+            
             @Override
             public boolean isValidReal(String string)
             {
                 return Callbacks.doesEmailExist(string);
             }
-
+            
             public String getMessageReal()
             {
                 return "Email already exists";
             }
-
+            
             @Override
             public String getName()
             {
                 return "NotEmailExistsValidator";
             }
         });
-
+        
         this.fields.add(new TextFieldDetails(this, 0, Util.localize("info.e_mail"), this.order.emailAddress, x - 205, 45, fieldWidths, 20, emailValidators));
-
+        
         // Validation done, I guess - the website itself doesn't do any password strength validation etc so I won't force it here
-
+        
         this.fields.add(new TextFieldDetails(this, 1, Util.localize("info.password"), this.order.password, x + 5, 45, fieldWidths, 20, defaultValidators, "*"));
-
+        
         this.fields.add(new TextFieldDetails(this, 2, Util.localize("info.first_name"), this.order.firstName, x - 205, 75, fieldWidths, 20, defaultValidators));
         this.fields.add(new TextFieldDetails(this, 3, Util.localize("info.last_name"), this.order.lastName, x + 5, 75, fieldWidths, 20, defaultValidators));
-
+        
         this.fields.add(new TextFieldDetails(this, 4, Util.localize("info.address"), this.order.address, x - 205, 105, fieldWidths, 20, defaultValidators));
         this.fields.add(new TextFieldDetails(this, 5, Util.localize("info.city"), this.order.city, x + 5, 105, fieldWidths, 20, defaultValidators));
-
+        
         this.fields.add(new TextFieldDetails(this, 6, Util.localize("info.zip"), this.order.zip, x - 205, 135, fieldWidths, 20, defaultValidators));
         this.fields.add(new TextFieldDetails(this, 7, Util.localize("info.state"), this.order.state, x + 5, 135, fieldWidths, 20, defaultValidators));
-
+        
         TextFieldDetails countryField = new TextFieldDetails(this, 8, Util.localize("info.country"), Callbacks.getCountries().get(this.order.country), x - 205, 165, fieldWidths, 20, defaultValidators, false);
         this.fields.add(countryField);
-
+        
         this.fields.add(new TextFieldDetails(this, 9, Util.localize("info.phone"), this.order.phone, x + 5, 165, fieldWidths, 20, defaultValidators));
-
+        
         String info2Text = Util.localize("order.info2");
-
+        
         final String regex = "\\((.*?)\\|(.*?)\\)";
-
+        
         final Pattern pattern = Pattern.compile(regex);
         final Matcher matcher = pattern.matcher(info2Text);
-
+        
         int lastEnd = 0;
-
+        
         ITextComponent component = null;
-
+        
         while (matcher.find())
         {
-
             int start = matcher.start();
             int end = matcher.end();
-
+            
             String part = info2Text.substring(lastEnd, start);
             if (part.length() > 0)
             {
@@ -197,7 +192,7 @@ public class GuiPersonalDetails extends GuiGetServer
                 else
                     component.appendText(part);
             }
-
+            
             lastEnd = end;
             ITextComponent link = new TextComponentString(matcher.group(1));
             Style style = link.getStyle();
@@ -205,47 +200,46 @@ public class GuiPersonalDetails extends GuiGetServer
             style.setColor(TextFormatting.BLUE);
             style.setUnderlined(true);
             style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(Util.localize("order.url"))));
-
+            
             if (component == null)
                 component = link;
             else
                 component.appendSibling(link);
         }
-
         info2 = component;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void updateScreen()
     {
         super.updateScreen();
-
+        
         this.buttonNext.enabled = true;
         this.loginButton.visible = loginMode || (orderPressed && !isSure);
-
+        
         for (TextFieldDetails field : this.fields)
         {
             field.checkPendingValidations();
             field.updateCursorCounter();
-
+            
             if (!field.isValidated)
             {
                 this.buttonNext.enabled = false;
             }
         }
-
+        
         this.buttonNext.enabled = this.buttonNext.enabled && isEmailValid;
-
+        
         this.buttonNext.enabled = this.loggedIn || this.buttonNext.enabled;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         TextFieldDetails field = this.focusedField;
-
+        
         if (focusedField == null)
             return;
         if (keyCode == 15)
@@ -255,15 +249,15 @@ public class GuiPersonalDetails extends GuiGetServer
             {
                 adjustAm = -1;
             }
-
+            
             int fieldsSize = fields.size();
-
+            
             field.setFocused(false);
-
+            
             int newField = (field.getId() + adjustAm) % fieldsSize;
             if (newField == -1)
                 newField = fieldsSize - 1;
-
+            
             TextFieldDetails newF = null;
             while (newF == null)
             {
@@ -271,24 +265,22 @@ public class GuiPersonalDetails extends GuiGetServer
                 if (tempField.canBeFocused())
                 {
                     newF = tempField;
-                }
-                else
+                } else
                 {
                     newField = (newField + adjustAm) % fieldsSize;
                     if (newField == -1)
                         newField = fieldsSize - 1;
                 }
             }
-
+            
             newF.setFocused(true);
-
+            
             return;
-        }
-        else if (field.textboxKeyTyped(typedChar, keyCode))
+        } else if (field.textboxKeyTyped(typedChar, keyCode))
         {
             int id = field.getId();
             String text = field.getText().trim();
-
+            
             switch (id)
             {
                 case 0:
@@ -322,24 +314,23 @@ public class GuiPersonalDetails extends GuiGetServer
                     this.order.phone = text;
                     break;
             }
-
             return;
         }
         super.keyTyped(typedChar, keyCode);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
-
+        
         if ((!orderPressed || !isSure) && !loginMode)
         {
             this.drawCenteredString(fontRendererObj, "No data will be sent until you complete the order.", this.width / 2, this.height - 45, 0xFFFFFF);
         }
-
+        
         if (!orderPressed || isSure)
         {
             for (TextFieldDetails field : this.fields)
@@ -350,46 +341,41 @@ public class GuiPersonalDetails extends GuiGetServer
                     {
                         field.drawTextBox();
                     }
-                }
-                else
+                } else
                 {
                     field.drawTextBox();
                 }
             }
-
+            
             if (loginMode)
             {
                 if (loggingIn)
                 {
                     this.drawCenteredString(fontRendererObj, Util.localize("details.login"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-                }
-                else if (!loggingInError.isEmpty())
+                } else if (!loggingInError.isEmpty())
                 {
                     this.drawCenteredString(fontRendererObj, Util.localize("details.loginerror") + loggingInError, this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-                }
-                else if (loggedIn)
+                } else if (loggedIn)
                 {
                     this.drawCenteredString(fontRendererObj, Util.localize("details.loginsuccess"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-                }
-                else
+                } else
                 {
                     this.drawCenteredString(fontRendererObj, Util.localize("details.accountexists"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
                 }
             }
-        }
-        else
+        } else
         {
             int info2Start = (this.height / 2) - 50;
-
+            
             this.drawCenteredString(fontRendererObj, Util.localize("order.info1"), this.width / 2, (this.height / 2) - 60, 0xFFFFFF);
             this.drawCenteredString(fontRendererObj, info2.getFormattedText(), this.width / 2, (this.height / 2) - 50, 0xFFFFFF);
             this.drawCenteredString(fontRendererObj, Util.localize("order.info3"), this.width / 2, (this.height / 2) - 30, 0xFFFFFF);
             this.drawCenteredString(fontRendererObj, Util.localize("order.info4"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-
+            
             if (mouseY >= info2Start && mouseY <= info2Start + fontRendererObj.FONT_HEIGHT)
             {
                 ITextComponent component = getComponent(mouseX, mouseY);
-
+                
                 if (component != null)
                 {
                     HoverEvent event = component.getStyle().getHoverEvent();
@@ -400,19 +386,19 @@ public class GuiPersonalDetails extends GuiGetServer
             }
         }
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-
+        
         int info2Start = (this.height / 2) - 50;
-
+        
         if (orderPressed && !isSure && mouseY >= info2Start && mouseY <= info2Start + fontRendererObj.FONT_HEIGHT)
         {
             ITextComponent comp = getComponent(mouseX, mouseY);
-
+            
             ClickEvent clickevent = comp.getStyle().getClickEvent();
             if (clickevent != null && clickevent.getAction() == ClickEvent.Action.OPEN_URL)
             {
@@ -422,37 +408,36 @@ public class GuiPersonalDetails extends GuiGetServer
                     Class<?> oclass = Class.forName("java.awt.Desktop");
                     Object object = oclass.getMethod("getDesktop").invoke(null);
                     oclass.getMethod("browse", URI.class).invoke(object, uri);
-                }
-                catch (Throwable t)
+                } catch (Throwable t)
                 {
                     CreeperHost.logger.error("Can\'t open url for " + clickevent, t);
                 }
                 return;
             }
         }
-
+        
         for (TextFieldDetails field : this.fields)
         {
             field.myMouseClicked(mouseX, mouseY, mouseButton);
         }
     }
-
+    
     private ITextComponent getComponent(int mouseX, int mouseY)
     {
         int stringWidth = fontRendererObj.getStringWidth(info2.getFormattedText());
         int begin = (width / 2) - (stringWidth / 2);
-
+        
         if (info2 instanceof TextComponentBase)
         {
             TextComponentBase comp = (TextComponentBase) info2;
-
+            
             int prevWidth = begin;
-
+            
             for (ITextComponent inner : comp)
             {
                 StringBuilder stringbuilder = new StringBuilder();
                 String s = inner.getUnformattedComponentText();
-
+                
                 if (!s.isEmpty())
                 {
                     stringbuilder.append(inner.getStyle().getFormattingCode());
@@ -469,7 +454,7 @@ public class GuiPersonalDetails extends GuiGetServer
         }
         return null;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     protected void actionPerformed(final GuiButton button) throws IOException
@@ -500,8 +485,7 @@ public class GuiPersonalDetails extends GuiGetServer
                         loggedIn = true;
                         loggingInError = "";
                         button.displayString = Util.localize("button.done");
-                    }
-                    else
+                    } else
                     {
                         loggingIn = false;
                         loggedIn = false;
@@ -514,8 +498,7 @@ public class GuiPersonalDetails extends GuiGetServer
             Thread thread = new Thread(runnable);
             thread.start();
             return;
-        }
-        else if (button.id == buttonNext.id && !isSure)
+        } else if (button.id == buttonNext.id && !isSure)
         {
             orderPressed = true;
             buttonNext.visible = false;
@@ -526,8 +509,7 @@ public class GuiPersonalDetails extends GuiGetServer
             prevLoginEnabled = loginButton.enabled;
             loginButton.enabled = true;
             return;
-        }
-        else if (button.id == buttonNext.id && !isSure)
+        } else if (button.id == buttonNext.id && !isSure)
         {
             orderPressed = true;
             buttonNext.visible = false;
@@ -538,8 +520,7 @@ public class GuiPersonalDetails extends GuiGetServer
             prevLoginEnabled = loginButton.enabled;
             loginButton.enabled = true;
             return;
-        }
-        else if (button.id == buttonPrev.id && orderPressed)
+        } else if (button.id == buttonPrev.id && orderPressed)
         {
             orderPressed = false;
             buttonNext.visible = true;
@@ -550,7 +531,7 @@ public class GuiPersonalDetails extends GuiGetServer
         }
         super.actionPerformed(button);
     }
-
+    
     public void validationChanged(TextFieldDetails details, boolean valid, IOrderValidation validator, IOrderValidation.ValidationPhase phase)
     {
         if (details.getId() == 0)
@@ -559,30 +540,27 @@ public class GuiPersonalDetails extends GuiGetServer
             {
                 isEmailValid = false;
                 loginMode = true;
-            }
-            else
+            } else
             {
                 loginMode = false;
                 if (phase.equals(IOrderValidation.ValidationPhase.FOCUSLOST))
                 {
                     isEmailValid = true;
-                }
-                else
+                } else
                 {
                     isEmailValid = false;
                 }
             }
         }
     }
-
+    
     public void validationChangedDeferred(TextFieldDetails textFieldDetails, DefferedValidation pendingValidation)
     {
         textFieldDetails.setEnabled(true);
         if (!pendingValidation.isValid(""))
         {
             validationChanged(textFieldDetails, false, pendingValidation, pendingValidation.getPhase());
-        }
-        else
+        } else
         {
             validationChanged(textFieldDetails, true, null, pendingValidation.getPhase());
         }
