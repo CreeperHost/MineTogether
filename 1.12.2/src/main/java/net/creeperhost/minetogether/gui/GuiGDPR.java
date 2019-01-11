@@ -20,20 +20,26 @@ import java.util.regex.Pattern;
 
 public class GuiGDPR extends GuiScreen
 {
-    private static final String GDPRText = "Hi there!\n" +
+    private static final String GDPRText = "Welcome new player!\n" +
             "\n" +
-            "The feature you are trying to access requires us to collect some data, which may include some identifiable information, although we have taken care to ensure that it is anonymized.\n" +
+            "Our name is CreeperHost, and we created MineTogether to fill in some of the community features we felt modded Minecraft was missing.\n" +
             "\n" +
-            "To see what we collect and how we use it, please click the \"More info\" button below.\n" +
+            "In doing so, we require a way to identify you to make sure we send you all the right information, like who is in your friends list etc.\n" +
             "\n" +
-            "If you consent to this, please press Accept. Otherwise, press Decline. If you decline this, you will be unable to access the feature.\n";
+            "We do this by taking the unique identifier for your Minecraft account (UUID), then running it through the same kind of cryptography (hashing) that most websites use to keep your password secure and cannot be reversed.\n" +
+            "\n" +
+            "You can click 'More Info' to learn a little more about this and access links to our privacy policy and terms of service.\n" +
+            "\n" +
+            "Beyond this magical accept button, is a world of multiplayer servers, global (all servers and even single player) chat and much more, we hope you'll join us!\n" +
+            "\n" +
+            "To provide your consent to us storing data for you, please click 'Accept', otherwise please click 'Decline' and this part of the mod will be disabled.\n";
     private static final String GDPRTextData = "The data we collect is a hash of your Minecraft UUID to our servers which may be identifying information, despite our efforts to anonymize it.\n" +
             "\n" +
-            "We only use this in order to find servers which you are invited to, to provide an in game friends list, to provide an identifier for chat, and to enable tracking of Minigames played.\n" +
+            "We only use this in order to find servers which you are invited to, to provide an in game friends list, to provide an identifier for chat, and to enable tracking of free Mini-Game credits used.\n" +
             "\n" +
-            "To view our privacy policy, please click (here|https://www.creeperhost.net/privacy). To view our TOS, please click (here|https://www.creeperhost.net/tos).\n" +
+            "To view the CreeperHost LTD privacy policy, please click (here|https://www.creeperhost.net/privacy). To view our TOS, please click (here|https://www.creeperhost.net/tos).\n" +
             "\n" +
-            "If you consent to this, please press Accept. Otherwise, press Decline. If you decline this, you will be unable to access the feature.\n";
+            "If you consent to this, please press 'Accept'. Otherwise, press 'Decline'. If you decline this, you will be unable to access the feature.\n";
     private IScreenGetter getter = null;
     private GuiScreen parent = null;
     
