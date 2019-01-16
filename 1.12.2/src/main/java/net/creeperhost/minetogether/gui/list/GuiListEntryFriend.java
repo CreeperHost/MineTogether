@@ -7,7 +7,6 @@ import net.minecraft.util.text.TextComponentString;
 
 public class GuiListEntryFriend extends GuiListEntry
 {
-    
     private final Friend friend;
     private final String cross;
     private final int stringWidth;

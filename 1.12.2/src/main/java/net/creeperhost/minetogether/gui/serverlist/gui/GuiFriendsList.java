@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
+import net.creeperhost.minetogether.gui.list.GuiListEntryMuted;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.minecraft.client.gui.GuiButton;
@@ -23,6 +24,8 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
 {
     private final GuiScreen parent;
     private GuiList<GuiListEntryFriend> list;
+    private GuiList<GuiListEntryMuted> listMuted;
+    
     private GuiButton buttonAdd;
     private GuiButton buttonCancel;
     private GuiButton buttonInvite;
@@ -30,6 +33,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private GuiButton buttonRefresh;
     private GuiButton buttonChat;
     private GuiButton buttonRemove;
+    private GuiButton toggle;
     private GuiTextFieldCompat codeEntry;
     private GuiTextFieldCompat displayEntry;
     
@@ -59,6 +63,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             return;
         }
         super.initGui();
+        
         if (list == null)
             list = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
         else
@@ -89,12 +94,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         buttonAdd = new GuiButton(1, buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.addfriend"));
         buttonList.add(buttonAdd);
         buttonX += spaceInbetween;
-        /*buttonRemove = new GuiButton(2, buttonX, y, buttonWidth, 20, "Remove friend");
-        buttonList.add(buttonRemove);
-        buttonX += spaceInbetween;*/
-        /*buttonChat = new GuiButton(3, buttonX, y, buttonWidth, 20, "Open chat");
-        buttonList.add(buttonChat);
-        buttonX += spaceInbetween;*/
+
         buttonInvite = new GuiButton(4, buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.invite"));
         buttonInvite.enabled = list.getCurrSelected() != null;
         buttonList.add(buttonInvite);
@@ -108,6 +108,10 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         buttonList.add(buttonCopy);
         buttonRefresh = new GuiButton(1337, this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"));
         buttonList.add(buttonRefresh);
+        
+        toggle = new GuiButton(5, width - 60,   6, 60, 20,"Friends");
+        buttonList.add(toggle);
+    
     }
     
     protected void refreshFriendsList(boolean force)
@@ -191,6 +195,18 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         } else if (button == buttonRefresh)
         {
             refreshFriendsList(false);
+        }
+        //TODO clean this up
+        else if(button.id == toggle.id)
+        {
+            if(button.displayString.contains("Friends"))
+            {
+                button.displayString = "Muted";
+            }
+            else if(button.displayString.contains("Muted"))
+            {
+                button.displayString = "Friends";
+            }
         }
     }
     

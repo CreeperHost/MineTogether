@@ -28,3 +28,16 @@ creeperhost.multiplayer.list.public=Public List
 creeperhost.multiplayer.list.invite=Invite List
 creeperhost.multiplayer.list.application=Application List
 creeperhost.multiplayer.list=Type:
+
+minetogether.gdprtext=Welcome new player!
+minetogether.gdprtext1=Our name is CreeperHost, and we created MineTogether to fill in some of the community features we felt modded Minecraft was missing.
+minetogether.gdprtext2=In doing so, we require a way to identify you to make sure we send you all the right information, like who is in your friends list etc.
+minetogether.gdprtext3=We do this by taking the unique identifier for your Minecraft account (UUID), then running it through the same kind of cryptography (hashing) that most websites use to keep your password secure and cannot be reversed.
+minetogether.gdprtext4=You can click 'More Info' to learn a little more about this and access links to our privacy policy and terms of service.
+minetogether.gdprtext5=Beyond this magical accept button, is a world of multiplayer servers, global (all servers and even single player) chat and much more, we hope you'll join us!
+minetogether.gdprtext6=To provide your consent to us storing data for you, please click 'Accept', otherwise please click 'Decline' and this part of the mod will be disabled.
+
+minetogether.gdprtextdata=The data we collect is a hash of your Minecraft UUID to our servers which may be identifying information, despite our efforts to anonymize it.
+minetogether.gdprtextdata1=We only use this in order to find servers which you are invited to, to provide an in game friends list, to provide an identifier for chat, and to enable tracking of free Mini-Game credits used.
+minetogether.gdprtextdata2=To view the CreeperHost LTD privacy policy, please click (here|https://www.creeperhost.net/privacy). To view our TOS, click (here|https://www.creeperhost.net/tos).
+minetogether.gdprtextdata3=If you consent to this, please press 'Accept'. Otherwise, press 'Decline'. If you decline this, you will be unable to access the feature.

@@ -86,7 +86,8 @@ public class GuiChatOurs extends GuiChat
             super.sendChatMessage(msg, addToChat);
             ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true;
             return;
-        } else
+        }
+        else
         {
             msg = net.minecraftforge.event.ForgeEventFactory.onClientSendMessage(msg);
             if (msg.isEmpty()) return;
@@ -163,19 +164,22 @@ public class GuiChatOurs extends GuiChat
             {
                 CreeperHost.instance.muteUser(activeDropdown);
                 ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setChatLine(new TextComponentString("User has been muted. You will no longer receive messages from this person."), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
-            } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
+            }
+            else if (menuDropdownButton.getSelected().option.equals("Add friend"))
             {
                 mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
             }
             return;
-        } else if (button == switchButton)
+        }
+        else if (button == switchButton)
         {
             if (CreeperHost.instance.gdpr.hasAcceptedGDPR())
             {
                 GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
                 ourChat.base = switchButton.firstActiveButton;
                 switchButton.displayString = ourChat.base ? "MineTogether Chat" : "Minecraft Chat";
-            } else
+            }
+            else
             {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiGDPR(null, () ->
                 {
@@ -184,7 +188,8 @@ public class GuiChatOurs extends GuiChat
                 }));
             }
             return;
-        } else if (sleep && button.id == 1)
+        }
+        else if (sleep && button.id == 1)
         {
             wakeFromSleep();
             return;
@@ -223,9 +228,9 @@ public class GuiChatOurs extends GuiChat
         {
             this.handleComponentHover(itextcomponent, mouseX, mouseY);
         }
-        //super.drawScreen(mouseX, mouseY, partialTicks);
     }
     
+    @Deprecated
     public void drawLogo()
     {
         ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/creeperhost25.png");
