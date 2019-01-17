@@ -63,7 +63,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             return;
         }
         super.initGui();
-        
+
         if(listMuted == null)
         {
             listMuted = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
@@ -144,12 +144,13 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     protected void refreshMutedList(boolean force)
     {
         ArrayList<String> mutedUsers = CreeperHost.mutedUsers;
-        list.clearList();
+        listMuted.clearList();
         if (mutedUsers != null)
         {
             for (String mute : mutedUsers)
             {
-                GuiListEntryMuted mutedEntry = new GuiListEntryMuted(this, list, mute);
+                String username = CreeperHost.instance.getNameForUser(mute);
+                GuiListEntryMuted mutedEntry = new GuiListEntryMuted(this, listMuted, username);
                 listMuted.addEntry(mutedEntry);
             }
         }
