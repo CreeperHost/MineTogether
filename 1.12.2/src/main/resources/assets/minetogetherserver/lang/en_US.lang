@@ -28,6 +28,7 @@ creeperhost.multiplayer.list.public=Public List
 creeperhost.multiplayer.list.invite=Invite List
 creeperhost.multiplayer.list.application=Application List
 creeperhost.multiplayer.list=Type:
+creeperhost.multiplayer.muted=Muted Player's List
 
 minetogether.gdprtext=Welcome new player!
 minetogether.gdprtext1=Our name is CreeperHost, and we created MineTogether to fill in some of the community features we felt modded Minecraft was missing.
@@ -41,3 +42,4 @@ minetogether.gdprtextdata=The data we collect is a hash of your Minecraft UUID t
 minetogether.gdprtextdata1=We only use this in order to find servers which you are invited to, to provide an in game friends list, to provide an identifier for chat, and to enable tracking of free Mini-Game credits used.
 minetogether.gdprtextdata2=To view the CreeperHost LTD privacy policy, please click (here|https://www.creeperhost.net/privacy). To view our TOS, click (here|https://www.creeperhost.net/tos).
 minetogether.gdprtextdata3=If you consent to this, please press 'Accept'. Otherwise, press 'Decline'. If you decline this, you will be unable to access the feature.
+

@@ -64,15 +64,28 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         }
         super.initGui();
         
+        if(listMuted == null)
+        {
+            listMuted = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
+        }
+        {
+            listMuted.setDimensions(width, height, 32, this.height - 64);
+        }
+        
         if (list == null)
+        {
             list = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
+        }
         else
+        {
             list.setDimensions(width, height, 32, this.height - 64);
+        }
         
         if (first)
         {
             first = false;
             refreshFriendsList(true);
+            refreshMutedList(true);
         }
         
         int y = this.height - 60;
@@ -124,6 +137,20 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             {
                 GuiListEntryFriend friendEntry = new GuiListEntryFriend(this, list, friend);
                 list.addEntry(friendEntry);
+            }
+        }
+    }
+
+    protected void refreshMutedList(boolean force)
+    {
+        ArrayList<String> mutedUsers = CreeperHost.mutedUsers;
+        list.clearList();
+        if (mutedUsers != null)
+        {
+            for (String mute : mutedUsers)
+            {
+                GuiListEntryMuted mutedEntry = new GuiListEntryMuted(this, list, mute);
+                listMuted.addEntry(mutedEntry);
             }
         }
     }
@@ -215,18 +242,27 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawBackground(0);
-        
-        if (!addFriend)
-            this.list.drawScreen(mouseX, mouseY, partialTicks);
-        else
+        if(toggle.displayString == "Friends")
         {
-            this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.othercode"), this.width / 2, this.height / 2 - 60, 0xFFFFFF);
-            this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.displayname"), this.width / 2, this.height / 2 - 10, 0xFFFFFF);
-            this.codeEntry.drawTextBox();
-            this.displayEntry.drawTextBox();
+            if (!addFriend)
+            {
+                this.list.drawScreen(mouseX, mouseY, partialTicks);
+            }
+            else
+            {
+                this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.othercode"), this.width / 2, this.height / 2 - 60, 0xFFFFFF);
+                this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.displayname"), this.width / 2, this.height / 2 - 10, 0xFFFFFF);
+                this.codeEntry.drawTextBox();
+                this.displayEntry.drawTextBox();
+            }
+            this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
+        }
+        else if(toggle.displayString == "Muted")
+        {
+            this.listMuted.drawScreen(mouseX, mouseY, partialTicks);
+            this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
         }
         
-        this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
         
         super.drawScreen(mouseX, mouseY, partialTicks);
@@ -239,7 +275,6 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 hoverTextCache.add(hoveringText);
                 lastHoveringText = hoveringText;
             }
-            
             drawHoveringText(hoverTextCache, mouseX + 12, mouseY);
         }
     }
