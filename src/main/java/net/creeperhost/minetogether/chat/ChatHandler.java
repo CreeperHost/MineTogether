@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.chat;
 
+import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
@@ -28,6 +29,7 @@ public class ChatHandler
     private static ChatUtil.IRCServer IRC_SERVER;
     public static String CHANNEL = "#MineTogether";
     public static ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
+    public static HashMap<String, String> curseSync = new HashMap<>();
 
     public static HashMap<String, LimitedSizeQueue<Pair<String, String>>> messages = null;
     private static Client client = null;
@@ -43,6 +45,7 @@ public class ChatHandler
     public static void init(String nickIn, String realNameIn, IHost _host)
     {
         if (inited) return;
+
         realName = realNameIn;
         initedString = nickIn;
         badwords = ChatUtil.getBadWords();
@@ -260,7 +263,6 @@ public class ChatHandler
                     addMessageToChat(CHANNEL, "System", Format.stripAll("Chat joined"));
                 }
             }
-
             updateFriends(event.getChannel().getNicknames());
         }
 
@@ -290,6 +292,9 @@ public class ChatHandler
         {
             User user = event.getActor();
             String message = event.getMessage();
+
+            if (!curseSync.containsKey(user.getNick())) curseSync.put(user.getNick(), user.getRealName().get());
+
 
             if (!realnameCache.containsKey(user.getNick())) realnameCache.put(user.getNick(), user.getRealName().get());
 
@@ -327,7 +332,6 @@ public class ChatHandler
                     }
                 }
             }
-
         }
 
         @Handler
@@ -362,7 +366,6 @@ public class ChatHandler
                     }
                 }
             }
-
         }
 
         @Handler

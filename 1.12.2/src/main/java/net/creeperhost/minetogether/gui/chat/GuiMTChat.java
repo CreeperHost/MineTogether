@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.gui.chat;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.GuiGDPR;
@@ -486,11 +487,24 @@ public class GuiMTChat extends GuiScreen
         if (friend)
         {
             userComp.getStyle().setColor(TextFormatting.YELLOW);
-        } else if (outputNick.equals("System"))
+        }
+        else if (outputNick.equals("System"))
         {
             userComp.getStyle().setColor(TextFormatting.AQUA);
         }
-        
+        if(ChatHandler.curseSync.containsKey(inputNick))
+        {
+            String realname = ChatHandler.curseSync.get(inputNick).trim();
+            String[] splitString = realname.split(":");
+
+            String name2 = splitString[1];
+
+            if(name2.contains(Config.getInstance().curseProjectID))
+            {
+                userComp.getStyle().setColor(TextFormatting.DARK_PURPLE);
+            }
+        }
+
         if (highlight)
         {
             userComp.getStyle().setColor(TextFormatting.RED);

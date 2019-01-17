@@ -310,7 +310,13 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         this.codeEntry.myMouseClicked(mouseX, mouseY, mouseButton);
         this.displayEntry.myMouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        this.list.mouseClicked(mouseX, mouseY, mouseButton);
+        if(toggle.displayString == "Friends") {
+            this.list.mouseClicked(mouseX, mouseY, mouseButton);
+        }
+        else if(toggle.displayString == "Muted")
+        {
+            this.listMuted.mouseClicked(mouseX, mouseY, mouseButton);
+        }
         if (list.getCurrSelected() != null)
             if (list.getCurrSelected().getFriend().isAccepted())
                 this.buttonInvite.enabled = true;
@@ -324,7 +330,12 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);
-        this.list.mouseReleased(mouseX, mouseY, state);
+        if(toggle.displayString == "Friends") {
+            this.list.mouseReleased(mouseX, mouseY, state);
+        }
+        else if(toggle.displayString == "Muted") {
+            this.listMuted.mouseReleased(mouseX, mouseY, state);
+        }
     }
     
     private void showAlert(String text, int colour, int time)
