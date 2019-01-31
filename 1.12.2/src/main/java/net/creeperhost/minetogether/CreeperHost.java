@@ -37,17 +37,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-@Mod(
-        modid = CreeperHost.MOD_ID,
-        name = CreeperHost.NAME,
-        version = CreeperHost.VERSION,
-        acceptableRemoteVersions = "*",
-        acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2",
-        guiFactory = "net.creeperhost.minetogether.gui.config.GuiCreeperConfigFactory"
-)
+@Mod(modid = CreeperHost.MOD_ID, name = CreeperHost.NAME, version = CreeperHost.VERSION, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2", guiFactory = "net.creeperhost.minetogether.gui.config.GuiCreeperConfigFactory")
 public class CreeperHost implements ICreeperHostMod, IHost
 {
-    
     public static final String MOD_ID = "minetogether";
     public static final String NAME = "MineTogether";
     public static final String VERSION = "@VERSION@";
