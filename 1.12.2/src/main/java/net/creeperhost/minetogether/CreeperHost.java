@@ -415,6 +415,19 @@ public class CreeperHost implements ICreeperHostMod, IHost
         {
         }
     }
+
+    public void unmuteUser(String user)
+    {
+        mutedUsers.remove(user);
+        Gson gson = new Gson();
+        try
+        {
+            FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
+            mutedUsers.clear();
+        } catch (IOException e)
+        {
+        }
+    }
     
     @Override
     public String getFriendCode()

@@ -46,6 +46,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private String lastHoveringText = null;
     private ArrayList<String> hoverTextCache = null;
     private Friend removeFriend;
+    private String unmutePlayer;
     
     public GuiFriendsList(GuiScreen currentScreen)
     {
@@ -122,7 +123,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         buttonRefresh = new GuiButton(1337, this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"));
         buttonList.add(buttonRefresh);
         
-        toggle = new GuiButton(5, width - 60,   6, 60, 20,"Friends");
+        toggle = new GuiButton(5, width - 60,   6, 60, 20,"Muted");
         buttonList.add(toggle);
     
     }
@@ -167,6 +168,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
+        System.out.println(button.id);
         if (button == buttonCancel)
         {
             if (!addFriend)
@@ -243,7 +245,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawBackground(0);
-        if(toggle.displayString == "Friends")
+        if(toggle.displayString == "Muted")
         {
             if (!addFriend)
             {
@@ -258,7 +260,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             }
             this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         }
-        else if(toggle.displayString == "Muted")
+        else if(toggle.displayString == "Friends")
         {
             this.listMuted.drawScreen(mouseX, mouseY, partialTicks);
             this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
@@ -310,10 +312,10 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         this.codeEntry.myMouseClicked(mouseX, mouseY, mouseButton);
         this.displayEntry.myMouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        if(toggle.displayString == "Friends") {
+        if(toggle.displayString == "Muted") {
             this.list.mouseClicked(mouseX, mouseY, mouseButton);
         }
-        else if(toggle.displayString == "Muted")
+        else if(toggle.displayString == "Friends")
         {
             this.listMuted.mouseClicked(mouseX, mouseY, mouseButton);
         }
@@ -330,10 +332,10 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);
-        if(toggle.displayString == "Friends") {
+        if(toggle.displayString == "Muted") {
             this.list.mouseReleased(mouseX, mouseY, state);
         }
-        else if(toggle.displayString == "Muted") {
+        else if(toggle.displayString == "Friends") {
             this.listMuted.mouseReleased(mouseX, mouseY, state);
         }
     }
@@ -353,14 +355,29 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         removeFriend = friend;
         mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.removefriend.sure1"), I18n.format("minetogether.removefriend.sure2"), 0));
     }
+
+    public void unmutePlayer(String muted)
+    {
+        unmutePlayer = muted;
+        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.removefriend.sure1"), I18n.format("minetogether.removefriend.sure2"), 0));
+    }
     
     @Override
     public void confirmClicked(boolean result, int id)
     {
         if (result)
         {
-            Callbacks.removeFriend(removeFriend.getCode());
-            refreshFriendsList(true);
+            if(toggle.displayString == "Muted")
+            {
+                Callbacks.removeFriend(removeFriend.getCode());
+                refreshFriendsList(true);
+            }
+            else if(toggle.displayString == "Friends")
+            {
+                CreeperHost.instance.unmuteUser(unmutePlayer);
+                listMuted.clearList();
+                refreshMutedList(false);
+            }
         }
         mc.displayGuiScreen(this);
     }

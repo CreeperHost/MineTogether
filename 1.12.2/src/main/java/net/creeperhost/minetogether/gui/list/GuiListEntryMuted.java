@@ -59,7 +59,7 @@ public class GuiListEntryMuted extends GuiListEntry
         }
     }
     
-    public String getFriend()
+    public String getMuted()
     {
         return muted;
     }
@@ -70,7 +70,7 @@ public class GuiListEntryMuted extends GuiListEntry
         int listWidth = list.getListWidth();
         if (x >= listWidth - stringWidth - 4 && x <= listWidth - 5 && y >= 0 && y <= 7)
         {
-            CreeperHost.mutedUsers.remove(muted);
+            friendsListgui.unmutePlayer(muted);
             wasHovering = false;
             friendsListgui.setHoveringText(null);
             return false;
