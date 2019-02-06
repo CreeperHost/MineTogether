@@ -228,7 +228,9 @@ public class EventHandler
             } catch (IllegalAccessException e)
             {
             }
-            event.setGui(new GuiChatOurs(presetString, sleep));
+            try {
+                event.setGui(new GuiChatOurs(presetString, sleep));
+            }catch (Exception e){}
         }
     }
     

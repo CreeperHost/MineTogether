@@ -179,15 +179,18 @@ public class GuiChatOurs extends GuiChat
                 ourChat.base = switchButton.firstActiveButton;
                 switchButton.displayString = ourChat.base ? "MineTogether Chat" : "Minecraft Chat";
             }
-            else
-            {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiGDPR(null, () ->
-                {
-                    ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = false;
-                    return new GuiChatOurs(presetString, sleep);
-                }));
+            else {
+                try {
+                    Minecraft.getMinecraft().displayGuiScreen(new GuiGDPR(null, () ->
+                    {
+                        ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = false;
+                        return new GuiChatOurs(presetString, sleep);
+                    }));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return;
             }
-            return;
         }
         else if (sleep && button.id == 1)
         {
