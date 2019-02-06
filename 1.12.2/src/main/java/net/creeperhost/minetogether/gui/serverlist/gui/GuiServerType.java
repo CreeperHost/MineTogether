@@ -50,9 +50,9 @@ public class GuiServerType extends GuiScreen
         super.initGui();
         buttonList.clear();
         
-        buttonList.add(PUBLIC = new GuiButtonLarge(1, width / 2 - 140, height / 8, 100, 180, "PUBLIC", "Open Servers have no limitations on entry. Anyone can join and immediately start playing, and their player bases can be large, but their open nature increases the risk of griefing.", new ItemStack(Items.BANNER)));
-        buttonList.add(COMMUNITY = new GuiButtonLarge(2, width / 2 - 40, height / 8, 100, 180, "COMMUNITY", "Community Servers are still relatively open, but require being added to an approved list of members to join, offering increased security and peace of mind with vetted users.", new ItemStack(Items.OAK_DOOR)));
-        buttonList.add(APPLICATION = new GuiButtonLarge(3, width / 2 + 60, height / 8, 100, 180, "CLOSED", "Closed Servers require a direct invite from the server owner to join. Usually for groups of friends, these servers may be smaller in population, but with the highest level of trust between users.", new ItemStack(Items.IRON_DOOR)));
+        buttonList.add(PUBLIC = new GuiButtonLarge(1, width / 2 - 160, height / 8, 120, 180, "PUBLIC", "Public Servers don't have any limitations on entry. Anyone can join and immediately start playing, and their player bases can be large, but their open nature can increases the chance of being griefed.", new ItemStack(Items.BANNER)));
+        buttonList.add(COMMUNITY = new GuiButtonLarge(2, width / 2 - 40, height / 8, 120, 180, "COMMUNITY", "Community Servers are still relatively open, but will require being added to an approved list of members to join, offering some increased security and peace of mind with vetted users.", new ItemStack(Items.OAK_DOOR)));
+        buttonList.add(APPLICATION = new GuiButtonLarge(3, width / 2 + 80, height / 8, 120, 180, "CLOSED", "Closed Servers require a direct invite from the server owner to join. Usually for groups of friends, these servers may be smaller in population, but with the highest level of trust between users.", new ItemStack(Items.IRON_DOOR)));
         buttonList.add(EXIT = new GuiButton(4, width / 4, height - 20, 220, 20, "MAIN MENU"));
     }
     
