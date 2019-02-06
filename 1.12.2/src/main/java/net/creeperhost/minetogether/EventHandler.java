@@ -52,7 +52,6 @@ import java.util.Map;
 
 public class EventHandler
 {
-    
     private static final int MAIN_BUTTON_ID = 30051988;
     private static final int MP_BUTTON_ID = 8008135;
     private static final int CHAT_BUTTON_ID = 800813;

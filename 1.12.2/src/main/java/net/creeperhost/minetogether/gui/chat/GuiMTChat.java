@@ -7,6 +7,8 @@ import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
+import net.creeperhost.minetogether.gui.element.GuiButtonCreeper;
+import net.creeperhost.minetogether.gui.element.GuiButtonRefresh;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -48,7 +50,8 @@ public class GuiMTChat extends GuiScreen
     private String activeDropdown;
     private GuiButton reconnectionButton;
     private GuiButton cancelButton;
-    
+    private GuiButton manuelRefresh;
+
     public GuiMTChat(GuiScreen parent)
     {
         this.parent = parent;
@@ -74,6 +77,7 @@ public class GuiMTChat extends GuiScreen
         buttonList.add(cancelButton = new GuiButton(-800885, width - 100 - 5, height - 5 - 20, 100, 20, "Cancel"));
         buttonList.add(reconnectionButton = new GuiButton(-80084, 5 + 80, height - 5 - 20, 100, 20, "Reconnect"));
         reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
+        buttonList.add(manuelRefresh = new GuiButtonRefresh(8080, width -125, height -5 - 20));
         send.setMaxStringLength(120);
         send.setFocused(true);
     }
@@ -185,6 +189,10 @@ public class GuiMTChat extends GuiScreen
         } else if (button == cancelButton)
         {
             this.mc.displayGuiScreen(parent);
+        }
+        else if (button == manuelRefresh)
+        {
+            ChatHandler.reInit();
         }
         chat.actionPerformed(button);
         super.actionPerformed(button);

@@ -14,7 +14,6 @@ import java.util.List;
  */
 public class CreeperHostServerSelectionList extends ServerSelectionList
 {
-    
     private List<ServerListEntryNormal> ourList;
     private GuiMultiplayer ourParent;
     

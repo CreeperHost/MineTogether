@@ -1,24 +1,22 @@
 package net.creeperhost.minetogether.gui.element;
 
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.common.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiButtonCreeper extends GuiButton
+public class GuiButtonRefresh extends GuiButton
 {
-    private static ResourceLocation buttonImg = new ResourceLocation("creeperhost", "textures/nobrand.png");
+    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/gui.png");
     private final int index;
-    
-    public GuiButtonCreeper(int buttonID, int xPos, int yPos, int index)
+
+    public GuiButtonRefresh(int buttonID, int xPos, int yPos, int index)
     {
         super(buttonID, xPos, yPos, 20, 20, "");
         this.index = index;
     }
-    
-    public GuiButtonCreeper(int buttonID, int xPos, int yPos)
+
+    public GuiButtonRefresh(int buttonID, int xPos, int yPos)
     {
         this(buttonID, xPos, yPos, 0);
     }
@@ -38,14 +36,11 @@ public class GuiButtonCreeper extends GuiButton
     {
         if (this.visible)
         {
-            ResourceLocation buttonImage = buttonImg;
-            if (Config.getInstance().isServerHostButtonImage())
-                buttonImage = CreeperHost.instance.getImplementation().getButtonIcon();
-            mc.getTextureManager().bindTexture(buttonImage);
+            mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            
+
             boolean over = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-            this.drawTexturedModalRect(this.xPosition, this.yPosition, index * 20, over ? this.height : 0, this.width, this.height);
+            this.drawTexturedModalRect(this.xPosition, this.yPosition, (index + 2)* 20, over ? this.height : 0, this.width, this.height);
         }
     }
 }
