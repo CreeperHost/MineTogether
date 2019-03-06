@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.gui.chat;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
@@ -26,6 +27,7 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.apache.commons.lang3.StringUtils;
+import org.lwjgl.Sys;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -50,7 +52,6 @@ public class GuiMTChat extends GuiScreen
     private String activeDropdown;
     private GuiButton reconnectionButton;
     private GuiButton cancelButton;
-    private GuiButton manuelRefresh;
 
     public GuiMTChat(GuiScreen parent)
     {
@@ -77,7 +78,7 @@ public class GuiMTChat extends GuiScreen
         buttonList.add(cancelButton = new GuiButton(-800885, width - 100 - 5, height - 5 - 20, 100, 20, "Cancel"));
         buttonList.add(reconnectionButton = new GuiButton(-80084, 5 + 80, height - 5 - 20, 100, 20, "Reconnect"));
         reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
-        buttonList.add(manuelRefresh = new GuiButtonRefresh(8080, width -125, height -5 - 20));
+
         send.setMaxStringLength(120);
         send.setFocused(true);
     }
@@ -106,7 +107,6 @@ public class GuiMTChat extends GuiScreen
                 ChatHandler.setMessagesRead(currentTarget);
             }
         }
-        
     }
     
     boolean disabledDueToConnection = false;
@@ -135,7 +135,7 @@ public class GuiMTChat extends GuiScreen
             Target.updateCache();
             if (!targetDropdownButton.getSelected().getPossibleVals().contains(targetDropdownButton.getSelected()))
                 targetDropdownButton.setSelected(Target.getMainTarget());
-            processBadwords();
+//            processBadwords();
         }
         drawCenteredString(fontRendererObj, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
         ITextComponent comp = new TextComponentString("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
@@ -170,6 +170,20 @@ public class GuiMTChat extends GuiScreen
     @Override
     public void actionPerformed(GuiButton button) throws IOException
     {
+        if(button == targetDropdownButton && targetDropdownButton.displayString.contains("new channel"))
+        {
+            PrivateChat p = new PrivateChat("#" + CreeperHost.instance.ourNick, CreeperHost.instance.ourNick);
+            System.out.println(p.getChannelname());
+            ChatHandler.privateChatList = p;
+            ChatHandler.createChannel(p.getChannelname());
+
+            try
+            {
+                Target.updateCache();
+//                targetDropdownButton.setSelected(Target.getPrivateChannel());
+            }
+            catch (Exception e) { e.printStackTrace(); }
+        }
         if (button == menuDropdownButton)
         {
             if (menuDropdownButton.getSelected().option.equals("Mute"))
@@ -189,10 +203,6 @@ public class GuiMTChat extends GuiScreen
         } else if (button == cancelButton)
         {
             this.mc.displayGuiScreen(parent);
-        }
-        else if (button == manuelRefresh)
-        {
-            ChatHandler.reInit();
         }
         chat.actionPerformed(button);
         super.actionPerformed(button);
@@ -246,7 +256,6 @@ public class GuiMTChat extends GuiScreen
         super.handleMouseInput();
         chat.handleElementClicks();
         this.chat.handleMouseInput(mouseX, mouseY);
-        
     }
     
     @Override
@@ -307,7 +316,6 @@ public class GuiMTChat extends GuiScreen
         {
             send.setEnabled(false);
         }
-
 //        processBadwords();
     }
     
@@ -417,8 +425,6 @@ public class GuiMTChat extends GuiScreen
                     ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") accepted your friend request.");
                     
                     return userComp;
-                
-                
             }
         }
         
@@ -528,7 +534,6 @@ public class GuiMTChat extends GuiScreen
     
     private class GuiScrollingChat extends GuiScrollingList
     {
-        
         private ArrayList<ITextComponent> lines;
         
         GuiScrollingChat(int entryHeight)

@@ -68,13 +68,15 @@ public class GuiChatFriend extends GuiScreen
         {
             Minecraft.getMinecraft().displayGuiScreen(parent);
             return;
-        } else if (button == acceptBtn)
+        }
+        else if (button == acceptBtn)
         {
             if (accept)
             {
                 ChatHandler.acceptFriendRequest(chatInternalName, nameEntry.getText().trim());
                 new Thread(() -> Callbacks.addFriend(friendCode, friendName)).start();
-            } else
+            }
+            else
             {
                 ChatHandler.sendFriendRequest(chatInternalName, nameEntry.getText().trim());
             }

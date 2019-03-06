@@ -136,7 +136,6 @@ public class GuiChatOurs extends GuiChat
                 GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
                 ourChat.base = true;
             }
-            
         }
         super.initGui();
         List<String> strings = new ArrayList<>();

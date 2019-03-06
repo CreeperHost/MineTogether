@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.gui.serverlist.gui;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
@@ -34,6 +35,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private GuiButton buttonChat;
     private GuiButton buttonRemove;
     private GuiButton toggle;
+    private GuiButton channelInviteButton;
     private GuiTextFieldCompat codeEntry;
     private GuiTextFieldCompat displayEntry;
     
@@ -47,6 +49,8 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private ArrayList<String> hoverTextCache = null;
     private Friend removeFriend;
     private String unmutePlayer;
+    private Friend invitedPlayer;
+    private boolean channelInvite = false;
     
     public GuiFriendsList(GuiScreen currentScreen)
     {
@@ -125,7 +129,6 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         
         toggle = new GuiButton(5, width - 60,   6, 60, 20,"Muted");
         buttonList.add(toggle);
-    
     }
     
     protected void refreshFriendsList(boolean force)
@@ -168,7 +171,6 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
-        System.out.println(button.id);
         if (button == buttonCancel)
         {
             if (!addFriend)
@@ -356,10 +358,16 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.removefriend.sure1"), I18n.format("minetogether.removefriend.sure2"), 0));
     }
 
+    public void inviteGroupChat(Friend invited)
+    {
+        invitedPlayer = invited;
+        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.groupinvite.sure1"), I18n.format("minetogether.groupinvite.sure2"), 1));
+    }
+
     public void unmutePlayer(String muted)
     {
         unmutePlayer = muted;
-        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.removefriend.sure1"), I18n.format("minetogether.removefriend.sure2"), 0));
+        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.unmute.sure1"), I18n.format("minetogether.unmute.sure2"), 2));
     }
     
     @Override
@@ -367,16 +375,22 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     {
         if (result)
         {
-            if(toggle.displayString == "Muted")
+            if(id == 0)
             {
                 Callbacks.removeFriend(removeFriend.getCode());
                 refreshFriendsList(true);
             }
-            else if(toggle.displayString == "Friends")
+            else if(id == 2)
             {
                 CreeperHost.instance.unmuteUser(unmutePlayer);
                 listMuted.clearList();
                 refreshMutedList(false);
+            }
+            else if(id == 1)
+            {
+                String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
+                System.out.println("Sending group invite to " + friendCode);
+                ChatHandler.sendChannelInvite(friendCode, CreeperHost.instance.ourNick);
             }
         }
         mc.displayGuiScreen(this);

@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.chat;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.minecraft.util.text.Style;
@@ -20,6 +21,7 @@ class Target implements DropdownButton.IDropdownOption
     private static Map<String, String> oldFriends;
     private static int oldMessagesSize;
     private final boolean isChannel;
+    public static Target privateChannel;
     
     private Target(String targetName, String internalTarget, boolean isChannel)
     {
@@ -116,7 +118,6 @@ class Target implements DropdownButton.IDropdownOption
                 }
                 tempSet.add(tempTarget);
             }
-            
         }
         
         for (String chat : ChatHandler.messages.keySet())
@@ -131,6 +132,18 @@ class Target implements DropdownButton.IDropdownOption
                     break;
                 }
             }
+        }
+
+        if(ChatHandler.privateChatList == null)
+        {
+            Target t = new Target("new channel", ChatHandler.CHANNEL, false);
+            tempSet.add(t);
+        }
+        else
+        {
+            Target p = new Target("Group Chat", ChatHandler.privateChatList.getChannelname(), true);
+            privateChannel = p;
+            tempSet.add(p);
         }
         
         possibleValsCache = new ArrayList<>(tempSet);
@@ -168,6 +181,11 @@ class Target implements DropdownButton.IDropdownOption
     public boolean equals(Object obj)
     {
         return obj instanceof Target && (((Target) obj).internalTarget.equals(internalTarget)) && ((Target) obj).targetName.equals(targetName);
+    }
+
+    public static Target getPrivateChannel()
+    {
+        return privateChannel;
     }
     
     @Override

@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.chat;
 
-import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
@@ -20,7 +19,6 @@ import org.kitteh.irc.client.library.event.user.UserQuitEvent;
 import org.kitteh.irc.client.library.util.Format;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 public class ChatHandler
 {
@@ -41,6 +39,7 @@ public class ChatHandler
     public static String initedString = null;
     private static String nick;
     private static String realName;
+    public static PrivateChat privateChatList = null;
 
     public static void init(String nickIn, String realNameIn, IHost _host)
     {
@@ -138,8 +137,19 @@ public class ChatHandler
     {
         if (currentTarget.equals(CHANNEL))
             client.getChannel(CHANNEL).get().sendMessage(text);
+        else if(currentTarget == privateChatList.channelname)
+        {
+            try {
+                client.addChannel(currentTarget); //Just to make sure the user is connected to the channel
+                client.getChannel(currentTarget).get().sendMessage(text);
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
         else if(client.getChannel(CHANNEL).get().getUser(currentTarget).isPresent())
             client.getChannel(CHANNEL).get().getUser(currentTarget).get().sendMessage(text);
+
         else
         {
             updateFriends(client.getChannel(CHANNEL).get().getNicknames());
@@ -160,6 +170,21 @@ public class ChatHandler
             User user = userOpt.get();
             StringBuilder builder = new StringBuilder("FRIENDREQ ").append(host.getFriendCode()).append(" ").append(desiredName);
             user.sendCtcpMessage(builder.toString());
+        } else {
+            addMessageToChat(CHANNEL, "System", "User is not online.");
+        }
+    }
+
+    public static void sendChannelInvite(String target, String owner)
+    {
+        Optional<User> userOpt = client.getChannel(CHANNEL).get().getUser(target);
+        if (userOpt.isPresent())
+        {
+            User user = userOpt.get();
+            StringBuilder builder = new StringBuilder("INVITEREQ ").append(owner).append(" ").append("#" + owner);
+            String s = "INVITEREQ " + owner;
+            user.sendCtcpMessage(builder.toString());
+            System.out.println("sendchannelinvite " + builder.toString() + " target " + target);
         } else {
             addMessageToChat(CHANNEL, "System", "User is not online.");
         }
@@ -255,7 +280,7 @@ public class ChatHandler
         @Handler
         public void onChannelJoin(ChannelJoinEvent event)
         {
-            if (event.getChannel().getLowerCaseName().equals(CHANNEL.toLowerCase()) && client.isUser(event.getUser()))
+            if (client.isUser(event.getUser()))
             {
                 synchronized (ircLock)
                 {
@@ -300,7 +325,7 @@ public class ChatHandler
 
             synchronized (ircLock)
             {
-                addMessageToChat(CHANNEL, user.getNick(), Format.stripAll(message));
+                addMessageToChat(event.getChannel().getName(), user.getNick(), Format.stripAll(message));
             }
 
             updateFriends(client.getChannel(CHANNEL).get().getNicknames());
@@ -394,6 +419,7 @@ public class ChatHandler
             if (event.isToClient())
             {
                 String message = event.getMessage();
+
                 String[] split = message.split(" ");
                 if (split.length < 3)
                     return;
@@ -418,6 +444,11 @@ public class ChatHandler
 
                     host.acceptFriend(split[1], builder.toString().trim());
                     addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
+
+                } else if (split[0].equals("INVITEREQ"))
+                {
+                    privateChatList = new PrivateChat(split[2], split[1]);
+                    client.addChannel(split[2]);
                 }
             }
         }
@@ -432,6 +463,30 @@ public class ChatHandler
             else
                 event.setNewNick(nick + "`");
         }
+    }
+
+    public static void createChannel(String name)
+    {
+        client.addChannel(name);
+    }
+
+    public static void joinPrivateChannel(PrivateChat privateChat)
+    {
+        client.addChannel(privateChat.channelname);
+    }
+
+    public static boolean hasPrivateChannel(String name)
+    {
+        return client.getChannels().contains("#" + name);
+    }
+
+    public static void removeChannel(String name)
+    {
+        try
+        {
+            client.removeChannel("#" + name);
+        }
+        catch (Exception e){e.printStackTrace();}
     }
 
     public enum ConnectionStatus

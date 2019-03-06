@@ -37,7 +37,6 @@ public class GuiListEntryFriend extends GuiListEntry
                 transparency -= 0.04;
         }
         
-        
         this.mc.fontRendererObj.drawString(friend.getName(), x + 5, y + 5, 16777215);
         this.mc.fontRendererObj.drawString(new TextComponentString(friend.isAccepted() ? "Accepted" : "Pending").getText(), x + 5, y + 5 + 10, 16777215);
         
@@ -46,6 +45,7 @@ public class GuiListEntryFriend extends GuiListEntry
         GlStateManager.enableAlpha();
         GlStateManager.enableBlend();
         this.mc.fontRendererObj.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
+        this.mc.fontRendererObj.drawStringWithShadow("I", listWidth + x - stringWidth - 2, y + 20, 0xFF0000 + transparentString);
         GlStateManager.disableAlpha();
         GlStateManager.disableBlend();
         
@@ -53,7 +53,12 @@ public class GuiListEntryFriend extends GuiListEntry
         {
             wasHovering = true;
             friendsList.setHoveringText("Click here to remove friend");
-        } else if (wasHovering)
+        }
+        else if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 2 + x && mouseY >= y && mouseY <= y + 27) {
+            wasHovering = true;
+            friendsList.setHoveringText("Click here to invite friend to private channel");
+        }
+        else if (wasHovering)
         {
             wasHovering = false;
             friendsList.setHoveringText(null);
@@ -72,6 +77,13 @@ public class GuiListEntryFriend extends GuiListEntry
         if (x >= listWidth - stringWidth - 4 && x <= listWidth - 5 && y >= 0 && y <= 7)
         {
             friendsList.removeFriend(friend);
+            wasHovering = false;
+            friendsList.setHoveringText(null);
+            return false;
+        }
+        else if (x >= listWidth - stringWidth - 4 && x <= listWidth - 2 && y >= 0 && y <= 27)
+        {
+            friendsList.inviteGroupChat(friend);
             wasHovering = false;
             friendsList.setHoveringText(null);
             return false;
