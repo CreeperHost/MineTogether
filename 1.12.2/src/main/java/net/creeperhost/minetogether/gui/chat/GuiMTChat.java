@@ -12,12 +12,10 @@ import net.creeperhost.minetogether.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.gui.element.GuiButtonRefresh;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiUtilRenderComponents;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
@@ -36,6 +34,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,6 +51,7 @@ public class GuiMTChat extends GuiScreen
     private String activeDropdown;
     private GuiButton reconnectionButton;
     private GuiButton cancelButton;
+    private GuiButton invited;
 
     public GuiMTChat(GuiScreen parent)
     {
@@ -78,6 +78,8 @@ public class GuiMTChat extends GuiScreen
         buttonList.add(cancelButton = new GuiButton(-800885, width - 100 - 5, height - 5 - 20, 100, 20, "Cancel"));
         buttonList.add(reconnectionButton = new GuiButton(-80084, 5 + 80, height - 5 - 20, 100, 20, "Reconnect"));
         reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
+
+        buttonList.add(invited = new GuiButton(777, 5 + 70, height - 5 - 20, 60, 20, "Invites"));
 
         send.setMaxStringLength(120);
         send.setFocused(true);
@@ -173,16 +175,8 @@ public class GuiMTChat extends GuiScreen
         if(button == targetDropdownButton && targetDropdownButton.displayString.contains("new channel"))
         {
             PrivateChat p = new PrivateChat("#" + CreeperHost.instance.ourNick, CreeperHost.instance.ourNick);
-            System.out.println(p.getChannelname());
             ChatHandler.privateChatList = p;
             ChatHandler.createChannel(p.getChannelname());
-
-            try
-            {
-                Target.updateCache();
-//                targetDropdownButton.setSelected(Target.getPrivateChannel());
-            }
-            catch (Exception e) { e.printStackTrace(); }
         }
         if (button == menuDropdownButton)
         {
@@ -204,12 +198,30 @@ public class GuiMTChat extends GuiScreen
         {
             this.mc.displayGuiScreen(parent);
         }
+        else if (button == invited && ChatHandler.privateChatInvite != null)
+        {
+            mc.displayGuiScreen(new GuiYesNo(this, I18n.format("You have been invited to join a private channel"), I18n.format("Do you wish to accept this invite?"), 777));
+        }
         chat.actionPerformed(button);
         super.actionPerformed(button);
     }
-    
+
+    @Override
+    public void confirmClicked(boolean result, int id)
+    {
+        if(result)
+        {
+            if(id == 777 && ChatHandler.privateChatInvite != null)
+            {
+                ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
+            }
+        }
+        mc.displayGuiScreen(this);
+    }
+
     boolean disabledDueToBadwords = false;
-    
+
+    @Deprecated
     public void processBadwords()
     {
         String text = send.getText().replaceAll(ChatHandler.badwordsFormat, "");
@@ -327,9 +339,7 @@ public class GuiMTChat extends GuiScreen
         {
             field = GuiScrollingList.class.getDeclaredField("scrollDistance");
             field.setAccessible(true);
-        } catch (NoSuchFieldException e)
-        {
-        }
+        } catch (NoSuchFieldException e) {}
     }
     
     @Override
@@ -630,9 +640,7 @@ public class GuiMTChat extends GuiScreen
         }
         
         @Override
-        protected void drawBackground()
-        {
-        }
+        protected void drawBackground() {}
         
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess)

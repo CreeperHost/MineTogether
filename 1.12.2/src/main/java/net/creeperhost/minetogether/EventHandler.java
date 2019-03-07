@@ -2,6 +2,8 @@ package net.creeperhost.minetogether;
 
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.aries.Aries;
+import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.GuiGetServer;
 import net.creeperhost.minetogether.gui.GuiMinigames;
@@ -725,18 +727,20 @@ public class EventHandler
             {
                 inviteCheckThread = new Thread(new Runnable()
                 {
-                    
                     @Override
                     public void run()
                     {
                         while (Config.getInstance().isServerListEnabled())
                         {
                             Invite tempInvite = null;
+                            PrivateChat temp = null;
                             
                             try
                             {
                                 tempInvite = Callbacks.getInvite();
-                            } catch (Exception e)
+                                temp = ChatHandler.privateChatInvite;
+                            }
+                            catch (Exception e)
                             {
                                 // carry on - we'll just try again later, saves thread dying.
                             }
@@ -745,6 +749,11 @@ public class EventHandler
                             {
                                 if (tempInvite != null)
                                     CreeperHost.instance.invite = tempInvite;
+                            }
+
+                            if(temp != null)
+                            {
+                                CreeperHost.instance.displayToast(I18n.format("You have been invited to a private group chat", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000);
                             }
                             
                             try
@@ -794,9 +803,7 @@ public class EventHandler
                 {
                     CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000);
                 }
-                
             }
-            
         }
         
         if (Config.getInstance().isChatEnabled())

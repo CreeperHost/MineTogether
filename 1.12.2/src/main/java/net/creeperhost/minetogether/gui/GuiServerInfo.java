@@ -18,28 +18,19 @@ import java.util.*;
 @SideOnly(Side.CLIENT)
 public class GuiServerInfo extends GuiScreen
 {
-    boolean isPlayerOpped = true; //TODO: Make me get fetched.
+    boolean isPlayerOpped = true;
     
     long ticks;
     private String header;
     
-    public GuiServerInfo()
-    {
-    }
+    public GuiServerInfo() {}
     
     @SuppressWarnings("Duplicates")
     public static <K, V extends Comparable<? super V>> Map<K, V>
     sortByValue(Map<K, V> map)
     {
-        List<Map.Entry<K, V>> list =
-                new LinkedList<Map.Entry<K, V>>(map.entrySet());
-        Collections.sort(list, new Comparator<Map.Entry<K, V>>()
-        {
-            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2)
-            {
-                return (o2.getValue()).compareTo(o1.getValue());
-            }
-        });
+        List<Map.Entry<K, V>> list =  new LinkedList<Map.Entry<K, V>>(map.entrySet());
+        Collections.sort(list, (o1, o2) -> (o2.getValue()).compareTo(o1.getValue()));
         
         Map<K, V> result = new LinkedHashMap<K, V>();
         for (Map.Entry<K, V> entry : list)
@@ -56,16 +47,12 @@ public class GuiServerInfo extends GuiScreen
     
     public boolean renderServerInfo()
     {
-        
         Map<String, Integer> myList = new LinkedHashMap<String, Integer>();
-        
         int i = 0;
         int j = 0;
         int k = 0;
-        
         try
         {
-            
             if (CreeperHost.instance.getQueryGetter().getExtendedServerData() == null)
             {
                 return false;
@@ -83,17 +70,6 @@ public class GuiServerInfo extends GuiScreen
             }
             
             header = String.format("%s %s%.2f(%.2f)", Util.localize("gui.tps"), color, tpsInfo.get("tps"), tpsInfo.get("ticktime"));
-
-            /*drawString(mc.fontRendererObj, Util.localize("gui.tileentities"), tileEntityLeft + 5, tileEntityTop, 0xFFFFFFFF);
-            drawHorizontalLine(tileEntityLeft + 5, tileEntityLeft + 5 + mc.fontRendererObj.getStringWidth(Util.localize("gui.tileentities")), tileEntityTop + mc.fontRendererObj.FONT_HEIGHT, 0xFFFFFFFF);
-            index = 0;
-
-            Map<String, Integer> tileEntities = CreeperHost.instance.getQueryGetter().getExtendedServerData().getTileEntitiesInDimension(Minecraft.getMinecraft().theWorld.provider.getDimension());
-            //drawString(mc.fontRendererObj, Minecraft.getMinecraft().theWorld.provider.getDimensionType().getName(), tileEntityLeft + 5, tileEntityTop + 2 + (mc.fontRendererObj.FONT_HEIGHT + 2) * (index + 1), 0xFFFFFFFF);
-            index++;
-            for(Map.Entry<String, Integer> entity: tileEntities.entrySet()){
-                myList.put(entity.getKey(), entity.getValue());
-            }*/
             
             Map<String, Integer> entities = CreeperHost.instance.getQueryGetter().getExtendedServerData().getEntitiesInDimension(Minecraft.getMinecraft().world.provider.getDimension());
             for (Map.Entry entity : entities.entrySet())
@@ -128,7 +104,8 @@ public class GuiServerInfo extends GuiScreen
                     if (start <= 5)
                     {
                         start = 0;
-                    } else
+                    }
+                    else
                     {
                         start -= 6;
                     }
@@ -141,19 +118,19 @@ public class GuiServerInfo extends GuiScreen
                     int end = start + 15;
                     
                     key = key.substring(start, end);
-                } else
+                }
+                else
                 {
                     k = this.mc.fontRendererObj.getStringWidth(key);
                     i = Math.max(i, k);
                 }
-                
                 Double value = (Double) entity.getValue();
                 int finalVal = value.intValue();
                 myList.put(key, finalVal);
             }
-            
             myList = sortByValue(myList);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -161,7 +138,6 @@ public class GuiServerInfo extends GuiScreen
         for (Map.Entry<String, Integer> entString : myList.entrySet())
         {
             k = this.mc.fontRendererObj.getStringWidth(" " + entString.getValue());
-            
             j = Math.max(j, k);
         }
         
@@ -209,7 +185,6 @@ public class GuiServerInfo extends GuiScreen
                 this.mc.fontRendererObj.drawStringWithShadow(s2, (float) (width / 2 - i2 / 2), (float) k1, -1);
                 k1 += this.mc.fontRendererObj.FONT_HEIGHT;
             }
-            
             ++k1;
         }
         

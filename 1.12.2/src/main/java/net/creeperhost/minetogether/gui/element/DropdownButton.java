@@ -167,8 +167,10 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
     
     public void setSelected(E selected)
     {
-        this.selected = selected;
-        updateDisplayString();
+        try {
+            this.selected = selected;
+            updateDisplayString();
+        }catch (Exception e){ e.printStackTrace(); }
     }
     
     public void updateDisplayString()

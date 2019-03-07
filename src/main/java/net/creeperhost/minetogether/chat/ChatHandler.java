@@ -40,6 +40,7 @@ public class ChatHandler
     private static String nick;
     private static String realName;
     public static PrivateChat privateChatList = null;
+    public static PrivateChat privateChatInvite = null;
 
     public static void init(String nickIn, String realNameIn, IHost _host)
     {
@@ -68,7 +69,6 @@ public class ChatHandler
                 client.addChannel(CHANNEL);
             }).start();
         }
-
         inited = true;
     }
 
@@ -136,20 +136,25 @@ public class ChatHandler
     public static void sendMessage(String currentTarget, String text)
     {
         if (currentTarget.equals(CHANNEL))
-            client.getChannel(CHANNEL).get().sendMessage(text);
-        else if(currentTarget == privateChatList.channelname)
         {
-            try {
-                client.addChannel(currentTarget); //Just to make sure the user is connected to the channel
-                client.getChannel(currentTarget).get().sendMessage(text);
-            }catch (Exception e)
+            client.getChannel(CHANNEL).get().sendMessage(text);
+        }
+        if(currentTarget.equals(privateChatList.channelname))
+        {
+            try
+            {
+                client.addChannel(privateChatList.getChannelname()); //Just to make sure the user is connected to the channel
+                client.getChannel(privateChatList.getChannelname()).get().sendMessage(text);
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
         }
         else if(client.getChannel(CHANNEL).get().getUser(currentTarget).isPresent())
+        {
             client.getChannel(CHANNEL).get().getUser(currentTarget).get().sendMessage(text);
-
+        }
         else
         {
             updateFriends(client.getChannel(CHANNEL).get().getNicknames());
@@ -218,6 +223,13 @@ public class ChatHandler
         user.sendCtcpMessage("FRIENDACC " + host.getFriendCode() + " " + desiredName);
 
         addMessageToChat(CHANNEL, "System", "Friend request accepted.");
+    }
+
+    public static void acceptPrivateChatInvite(PrivateChat invite)
+    {
+        privateChatList = invite;
+        client.addChannel(invite.getChannelname());
+        privateChatInvite = null;
     }
 
     public static class Listener
@@ -319,8 +331,6 @@ public class ChatHandler
             String message = event.getMessage();
 
             if (!curseSync.containsKey(user.getNick())) curseSync.put(user.getNick(), user.getRealName().get());
-
-
             if (!realnameCache.containsKey(user.getNick())) realnameCache.put(user.getNick(), user.getRealName().get());
 
             synchronized (ircLock)
@@ -447,8 +457,7 @@ public class ChatHandler
 
                 } else if (split[0].equals("INVITEREQ"))
                 {
-                    privateChatList = new PrivateChat(split[2], split[1]);
-                    client.addChannel(split[2]);
+                    privateChatInvite = new PrivateChat(split[2], split[2]);
                 }
             }
         }
@@ -468,25 +477,6 @@ public class ChatHandler
     public static void createChannel(String name)
     {
         client.addChannel(name);
-    }
-
-    public static void joinPrivateChannel(PrivateChat privateChat)
-    {
-        client.addChannel(privateChat.channelname);
-    }
-
-    public static boolean hasPrivateChannel(String name)
-    {
-        return client.getChannels().contains("#" + name);
-    }
-
-    public static void removeChannel(String name)
-    {
-        try
-        {
-            client.removeChannel("#" + name);
-        }
-        catch (Exception e){e.printStackTrace();}
     }
 
     public enum ConnectionStatus
