@@ -80,6 +80,7 @@ public class GuiMTChat extends GuiScreen
         reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
 
         buttonList.add(invited = new GuiButton(777, 5 + 70, height - 5 - 20, 60, 20, "Invites"));
+        invited.visible = ChatHandler.privateChatInvite != null;
 
         send.setMaxStringLength(120);
         send.setFocused(true);

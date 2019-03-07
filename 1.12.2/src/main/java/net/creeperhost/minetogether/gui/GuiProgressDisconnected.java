@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 
 public class GuiProgressDisconnected extends GuiScreen
 {
-    
     private final GuiScreen parentScreen;
     double percent = 0;
     Pattern pattern = Pattern.compile("(\\d+/\\d+).*");

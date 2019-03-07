@@ -76,9 +76,7 @@ public class GuiQuote extends GuiGetServer
                     list.setCurrSelected(listEntry);
                 }
             }
-            
         }
-        
     }
     
     @SuppressWarnings("Duplicates")
@@ -92,7 +90,6 @@ public class GuiQuote extends GuiGetServer
         
         Runnable runnable = new Runnable()
         {
-            
             @Override
             public void run()
             {

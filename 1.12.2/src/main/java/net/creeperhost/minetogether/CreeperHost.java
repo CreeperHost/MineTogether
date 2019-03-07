@@ -153,10 +153,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
             try //Temp fix until we cxan figure out why this fails
             {
                 realName = gson.toJson(jsonObj);
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            } catch (Exception e) {}
             
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();

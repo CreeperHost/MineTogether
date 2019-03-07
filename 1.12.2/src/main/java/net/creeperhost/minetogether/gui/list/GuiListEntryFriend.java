@@ -54,7 +54,6 @@ public class GuiListEntryFriend extends GuiListEntry
 
         Gui.drawModalRectWithCustomSizedTexture(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10F, 10F);
 
-//        this.mc.fontRendererObj.drawStringWithShadow("I", listWidth + x - stringWidth - 2, y + 20, 0xFF0000 + transparentString);
         GlStateManager.disableAlpha();
         GlStateManager.disableBlend();
         

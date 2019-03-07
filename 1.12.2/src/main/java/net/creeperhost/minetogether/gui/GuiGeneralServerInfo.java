@@ -105,11 +105,9 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
                 
                 Thread thread = new Thread(task);
                 thread.start();
-                
                 // Done in a thread as to not hold up the UI thread
             }
         }
-        
         this.buttonNext.enabled = !isEmpty && nameChecked && isAcceptable;
     }
     
@@ -121,7 +119,8 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         if (!this.nameField.textboxKeyTyped(typedChar, keyCode))
         {
             super.keyTyped(typedChar, keyCode);
-        } else
+        }
+        else
         {
             if (!nameFieldOldValue.equals(nameField.getText()))
             {
@@ -181,10 +180,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     }
     
     @Override
-    public void setEntryValue(int id, boolean value)
-    {
-    
-    }
+    public void setEntryValue(int id, boolean value) {}
     
     @Override
     public void setEntryValue(int id, float value)
@@ -193,8 +189,5 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     }
     
     @Override
-    public void setEntryValue(int id, String value)
-    {
-    
-    }
+    public void setEntryValue(int id, String value) {}
 }
