@@ -2,7 +2,10 @@ package net.creeperhost.minetogether.gui.list;
 
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.serverlist.data.Friend;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 
 public class GuiListEntryFriend extends GuiListEntry
@@ -13,7 +16,8 @@ public class GuiListEntryFriend extends GuiListEntry
     private float transparency = 0.5F;
     private boolean wasHovering;
     private final GuiFriendsList friendsList;
-    
+    ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/icon2.png");
+
     public GuiListEntryFriend(GuiFriendsList friendsListIn, GuiList list, Friend friend)
     {
         super(list);
@@ -45,7 +49,12 @@ public class GuiListEntryFriend extends GuiListEntry
         GlStateManager.enableAlpha();
         GlStateManager.enableBlend();
         this.mc.fontRendererObj.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
-        this.mc.fontRendererObj.drawStringWithShadow("I", listWidth + x - stringWidth - 2, y + 20, 0xFF0000 + transparentString);
+
+        Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);
+
+        Gui.drawModalRectWithCustomSizedTexture(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10F, 10F);
+
+//        this.mc.fontRendererObj.drawStringWithShadow("I", listWidth + x - stringWidth - 2, y + 20, 0xFF0000 + transparentString);
         GlStateManager.disableAlpha();
         GlStateManager.disableBlend();
         
