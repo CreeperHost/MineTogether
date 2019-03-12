@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.gui.list;
 
 public class GuiListEntryCountry extends GuiListEntry
 {
-    
     public final String countryID;
     public final String countryName;
     

@@ -1,10 +1,7 @@
 package net.creeperhost.minetogether.gui.list;
 
-import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
-import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.text.TextComponentString;
 
 public class GuiListEntryMuted extends GuiListEntry
 {
@@ -32,7 +29,8 @@ public class GuiListEntryMuted extends GuiListEntry
         {
             if (transparency <= 1.0F)
                 transparency += 0.04;
-        } else
+        }
+        else
         {
             if (transparency >= 0.5F)
                 transparency -= 0.04;
@@ -52,7 +50,8 @@ public class GuiListEntryMuted extends GuiListEntry
         {
             wasHovering = true;
             friendsListgui.setHoveringText("Click here to unmute");
-        } else if (wasHovering)
+        }
+        else if (wasHovering)
         {
             wasHovering = false;
             friendsListgui.setHoveringText(null);

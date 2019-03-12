@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.gui.list;
 
 public class GuiListEntryLocation extends GuiListEntry
 {
-    
     public final String locationName;
     public final String locationDisplay;
     
