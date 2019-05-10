@@ -52,6 +52,7 @@ public class ChatHandler
         badwordsFormat = ChatUtil.getAllowedCharactersRegex();
         IRC_SERVER = ChatUtil.getIRCServerDetails();
         CHANNEL = IRC_SERVER.channel;
+        //CHANNEL = "#test"; //TODO: DO NOT RELEASE LIKE THIS
         host = _host;
         tries = 0;
         nick = nickIn;
@@ -64,7 +65,7 @@ public class ChatHandler
                 client = Client.builder().nick(nickIn).realName(realName).user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) ->
                 {
                 } /* noop */).buildAndConnect();
-                ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(false); // no longer does a WHO;
+                ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(true); // Does a WHO - lets see how this works...
                 client.getEventManager().registerEventListener(new Listener());
                 client.addChannel(CHANNEL);
             }).start();
@@ -139,7 +140,7 @@ public class ChatHandler
         {
             client.getChannel(CHANNEL).get().sendMessage(text);
         }
-        if(currentTarget.equals(privateChatList.channelname))
+        else if(privateChatList != null && currentTarget.equals(privateChatList.channelname))
         {
             try
             {
@@ -329,9 +330,20 @@ public class ChatHandler
         {
             User user = event.getActor();
             String message = event.getMessage();
-
-            if (!curseSync.containsKey(user.getNick())) curseSync.put(user.getNick(), user.getRealName().get());
-            if (!realnameCache.containsKey(user.getNick())) realnameCache.put(user.getNick(), user.getRealName().get());
+            try {
+                if (!curseSync.containsKey(user.getNick())) {
+                    curseSync.put(
+                            user.getNick(),
+                            user.getRealName().get());
+                }
+                if (!realnameCache.containsKey(user.getNick())) {
+                    realnameCache.put(
+                            user.getNick(),
+                            user.getRealName().get());
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
 
             synchronized (ircLock)
             {
