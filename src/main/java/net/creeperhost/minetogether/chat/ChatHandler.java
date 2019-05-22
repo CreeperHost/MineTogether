@@ -6,16 +6,15 @@ import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.engio.mbassy.listener.Handler;
 import org.kitteh.irc.client.library.Client;
+import org.kitteh.irc.client.library.command.WhoisCommand;
 import org.kitteh.irc.client.library.element.Channel;
 import org.kitteh.irc.client.library.element.User;
+import org.kitteh.irc.client.library.element.WhoisData;
 import org.kitteh.irc.client.library.element.mode.ChannelUserMode;
 import org.kitteh.irc.client.library.event.channel.*;
 import org.kitteh.irc.client.library.event.client.*;
 import org.kitteh.irc.client.library.event.helper.UnexpectedChannelLeaveEvent;
-import org.kitteh.irc.client.library.event.user.PrivateCtcpQueryEvent;
-import org.kitteh.irc.client.library.event.user.PrivateMessageEvent;
-import org.kitteh.irc.client.library.event.user.PrivateNoticeEvent;
-import org.kitteh.irc.client.library.event.user.UserQuitEvent;
+import org.kitteh.irc.client.library.event.user.*;
 import org.kitteh.irc.client.library.util.Format;
 
 import java.util.*;
@@ -82,10 +81,10 @@ public class ChatHandler
     private static void addMessageToChat(String target, String user, String message)
     {
         LimitedSizeQueue<Pair<String, String>> tempQueue = messages.get(target);
-        if (tempQueue == null)
-        {
+        if (tempQueue == null) {
             messages.put(target, tempQueue = new LimitedSizeQueue<>(150));
         }
+
         Pair messagePair = new Pair<>(user, message);
         tempQueue.add(messagePair);
         host.messageReceived(target, messagePair);
@@ -298,7 +297,7 @@ public class ChatHandler
                 synchronized (ircLock)
                 {
                     connectionStatus = ConnectionStatus.CONNECTED;
-                    addMessageToChat(CHANNEL, "System", Format.stripAll("Chat joined"));
+                    addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Chat joined"));
                 }
             }
             updateFriends(event.getChannel().getNicknames());
@@ -323,8 +322,6 @@ public class ChatHandler
             }
         }
 
-        public static HashMap<String, String> realnameCache = new HashMap<>();
-
         @Handler
         public void onChannelMessage(ChannelMessageEvent event)
         {
@@ -332,14 +329,12 @@ public class ChatHandler
             String message = event.getMessage();
             try {
                 if (!curseSync.containsKey(user.getNick())) {
-                    curseSync.put(
+                    if (user.getRealName().isPresent())
+                        curseSync.put(
                             user.getNick(),
                             user.getRealName().get());
-                }
-                if (!realnameCache.containsKey(user.getNick())) {
-                    realnameCache.put(
-                            user.getNick(),
-                            user.getRealName().get());
+                    else
+                        doWhois(user);
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -351,6 +346,24 @@ public class ChatHandler
             }
 
             updateFriends(client.getChannel(CHANNEL).get().getNicknames());
+        }
+
+        private WhoisCommand whoisCommand = null;
+
+        private void doWhois(User user) {
+            if (whoisCommand == null || whoisCommand.getClient() != client)
+                whoisCommand = new WhoisCommand(client);
+
+            whoisCommand.target(user.getNick()).execute();
+        }
+
+        @Handler
+        public void onWhoisReturn(WhoisEvent event)
+        {
+            WhoisData whoisData = event.getWhoisData();
+            if (whoisData.getRealName().isPresent())
+                curseSync.put(whoisData.getNick(), whoisData.getRealName().get());
+
         }
 
         @Handler

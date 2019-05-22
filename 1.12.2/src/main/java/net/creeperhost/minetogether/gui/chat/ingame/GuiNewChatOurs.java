@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.gui.chat.ingame;
 
 import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.GuiNewChat;
@@ -178,14 +179,24 @@ public class GuiNewChatOurs extends GuiNewChat
             GlStateManager.pushMatrix();
             GlStateManager.translate(2.0F, 8.0F, 0.0F);
             GlStateManager.scale(f1, f1, 1.0F);
-            
-            for (int line = tempDrawnChatLines.size(); line < 8; line++)
+
+            int minLines = base ? 8 : 14;
+
+            int k = MathHelper.ceil((float) this.getChatWidth() / f1);
+
+            for (int line = tempDrawnChatLines.size(); line < minLines; line++)
             {
-                int k = MathHelper.ceil((float) this.getChatWidth() / f1);
                 int l1 = 255;
                 int j2 = -line * 9;
                 drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
             }
+
+            int lines = Math.max(minLines, tempDrawnChatLines.size());
+
+            lines = 1;
+
+            if (!base)
+                GuiMTChat.drawLogo(mc.fontRendererObj, 0 + k + 4 + 2, lines * 9, -2, -lines * 9, 0.75F);
             
             GlStateManager.popMatrix();
         }

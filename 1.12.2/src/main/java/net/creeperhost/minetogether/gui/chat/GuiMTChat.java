@@ -37,6 +37,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static net.creeperhost.minetogether.chat.ChatHandler.ircLock;
 
 public class GuiMTChat extends GuiScreen
 {
@@ -69,7 +72,11 @@ public class GuiMTChat extends GuiScreen
         
         chat = new GuiScrollingChat(10);
         send = new GuiTextFieldLockable(8008, mc.fontRendererObj, 10, this.height - 50, width - 20, 20);
-        buttonList.add(targetDropdownButton = new DropdownButton<>(-1337, width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true));
+        if (targetDropdownButton == null)
+            targetDropdownButton = new DropdownButton<>(-1337, width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true);
+        else
+            targetDropdownButton.xPosition = width - 5 - 100;
+        buttonList.add(targetDropdownButton);
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         strings.add("Add friend");
@@ -93,7 +100,7 @@ public class GuiMTChat extends GuiScreen
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
         if (!buttonTarget.equals(currentTarget))
         {
-            synchronized (ChatHandler.ircLock)
+            synchronized (ircLock)
             {
                 currentTarget = buttonTarget;
                 chat.updateLines(currentTarget);
@@ -101,7 +108,7 @@ public class GuiMTChat extends GuiScreen
             }
             return;
         }
-        synchronized (ChatHandler.ircLock)
+        synchronized (ircLock)
         {
             reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
             if (ChatHandler.hasNewMessages(currentTarget))
@@ -144,28 +151,52 @@ public class GuiMTChat extends GuiScreen
         ITextComponent comp = new TextComponentString("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
         comp.appendSibling(new TextComponentString(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
         drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
+        drawLogo(fontRendererObj, width - 20, height - 30, 20, 30, 0.75F);
         super.drawScreen(mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
         {
             drawHoveringText(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
         }
-        drawLogo();
     }
-    
-    
-    public void drawLogo()
+
+    public static void drawLogo(FontRenderer fontRendererObj, int containerWidth, int containerHeight, int containerX, int containerY, float scale)
     {
+        GlStateManager.color(1F,1F,1F,1F); // reset alpha
+        float adjust = (1 / scale);
+        int width = (int) (containerWidth * adjust);
+        int height = (int) (containerHeight * adjust);
+        int x = (int) (containerX * adjust);
+        int y = (int) (containerY * adjust);
         ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/creeperhost_logo_1-25.png");
-        ResourceLocation resourceLocationMinetogetherLogo = new ResourceLocation("creeperhost", "textures/minetogether25.png");
+        ResourceLocation resourceLocationMineTogetherLogo = new ResourceLocation("creeperhost", "textures/minetogether25.png");
         
         GL11.glPushMatrix();
-        Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);
+        GlStateManager.scale(scale, scale, scale);
         GL11.glEnable(GL11.GL_BLEND);
-        Gui.drawModalRectWithCustomSizedTexture(10, this.height - 90, 0.0F, 0.0F, 80, 40, 80F, 40);
+
+        int mtHeight = (int) (318 / 2.5);
+        int mtWidth = (int) (348 / 2.5);
+
+        int creeperHeight = 22;
+        int creeperWidth = 80;
+
+        int totalHeight = mtHeight + creeperHeight;
+        int totalWidth = mtWidth + creeperWidth;
+
+        Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationMineTogetherLogo);
+        Gui.drawModalRectWithCustomSizedTexture(containerX + (width / 2 - (mtWidth / 2)), containerY + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
+
+        String created = "Created by";
+        int stringWidth = fontRendererObj.getStringWidth(created);
+
+        int creeperTotalWidth = creeperWidth + stringWidth;
+        fontRendererObj.drawStringWithShadow(created, containerX + (width / 2 - (creeperTotalWidth / 2)), containerY + (height / 2 - (totalHeight / 2) + mtHeight + 7), 0x40FFFFFF);
+        GlStateManager.color(1F,1F,1F,1F); // reset alpha as font renderer isn't nice like that
+
+        Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);
+        Gui.drawModalRectWithCustomSizedTexture(containerX + (width / 2 - (creeperTotalWidth / 2) + stringWidth), containerY + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
         
-        Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationMinetogetherLogo);
-        Gui.drawModalRectWithCustomSizedTexture(this.width / 2 - 100, this.height / 2 - 60, 0.0F, 0.0F, 160, 120, 160F, 120F);
-        
+
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glPopMatrix();
     }
@@ -515,6 +546,13 @@ public class GuiMTChat extends GuiScreen
         }
         else if (outputNick.equals("System"))
         {
+            if (messageStr.contains(":")) {
+                String[] splitStr = messageStr.split(":");
+                outputNick = splitStr[0];
+                messageStr = Arrays.stream(splitStr).skip(1).collect(Collectors.joining(":")).substring(1);
+                messageComp = ForgeHooks.newChatWithLinks(messageStr).setStyle(new Style().setColor(TextFormatting.WHITE));
+                userComp = new TextComponentString("<" + outputNick + ">");
+            }
             userComp.getStyle().setColor(TextFormatting.AQUA);
         }
         if(ChatHandler.curseSync.containsKey(inputNick))
@@ -549,9 +587,9 @@ public class GuiMTChat extends GuiScreen
         
         GuiScrollingChat(int entryHeight)
         {
-            super(Minecraft.getMinecraft(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 30, 30, GuiMTChat.this.height - 50, 10, entryHeight, GuiMTChat.this.width, GuiMTChat.this.height);
+            super(Minecraft.getMinecraft(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 30, 10, GuiMTChat.this.height - 50, 10, entryHeight, GuiMTChat.this.width, GuiMTChat.this.height);
             lines = new ArrayList<>();
-            updateLines(ChatHandler.CHANNEL);
+            updateLines(currentTarget);
         }
         
         @Override
@@ -563,12 +601,17 @@ public class GuiMTChat extends GuiScreen
         
         protected void updateLines(String key)
         {
-            if (ChatHandler.messages == null || ChatHandler.messages.size() == 0)
-                return;
+            LimitedSizeQueue<Pair<String, String>> tempMessages;
+            synchronized (ircLock)
+            {
+                if (ChatHandler.messages == null || ChatHandler.messages.size() == 0)
+                    return;
+                tempMessages = ChatHandler.messages.get(key);
+            }
+
             ArrayList<ITextComponent> oldLines = lines;
             int listHeight = this.getContentHeight() - (this.bottom - this.top - 4);
             lines = new ArrayList<>();
-            LimitedSizeQueue<Pair<String, String>> tempMessages = ChatHandler.messages.get(key);
             if (tempMessages == null)
                 return;
             for (Pair<String, String> message : tempMessages)
