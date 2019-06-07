@@ -413,6 +413,8 @@ public class GuiMTChat extends GuiScreen
         }
         return super.handleComponentClick(component);
     }
+
+    private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
     
     public static ITextComponent formatLine(Pair<String, String> message)
     {
@@ -546,10 +548,12 @@ public class GuiMTChat extends GuiScreen
         }
         else if (outputNick.equals("System"))
         {
-            if (messageStr.contains(":")) {
-                String[] splitStr = messageStr.split(":");
-                outputNick = splitStr[0];
-                messageStr = Arrays.stream(splitStr).skip(1).collect(Collectors.joining(":")).substring(1);
+            Matcher matcher = nameRegex.matcher(messageStr);
+            if (matcher.find())
+            {
+                outputNick = matcher.group();
+                messageStr = messageStr.substring(outputNick.length() + 1);
+                outputNick = outputNick.substring(0, outputNick.length() - 1);
                 messageComp = ForgeHooks.newChatWithLinks(messageStr).setStyle(new Style().setColor(TextFormatting.WHITE));
                 userComp = new TextComponentString("<" + outputNick + ">");
             }

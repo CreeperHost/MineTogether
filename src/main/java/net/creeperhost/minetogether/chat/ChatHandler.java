@@ -13,6 +13,8 @@ import org.kitteh.irc.client.library.element.WhoisData;
 import org.kitteh.irc.client.library.element.mode.ChannelUserMode;
 import org.kitteh.irc.client.library.event.channel.*;
 import org.kitteh.irc.client.library.event.client.*;
+import org.kitteh.irc.client.library.event.connection.ClientConnectionClosedEvent;
+import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent;
 import org.kitteh.irc.client.library.event.helper.UnexpectedChannelLeaveEvent;
 import org.kitteh.irc.client.library.event.user.*;
 import org.kitteh.irc.client.library.util.Format;
@@ -61,9 +63,12 @@ public class ChatHandler
             messages = new HashMap<>();
             new Thread(() ->
             { // start in thread as can hold up the UI thread for some reason.
-                client = Client.builder().nick(nickIn).realName(realName).user("MineTogether").serverHost(IRC_SERVER.address).serverPort(IRC_SERVER.port).secure(IRC_SERVER.ssl).exceptionListener((Exception exception) ->
-                {
-                } /* noop */).buildAndConnect();
+                Client.Builder mineTogether = Client.builder().nick(nickIn).realName(realName).user("MineTogether");
+                mineTogether.server().host(IRC_SERVER.address).port(IRC_SERVER.port).secure(IRC_SERVER.ssl);
+                mineTogether.listeners().exception(e -> {
+                }); // no-op
+                client = mineTogether.buildAndConnect();
+
                 ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(true); // Does a WHO - lets see how this works...
                 client.getEventManager().registerEventListener(new Listener());
                 client.addChannel(CHANNEL);
@@ -185,11 +190,12 @@ public class ChatHandler
         Optional<User> userOpt = client.getChannel(CHANNEL).get().getUser(target);
         if (userOpt.isPresent())
         {
+            String channelName = "#" + owner;
             User user = userOpt.get();
-            StringBuilder builder = new StringBuilder("INVITEREQ ").append(owner).append(" ").append("#" + owner);
-            String s = "INVITEREQ " + owner;
-            user.sendCtcpMessage(builder.toString());
-            System.out.println("sendchannelinvite " + builder.toString() + " target " + target);
+            client.addChannel(channelName);
+            String inviteStr = "INVITE " + user.getNick() + " " + channelName;
+            client.sendRawLine(inviteStr);
+            System.out.println("sendchannelinvite " + inviteStr);
         } else {
             addMessageToChat(CHANNEL, "System", "User is not online.");
         }
@@ -307,19 +313,13 @@ public class ChatHandler
         public void onChannelLeave(ChannelPartEvent event)
         {
             String friendNick = event.getUser().getNick();
-            if (friends.containsKey(friendNick))
-            {
-                friends.remove(friendNick);
-            }
+            friends.remove(friendNick);
         }
 
         public void onUserQuit(UserQuitEvent event)
         {
             String friendNick = event.getUser().getNick();
-            if (friends.containsKey(friendNick))
-            {
-                friends.remove(friendNick);
-            }
+            friends.remove(friendNick);
         }
 
         @Handler
@@ -480,11 +480,14 @@ public class ChatHandler
                     host.acceptFriend(split[1], builder.toString().trim());
                     addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
 
-                } else if (split[0].equals("INVITEREQ"))
-                {
-                    privateChatInvite = new PrivateChat(split[2], split[2]);
                 }
             }
+        }
+
+        @Handler
+        public void onInviteReceived(ChannelInviteEvent event)
+        {
+            privateChatInvite = new PrivateChat(event.getChannel().getName(), event.getActor().getName());
         }
 
         @Handler
