@@ -145,7 +145,7 @@ public class GuiChatOurs extends GuiChat
         float f1 = mc.ingameGUI.getChatGUI().getChatScale();
         int x = MathHelper.ceil((float) mc.ingameGUI.getChatGUI().getChatWidth() / f1) + 8;
         
-        buttonList.add(switchButton = new GuiButtonPair(808, x, height - 41, 92, 16, "Default", "Global", !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base, false, false, true));
+        buttonList.add(switchButton = new GuiButtonPair(808, x, height - 41, 92, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base ? 1 : 0, false, false, true, "Default", "Global", "wut", "wut2"));
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
         menuDropdownButton.flipped = true;
         if (sleep)
@@ -175,7 +175,7 @@ public class GuiChatOurs extends GuiChat
             if (CreeperHost.instance.gdpr.hasAcceptedGDPR())
             {
                 GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
-                ourChat.base = switchButton.firstActiveButton;
+                ourChat.base = switchButton.activeButton == 0;
                 switchButton.displayString = ourChat.base ? "MineTogether Chat" : "Minecraft Chat";
             }
             else {

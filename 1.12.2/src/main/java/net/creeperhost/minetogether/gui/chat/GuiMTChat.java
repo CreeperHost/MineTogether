@@ -183,18 +183,21 @@ public class GuiMTChat extends GuiScreen
         int totalHeight = mtHeight + creeperHeight;
         int totalWidth = mtWidth + creeperWidth;
 
+        totalHeight *= adjust;
+        totalWidth *= adjust;
+
         Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationMineTogetherLogo);
-        Gui.drawModalRectWithCustomSizedTexture(containerX + (width / 2 - (mtWidth / 2)), containerY + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
+        Gui.drawModalRectWithCustomSizedTexture(x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
 
         String created = "Created by";
         int stringWidth = fontRendererObj.getStringWidth(created);
 
         int creeperTotalWidth = creeperWidth + stringWidth;
-        fontRendererObj.drawStringWithShadow(created, containerX + (width / 2 - (creeperTotalWidth / 2)), containerY + (height / 2 - (totalHeight / 2) + mtHeight + 7), 0x40FFFFFF);
+        fontRendererObj.drawStringWithShadow(created, x + (width / 2 - (creeperTotalWidth / 2)), y + (height / 2 - (totalHeight / 2) + mtHeight + 7), 0x40FFFFFF);
         GlStateManager.color(1F,1F,1F,1F); // reset alpha as font renderer isn't nice like that
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);
-        Gui.drawModalRectWithCustomSizedTexture(containerX + (width / 2 - (creeperTotalWidth / 2) + stringWidth), containerY + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
+        Gui.drawModalRectWithCustomSizedTexture(x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
         
 
         GL11.glDisable(GL11.GL_BLEND);

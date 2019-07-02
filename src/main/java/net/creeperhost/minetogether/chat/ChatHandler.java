@@ -178,8 +178,7 @@ public class ChatHandler
         if (userOpt.isPresent())
         {
             User user = userOpt.get();
-            StringBuilder builder = new StringBuilder("FRIENDREQ ").append(host.getFriendCode()).append(" ").append(desiredName);
-            user.sendCtcpMessage(builder.toString());
+            user.sendCtcpMessage("FRIENDREQ " + host.getFriendCode() + " " + desiredName);
         } else {
             addMessageToChat(CHANNEL, "System", "User is not online.");
         }
@@ -193,9 +192,9 @@ public class ChatHandler
             String channelName = "#" + owner;
             User user = userOpt.get();
             client.addChannel(channelName);
+            privateChatList = new PrivateChat(channelName, owner);
             String inviteStr = "INVITE " + user.getNick() + " " + channelName;
             client.sendRawLine(inviteStr);
-            System.out.println("sendchannelinvite " + inviteStr);
         } else {
             addMessageToChat(CHANNEL, "System", "User is not online.");
         }
@@ -316,6 +315,7 @@ public class ChatHandler
             friends.remove(friendNick);
         }
 
+        @Handler
         public void onUserQuit(UserQuitEvent event)
         {
             String friendNick = event.getUser().getNick();
