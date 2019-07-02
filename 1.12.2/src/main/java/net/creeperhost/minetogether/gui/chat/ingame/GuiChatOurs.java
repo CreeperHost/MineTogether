@@ -152,7 +152,7 @@ public class GuiChatOurs extends GuiChat
                 defaultStr = I18n.format("minetogether.ingame.chat.server");
             }
         } catch(NullPointerException err){}//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
-        buttonList.add(switchButton = new GuiButtonPair(808, x-5, height - 39, 135, 17, defaultStr, I18n.format("minetogether.ingame.chat.global"), !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base, false, false, true));
+        buttonList.add(switchButton = new GuiButtonPair(808, x, height - 41, 92, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base ? 1 : 0, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group"), "wut"));
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
         menuDropdownButton.flipped = true;
         if (sleep)
@@ -182,7 +182,7 @@ public class GuiChatOurs extends GuiChat
             if (CreeperHost.instance.gdpr.hasAcceptedGDPR())
             {
                 GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
-                ourChat.base = switchButton.firstActiveButton;
+                ourChat.base = switchButton.activeButton == 0;
                 switchButton.displayString = ourChat.base ? "MineTogether Chat" : "Minecraft Chat";
             }
             else {

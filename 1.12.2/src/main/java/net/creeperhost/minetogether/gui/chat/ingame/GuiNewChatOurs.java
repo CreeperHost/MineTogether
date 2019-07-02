@@ -180,7 +180,7 @@ public class GuiNewChatOurs extends GuiNewChat
             GlStateManager.translate(2.0F, 8.0F, 0.0F);
             GlStateManager.scale(f1, f1, 1.0F);
 
-            int minLines = base ? 15 : 18;
+            int minLines = base ? 8: 14;
 
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
 
@@ -188,15 +188,17 @@ public class GuiNewChatOurs extends GuiNewChat
             {
                 int l1 = 255;
                 int j2 = -line * 9;
-                drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
+                drawRect(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
             }
 
-            int lines = Math.max(minLines, tempDrawnChatLines.size());
+            int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
+            lines = lines - minLines;
 
-            lines = 1;
+            //lines = 1;
 
             if (!base)
-                GuiMTChat.drawLogo(mc.fontRendererObj, 0 + k + 4 + 2, lines * 9, -2, (-lines * 9)-75, 0.75F);
+                GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, -90, -2, (int) (-lines * 4.5), 0.75F);
+
             
             GlStateManager.popMatrix();
         }
