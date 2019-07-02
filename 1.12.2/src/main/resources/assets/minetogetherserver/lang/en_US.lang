@@ -46,3 +46,6 @@ minetogether.gdprtextdata3=If you consent to this, please press 'Accept'. Otherw
 minetogether.listing.public=Public Servers don't have any limitations on entry. Anyone can join and immediately start playing, and their player bases can be large, but their open nature can increases the chance of being griefed.
 minetogether.listing.community=Community Servers are still relatively open, but will require being added to an approved list of members to join, offering some increased security and peace of mind with vetted users.
 minetogether.listing.closed=Closed Servers require a direct invite from the server owner to join. Usually for groups of friends, these servers may be smaller in population, but with the highest level of trust between users.
+minetogether.listing.title=Server Type
+
+minetogether.global.cancel=Cancel
