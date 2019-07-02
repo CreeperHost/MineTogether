@@ -81,7 +81,7 @@ public class GuiButtonLarge extends GuiButton
             this.drawCenteredString(fontrenderer, TextFormatting.BOLD + this.displayString, this.xPosition + this.width / 2, this.yPosition + ( +8), j);
 
             List<ITextComponent> newstring = GuiUtilRenderComponents.splitText(new TextComponentString(description), width - 10, fontrenderer, false, true);
-            int start = 80;
+            int start = 105;
 
             for (ITextComponent s : newstring)
             {
@@ -90,7 +90,10 @@ public class GuiButtonLarge extends GuiButton
             }
 
             RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
-            renderItem.renderItemIntoGUI(stack, this.xPosition + width / 2 - 8, this.yPosition + 24);
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(2.0f, 2.0f, 2.0f);
+            renderItem.renderItemIntoGUI(stack, (this.xPosition/2) + (width / 4) - 8, (this.yPosition/2) + 10);
+            GlStateManager.popMatrix();
         }
     }
 
