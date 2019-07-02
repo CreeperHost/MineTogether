@@ -139,13 +139,20 @@ public class GuiChatOurs extends GuiChat
         }
         super.initGui();
         List<String> strings = new ArrayList<>();
-        strings.add("Mute");
-        strings.add("Add friend");
+
+        strings.add(I18n.format("minetogether.chat.button.mute"));
+        strings.add(I18n.format("minetogether.chat.button.addfriend"));
         
         float f1 = mc.ingameGUI.getChatGUI().getChatScale();
         int x = MathHelper.ceil((float) mc.ingameGUI.getChatGUI().getChatWidth() / f1) + 8;
-        
-        buttonList.add(switchButton = new GuiButtonPair(808, x, height - 41, 92, 16, "Default", "Global", !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base, false, false, true));
+        String defaultStr = "Default";
+        defaultStr = I18n.format("minetogether.ingame.chat.local");
+        try {
+            if (mc.getCurrentServerData().isOnLAN() || (!mc.getCurrentServerData().serverIP.equals("127.0.0.1"))) {
+                defaultStr = I18n.format("minetogether.ingame.chat.server");
+            }
+        } catch(NullPointerException err){}//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
+        buttonList.add(switchButton = new GuiButtonPair(808, x-5, height - 39, 135, 17, defaultStr, I18n.format("minetogether.ingame.chat.global"), !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base, false, false, true));
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
         menuDropdownButton.flipped = true;
         if (sleep)
@@ -159,12 +166,12 @@ public class GuiChatOurs extends GuiChat
     {
         if (button == menuDropdownButton)
         {
-            if (menuDropdownButton.getSelected().option.equals("Mute"))
+            if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mute")))
             {
                 CreeperHost.instance.muteUser(activeDropdown);
-                ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setChatLine(new TextComponentString("User has been muted. You will no longer receive messages from this person."), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+                ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setChatLine(new TextComponentString(I18n.format("minetogether.chat.muted")), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
             }
-            else if (menuDropdownButton.getSelected().option.equals("Add friend"))
+            else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
             {
                 mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
             }

@@ -31,7 +31,8 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     public SortOrder sortOrder = SortOrder.RANDOM;
     private boolean initialized;
     private GuiScreen parent;
-    private DropdownButton<ListType> modeToggle;
+    private GuiButton modeToggle;
+    //private DropdownButton<ListType> modeToggle;
     private DropdownButton<SortOrder> sortOrderButton;
     private ServerListPublic ourSavedServerList = null;
     private LanServerDetector.ThreadLanServerFind ourLanServerDetector = null;
@@ -136,7 +137,8 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
                 button.enabled = true;
             }
         }
-        modeToggle = new DropdownButton<>(80085101, width - 5 - 80, 5, 80, 20, "creeperhost.multiplayer.list", listType, false);
+        modeToggle = new GuiButton(80085101, width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"));
+        //modeToggle = new DropdownButton<>(80085101, width - 5 - 80, 5, 80, 20, "creeperhost.multiplayer.list", listType, false);
         sortOrderButton = new DropdownButton<>(80085101, width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false);
         buttonList.add(modeToggle);
         buttonList.add(sortOrderButton);
@@ -152,8 +154,8 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             return;
         } else if (button.id == modeToggle.id)
         {
-            listType = modeToggle.getSelected();
-            refresh();
+            //listType = modeToggle.getSelected();
+            mc.displayGuiScreen(new GuiServerType(this));
             return;
         } else if (button.id == 7)
         {
@@ -163,6 +165,9 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         {
             sortOrder = sortOrderButton.getSelected();
             ourServerListSelector.sort();
+            return;
+        } else if(button.id == 0) {
+            mc.displayGuiScreen(new GuiMockMultiplayer());
             return;
         }
         super.actionPerformed(button);
@@ -295,7 +300,15 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     {
         if (text.equals(I18n.format("multiplayer.title")))
         {
-            text = I18n.format("creeperhost.multiplayer.public");
+            String prefix = I18n.format("creeperhost.multiplayer.title.prefix.public");
+            if(listType == ListType.APPLICATION)
+            {
+                prefix = I18n.format("creeperhost.multiplayer.title.prefix.application");
+            } else if(listType == ListType.INVITE)
+            {
+                prefix = I18n.format("creeperhost.multiplayer.title.prefix.invite");
+            }
+            text = prefix + " " + I18n.format("creeperhost.multiplayer.title.suffix.generic");
         }
         super.drawCenteredString(fontRendererIn, text, x, y, color);
     }

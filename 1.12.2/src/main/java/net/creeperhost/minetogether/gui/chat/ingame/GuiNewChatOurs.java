@@ -69,7 +69,7 @@ public class GuiNewChatOurs extends GuiNewChat
             if (this.mc.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN)
             {
                 int i = this.getLineCount();
-                int j = this.drawnChatLines.size();
+                int j =  this.drawnChatLines.size();
                 float f = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
                 
                 if (j > 0)
@@ -180,7 +180,7 @@ public class GuiNewChatOurs extends GuiNewChat
             GlStateManager.translate(2.0F, 8.0F, 0.0F);
             GlStateManager.scale(f1, f1, 1.0F);
 
-            int minLines = base ? 8 : 14;
+            int minLines = base ? 15 : 18;
 
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
 
@@ -196,7 +196,7 @@ public class GuiNewChatOurs extends GuiNewChat
             lines = 1;
 
             if (!base)
-                GuiMTChat.drawLogo(mc.fontRendererObj, 0 + k + 4 + 2, lines * 9, -2, -lines * 9, 0.75F);
+                GuiMTChat.drawLogo(mc.fontRendererObj, 0 + k + 4 + 2, lines * 9, -2, (-lines * 9)-75, 0.75F);
             
             GlStateManager.popMatrix();
         }

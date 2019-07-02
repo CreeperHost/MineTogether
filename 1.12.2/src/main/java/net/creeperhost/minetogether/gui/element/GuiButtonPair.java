@@ -161,7 +161,7 @@ public class GuiButtonPair extends GuiButton
         
         button1.func_191745_a(p_191745_1_, (int) mouseX, (int) mouseY, p_191745_4_);
         button2.func_191745_a(p_191745_1_, (int) mouseX, (int) mouseY, p_191745_4_);
-        
+
         GlStateManager.rotate(90, 0, 0, -1);
         
         if (stack)

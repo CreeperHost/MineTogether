@@ -26,9 +26,22 @@ creeperhostserver.command.killall.usage=/chkillall EntityType [items, mobs, anim
 
 creeperhost.multiplayer.list.public=Public List
 creeperhost.multiplayer.list.invite=Invite List
+creeperhost.multiplayer.title.prefix.public=Public
+creeperhost.multiplayer.title.prefix.application=Community
+creeperhost.multiplayer.title.prefix.invite=Closed
+creeperhost.multiplayer.title.suffix.generic=Server List
 creeperhost.multiplayer.list.application=Application List
 creeperhost.multiplayer.list=Type:
 creeperhost.multiplayer.muted=Muted Player's List
+
+minetogether.ingame.chat.global=MineTogether
+minetogether.ingame.chat.local=Commands
+minetogether.ingame.chat.group=Group
+minetogether.ingame.chat.server=Server
+
+minetogether.chat.muted=The requested user has been muted. Messages from this user will no longer be displayed.
+minetogether.chat.button.addfriend=Befriend
+minetogether.chat.button.mute=Mute
 
 minetogether.gdprtext=Welcome new player!
 minetogether.gdprtext1=Our name is CreeperHost, and we created MineTogether to fill in some of the community features we felt modded Minecraft was missing.
