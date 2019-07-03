@@ -116,11 +116,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 {
                     configStream.close();
                 }
-            } catch (Throwable t)
-            {
-            }
-            if (!active)
-                return;
+            } catch (Throwable ignored) {}
+            if (!active) return;
         }
         saveConfig();
         
@@ -169,9 +166,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
             configOut = new FileOutputStream(configFile);
             IOUtils.write(Config.saveConfig(), configOut);
             configOut.close();
-        } catch (Throwable t)
-        {
-        } finally
+        } catch (Throwable ignored) {}
+        finally
         {
             try
             {
@@ -179,9 +175,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 {
                     configOut.close();
                 }
-            } catch (Throwable t)
-            {
-            }
+            } catch (Throwable ignored) {}
         }
         
         if (Config.getInstance().isCreeperhostEnabled())
@@ -252,9 +246,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 
                 queryGetter = new QueryGetter(host, port);
             }
-        } catch (Throwable t)
-        {
-        }
+        } catch (Throwable ignored) {}
     }
     
     public QueryGetter getQueryGetter()
@@ -343,9 +335,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 {
                     ChatHandler.anonUsersReverse.put(entry.getValue(), entry.getKey());
                 }
-            } catch (Throwable t)
-            {
-            } finally
+            } catch (Throwable ignored) {}
+            finally
             {
                 try
                 {
@@ -353,9 +344,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
                     {
                         anonUsersStream.close();
                     }
-                } catch (Throwable t)
-                {
-                }
+                } catch (Throwable ignored) {}
             }
             anonLoaded = true;
         }
@@ -396,9 +385,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers));
-        } catch (IOException e)
-        {
-        }
+        } catch (IOException ignored) {}
     }
     
     public void muteUser(String user)
@@ -408,9 +395,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-        } catch (IOException e)
-        {
-        }
+        } catch (IOException ignored) {}
     }
 
     public void unmuteUser(String user)
@@ -421,9 +406,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
             mutedUsers.clear();
-        } catch (IOException e)
-        {
-        }
+        } catch (IOException ignored) {}
     }
     
     @Override

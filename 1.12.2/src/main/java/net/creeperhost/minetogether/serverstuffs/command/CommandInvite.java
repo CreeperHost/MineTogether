@@ -172,13 +172,11 @@ public class CommandInvite extends CommandBase
                 {
                     return getListOfStringsMatchingLastWord(args, server.getPlayerList().getWhitelistedPlayerNames());
                 }
-                
                 if ("add".equals(args[0]))
                 {
                     return getListOfStringsMatchingLastWord(args, server.getPlayerProfileCache().getUsernames());
                 }
             }
-            
             return Collections.emptyList();
         }
     }

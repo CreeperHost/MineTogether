@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.GlStateManager;
 
 public class GuiButtonChat extends GuiButton
 {
-    
     private boolean active;
     
     public GuiButtonChat(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText)

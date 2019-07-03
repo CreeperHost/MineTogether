@@ -114,12 +114,9 @@ public class Client implements IProxy
                 }
                 
                 Gson gson = new Gson();
-                CreeperHost.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>()
-                {
-                }.getType());
-            } catch (Throwable t)
-            {
-            } finally
+                CreeperHost.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>() {}.getType());
+            } catch (Throwable ignored) {}
+            finally
             {
                 try
                 {
@@ -127,11 +124,8 @@ public class Client implements IProxy
                     {
                         mutedUsersStream.close();
                     }
-                } catch (Throwable t)
-                {
-                }
+                } catch (Throwable ignored) {}
             }
-            
             new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
         }
     }
@@ -158,9 +152,7 @@ public class Client implements IProxy
             {
                 Field field = ReflectionHelper.findField(GuiIngame.class, "field_73840_e", "persistantChatGUI");
                 field.set(Minecraft.getMinecraft().ingameGUI, new GuiNewChatOurs(Minecraft.getMinecraft()));
-            } catch (IllegalAccessException e)
-            {
-            }
+            } catch (IllegalAccessException ignored) {}
         }
     }
 }

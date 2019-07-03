@@ -150,7 +150,6 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
                 possibleVals = (List<E>) selected.getPossibleVals();
             }
         }
-        
         return false; // at this stage we've handled all the "true" options, so it ain't been pressed
     }
     
@@ -197,7 +196,6 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
                 clickedElement = (E) e;
                 break;
             }
-            
         }
         return clickedElement;
     }
@@ -208,8 +206,6 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Gu
         
         String getTranslate(IDropdownOption currentDO, boolean dropdownOpen);
         
-        default void updateDynamic()
-        {
-        }
+        default void updateDynamic() {}
     }
 }

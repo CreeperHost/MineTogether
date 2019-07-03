@@ -221,12 +221,12 @@ public class GuiChatOurs extends GuiChat
     {
         for (int i = 0; i < this.buttonList.size(); ++i)
         {
-            ((GuiButton) this.buttonList.get(i)).func_191745_a(this.mc, mouseX, mouseY, partialTicks);
+            this.buttonList.get(i).func_191745_a(this.mc, mouseX, mouseY, partialTicks);
         }
         
         for (int j = 0; j < this.labelList.size(); ++j)
         {
-            ((GuiLabel) this.labelList.get(j)).drawLabel(this.mc, mouseX, mouseY);
+            this.labelList.get(j).drawLabel(this.mc, mouseX, mouseY);
         }
         
         drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);

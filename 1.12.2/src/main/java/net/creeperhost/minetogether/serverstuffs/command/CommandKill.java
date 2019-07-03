@@ -55,7 +55,6 @@ public class CommandKill extends CommandBase
         }
         if (target != null)
         {
-            //TODO clean this up
             if ("items".equals(target) || "mobs".equals(target) || "animal".equals(target) || "all".equals(target))
             {
                 List<Entity> list = server.getEntityWorld().loadedEntityList;

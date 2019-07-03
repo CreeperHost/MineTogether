@@ -7,7 +7,6 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiButtonMultiple extends GuiButton
 {
-    
     private static ResourceLocation buttonImg = new ResourceLocation("creeperhost", "textures/gui.png");
     private final int index;
     

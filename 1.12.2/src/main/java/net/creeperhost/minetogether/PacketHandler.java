@@ -35,9 +35,7 @@ public class PacketHandler implements IMessageHandler<PacketHandler.ServerIDMess
             this.serverID = serverID;
         }
         
-        public ServerIDMessage()
-        {
-        }
+        public ServerIDMessage() {}
         
         @Override
         public void fromBytes(ByteBuf buf)

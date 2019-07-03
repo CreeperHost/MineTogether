@@ -43,11 +43,7 @@ public class ServerProxy implements IServerProxy
             server.set(target, null);
             watchdogThread.interrupt();
             return true;
-        } catch (Throwable e)
-        {
-            return false;
-        }
-        
+        } catch (Throwable e) { return false; }
     }
     
     @Override

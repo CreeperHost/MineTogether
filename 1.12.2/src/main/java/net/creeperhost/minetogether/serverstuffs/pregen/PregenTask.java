@@ -74,7 +74,6 @@ public class PregenTask
         {
             if (curX < storedCurX)
                 continue;
-            ;
             for (int curZ = minZ; curZ <= maxZ; curZ++)
             {
                 if (curX == storedCurX && curZ <= storedCurZ)
@@ -84,10 +83,7 @@ public class PregenTask
                 totalChunks++;
             }
         }
-        
         chunksToGen = chunks;
-        
         curChunksPerTick = chunksPerTick;
-        
     }
 }

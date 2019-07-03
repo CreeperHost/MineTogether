@@ -35,14 +35,12 @@ public class GuiTextFieldValidate extends GuiTextFieldCompat
     }
     
     @Override
-    public void setText(String p_146180_1_)
+    public void setText(String string)
     {
-        Matcher matcher = pattern.matcher(p_146180_1_);
+        Matcher matcher = pattern.matcher(string);
         if (matcher.matches())
         {
-            super.setText(p_146180_1_);
+            super.setText(string);
         }
     }
-    
-    
 }

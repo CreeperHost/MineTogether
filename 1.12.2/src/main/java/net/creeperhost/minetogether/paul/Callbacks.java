@@ -20,7 +20,7 @@ import java.util.*;
 
 public final class Callbacks
 {
-    public static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
+    private static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
     
     private static Util.CachedValue<List<Server>> serverListCache;
     private static Map<UUID, String> hashCache = new HashMap<UUID, String>();

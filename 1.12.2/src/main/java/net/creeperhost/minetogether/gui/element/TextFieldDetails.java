@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 public class TextFieldDetails extends GuiTextFieldCompat
 {
-    
     private final GuiPersonalDetails gui;
     private final String displayString;
     private final boolean canBeFocused;
@@ -116,7 +115,6 @@ public class TextFieldDetails extends GuiTextFieldCompat
         }
         
         GlStateManager.scale(0.5F, 0.5F, 0.5F);
-        
     }
     
     public boolean canBeFocused()

@@ -98,6 +98,5 @@ public class GuiWell
             }
             topStart += 10;
         }
-        
     }
 }

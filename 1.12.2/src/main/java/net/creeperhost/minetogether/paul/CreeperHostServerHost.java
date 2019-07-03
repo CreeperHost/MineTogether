@@ -52,7 +52,6 @@ public class CreeperHostServerHost implements IServerHost
         Map<String, String> rawMap = new HashMap<String, String>();
         try
         {
-            
             String jsonData = WebUtils.getWebResponse("https://www.creeperhost.net/json/locations");
             
             Type type = new TypeToken<Map<String, String>>()
@@ -78,7 +77,6 @@ public class CreeperHostServerHost implements IServerHost
     @Override
     public OrderSummary getSummary(Order order)
     {
-        
         if (order.country.isEmpty())
         {
             order.country = Callbacks.getUserCountry();

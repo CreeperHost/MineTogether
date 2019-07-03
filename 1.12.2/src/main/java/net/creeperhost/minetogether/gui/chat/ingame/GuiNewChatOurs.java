@@ -21,7 +21,6 @@ import java.util.List;
 
 public class GuiNewChatOurs extends GuiNewChat
 {
-    
     public boolean base = true;
     
     @Override
@@ -165,9 +164,7 @@ public class GuiNewChatOurs extends GuiNewChat
                 try
                 {
                     vanillaDrawnChatLines = (List<ChatLine>) drawnChatLinesField.get(this);
-                } catch (IllegalAccessException e)
-                {
-                }
+                } catch (IllegalAccessException ignored) {}
             }
             
             tempDrawnChatLines = vanillaDrawnChatLines;

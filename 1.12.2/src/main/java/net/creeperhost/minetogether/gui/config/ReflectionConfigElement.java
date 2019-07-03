@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
  */
 public class ReflectionConfigElement implements IConfigElement
 {
-    
     final Field field;
     final Object defValue;
     private HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>> lookupEntry = new HashMap<String, Class<? extends GuiConfigEntries.IConfigEntry>>()
@@ -130,10 +129,7 @@ public class ReflectionConfigElement implements IConfigElement
     }
     
     @Override
-    public void setToDefault()
-    {
-    
-    }
+    public void setToDefault() {}
     
     @Override
     public boolean requiresWorldRestart()
@@ -160,9 +156,7 @@ public class ReflectionConfigElement implements IConfigElement
         {
             field.setAccessible(true);
             return field.get(Config.getInstance());
-        } catch (Throwable e)
-        {
-        }
+        } catch (Throwable ignored) {}
         return null;
     }
     
@@ -179,16 +173,11 @@ public class ReflectionConfigElement implements IConfigElement
         {
             field.setAccessible(true);
             field.set(Config.getInstance(), value);
-        } catch (Throwable e)
-        {
-        }
+        } catch (Throwable ignored) {}
     }
     
     @Override
-    public void set(Object[] aVal)
-    {
-    
-    }
+    public void set(Object[] aVal) {}
     
     @Override
     public String[] getValidValues()

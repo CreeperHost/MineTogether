@@ -41,9 +41,7 @@ public class GuiCreeperConfig extends GuiConfig
                 field.setAccessible(true);
                 defValue = field.get(defaultConfig);
                 
-            } catch (Throwable t)
-            {
-            }
+            } catch (Throwable ignored) {}
             
             array.add(new ReflectionConfigElement(field, defValue));
         }

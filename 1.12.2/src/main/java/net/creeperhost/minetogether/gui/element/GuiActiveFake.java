@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiButton;
 
 public class GuiActiveFake extends GuiButton
 {
-    
     private boolean active;
     
     public GuiActiveFake(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText)

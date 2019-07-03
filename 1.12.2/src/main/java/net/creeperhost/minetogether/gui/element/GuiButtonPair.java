@@ -289,6 +289,4 @@ public class GuiButtonPair extends GuiButton
 
         //return false;
     }
-
-    
 }

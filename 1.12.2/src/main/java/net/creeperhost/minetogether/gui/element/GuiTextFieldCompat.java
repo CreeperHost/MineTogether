@@ -25,14 +25,10 @@ public class GuiTextFieldCompat extends GuiTextField
         {
             mouseClickedMethod = Util.findMethod(GuiTextField.class, new String[]{"func_146192_a", "mouseClicked"}, int.class, int.class, int.class);
         }
-        
         try
         {
             Object result = mouseClickedMethod.invoke(this, mouseX, mouseY, mouseButton);
             return result == null ? true : Boolean.valueOf(result.toString());
-        } catch (Throwable t)
-        {
-            return false;
-        }
+        } catch (Throwable t) { return false; }
     }
 }

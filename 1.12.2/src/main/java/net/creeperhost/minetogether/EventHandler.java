@@ -74,9 +74,7 @@ public class EventHandler
     Field serverListField = null;
     Field editButtonField = null;
     Minecraft mc = Minecraft.getMinecraft();
-    GuiScreen fakeGui = new GuiScreen()
-    {
-    };
+    GuiScreen fakeGui = new GuiScreen() {};
     String mcVersion;
     int u = 0;
     int v = 0;
@@ -126,6 +124,7 @@ public class EventHandler
         {
             if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
             {
+                //Why is this still here?
                 //event.setGui(new GuiGDPR());
             } else
             {
@@ -158,7 +157,6 @@ public class EventHandler
             
             try
             {
-                
                 if (reasonField == null)
                 {
                     reasonField = ReflectionHelper.findField(gui.getClass(), "field_146306_a", "reason");
@@ -192,9 +190,7 @@ public class EventHandler
                     event.setGui(new GuiProgressDisconnected((GuiScreen) parentField.get(dc), reason, message, lastNetworkManager));
                     lastNetworkManager = null;
                 }
-            } catch (Throwable e)
-            {
-            }
+            } catch (Throwable ignored) {}
         } else if (gui instanceof GuiConnecting)
         {
             //lastNetworkManager = getNetworkManager((GuiConnecting) gui);
@@ -219,20 +215,15 @@ public class EventHandler
                 try
                 {
                     defaultInputFieldTextField = ReflectionHelper.findField(GuiChat.class, "field_146409_v", "defaultInputFieldText");
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
+                } catch (Exception e) { e.printStackTrace(); }
             }
             try
             {
                 presetString = (String) defaultInputFieldTextField.get(gui);
-            } catch (IllegalAccessException e)
-            {
-            }
+            } catch (IllegalAccessException ignored) {}
             try {
                 event.setGui(new GuiChatOurs(presetString, sleep));
-            }catch (Exception e){}
+            }catch (Exception ignored){}
         }
     }
     
@@ -285,8 +276,7 @@ public class EventHandler
                     CreeperHost.logger.warn("Reflection to alter server list failed.", e);
                 }
             }
-            
-            
+
             if (Config.getInstance().isServerListEnabled())
             {
                 try
@@ -312,13 +302,9 @@ public class EventHandler
                     serverListSelector.updateOnlineServers(ourServerList);
                     
                     
-                } catch (IllegalAccessException e)
-                {
-                }
+                } catch (IllegalAccessException ignored) {}
             }
-            
             lastInitialized = mpGUI;
-            
         }
         
         if (Config.getInstance().isServerListEnabled())
@@ -352,9 +338,7 @@ public class EventHandler
                     try
                     {
                         list = (ServerSelectionList) serverListSelectorField.get(gui);
-                    } catch (IllegalAccessException e)
-                    {
-                    }
+                    } catch (IllegalAccessException ignored) {}
                     
                     final ServerSelectionList finalList = list;
                     event.getButtonList().add(editButton = new GuiButton(7, gui.width / 2 - 154, gui.height - 28, 70, 20, I18n.format("selectServer.edit"))
@@ -430,13 +414,10 @@ public class EventHandler
                         editButtonField = ReflectionHelper.findField(GuiMultiplayer.class, "field_146810_r", "btnEditServer");
                         editButtonField.setAccessible(true);
                     }
-                    
                     try
                     {
                         editButtonField.set(gui, editButton);
-                    } catch (IllegalAccessException e)
-                    {
-                    }
+                    } catch (IllegalAccessException ignored) {}
                 }
             }
             
@@ -444,9 +425,8 @@ public class EventHandler
             {
                 buttonDrawn = true;
                 event.getButtonList().add(new GuiButton(FRIEND_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends")));
-                
             }
-            
+
             if (gui instanceof GuiMainMenu)
             {
                 
@@ -499,7 +479,6 @@ public class EventHandler
                         button.width -= 2;
                     }
                 }
-                
                 buttonList.add(new GuiButtonMultiple(8, gui.width / 2 + 133, gui.height - 52, 2));
                 buttonList.add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 - 50, gui.height - 52, 75, 20, "Minigames"));
             }
@@ -512,8 +491,7 @@ public class EventHandler
                 int i = 11;
                 event.getButtonList().add(ingameChatButton = new GuiButton(-20, gui.width / 2 - 155 + i % 2 * 160, gui.height / 6 + 24 * (i >> 1), 150, 20, "MineTogether Chat: " + (CreeperHost.instance.ingameChat.hasDisabledIngameChat() ? "OFF" : "ON")));
             }
-            
-            
+
             if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
             {
                 int x = gui.width - 20 - 5;
@@ -610,10 +588,11 @@ public class EventHandler
     }
     
     @SubscribeEvent
-    public void onRenderGameOverlay(RenderGameOverlayEvent event)
-    {
+    public void onRenderGameOverlay(RenderGameOverlayEvent event) {
         if (!Config.getInstance().isSivIntegration())
+        {
             return;
+        }
         if (event.getType() != RenderGameOverlayEvent.ElementType.PLAYER_LIST)
         {
             return;
@@ -665,15 +644,12 @@ public class EventHandler
                     try
                     {
                         Thread.sleep(100);
-                    } catch (InterruptedException e)
-                    {
-                    }
+                    } catch (InterruptedException ignored) {}
                 }
             });
             
             updateThread.setDaemon(true);
             updateThread.setName("SIP Update Thread");
-            
             updateThread.start();
         }
         
@@ -686,10 +662,7 @@ public class EventHandler
                 
             }
             ticks--;
-        } catch (Throwable t)
-        {
-            // Catch _ALL_ errors. We should _NEVER_ crash.
-        }
+        } catch (Throwable ignored) {}
     }
     
     @SubscribeEvent
@@ -725,44 +698,37 @@ public class EventHandler
         {
             if (inviteCheckThread == null)
             {
-                inviteCheckThread = new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
+                inviteCheckThread = new Thread(() -> {
+                    while (Config.getInstance().isServerListEnabled())
                     {
-                        while (Config.getInstance().isServerListEnabled())
-                        {
-                            Invite tempInvite = null;
-                            PrivateChat temp = null;
-                            
-                            try
-                            {
-                                tempInvite = Callbacks.getInvite();
-                                temp = ChatHandler.privateChatInvite;
-                            }
-                            catch (Exception e)
-                            {
-                                // carry on - we'll just try again later, saves thread dying.
-                            }
-                            
-                            synchronized (CreeperHost.instance.inviteLock)
-                            {
-                                if (tempInvite != null)
-                                    CreeperHost.instance.invite = tempInvite;
-                            }
+                        Invite tempInvite = null;
+                        PrivateChat temp = null;
 
-                            if(temp != null)
-                            {
-                                CreeperHost.instance.displayToast(I18n.format("You have been invited to a private group chat", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000);
-                            }
-                            
-                            try
-                            {
-                                Thread.sleep(15000);
-                            } catch (InterruptedException e)
-                            {
-                            }
+                        try
+                        {
+                            tempInvite = Callbacks.getInvite();
+                            temp = ChatHandler.privateChatInvite;
                         }
+                        catch (Exception e)
+                        {
+                            // carry on - we'll just try again later, saves thread dying.
+                        }
+
+                        synchronized (CreeperHost.instance.inviteLock)
+                        {
+                            if (tempInvite != null)
+                                CreeperHost.instance.invite = tempInvite;
+                        }
+
+                        if(temp != null)
+                        {
+                            CreeperHost.instance.displayToast(I18n.format("You have been invited to a private group chat", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000);
+                        }
+
+                        try
+                        {
+                            Thread.sleep(15000);
+                        } catch (InterruptedException ignored) {}
                     }
                 });
                 inviteCheckThread.setDaemon(true);
@@ -896,9 +862,7 @@ public class EventHandler
                 CreeperHost.proxy.openFriendsGui();
         }
     }
-    
-    //private float zLevel = 0;
-    
+
     private void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
     {
         fakeGui.drawTexturedModalRect(x, y, textureX, textureY, width, height);
