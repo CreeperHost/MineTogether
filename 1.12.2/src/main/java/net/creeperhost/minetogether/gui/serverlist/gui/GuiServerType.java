@@ -31,10 +31,7 @@ public class GuiServerType extends GuiScreen
     private GuiScreen parent = null;
     
     
-    public GuiServerType()
-    {
-
-    }
+    public GuiServerType() {}
     
     public GuiServerType(GuiScreen parent)
     {
@@ -64,6 +61,7 @@ public class GuiServerType extends GuiScreen
         super.initGui();
 
         buttonList.clear();
+
         buttonList.add(PUBLIC = new GuiButtonLarge(1, (width / 2) - 180, (height / 8)+20, 120, 165, "PUBLIC", I18n.format("minetogether.listing.public"), new ItemStack(Items.BANNER)));
         buttonList.add(COMMUNITY = new GuiButtonLarge(2, (width / 2) - 60, (height / 8)+20, 120, 165, "COMMUNITY", I18n.format("minetogether.listing.community"), new ItemStack(Items.OAK_DOOR)));
         buttonList.add(APPLICATION = new GuiButtonLarge(3, (width / 2) + 60, (height / 8)+20, 120, 165, "CLOSED", I18n.format("minetogether.listing.closed"), new ItemStack(Items.IRON_DOOR)));

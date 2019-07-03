@@ -11,16 +11,17 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.client.config.GuiButtonExt;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiButtonLarge extends GuiButton
+public class GuiButtonLarge extends GuiButtonExt
 {
-    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost:textures/widgets.png");
-    public String description;
-    public ItemStack stack;
+    private String description;
+    private ItemStack stack;
 
     public GuiButtonLarge(int buttonId, int x, int y, String buttonText)
     {
@@ -44,55 +45,38 @@ public class GuiButtonLarge extends GuiButton
         this.stack = stack;
     }
 
-    public void func_191745_a(Minecraft mc, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+    public void func_191745_a(Minecraft mc, int mouseX, int mouseY, float p_191745_4_)
     {
         if (this.visible)
         {
-            FontRenderer fontrenderer = mc.fontRendererObj;
-            mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+            int k = this.getHoverState(this.hovered);
+            GuiUtils.drawContinuousTexturedBox(BUTTON_TEXTURES, this.xPosition, this.yPosition, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.zLevel);
+            this.mouseDragged(mc, mouseX, mouseY);
+            int color = 14737632;
 
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
-            this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition && p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
-            int i = this.getHoverState(this.hovered);
-            GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-
-            this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
-            this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
-            this.mouseDragged(mc, p_191745_2_, p_191745_3_);
-            int j = 14737632;
-
-            if (packedFGColour != 0)
-            {
-                j = packedFGColour;
-            }
-            else
-            if (!this.enabled)
-            {
-                j = 10526880;
-            }
-            else if (this.hovered)
-            {
-                j = 16777120;
+            if (packedFGColour != 0) {
+                color = packedFGColour;
+            } else if (!this.enabled) {
+                color = 10526880;
+            } else if (this.hovered) {
+                color = 16777120;
             }
 
-            this.drawCenteredString(fontrenderer, TextFormatting.BOLD + this.displayString, this.xPosition + this.width / 2, this.yPosition + ( +8), j);
+            this.drawCenteredString(mc.fontRendererObj, TextFormatting.BOLD + this.displayString, this.xPosition + this.width / 2, this.yPosition + (+8), color);
 
-            List<ITextComponent> newstring = GuiUtilRenderComponents.splitText(new TextComponentString(description), width - 10, fontrenderer, false, true);
+            List<ITextComponent> newstring = GuiUtilRenderComponents.splitText(new TextComponentString(description), width - 10, mc.fontRendererObj, false, true);
             int start = 105;
 
-            for (ITextComponent s : newstring)
-            {
+            for (ITextComponent s : newstring) {
                 int left = ((this.xPosition + 4));
-                fontrenderer.drawStringWithShadow(padLeft(s.getFormattedText(), 20), left, start += 8, -1);
+                mc.fontRendererObj.drawStringWithShadow(padLeft(s.getFormattedText(), 20), left, start += 8, -1);
             }
 
             RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
             GlStateManager.pushMatrix();
             GlStateManager.scale(2.0f, 2.0f, 2.0f);
-            renderItem.renderItemIntoGUI(stack, (this.xPosition/2) + (width / 4) - 8, (this.yPosition/2) + 10);
+            renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
             GlStateManager.popMatrix();
         }
     }
@@ -100,10 +84,5 @@ public class GuiButtonLarge extends GuiButton
     public static String padLeft(String s, int n)
     {
         return String.format("%1$" + n + "s", s);
-    }
-
-    public static String padRight(String s, int n)
-    {
-        return String.format("%1$-" + n + "s", s);
     }
 }
