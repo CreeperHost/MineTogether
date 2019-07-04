@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.gui.chat.ingame;
 
 import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
@@ -177,7 +178,7 @@ public class GuiNewChatOurs extends GuiNewChat
             GlStateManager.translate(2.0F, 8.0F, 0.0F);
             GlStateManager.scale(f1, f1, 1.0F);
 
-            int minLines = base ? 8: 14;
+            int minLines = ((base ? 14: 20) + ((ChatHandler.hasGroup) ? 5 : 0));
 
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
 

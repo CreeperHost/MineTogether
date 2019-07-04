@@ -229,9 +229,9 @@ public class GuiButtonPair extends GuiButton
         if (vertical)
         {
             mouseX = ((button1.xPosition < button2.xPosition ? button1.xPosition : button2.xPosition) - mouseXIn) / 0.75;
-            mouseY = (button1.yPosition - mouseYIn) / 0.75;
+            mouseY = ((button1.yPosition - mouseYIn) / 0.75);
 
-            double x1 = mouseX - 0;
+            double x1 = mouseX +8;
             double y1 = mouseY - 0;
 
             double angle = Math.toRadians(90);

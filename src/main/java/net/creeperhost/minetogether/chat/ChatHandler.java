@@ -42,6 +42,7 @@ public class ChatHandler
     private static String realName;
     public static PrivateChat privateChatList = null;
     public static PrivateChat privateChatInvite = null;
+    public static boolean hasGroup = false;
 
     public static void init(String nickIn, String realNameIn, IHost _host)
     {
@@ -192,6 +193,7 @@ public class ChatHandler
             String channelName = "#" + owner;
             User user = userOpt.get();
             client.addChannel(channelName);
+            ChatHandler.hasGroup=true;
             privateChatList = new PrivateChat(channelName, owner);
             String inviteStr = "INVITE " + user.getNick() + " " + channelName;
             client.sendRawLine(inviteStr);
