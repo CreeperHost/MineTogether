@@ -26,6 +26,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.Sys;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -60,10 +61,17 @@ public class GuiMTChat extends GuiScreen
     {
         this.parent = parent;
     }
-    
+
+    @Override
+    public void onGuiClosed()
+    {
+        Keyboard.enableRepeatEvents(false);
+    }
+
     @Override
     public void initGui()
     {
+        Keyboard.enableRepeatEvents(true);
         if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
         {
             mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMTChat(parent)));
