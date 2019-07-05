@@ -23,6 +23,8 @@ public class GuiQuote extends GuiGetServer
     private GuiWell wellBottom;
     private GuiButton countryButton;
     private boolean refreshing;
+    private int oldButtonxPrev = 0;
+    private int oldButtonxNext = 0;
     private boolean changed;
     private boolean firstTime = true;
     private boolean countryOnRelease;
@@ -158,13 +160,20 @@ public class GuiQuote extends GuiGetServer
         if (button.id == 8008135)
         {
             countryOnRelease = true;
+            this.oldButtonxPrev = this.buttonPrev.xPosition;
+            this.oldButtonxNext = this.buttonNext.xPosition;
+            this.buttonPrev.xPosition = this.buttonNext.xPosition;
+            this.buttonNext.yPosition = -50;
         }
         
-        if (countryEnabled && button.id == buttonPrev.id)
+        if (countryEnabled && button.id == buttonPrev.id||countryEnabled && button.id == -3)
         {
             this.countryEnabled = false;
             this.buttonPrev.displayString = Util.localize("button.prev");
-            if (changed)
+            this.buttonPrev.xPosition = this.oldButtonxPrev;
+            this.buttonNext.xPosition = this.oldButtonxNext;
+            this.buttonNext.yPosition = this.buttonPrev.yPosition;
+            if (changed && button.id != -3)
             {
                 changed = false;
                 updateSummary();

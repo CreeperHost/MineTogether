@@ -133,6 +133,10 @@ public class GuiMTChat extends GuiScreen
         if (status != ChatHandler.ConnectionStatus.CONNECTED)
         {
             send.setDisabled("Cannot send messages as not connected");
+            if(status != ChatHandler.ConnectionStatus.CONNECTING)
+            {
+                ChatHandler.reInit();
+            }
             disabledDueToConnection = true;
         } else if (!targetDropdownButton.getSelected().isChannel() && !ChatHandler.friends.containsKey(currentTarget))
         {
@@ -145,7 +149,7 @@ public class GuiMTChat extends GuiScreen
             Target.updateCache();
             if (!targetDropdownButton.getSelected().getPossibleVals().contains(targetDropdownButton.getSelected()))
                 targetDropdownButton.setSelected(Target.getMainTarget());
-//            processBadwords();
+            processBadwords();
         }
         drawCenteredString(fontRendererObj, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
         ITextComponent comp = new TextComponentString("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
@@ -249,14 +253,15 @@ public class GuiMTChat extends GuiScreen
             if(id == 777 && ChatHandler.privateChatInvite != null)
             {
                 ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
+                mc.displayGuiScreen(this);
+                return;
             }
         }
-        mc.displayGuiScreen(this);
+        super.confirmClicked(result, id);
     }
 
     boolean disabledDueToBadwords = false;
 
-    @Deprecated
     public void processBadwords()
     {
         String text = send.getText().replaceAll(ChatHandler.badwordsFormat, "");
@@ -315,9 +320,12 @@ public class GuiMTChat extends GuiScreen
             menuDropdownButton.wasJustClosed = false;
         }
     }
-    
-    final Pattern pattern = Pattern.compile("((?:user)?(\\d+))", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
-    
+    //((?:user)?(\\d+))
+    //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
+    final Pattern patternA = Pattern.compile("((?:user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final Pattern patternB = Pattern.compile("((?:@)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final Pattern patternC = Pattern.compile("((?:@user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    //final Pattern hyperlinks = Pattern.compile("(https?:\\/\\/)?(www\.)?([\\w\\Q$-_+!*'(),%\\E]+\\.)+[‌​\\w]{2,63}\\/?", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
     @SuppressWarnings("Duplicates")
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
@@ -333,21 +341,30 @@ public class GuiMTChat extends GuiScreen
                 String word = split[i].toLowerCase();
                 final String subst = "User$2";
                 
-                final Matcher matcher = pattern.matcher(word);
-                
-                final String result = matcher.replaceAll(subst);
-                
-                String justNick = result.replaceAll("[^A-Za-z0-9]", "");
-                
+                final Matcher matcher = patternA.matcher(word);
+                final Matcher matcherb = patternB.matcher(word);
+                final Matcher matcherc = patternC.matcher(word);
+                String justNick = word;
+                String result = word;
+                if(matcher.matches()) {
+                    result = matcher.replaceAll(subst);
+                } else if(matcherb.matches())
+                {
+                    result = matcherb.replaceAll(subst);
+                } else if(matcherc.matches())
+                {
+                    result = matcherc.replaceAll(subst);
+                }
+                justNick = result.replaceAll("[^A-Za-z0-9]", "");
+
+
                 String tempWord = ChatHandler.anonUsersReverse.get(justNick);
                 if (tempWord != null)
                     split[i] = result.replaceAll(justNick, tempWord);
             }
-            
             text = String.join(" ", split);
             ChatHandler.sendMessage(currentTarget, text);
             send.setText("");
-            return;
         }
         
         boolean ourEnabled = send.getOurEnabled();
@@ -363,7 +380,7 @@ public class GuiMTChat extends GuiScreen
         {
             send.setEnabled(false);
         }
-//        processBadwords();
+        processBadwords();
     }
     
     private static Field field;
@@ -513,6 +530,8 @@ public class GuiMTChat extends GuiScreen
         {
             messageStr = messageStr.replace(swear, StringUtils.repeat("*", swear.length()));
         }
+
+
         
         String[] split = messageStr.split(" ");
         
@@ -543,7 +562,8 @@ public class GuiMTChat extends GuiScreen
         
         messageStr = String.join(" ", split);
         
-        ITextComponent messageComp = ForgeHooks.newChatWithLinks(messageStr).setStyle(new Style().setColor(TextFormatting.WHITE));
+        ITextComponent messageComp = ForgeHooks.newChatWithLinks(messageStr);
+        messageComp.getStyle().setColor(TextFormatting.WHITE);
         
         if (friend)
         {
@@ -557,7 +577,7 @@ public class GuiMTChat extends GuiScreen
                 outputNick = matcher.group();
                 messageStr = messageStr.substring(outputNick.length() + 1);
                 outputNick = outputNick.substring(0, outputNick.length() - 1);
-                messageComp = ForgeHooks.newChatWithLinks(messageStr).setStyle(new Style().setColor(TextFormatting.WHITE));
+                messageComp = ForgeHooks.newChatWithLinks(messageStr).setStyle(messageComp.getStyle().setColor(TextFormatting.WHITE));
                 userComp = new TextComponentString("<" + outputNick + ">");
             }
             userComp.getStyle().setColor(TextFormatting.AQUA);
@@ -594,7 +614,7 @@ public class GuiMTChat extends GuiScreen
         
         GuiScrollingChat(int entryHeight)
         {
-            super(Minecraft.getMinecraft(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 30, 10, GuiMTChat.this.height - 50, 10, entryHeight, GuiMTChat.this.width, GuiMTChat.this.height);
+            super(Minecraft.getMinecraft(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 50, 30, GuiMTChat.this.height - 50, 10, entryHeight, GuiMTChat.this.width, GuiMTChat.this.height);
             lines = new ArrayList<>();
             updateLines(currentTarget);
         }
@@ -692,7 +712,6 @@ public class GuiMTChat extends GuiScreen
         
         @Override
         protected void drawBackground() {}
-        
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess)
         {

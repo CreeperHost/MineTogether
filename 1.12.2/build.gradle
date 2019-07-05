@@ -25,7 +25,7 @@ minecraft {
 shadowJar {
 	// Only shadow fluent-hc
 	dependencies {
-		include(dependency('org.kitteh.irc:client-lib:4.0.2'))
+		include(dependency('org.kitteh.irc:client-lib:7.1.0'))
 	}
 
 	// Relocate fluent-hc to prevent conflicts with other mods that include it
