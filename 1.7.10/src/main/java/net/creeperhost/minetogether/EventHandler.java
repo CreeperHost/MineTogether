@@ -177,6 +177,8 @@ public class EventHandler
         else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
         {
             GuiMultiplayer mpGUI = (GuiMultiplayer) gui;
+			if (CreeperHost.instance.getImplementation() == null)
+				CreeperHost.instance.setRandomImplementation();
             if (Config.getInstance().isMpMenuEnabled() && CreeperHost.instance.getImplementation() != null)
             {
                 try
