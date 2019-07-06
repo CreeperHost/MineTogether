@@ -25,6 +25,7 @@ public class GuiQuote extends GuiGetServer
     private boolean refreshing;
     private int oldButtonxPrev = 0;
     private int oldButtonxNext = 0;
+    private GuiListEntryCountry countryPrev;
     private boolean changed;
     private boolean firstTime = true;
     private boolean countryOnRelease;
@@ -161,6 +162,7 @@ public class GuiQuote extends GuiGetServer
         {
             countryOnRelease = true;
             this.oldButtonxPrev = this.buttonPrev.xPosition;
+            this.countryPrev =  (GuiListEntryCountry) this.list.getCurrSelected();
             this.oldButtonxNext = this.buttonNext.xPosition;
             this.buttonPrev.xPosition = this.buttonNext.xPosition;
             this.buttonNext.yPosition = -50;
@@ -180,6 +182,7 @@ public class GuiQuote extends GuiGetServer
             } else
             {
                 countryButton.visible = true;
+                list.setCurrSelected(this.countryPrev);
             }
             return;
         }
