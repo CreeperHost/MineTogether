@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.api.CreeperHostAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.common.*;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
@@ -307,7 +308,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     }
     
     @Override
-    public void messageReceived(String target, Pair messagePair)
+    public void messageReceived(String target, Message messagePair)
     {
         if (!Config.getInstance().isChatEnabled() || !target.equals(ChatHandler.CHANNEL)) return;
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();

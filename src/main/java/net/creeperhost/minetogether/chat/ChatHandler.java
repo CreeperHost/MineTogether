@@ -30,7 +30,7 @@ public class ChatHandler
     public static ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
     public static HashMap<String, String> curseSync = new HashMap<>();
 
-    public static HashMap<String, LimitedSizeQueue<Pair<String, String>>> messages = null;
+    public static HashMap<String, LimitedSizeQueue<Message>> messages = null;
     private static Client client = null;
     private static IHost host;
     public static int tries = 0;
@@ -86,12 +86,12 @@ public class ChatHandler
 
     private static void addMessageToChat(String target, String user, String message)
     {
-        LimitedSizeQueue<Pair<String, String>> tempQueue = messages.get(target);
+        LimitedSizeQueue<Message> tempQueue = messages.get(target);
         if (tempQueue == null) {
             messages.put(target, tempQueue = new LimitedSizeQueue<>(150));
         }
 
-        Pair messagePair = new Pair<>(user, message);
+        Message messagePair = new Message(System.currentTimeMillis(), user, message);
         tempQueue.add(messagePair);
         host.messageReceived(target, messagePair);
         newMessages.put(target, new Boolean(true));

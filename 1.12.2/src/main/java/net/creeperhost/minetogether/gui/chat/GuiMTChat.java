@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.gui.chat;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
@@ -437,9 +438,9 @@ public class GuiMTChat extends GuiScreen
 
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
     
-    public static ITextComponent formatLine(Pair<String, String> message)
+    public static ITextComponent formatLine(Message message)
     {
-        String inputNick = message.getLeft();
+        String inputNick = message.sender;
         String outputNick = inputNick;
         
         if (inputNick.contains(":"))
@@ -456,7 +457,7 @@ public class GuiMTChat extends GuiScreen
                     if (!nickDisplay.startsWith("User"))
                         return null;
                     
-                    String cmdStr = message.getRight();
+                    String cmdStr = message.messageStr;
                     String[] cmdSplit = cmdStr.split(" ");
                     
                     if (cmdSplit.length < 2)
@@ -485,7 +486,7 @@ public class GuiMTChat extends GuiScreen
                     String nick = split[1];
                     String nickDisplay = ChatHandler.getNameForUser(nick);
                     
-                    String friendName = message.getRight();
+                    String friendName = message.messageStr;
                     
                     ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") accepted your friend request.");
                     
@@ -525,7 +526,7 @@ public class GuiMTChat extends GuiScreen
             userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
         }
         
-        String messageStr = message.getRight();
+        String messageStr = message.messageStr;
         
         for (String swear : ChatHandler.badwords)
         {
@@ -630,7 +631,7 @@ public class GuiMTChat extends GuiScreen
         
         protected void updateLines(String key)
         {
-            LimitedSizeQueue<Pair<String, String>> tempMessages;
+            LimitedSizeQueue<Message> tempMessages;
             synchronized (ircLock)
             {
                 if (ChatHandler.messages == null || ChatHandler.messages.size() == 0)
@@ -643,7 +644,7 @@ public class GuiMTChat extends GuiScreen
             lines = new ArrayList<>();
             if (tempMessages == null)
                 return;
-            for (Pair<String, String> message : tempMessages)
+            for (Message message : tempMessages)
             {
                 ITextComponent display = formatLine(message);
                 if (display == null)
