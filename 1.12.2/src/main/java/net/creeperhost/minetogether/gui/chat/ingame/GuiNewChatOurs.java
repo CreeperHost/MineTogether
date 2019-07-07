@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.gui.chat.ingame;
 import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
@@ -22,7 +23,7 @@ import java.util.List;
 
 public class GuiNewChatOurs extends GuiNewChat
 {
-    public boolean base = true;
+    public boolean base = !CreeperHost.instance.gdpr.hasAcceptedGDPR();
     
     @Override
     public void printChatMessageWithOptionalDeletion(ITextComponent chatComponent, int chatLineId)

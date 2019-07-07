@@ -27,15 +27,11 @@ import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static net.creeperhost.minetogether.chat.ChatHandler.ircLock;
 
