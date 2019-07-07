@@ -8,8 +8,7 @@ import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
-import net.creeperhost.minetogether.gui.element.GuiButtonCreeper;
-import net.creeperhost.minetogether.gui.element.GuiButtonRefresh;
+
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -17,21 +16,19 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -570,7 +567,8 @@ public class GuiMTChat extends GuiScreen
         
         messageStr = String.join(" ", split);
         
-        ITextComponent messageComp = ForgeHooks.newChatWithLinks(messageStr);
+        ITextComponent messageComp = newChatWithLinksOurs(messageStr);
+
         messageComp.getStyle().setColor(TextFormatting.WHITE);
         
         if (friend)
@@ -585,7 +583,7 @@ public class GuiMTChat extends GuiScreen
                 outputNick = matcher.group();
                 messageStr = messageStr.substring(outputNick.length() + 1);
                 outputNick = outputNick.substring(0, outputNick.length() - 1);
-                messageComp = ForgeHooks.newChatWithLinks(messageStr).setStyle(messageComp.getStyle().setColor(TextFormatting.WHITE));
+                messageComp = newChatWithLinksOurs(messageStr).setStyle(messageComp.getStyle().setColor(TextFormatting.WHITE));
                 userComp = new TextComponentString("<" + outputNick + ">");
             }
             userComp.getStyle().setColor(TextFormatting.AQUA);
@@ -615,7 +613,7 @@ public class GuiMTChat extends GuiScreen
         
         return base.appendSibling(messageComp);
     }
-    
+
     private class GuiScrollingChat extends GuiScrollingList
     {
         private ArrayList<ITextComponent> lines;
@@ -789,6 +787,31 @@ public class GuiMTChat extends GuiScreen
         {
             return possibleValsCache;
         }
+    }
+
+    static final Pattern URL_PATTERN = Pattern.compile(
+            //         schema                          ipv4            OR        namespace                 port     path         ends
+            //   |-----------------|        |-------------------------|  |-------------------------|    |---------| |--|   |---------------|
+            "((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))",
+            Pattern.CASE_INSENSITIVE);
+
+
+    public static ITextComponent newChatWithLinksOurs(String string)
+    {
+        ITextComponent component = ForgeHooks.newChatWithLinks(string);
+        if (component.getStyle().getClickEvent() != null)
+        {
+            ITextComponent oldcomponent = component;
+            List<ITextComponent> siblings = oldcomponent.getSiblings();
+            component = new TextComponentString("");
+            component.appendSibling(oldcomponent);
+            for(ITextComponent sibling: siblings)
+            {
+                component.appendSibling(sibling);
+            }
+            siblings.clear();
+        }
+        return component;
     }
     
 }
