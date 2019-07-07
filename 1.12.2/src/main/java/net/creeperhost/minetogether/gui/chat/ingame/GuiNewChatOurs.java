@@ -3,6 +3,8 @@ package net.creeperhost.minetogether.gui.chat.ingame;
 import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.chat.Message;
+import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.TimestampComponentString;
 import net.minecraft.client.Minecraft;
@@ -221,6 +223,21 @@ public class GuiNewChatOurs extends GuiNewChat
     }
     
     public boolean unread;
+    public String chatTarget;
+
+    public void rebuildChat(String chatKey)
+    {
+        chatTarget = chatKey;
+        chatLines.clear();
+        drawnChatLines.clear();
+        LimitedSizeQueue<Message> messages = ChatHandler.messages.get(chatKey);
+        synchronized (ChatHandler.ircLock) {
+            int size = messages.size();
+            for (Message message : messages) {
+                setChatLine(GuiMTChat.formatLine(message), size--, 0, false);
+            }
+        }
+    }
     
     public void setChatLine(ITextComponent chatComponent, int chatLineId, int updateCounter, boolean displayOnly)
     {

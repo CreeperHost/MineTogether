@@ -175,9 +175,9 @@ public class GuiChatOurs extends GuiChat
             }
         } catch(NullPointerException err){}//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
         if(ChatHandler.hasGroup) {
-            buttonList.add(switchButton = new GuiButtonPair(808, x, height - 41, 156, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base ? 1 : 0, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
+            buttonList.add(switchButton = new GuiButtonPair(808, x, height - 41, 156, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base ? 0 : ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).chatTarget.equals(ChatHandler.CHANNEL) ? 1 : 2, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
         } else {
-            buttonList.add(switchButton = new GuiButtonPair(808, x, height - 41, 156, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base ? 1 : 0, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global")));
+            buttonList.add(switchButton = new GuiButtonPair(808, x, height - 41, 156, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base ? 0 : 1, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global")));
         }
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
         menuDropdownButton.flipped = true;
@@ -209,6 +209,8 @@ public class GuiChatOurs extends GuiChat
             {
                 GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
                 ourChat.base = switchButton.activeButton == 0;
+                if (!ourChat.base)
+                    ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.privateChatList.getChannelname());
                 switchButton.displayString = ourChat.base ? "MineTogether Chat" : "Minecraft Chat";
             }
             else {

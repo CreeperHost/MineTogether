@@ -69,8 +69,7 @@ public class ChatHandler
             { // start in thread as can hold up the UI thread for some reason.
                 Client.Builder mineTogether = Client.builder().nick(nickIn).realName(realName).user("MineTogether");
                 mineTogether.server().host(IRC_SERVER.address).port(IRC_SERVER.port).secure(IRC_SERVER.ssl);
-                mineTogether.listeners().exception(e -> {
-                }); // no-op
+                mineTogether.listeners().exception(e -> {}); // no-op
                 client = mineTogether.buildAndConnect();
 
                 ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(true); // Does a WHO - lets see how this works...
