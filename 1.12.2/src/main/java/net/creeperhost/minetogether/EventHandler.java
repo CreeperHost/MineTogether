@@ -542,12 +542,6 @@ public class EventHandler
     @SubscribeEvent
     public void onActionPerformed(ActionPerformedEvent.Pre event)
     {
-        if (actionHandled)
-        {
-            actionHandled = false;
-            event.setCanceled(true);
-            return;
-        }
         GuiScreen gui = event.getGui();
         GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu)
@@ -900,17 +894,17 @@ public class EventHandler
 
 
     @SubscribeEvent
-    public void onMouseInputEvent(GuiScreenEvent.MouseInputEvent.Pre event)
+    public void onMouseInputEvent(GuiScreenEvent.MouseInputEvent.Pre event) // this fires on mouse clicked in any GUI, and allows us to cancel it
     {
         MouseEvent mouseEvent = new MouseEvent(); // convenient shortcut to get everything we need
         event.setCanceled(onMouseInput(mouseEvent));
     }
 
-    public boolean actionHandled = false;
-
     public boolean onMouseInput(MouseEvent event)
     {
         GuiScreen activeScreen = Minecraft.getMinecraft().currentScreen;
+        if (activeScreen == null)
+            return false; // just to stop the compiler from bitching mainly, and better to be safe than sorry
         if (!(event.isButtonstate() && event.getButton() == 0))
             return false;
         if (!CreeperHost.instance.isActiveToast())
@@ -921,7 +915,6 @@ public class EventHandler
         {
             handleToastInteraction();
             return true;
-            // we have handled this, so we need to make sure that any "ActionPerformed" things aren't fired
         }
         return false;
     }
