@@ -11,6 +11,7 @@ import net.creeperhost.minetogether.gui.GuiProgressDisconnected;
 import net.creeperhost.minetogether.gui.GuiServerInfo;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
+import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
@@ -31,6 +32,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -42,6 +44,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -225,6 +228,11 @@ public class EventHandler
             try
             {
                 presetString = (String) defaultInputFieldTextField.get(gui);
+                MinecraftServer minecraftServerInstance = FMLCommonHandler.instance().getMinecraftServerInstance();
+                if (minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer())
+                {
+                    ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = presetString.startsWith("/");
+                }
             } catch (IllegalAccessException ignored) {}
             try {
                 event.setGui(new GuiChatOurs(presetString, sleep));

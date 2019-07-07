@@ -164,7 +164,7 @@ public class GuiChatOurs extends GuiChat
             buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height - 40, I18n.format("multiplayer.stopSleeping")));
         }
     }
-    
+
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
