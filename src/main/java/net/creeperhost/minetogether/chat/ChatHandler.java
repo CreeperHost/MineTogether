@@ -33,6 +33,7 @@ public class ChatHandler
     public static HashMap<String, LimitedSizeQueue<Message>> messages = null;
     private static Client client = null;
     private static IHost host;
+    public static boolean isInitting=false;
     public static int tries = 0;
     private static boolean inited = false;
     public static List<String> badwords;
@@ -80,8 +81,10 @@ public class ChatHandler
 
     public static void reInit()
     {
+        ChatHandler.isInitting=true;
         inited = false;
         init(initedString, realName, host);
+        ChatHandler.isInitting=false;
     }
 
     private static void addMessageToChat(String target, String user, String message)
@@ -304,7 +307,7 @@ public class ChatHandler
                 synchronized (ircLock)
                 {
                     connectionStatus = ConnectionStatus.CONNECTED;
-                    addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Chat joined"));
+                    //addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Chat joined"));
                 }
             }
             updateFriends(event.getChannel().getNicknames());

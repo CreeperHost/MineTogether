@@ -137,7 +137,9 @@ public class GuiMTChat extends GuiScreen
             send.setDisabled("Cannot send messages as not connected");
             if(status != ChatHandler.ConnectionStatus.CONNECTING)
             {
-                ChatHandler.reInit();
+                if(!ChatHandler.isInitting) {
+                    ChatHandler.reInit();
+                }
             }
             disabledDueToConnection = true;
         } else if (!targetDropdownButton.getSelected().isChannel() && !ChatHandler.friends.containsKey(currentTarget))
@@ -322,12 +324,10 @@ public class GuiMTChat extends GuiScreen
             menuDropdownButton.wasJustClosed = false;
         }
     }
-    //((?:user)?(\\d+))
     //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
     final Pattern patternA = Pattern.compile("((?:user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     final Pattern patternB = Pattern.compile("((?:@)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     final Pattern patternC = Pattern.compile("((?:@user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    //final Pattern hyperlinks = Pattern.compile("(https?:\\/\\/)?(www\.)?([\\w\\Q$-_+!*'(),%\\E]+\\.)+[‌​\\w]{2,63}\\/?", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
     @SuppressWarnings("Duplicates")
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
@@ -520,6 +520,7 @@ public class GuiMTChat extends GuiScreen
         ITextComponent base = new TextComponentString("");
         
         ITextComponent userComp = new TextComponentString("<" + outputNick + ">");
+        userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
         
         if (!inputNick.equals(CreeperHost.instance.ourNick) && inputNick.startsWith("MT"))
         {
@@ -567,6 +568,10 @@ public class GuiMTChat extends GuiScreen
         ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
         messageComp.getStyle().setColor(TextFormatting.WHITE);
+        if(inputNick.equals(CreeperHost.instance.ourNick))
+        {
+            messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
+        }
         
         if (friend)
         {
