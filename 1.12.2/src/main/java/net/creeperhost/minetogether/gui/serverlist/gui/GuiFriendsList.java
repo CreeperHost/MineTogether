@@ -344,7 +344,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     
     private void showAlert(String text, int colour, int time)
     {
-        CreeperHost.instance.displayToast(text, time);
+        CreeperHost.instance.displayToast(text, time, null);
     }
     
     public void setHoveringText(String hoveringText)

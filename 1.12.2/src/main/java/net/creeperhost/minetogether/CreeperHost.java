@@ -76,7 +76,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
     
     public String ourNick;
     public File mutedUsersFile;
-    
+    public Runnable toastMethod;
+
     @SuppressWarnings("Duplicates")
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -258,17 +259,25 @@ public class CreeperHost implements ICreeperHostMod, IHost
         return queryGetter;
     }
     
-    public void displayToast(String text, int duration)
+    public void displayToast(String text, int duration, Runnable method)
     {
         toastText = text;
         endTime = System.currentTimeMillis() + duration;
         fadeTime = endTime + 500;
+        toastMethod = method;
     }
     
     public void clearToast(boolean fade)
     {
+        toastText = null;
         endTime = System.currentTimeMillis();
+        toastMethod = null;
         fadeTime = endTime + (fade ? 500 : 0);
+    }
+
+    public boolean isActiveToast()
+    {
+        return fadeTime >= System.currentTimeMillis();
     }
     
     @Override

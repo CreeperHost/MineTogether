@@ -29,12 +29,15 @@ import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
+import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -44,7 +47,9 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -537,6 +542,12 @@ public class EventHandler
     @SubscribeEvent
     public void onActionPerformed(ActionPerformedEvent.Pre event)
     {
+        if (actionHandled)
+        {
+            actionHandled = false;
+            event.setCanceled(true);
+            return;
+        }
         GuiScreen gui = event.getGui();
         GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu)
@@ -724,7 +735,7 @@ public class EventHandler
 
                         if(temp != null)
                         {
-                            CreeperHost.instance.displayToast(I18n.format("You have been invited to a private group chat", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000);
+                            CreeperHost.instance.displayToast(I18n.format("You have been invited to a private group chat", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, null);
                         }
 
                         try
@@ -769,7 +780,11 @@ public class EventHandler
                     CreeperHost.proxy.openFriendsGui();
                 } else
                 {
-                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000);
+                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, () ->
+                    {
+                        mc.displayGuiScreen(new GuiInvited(CreeperHost.instance.handledInvite, mc.currentScreen));
+                        CreeperHost.instance.handledInvite = null;
+                    });
                 }
             }
         }
@@ -790,7 +805,7 @@ public class EventHandler
             {
                 if (friendMessage && Minecraft.getMinecraft().currentScreen instanceof GuiMTChat)
                     return;
-                CreeperHost.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000);
+                CreeperHost.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000, null);
             }
         }
     }
@@ -844,25 +859,71 @@ public class EventHandler
                 mc.fontRendererObj.drawSplitString(CreeperHost.instance.toastText, res.getScaledWidth() - 160 + 5, 6, 160, textColour);
             } else
             {
-                CreeperHost.instance.toastText = null;
+                CreeperHost.instance.clearToast(false);
             }
         }
     }
+
+    public void handleToastInteraction()
+    {
+        Runnable method = CreeperHost.instance.toastMethod;
+        CreeperHost.instance.clearToast(false);
+        if (method != null) method.run();
+    }
+
+    @SubscribeEvent
+    public void onKeyboardInputGui(GuiScreenEvent.KeyboardInputEvent.Pre event)
+    {
+        onKeyInputGeneric();
+    }
     
-    @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event)
     {
-        if (Config.getInstance().isServerListEnabled() && ((Client) CreeperHost.proxy).openGuiKey.isPressed())
+        onKeyInputGeneric();
+    }
+
+    private void onKeyInputGeneric()
+    {
+        KeyBinding binding = ((Client) CreeperHost.proxy).openGuiKey;
+        boolean pressed = Keyboard.isKeyDown(binding.getKeyCode()) && binding.getKeyConflictContext().isActive() && binding.getKeyModifier().isActive(binding.getKeyConflictContext());
+        if (!pressed)
+            return;
+        if (CreeperHost.instance.isActiveToast())
         {
-            if (CreeperHost.instance.handledInvite != null)
-            {
-                CreeperHost.instance.clearToast(false);
-                mc.displayGuiScreen(new GuiInvited(CreeperHost.instance.handledInvite, mc.currentScreen));
-                CreeperHost.instance.handledInvite = null;
-            } else
-                CreeperHost.proxy.openFriendsGui();
+            handleToastInteraction();
+        } else if (Config.getInstance().isServerListEnabled())
+        {
+            CreeperHost.proxy.openFriendsGui();
         }
+    }
+
+
+    @SubscribeEvent
+    public void onMouseInputEvent(GuiScreenEvent.MouseInputEvent.Pre event)
+    {
+        MouseEvent mouseEvent = new MouseEvent(); // convenient shortcut to get everything we need
+        event.setCanceled(onMouseInput(mouseEvent));
+    }
+
+    public boolean actionHandled = false;
+
+    public boolean onMouseInput(MouseEvent event)
+    {
+        GuiScreen activeScreen = Minecraft.getMinecraft().currentScreen;
+        if (!(event.isButtonstate() && event.getButton() == 0))
+            return false;
+        if (!CreeperHost.instance.isActiveToast())
+            return false;
+        int x = event.getX() * activeScreen.width / this.mc.displayWidth;
+        int y = activeScreen.height - event.getY() * activeScreen.height / this.mc.displayHeight - 1;
+        if (x > activeScreen.width - 160 && y < 32)
+        {
+            handleToastInteraction();
+            return true;
+            // we have handled this, so we need to make sure that any "ActionPerformed" things aren't fired
+        }
+        return false;
     }
 
     private void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
