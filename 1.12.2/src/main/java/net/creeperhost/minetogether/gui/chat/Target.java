@@ -6,10 +6,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class Target implements DropdownButton.IDropdownOption
 {
@@ -90,7 +87,7 @@ class Target implements DropdownButton.IDropdownOption
         
         ArrayList<Target> oldVals = possibleValsCache;
         
-        HashSet<Target> tempSet = new HashSet<>();
+        LinkedHashSet<Target> tempSet = new LinkedHashSet<>();
         
         // lets check if main has changed its internal target
         if (current != null && current.targetName.equals("Main"))
