@@ -19,6 +19,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.apache.commons.lang3.StringUtils;
@@ -28,8 +29,10 @@ import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -437,6 +440,8 @@ public class GuiMTChat extends GuiScreen
     }
 
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
+
+    static SimpleDateFormat timestampFormat = new SimpleDateFormat("[HH:mm:ss] ");
     
     public static ITextComponent formatLine(Message message)
     {
@@ -564,7 +569,7 @@ public class GuiMTChat extends GuiScreen
         }
         
         messageStr = String.join(" ", split);
-        
+
         ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
         messageComp.getStyle().setColor(TextFormatting.WHITE);
@@ -585,7 +590,7 @@ public class GuiMTChat extends GuiScreen
                 outputNick = matcher.group();
                 messageStr = messageStr.substring(outputNick.length() + 1);
                 outputNick = outputNick.substring(0, outputNick.length() - 1);
-                messageComp = newChatWithLinksOurs(messageStr).setStyle(messageComp.getStyle().setColor(TextFormatting.WHITE));
+                messageComp = newChatWithLinksOurs(messageStr);
                 userComp = new TextComponentString("<" + outputNick + ">");
             }
             userComp.getStyle().setColor(TextFormatting.AQUA);
@@ -609,6 +614,10 @@ public class GuiMTChat extends GuiScreen
             messageComp.getStyle().setColor(TextFormatting.RED);
             base.getStyle().setColor(TextFormatting.RED);
         }
+
+        base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
+
+        base.appendSibling(new TimestampComponentString("Test"));
         
         base.appendSibling(userComp);
         base.appendSibling(new TextComponentString(" ").setStyle(new Style().setColor(TextFormatting.WHITE)));

@@ -33,7 +33,8 @@ public class ChatHandler
     public static HashMap<String, LimitedSizeQueue<Message>> messages = null;
     private static Client client = null;
     private static IHost host;
-    public static boolean isInitting=false;
+    private static boolean online = false;
+    public static boolean isInitting = false;
     public static int tries = 0;
     private static boolean inited = false;
     public static List<String> badwords;
@@ -45,16 +46,17 @@ public class ChatHandler
     public static PrivateChat privateChatInvite = null;
     public static boolean hasGroup = false;
 
-    public static void init(String nickIn, String realNameIn, IHost _host)
+    public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
         if (inited) return;
 
+        online = onlineIn;
         realName = realNameIn;
         initedString = nickIn;
         badwords = ChatUtil.getBadWords();
         badwordsFormat = ChatUtil.getAllowedCharactersRegex();
         IRC_SERVER = ChatUtil.getIRCServerDetails();
-        CHANNEL = IRC_SERVER.channel;
+        CHANNEL = online ? IRC_SERVER.channel : "#SuperSpecialPirateClub";
         //CHANNEL = "#test"; //TODO: DO NOT RELEASE LIKE THIS
         host = _host;
         tries = 0;
@@ -83,7 +85,7 @@ public class ChatHandler
     {
         ChatHandler.isInitting=true;
         inited = false;
-        init(initedString, realName, host);
+        init(initedString, realName, online, host);
         ChatHandler.isInitting=false;
     }
 

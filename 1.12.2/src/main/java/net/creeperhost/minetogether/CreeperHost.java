@@ -18,7 +18,10 @@ import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
 import net.creeperhost.minetogether.siv.QueryGetter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -67,6 +70,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public boolean trialMinigame;
     public long joinTime;
     public String realName;
+    public boolean online;
     String toastText;
     long endTime;
     long fadeTime;
@@ -78,6 +82,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public String ourNick;
     public File mutedUsersFile;
     public Runnable toastMethod;
+
+    public HoverEvent.Action TIMESTAMP = EnumHelper.addEnum(HoverEvent.Action.class, "TIMESTAMP", new Class[]{String.class, boolean.class}, "timestamp_hover", true);;
 
     @SuppressWarnings("Duplicates")
     @Mod.EventHandler

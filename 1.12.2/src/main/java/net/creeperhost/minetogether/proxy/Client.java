@@ -83,6 +83,8 @@ public class Client implements IProxy
             uuid = EntityPlayer.getOfflineUUID(session.getUsername().toLowerCase());
         }
         cache = uuid;
+
+        CreeperHost.instance.online = online;
         return uuid;
     }
     
@@ -126,7 +128,7 @@ public class Client implements IProxy
                     }
                 } catch (Throwable ignored) {}
             }
-            new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
+            new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
         }
     }
     

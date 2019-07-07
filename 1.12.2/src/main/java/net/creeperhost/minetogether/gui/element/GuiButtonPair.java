@@ -261,8 +261,6 @@ public class GuiButtonPair extends GuiButton
             }
         }
 
-        System.out.println(pressed);
-
         return pressed;
 
         /*if (activeButton == 0)

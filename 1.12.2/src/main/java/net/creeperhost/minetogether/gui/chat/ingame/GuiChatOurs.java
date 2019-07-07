@@ -5,14 +5,16 @@ import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.chat.GuiChatFriend;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
+import net.creeperhost.minetogether.gui.chat.TimestampComponentString;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.element.GuiButtonPair;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.gui.GuiLabel;
+
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.play.client.CPacketEntityAction;
@@ -21,6 +23,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -37,7 +40,26 @@ public class GuiChatOurs extends GuiChat
     private GuiButtonPair switchButton;
     private String presetString;
     private boolean sleep;
-    
+
+    @Override
+    protected void handleComponentHover(ITextComponent component, int x, int y) {
+        if (component != null && component.getStyle().getHoverEvent() != null)
+        {
+            HoverEvent event = component.getStyle().getHoverEvent();
+            if (event.getAction() == CreeperHost.instance.TIMESTAMP)
+            {
+                List<ITextComponent> siblings = ((GuiNewChatOurs)mc.ingameGUI.getChatGUI()).getBaseChatComponent(Mouse.getX(), Mouse.getY()).getSiblings();
+                for(ITextComponent sibling: siblings) {
+                    if (sibling instanceof TimestampComponentString)
+                    {
+                        ((TimestampComponentString)sibling).setActive(true);
+                    }
+                }
+            }
+        }
+        super.handleComponentHover(component, x, y);
+    }
+
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
@@ -236,6 +258,15 @@ public class GuiChatOurs extends GuiChat
         drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
         this.inputField.drawTextBox();
         ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
+
+        for (ChatLine chatline : ((GuiNewChatOurs)this.mc.ingameGUI.getChatGUI()).drawnChatLines) {
+            List<ITextComponent> siblings = chatline.getChatComponent().getSiblings();
+            for (ITextComponent sibling : siblings) {
+                if (sibling instanceof TimestampComponentString) {
+                    ((TimestampComponentString) sibling).setActive(false);
+                }
+            }
+        }
         
         if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
         {

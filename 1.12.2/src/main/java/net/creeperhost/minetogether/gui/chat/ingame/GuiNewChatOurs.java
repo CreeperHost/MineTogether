@@ -3,13 +3,10 @@ package net.creeperhost.minetogether.gui.chat.ingame;
 import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
+import net.creeperhost.minetogether.gui.chat.TimestampComponentString;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ChatLine;
-import net.minecraft.client.gui.GuiNewChat;
-import net.minecraft.client.gui.GuiUtilRenderComponents;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
@@ -39,7 +36,7 @@ public class GuiNewChatOurs extends GuiNewChat
     /**
      * List of the ChatLines currently drawn
      */
-    private final List<ChatLine> drawnChatLines = Lists.<ChatLine>newArrayList();
+    public final List<ChatLine> drawnChatLines = Lists.<ChatLine>newArrayList();
     private int scrollPos;
     private boolean isScrolled;
     
@@ -237,7 +234,7 @@ public class GuiNewChatOurs extends GuiNewChat
         }
         
         int i = MathHelper.floor((float) this.getChatWidth() / this.getChatScale());
-        List<ITextComponent> list = GuiUtilRenderComponents.splitText(chatComponent, i, this.mc.fontRendererObj, false, false);
+        List<ITextComponent> list = splitText(chatComponent, i, this.mc.fontRendererObj, false, false);
         boolean flag = this.getChatOpen();
         
         for (ITextComponent itextcomponent : list)
@@ -341,7 +338,6 @@ public class GuiNewChatOurs extends GuiNewChat
                                 if (itextcomponent instanceof TextComponentString)
                                 {
                                     j1 += this.mc.fontRendererObj.getStringWidth(GuiUtilRenderComponents.removeTextColorsIfConfigured(((TextComponentString) itextcomponent).getText(), false));
-                                    
                                     if (j1 > j)
                                     {
                                         return itextcomponent;
@@ -361,5 +357,146 @@ public class GuiNewChatOurs extends GuiNewChat
                 }
             }
         }
+    }
+
+    @Nullable
+    public ITextComponent getBaseChatComponent(int mouseX, int mouseY)
+    {
+        if (!this.getChatOpen())
+        {
+            return null;
+        }
+        else
+        {
+            ScaledResolution scaledresolution = new ScaledResolution(this.mc);
+            int i = scaledresolution.getScaleFactor();
+            float f = this.getChatScale();
+            int j = mouseX / i - 2;
+            int k = mouseY / i - 40;
+            j = MathHelper.floor((float)j / f);
+            k = MathHelper.floor((float)k / f);
+
+            if (j >= 0 && k >= 0)
+            {
+                int l = Math.min(this.getLineCount(), this.drawnChatLines.size());
+
+                if (j <= MathHelper.floor((float)this.getChatWidth() / this.getChatScale()) && k < this.mc.fontRendererObj.FONT_HEIGHT * l + l)
+                {
+                    int i1 = k / this.mc.fontRendererObj.FONT_HEIGHT + this.scrollPos;
+
+                    if (i1 >= 0 && i1 < this.drawnChatLines.size())
+                    {
+                        ChatLine chatline = this.drawnChatLines.get(i1);
+                        return chatline.getChatComponent();
+                    }
+
+                    return null;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
+    public static List<ITextComponent> splitText(ITextComponent textComponent, int maxTextLenght, FontRenderer fontRendererIn, boolean p_178908_3_, boolean forceTextColor)
+    {
+        int i = 0;
+        ITextComponent itextcomponent = new TextComponentString("");
+        List<ITextComponent> list = Lists.<ITextComponent>newArrayList();
+        List<ITextComponent> list1 = Lists.newArrayList(textComponent);
+
+        for (int j = 0; j < list1.size(); ++j)
+        {
+            ITextComponent itextcomponent1 = list1.get(j);
+            if (itextcomponent1 instanceof TimestampComponentString) {
+                itextcomponent.appendSibling(itextcomponent1);
+                i += fontRendererIn.getStringWidth(((TimestampComponentString)itextcomponent1).getRawText());
+                continue;
+            }
+            String s = itextcomponent1.getUnformattedComponentText();
+            boolean flag = false;
+
+            if (s.contains("\n"))
+            {
+                int k = s.indexOf(10);
+                String s1 = s.substring(k + 1);
+                s = s.substring(0, k + 1);
+                ITextComponent itextcomponent2 = new TextComponentString(s1);
+                itextcomponent2.setStyle(itextcomponent1.getStyle().createShallowCopy());
+                list1.add(j + 1, itextcomponent2);
+                flag = true;
+            }
+
+            String s4 = GuiUtilRenderComponents.removeTextColorsIfConfigured(itextcomponent1.getStyle().getFormattingCode() + s, forceTextColor);
+            String s5 = s4.endsWith("\n") ? s4.substring(0, s4.length() - 1) : s4;
+            int i1 = fontRendererIn.getStringWidth(s5);
+            TextComponentString textcomponentstring = new TextComponentString(s5);
+            textcomponentstring.setStyle(itextcomponent1.getStyle().createShallowCopy());
+
+            if (i + i1 > maxTextLenght)
+            {
+                String s2 = fontRendererIn.trimStringToWidth(s4, maxTextLenght - i, false);
+                String s3 = s2.length() < s4.length() ? s4.substring(s2.length()) : null;
+
+                if (s3 != null && !s3.isEmpty())
+                {
+                    int l = s2.lastIndexOf(32);
+
+                    if (l >= 0 && fontRendererIn.getStringWidth(s4.substring(0, l)) > 0)
+                    {
+                        s2 = s4.substring(0, l);
+
+                        if (p_178908_3_)
+                        {
+                            ++l;
+                        }
+
+                        s3 = s4.substring(l);
+                    }
+                    else if (i > 0 && !s4.contains(" "))
+                    {
+                        s2 = "";
+                        s3 = s4;
+                    }
+
+                    s3 = FontRenderer.getFormatFromString(s2) + s3; //Forge: Fix chat formatting not surviving line wrapping.
+
+                    TextComponentString textcomponentstring1 = new TextComponentString(s3);
+                    textcomponentstring1.setStyle(itextcomponent1.getStyle().createShallowCopy());
+                    list1.add(j + 1, textcomponentstring1);
+                }
+
+                i1 = fontRendererIn.getStringWidth(s2);
+                textcomponentstring = new TextComponentString(s2);
+                textcomponentstring.setStyle(itextcomponent1.getStyle().createShallowCopy());
+                flag = true;
+            }
+
+            if (i + i1 <= maxTextLenght)
+            {
+                i += i1;
+                itextcomponent.appendSibling(textcomponentstring);
+            }
+            else
+            {
+                flag = true;
+            }
+
+            if (flag)
+            {
+                list.add(itextcomponent);
+                i = 0;
+                itextcomponent = new TextComponentString("");
+            }
+        }
+
+        list.add(itextcomponent);
+        return list;
     }
 }
