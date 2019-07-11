@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 public class TextFieldDetails extends GuiTextField
 {
-
     private final GuiPersonalDetails gui;
     private final String displayString;
     private final boolean canBeFocused;
