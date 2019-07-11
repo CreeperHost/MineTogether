@@ -38,6 +38,7 @@ minetogether.ingame.chat.global=MineTogether
 minetogether.ingame.chat.local=Commands
 minetogether.ingame.chat.group=Group
 minetogether.ingame.chat.server=Server
+minetogether.invite.msg=You have been invited to a private group chat
 
 minetogether.chat.muted=The requested user has been muted. Messages from this user will no longer be displayed.
 minetogether.chat.button.addfriend=Befriend
