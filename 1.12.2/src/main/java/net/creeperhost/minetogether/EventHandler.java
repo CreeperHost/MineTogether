@@ -257,7 +257,9 @@ public class EventHandler
             List<GuiButton> buttonList = event.getButtonList();
             if (buttonList != null)
             {
-                buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, (gui.width / 4) - 4, gui.height / 4 + 48 + 24));
+                //Multiplayer button
+                int x = buttonList.get(2).xPosition - buttonList.get(2).width - 26;
+                buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, x, gui.height / 4 + 48 + 24));
             }
         } else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
         {
