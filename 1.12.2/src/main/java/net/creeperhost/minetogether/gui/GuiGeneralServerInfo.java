@@ -41,7 +41,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     public void initGui()
     {
         super.initGui();
-        
+
         int halfWidth = this.width / 2;
         int halfHeight = this.height / 2;
         
@@ -65,7 +65,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.slotSlider.width = 200;
         this.buttonList.add(this.slotSlider);
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void updateScreen()

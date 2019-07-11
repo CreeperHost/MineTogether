@@ -13,6 +13,8 @@ import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.WebUtils;
+import net.creeperhost.minetogether.gui.GuiModPackList;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.ResourceLocation;
 
@@ -92,7 +94,11 @@ public class CreeperHostServerHost implements IServerHost
             String version = Config.getInstance().getVersion();
             if (version.equals("0"))
             {
+                //TODO
                 return new OrderSummary("quote.curseerror");
+//                Minecraft mc = Minecraft.getMinecraft();
+//                mc.displayGuiScreen(new GuiModPackList(mc.currentScreen));
+
             }
             String url = "https://www.creeperhost.net/json/order/mc/" + version + "/recommend/" + order.playerAmount;
             
@@ -102,12 +108,6 @@ public class CreeperHostServerHost implements IServerHost
             
             JsonObject jObject = jElement.getAsJsonObject();
             String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
-            
-            String applyPromo = WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
-            if (applyPromo.equals("error"))
-            {
-                return new OrderSummary("quote.promoerror");
-            }
             
             String summary = WebUtils.getWebResponse("https://www.creeperhost.net/json/order/" + order.country + "/" + recommended + "/" + "summary");
             
