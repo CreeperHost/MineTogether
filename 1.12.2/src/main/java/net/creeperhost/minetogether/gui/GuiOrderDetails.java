@@ -92,26 +92,21 @@ public class GuiOrderDetails extends GuiGetServer
                 return;
             }
             creatingAccount = true;
-            Runnable runnable = new Runnable()
-            {
-                @Override
-                public void run()
+            Runnable runnable = () -> {
+                String result = Callbacks.createAccount(order);
+                String[] resultSplit = result.split(":");
+                if (resultSplit[0].equals("success"))
                 {
-                    String result = Callbacks.createAccount(order);
-                    String[] resultSplit = result.split(":");
-                    if (resultSplit[0].equals("success"))
-                    {
-                        order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
-                        order.clientID = resultSplit[2] != null ? resultSplit[2] : "0"; // random test account fallback
-                        
-                    } else
-                    {
-                        createdAccountError = result;
-                        createdAccount = true;
-                    }
-                    creatingAccount = false;
+                    order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
+                    order.clientID = resultSplit[2] != null ? resultSplit[2] : "0"; // random test account fallback
+
+                } else
+                {
+                    createdAccountError = result;
                     createdAccount = true;
                 }
+                creatingAccount = false;
+                createdAccount = true;
             };
             Thread thread = new Thread(runnable);
             thread.start();
@@ -125,24 +120,19 @@ public class GuiOrderDetails extends GuiGetServer
         } else if (!placingOrder && !placedOrder)
         {
             placingOrder = true;
-            Runnable runnable = new Runnable()
-            {
-                @Override
-                public void run()
+            Runnable runnable = () -> {
+                String result = Callbacks.createOrder(order);
+                String[] resultSplit = result.split(":");
+                if (resultSplit[0].equals("success"))
                 {
-                    String result = Callbacks.createOrder(order);
-                    String[] resultSplit = result.split(":");
-                    if (resultSplit[0].equals("success"))
-                    {
-                        invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
-                        orderNumber = Integer.valueOf(resultSplit[2]);
-                    } else
-                    {
-                        placedOrderError = result;
-                    }
-                    placedOrder = true;
-                    placingOrder = false;
+                    invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
+                    orderNumber = Integer.valueOf(resultSplit[2]);
+                } else
+                {
+                    placedOrderError = result;
                 }
+                placedOrder = true;
+                placingOrder = false;
             };
             Thread thread = new Thread(runnable);
             thread.start();
