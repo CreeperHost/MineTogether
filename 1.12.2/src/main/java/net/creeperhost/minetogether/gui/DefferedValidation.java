@@ -24,14 +24,9 @@ public abstract class DefferedValidation implements IOrderValidation
     
     public void doAsync(final String string)
     {
-        Runnable runnable = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                result = isValidReal(string);
-                isDone = true;
-            }
+        Runnable runnable = () -> {
+            result = isValidReal(string);
+            isDone = true;
         };
         
         Thread thread = new Thread(runnable);

@@ -150,10 +150,7 @@ public class GuiProgressDisconnected extends GuiScreen
                         cancelField = ReflectionHelper.findField(GuiConnecting.class, "field_146373_h", "cancel");
                     }
                     cancelField.set(captiveConnecting, true);
-                } catch (Throwable e)
-                {
-                
-                }
+                } catch (Throwable ignored) {}
             }
             this.mc.displayGuiScreen(this.parentScreen);
         }

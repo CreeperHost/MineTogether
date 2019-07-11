@@ -117,7 +117,15 @@ public class CreeperHostServerHost implements IServerHost
             jObject = jObject.getAsJsonObject("0");
             double preDiscount = jObject.getAsJsonPrimitive("PreDiscount").getAsDouble();
             double subTotal = jObject.getAsJsonPrimitive("Subtotal").getAsDouble();
-            double discount = jObject.getAsJsonPrimitive("Discount").getAsDouble();
+            double discount;
+            try
+            {
+                discount = jObject.getAsJsonPrimitive("Discount").getAsDouble();
+            }
+            catch (Exception e)
+            {
+                discount = 0;
+            }
             double tax = jObject.getAsJsonPrimitive("Tax").getAsDouble();
             if (tax <= 0)
             {

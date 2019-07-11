@@ -19,14 +19,7 @@ import java.io.IOException;
 
 public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonList.GuiResponder
 {
-    private static final GuiSlider.FormatHelper SLIDER_FORMATTER = new GuiSlider.FormatHelper()
-    {
-        @Override
-        public String getText(int id, String name, float value)
-        {
-            return name + ": " + (int) value;
-        }
-    };
+    private static final GuiSlider.FormatHelper SLIDER_FORMATTER = (id, name, value) -> name + ": " + (int) value;
     private static ResourceLocation lockIcon;
     private GuiTextFieldCompat nameField;
     private GuiSlider slotSlider;
@@ -67,7 +60,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         {
             this.buttonList.add(pregen);
         }
-        
+
         this.slotSlider = new GuiSlider(this, 1, halfWidth - 100, halfHeight + 15, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;
         this.buttonList.add(this.slotSlider);
@@ -92,15 +85,10 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
                 isAcceptable = false;
             } else
             {
-                Runnable task = new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        AvailableResult result = Callbacks.getNameAvailable(nameToCheck);
-                        isAcceptable = result.getSuccess();
-                        message = result.getMessage();
-                    }
+                Runnable task = () -> {
+                    AvailableResult result = Callbacks.getNameAvailable(nameToCheck);
+                    isAcceptable = result.getSuccess();
+                    message = result.getMessage();
                 };
                 
                 Thread thread = new Thread(task);

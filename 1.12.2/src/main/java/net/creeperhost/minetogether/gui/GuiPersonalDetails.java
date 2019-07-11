@@ -470,29 +470,24 @@ public class GuiPersonalDetails extends GuiGetServer
             loggingIn = true;
             button.enabled = false;
             button.displayString = Util.localize("button.logging");
-            Runnable runnable = new Runnable()
-            {
-                @Override
-                public void run()
+            Runnable runnable = () -> {
+                String result = Callbacks.doLogin(order.emailAddress, order.password);
+                String[] resultSplit = result.split(":");
+                if (resultSplit[0].equals("success"))
                 {
-                    String result = Callbacks.doLogin(order.emailAddress, order.password);
-                    String[] resultSplit = result.split(":");
-                    if (resultSplit[0].equals("success"))
-                    {
-                        order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
-                        order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
-                        loggingIn = false;
-                        loggedIn = true;
-                        loggingInError = "";
-                        button.displayString = Util.localize("button.done");
-                    } else
-                    {
-                        loggingIn = false;
-                        loggedIn = false;
-                        loggingInError = result;
-                        button.enabled = true;
-                        button.displayString = Util.localize("button.logintryagain");
-                    }
+                    order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
+                    order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
+                    loggingIn = false;
+                    loggedIn = true;
+                    loggingInError = "";
+                    button.displayString = Util.localize("button.done");
+                } else
+                {
+                    loggingIn = false;
+                    loggedIn = false;
+                    loggingInError = result;
+                    button.enabled = true;
+                    button.displayString = Util.localize("button.logintryagain");
                 }
             };
             Thread thread = new Thread(runnable);
