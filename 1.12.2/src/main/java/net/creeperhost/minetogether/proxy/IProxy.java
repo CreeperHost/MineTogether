@@ -15,4 +15,6 @@ public interface IProxy
     void disableIngameChat();
     
     void enableIngameChat();
+
+    void closeGroupChat();
 }

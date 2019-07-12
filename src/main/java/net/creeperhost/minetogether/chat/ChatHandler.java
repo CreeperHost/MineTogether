@@ -29,7 +29,7 @@ public class ChatHandler
     public static ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
     public static HashMap<String, String> curseSync = new HashMap<>();
 
-    public static HashMap<String, LimitedSizeQueue<Message>> messages = null;
+    public static TreeMap<String, LimitedSizeQueue<Message>> messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private static Client client = null;
     private static IHost host;
     private static boolean online = false;
@@ -63,7 +63,7 @@ public class ChatHandler
 
         synchronized (ircLock)
         {
-            messages = new HashMap<>();
+            messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             new Thread(() ->
             { // start in thread as can hold up the UI thread for some reason.
                 Client.Builder mineTogether = Client.builder().nick(nickIn).realName(realName).user("MineTogether");
@@ -247,14 +247,12 @@ public class ChatHandler
     public static class Listener
     {
         @Handler
-        public void onChannnelLeave(UnexpectedChannelLeaveEvent event)
+        public void onChannnelLeave(ChannelKickEvent event)
         {
-            String reason = "Unknown";
-            if (event instanceof UnexpectedChannelLeaveViaKickEvent)
-            {
-                UnexpectedChannelLeaveViaKickEvent kicked = (UnexpectedChannelLeaveViaKickEvent) event;
-                reason = "Kicked - " + kicked.getMessage();
-            }
+            if (!event.getTarget().getNick().equals(client.getNick()))
+                return;
+
+            String reason = "Kicked - " + event.getMessage();
             event.getChannel().join();
             synchronized (ircLock)
             {
@@ -318,8 +316,19 @@ public class ChatHandler
         @Handler
         public void onChannelLeave(ChannelPartEvent event)
         {
-            String friendNick = event.getUser().getNick();
-            friends.remove(friendNick);
+            String channelName = event.getAffectedChannel().get().getName();
+            if (channelName.equals(CHANNEL)) {
+                String friendNick = event.getUser().getNick();
+                friends.remove(friendNick);
+            } else if (privateChatList != null && channelName.equals(privateChatList.channelname)) {
+                if (privateChatList.owner.equals(event.getUser().getNick())) {
+                    event.getAffectedChannel().get().part();
+                    privateChatList = null;
+                    ChatHandler.hasGroup = false;
+                    host.closeGroupChat();
+                    // TODO: make sure the chat closes too
+                }
+            }
         }
 
         @Handler

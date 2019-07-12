@@ -128,7 +128,6 @@ public class GuiButtonPair extends GuiButton
             
             GlStateManager.pushMatrix();
 
-
             if (stack) {
                 tempTranslateX = -xTranslate + (height * 2);
                 tempTranslateY = -yTranslate - width;
@@ -136,6 +135,9 @@ public class GuiButtonPair extends GuiButton
                 tempTranslateX = (-xTranslate * ((float)1 / scale));
                 tempTranslateY = (-yTranslate * ((float)1 / scale));
             }
+
+            //tempTranslateX += 3;
+            tempTranslateY -= scale;
 
             GlStateManager.translate(tempTranslateX, tempTranslateY, 0);
             

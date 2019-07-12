@@ -436,7 +436,12 @@ public class CreeperHost implements ICreeperHostMod, IHost
     {
         new Thread(() -> Callbacks.addFriend(friendCode, name)).start();
     }
-    
+
+    @Override
+    public void closeGroupChat() {
+        proxy.closeGroupChat();
+    }
+
     @Mod.EventHandler
     public void serverStarted(FMLServerStartingEvent event)
     {

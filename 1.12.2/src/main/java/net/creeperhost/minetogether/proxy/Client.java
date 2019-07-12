@@ -157,4 +157,9 @@ public class Client implements IProxy
             } catch (IllegalAccessException ignored) {}
         }
     }
+
+    @Override
+    public void closeGroupChat() {
+        ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true;
+    }
 }

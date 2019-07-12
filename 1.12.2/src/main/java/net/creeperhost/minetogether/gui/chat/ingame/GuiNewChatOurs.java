@@ -59,7 +59,7 @@ public class GuiNewChatOurs extends GuiNewChat
     
     private static Field drawnChatLinesField = null;
     private List<ChatLine> vanillaDrawnChatLines = null;
-    
+
     @Override
     public void drawChat(int updateCounter)
     {
@@ -67,6 +67,13 @@ public class GuiNewChatOurs extends GuiNewChat
             super.drawChat(updateCounter);
         else
         {
+            if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && updateCounter % 1200 == 0)
+            {
+                if(!ChatHandler.isInitting) {
+                    ChatHandler.reInit();
+                }
+            }
+
             if (this.mc.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN)
             {
                 int i = this.getLineCount();

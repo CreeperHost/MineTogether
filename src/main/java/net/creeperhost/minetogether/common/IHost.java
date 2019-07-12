@@ -20,4 +20,6 @@ public interface IHost
     String getFriendCode();
 
     void acceptFriend(String s, String trim);
+
+    void closeGroupChat();
 }

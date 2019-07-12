@@ -97,11 +97,20 @@ public class GuiMTChat extends GuiScreen
         send.setMaxStringLength(120);
         send.setFocused(true);
     }
+
+    long tickCounter = 0;
     
     @Override
     public void updateScreen()
     {
         super.updateScreen();
+        if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
+        {
+            if(!ChatHandler.isInitting) {
+                ChatHandler.reInit();
+            }
+        }
+        tickCounter++;
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
         if (!buttonTarget.equals(currentTarget))
         {
@@ -138,12 +147,6 @@ public class GuiMTChat extends GuiScreen
         if (!ChatHandler.isOnline())
         {
             send.setDisabled("Cannot send messages as not connected");
-            if(status != ChatHandler.ConnectionStatus.CONNECTING)
-            {
-                if(!ChatHandler.isInitting) {
-                    ChatHandler.reInit();
-                }
-            }
             disabledDueToConnection = true;
         } else if (!targetDropdownButton.getSelected().isChannel() && !ChatHandler.friends.containsKey(currentTarget))
         {

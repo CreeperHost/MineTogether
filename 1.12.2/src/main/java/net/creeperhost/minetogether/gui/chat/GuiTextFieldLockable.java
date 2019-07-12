@@ -14,13 +14,7 @@ public class GuiTextFieldLockable extends GuiTextFieldCompat
         super(componentId, fontrendererObj, x, y, par5Width, par6Height);
         fontRenderer = fontrendererObj;
     }
-    
-    @Override
-    public boolean getEnableBackgroundDrawing()
-    {
-        return false;
-    }
-    
+
     @Override
     public void drawTextBox()
     {

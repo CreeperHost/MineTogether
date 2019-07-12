@@ -247,7 +247,7 @@ public class GuiChatOurs extends GuiChat
         strings.add(I18n.format("minetogether.chat.button.mute"));
         strings.add(I18n.format("minetogether.chat.button.addfriend"));
         
-        int x = MathHelper.ceil(((float) mc.ingameGUI.getChatGUI().getChatWidth())) + 16;
+        int x = MathHelper.ceil(((float) mc.ingameGUI.getChatGUI().getChatWidth())) + 16 + 2;
         String defaultStr = "Default";
         defaultStr = I18n.format("minetogether.ingame.chat.local");
         try {
@@ -255,9 +255,9 @@ public class GuiChatOurs extends GuiChat
                 defaultStr = I18n.format("minetogether.ingame.chat.server");
             }
         } catch(NullPointerException err){}//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
-        //if(ChatHandler.hasGroup) {
-        if(true) {
-            buttonList.add(switchButton = new GuiButtonPair(808, x, height - 234, 234, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base ? 0 : ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).chatTarget.equals(ChatHandler.CHANNEL) ? 1 : 2, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
+        if(ChatHandler.hasGroup) {
+        //if(true) {
+            buttonList.add(switchButton = new GuiButtonPair(808, x, height - 215, 234, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base ? 0 : ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).chatTarget.equals(ChatHandler.CHANNEL) ? 1 : 2, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
         } else {
             buttonList.add(switchButton = new GuiButtonPair(808, x, height - 156, 156, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base ? 0 : 1, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global")));
         }
