@@ -135,7 +135,7 @@ public class GuiMTChat extends GuiScreen
         chat.drawScreen(mouseX, mouseY, partialTicks);
         send.setFocused(true);
         send.drawTextBox();
-        if (status != ChatHandler.ConnectionStatus.CONNECTED)
+        if (!ChatHandler.isOnline())
         {
             send.setDisabled("Cannot send messages as not connected");
             if(status != ChatHandler.ConnectionStatus.CONNECTING)
@@ -505,8 +505,7 @@ public class GuiMTChat extends GuiScreen
             if (inputNick.equals(CreeperHost.instance.ourNick))
             {
                 outputNick = playerName;
-            } else
-            {
+            } else {
                 if (CreeperHost.instance.mutedUsers.contains(inputNick))
                     return null;
                 

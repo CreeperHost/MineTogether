@@ -41,7 +41,7 @@ public class CreeperHostServerSelectionList extends ServerSelectionList
     @Override
     public void setSelectedSlotIndex(int selectedSlotIndexIn) {
         if (selectedSlotIndexIn == ourList.size() - 1)
-            selectedSlotIndexIn--; // will go to the default handling of this
+            selectedSlotIndexIn--;
         super.setSelectedSlotIndex(selectedSlotIndexIn);
     }
 }

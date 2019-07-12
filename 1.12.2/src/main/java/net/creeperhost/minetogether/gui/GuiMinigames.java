@@ -210,7 +210,7 @@ public class GuiMinigames extends GuiScreen
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawDefaultBackground();
-        if (Config.getInstance().isChatEnabled() && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED)
+        if (Config.getInstance().isChatEnabled() && !ChatHandler.isOnline())
         {
             spinupButton.visible = spinupButton.enabled = vanillaButton.visible = vanillaButton.enabled =
                     moddedButton.visible = moddedButton.enabled = settingsButton.visible = settingsButton.enabled = false;

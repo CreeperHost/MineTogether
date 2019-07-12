@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.chat;
 
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
-import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.engio.mbassy.listener.Handler;
 import org.kitteh.irc.client.library.Client;
@@ -145,35 +144,32 @@ public class ChatHandler
 
     public static void sendMessage(String currentTarget, String text)
     {
-        if (currentTarget.equals(CHANNEL))
-        {
-            client.getChannel(CHANNEL).get().sendMessage(text);
-        }
-        else if(privateChatList != null && currentTarget.equals(privateChatList.channelname))
-        {
-            try
-            {
-                client.addChannel(privateChatList.getChannelname()); //Just to make sure the user is connected to the channel
-                client.getChannel(privateChatList.getChannelname()).get().sendMessage(text);
+        String nick;
+        if(ChatHandler.isOnline()) {
+            nick = client.getNick();
+            if (currentTarget.equals(CHANNEL)) {
+                client.getChannel(CHANNEL).get().sendMessage(text);
+            } else if (privateChatList != null && currentTarget.equals(privateChatList.channelname)) {
+                try {
+                    client.addChannel(privateChatList.getChannelname()); //Just to make sure the user is connected to the channel
+                    client.getChannel(privateChatList.getChannelname()).get().sendMessage(text);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (client.getChannel(CHANNEL).get().getUser(currentTarget).isPresent()) {
+                client.getChannel(CHANNEL).get().getUser(currentTarget).get().sendMessage(text);
+            } else {
+                updateFriends(client.getChannel(CHANNEL).get().getNicknames());
+                return;
             }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
-        else if(client.getChannel(CHANNEL).get().getUser(currentTarget).isPresent())
-        {
-            client.getChannel(CHANNEL).get().getUser(currentTarget).get().sendMessage(text);
-        }
-        else
-        {
-            updateFriends(client.getChannel(CHANNEL).get().getNicknames());
-            return;
+        } else {
+            text = "Message not sent as not connected.";
+            nick = "System";
         }
 
         synchronized (ircLock)
         {
-            addMessageToChat(currentTarget, client.getNick(), text);
+            addMessageToChat(currentTarget, nick, text);
         }
     }
 
@@ -204,6 +200,11 @@ public class ChatHandler
         } else {
             addMessageToChat(CHANNEL, "System", "User is not online.");
         }
+    }
+
+    public static boolean isOnline()
+    {
+        return connectionStatus == ConnectionStatus.CONNECTED && client.getChannel(CHANNEL).isPresent();
     }
 
     public static boolean hasNewMessages(String target)
@@ -260,9 +261,9 @@ public class ChatHandler
                 if (tries >= 4)
                 {
                     client.shutdown();
-                    addMessageToChat(CHANNEL, "System", "Unable to rejoin chat. Disconnected from server");
+                    addMessageToChat(event.getChannel().getName(), "System", "Unable to rejoin chat. Disconnected from server");
                 }
-                addMessageToChat(CHANNEL, "System", Format.stripAll("Removed from chat (Reason: " + reason + "). Rejoining"));
+                addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Removed from chat (Reason: " + reason + "). Rejoining"));
                 connectionStatus = ConnectionStatus.NOT_IN_CHANNEL;
             }
         }

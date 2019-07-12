@@ -40,21 +40,6 @@ public class GuiButtonPair extends GuiButton
         button1 = buttons.get(0);
         button2 = buttons.get(1);
 
-        /*for(int buttonNum = 0; buttonNum < buttons.size(); buttonNum++)
-        {
-
-        }
-
-        if (activeButton == 0)
-        {
-            button2.setActive(false);
-            button1.setActive(true);
-        } else
-        {
-            button1.setActive(false);
-            button2.setActive(true);
-        }*/
-
         setButtonDetails();
     }
 
@@ -87,6 +72,8 @@ public class GuiButtonPair extends GuiButton
                 button.xPosition = baseX + (visibleNum * buttWidth);
                 button.yPosition = baseY;
             }
+
+            System.out.println(button);
         }
     }
     
@@ -98,33 +85,24 @@ public class GuiButtonPair extends GuiButton
         double mouseY = p_191745_3_;
         
         float scale = 0.75F;
-        float xTranslate = (swapOnClick && activeButton == 0 ? -button1.xPosition : -button2.xPosition);
-        float yTranslate = (swapOnClick && activeButton == 0 ? -button1.yPosition : -button2.yPosition);
-        int oldButton1X = button1.xPosition;
-        int oldButton1Y = button1.yPosition;
-        int oldButton2X = button2.xPosition;
-        int oldButton2Y = button2.yPosition;
+        float xTranslate = -buttons.get(0).xPosition;
+        float yTranslate = -buttons.get(0).yPosition;
 
         int buttonCount = buttons.size();
 
         int[] cachedX = new int[buttonCount];
         int[] cachedY = new int[buttonCount];
 
+        float tempTranslateX;
+        float tempTranslateY;
+
         if (vertical)
         {
-            mouseX = ((button1.xPosition < button2.xPosition ? button1.xPosition : button2.xPosition) - p_191745_2_) / 0.75;
-            mouseY = (button1.yPosition - p_191745_3_) / 0.75;
-            
-            double x1 = mouseX - 0;
-            double y1 = mouseY - 0;
-            
-            double angle = Math.toRadians(90);
-            
-            double x2 = x1 * Math.cos(angle) - y1 * Math.sin(angle);
-            double y2 = x1 * Math.sin(angle) + y1 * Math.cos(angle);
-            
-            mouseX = x2 + width;
-            mouseY = y2 + height - 4;
+            double xDiff = mouseX - button1.xPosition;
+            double yDiff = mouseY - button1.yPosition;
+
+            mouseX = yDiff / scale;
+            mouseY = (xDiff / scale) + height;
 
             //if (swapOnClick && activeButton != 0)
             {
@@ -144,45 +122,22 @@ public class GuiButtonPair extends GuiButton
                     button.yPosition = 0;
                 }
 
-
-                /*if (stack)
-                {
-                    button2.xPosition = 0;
-                    button2.yPosition = 0;
-                    button1.xPosition = 0;
-                    button1.yPosition = height;
-                } else
-                {
-                    button2.xPosition = 0;
-                    button2.yPosition = 0;
-                    button1.xPosition = width / 2;
-                    button1.yPosition = 0;
-                }
-            } else
-            {
-                if (stack)
-                {
-                    button1.xPosition = 0;
-                    button1.yPosition = 0;
-                    button2.xPosition = 0;
-                    button2.yPosition = height;
-                } else
-                {
-                    button1.xPosition = 0;
-                    button1.yPosition = 0;
-                    button2.xPosition = width / 2;
-                    button2.yPosition = 0;
-                }*/
             }
             
             GlStateManager.scale(scale, scale, scale);
             
             GlStateManager.pushMatrix();
-            
-            if (stack)
-                GlStateManager.translate(-xTranslate + (height * 2), -yTranslate - width, 0);
-            else
-                GlStateManager.translate((-xTranslate - (((width / 2) + 1.85) * scale)) / 3 * 4, (-yTranslate - (width * scale)) / 3 * 4, 0);
+
+
+            if (stack) {
+                tempTranslateX = -xTranslate + (height * 2);
+                tempTranslateY = -yTranslate - width;
+            } else {
+                tempTranslateX = (-xTranslate * ((float)1 / scale));
+                tempTranslateY = (-yTranslate * ((float)1 / scale));
+            }
+
+            GlStateManager.translate(tempTranslateX, tempTranslateY, 0);
             
             GlStateManager.rotate(90, 0, 0, 1);
         }
@@ -192,16 +147,9 @@ public class GuiButtonPair extends GuiButton
             button.func_191745_a(p_191745_1_, (int) mouseX, (int) mouseY, p_191745_4_);
         }
 
-        GlStateManager.rotate(90, 0, 0, -1);
-        
-        if (stack)
-            GlStateManager.translate((-xTranslate + (height * 2)), (-yTranslate - width), 0);
-        else
-            GlStateManager.translate(-((-xTranslate - (((width / 2) + 1.85) * scale)) / 3 * 4), -((-yTranslate - (width * scale)) / 3 * 4), 0);
-        
-        
         if (vertical)
         {
+            GlStateManager.rotate(90, 0, 0, -1);
             GlStateManager.popMatrix();
             
             GlStateManager.scale(1.0F / scale, 1.0F / scale, 1.0F / scale);
@@ -211,11 +159,7 @@ public class GuiButtonPair extends GuiButton
                 button.xPosition = cachedX[buttNum];
                 button.yPosition = cachedY[buttNum];
             }
-            
-            /*button1.xPosition = oldButton1X;
-            button1.yPosition = oldButton1Y;
-            button2.xPosition = oldButton2X;
-            button2.yPosition = oldButton2Y;*/
+
         }
         
     }
@@ -228,22 +172,11 @@ public class GuiButtonPair extends GuiButton
         double mouseY = mouseYIn;
         if (vertical)
         {
-            mouseX = ((button1.xPosition < button2.xPosition ? button1.xPosition : button2.xPosition) - mouseXIn) / 0.75;
-            mouseY = ((button1.yPosition - mouseYIn) / 0.75);
+            double xDiff = (mouseX - button1.xPosition) / 0.75;
+            double yDiff = (mouseY - button1.yPosition) / 0.75;
 
-            double x1 = mouseX +8;
-            double y1 = mouseY - 0;
-
-            double angle = Math.toRadians(90);
-
-            double x2 = x1 * Math.cos(angle) - y1 * Math.sin(angle);
-            double y2 = x1 * Math.sin(angle) + y1 * Math.cos(angle);
-
-            mouseX = x2 + width;
-            mouseY = y2 + height - 4;
-
-            mouseX += button1.xPosition < button2.xPosition ? button1.xPosition : button2.xPosition;
-            mouseY += button1.yPosition;
+            mouseX = button1.xPosition + yDiff;
+            mouseY = button1.yPosition + xDiff + height;
         }
 
         boolean pressed = false;

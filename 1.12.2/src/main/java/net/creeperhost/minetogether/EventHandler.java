@@ -229,7 +229,7 @@ public class EventHandler
             {
                 presetString = (String) defaultInputFieldTextField.get(gui);
                 MinecraftServer minecraftServerInstance = FMLCommonHandler.instance().getMinecraftServerInstance();
-                if (minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer())
+                if (minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
                 {
                     ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = !CreeperHost.instance.gdpr.hasAcceptedGDPR() || presetString.startsWith("/");
                 }

@@ -48,6 +48,7 @@ public class GuiNewChatOurs extends GuiNewChat
     {
         super(mcIn);
         mc = mcIn;
+        chatTarget = ChatHandler.CHANNEL;
     }
     
     @Override
@@ -231,6 +232,8 @@ public class GuiNewChatOurs extends GuiNewChat
         chatLines.clear();
         drawnChatLines.clear();
         LimitedSizeQueue<Message> messages = ChatHandler.messages.get(chatKey);
+        if (messages == null)
+            return;
         synchronized (ChatHandler.ircLock) {
             int size = messages.size();
             for (Message message : messages) {
