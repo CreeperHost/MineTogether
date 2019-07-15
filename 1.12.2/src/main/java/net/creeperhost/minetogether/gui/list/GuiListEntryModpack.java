@@ -12,13 +12,11 @@ import java.util.List;
 
 public class GuiListEntryModpack extends GuiListEntry
 {
-    GuiModPackList modpackList;
-    Callbacks.Modpack modpack;
+    private GuiModPackList modpackList;
+    private Callbacks.Modpack modpack;
     private final String cross;
     private final int stringWidth;
     private float transparency = 0.5F;
-    private boolean wasHovering;
-    ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/icon2.png");
 
     public GuiListEntryModpack(GuiModPackList modPackList, GuiList list, Callbacks.Modpack modpack)
     {
@@ -42,32 +40,7 @@ public class GuiListEntryModpack extends GuiListEntry
                 transparency -= 0.04;
         }
 
-        this.mc.fontRendererObj.drawString(modpack.getName(), x + 5, y + 5, 16777215);
-
-        int transparentString = (int) (transparency * 254) << 24;
-
-        GlStateManager.enableAlpha();
-        GlStateManager.enableBlend();
-        this.mc.fontRendererObj.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
-
-        Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);
-
-        Gui.drawModalRectWithCustomSizedTexture(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10F, 10F);
-
-        GlStateManager.disableAlpha();
-        GlStateManager.disableBlend();
-
-        if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
-        {
-            wasHovering = true;
-        }
-        else if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 2 + x && mouseY >= y && mouseY <= y + 27) {
-            wasHovering = true;
-        }
-        else if (wasHovering)
-        {
-            wasHovering = false;
-        }
+        this.mc.fontRendererObj.drawString(modpack.getName() + " Version " + modpack.getDisplayVersion(), x + 5, y + 5, 16777215);
     }
 
     public Callbacks.Modpack getModpack()

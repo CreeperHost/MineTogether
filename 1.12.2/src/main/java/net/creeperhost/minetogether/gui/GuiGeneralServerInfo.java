@@ -8,7 +8,9 @@ import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldValidate;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.Constants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiPageButtonList;
 import net.minecraft.client.gui.GuiSlider;
 import net.minecraft.client.renderer.GlStateManager;
@@ -30,6 +32,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     private boolean nameChecked = false;
     private String message = "Name can not be blank";
     private GuiCheckBox pregen;
+    private GuiButton modpack;
     
     public GuiGeneralServerInfo(int stepId, Order order)
     {
@@ -64,6 +67,8 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.slotSlider = new GuiSlider(this, 1, halfWidth - 100, halfHeight + 15, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;
         this.buttonList.add(this.slotSlider);
+        modpack = new GuiButton(21212, width - 90,  10, 86, 20, "Change Modpack");
+        buttonList.add(modpack);
     }
 
     @SuppressWarnings("Duplicates")
@@ -178,4 +183,14 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     
     @Override
     public void setEntryValue(int id, String value) {}
+
+    @Override
+    protected void actionPerformed(GuiButton button) throws IOException
+    {
+        super.actionPerformed(button);
+        if(button == modpack)
+        {
+            Minecraft.getMinecraft().displayGuiScreen(new GuiModPackList(this));
+        }
+    }
 }
