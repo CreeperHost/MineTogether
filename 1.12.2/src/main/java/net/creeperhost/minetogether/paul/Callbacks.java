@@ -776,7 +776,7 @@ public final class Callbacks
         //Return the recommended if nothing is searched
         if(modpack.equals(""))
         {
-            url = "https://www.creeperhost.net/json/modpacks/weekly/5";
+            url = "https://www.creeperhost.net/json/modpacks/weekly/20";
         }
 
         String resp = WebUtils.getWebResponse(url);

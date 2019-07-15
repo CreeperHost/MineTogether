@@ -4,6 +4,7 @@ creeperhost.gui.server_location=Server Location
 creeperhost.gui.personal_details=Personal Details
 creeperhost.gui.quote=Server Quote
 creeperhost.gui.order=Order details
+creeperhost.gui.modpack.selector=ModPack Selector
 
 creeperhost.mp.getserver=Want a server?
 creeperhost.mp.clickhere=Click here!
