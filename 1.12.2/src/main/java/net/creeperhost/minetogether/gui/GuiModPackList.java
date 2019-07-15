@@ -54,7 +54,7 @@ public class GuiModPackList extends GuiScreen
 
         int buttonX = margin;
 
-        displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, y, 160, 20);
+        displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 90, y, 160, 20);
         displayEntry.setVisible(true);
 
         buttonCancel = new GuiButton(0, buttonX, y, buttonWidth, 20, Util.localize("button.cancel"));
@@ -63,7 +63,7 @@ public class GuiModPackList extends GuiScreen
         buttonSelect = new GuiButton(0, this.width - 90, y, buttonWidth, 20, "Select");
         buttonList.add(buttonSelect);
 
-        buttonRefresh = new GuiButtonRefresh(0, this.width / 2 + 82, y);
+        buttonRefresh = new GuiButtonRefresh(0, this.width / 2 + 72, y);
         buttonList.add(buttonRefresh);
     }
 
