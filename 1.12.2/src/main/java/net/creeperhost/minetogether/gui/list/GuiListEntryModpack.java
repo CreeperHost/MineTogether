@@ -13,7 +13,7 @@ import java.util.List;
 public class GuiListEntryModpack extends GuiListEntry
 {
     private GuiModPackList modpackList;
-    private Callbacks.Modpack modpack;
+    Callbacks.Modpack modpack;
     private final String cross;
     private final int stringWidth;
     private float transparency = 0.5F;
@@ -40,7 +40,7 @@ public class GuiListEntryModpack extends GuiListEntry
                 transparency -= 0.04;
         }
 
-        this.mc.fontRendererObj.drawString(modpack.getName() + " Version " + modpack.getDisplayVersion(), x + 5, y + 5, 16777215);
+        this.mc.fontRendererObj.drawString(modpack.getName() + " (" + modpack.getDisplayVersion() + ")", x + 5, y + 5, 16777215);
     }
 
     public Callbacks.Modpack getModpack()
