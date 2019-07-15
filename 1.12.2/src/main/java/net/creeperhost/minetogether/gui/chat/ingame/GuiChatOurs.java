@@ -62,6 +62,8 @@ public class GuiChatOurs extends GuiChat
 
     public void processBadwords()
     {
+        if (ChatHandler.badwordsFormat == null)
+            return;
         String text = inputField.getText().replaceAll(ChatHandler.badwordsFormat, "");
         boolean veryNaughty = false;
         if (ChatHandler.badwords != null)
@@ -342,13 +344,24 @@ public class GuiChatOurs extends GuiChat
         {
             this.labelList.get(j).drawLabel(this.mc, mouseX, mouseY);
         }
-        
+
         drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
         this.inputField.drawTextBox();
         ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
 
         if (!(this.mc.ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
+
+        GuiNewChatOurs chatGui = (GuiNewChatOurs) mc.ingameGUI.getChatGUI();
+        if (!chatGui.chatTarget.equals(ChatHandler.CHANNEL))
+        {
+            String str = chatGui.closeComponent.getFormattedText();
+            int x = mc.ingameGUI.getChatGUI().getChatWidth() - 2;
+            int y = height - 40 - (mc.fontRendererObj.FONT_HEIGHT * Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()));
+            System.out.println(x + " " + y);
+            mc.fontRendererObj.drawString(str, x, y, 0xFFFFFF);
+        }
+
 
         for (ChatLine chatline : ((GuiNewChatOurs)this.mc.ingameGUI.getChatGUI()).drawnChatLines) {
             List<ITextComponent> siblings = chatline.getChatComponent().getSiblings();
@@ -401,6 +414,9 @@ public class GuiChatOurs extends GuiChat
         {
             return super.handleComponentClick(component);
         }
+
+        if(component == ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).closeComponent)
+            System.out.println("Close meh");
         ClickEvent event = component.getStyle().getClickEvent();
         if (event == null)
             return false;

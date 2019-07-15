@@ -13,7 +13,10 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import javax.annotation.Nullable;
@@ -43,12 +46,16 @@ public class GuiNewChatOurs extends GuiNewChat
     private boolean isScrolled;
     
     private final List<String> sentMessages = Lists.<String>newArrayList();
+
+    public final ITextComponent closeComponent;
     
     public GuiNewChatOurs(Minecraft mcIn)
     {
         super(mcIn);
         mc = mcIn;
         chatTarget = ChatHandler.CHANNEL;
+
+        closeComponent = new TextComponentString(new String(Character.toChars(10006))).setStyle(new Style().setColor(TextFormatting.RED).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Click to close group chat"))));
     }
     
     @Override
@@ -197,13 +204,15 @@ public class GuiNewChatOurs extends GuiNewChat
                 drawRect(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
             }
 
-            int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
-            lines = lines - minLines;
 
+
+            int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
+
+            //lines = lines - minLines;
             //lines = 1;
 
             if (!base)
-                GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, -90, -2, (int) (-lines * 4.5), 0.75F);
+                GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
 
             
             GlStateManager.popMatrix();
@@ -344,13 +353,25 @@ public class GuiNewChatOurs extends GuiNewChat
                 float f = this.getChatScale();
                 int j = mouseX / i - 2;
                 int k = mouseY / i - 40;
+
                 j = MathHelper.floor((float) j / f);
                 k = MathHelper.floor((float) k / f);
+
+                int l = Math.min(this.getLineCount(), this.drawnChatLines.size());
+
+                int width = getChatWidth() + 3;
+
+                int top = this.mc.fontRendererObj.FONT_HEIGHT * l + 1;
+
+                if (
+                        !chatTarget.equals(ChatHandler.CHANNEL) &&
+                        j <= width && j >= width - mc.fontRendererObj.getStringWidth(closeComponent.getFormattedText()) &&
+                        k <= top && k >= top - (this.mc.fontRendererObj.FONT_HEIGHT))
+                    return closeComponent;
                 
                 if (j >= 0 && k >= 0)
                 {
-                    int l = Math.min(this.getLineCount(), this.drawnChatLines.size());
-                    
+
                     if (j <= MathHelper.floor((float) this.getChatWidth() / this.getChatScale()) && k < this.mc.fontRendererObj.FONT_HEIGHT * l + l)
                     {
                         int i1 = k / this.mc.fontRendererObj.FONT_HEIGHT + this.scrollPos;
