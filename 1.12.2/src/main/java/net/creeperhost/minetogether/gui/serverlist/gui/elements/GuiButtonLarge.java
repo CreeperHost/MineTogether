@@ -72,12 +72,14 @@ public class GuiButtonLarge extends GuiButtonExt
                 int left = ((this.xPosition + 4));
                 mc.fontRendererObj.drawStringWithShadow(padLeft(s.getFormattedText(), 20), left, start += 8, -1);
             }
-
-            RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
-            GlStateManager.pushMatrix();
-            GlStateManager.scale(2.0f, 2.0f, 2.0f);
-            renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
-            GlStateManager.popMatrix();
+            try {
+                RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
+                GlStateManager.pushMatrix();
+                GlStateManager.scale(2.0f, 2.0f, 2.0f);
+                renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
+                GlStateManager.popMatrix();
+            } catch(Exception err)
+            {}
         }
     }
 

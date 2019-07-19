@@ -62,7 +62,7 @@ public class GuiServerType extends GuiScreen
 
         buttonList.clear();
 
-        buttonList.add(PUBLIC = new GuiButtonLarge(1, (width / 2) - 180, (height / 8)+20, 120, 165, "PUBLIC", I18n.format("minetogether.listing.public"), new ItemStack(Items.BANNER)));
+        buttonList.add(PUBLIC = new GuiButtonLarge(1, (width / 2) - 180, (height / 8)+20, 120, 165, "PUBLIC", I18n.format("minetogether.listing.public"), new ItemStack(Items.CHEST_MINECART)));
         buttonList.add(COMMUNITY = new GuiButtonLarge(2, (width / 2) - 60, (height / 8)+20, 120, 165, "COMMUNITY", I18n.format("minetogether.listing.community"), new ItemStack(Items.OAK_DOOR)));
         buttonList.add(APPLICATION = new GuiButtonLarge(3, (width / 2) + 60, (height / 8)+20, 120, 165, "CLOSED", I18n.format("minetogether.listing.closed"), new ItemStack(Items.IRON_DOOR)));
         buttonList.add(EXIT = new GuiButton(4, (width / 2)-110, height - 22, 220, 20, I18n.format("gui.cancel")));
