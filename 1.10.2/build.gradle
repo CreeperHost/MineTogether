@@ -60,7 +60,7 @@ gradle.taskGraph.whenReady { graph ->
 shadowJar {
 	// Only shadow kitteh
 	dependencies {
-		include(dependency('org.kitteh.irc:client-lib:4.0.2'))
+		include(dependency('org.kitteh.irc:client-lib:7.2.2'))
 		include(dependency('net.engio:mbassador:1.3.1'))
 	}
 	
