@@ -258,8 +258,12 @@ public class EventHandler
             if (buttonList != null)
             {
                 //Multiplayer button
-                int x = buttonList.get(2).xPosition - buttonList.get(2).width - 26;
-                buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, x, gui.height / 4 + 48 + 24));
+                if(buttonList.contains(2)) {
+                    int x = buttonList.get(2).xPosition - buttonList.get(2).width - 26;
+                    buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, x, gui.height / 4 + 48 + 24));
+                } else {
+                    buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
+                }
             }
         } else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
         {
