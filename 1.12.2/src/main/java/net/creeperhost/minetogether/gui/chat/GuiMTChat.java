@@ -312,7 +312,6 @@ public class GuiMTChat extends GuiScreen
         chat.handleElementClicks();
         this.chat.handleMouseInput(mouseX, mouseY);
     }
-    
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
