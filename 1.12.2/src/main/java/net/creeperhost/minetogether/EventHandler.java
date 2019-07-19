@@ -258,7 +258,8 @@ public class EventHandler
             if (buttonList != null)
             {
                 //Multiplayer button
-                if(buttonList.contains(2)) {
+                if(buttonList.size() > 2) {
+                //if(buttonList.contains(2)) {
                     int x = buttonList.get(2).xPosition - buttonList.get(2).width - 26;
                     buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, x, gui.height / 4 + 48 + 24));
                 } else {
