@@ -91,38 +91,33 @@ public class GuiQuote extends GuiGetServer
         
         final Order order = this.order;
         
-        Runnable runnable = new Runnable()
-        {
-            @Override
-            public void run()
+        Runnable runnable = () -> {
+            summary = Callbacks.getSummary(order);
+
+            order.productID = summary.productID;
+            order.currency = summary.currency;
+
+            if (firstTime)
             {
-                summary = Callbacks.getSummary(order);
-                
-                order.productID = summary.productID;
-                order.currency = summary.currency;
-                
-                if (firstTime)
+                firstTime = false;
+                Map<String, String> locations = Callbacks.getCountries();
+                for (Map.Entry<String, String> entry : locations.entrySet())
                 {
-                    firstTime = false;
-                    Map<String, String> locations = Callbacks.getCountries();
-                    for (Map.Entry<String, String> entry : locations.entrySet())
+                    GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
+                    list.addEntry(listEntry);
+
+                    if (order.country.equals(listEntry.countryID))
                     {
-                        GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
-                        list.addEntry(listEntry);
-                        
-                        if (order.country.equals(listEntry.countryID))
-                        {
-                            list.setCurrSelected(listEntry);
-                        }
+                        list.setCurrSelected(listEntry);
                     }
                 }
-                
-                wellLeft.lines = summary.serverFeatures;
-                wellRight.lines = summary.serverIncluded;
-                countryButton.displayString = Callbacks.getCountries().get(order.country);
-                countryButton.visible = true;
-                refreshing = false;
             }
+
+            wellLeft.lines = summary.serverFeatures;
+            wellRight.lines = summary.serverIncluded;
+            countryButton.displayString = Callbacks.getCountries().get(order.country);
+            countryButton.visible = true;
+            refreshing = false;
         };
         
         Thread thread = new Thread(runnable);
@@ -217,7 +212,7 @@ public class GuiQuote extends GuiGetServer
                 this.wellRight.drawScreen();
                 
                 
-                this.drawCenteredString(this.fontRendererObj, Util.localize("quote.requirements") + summary.serverHostName, this.width / 2, 50, -1);
+                this.drawCenteredString(this.fontRendererObj, Util.localize("quote.requirements") + " " + summary.serverHostName.toLowerCase() + " package", this.width / 2, 50, -1);
                 
                 String formatString = summary.prefix + "%1$.2f " + summary.suffix;
                 

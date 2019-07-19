@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.common;
 
+import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import org.apache.logging.log4j.Logger;
 
@@ -14,9 +15,11 @@ public interface IHost
 
     Logger getLogger();
 
-    void messageReceived(String target, Pair messagePair);
+    void messageReceived(String target, Message messagePair);
 
     String getFriendCode();
 
     void acceptFriend(String s, String trim);
+
+    void closeGroupChat();
 }

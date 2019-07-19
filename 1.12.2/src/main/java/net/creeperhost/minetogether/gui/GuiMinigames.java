@@ -210,7 +210,7 @@ public class GuiMinigames extends GuiScreen
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawDefaultBackground();
-        if (Config.getInstance().isChatEnabled() && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED)
+        if (Config.getInstance().isChatEnabled() && !ChatHandler.isOnline())
         {
             spinupButton.visible = spinupButton.enabled = vanillaButton.visible = vanillaButton.enabled =
                     moddedButton.visible = moddedButton.enabled = settingsButton.visible = settingsButton.enabled = false;
@@ -244,7 +244,6 @@ public class GuiMinigames extends GuiScreen
             drawStatusString(width / 2, height - 40);
             
             String currencyFormat = String.valueOf((int) quote);
-            ;
             
             if (quote > 0)
             {
@@ -505,7 +504,6 @@ public class GuiMinigames extends GuiScreen
             
             CreeperHost.instance.activeMinigame = null;
             
-            
             started[0] = true;
             
             Map map = aries.doApiCall("minetogether", "stopminigame", sendMap);
@@ -516,9 +514,7 @@ public class GuiMinigames extends GuiScreen
             try
             {
                 Thread.sleep(50);
-            } catch (InterruptedException e)
-            {
-            }
+            } catch (InterruptedException ignored) {}
         }
         
         doSpindown = true;
@@ -700,9 +696,7 @@ public class GuiMinigames extends GuiScreen
                     try
                     {
                         imageData = ImageIO.read(new URL(game.displayIcon));
-                    } catch (IOException e)
-                    {
-                    }
+                    } catch (IOException ignored) {}
                     
                     if (imageData != null)
                     {
@@ -912,11 +906,7 @@ public class GuiMinigames extends GuiScreen
                                         {
                                             saveCredentials();
                                         }
-                                    } catch (InterruptedException e)
-                                    {
-                                    } catch (ExecutionException e)
-                                    {
-                                    }
+                                    } catch (InterruptedException | ExecutionException ignored){}
                                     emailField.setText("");
                                     passwordField.setText("");
                                     oneCodeField.setText("");

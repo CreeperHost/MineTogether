@@ -14,21 +14,17 @@ public class GuiTextFieldLockable extends GuiTextFieldCompat
         super(componentId, fontrendererObj, x, y, par5Width, par6Height);
         fontRenderer = fontrendererObj;
     }
-    
-    @Override
-    public boolean getEnableBackgroundDrawing()
-    {
-        return false;
-    }
-    
+
     @Override
     public void drawTextBox()
     {
+        super.drawTextBox();
         int colour = this.ourEnabled ? -6250336 : 0xFFFF0000;
-        
-        drawRect(this.xPosition - 1, this.yPosition - 1, this.xPosition + this.width + 1, this.yPosition + this.height + 1, colour);
-        drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, -16777216);
-        
+
+        if (this.getEnableBackgroundDrawing()) {
+            drawRect(this.xPosition - 1, this.yPosition - 1, this.xPosition + this.width + 1, this.yPosition + this.height + 1, colour);
+            drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, -16777216);
+        }
         super.drawTextBox();
         
         int x = this.xPosition + 4;

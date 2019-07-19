@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.DefferedValidation;
 import net.creeperhost.minetogether.gui.GuiPersonalDetails;
 import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 
@@ -93,7 +94,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
             doNotValidate = true;
             this.setText(obscure);
             super.drawTextBox();
-            
+
             this.setText(text);
             doNotValidate = oldNotValidate;
         } else
@@ -113,8 +114,16 @@ public class TextFieldDetails extends GuiTextFieldCompat
         {
             this.drawString(this.gui.mc.fontRendererObj, denyString, startX, startY, 0xFF0000);
         }
-        
-        GlStateManager.scale(0.5F, 0.5F, 0.5F);
+
+        GL11.glScalef(0.5F, 0.5F, 0.5F);
+
+        if (!this.isFocused() && this.getText().trim().isEmpty())
+        {
+            int x = this.xPosition + 4;
+            int y = this.yPosition + (this.height - 8) / 2;
+
+            this.gui.mc.fontRendererObj.drawStringWithShadow("\u00A7o" + this.displayString, x, y, 14737632);
+        }
     }
     
     public boolean canBeFocused()

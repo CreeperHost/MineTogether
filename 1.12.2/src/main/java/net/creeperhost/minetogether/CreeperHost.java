@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.api.CreeperHostAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.common.*;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
@@ -17,7 +18,10 @@ import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
 import net.creeperhost.minetogether.siv.QueryGetter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -66,6 +70,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public boolean trialMinigame;
     public long joinTime;
     public String realName;
+    public boolean online;
     String toastText;
     long endTime;
     long fadeTime;
@@ -77,6 +82,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public String ourNick;
     public File mutedUsersFile;
     public Runnable toastMethod;
+
+    public HoverEvent.Action TIMESTAMP = EnumHelper.addEnum(HoverEvent.Action.class, "TIMESTAMP", new Class[]{String.class, boolean.class}, "timestamp_hover", true);;
 
     @SuppressWarnings("Duplicates")
     @Mod.EventHandler
@@ -307,7 +314,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     }
     
     @Override
-    public void messageReceived(String target, Pair messagePair)
+    public void messageReceived(String target, Message messagePair)
     {
         if (!Config.getInstance().isChatEnabled() || !target.equals(ChatHandler.CHANNEL)) return;
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
@@ -429,7 +436,12 @@ public class CreeperHost implements ICreeperHostMod, IHost
     {
         new Thread(() -> Callbacks.addFriend(friendCode, name)).start();
     }
-    
+
+    @Override
+    public void closeGroupChat() {
+        proxy.closeGroupChat();
+    }
+
     @Mod.EventHandler
     public void serverStarted(FMLServerStartingEvent event)
     {

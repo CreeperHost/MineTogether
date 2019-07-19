@@ -37,5 +37,11 @@ public class CreeperHostServerSelectionList extends ServerSelectionList
         ourList = list;
         ourList.add(new CreeperHostEntry(ourParent, new ServerData("", "127.0.0.1", false), true));
     }
-    
+
+    @Override
+    public void setSelectedSlotIndex(int selectedSlotIndexIn) {
+        if (selectedSlotIndexIn == ourList.size() - 1)
+            selectedSlotIndexIn--;
+        super.setSelectedSlotIndex(selectedSlotIndexIn);
+    }
 }

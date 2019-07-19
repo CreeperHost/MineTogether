@@ -766,7 +766,70 @@ public final class Callbacks
         {
             t.printStackTrace();
         }
-        
         return "0";
+    }
+
+    public static List<Modpack> getModpackFromCurse(String modpack)
+    {
+        String url = "https://www.creeperhost.net/json/modpacks/mc/search/" + modpack;
+
+        //Return the recommended if nothing is searched
+        if(modpack.equals(""))
+        {
+            url = "https://www.creeperhost.net/json/modpacks/weekly/20";
+        }
+
+        String resp = WebUtils.getWebResponse(url);
+        List<Modpack> modpackList = new ArrayList<>();
+
+        JsonElement jElement = new JsonParser().parse(resp);
+
+        if (jElement.isJsonObject())
+        {
+            JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
+            JsonArray array = object.getAsJsonArray("mc");
+
+            if (array != null)
+            {
+                for (JsonElement serverEl : array)
+                {
+                    JsonObject server = (JsonObject) serverEl;
+                    String id = server.get("id").getAsString();
+                    String name = server.get("displayName").getAsString();
+                    String displayVersion = server.get("displayVersion").getAsString();
+
+                    modpackList.add(new Modpack(id, name, displayVersion));
+
+                }
+                return modpackList;
+            }
+        }
+        return null;
+    }
+
+    public static class Modpack
+    {
+        String id;
+        String name;
+        String displayVersion;
+
+        public Modpack(String id, String name, String displayVersion)
+        {
+            this.id = id;
+            this.name = name;
+            this.displayVersion = displayVersion;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getDisplayVersion() {
+            return displayVersion;
+        }
     }
 }

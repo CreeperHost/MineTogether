@@ -229,9 +229,9 @@ public class EventHandler
             {
                 presetString = (String) defaultInputFieldTextField.get(gui);
                 MinecraftServer minecraftServerInstance = FMLCommonHandler.instance().getMinecraftServerInstance();
-                if (minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer())
+                if (minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
                 {
-                    ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = presetString.startsWith("/");
+                    ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = !CreeperHost.instance.gdpr.hasAcceptedGDPR() || presetString.startsWith("/");
                 }
             } catch (IllegalAccessException ignored) {}
             try {
@@ -257,7 +257,9 @@ public class EventHandler
             List<GuiButton> buttonList = event.getButtonList();
             if (buttonList != null)
             {
-                buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
+                //Multiplayer button
+                int x = buttonList.get(2).xPosition - buttonList.get(2).width - 26;
+                buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, x, gui.height / 4 + 48 + 24));
             }
         } else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
         {
