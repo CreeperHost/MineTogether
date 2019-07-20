@@ -48,11 +48,11 @@ public class GuiServerType extends GuiScreen
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawDefaultBackground();
-        super.drawScreen(mouseX, mouseY, partialTicks);
         GlStateManager.pushMatrix();
         GlStateManager.scale(1.5f, 1.5f, 1.5f);
         drawCenteredString(fontRendererObj, TextFormatting.BOLD  + I18n.format("minetogether.listing.title"), (width/3), 12, -1);
         GlStateManager.popMatrix();
+        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -62,9 +62,9 @@ public class GuiServerType extends GuiScreen
 
         buttonList.clear();
 
-        buttonList.add(PUBLIC = new GuiButtonLarge(1, (width / 2) - 180, (height / 8)+20, 120, 165, "PUBLIC", I18n.format("minetogether.listing.public"), new ItemStack(Items.CHEST_MINECART)));
-        buttonList.add(COMMUNITY = new GuiButtonLarge(2, (width / 2) - 60, (height / 8)+20, 120, 165, "COMMUNITY", I18n.format("minetogether.listing.community"), new ItemStack(Items.OAK_DOOR)));
-        buttonList.add(APPLICATION = new GuiButtonLarge(3, (width / 2) + 60, (height / 8)+20, 120, 165, "CLOSED", I18n.format("minetogether.listing.closed"), new ItemStack(Items.IRON_DOOR)));
+        buttonList.add(PUBLIC = new GuiButtonLarge(1, (width / 2) - 180, (height / 8)+20, 120, 165, "PUBLIC", I18n.format("minetogether.listing.public"), new ItemStack(Items.GUNPOWDER)));
+        buttonList.add(COMMUNITY = new GuiButtonLarge(2, (width / 2) - 60, (height / 8)+20, 120, 165, "COMMUNITY", I18n.format("minetogether.listing.community"), new ItemStack(Items.FISHING_ROD)));
+        buttonList.add(APPLICATION = new GuiButtonLarge(3, (width / 2) + 60, (height / 8)+20, 120, 165, "CLOSED", I18n.format("minetogether.listing.closed"), new ItemStack(Items.CHAINMAIL_CHESTPLATE)));
         buttonList.add(EXIT = new GuiButton(4, (width / 2)-110, height - 22, 220, 20, I18n.format("gui.cancel")));
     }
     

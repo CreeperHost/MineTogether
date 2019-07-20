@@ -15,6 +15,7 @@ import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.awt.image.renderable.RenderableImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,20 +67,21 @@ public class GuiButtonLarge extends GuiButtonExt
             this.drawCenteredString(mc.fontRendererObj, TextFormatting.BOLD + this.displayString, this.xPosition + this.width / 2, this.yPosition + (+8), color);
 
             List<ITextComponent> newstring = GuiUtilRenderComponents.splitText(new TextComponentString(description), width - 10, mc.fontRendererObj, false, true);
+            //Start needs to move based on GUI scale and screen size I guess, plz help @cloudhunter, @gigabit101, you're our only hope. (ihavenoideawhatimdoingdog.jpg)
             int start = 105;
+
 
             for (ITextComponent s : newstring) {
                 int left = ((this.xPosition + 4));
                 mc.fontRendererObj.drawStringWithShadow(padLeft(s.getFormattedText(), 20), left, start += 8, -1);
             }
-            try {
-                RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
-                GlStateManager.pushMatrix();
-                GlStateManager.scale(2.0f, 2.0f, 2.0f);
-                renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
-                GlStateManager.popMatrix();
-            } catch(Exception err)
-            {}
+
+            RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(2.0f, 2.0f, 2.0f);
+            renderItem.renderItemAndEffectIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
+            //renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
+            GlStateManager.popMatrix();
         }
     }
 
