@@ -360,7 +360,7 @@ public class GuiNewChatOurs extends GuiNewChat
                 j = MathHelper.floor((float) j / f);
                 k = MathHelper.floor((float) k / f);
 
-                int l = Math.min(this.getLineCount(), this.drawnChatLines.size());
+                int l = Math.max(Math.min(this.getLineCount(), this.drawnChatLines.size()), 20);
 
                 int width = getChatWidth() + 3;
 

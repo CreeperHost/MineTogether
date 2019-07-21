@@ -140,7 +140,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         }
         modeToggle = new GuiButton(80085101, width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"));
         //modeToggle = new DropdownButton<>(80085101, width - 5 - 80, 5, 80, 20, "creeperhost.multiplayer.list", listType, false);
-        sortOrderButton = new DropdownButton<>(80085101, width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false);
+        sortOrderButton = new DropdownButton<>(80085102, width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false);
         buttonList.add(modeToggle);
         buttonList.add(sortOrderButton);
     }
@@ -157,9 +157,8 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         {
             if(changeSort) {
                 changeSort = false;
-            } else {
-                mc.displayGuiScreen(new GuiServerType(this));
             }
+            mc.displayGuiScreen(new GuiServerType(this));
             return;
         } else if (button.id == 7)
         {

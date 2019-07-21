@@ -353,12 +353,13 @@ public class GuiChatOurs extends GuiChat
             return;
 
         GuiNewChatOurs chatGui = (GuiNewChatOurs) mc.ingameGUI.getChatGUI();
+        //if (true)
         if ((!chatGui.chatTarget.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase()))&&(!chatGui.chatTarget.toLowerCase().contains(ChatHandler.CHANNEL.toLowerCase()))&&(chatGui.chatTarget.length() > 0)&&(!chatGui.chatTarget.toLowerCase().equals("#minetogether")))
         {
             //System.out.println("\nChatTarget"+chatGui.chatTarget.toLowerCase()+"\nChatHandler"+ChatHandler.CHANNEL.toLowerCase());
             String str = chatGui.closeComponent.getFormattedText();
             int x = mc.ingameGUI.getChatGUI().getChatWidth() - 2;
-            int y = height - 40 - (mc.fontRendererObj.FONT_HEIGHT * Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()));
+            int y = height - 40 - (mc.fontRendererObj.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
             //System.out.println(x + " " + y);
             mc.fontRendererObj.drawString(str, x, y, 0xFFFFFF);
         }
