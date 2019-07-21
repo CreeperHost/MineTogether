@@ -81,10 +81,12 @@ public class ChatHandler
 
     public static void reInit()
     {
-        ChatHandler.isInitting=true;
-        inited = false;
-        init(initedString, realName, online, host);
-        ChatHandler.isInitting=false;
+        if(host != null && initedString != null && realName != null) {
+            ChatHandler.isInitting = true;
+            inited = false;
+            init(initedString, realName, online, host);
+            ChatHandler.isInitting = false;
+        }
     }
 
     private static void addMessageToChat(String target, String user, String message)

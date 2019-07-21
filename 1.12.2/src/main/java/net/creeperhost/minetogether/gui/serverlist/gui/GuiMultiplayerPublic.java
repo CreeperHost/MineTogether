@@ -32,6 +32,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     private boolean initialized;
     private GuiScreen parent;
     private GuiButton modeToggle;
+    private boolean changeSort;
     //private DropdownButton<ListType> modeToggle;
     private DropdownButton<SortOrder> sortOrderButton;
     private ServerListPublic ourSavedServerList = null;
@@ -154,8 +155,11 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             return;
         } else if (button.id == modeToggle.id)
         {
-            //listType = modeToggle.getSelected();
-            mc.displayGuiScreen(new GuiServerType(this));
+            if(changeSort) {
+                changeSort = false;
+            } else {
+                mc.displayGuiScreen(new GuiServerType(this));
+            }
             return;
         } else if (button.id == 7)
         {
@@ -163,6 +167,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             return;
         } else if (button.id == sortOrderButton.id)
         {
+            changeSort=true;
             sortOrder = sortOrderButton.getSelected();
             ourServerListSelector.sort();
             return;
