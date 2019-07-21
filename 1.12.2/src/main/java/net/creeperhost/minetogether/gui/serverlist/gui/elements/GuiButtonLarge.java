@@ -68,7 +68,7 @@ public class GuiButtonLarge extends GuiButtonExt
 
             List<ITextComponent> newstring = GuiUtilRenderComponents.splitText(new TextComponentString(description), width - 10, mc.fontRendererObj, false, true);
             //Start needs to move based on GUI scale and screen size I guess, plz help @cloudhunter, @gigabit101, you're our only hope. (ihavenoideawhatimdoingdog.jpg)
-            int start = 105;
+            int start = yPosition + 50;
 
 
             for (ITextComponent s : newstring) {
