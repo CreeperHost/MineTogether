@@ -8,6 +8,7 @@ import net.minecraft.util.text.event.HoverEvent;
 public class TimestampComponentString extends TextComponentString {
     public boolean active = false;
     public String text;
+    public static TimestampComponentString currentActive = null;
 
     public TimestampComponentString(String msg) {
         super(msg);
@@ -33,6 +34,12 @@ public class TimestampComponentString extends TextComponentString {
         return textcomponentstring;
     }
 
+    public static void clearActive() {
+        if (currentActive != null)
+            currentActive.setActive(false);
+        currentActive = null;
+    }
+
     @Override
     public String getText()
     {
@@ -42,7 +49,10 @@ public class TimestampComponentString extends TextComponentString {
     public void setActive(boolean active)
     {
         this.active = active;
-
+        if (active) {
+            clearActive(); // shouldn't ever happen, but just in case
+            currentActive = this;
+        }
     }
 
     @Override

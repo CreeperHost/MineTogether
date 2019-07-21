@@ -253,7 +253,10 @@ public class GuiNewChatOurs extends GuiNewChat
         synchronized (ChatHandler.ircLock) {
             int size = messages.size();
             for (Message message : messages) {
-                setChatLine(GuiMTChat.formatLine(message), size--, 0, false);
+                ITextComponent component = GuiMTChat.formatLine(message);
+                if (component == null)
+                    continue;
+                setChatLine(component, size--, 0, false);
             }
         }
     }

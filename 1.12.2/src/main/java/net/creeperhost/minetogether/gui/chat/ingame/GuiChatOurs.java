@@ -362,15 +362,7 @@ public class GuiChatOurs extends GuiChat
             mc.fontRendererObj.drawString(str, x, y, 0xFFFFFF);
         }
 
-
-        for (ChatLine chatline : ((GuiNewChatOurs)this.mc.ingameGUI.getChatGUI()).drawnChatLines) {
-            List<ITextComponent> siblings = chatline.getChatComponent().getSiblings();
-            for (ITextComponent sibling : siblings) {
-                if (sibling instanceof TimestampComponentString) {
-                    ((TimestampComponentString) sibling).setActive(false);
-                }
-            }
-        }
+        TimestampComponentString.clearActive();
 
         if (!((GuiTextFieldLockable)inputField).getOurEnabled() && ((GuiTextFieldLockable)inputField).isHovered(mouseX, mouseY))
         {
