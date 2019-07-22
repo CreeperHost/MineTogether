@@ -231,7 +231,7 @@ public class EventHandler
                 MinecraftServer minecraftServerInstance = FMLCommonHandler.instance().getMinecraftServerInstance();
                 if (minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
                 {
-                    ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = !CreeperHost.instance.gdpr.hasAcceptedGDPR() || presetString.startsWith("/");
+                    ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = ((!CreeperHost.instance.gdpr.hasAcceptedGDPR()) || presetString.startsWith("/") || (!minecraftServerInstance.isSinglePlayer()));
                 }
             } catch (IllegalAccessException ignored) {}
             try {

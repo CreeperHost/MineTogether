@@ -199,28 +199,37 @@ public class GuiChatOurs extends GuiChat
                 ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true;
                 return;
             }
-            if (ChatHandler.isOnline())
-            {
+            if (ChatHandler.isOnline()) {
                 String text = msg;
                 String[] split = text.split(" ");
-                for (int i = 0; i < split.length; i++)
-                {
+                for (int i = 0; i < split.length; i++) {
                     String word = split[i].toLowerCase();
                     final String subst = "User$2";
-                    
+
                     final Matcher matcher = pattern.matcher(word);
-                    
+
                     final String result = matcher.replaceAll(subst);
-                    
+
                     String justNick = result.replaceAll("[^A-Za-z0-9]", "");
-                    
+
                     String tempWord = ChatHandler.anonUsersReverse.get(justNick);
                     if (tempWord != null)
                         split[i] = result.replaceAll(justNick, tempWord);
                 }
-                
+
                 text = String.join(" ", split);
-                ChatHandler.sendMessage(ChatHandler.CHANNEL, text);
+                //ChatHandler.sendMessage(ChatHandler.CHANNEL, text);
+                String currentTarget = ChatHandler.CHANNEL;
+                switch (switchButton.activeButton)
+                {
+                    case 2:
+                        if (ChatHandler.hasGroup) {
+                        currentTarget = ChatHandler.currentGroup;
+                        }
+                    break;
+
+                }
+                ChatHandler.sendMessage(currentTarget, text);
             }
         }
     }
@@ -294,7 +303,7 @@ public class GuiChatOurs extends GuiChat
                 GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
                 ourChat.base = switchButton.activeButton == 0;
                 if (!ourChat.base) {
-                    ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.privateChatList.getChannelname());
+                    ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);//ChatHandler.privateChatList.getChannelname());
                     processBadwords();
                 }
                 switchButton.displayString = ourChat.base ? "MineTogether Chat" : "Minecraft Chat";
@@ -304,8 +313,10 @@ public class GuiChatOurs extends GuiChat
                     Minecraft.getMinecraft().displayGuiScreen(new GuiGDPR(null, () ->
                     {
                         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
-                        ourChat.base = false;
-                        ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.privateChatList.getChannelname());
+                        if(switchButton.activeButton == 1) {
+                            ourChat.base = false;
+                            ourChat.rebuildChat(ChatHandler.CHANNEL);
+                        }
                         return new GuiChatOurs(presetString, sleep);
                     }));
                 } catch (Exception e) {

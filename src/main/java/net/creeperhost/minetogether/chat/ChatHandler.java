@@ -38,6 +38,7 @@ public class ChatHandler
     private static boolean inited = false;
     public static List<String> badwords;
     public static String badwordsFormat;
+    public static String currentGroup;
     public static String initedString = null;
     private static String nick;
     private static String realName;
@@ -196,6 +197,7 @@ public class ChatHandler
             User user = userOpt.get();
             client.addChannel(channelName);
             ChatHandler.hasGroup=true;
+            ChatHandler.currentGroup = channelName;
             privateChatList = new PrivateChat(channelName, owner);
             String inviteStr = "INVITE " + user.getNick() + " " + channelName;
             client.sendRawLine(inviteStr);
@@ -243,6 +245,7 @@ public class ChatHandler
     {
         privateChatList = invite;
         client.addChannel(invite.getChannelname());
+        currentGroup = invite.getChannelname();
         privateChatInvite = null;
     }
 
