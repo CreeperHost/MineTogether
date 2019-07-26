@@ -170,20 +170,8 @@ public class GuiNewChatOurs extends GuiNewChat
         
         if (isBase())
         {
-            if (vanillaDrawnChatLines == null)
-            {
-                if (drawnChatLinesField == null)
-                {
-                    drawnChatLinesField = ReflectionHelper.findField(GuiNewChat.class, "field_146253_i", "drawnChatLines");
-                }
-                
-                try
-                {
-                    vanillaDrawnChatLines = (List<ChatLine>) drawnChatLinesField.get(this);
-                } catch (IllegalAccessException ignored) {}
-            }
             
-            tempDrawnChatLines = vanillaDrawnChatLines;
+            tempDrawnChatLines = getVanillaDrawnChatLines();
         }
         
         if (getChatOpen() && !CreeperHost.instance.ingameChat.hasDisabledIngameChat())
@@ -562,7 +550,23 @@ public class GuiNewChatOurs extends GuiNewChat
         {
             refreshChat();
         } else {
-            clearChatMessages(false);
+            getVanillaDrawnChatLines().clear();
         }
+    }
+
+    public List<ChatLine> getVanillaDrawnChatLines() {
+        if (vanillaDrawnChatLines == null)
+        {
+            if (drawnChatLinesField == null)
+            {
+                drawnChatLinesField = ReflectionHelper.findField(GuiNewChat.class, "field_146253_i", "drawnChatLines");
+            }
+
+            try
+            {
+                vanillaDrawnChatLines = (List<ChatLine>) drawnChatLinesField.get(this);
+            } catch (IllegalAccessException ignored) {}
+        }
+        return vanillaDrawnChatLines;
     }
 }
