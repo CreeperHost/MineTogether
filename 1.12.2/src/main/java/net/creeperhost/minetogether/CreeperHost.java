@@ -315,9 +315,11 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Override
     public void messageReceived(String target, Message messagePair)
     {
-        if (!Config.getInstance().isChatEnabled() || !target.equals(ChatHandler.CHANNEL)) return;
+        if (!Config.getInstance().isChatEnabled() || (!target.equals(ChatHandler.CHANNEL) && !target.equals(ChatHandler.currentGroup)))
+            return;
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
-        ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+        if (target.equals(ourChat.chatTarget))
+            ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
     }
     
     private static boolean anonLoaded = false;

@@ -230,7 +230,7 @@ public class EventHandler
                 MinecraftServer minecraftServerInstance = FMLCommonHandler.instance().getMinecraftServerInstance();
                 if (minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
                 {
-                    ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = ((!CreeperHost.instance.gdpr.hasAcceptedGDPR()) || presetString.startsWith("/") || (!minecraftServerInstance.isSinglePlayer()));
+                    ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).setBase(((!CreeperHost.instance.gdpr.hasAcceptedGDPR()) || presetString.startsWith("/") || (!minecraftServerInstance.isSinglePlayer())));
                 }
             } catch (IllegalAccessException ignored) {}
             try {
@@ -729,26 +729,29 @@ public class EventHandler
                         {
                             tempInvite = Callbacks.getInvite();
                             temp = ChatHandler.privateChatInvite;
+
+                            synchronized (CreeperHost.instance.inviteLock)
+                            {
+                                if (tempInvite != null)
+                                    CreeperHost.instance.invite = tempInvite;
+                            }
+
+                            if(temp != null)
+                            {
+                                CreeperHost.instance.displayToast(I18n.format("Your friend %s invited you to a private chat", CreeperHost.instance.getNameForUser(temp.getOwner()), ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, () -> {
+                                    mc.displayGuiScreen(new GuiMTChat(Minecraft.getMinecraft().currentScreen, true));
+                                });
+                            }
                         }
                         catch (Exception e)
                         {
+                            e.printStackTrace();
                             // carry on - we'll just try again later, saves thread dying.
-                        }
-
-                        synchronized (CreeperHost.instance.inviteLock)
-                        {
-                            if (tempInvite != null)
-                                CreeperHost.instance.invite = tempInvite;
-                        }
-
-                        if(temp != null)
-                        {
-                            CreeperHost.instance.displayToast(I18n.format("You have been invited to a private group chat", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, null);
                         }
 
                         try
                         {
-                            Thread.sleep(15000);
+                            Thread.sleep(1000);
                         } catch (InterruptedException ignored) {}
                     }
                 });
@@ -788,7 +791,7 @@ public class EventHandler
                     CreeperHost.proxy.openFriendsGui();
                 } else
                 {
-                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, () ->
+                    CreeperHost.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, ()->
                     {
                         mc.displayGuiScreen(new GuiInvited(CreeperHost.instance.handledInvite, mc.currentScreen));
                         CreeperHost.instance.handledInvite = null;
@@ -864,7 +867,7 @@ public class EventHandler
                 drawTexturedModalRect(res.getScaledWidth() - 160, 0, u, v, 160, 32);
                 GlStateManager.enableBlend();
                 int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
-                mc.fontRendererObj.drawSplitString(CreeperHost.instance.toastText, res.getScaledWidth() - 160 + 5, 6, 160, textColour);
+                mc.fontRendererObj.drawSplitString(CreeperHost.instance.toastText, res.getScaledWidth() - 160 + 5, 3, 160, textColour);
             } else
             {
                 CreeperHost.instance.clearToast(false);

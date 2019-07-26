@@ -7,11 +7,16 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.gui.chat.GuiMTChat;
+import net.creeperhost.minetogether.gui.chat.Target;
+import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
+import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
@@ -138,7 +143,7 @@ public class Client implements IProxy
         CreeperHost.instance.ingameChat.setDisabledIngameChat(true);
         if (isChatReplaced)
         {
-            ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true; // don't actually remove
+            ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
         }
     }
     
@@ -160,6 +165,24 @@ public class Client implements IProxy
 
     @Override
     public void closeGroupChat() {
-        ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).base = true;
+        ChatHandler.closePrivateChat();
+        GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+        chatGUI.setBase(true);
+        chatGUI.rebuildChat(ChatHandler.CHANNEL);
+        GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+        if (currentScreen != null) {
+            if (currentScreen instanceof GuiChatOurs)
+                currentScreen.setWorldAndResolution(Minecraft.getMinecraft(), currentScreen.width, currentScreen.height);
+            if (currentScreen instanceof GuiMTChat) {
+                for(DropdownButton.IDropdownOption target: Target.getMainTarget().getPossibleVals())
+                {
+                    if (((Target)target).getInternalTarget().equals(ChatHandler.CHANNEL)) {
+                        ((GuiMTChat) currentScreen).targetDropdownButton.setSelected((Target) target);
+                        Target.updateCache();
+                    }
+                }
+                currentScreen.setWorldAndResolution(Minecraft.getMinecraft(), currentScreen.width, currentScreen.height);
+            }
+        }
     }
 }

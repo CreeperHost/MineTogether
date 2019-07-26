@@ -8,7 +8,7 @@ import net.minecraft.util.text.TextFormatting;
 
 import java.util.*;
 
-class Target implements DropdownButton.IDropdownOption
+public class Target implements DropdownButton.IDropdownOption
 {
     private final String targetName;
     private static ArrayList<Target> possibleValsCache = new ArrayList<>();
@@ -124,6 +124,8 @@ class Target implements DropdownButton.IDropdownOption
             {
                 if (target.getInternalTarget().equals(chat))
                 {
+                    if (ChatHandler.privateChatList == null && target.targetName.equals("Group Chat"))
+                        continue;
                     tempSet.add(target);
                     break;
                 }

@@ -25,12 +25,12 @@ import java.util.List;
 
 public class GuiNewChatOurs extends GuiNewChat
 {
-    public boolean base = !CreeperHost.instance.gdpr.hasAcceptedGDPR();
+    private boolean base = !CreeperHost.instance.gdpr.hasAcceptedGDPR();
     
     @Override
     public void printChatMessageWithOptionalDeletion(ITextComponent chatComponent, int chatLineId)
     {
-        if (!base)
+        if (!isBase())
             unread = true;
         super.printChatMessageWithOptionalDeletion(chatComponent, chatLineId);
     }
@@ -70,7 +70,7 @@ public class GuiNewChatOurs extends GuiNewChat
     @Override
     public void drawChat(int updateCounter)
     {
-        if (base)
+        if (isBase())
             super.drawChat(updateCounter);
         else
         {
@@ -168,7 +168,7 @@ public class GuiNewChatOurs extends GuiNewChat
         
         List<ChatLine> tempDrawnChatLines = drawnChatLines;
         
-        if (base)
+        if (isBase())
         {
             if (vanillaDrawnChatLines == null)
             {
@@ -193,7 +193,7 @@ public class GuiNewChatOurs extends GuiNewChat
             GlStateManager.translate(2.0F, 8.0F, 0.0F);
             GlStateManager.scale(f1, f1, 1.0F);
 
-            int minLines = ((base ? 14: 20) + ((ChatHandler.hasGroup) ? 5 : 0));
+            int minLines = isBase() ? (14 + ((ChatHandler.hasGroup) ? 6 : 0)) : 20;
 
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
 
@@ -211,7 +211,7 @@ public class GuiNewChatOurs extends GuiNewChat
             //lines = lines - minLines;
             //lines = 1;
 
-            if (!base)
+            if (!isBase())
                 GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
 
             
@@ -222,13 +222,13 @@ public class GuiNewChatOurs extends GuiNewChat
     @Override
     public List<String> getSentMessages()
     {
-        return base ? super.getSentMessages() : sentMessages;
+        return isBase() ? super.getSentMessages() : sentMessages;
     }
     
     @Override
     public void addToSentMessages(String message)
     {
-        if (base)
+        if (isBase())
             super.addToSentMessages(message);
         else
         {
@@ -263,7 +263,7 @@ public class GuiNewChatOurs extends GuiNewChat
     
     public void setChatLine(ITextComponent chatComponent, int chatLineId, int updateCounter, boolean displayOnly)
     {
-        if (base)
+        if (isBase())
         {
             unread = true;
         }
@@ -306,7 +306,7 @@ public class GuiNewChatOurs extends GuiNewChat
     @Override
     public void resetScroll()
     {
-        if (base)
+        if (isBase())
             super.resetScroll();
         else
         {
@@ -318,7 +318,7 @@ public class GuiNewChatOurs extends GuiNewChat
     @Override
     public void scroll(int amount)
     {
-        if (base)
+        if (isBase())
             super.scroll(amount);
         else
         {
@@ -342,7 +342,7 @@ public class GuiNewChatOurs extends GuiNewChat
     @Override
     public ITextComponent getChatComponent(int mouseX, int mouseY)
     {
-        if (base)
+        if (isBase())
             return super.getChatComponent(mouseX, mouseY);
         else
         {
@@ -550,5 +550,19 @@ public class GuiNewChatOurs extends GuiNewChat
 
         list.add(itextcomponent);
         return list;
+    }
+
+    public boolean isBase() {
+        return base;
+    }
+
+    public void setBase(boolean base) {
+        this.base = base;
+        if (base)
+        {
+            refreshChat();
+        } else {
+            clearChatMessages(false);
+        }
     }
 }

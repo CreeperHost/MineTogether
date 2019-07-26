@@ -44,7 +44,7 @@ public class GuiMTChat extends GuiScreen
     private final GuiScreen parent;
     private GuiScrollingChat chat;
     private GuiTextFieldLockable send;
-    private DropdownButton<Target> targetDropdownButton;
+    public DropdownButton<Target> targetDropdownButton;
     private GuiButton friendsButton;
     private static String playerName = Minecraft.getMinecraft().getSession().getUsername();
     private String currentTarget = ChatHandler.CHANNEL;
@@ -53,11 +53,20 @@ public class GuiMTChat extends GuiScreen
     private GuiButton reconnectionButton;
     private GuiButton cancelButton;
     private GuiButton invited;
+    private boolean inviteTemp = false;
 
     public GuiMTChat(GuiScreen parent)
     {
         this.parent = parent;
     }
+
+    public GuiMTChat(GuiScreen parent, boolean invite)
+    {
+        this.parent = parent;
+        inviteTemp = invite;
+
+    }
+
 
     @Override
     public void onGuiClosed()
@@ -96,6 +105,11 @@ public class GuiMTChat extends GuiScreen
 
         send.setMaxStringLength(120);
         send.setFocused(true);
+
+        if (inviteTemp) {
+            confirmInvite();
+            inviteTemp = false;
+        }
     }
 
     long tickCounter = 0;
@@ -112,20 +126,18 @@ public class GuiMTChat extends GuiScreen
         }
         tickCounter++;
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
+        boolean changed = false;
         if (!buttonTarget.equals(currentTarget))
         {
-            synchronized (ircLock)
-            {
-                currentTarget = buttonTarget;
-                chat.updateLines(currentTarget);
-                ChatHandler.setMessagesRead(currentTarget);
-            }
-            return;
+            changed = true;
+            currentTarget = buttonTarget;
         }
         synchronized (ircLock)
         {
             reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
-            if (ChatHandler.hasNewMessages(currentTarget))
+            if (
+                    changed ||
+                    ChatHandler.hasNewMessages(currentTarget))
             {
                 chat.updateLines(currentTarget);
                 ChatHandler.setMessagesRead(currentTarget);
@@ -249,10 +261,15 @@ public class GuiMTChat extends GuiScreen
         }
         else if (button == invited && ChatHandler.privateChatInvite != null)
         {
-            mc.displayGuiScreen(new GuiYesNo(this, I18n.format("You have been invited to join a private channel"), I18n.format("Do you wish to accept this invite?"), 777));
+            confirmInvite();
         }
         chat.actionPerformed(button);
         super.actionPerformed(button);
+    }
+
+    public void confirmInvite()
+    {
+        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("You have been invited to join a private channel by %s", CreeperHost.instance.getNameForUser(ChatHandler.privateChatInvite.getOwner())), I18n.format("Do you wish to accept this invite?"), 777));
     }
 
     @Override
@@ -264,6 +281,7 @@ public class GuiMTChat extends GuiScreen
             {
                 ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
                 mc.displayGuiScreen(this);
+                CreeperHost.instance.clearToast(false);
                 return;
             }
         }

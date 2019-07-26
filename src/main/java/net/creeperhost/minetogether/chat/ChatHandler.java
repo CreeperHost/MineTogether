@@ -23,7 +23,7 @@ import java.util.*;
 public class ChatHandler
 {
     public static final Object ircLock = new Object();
-    public static HashMap<String, Boolean> newMessages = new HashMap<>();
+    public static TreeMap<String, Boolean> newMessages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private static ChatUtil.IRCServer IRC_SERVER;
     public static String CHANNEL = "#MineTogether";
     public static ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
@@ -38,7 +38,7 @@ public class ChatHandler
     private static boolean inited = false;
     public static List<String> badwords;
     public static String badwordsFormat;
-    public static String currentGroup;
+    public static String currentGroup = "";
     public static String initedString = null;
     private static String nick;
     private static String realName;
@@ -196,7 +196,7 @@ public class ChatHandler
             String channelName = "#" + owner;
             User user = userOpt.get();
             client.addChannel(channelName);
-            ChatHandler.hasGroup=true;
+            ChatHandler.hasGroup = true;
             ChatHandler.currentGroup = channelName;
             privateChatList = new PrivateChat(channelName, owner);
             String inviteStr = "INVITE " + user.getNick() + " " + channelName;
@@ -246,7 +246,16 @@ public class ChatHandler
         privateChatList = invite;
         client.addChannel(invite.getChannelname());
         currentGroup = invite.getChannelname();
+        hasGroup = true;
         privateChatInvite = null;
+    }
+
+    public static void closePrivateChat() {
+        String channelName = privateChatList.getChannelname();
+        Optional<Channel> channel = client.getChannel(channelName);
+        channel.ifPresent(channel1 -> channel1.part("My buddy left :("));
+        privateChatList = null;
+        ChatHandler.hasGroup = false;
     }
 
     public static class Listener
@@ -288,7 +297,6 @@ public class ChatHandler
 
             tries++;
 
-
             synchronized (ircLock)
             {
                 connectionStatus = ConnectionStatus.DISCONNECTED;
@@ -327,9 +335,6 @@ public class ChatHandler
                 friends.remove(friendNick);
             } else if (privateChatList != null && channelName.equals(privateChatList.channelname)) {
                 if (privateChatList.owner.equals(event.getUser().getNick())) {
-                    event.getAffectedChannel().get().part();
-                    privateChatList = null;
-                    ChatHandler.hasGroup = false;
                     host.closeGroupChat();
                     // TODO: make sure the chat closes too
                 }
@@ -341,6 +346,10 @@ public class ChatHandler
         {
             String friendNick = event.getUser().getNick();
             friends.remove(friendNick);
+            if (privateChatList != null && privateChatList.owner.equals(friendNick)) {
+                host.closeGroupChat();
+                // TODO: make sure the chat closes too
+            }
         }
 
         @Handler
@@ -508,7 +517,9 @@ public class ChatHandler
         @Handler
         public void onInviteReceived(ChannelInviteEvent event)
         {
-            privateChatInvite = new PrivateChat(event.getChannel().getName(), event.getActor().getName());
+            String actorName = event.getActor().getName();
+            actorName = actorName.substring(0, actorName.indexOf("!"));
+            privateChatInvite = new PrivateChat(event.getChannel().getName(), actorName);
         }
 
         @Handler
