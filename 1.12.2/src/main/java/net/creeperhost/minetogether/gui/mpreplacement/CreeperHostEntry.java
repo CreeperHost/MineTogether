@@ -140,7 +140,7 @@ public class CreeperHostEntry extends ServerListEntryNormal
         if (x >= 303 - stringWidth - 2 && x <= 303 - 3 && y >= 0 && y <= 7)
         {
             Config.getInstance().setMpMenuEnabled(false);
-            CreeperHost.instance.saveConfig();
+            CreeperHost.instance.saveConfig(false);
             this.mc.displayGuiScreen(new GuiMultiplayer(null));
             return true;
         }

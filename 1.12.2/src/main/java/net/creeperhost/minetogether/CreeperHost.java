@@ -19,7 +19,6 @@ import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
 import net.creeperhost.minetogether.siv.QueryGetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.event.HoverEvent;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -127,7 +126,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
             } catch (Throwable ignored) {}
             if (!active) return;
         }
-        saveConfig();
+        saveConfig(event.getSide() == Side.SERVER);
         
         PacketHandler.packetRegister();
         
@@ -166,7 +165,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     }
     
     @SuppressWarnings("Duplicates")
-    public void saveConfig()
+    public void saveConfig(boolean isServer)
     {
         FileOutputStream configOut = null;
         try
@@ -186,14 +185,14 @@ public class CreeperHost implements ICreeperHostMod, IHost
             } catch (Throwable ignored) {}
         }
         
-        if (Config.getInstance().isCreeperhostEnabled())
+        if (!isServer && Config.getInstance().isCreeperhostEnabled())
         {
             CreeperHost.instance.implementations.remove(implement);
             implement = new CreeperHostServerHost();
             CreeperHostAPI.registerImplementation(implement);
         }
         
-        if (!Config.getInstance().isCreeperhostEnabled())
+        if (!isServer && !Config.getInstance().isCreeperhostEnabled())
         {
             CreeperHost.instance.implementations.remove(implement);
             implement = null;

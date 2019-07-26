@@ -50,9 +50,8 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import org.lwjgl.input.Cursor;
+import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -695,7 +694,7 @@ public class EventHandler
             return;
         }
         
-        CreeperHost.instance.saveConfig();
+        CreeperHost.instance.saveConfig(false);
     }
     
     @SubscribeEvent
