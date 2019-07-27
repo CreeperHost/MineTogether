@@ -59,8 +59,16 @@ public class GuiChatFriend extends GuiScreen
         first = false;
         
         acceptBtn.enabled = nameEntry.getText().trim().length() >= 3;
+        nameEntry.setFocused(true);
+        nameEntry.setCanLoseFocus(false);
     }
-    
+
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        nameEntry.mouseClicked(mouseX, mouseY, mouseButton);
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
