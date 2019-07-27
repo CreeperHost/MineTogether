@@ -22,7 +22,7 @@ public class ServerProxy implements IServerProxy
             {
                 field = Thread.class.getDeclaredField("target");
                 field.setAccessible(true);
-                server = ReflectionHelper.findField(ServerHangWatchdog.class, "field_180249_b", "server");
+                server = ReflectionHelper.findField(ServerHangWatchdog.class, "server", "field_180249_b");
                 server.setAccessible(true);
             } catch (Throwable e)
             {

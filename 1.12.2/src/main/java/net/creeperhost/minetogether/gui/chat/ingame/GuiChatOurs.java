@@ -22,10 +22,12 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -107,49 +109,36 @@ public class GuiChatOurs extends GuiChat
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
-        if (keyCode == 1)
+        if (keyCode == 1 && sleep)
         {
-            if (sleep)
-                this.wakeFromSleep();
-            else
-            {
-                boolean ourEnabled = ((GuiTextFieldLockable)inputField).getOurEnabled();
-
-                if (!ourEnabled)
-                {
-                    inputField.setEnabled(true);
-                }
-
-                super.keyTyped(typedChar, keyCode);
-
-                if (!ourEnabled)
-                {
-                    inputField.setEnabled(false);
-                }
-
-                if ((Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()) processBadwords();
-
-            }
-        } else
-        {
-            boolean ourEnabled = ((GuiTextFieldLockable)inputField).getOurEnabled();
-
-            if (!ourEnabled)
-            {
-                if ((keyCode == 28 || keyCode == 156) && ((Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()))
-                    return;
-                inputField.setEnabled(true);
-            }
-
+            wakeFromSleep();
             super.keyTyped(typedChar, keyCode);
-
-            if (!ourEnabled)
-            {
-                inputField.setEnabled(false);
-
-            }
-            if ((Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()) processBadwords();
+            return;
         }
+
+        if ((Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()) {
+            inputField.setEnabled(true);
+            super.keyTyped(typedChar, keyCode);
+            return;
+        }
+
+        boolean ourEnabled = ((GuiTextFieldLockable)inputField).getOurEnabled();
+
+        if (!ourEnabled)
+        {
+            if ((keyCode == 28 || keyCode == 156) && ((Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()))
+                return;
+            inputField.setEnabled(true);
+        }
+
+        super.keyTyped(typedChar, keyCode);
+
+        if (!ourEnabled)
+        {
+            inputField.setEnabled(false);
+        }
+        if ((Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()) processBadwords();
+
     }
     
     public GuiChatOurs(String presetString, boolean sleep)
@@ -233,6 +222,21 @@ public class GuiChatOurs extends GuiChat
             }
         }
     }
+
+    private Field tabCompleterField = null;
+    public void replaceTabCompleter()
+    {
+        if (tabCompleterField == null) {
+            tabCompleterField = ReflectionHelper.findField(GuiChat.class, "tabCompleter", "field_184096_i");
+            tabCompleterField.setAccessible(true);
+        }
+
+        try {
+            tabCompleterField.set(this, new ChatTabCompleter(inputField));
+        } catch (IllegalAccessException e) {
+        }
+
+    }
     
     @Override
     public void initGui()
@@ -253,6 +257,7 @@ public class GuiChatOurs extends GuiChat
         this.inputField.setFocused(true);
         this.inputField.setText(oldInputField.getText());
         this.inputField.setCanLoseFocus(false);
+        replaceTabCompleter();
         List<String> strings = new ArrayList<>();
 
         strings.add(I18n.format("minetogether.chat.button.mute"));

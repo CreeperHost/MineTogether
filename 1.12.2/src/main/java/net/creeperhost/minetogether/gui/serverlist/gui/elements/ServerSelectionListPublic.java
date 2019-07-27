@@ -98,7 +98,7 @@ public class ServerSelectionListPublic extends ServerSelectionList
         {
             if (serverListInternetField == null)
             {
-                serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "field_148198_l", "serverListInternet");
+                serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "serverListInternet", "field_148198_l");
                 serverListInternetField.setAccessible(true);
             }
         }

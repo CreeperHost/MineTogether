@@ -157,7 +157,7 @@ public class Client implements IProxy
             isChatReplaced = true;
             try
             {
-                Field field = ReflectionHelper.findField(GuiIngame.class, "field_73840_e", "persistantChatGUI");
+                Field field = ReflectionHelper.findField(GuiIngame.class, "persistantChatGUI", "field_73840_e");
                 field.set(Minecraft.getMinecraft().ingameGUI, new GuiNewChatOurs(Minecraft.getMinecraft()));
             } catch (IllegalAccessException ignored) {}
         }

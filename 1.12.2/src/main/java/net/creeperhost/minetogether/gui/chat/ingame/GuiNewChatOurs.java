@@ -30,9 +30,11 @@ public class GuiNewChatOurs extends GuiNewChat
     @Override
     public void printChatMessageWithOptionalDeletion(ITextComponent chatComponent, int chatLineId)
     {
-        if (!isBase())
-            unread = true;
         super.printChatMessageWithOptionalDeletion(chatComponent, chatLineId);
+        if (!isBase()) {
+            unread = true;
+            getVanillaDrawnChatLines().clear(); // instantly clear so that no surprises happen whilst we're in our chat (I'm looking at you, Quark!)
+        }
     }
     
     private final Minecraft mc;
@@ -559,7 +561,7 @@ public class GuiNewChatOurs extends GuiNewChat
         {
             if (drawnChatLinesField == null)
             {
-                drawnChatLinesField = ReflectionHelper.findField(GuiNewChat.class, "field_146253_i", "drawnChatLines");
+                drawnChatLinesField = ReflectionHelper.findField(GuiNewChat.class, "drawnChatLines", "field_146253_i");
             }
 
             try
