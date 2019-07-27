@@ -388,9 +388,13 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             }
             else if(id == 1)
             {
-                String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
-                System.out.println("Sending group invite to " + friendCode);
-                ChatHandler.sendChannelInvite(friendCode, CreeperHost.instance.ourNick);
+                if (!invitedPlayer.isAccepted())
+                    showAlert("Cannot invite pending friends", 0x00FF00, 5000);
+                else {
+                    String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
+                    showAlert("Sent invite to " + invitedPlayer.getName(), 0x00FF00, 5000);
+                    ChatHandler.sendChannelInvite(friendCode, CreeperHost.instance.ourNick);
+                }
             }
         }
         mc.displayGuiScreen(this);
