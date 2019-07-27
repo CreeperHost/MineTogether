@@ -49,6 +49,7 @@ public class ChatHandler
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
         if (inited) return;
+        isInitting = true;
 
         online = onlineIn;
         realName = realNameIn;
@@ -75,18 +76,17 @@ public class ChatHandler
                 ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(true); // Does a WHO - lets see how this works...
                 client.getEventManager().registerEventListener(new Listener());
                 client.addChannel(CHANNEL);
+                inited = true;
+                isInitting = false;
             }).start();
         }
-        inited = true;
     }
 
     public static void reInit()
     {
-        if(host != null && initedString != null && realName != null) {
-            ChatHandler.isInitting = true;
+        if(!isInitting && host != null && initedString != null && realName != null) {
             inited = false;
             init(initedString, realName, online, host);
-            ChatHandler.isInitting = false;
         }
     }
 
