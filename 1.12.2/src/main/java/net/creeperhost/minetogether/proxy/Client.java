@@ -6,6 +6,7 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.Target;
@@ -183,6 +184,25 @@ public class Client implements IProxy
                 }
                 currentScreen.setWorldAndResolution(Minecraft.getMinecraft(), currentScreen.width, currentScreen.height);
             }
+        }
+    }
+
+    @Override
+    public void messageReceived(String target, Message messagePair) {
+        if (!Config.getInstance().isChatEnabled() || (!target.equals(ChatHandler.CHANNEL) && !target.equals(ChatHandler.currentGroup) && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
+            return;
+        GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+        if (target.equals(ourChat.chatTarget))
+            ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+    }
+
+    @Override
+    public void updateChatChannel() {
+        if (Config.getInstance().isChatEnabled() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
+        {
+            GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+            if (chatGUI.chatTarget.equals("#MineTogether"))
+                chatGUI.chatTarget = ChatHandler.CHANNEL;
         }
     }
 }

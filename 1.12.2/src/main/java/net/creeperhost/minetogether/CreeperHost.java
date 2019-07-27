@@ -8,8 +8,6 @@ import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.common.*;
-import net.creeperhost.minetogether.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
@@ -17,7 +15,6 @@ import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
 import net.creeperhost.minetogether.siv.QueryGetter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
@@ -315,11 +312,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Override
     public void messageReceived(String target, Message messagePair)
     {
-        if (!Config.getInstance().isChatEnabled() || (!target.equals(ChatHandler.CHANNEL) && !target.equals(ChatHandler.currentGroup)))
-            return;
-        GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
-        if (target.equals(ourChat.chatTarget))
-            ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+        proxy.messageReceived(target, messagePair);
     }
     
     private static boolean anonLoaded = false;
@@ -441,6 +434,11 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Override
     public void closeGroupChat() {
         proxy.closeGroupChat();
+    }
+
+    @Override
+    public void updateChatChannel() {
+        proxy.updateChatChannel();
     }
 
     @Mod.EventHandler

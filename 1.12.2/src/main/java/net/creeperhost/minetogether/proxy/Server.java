@@ -1,5 +1,7 @@
 package net.creeperhost.minetogether.proxy;
 
+import net.creeperhost.minetogether.chat.Message;
+
 import java.util.UUID;
 
 public class Server implements IProxy
@@ -27,4 +29,10 @@ public class Server implements IProxy
 
     @Override
     public void closeGroupChat() {}
+
+    @Override
+    public void messageReceived(String target, Message messagePair) {}
+
+    @Override
+    public void updateChatChannel() {}
 }

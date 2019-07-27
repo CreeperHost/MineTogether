@@ -63,6 +63,8 @@ public class ChatHandler
         tries = 0;
         nick = nickIn;
 
+        host.updateChatChannel();
+
         synchronized (ircLock)
         {
             messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);

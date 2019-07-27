@@ -22,4 +22,6 @@ public interface IHost
     void acceptFriend(String s, String trim);
 
     void closeGroupChat();
+
+    void updateChatChannel();
 }
