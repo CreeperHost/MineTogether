@@ -19,6 +19,7 @@ public class Config
     private boolean sivIntegration;
     private boolean serverListEnabled;
     private boolean chatEnabled;
+    private boolean autoMT;
 
     private int pregenDiameter = 120;
 
@@ -36,6 +37,7 @@ public class Config
         sivIntegration = true;
         serverListEnabled = true;
         chatEnabled = true;
+        autoMT = true;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
@@ -119,6 +121,10 @@ public class Config
     public boolean isChatEnabled()
     {
         return chatEnabled;
+    }
+
+    public boolean isAutoMT() {
+        return autoMT;
     }
 
     public static void makeConfig(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {

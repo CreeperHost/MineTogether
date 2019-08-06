@@ -120,6 +120,8 @@ public class EventHandler
     boolean first = true;
     
     Field defaultInputFieldTextField = null;
+
+    boolean firstOpen = true;
     
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
@@ -228,8 +230,9 @@ public class EventHandler
             {
                 presetString = (String) defaultInputFieldTextField.get(gui);
                 MinecraftServer minecraftServerInstance = FMLCommonHandler.instance().getMinecraftServerInstance();
-                if (minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
+                if (Config.getInstance().isAutoMT() && minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs && firstOpen)
                 {
+                    firstOpen = false;
                     ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).setBase(((!CreeperHost.instance.gdpr.hasAcceptedGDPR()) || presetString.startsWith("/") || (!minecraftServerInstance.isSinglePlayer())));
                 }
             } catch (IllegalAccessException ignored) {}
