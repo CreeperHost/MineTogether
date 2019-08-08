@@ -124,7 +124,7 @@ public class Target implements DropdownButton.IDropdownOption
             {
                 if (target.getInternalTarget().equals(chat))
                 {
-                    if (ChatHandler.privateChatList == null && target.targetName.equals("Group Chat"))
+                    if (target.targetName.equals("Group Chat") && (ChatHandler.privateChatList == null || !ChatHandler.privateChatList.getChannelname().equals(target.internalTarget)))
                         continue;
                     tempSet.add(target);
                     break;

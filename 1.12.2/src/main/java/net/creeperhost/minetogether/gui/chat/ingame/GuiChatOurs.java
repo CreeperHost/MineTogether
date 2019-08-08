@@ -54,7 +54,7 @@ public class GuiChatOurs extends GuiChat
                 for(ITextComponent sibling: siblings) {
                     if (sibling instanceof TimestampComponentString)
                     {
-                        ((TimestampComponentString)sibling).setActive(true);
+                        ((TimestampComponentString)sibling).setActive();
                     }
                 }
             }
@@ -151,7 +151,9 @@ public class GuiChatOurs extends GuiChat
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
+        TimestampComponentString.setFakeActive(true);
         super.mouseClicked(mouseX, mouseY, mouseButton);
+        TimestampComponentString.setFakeActive(false);
         if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
         {
             menuDropdownButton.xPosition = menuDropdownButton.yPosition = -10000;
@@ -363,24 +365,22 @@ public class GuiChatOurs extends GuiChat
 
         drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
         this.inputField.drawTextBox();
+
         ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
 
         if (!(this.mc.ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
 
         GuiNewChatOurs chatGui = (GuiNewChatOurs) mc.ingameGUI.getChatGUI();
-        //if (true)
         if ((!chatGui.isBase()) && (!chatGui.chatTarget.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase())) && (!chatGui.chatTarget.toLowerCase().contains(ChatHandler.CHANNEL.toLowerCase())) && (chatGui.chatTarget.length() > 0)&&(!chatGui.chatTarget.toLowerCase().equals("#minetogether")))
         {
-            //System.out.println("\nChatTarget"+chatGui.chatTarget.toLowerCase()+"\nChatHandler"+ChatHandler.CHANNEL.toLowerCase());
             String str = chatGui.closeComponent.getFormattedText();
             int x = mc.ingameGUI.getChatGUI().getChatWidth() - 2;
             int y = height - 40 - (mc.fontRendererObj.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
-            //System.out.println(x + " " + y);
             mc.fontRendererObj.drawString(str, x, y, 0xFFFFFF);
         }
 
-        TimestampComponentString.clearActive();
+        //TimestampComponentString.clearActive();
 
         if (!((GuiTextFieldLockable)inputField).getOurEnabled() && ((GuiTextFieldLockable)inputField).isHovered(mouseX, mouseY))
         {
@@ -390,7 +390,12 @@ public class GuiChatOurs extends GuiChat
         if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
         {
             this.handleComponentHover(itextcomponent, mouseX, mouseY);
+            if (!TimestampComponentString.getChanged())
+                TimestampComponentString.clearActive();
+        } else {
+            TimestampComponentString.clearActive();
         }
+
     }
     
     @Deprecated
@@ -428,6 +433,7 @@ public class GuiChatOurs extends GuiChat
         if(component == ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).closeComponent)
         {
             CreeperHost.instance.closeGroupChat();
+            return true;
         }
         ClickEvent event = component.getStyle().getClickEvent();
         if (event == null)

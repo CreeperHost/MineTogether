@@ -120,6 +120,7 @@ public class GuiOrderDetails extends GuiGetServer
         } else if (!placingOrder && !placedOrder)
         {
             placingOrder = true;
+            buttonNext.enabled = false;
             Runnable runnable = () -> {
                 String result = Callbacks.createOrder(order);
                 String[] resultSplit = result.split(":");
@@ -153,6 +154,8 @@ public class GuiOrderDetails extends GuiGetServer
             buttonNext.visible = true;
             buttonCancel.enabled = true;
             return;
+        } else {
+            buttonNext.enabled = true;
         }
     }
     

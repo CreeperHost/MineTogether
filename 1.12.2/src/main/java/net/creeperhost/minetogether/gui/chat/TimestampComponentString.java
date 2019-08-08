@@ -6,14 +6,22 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.HoverEvent;
 
 public class TimestampComponentString extends TextComponentString {
-    public boolean active = false;
     public String text;
     public static TimestampComponentString currentActive = null;
+    public static TimestampComponentString currentFakeActive = null;
+    public boolean pretendActive = false;
+    private static boolean fakeActive = false;
+    private static boolean changed;
 
     public TimestampComponentString(String msg) {
         super(msg);
         text = msg;
     }
+
+    public static void clearActive() {
+        currentActive = null;
+    }
+
 
     @Override
     public String getUnformattedComponentText() {
@@ -23,7 +31,8 @@ public class TimestampComponentString extends TextComponentString {
     @Override
     public TextComponentString createCopy() {
         TimestampComponentString textcomponentstring = new TimestampComponentString(text);
-        textcomponentstring.setActive(active);
+        if (isActive())
+            textcomponentstring.pretendActive = true;
         textcomponentstring.setStyle(this.getStyle().createShallowCopy());
 
         for (ITextComponent itextcomponent : this.getSiblings())
@@ -34,25 +43,35 @@ public class TimestampComponentString extends TextComponentString {
         return textcomponentstring;
     }
 
-    public static void clearActive() {
-        if (currentActive != null)
-            currentActive.setActive(false);
-        currentActive = null;
+    public boolean isActive() {
+        return currentActive == this || (fakeActive && currentFakeActive == this);
     }
 
     @Override
     public String getText()
     {
-        return active  ? getRawText() : "";
+        return isActive() || pretendActive ? getRawText() : "";
     }
 
-    public void setActive(boolean active)
+    public void setActive()
     {
-        this.active = active;
-        if (active) {
-            clearActive(); // shouldn't ever happen, but just in case
+        changed = true;
+        if (fakeActive)
+            currentFakeActive = this;
+        else
             currentActive = this;
-        }
+    }
+
+    public static boolean getChanged()
+    {
+        boolean oldChanged = changed;
+        changed = false;
+        return oldChanged;
+    }
+
+    public static void setFakeActive(boolean active)
+    {
+        fakeActive = active;
     }
 
     @Override

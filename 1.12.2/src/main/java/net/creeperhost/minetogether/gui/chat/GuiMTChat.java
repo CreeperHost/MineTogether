@@ -269,7 +269,7 @@ public class GuiMTChat extends GuiScreen
 
     public void confirmInvite()
     {
-        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("You have been invited to join a private channel by %s", CreeperHost.instance.getNameForUser(ChatHandler.privateChatInvite.getOwner())), I18n.format("Do you wish to accept this invite?"), 777));
+        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("You have been invited to join a private channel by %s", CreeperHost.instance.getNameForUser(ChatHandler.privateChatInvite.getOwner())), "Do you wish to accept this invite?" + (ChatHandler.hasGroup ? " You are already in a group chat - if you continue, you will swap groups - or disband the group if you are the host." : ""), 777));
     }
 
     @Override
@@ -522,7 +522,7 @@ public class GuiMTChat extends GuiScreen
         boolean friend = false;
         if (inputNick.startsWith("MT"))
         {
-            if (inputNick.equals(CreeperHost.instance.ourNick))
+            if (inputNick.equals(CreeperHost.instance.ourNick) || inputNick.equals(CreeperHost.instance.ourNick + "`"))
             {
                 outputNick = playerName;
             } else {
@@ -530,6 +530,8 @@ public class GuiMTChat extends GuiScreen
                     return null;
                 
                 String newNick = ChatHandler.getNameForUser(inputNick);
+                if (newNick == null)
+                    return null;
                 if (!inputNick.equals(newNick) && !newNick.startsWith("User"))
                 {
                     friend = true;
@@ -558,8 +560,6 @@ public class GuiMTChat extends GuiScreen
             messageStr = messageStr.replace(swear, StringUtils.repeat("*", swear.length()));
         }
 
-
-        
         String[] split = messageStr.split(" ");
         
         boolean highlight = false;

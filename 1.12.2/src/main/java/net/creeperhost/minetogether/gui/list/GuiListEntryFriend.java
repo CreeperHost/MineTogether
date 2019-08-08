@@ -52,6 +52,7 @@ public class GuiListEntryFriend extends GuiListEntry
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);
 
+        GlStateManager.color(0, 1, 0, 1);
         Gui.drawModalRectWithCustomSizedTexture(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10F, 10F);
 
         GlStateManager.disableAlpha();

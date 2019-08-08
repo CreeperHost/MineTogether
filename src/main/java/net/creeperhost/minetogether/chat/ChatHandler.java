@@ -9,7 +9,9 @@ import org.kitteh.irc.client.library.command.WhoisCommand;
 import org.kitteh.irc.client.library.element.Channel;
 import org.kitteh.irc.client.library.element.User;
 import org.kitteh.irc.client.library.element.WhoisData;
+import org.kitteh.irc.client.library.element.mode.ChannelMode;
 import org.kitteh.irc.client.library.element.mode.ChannelUserMode;
+import org.kitteh.irc.client.library.element.mode.ModeStatus;
 import org.kitteh.irc.client.library.event.channel.*;
 import org.kitteh.irc.client.library.event.client.*;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionClosedEvent;
@@ -49,6 +51,7 @@ public class ChatHandler
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
         if (inited) return;
+        client = null;
         isInitting = true;
 
         online = onlineIn;
@@ -73,6 +76,7 @@ public class ChatHandler
                 Client.Builder mineTogether = Client.builder().nick(nickIn).realName(realName).user("MineTogether");
                 mineTogether.server().host(IRC_SERVER.address).port(IRC_SERVER.port).secure(IRC_SERVER.ssl);
                 mineTogether.listeners().exception(e -> {}); // no-op
+                if (client != null) return; // hopefully prevent multiples
                 client = mineTogether.buildAndConnect();
 
                 ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(true); // Does a WHO - lets see how this works...
@@ -193,11 +197,17 @@ public class ChatHandler
     public static void sendChannelInvite(String target, String owner)
     {
         Optional<User> userOpt = client.getChannel(CHANNEL).get().getUser(target);
+        if (!userOpt.isPresent())
+            userOpt = client.getChannel(CHANNEL).get().getUser(target + "`");
         if (userOpt.isPresent())
         {
             String channelName = "#" + owner;
             User user = userOpt.get();
             client.addChannel(channelName);
+            Optional<Channel> channel = client.getChannel(channelName);
+            channel.ifPresent(channel1 -> {
+                channel1.commands().mode().add(ModeStatus.Action.ADD, client.getServerInfo().getChannelMode('i').get()).execute();
+            });
             ChatHandler.hasGroup = true;
             ChatHandler.currentGroup = channelName;
             privateChatList = new PrivateChat(channelName, owner);
@@ -245,6 +255,8 @@ public class ChatHandler
 
     public static void acceptPrivateChatInvite(PrivateChat invite)
     {
+        if (hasGroup)
+            closePrivateChat();
         privateChatList = invite;
         client.addChannel(invite.getChannelname());
         currentGroup = invite.getChannelname();
@@ -322,6 +334,11 @@ public class ChatHandler
                 synchronized (ircLock)
                 {
                     connectionStatus = ConnectionStatus.CONNECTED;
+                    Channel channel = event.getAffectedChannel().get();
+                    if (channel.getName().toUpperCase().equals("#" + client.getNick().toUpperCase()))
+                    {
+                        channel.commands().mode().add(ModeStatus.Action.ADD, client.getServerInfo().getChannelMode('i').get()).execute();
+                    }
                     //addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Chat joined"));
                 }
             }
@@ -529,7 +546,7 @@ public class ChatHandler
         {
             String attemptedNick = event.getAttemptedNick();
 
-            if (event.getAttemptedNick().contains("`"))
+            if (attemptedNick.contains("`"))
                 event.setNewNick(nick);
             else
                 event.setNewNick(nick + "`");
