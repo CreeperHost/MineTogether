@@ -73,7 +73,7 @@ public class GuiButtonPair extends GuiButton
                 button.yPosition = baseY;
             }
 
-            System.out.println(button);
+            //System.out.println(button);
         }
     }
     

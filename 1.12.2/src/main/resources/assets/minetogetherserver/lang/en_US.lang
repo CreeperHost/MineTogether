@@ -63,3 +63,6 @@ minetogether.listing.closed=Closed Servers require a direct invite from the serv
 minetogether.listing.title=Server Type
 
 minetogether.global.cancel=Cancel
+
+minetogether.groupinvite.sure1=Are you sure you wish to invite this person to a group chat?
+minetogether.groupinvite.sure2=Once this has been done, it cannot be undone and you will need to create a new group to remove them.\n\nIf you are already in someone else's group chat, you will leave it.

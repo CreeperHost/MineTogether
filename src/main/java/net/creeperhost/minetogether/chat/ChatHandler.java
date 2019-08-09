@@ -197,11 +197,14 @@ public class ChatHandler
     public static void sendChannelInvite(String target, String owner)
     {
         Optional<User> userOpt = client.getChannel(CHANNEL).get().getUser(target);
+        String channelName = "#" + owner;
+
         if (!userOpt.isPresent())
             userOpt = client.getChannel(CHANNEL).get().getUser(target + "`");
         if (userOpt.isPresent())
         {
-            String channelName = "#" + owner;
+            if (privateChatList != null && !privateChatList.getChannelname().equals(channelName))
+                closePrivateChat();
             User user = userOpt.get();
             client.addChannel(channelName);
             Optional<Channel> channel = client.getChannel(channelName);
@@ -348,15 +351,21 @@ public class ChatHandler
         @Handler
         public void onChannelLeave(ChannelPartEvent event)
         {
-            String channelName = event.getAffectedChannel().get().getName();
-            if (channelName.equals(CHANNEL)) {
-                String friendNick = event.getUser().getNick();
-                friends.remove(friendNick);
-            } else if (privateChatList != null && channelName.equals(privateChatList.channelname)) {
-                if (privateChatList.owner.equals(event.getUser().getNick())) {
-                    host.closeGroupChat();
-                    // TODO: make sure the chat closes too
+            try {
+                String channelName = event.getAffectedChannel().get().getName();
+                if (channelName.equals(CHANNEL)) {
+                    String friendNick = event.getUser().getNick();
+                    friends.remove(friendNick);
+                } else {
+                    if (privateChatList != null && channelName.equals(privateChatList.channelname)) {
+                        if (privateChatList.owner.equals(event.getUser().getNick())) {
+                            host.closeGroupChat();
+                            // TODO: make sure the chat closes too
+                        }
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 

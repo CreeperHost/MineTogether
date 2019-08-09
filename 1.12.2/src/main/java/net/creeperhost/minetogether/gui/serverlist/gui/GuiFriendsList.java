@@ -4,6 +4,7 @@ import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.GuiGDPR;
+import net.creeperhost.minetogether.gui.GuiYahNah;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
@@ -361,7 +362,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     public void inviteGroupChat(Friend invited)
     {
         invitedPlayer = invited;
-        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.groupinvite.sure1"), I18n.format("minetogether.groupinvite.sure2"), 1));
+        mc.displayGuiScreen(new GuiYahNah(this, I18n.format("minetogether.groupinvite.sure1"), I18n.format("minetogether.groupinvite.sure2"), 1));
     }
 
     public void unmutePlayer(String muted)
