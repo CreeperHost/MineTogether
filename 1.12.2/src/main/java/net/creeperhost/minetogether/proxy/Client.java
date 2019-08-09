@@ -192,7 +192,7 @@ public class Client implements IProxy
         if (!Config.getInstance().isChatEnabled() || (!target.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase()) && !target.toLowerCase().equals(ChatHandler.currentGroup.toLowerCase())) || !(Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
-        if (target.equals(ourChat.chatTarget))
+        if (target.toLowerCase().equals(ourChat.chatTarget.toLowerCase()))
             ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
     }
 

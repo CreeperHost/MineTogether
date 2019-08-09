@@ -50,7 +50,8 @@ public class ChatHandler
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
-        if (inited) return;
+        if (inited || isInitting) return;
+        if (!connectionStatus.equals(ConnectionStatus.DISCONNECTED)) return;
         client = null;
         isInitting = true;
 

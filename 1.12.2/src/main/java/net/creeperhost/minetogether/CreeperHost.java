@@ -410,12 +410,14 @@ public class CreeperHost implements ICreeperHostMod, IHost
 
     public void unmuteUser(String user)
     {
-        mutedUsers.remove(user);
+        String mtUser = ChatHandler.anonUsersReverse.get(user);
+        mutedUsers.remove(mtUser);
+        mutedUsers.remove(mtUser + "`");
         Gson gson = new Gson();
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-            mutedUsers.clear();
+            //mutedUsers.clear(); // why?
         } catch (IOException ignored) {}
     }
     

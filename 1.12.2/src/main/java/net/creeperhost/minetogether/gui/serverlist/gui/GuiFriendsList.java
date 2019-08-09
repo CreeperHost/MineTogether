@@ -52,6 +52,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private String unmutePlayer;
     private Friend invitedPlayer;
     private boolean channelInvite = false;
+    private boolean isMuted;
     
     public GuiFriendsList(GuiScreen currentScreen)
     {
@@ -73,8 +74,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         if(listMuted == null)
         {
             listMuted = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
-        }
-        {
+        } else {
             listMuted.setDimensions(width, height, 32, this.height - 64);
         }
         
@@ -128,7 +128,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         buttonRefresh = new GuiButton(1337, this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"));
         buttonList.add(buttonRefresh);
         
-        toggle = new GuiButton(5, width - 60,   6, 60, 20,"Muted");
+        toggle = new GuiButton(5, width - 60,   6, 60, 20,isMuted ? "Friends" : "Muted");
         buttonList.add(toggle);
     }
     
@@ -235,10 +235,12 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             if(button.displayString.contains("Friends"))
             {
                 button.displayString = "Muted";
+                isMuted = true;
             }
             else if(button.displayString.contains("Muted"))
             {
                 button.displayString = "Friends";
+                isMuted = false;
             }
         }
     }
@@ -248,7 +250,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawBackground(0);
-        if(toggle.displayString == "Muted")
+        if(!isMuted)
         {
             if (!addFriend)
             {
@@ -263,7 +265,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             }
             this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         }
-        else if(toggle.displayString == "Friends")
+        else
         {
             this.listMuted.drawScreen(mouseX, mouseY, partialTicks);
             this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
@@ -315,10 +317,10 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         this.codeEntry.myMouseClicked(mouseX, mouseY, mouseButton);
         this.displayEntry.myMouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        if(toggle.displayString == "Muted") {
+        if(!isMuted) {
             this.list.mouseClicked(mouseX, mouseY, mouseButton);
         }
-        else if(toggle.displayString == "Friends")
+        else
         {
             this.listMuted.mouseClicked(mouseX, mouseY, mouseButton);
         }
@@ -335,10 +337,10 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);
-        if(toggle.displayString == "Muted") {
+        if(isMuted) {
             this.list.mouseReleased(mouseX, mouseY, state);
         }
-        else if(toggle.displayString == "Friends") {
+        else {
             this.listMuted.mouseReleased(mouseX, mouseY, state);
         }
     }
