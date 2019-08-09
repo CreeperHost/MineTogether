@@ -189,7 +189,7 @@ public class Client implements IProxy
 
     @Override
     public void messageReceived(String target, Message messagePair) {
-        if (!Config.getInstance().isChatEnabled() || (!target.equals(ChatHandler.CHANNEL) && !target.equals(ChatHandler.currentGroup) && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
+        if (!Config.getInstance().isChatEnabled() || (!target.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase()) && !target.toLowerCase().equals(ChatHandler.currentGroup.toLowerCase())) || !(Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
         if (target.equals(ourChat.chatTarget))
