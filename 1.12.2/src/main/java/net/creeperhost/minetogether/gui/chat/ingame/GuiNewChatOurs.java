@@ -72,6 +72,10 @@ public class GuiNewChatOurs extends GuiNewChat
     @Override
     public void drawChat(int updateCounter)
     {
+        List<ChatLine> tempDrawnChatLines = drawnChatLines;
+        int minLines = isBase() ? (14 + ((ChatHandler.hasGroup) ? 6 : 0)) : 20;
+        int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
+
         if (isBase())
             super.drawChat(updateCounter);
         else
@@ -82,6 +86,8 @@ public class GuiNewChatOurs extends GuiNewChat
                     ChatHandler.reInit();
                 }
             }
+
+
 
             if (this.mc.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN)
             {
@@ -104,6 +110,45 @@ public class GuiNewChatOurs extends GuiNewChat
                     GlStateManager.translate(2.0F, 8.0F, 0.0F);
                     GlStateManager.scale(f1, f1, 1.0F);
                     int l = 0;
+
+                    for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
+                    {
+                        ChatLine chatline = this.drawnChatLines.get(i1 + this.scrollPos);
+
+                        if (chatline != null)
+                        {
+                            int j1 = updateCounter - chatline.getUpdatedCounter();
+
+                            if (j1 < 200 || flag)
+                            {
+                                double d0 = (double) j1 / 200.0D;
+                                d0 = 1.0D - d0;
+                                d0 = d0 * 10.0D;
+                                d0 = MathHelper.clamp(d0, 0.0D, 1.0D);
+                                d0 = d0 * d0;
+                                int l1 = (int) (255.0D * d0);
+
+                                if (flag)
+                                {
+                                    l1 = 255;
+                                }
+
+                                l1 = (int) ((float) l1 * f);
+                                ++l;
+
+                                if (l1 > 3)
+                                {
+                                    int i2 = 0;
+                                    int j2 = -i1 * 9;
+                                    drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
+                                    GlStateManager.enableBlend();
+                                }
+                            }
+                        }
+                    }
+
+                    if (!isBase() && getChatOpen())
+                        GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
                     
                     for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
                     {
@@ -134,7 +179,6 @@ public class GuiNewChatOurs extends GuiNewChat
                                 {
                                     int i2 = 0;
                                     int j2 = -i1 * 9;
-                                    drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
                                     String s = chatline.getChatComponent().getFormattedText();
                                     GlStateManager.enableBlend();
                                     this.mc.fontRendererObj.drawStringWithShadow(s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
@@ -167,9 +211,7 @@ public class GuiNewChatOurs extends GuiNewChat
                 }
             }
         }
-        
-        List<ChatLine> tempDrawnChatLines = drawnChatLines;
-        
+
         if (isBase())
         {
             
@@ -183,8 +225,6 @@ public class GuiNewChatOurs extends GuiNewChat
             GlStateManager.translate(2.0F, 8.0F, 0.0F);
             GlStateManager.scale(f1, f1, 1.0F);
 
-            int minLines = isBase() ? (14 + ((ChatHandler.hasGroup) ? 6 : 0)) : 20;
-
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
 
             for (int line = tempDrawnChatLines.size(); line < minLines; line++)
@@ -195,14 +235,11 @@ public class GuiNewChatOurs extends GuiNewChat
             }
 
 
-
-            int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
-
             //lines = lines - minLines;
             //lines = 1;
 
-            if (!isBase())
-                GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
+            //if (!isBase() && getChatOpen())
+                //GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
 
             
             GlStateManager.popMatrix();
