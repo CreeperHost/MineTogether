@@ -592,9 +592,24 @@ public class GuiMTChat extends GuiScreen
         ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
         messageComp.getStyle().setColor(TextFormatting.WHITE);
+
+        if(ChatHandler.curseSync.containsKey(inputNick))
+        {
+            String realname = ChatHandler.curseSync.get(inputNick).trim();
+            String[] splitString = realname.split(":");
+
+            String name2 = splitString[1];
+
+            if(name2.contains(Config.getInstance().curseProjectID))
+            {
+                userComp.getStyle().setColor(TextFormatting.DARK_PURPLE);
+            }
+        }
+
         if(inputNick.equals(CreeperHost.instance.ourNick))
         {
             messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
+            userComp.getStyle().setColor(TextFormatting.GRAY); // make sure re:set
         }
         
         if (friend)
@@ -613,18 +628,6 @@ public class GuiMTChat extends GuiScreen
                 userComp = new TextComponentString("<" + outputNick + ">");
             }
             userComp.getStyle().setColor(TextFormatting.AQUA);
-        }
-        if(ChatHandler.curseSync.containsKey(inputNick))
-        {
-            String realname = ChatHandler.curseSync.get(inputNick).trim();
-            String[] splitString = realname.split(":");
-
-            String name2 = splitString[1];
-
-            if(name2.contains(Config.getInstance().curseProjectID))
-            {
-                userComp.getStyle().setColor(TextFormatting.DARK_PURPLE);
-            }
         }
 
         if (highlight)

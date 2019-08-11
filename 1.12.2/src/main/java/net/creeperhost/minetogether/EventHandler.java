@@ -230,10 +230,17 @@ public class EventHandler
             {
                 presetString = (String) defaultInputFieldTextField.get(gui);
                 MinecraftServer minecraftServerInstance = FMLCommonHandler.instance().getMinecraftServerInstance();
+                Config config = Config.getInstance();
+                boolean condition1 = config.isAutoMT();
+                boolean condition2 = minecraftServerInstance != null;
+                boolean condition3 = minecraftServerInstance.isSinglePlayer();
+                boolean condition4 = Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs;
+                boolean condition5 = firstOpen;
+
                 if (Config.getInstance().isAutoMT() && minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs && firstOpen)
                 {
                     firstOpen = false;
-                    ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).setBase(((!CreeperHost.instance.gdpr.hasAcceptedGDPR()) || presetString.startsWith("/") || (!minecraftServerInstance.isSinglePlayer())));
+                    ((GuiNewChatOurs)Minecraft.getMinecraft().ingameGUI.getChatGUI()).setBase(!CreeperHost.instance.gdpr.hasAcceptedGDPR());
                 }
             } catch (IllegalAccessException ignored) {}
             try {

@@ -25,7 +25,7 @@ import java.util.List;
 
 public class GuiNewChatOurs extends GuiNewChat
 {
-    private boolean base = !CreeperHost.instance.gdpr.hasAcceptedGDPR();
+    private boolean base = true;
     
     @Override
     public void printChatMessageWithOptionalDeletion(ITextComponent chatComponent, int chatLineId)
