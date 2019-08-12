@@ -118,6 +118,7 @@ public class ChatHandler
     public static HashMap<String, String> friends = new HashMap<>();
     public static HashMap<String, String> anonUsers = new HashMap<>();
     public static HashMap<String, String> anonUsersReverse = new HashMap<>();
+    public static ArrayList<String> autocompleteNames = new ArrayList<>();
     public static Random random = new Random();
 
     public static String getNameForUser(String nick)
@@ -560,6 +561,15 @@ public class ChatHandler
                 event.setNewNick(nick);
             else
                 event.setNewNick(nick + "`");
+        }
+
+        @Handler
+        public void onUserBanned(ChannelModeEvent event)
+        {
+            List<ModeStatus<ChannelMode>> b = event.getStatusList().getByMode('b');
+            b.stream().forEach(mode -> {
+                mode.getParameter().ifPresent(param -> host.userBanned(param.split("!")[0]));
+            });
         }
     }
 

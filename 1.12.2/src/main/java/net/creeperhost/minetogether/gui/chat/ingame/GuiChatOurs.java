@@ -26,6 +26,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -234,7 +235,7 @@ public class GuiChatOurs extends GuiChat
         }
 
         try {
-            tabCompleterField.set(this, new ChatTabCompleter(inputField));
+            tabCompleterField.set(this, new OurChatTabCompleter(inputField));
         } catch (IllegalAccessException e) {
         }
 
@@ -295,6 +296,8 @@ public class GuiChatOurs extends GuiChat
             if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mute")))
             {
                 CreeperHost.instance.muteUser(activeDropdown);
+                GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+                ourChat.rebuildChat(ourChat.chatTarget);
                 ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setChatLine(new TextComponentString(I18n.format("minetogether.chat.muted")), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
             }
             else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
@@ -470,5 +473,19 @@ public class GuiChatOurs extends GuiChat
             return true;
         }
         return super.handleComponentClick(component);
+    }
+
+    public static class OurChatTabCompleter extends ChatTabCompleter
+    {
+        @Override
+        public void complete() {
+            GuiNewChatOurs.tabCompletion = true;
+            super.complete();
+            GuiNewChatOurs.tabCompletion = false;
+        }
+
+        public OurChatTabCompleter(GuiTextField p_i46749_1_) {
+            super(p_i46749_1_);
+        }
     }
 }

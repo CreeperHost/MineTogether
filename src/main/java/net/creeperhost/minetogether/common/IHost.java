@@ -24,4 +24,6 @@ public interface IHost
     void closeGroupChat();
 
     void updateChatChannel();
+
+    void userBanned(String username);
 }

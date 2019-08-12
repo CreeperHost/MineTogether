@@ -205,4 +205,16 @@ public class Client implements IProxy
                 chatGUI.chatTarget = ChatHandler.CHANNEL;
         }
     }
+
+    @Override
+    public void refreshChat() {
+        if (Config.getInstance().isChatEnabled() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) {
+            GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+            if (!chatGUI.isBase())
+                chatGUI.rebuildChat(chatGUI.chatTarget);
+            GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+            if (currentScreen != null && currentScreen instanceof GuiMTChat)
+                ((GuiMTChat)currentScreen).rebuildChat();
+        }
+    }
 }

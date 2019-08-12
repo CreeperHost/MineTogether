@@ -26,11 +26,53 @@ import java.util.List;
 public class GuiNewChatOurs extends GuiNewChat
 {
     private boolean base = true;
+    public static boolean tabCompletion = false;
     
     @Override
     public void printChatMessageWithOptionalDeletion(ITextComponent chatComponent, int chatLineId)
     {
-        super.printChatMessageWithOptionalDeletion(chatComponent, chatLineId);
+        ITextComponent chatComponentCopy = chatComponent.createCopy();
+        if (tabCompletion) {
+            // special handling to allow our chat to receive these lines
+            int updateCounter = this.mc.ingameGUI.getUpdateCounter();
+            boolean displayOnly = false;
+            if (chatLineId != 0)
+            {
+                this.deleteChatLine(chatLineId);
+            }
+
+            int i = MathHelper.floor((float)this.getChatWidth() / this.getChatScale());
+            List<ITextComponent> list = GuiUtilRenderComponents.splitText(chatComponent, i, this.mc.fontRendererObj, false, false);
+            boolean flag = this.getChatOpen();
+
+            for (ITextComponent itextcomponent : list)
+            {
+                if (flag && this.scrollPos > 0)
+                {
+                    this.isScrolled = true;
+                    this.scroll(1);
+                }
+
+                this.drawnChatLines.add(0, new ChatLine(updateCounter, itextcomponent, chatLineId));
+            }
+
+            while (this.drawnChatLines.size() > 100)
+            {
+                this.drawnChatLines.remove(this.drawnChatLines.size() - 1);
+            }
+
+            if (!displayOnly)
+            {
+                this.chatLines.add(0, new ChatLine(updateCounter, chatComponent, chatLineId));
+
+                while (this.chatLines.size() > 100)
+                {
+                    this.chatLines.remove(this.chatLines.size() - 1);
+                }
+            }
+        }
+        super.printChatMessageWithOptionalDeletion(chatComponentCopy, chatLineId);
+
         if (!isBase()) {
             unread = true;
             getVanillaDrawnChatLines().clear(); // instantly clear so that no surprises happen whilst we're in our chat (I'm looking at you, Quark!)
@@ -86,8 +128,6 @@ public class GuiNewChatOurs extends GuiNewChat
                     ChatHandler.reInit();
                 }
             }
-
-
 
             if (this.mc.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN)
             {
@@ -214,7 +254,6 @@ public class GuiNewChatOurs extends GuiNewChat
 
         if (isBase())
         {
-            
             tempDrawnChatLines = getVanillaDrawnChatLines();
         }
         

@@ -23,4 +23,6 @@ public interface IProxy
     void messageReceived(String target, Message messagePair);
 
     void updateChatChannel();
+
+    void refreshChat();
 }

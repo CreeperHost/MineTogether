@@ -64,7 +64,6 @@ public class GuiMTChat extends GuiScreen
     {
         this.parent = parent;
         inviteTemp = invite;
-
     }
 
 
@@ -143,6 +142,11 @@ public class GuiMTChat extends GuiScreen
                 ChatHandler.setMessagesRead(currentTarget);
             }
         }
+    }
+
+    public void rebuildChat()
+    {
+        chat.updateLines(currentTarget);
     }
     
     boolean disabledDueToConnection = false;
@@ -537,6 +541,8 @@ public class GuiMTChat extends GuiScreen
                     friend = true;
                 }
                 outputNick = newNick;
+                if (!ChatHandler.autocompleteNames.contains(outputNick))
+                    ChatHandler.autocompleteNames.add(outputNick);
             }
         } else if (!inputNick.equals("System"))
         {
@@ -548,7 +554,7 @@ public class GuiMTChat extends GuiScreen
         ITextComponent userComp = new TextComponentString("<" + outputNick + ">");
         userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
         
-        if (!inputNick.equals(CreeperHost.instance.ourNick) && inputNick.startsWith("MT"))
+        if (!inputNick.equals(CreeperHost.instance.ourNick) && !inputNick.equals(CreeperHost.instance.ourNick + "`") && inputNick.startsWith("MT"))
         {
             userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
         }
@@ -591,6 +597,9 @@ public class GuiMTChat extends GuiScreen
 
         ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
+        if (CreeperHost.instance.bannedUsers.contains(inputNick))
+            messageComp = new TextComponentString("message deleted").setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Message deleted as user was banned"))).setColor(TextFormatting.DARK_GRAY).setItalic(true));
+
         messageComp.getStyle().setColor(TextFormatting.WHITE);
 
         if(ChatHandler.curseSync.containsKey(inputNick))
@@ -606,7 +615,7 @@ public class GuiMTChat extends GuiScreen
             }
         }
 
-        if(inputNick.equals(CreeperHost.instance.ourNick))
+        if(inputNick.equals(CreeperHost.instance.ourNick) || inputNick.equals(CreeperHost.instance.ourNick + "`"))
         {
             messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             userComp.getStyle().setColor(TextFormatting.GRAY); // make sure re:set

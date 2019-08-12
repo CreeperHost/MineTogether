@@ -35,4 +35,7 @@ public class Server implements IProxy
 
     @Override
     public void updateChatChannel() {}
+
+    @Override
+    public void refreshChat() {}
 }

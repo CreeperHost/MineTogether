@@ -15,6 +15,7 @@ import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
 import net.creeperhost.minetogether.siv.QueryGetter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
@@ -45,6 +46,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public static final String VERSION = "@VERSION@";
     public static final Logger logger = LogManager.getLogger("minetogether");
     public static ArrayList<String> mutedUsers = new ArrayList<>();
+    public static ArrayList<String> bannedUsers = new ArrayList<>();
     
     @Mod.Instance(value = "minetogether", owner = "minetogether")
     public static CreeperHost instance;
@@ -441,6 +443,12 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Override
     public void updateChatChannel() {
         proxy.updateChatChannel();
+    }
+
+    @Override
+    public void userBanned(String username) {
+        bannedUsers.add(username);
+        proxy.refreshChat();
     }
 
     @Mod.EventHandler
