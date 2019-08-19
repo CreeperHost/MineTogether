@@ -170,9 +170,7 @@ public class GuiChatOurs extends GuiChat
             menuDropdownButton.wasJustClosed = false;
         }
     }
-    
-    final Pattern pattern = Pattern.compile("((?:user)?(\\d+))", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
-    
+
     @Override
     public void sendChatMessage(String msg, boolean addToChat)
     {
@@ -201,24 +199,7 @@ public class GuiChatOurs extends GuiChat
                 return;
             }
             if (ChatHandler.isOnline()) {
-                String text = msg;
-                String[] split = text.split(" ");
-                for (int i = 0; i < split.length; i++) {
-                    String word = split[i].toLowerCase();
-                    final String subst = "User$2";
-
-                    final Matcher matcher = pattern.matcher(word);
-
-                    final String result = matcher.replaceAll(subst);
-
-                    String justNick = result.replaceAll("[^A-Za-z0-9]", "");
-
-                    String tempWord = ChatHandler.anonUsersReverse.get(justNick);
-                    if (tempWord != null)
-                        split[i] = result.replaceAll(justNick, tempWord);
-                }
-
-                text = String.join(" ", split);
+                String text = GuiMTChat.getStringForSending(msg);
                 //ChatHandler.sendMessage(ChatHandler.CHANNEL, text);
                 String currentTarget = ChatHandler.CHANNEL;
                 switch (switchButton.activeButton)

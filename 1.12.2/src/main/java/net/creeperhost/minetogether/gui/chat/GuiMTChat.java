@@ -46,7 +46,7 @@ public class GuiMTChat extends GuiScreen
     private GuiTextFieldLockable send;
     public DropdownButton<Target> targetDropdownButton;
     private GuiButton friendsButton;
-    private static String playerName = Minecraft.getMinecraft().getSession().getUsername();
+    public static String playerName = Minecraft.getMinecraft().getSession().getUsername();
     private String currentTarget = ChatHandler.CHANNEL;
     private DropdownButton<Menu> menuDropdownButton;
     private String activeDropdown;
@@ -352,9 +352,9 @@ public class GuiMTChat extends GuiScreen
         }
     }
     //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
-    final Pattern patternA = Pattern.compile("((?:user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    final Pattern patternB = Pattern.compile("((?:@)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    final Pattern patternC = Pattern.compile("((?:@user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternA = Pattern.compile("((?:user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternB = Pattern.compile("((?:@)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternC = Pattern.compile("((?:@user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     @SuppressWarnings("Duplicates")
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
@@ -363,39 +363,7 @@ public class GuiMTChat extends GuiScreen
         
         if ((keyCode == 28 || keyCode == 156) && send.getOurEnabled() && !send.getText().trim().isEmpty())
         {
-            String text = send.getText();
-            String[] split = text.split(" ");
-            for (int i = 0; i < split.length; i++)
-            {
-                String word = split[i].toLowerCase();
-                final String subst = "User$2";
-                
-                final Matcher matcher = patternA.matcher(word);
-                final Matcher matcherb = patternB.matcher(word);
-                final Matcher matcherc = patternC.matcher(word);
-                String justNick = word;
-                String result = word;
-                if(matcher.matches()) {
-                    result = matcher.replaceAll(subst);
-                } else if(matcherb.matches())
-                {
-                    result = matcherb.replaceAll(subst);
-                } else if(matcherc.matches())
-                {
-                    result = matcherc.replaceAll(subst);
-                }
-                justNick = result.replaceAll("[^A-Za-z0-9]", "");
-
-
-                String tempWord = ChatHandler.anonUsersReverse.get(justNick);
-                if (tempWord != null)
-                    split[i] = result.replaceAll(justNick, tempWord);
-                else
-                    if (justNick.toLowerCase().equals(playerName.toLowerCase()))
-                        split[i] = result.replaceAll(justNick, CreeperHost.instance.ourNick);
-            }
-            text = String.join(" ", split);
-            ChatHandler.sendMessage(currentTarget, text);
+            ChatHandler.sendMessage(currentTarget, getStringForSending(send.getText()));
             send.setText("");
         }
         
@@ -413,6 +381,43 @@ public class GuiMTChat extends GuiScreen
             send.setEnabled(false);
         }
         processBadwords();
+    }
+
+    public static String getStringForSending(String text)
+    {
+        String[] split = text.split(" ");
+        for (int i = 0; i < split.length; i++)
+        {
+            String word = split[i].toLowerCase();
+            final String subst = "User$2";
+
+            final Matcher matcher = patternA.matcher(word);
+            final Matcher matcherb = patternB.matcher(word);
+            final Matcher matcherc = patternC.matcher(word);
+            String justNick = word;
+            String result = word;
+            if(matcher.matches()) {
+                result = matcher.replaceAll(subst);
+            } else if(matcherb.matches())
+            {
+                result = matcherb.replaceAll(subst);
+            } else if(matcherc.matches())
+            {
+                result = matcherc.replaceAll(subst);
+            }
+            justNick = result.replaceAll("[^A-Za-z0-9]", "");
+
+
+            String tempWord = ChatHandler.anonUsersReverse.get(justNick);
+            if (tempWord != null)
+                split[i] = result.replaceAll(justNick, tempWord);
+            else
+            if (justNick.toLowerCase().equals(playerName.toLowerCase()))
+                split[i] = result.replaceAll(justNick, CreeperHost.instance.ourNick);
+        }
+        text = String.join(" ", split);
+
+        return text;
     }
     
     private static Field field;
