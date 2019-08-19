@@ -16,11 +16,11 @@ import org.kitteh.irc.client.library.event.channel.*;
 import org.kitteh.irc.client.library.event.client.*;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionClosedEvent;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent;
-import org.kitteh.irc.client.library.event.helper.UnexpectedChannelLeaveEvent;
 import org.kitteh.irc.client.library.event.user.*;
 import org.kitteh.irc.client.library.util.Format;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChatHandler
 {
@@ -275,6 +275,10 @@ public class ChatHandler
         channel.ifPresent(channel1 -> channel1.part("My buddy left :("));
         privateChatList = null;
         ChatHandler.hasGroup = false;
+    }
+
+    public static List<String> getOnlineUsers() {
+        return client.getChannel(CHANNEL).map(channel1 -> channel1.getUsers().stream().map(User::getNick).collect(Collectors.toList())).orElse(new ArrayList<>());
     }
 
     public static class Listener

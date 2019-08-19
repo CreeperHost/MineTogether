@@ -21,18 +21,48 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
+import java.util.Iterator;
 import java.util.List;
 
 public class GuiNewChatOurs extends GuiNewChat
 {
     private boolean base = true;
     public static boolean tabCompletion = false;
-    
+
+    @Override
+    public void deleteChatLine(int id)
+    {
+        if (!isBase()) {
+            Iterator<ChatLine> iterator = this.drawnChatLines.iterator();
+
+            while (iterator.hasNext()) {
+                ChatLine chatline = iterator.next();
+
+                if (chatline.getChatLineID() == id) {
+                    iterator.remove();
+                }
+            }
+
+            iterator = this.chatLines.iterator();
+
+            while (iterator.hasNext()) {
+                ChatLine chatline1 = iterator.next();
+
+                if (chatline1.getChatLineID() == id) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        } else {
+            super.deleteChatLine(id);
+        }
+    }
+
     @Override
     public void printChatMessageWithOptionalDeletion(ITextComponent chatComponent, int chatLineId)
     {
         ITextComponent chatComponentCopy = chatComponent.createCopy();
-        if (tabCompletion) {
+        if (tabCompletion && !isBase()) {
             // special handling to allow our chat to receive these lines
             int updateCounter = this.mc.ingameGUI.getUpdateCounter();
             boolean displayOnly = false;
@@ -70,8 +100,9 @@ public class GuiNewChatOurs extends GuiNewChat
                     this.chatLines.remove(this.chatLines.size() - 1);
                 }
             }
+        } else {
+            super.printChatMessageWithOptionalDeletion(chatComponentCopy, chatLineId);
         }
-        super.printChatMessageWithOptionalDeletion(chatComponentCopy, chatLineId);
 
         if (!isBase()) {
             unread = true;

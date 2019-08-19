@@ -48,7 +48,7 @@ public class ServerListEntryPublic extends ServerListEntryNormal
         {
             x = 33;
         }
-        System.out.println(slotIndex + " " + mouseX + " " + mouseY + " " + mouseEvent + " " + x + " " + y);
+        //System.out.println(slotIndex + " " + mouseX + " " + mouseY + " " + mouseEvent + " " + x + " " + y);
         /*Server server = getServerData().server;
         EnumFlag flag = server.flag;
         int flagWidth = 16;

@@ -23,10 +23,11 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import scala.collection.parallel.ParIterableLike;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GuiChatOurs extends GuiChat
 {
@@ -43,6 +46,12 @@ public class GuiChatOurs extends GuiChat
     private String presetString;
     private boolean sleep;
     private boolean disabledDueToBadwords;
+
+    public static boolean isBase()
+    {
+        GuiNewChat chat = Minecraft.getMinecraft().ingameGUI.getChatGUI();
+        return !CreeperHost.instance.gdpr.hasAcceptedGDPR() || !(chat instanceof GuiNewChatOurs) || ((GuiNewChatOurs) chat).isBase();
+    }
 
     @Override
     protected void handleComponentHover(ITextComponent component, int x, int y) {
@@ -477,11 +486,43 @@ public class GuiChatOurs extends GuiChat
 
     public static class OurChatTabCompleter extends ChatTabCompleter
     {
+        private String[] ourCompletions = new String[0];
+        private boolean replace = false;
+
+        @Override
+        public void setCompletions(String... newCompl) {
+            String[] ret;
+            if (!replace)
+                ret = ArrayUtils.addAll(newCompl, ourCompletions);
+            else
+                ret = ourCompletions;
+            super.setCompletions(ret);
+        }
+
         @Override
         public void complete() {
             GuiNewChatOurs.tabCompletion = true;
+            if (!didComplete)
+                prepareCompletions();
             super.complete();
             GuiNewChatOurs.tabCompletion = false;
+        }
+
+        private void prepareCompletions() {
+            String text = textField.getText();
+            String[] words = text.split(" ");
+            int length = words.length;
+            String lastWord = length == 0 ? "" : words[words.length - 1];
+            ourCompletions = new String[0];
+
+            if (text.startsWith("/")) {
+                replace = false;
+            } else {
+                if (!isBase()) {
+                    ourCompletions = ChatHandler.getOnlineUsers().stream().filter(name -> ChatHandler.anonUsers.containsKey(name) || ChatHandler.friends.containsKey(name)).map(s -> CreeperHost.instance.getNameForUser(s)).filter(nick -> nick.toLowerCase().startsWith(lastWord.toLowerCase())).toArray(String[]::new);
+                    replace = true;
+                }
+            }
         }
 
         public OurChatTabCompleter(GuiTextField p_i46749_1_) {

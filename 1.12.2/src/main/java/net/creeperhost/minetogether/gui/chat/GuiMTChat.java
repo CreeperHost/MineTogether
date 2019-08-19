@@ -390,6 +390,9 @@ public class GuiMTChat extends GuiScreen
                 String tempWord = ChatHandler.anonUsersReverse.get(justNick);
                 if (tempWord != null)
                     split[i] = result.replaceAll(justNick, tempWord);
+                else
+                    if (justNick.toLowerCase().equals(playerName.toLowerCase()))
+                        split[i] = result.replaceAll(justNick, CreeperHost.instance.ourNick);
             }
             text = String.join(" ", split);
             ChatHandler.sendMessage(currentTarget, text);
