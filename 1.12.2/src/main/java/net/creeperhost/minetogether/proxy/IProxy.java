@@ -25,4 +25,6 @@ public interface IProxy
     void updateChatChannel();
 
     void refreshChat();
+
+    boolean checkOnline();
 }

@@ -38,4 +38,9 @@ public class Server implements IProxy
 
     @Override
     public void refreshChat() {}
+
+    @Override
+    public boolean checkOnline() {
+        return false;
+    }
 }

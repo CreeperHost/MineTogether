@@ -86,6 +86,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        proxy.checkOnline();
         configFile = event.getSuggestedConfigurationFile();
         InputStream configStream = null;
         try

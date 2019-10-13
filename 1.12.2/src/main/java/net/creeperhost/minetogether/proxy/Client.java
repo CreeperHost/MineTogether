@@ -2,8 +2,13 @@ package net.creeperhost.minetogether.proxy;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.authlib.Agent;
+import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
+import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
+import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
@@ -70,14 +75,10 @@ public class Client implements IProxy
             return cache;
         Minecraft mc = Minecraft.getMinecraft();
         Session session = mc.getSession();
-        boolean online = true;
-        if (session.getToken().length() != 32 || session.getPlayerID().length() != 32)
-        {
-            online = false;
-        }
-        
+        boolean online = CreeperHost.instance.online;
+
         UUID uuid;
-        
+
         if (online)
         {
             YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(mc.getProxy(), UUID.randomUUID().toString());
@@ -216,5 +217,21 @@ public class Client implements IProxy
             if (currentScreen != null && currentScreen instanceof GuiMTChat)
                 ((GuiMTChat)currentScreen).rebuildChat();
         }
+    }
+
+    @Override
+    public boolean checkOnline() {
+        YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Minecraft.getMinecraft().getProxy(), UUID.randomUUID().toString());
+        YggdrasilMinecraftSessionService sessionService = (YggdrasilMinecraftSessionService) authService.createMinecraftSessionService();
+        Session session = Minecraft.getMinecraft().getSession();
+        GameProfile profile = session.getProfile();
+        String token = session.getToken();
+        String serverId = UUID.randomUUID().toString();
+        try {
+            sessionService.joinServer(profile, token, serverId);
+            GameProfile gameProfile = sessionService.hasJoinedServer(profile, token, null);
+            return gameProfile != null && gameProfile.isComplete();
+        } catch (AuthenticationException ignored) {}
+        return false;
     }
 }
