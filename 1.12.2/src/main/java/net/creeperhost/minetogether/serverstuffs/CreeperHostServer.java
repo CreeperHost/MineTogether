@@ -509,7 +509,7 @@ public class CreeperHostServer
         try
         {
             output = gson.fromJson(IOUtils.toString(file.toURI()), listOfPregenTask);
-        } catch (IOException e)
+        } catch (Exception e)
         {
         }
         if (output == null)
