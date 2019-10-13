@@ -668,7 +668,7 @@ public class GuiNewChatOurs extends GuiNewChat
         {
             if (drawnChatLinesField == null)
             {
-                drawnChatLinesField = ReflectionHelper.findField(GuiNewChat.class, "drawnChatLines", "field_146253_i");
+                drawnChatLinesField = ReflectionHelper.findField(GuiNewChat.class, "drawnChatLines", "field_146253_i", "");
             }
 
             try

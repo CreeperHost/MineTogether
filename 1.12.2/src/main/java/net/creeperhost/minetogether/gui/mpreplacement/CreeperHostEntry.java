@@ -75,23 +75,14 @@ public class CreeperHostEntry extends ServerListEntryNormal
         GlStateManager.enableBlend();
         GlStateManager.color(1.0F, 1.0F, 1.0F, transparency);
         Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
-
         this.mc.fontRendererObj.drawString(Util.localize("mp.partner"), x+35, y, 16777215);
-        //mc.getTextureManager().bindTexture(MPPARTNER_TEXTURES);
-        //Gui.drawModalRectWithCustomSizedTexture(x + 35, y, 0.0F, 0.0F, 46, 10, 46F, 10F);
-        
         int transparentString = (int) (transparency * 254) << 24;
         GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
         GlStateManager.enableBlend();
-        
         this.mc.fontRendererObj.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRendererObj.FONT_HEIGHT + 1, 16777215 + transparentString);
-        
         String s = Util.localize(Config.getInstance().isServerHostMenuImage() ? "mp.clickherebrand" : "mp.clickherebranding");
-        
         this.mc.fontRendererObj.drawString(s, x + 32 + 3, y + (this.mc.fontRendererObj.FONT_HEIGHT * 2) + 3, 8421504 + transparentString);
-        
         this.mc.fontRendererObj.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
-        
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
         {
             if (lastWidth != this.mc.displayWidth || lastHeight != this.mc.displayHeight || res == null)

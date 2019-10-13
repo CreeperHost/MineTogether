@@ -98,7 +98,7 @@ public class EventHandler
         {
             if (networkManagerField == null)
             {
-                networkManagerField = ReflectionHelper.findField(con.getClass(), "networkManager", "field_146373_h");
+                networkManagerField = ReflectionHelper.findField(con.getClass(), "networkManager", "field_146373_h", "");
                 networkManagerField.setAccessible(true);
             }
             
@@ -168,19 +168,19 @@ public class EventHandler
             {
                 if (reasonField == null)
                 {
-                    reasonField = ReflectionHelper.findField(gui.getClass(), "reason", "field_146306_a");
+                    reasonField = ReflectionHelper.findField(gui.getClass(), "reason", "field_146306_a", "");
                     reasonField.setAccessible(true);
                 }
                 
                 if (messageField == null)
                 {
-                    messageField = ReflectionHelper.findField(gui.getClass(), "message", "field_146304_f");
+                    messageField = ReflectionHelper.findField(gui.getClass(), "message", "field_146304_f", "");
                     messageField.setAccessible(true);
                 }
                 
                 if (parentField == null)
                 {
-                    parentField = ReflectionHelper.findField(gui.getClass(), "parentScreen", "field_146307_h");
+                    parentField = ReflectionHelper.findField(gui.getClass(), "parentScreen", "field_146307_h", "");
                     parentField.setAccessible(true);
                 }
                 String reason = (String) reasonField.get(dc);
@@ -223,7 +223,7 @@ public class EventHandler
             {
                 try
                 {
-                    defaultInputFieldTextField = ReflectionHelper.findField(GuiChat.class, "defaultInputFieldText", "field_146409_v");
+                    defaultInputFieldTextField = ReflectionHelper.findField(GuiChat.class, "defaultInputFieldText", "field_146409_v", "");
                 } catch (Exception e) { e.printStackTrace(); }
             }
             try
@@ -280,13 +280,13 @@ public class EventHandler
                 {
                     if (serverListSelectorField == null)
                     {
-                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h");
+                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h", "");
                         serverListSelectorField.setAccessible(true);
                     }
                     
                     if (serverListInternetField == null)
                     {
-                        serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "serverListInternet", "field_148198_l");
+                        serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "serverListInternet", "field_148198_l", "");
                         serverListInternetField.setAccessible(true);
                     }
                     
@@ -308,7 +308,7 @@ public class EventHandler
                 {
                     if (serverListField == null)
                     {
-                        serverListField = ReflectionHelper.findField(GuiMultiplayer.class, "savedServerList", "field_146804_i");
+                        serverListField = ReflectionHelper.findField(GuiMultiplayer.class, "savedServerList", "field_146804_i", "");
                         serverListField.setAccessible(true);
                     }
                     
@@ -319,7 +319,7 @@ public class EventHandler
                     
                     if (serverListSelectorField == null)
                     {
-                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h");
+                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h", "");
                         serverListSelectorField.setAccessible(true);
                     }
                     
@@ -356,7 +356,7 @@ public class EventHandler
                     
                     if (serverListSelectorField == null)
                     {
-                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h");
+                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h", "");
                         serverListSelectorField.setAccessible(true);
                     }
                     
@@ -436,7 +436,7 @@ public class EventHandler
                     
                     if (editButtonField == null)
                     {
-                        editButtonField = ReflectionHelper.findField(GuiMultiplayer.class, "btnEditServer", "field_146810_r");
+                        editButtonField = ReflectionHelper.findField(GuiMultiplayer.class, "btnEditServer", "field_146810_r", "");
                         editButtonField.setAccessible(true);
                     }
                     try

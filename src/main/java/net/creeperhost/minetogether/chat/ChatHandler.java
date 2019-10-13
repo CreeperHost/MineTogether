@@ -26,67 +26,32 @@ public class ChatHandler
 {
     public static final Object ircLock = new Object();
     public static TreeMap<String, Boolean> newMessages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    private static ChatUtil.IRCServer IRC_SERVER;
+    static ChatUtil.IRCServer IRC_SERVER;
     public static String CHANNEL = "#MineTogether";
     public static ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
     public static HashMap<String, String> curseSync = new HashMap<>();
 
     public static TreeMap<String, LimitedSizeQueue<Message>> messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    private static Client client = null;
-    private static IHost host;
-    private static boolean online = false;
+    static Client client = null;
+    static IHost host;
+    static boolean online = false;
     public static boolean isInitting = false;
     public static int tries = 0;
-    private static boolean inited = false;
+    static boolean inited = false;
     public static List<String> badwords;
     public static String badwordsFormat;
     public static String currentGroup = "";
     public static String initedString = null;
-    private static String nick;
-    private static String realName;
+    static String nick;
+    static String realName;
     public static PrivateChat privateChatList = null;
     public static PrivateChat privateChatInvite = null;
     public static boolean hasGroup = false;
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
-        if (inited || isInitting) return;
-        if (!connectionStatus.equals(ConnectionStatus.DISCONNECTED)) return;
-        client = null;
-        isInitting = true;
-
-        online = onlineIn;
-        realName = realNameIn;
-        initedString = nickIn;
-        badwords = ChatUtil.getBadWords();
-        badwordsFormat = ChatUtil.getAllowedCharactersRegex();
-        IRC_SERVER = ChatUtil.getIRCServerDetails();
-        CHANNEL = online ? IRC_SERVER.channel : "#SuperSpecialPirateClub";
-        //CHANNEL = "#test"; //TODO: DO NOT RELEASE LIKE THIS
-        host = _host;
-        tries = 0;
-        nick = nickIn;
-
-        host.updateChatChannel();
-
-        synchronized (ircLock)
-        {
-            messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-            new Thread(() ->
-            { // start in thread as can hold up the UI thread for some reason.
-                Client.Builder mineTogether = Client.builder().nick(nickIn).realName(realName).user("MineTogether");
-                mineTogether.server().host(IRC_SERVER.address).port(IRC_SERVER.port).secure(IRC_SERVER.ssl);
-                mineTogether.listeners().exception(e -> {}); // no-op
-                if (client != null) return; // hopefully prevent multiples
-                client = mineTogether.buildAndConnect();
-
-                ((Client.WithManagement) client).getActorTracker().setQueryChannelInformation(true); // Does a WHO - lets see how this works...
-                client.getEventManager().registerEventListener(new Listener());
-                client.addChannel(CHANNEL);
-                inited = true;
-                isInitting = false;
-            }).start();
-        }
+        ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn, _host);
+        ChatConnectionHandler.INSTANCE.connect();
     }
 
     public static void reInit()
@@ -107,7 +72,7 @@ public class ChatHandler
         Message messagePair = new Message(System.currentTimeMillis(), user, message);
         tempQueue.add(messagePair);
         host.messageReceived(target, messagePair);
-        newMessages.put(target, new Boolean(true));
+        newMessages.put(target, Boolean.TRUE);
     }
 
     public static void addStatusMessage(String message)
@@ -559,21 +524,25 @@ public class ChatHandler
         @Handler
         public void onNickRejected(NickRejectedEvent event)
         {
-            String attemptedNick = event.getAttemptedNick();
-
-            if (attemptedNick.contains("`"))
-                event.setNewNick(nick);
-            else
-                event.setNewNick(nick + "`");
+            host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "Couldn't connect as your nick is in use. Waiting 5 minutes and trying again."));
+            ChatConnectionHandler.INSTANCE.nextConnectAllow(600);
+            ChatConnectionHandler.INSTANCE.disconnect();
         }
 
         @Handler
         public void onUserBanned(ChannelModeEvent event)
         {
             List<ModeStatus<ChannelMode>> b = event.getStatusList().getByMode('b');
-            b.stream().forEach(mode -> {
-                mode.getParameter().ifPresent(param -> host.userBanned(param.split("!")[0]));
-            });
+            b.forEach(mode -> mode.getParameter().ifPresent(param -> {
+                String nick = param.split("!")[0];
+                if (nick.toLowerCase().equals(ChatHandler.nick.toLowerCase())) {
+                    // it be us
+                    ChatConnectionHandler.INSTANCE.disconnect();
+                    ChatConnectionHandler.INSTANCE.banned = true;
+                    host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
+                }
+                host.userBanned(nick);
+            }));
         }
     }
 

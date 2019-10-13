@@ -218,7 +218,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         ourSavedServerList = serverList;
         if (savedServerListField == null)
         {
-            savedServerListField = ReflectionHelper.findField(GuiMultiplayer.class, "savedServerList", "field_146804_i");
+            savedServerListField = ReflectionHelper.findField(GuiMultiplayer.class, "savedServerList", "field_146804_i", "");
             savedServerListField.setAccessible(true);
         }
         
@@ -236,7 +236,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         ourLanServerDetector = detector;
         if (lanServerDetectorField == null)
         {
-            lanServerDetectorField = ReflectionHelper.findField(GuiMultiplayer.class, "lanServerDetector", "field_146800_B");
+            lanServerDetectorField = ReflectionHelper.findField(GuiMultiplayer.class, "lanServerDetector", "field_146800_B", "");
             lanServerDetectorField.setAccessible(true);
         }
         
@@ -254,7 +254,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         ourLanServerList = detector;
         if (lanServerListField == null)
         {
-            lanServerListField = ReflectionHelper.findField(GuiMultiplayer.class, "lanServerList", "field_146799_A");
+            lanServerListField = ReflectionHelper.findField(GuiMultiplayer.class, "lanServerList", "field_146799_A", "");
             lanServerListField.setAccessible(true);
         }
         
@@ -272,7 +272,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
         ourServerListSelector = list;
         if (serverListSelectorField == null)
         {
-            serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h");
+            serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h", "");
             serverListSelectorField.setAccessible(true);
         }
         

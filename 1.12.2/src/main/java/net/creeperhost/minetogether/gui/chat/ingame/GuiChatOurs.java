@@ -220,7 +220,7 @@ public class GuiChatOurs extends GuiChat
     public void replaceTabCompleter()
     {
         if (tabCompleterField == null) {
-            tabCompleterField = ReflectionHelper.findField(GuiChat.class, "tabCompleter", "field_184096_i");
+            tabCompleterField = ReflectionHelper.findField(GuiChat.class, "tabCompleter", "field_184096_i", "");
             tabCompleterField.setAccessible(true);
         }
 
