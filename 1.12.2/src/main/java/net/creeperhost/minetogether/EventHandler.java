@@ -901,7 +901,7 @@ public class EventHandler
     private void onKeyInputGeneric()
     {
         KeyBinding binding = ((Client) CreeperHost.proxy).openGuiKey;
-        boolean pressed = Keyboard.isKeyDown(binding.getKeyCode()) && binding.getKeyConflictContext().isActive() && binding.getKeyModifier().isActive(binding.getKeyConflictContext());
+        boolean pressed = binding.getKeyCode() != 0 && Keyboard.isKeyDown(binding.getKeyCode()) && binding.getKeyConflictContext().isActive() && binding.getKeyModifier().isActive(binding.getKeyConflictContext());
         if (!pressed)
             return;
         if (CreeperHost.instance.isActiveToast())
