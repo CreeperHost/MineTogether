@@ -129,7 +129,7 @@ public class GuiPersonalDetails extends GuiGetServer
             {
                 return phase.equals(ValidationPhase.FOCUSLOST);
             }
-            
+
             @Override
             public boolean isValidReal(String string)
             {

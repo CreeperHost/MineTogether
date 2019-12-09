@@ -25,7 +25,7 @@ public class RegexValidator implements IOrderValidation
     @Override
     public boolean isValid(String string)
     {
-        return pattern.matcher(string).matches();
+        return pattern.matcher(string.toLowerCase()).matches();
     }
 
     @Override
