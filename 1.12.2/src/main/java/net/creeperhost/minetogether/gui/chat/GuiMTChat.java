@@ -302,16 +302,11 @@ public class GuiMTChat extends GuiScreen
             {
                 if (bad.startsWith("(") && bad.endsWith(")"))
                 {
-                    if (text.matches(bad))
+                    if (text.matches(bad) || text.matches(bad.toLowerCase()))
                     {
                         veryNaughty = true;
                         break;
                     }
-                }
-                if (text.toLowerCase().contains(bad.toLowerCase()))
-                {
-                    veryNaughty = true;
-                    break;
                 }
             }
         }
