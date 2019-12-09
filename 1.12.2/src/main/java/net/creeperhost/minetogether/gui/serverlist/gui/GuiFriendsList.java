@@ -11,10 +11,7 @@ import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
 import net.creeperhost.minetogether.gui.list.GuiListEntryMuted;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.serverlist.data.Friend;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiYesNo;
-import net.minecraft.client.gui.GuiYesNoCallback;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.resources.I18n;
 
 import java.awt.*;
@@ -39,7 +36,8 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private GuiButton channelInviteButton;
     private GuiTextFieldCompat codeEntry;
     private GuiTextFieldCompat displayEntry;
-    
+    private GuiTextFieldCompat searchEntry;
+
     private boolean addFriend = false;
     private String friendCode;
     private boolean first = true;
@@ -110,6 +108,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         buttonCancel = new GuiButton(0, buttonX, y, buttonWidth, 20, Util.localize("button.cancel"));
         buttonList.add(buttonCancel);
         buttonX += spaceInbetween;
+
         buttonAdd = new GuiButton(1, buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.addfriend"));
         buttonList.add(buttonAdd);
         buttonX += spaceInbetween;
@@ -121,15 +120,19 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         codeEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 - 50, 160, 20);
         displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 + 0, 160, 20);
         
-        friendDisplayString = Util.localize("multiplayer.friendcode", friendCode);
-        int friendWidth = fontRendererObj.getStringWidth(friendDisplayString);
-        buttonCopy = new GuiButton(4, 10 + friendWidth + 3, this.height - 26, 80, 20, Util.localize("multiplayer.button.copy"));
-        buttonList.add(buttonCopy);
+//        friendDisplayString = Util.localize("multiplayer.friendcode", friendCode);
+//        int friendWidth = fontRendererObj.getStringWidth(friendDisplayString);
+//        buttonCopy = new GuiButton(4, 10 + friendWidth + 3, this.height - 26, 80, 20, Util.localize("multiplayer.button.copy"));
+//        buttonList.add(buttonCopy);
+
         buttonRefresh = new GuiButton(1337, this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"));
         buttonList.add(buttonRefresh);
         
         toggle = new GuiButton(5, width - 60,   6, 60, 20,isMuted ? "Friends" : "Muted");
         buttonList.add(toggle);
+
+        searchEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, y + 28, 160, 20);
+        searchEntry.setVisible(true);
     }
     
     protected void refreshFriendsList(boolean force)
@@ -141,7 +144,18 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             for (Friend friend : friends)
             {
                 GuiListEntryFriend friendEntry = new GuiListEntryFriend(this, list, friend);
-                list.addEntry(friendEntry);
+                if(searchEntry != null && !searchEntry.getText().isEmpty())
+                {
+                    String s = searchEntry.getText();
+                    if(s.toLowerCase().contains(friend.getName().toLowerCase()))
+                    {
+                        list.addEntry(friendEntry);
+                    }
+                }
+                else
+                    {
+                        list.addEntry(friendEntry);
+                    }
             }
         }
     }
@@ -156,7 +170,18 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             {
                 String username = CreeperHost.instance.getNameForUser(mute);
                 GuiListEntryMuted mutedEntry = new GuiListEntryMuted(this, listMuted, username);
-                listMuted.addEntry(mutedEntry);
+                if(searchEntry != null && !searchEntry.getText().isEmpty())
+                {
+                    String s = searchEntry.getText();
+                    if(mute.toLowerCase().contains(s.toLowerCase()))
+                    {
+                        listMuted.addEntry(mutedEntry);
+                    }
+                }
+                else
+                    {
+                        listMuted.addEntry(mutedEntry);
+                    }
             }
         }
     }
@@ -218,18 +243,13 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             }
         } else if (button == buttonCopy)
         {
-            Toolkit.getDefaultToolkit()
-                    .getSystemClipboard()
-                    .setContents(
-                            new StringSelection(friendCode),
-                            null
-                    );
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(friendCode), null);
             showAlert("Copied to clipboard.", 0x00FF00, 5000);
         } else if (button == buttonRefresh)
         {
             refreshFriendsList(false);
+            refreshMutedList(false);
         }
-        //TODO clean this up
         else if(button.id == toggle.id)
         {
             if(button.displayString.contains("Friends"))
@@ -271,7 +291,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
         }
         
-        this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
+//        this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
         
         super.drawScreen(mouseX, mouseY, partialTicks);
         
@@ -285,6 +305,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             }
             drawHoveringText(hoverTextCache, mouseX + 12, mouseY);
         }
+        if(searchEntry != null) this.searchEntry.drawTextBox();
     }
     
     @Override
@@ -298,9 +319,18 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     {
         super.keyTyped(typedChar, keyCode);
         if (codeEntry.isFocused())
+        {
             codeEntry.textboxKeyTyped(typedChar, keyCode);
+        }
         else if (displayEntry.isFocused())
+        {
             displayEntry.textboxKeyTyped(typedChar, keyCode);
+        }
+        else if (searchEntry.isFocused())
+        {
+            searchEntry.textboxKeyTyped(typedChar, keyCode);
+            refreshFriendsList(false);
+        }
     }
     
     @Override
@@ -331,6 +361,8 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 this.buttonInvite.enabled = false;
         else
             this.buttonInvite.enabled = false;
+
+        this.searchEntry.mouseClicked(mouseX, mouseY, mouseButton);
     }
     
     @Override

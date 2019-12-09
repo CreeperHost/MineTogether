@@ -21,7 +21,7 @@ public class GuiModPackList extends GuiScreen
     private GuiButton buttonRefresh;
     private GuiButton buttonSelect;
     private boolean first = true;
-    private GuiTextField displayEntry;
+    private GuiTextFieldCompat displayEntry;
 
     public GuiModPackList(GuiScreen currentScreen)
     {
