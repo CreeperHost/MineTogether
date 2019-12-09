@@ -762,10 +762,7 @@ public final class Callbacks
             {
                 return "0";
             }
-        } catch (Throwable t)
-        {
-            t.printStackTrace();
-        }
+        } catch (Throwable ignored) {}
         return "0";
     }
 
