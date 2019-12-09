@@ -11,7 +11,6 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.gui.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class GuiModPackList extends GuiScreen
@@ -93,8 +92,7 @@ public class GuiModPackList extends GuiScreen
 
         this.list.drawScreen(mouseX, mouseY, partialTicks);
 
-        if(displayEntry != null)
-            this.displayEntry.drawTextBox();
+        if(displayEntry != null) this.displayEntry.drawTextBox();
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -120,10 +118,13 @@ public class GuiModPackList extends GuiScreen
         }
         if(button == buttonSelect)
         {
-            String ID = list.getCurrSelected().getModpack().getId();
-            Config.getInstance().setVersion(ID);
-            //Restart the order with the stored modpack version
-            mc.displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+            if(list.getCurrSelected() != null)
+            {
+                String ID = list.getCurrSelected().getModpack().getId();
+                Config.getInstance().setVersion(ID);
+                //Restart the order with the stored modpack version
+                mc.displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+            }
         }
     }
 
@@ -147,7 +148,8 @@ public class GuiModPackList extends GuiScreen
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         super.keyTyped(typedChar, keyCode);
-        if (displayEntry != null && displayEntry.isFocused()){
+        if (displayEntry != null && displayEntry.isFocused())
+        {
             displayEntry.textboxKeyTyped(typedChar, keyCode);
         }
     }
