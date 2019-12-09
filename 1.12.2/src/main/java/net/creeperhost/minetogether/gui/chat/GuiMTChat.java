@@ -134,9 +134,7 @@ public class GuiMTChat extends GuiScreen
         synchronized (ircLock)
         {
             reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
-            if (
-                    changed ||
-                    ChatHandler.hasNewMessages(currentTarget))
+            if (changed || ChatHandler.hasNewMessages(currentTarget))
             {
                 chat.updateLines(currentTarget);
                 ChatHandler.setMessagesRead(currentTarget);
