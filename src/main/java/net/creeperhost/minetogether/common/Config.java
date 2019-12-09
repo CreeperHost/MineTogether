@@ -20,6 +20,7 @@ public class Config
     private boolean serverListEnabled;
     private boolean chatEnabled;
     private boolean autoMT;
+    private boolean enableFriendOnlineToasts;
 
     private int pregenDiameter = 120;
 
@@ -38,6 +39,7 @@ public class Config
         serverListEnabled = true;
         chatEnabled = true;
         autoMT = true;
+        enableFriendOnlineToasts = true;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
@@ -122,6 +124,8 @@ public class Config
     {
         return chatEnabled;
     }
+
+    public boolean isFriendOnlineToastsEnabled() { return enableFriendOnlineToasts; }
 
     public boolean isAutoMT() {
         return autoMT;

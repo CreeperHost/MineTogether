@@ -820,7 +820,10 @@ public class EventHandler
             {
                 if (friendMessage && Minecraft.getMinecraft().currentScreen instanceof GuiMTChat)
                     return;
-                CreeperHost.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000, null);
+                if(Config.getInstance().isFriendOnlineToastsEnabled())
+                {
+                    CreeperHost.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000, null);
+                }
             }
         }
     }
