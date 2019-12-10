@@ -58,9 +58,7 @@ public class WebUtils {
         {
             HostHolder.host.getLogger().warn("An error occurred while fetching " + urlString, t);
         }
-
         return "error";
-
     }
 
     private static String mapToFormString(Map<String, String> map)
@@ -159,7 +157,6 @@ public class WebUtils {
             logHide = true;
             HostHolder.host.getLogger().warn("An error occurred while fetching " + urlString + ". Will hide repeated errors.", t);
         }
-
         return "error";
     }
 

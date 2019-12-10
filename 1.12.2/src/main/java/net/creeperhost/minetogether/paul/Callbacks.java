@@ -750,20 +750,38 @@ public final class Callbacks
     
     public static String getVersionFromCurse(String curse)
     {
-        String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
+        if(isInteger(curse))
+        {
+            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
+            try
+            {
+                JsonElement jElement = new JsonParser().parse(resp);
+                JsonObject jObject = jElement.getAsJsonObject();
+                if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
+                {
+                    return jObject.getAsJsonPrimitive("id").getAsString();
+                } else
+                {
+                    return "0";
+                }
+            } catch (Throwable ignored)
+            {
+            }
+        }
+        return "0";
+    }
+
+    public static boolean isInteger(String s)
+    {
         try
         {
-            JsonElement jElement = new JsonParser().parse(resp);
-            JsonObject jObject = jElement.getAsJsonObject();
-            if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
-            {
-                return jObject.getAsJsonPrimitive("id").getAsString();
-            } else
-            {
-                return "0";
-            }
-        } catch (Throwable ignored) {}
-        return "0";
+            Integer.parseInt(s);
+        }
+        catch(NumberFormatException | NullPointerException e)
+        {
+            return false;
+        }
+        return true;
     }
 
     public static List<Modpack> getModpackFromCurse(String modpack)

@@ -127,6 +127,8 @@ public class Config
 
     public boolean isFriendOnlineToastsEnabled() { return enableFriendOnlineToasts; }
 
+    public String getCurseProjectID() { return curseProjectID; }
+
     public boolean isAutoMT() {
         return autoMT;
     }
