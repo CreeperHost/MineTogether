@@ -15,6 +15,6 @@ public class GuiListEntryLocation extends GuiListEntry
     @Override
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
     {
-        this.mc.fontRendererObj.drawSplitString(this.locationDisplay, x + 5, y + 5, listWidth, 16777215);
+        this.mc.fontRenderer.drawSplitString(this.locationDisplay, x + 5, y + 5, listWidth, 16777215);
     }
 }

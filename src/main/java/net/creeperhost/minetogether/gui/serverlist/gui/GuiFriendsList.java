@@ -5,38 +5,40 @@ import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.GuiYahNah;
-import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
 import net.creeperhost.minetogether.gui.list.GuiListEntryMuted;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.serverlist.data.Friend;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
+public class GuiFriendsList extends Screen implements GuiYesNoCallback
 {
-    private final GuiScreen parent;
+    private final Screen parent;
     private GuiList<GuiListEntryFriend> list;
     private GuiList<GuiListEntryMuted> listMuted;
     
-    private GuiButton buttonAdd;
-    private GuiButton buttonCancel;
-    private GuiButton buttonInvite;
-    private GuiButton buttonCopy;
-    private GuiButton buttonRefresh;
-    private GuiButton buttonChat;
-    private GuiButton buttonRemove;
-    private GuiButton toggle;
-    private GuiButton channelInviteButton;
-    private GuiTextFieldCompat codeEntry;
-    private GuiTextFieldCompat displayEntry;
-    private GuiTextFieldCompat searchEntry;
+    private Button buttonAdd;
+    private Button buttonCancel;
+    private Button buttonInvite;
+    private Button buttonCopy;
+    private Button buttonRefresh;
+    private Button buttonChat;
+    private Button buttonRemove;
+    private Button toggle;
+    private Button channelInviteButton;
+    private TextFieldWidget codeEntry;
+    private TextFieldWidget displayEntry;
+    private TextFieldWidget searchEntry;
 
     private boolean addFriend = false;
     private String friendCode;
@@ -52,8 +54,9 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private boolean channelInvite = false;
     private boolean isMuted;
     
-    public GuiFriendsList(GuiScreen currentScreen)
+    public GuiFriendsList(Screen currentScreen)
     {
+        super(new StringTextComponent(""));
         this.parent = currentScreen;
         friendCode = Callbacks.getFriendCode();
         CreeperHost.instance.clearToast(false);

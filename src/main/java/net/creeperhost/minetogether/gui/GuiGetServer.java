@@ -3,30 +3,30 @@ package net.creeperhost.minetogether.gui;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Order;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiMultiplayer;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.MultiplayerScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.text.TranslationTextComponent;
 
-import java.io.IOException;
-
-public abstract class GuiGetServer extends GuiScreen
+public abstract class GuiGetServer extends Screen
 {
     private static final int STEP_AMOUNT = 5;
     protected final int stepId;
     protected final Order order;
-    protected GuiButton buttonPrev;
-    protected GuiButton buttonNext;
-    protected GuiButton buttonCancel;
+    protected Button buttonPrev;
+    protected Button buttonNext;
+    protected Button buttonCancel;
     
     public GuiGetServer(int stepId, Order order)
     {
+        super(new TranslationTextComponent(""));
         CreeperHost.instance.updateCurse();
         this.stepId = stepId;
         this.order = order;
     }
     
     @SuppressWarnings("Duplicates")
-    public static GuiScreen getByStep(int step, Order order)
+    public static Screen getByStep(int step, Order order)
     {
         switch (step)
         {
@@ -46,15 +46,19 @@ public abstract class GuiGetServer extends GuiScreen
     
     @SuppressWarnings("Duplicates")
     @Override
-    public void initGui()
+    public void init()
     {
-        super.initGui();
+        super.init();
         
         int y = this.height - 30;
         
-        this.buttonPrev = new GuiButton(-1, 10, y, 80, 20, Util.localize("button.prev"));
-        this.buttonPrev.enabled = this.stepId > 0;
-        this.buttonList.add(this.buttonPrev);
+        this.buttonPrev = new Button(10, y, 80, 20, Util.localize("button.prev"), (button) ->
+        {
+            this.minecraft.displayGuiScreen(getByStep(this.stepId - 1, this.order));
+        });
+
+        this.buttonPrev.active = this.stepId > 0;
+        this.addButton(this.buttonPrev);
         
         String nextStr = "";
         
@@ -69,46 +73,34 @@ public abstract class GuiGetServer extends GuiScreen
             nextStr = Util.localize("button.next");
         }
         
-        this.buttonNext = new GuiButton(-2, this.width - 90, y, 80, 20, nextStr);
-        this.buttonList.add(buttonNext);
-        
-        this.buttonCancel = new GuiButton(-3, this.width / 2 - 40, y, 80, 20, Util.localize("button.cancel"));
-        this.buttonList.add(this.buttonCancel);
-    }
-    
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
-        this.drawCenteredString(this.fontRendererObj, Util.localize("gui.get_server"), this.width / 2, 10, -1);
-        
-        this.drawCenteredString(this.fontRendererObj, Util.localize("info.step", this.stepId + 1, STEP_AMOUNT), this.width / 2, 20, -1);
-        this.drawCenteredString(this.fontRendererObj, this.getStepName(), this.width / 2, 30, -1);
-        
-        super.drawScreen(mouseX, mouseY, partialTicks);
-    }
-    
-    @Override
-    protected void actionPerformed(GuiButton button) throws IOException
-    {
-        if (button == this.buttonPrev)
-        {
-            this.mc.displayGuiScreen(getByStep(this.stepId - 1, this.order));
-        } else if (button == this.buttonNext)
+        this.buttonNext = new Button(this.width - 90, y, 80, 20, nextStr, (button) ->
         {
             if ((this.stepId + 1) == STEP_AMOUNT)
             {
-                this.mc.displayGuiScreen(new GuiMultiplayer(null));
+                this.minecraft.displayGuiScreen(new MultiplayerScreen(null));
             } else
             {
-                this.mc.displayGuiScreen(getByStep(this.stepId + 1, this.order));
+                this.minecraft.displayGuiScreen(getByStep(this.stepId + 1, this.order));
             }
-        } else if (button == this.buttonCancel)
+        });
+        this.addButton(buttonNext);
+        
+        this.buttonCancel = new Button( this.width / 2 - 40, y, 80, 20, Util.localize("button.cancel"), (button) ->
         {
-            this.mc.displayGuiScreen(null);
-        } else
-        {
-            super.actionPerformed(button);
-        }
+            this.minecraft.displayGuiScreen(null);
+        });
+        this.addButton(this.buttonCancel);
+    }
+
+    @Override
+    public void render(int p_render_1_, int p_render_2_, float p_render_3_)
+    {
+        this.drawCenteredString(minecraft.fontRenderer, Util.localize("gui.get_server"), this.width / 2, 10, -1);
+
+        this.drawCenteredString(minecraft.fontRenderer, Util.localize("info.step", this.stepId + 1, STEP_AMOUNT), this.width / 2, 20, -1);
+        this.drawCenteredString(minecraft.fontRenderer, this.getStepName(), this.width / 2, 30, -1);
+
+        super.render(p_render_1_, p_render_2_, p_render_3_);
     }
     
     public abstract String getStepName();

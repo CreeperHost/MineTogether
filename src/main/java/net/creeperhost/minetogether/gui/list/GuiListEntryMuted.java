@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.list;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.minecraft.client.renderer.GlStateManager;
 
@@ -18,7 +19,7 @@ public class GuiListEntryMuted extends GuiListEntry
         friendsListgui = friendsListIngui;
         this.muted = muted;
         cross = new String(Character.toChars(10006));
-        stringWidth = this.mc.fontRendererObj.getStringWidth(cross);
+        stringWidth = this.mc.fontRenderer.getStringWidth(cross);
     }
     
     @SuppressWarnings("Duplicates")
@@ -36,14 +37,14 @@ public class GuiListEntryMuted extends GuiListEntry
                 transparency -= 0.04;
         }
         
-        this.mc.fontRendererObj.drawString(muted, x + 5, y + 5, 16777215);
+        this.mc.fontRenderer.drawString(muted, x + 5, y + 5, 16777215);
         
         int transparentString = (int) (transparency * 254) << 24;
         
-        GlStateManager.enableAlpha();
+        GlStateManager.enableAlphaTest();
         GlStateManager.enableBlend();
-        this.mc.fontRendererObj.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
-        GlStateManager.disableAlpha();
+        this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
+        GlStateManager.disableAlphaTest();
         GlStateManager.disableBlend();
         
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)

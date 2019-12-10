@@ -3,12 +3,11 @@ package net.creeperhost.minetogether.gui.serverlist.data;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
 
 import java.io.File;
 import java.util.ArrayList;
-
 
 public class ServerListNoEdit extends ServerList
 {
@@ -23,7 +22,7 @@ public class ServerListNoEdit extends ServerList
     private void prepare()
     {
         if (servers == null) servers = new ArrayList<Boolean>();
-        if (mc == null) mc = Minecraft.getMinecraft();
+        if (mc == null) mc = Minecraft.getInstance();
     }
     
     @SuppressWarnings("Duplicates")
@@ -35,7 +34,7 @@ public class ServerListNoEdit extends ServerList
         try
         {
             this.servers.clear();
-            NBTTagCompound nbttagcompound = CompressedStreamTools.read(new File(this.mc.mcDataDir, "mtservers.dat"));
+            CompoundNBT nbttagcompound = CompressedStreamTools.read(new File(this.mc.gameDir, "mtservers.dat"));
             
             byte[] serverBytes;
             
@@ -85,9 +84,9 @@ public class ServerListNoEdit extends ServerList
         
         try
         {
-            NBTTagCompound nbttagcompound = new NBTTagCompound();
-            nbttagcompound.setByteArray("servers", serverBytes);
-            CompressedStreamTools.safeWrite(nbttagcompound, new File(this.mc.mcDataDir, "mtservers.dat"));
+            CompoundNBT nbttagcompound = new CompoundNBT();
+            nbttagcompound.putByteArray("servers", serverBytes);
+            CompressedStreamTools.safeWrite(nbttagcompound, new File(this.mc.gameDir, "mtservers.dat"));
         } catch (Exception exception)
         {
             //logger.error("Couldn\'t save server list", exception);
@@ -95,10 +94,10 @@ public class ServerListNoEdit extends ServerList
     }
     
     @Override
-    public void removeServerData(int p_78851_1_)
+    public void func_217506_a(ServerData p_78851_1_)
     {
         servers.remove(p_78851_1_);
-        super.removeServerData(p_78851_1_);
+        super.func_217506_a(p_78851_1_);
     }
     
     @Override

@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.serverstuffs;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,7 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-@SideOnly(Side.SERVER)
+@OnlyIn(Dist.DEDICATED_SERVER)
 public class MineTogetherPropertyManager
 {
     private final Properties serverProperties = new Properties();

@@ -1,13 +1,13 @@
 package net.creeperhost.minetogether.serverstuffs.hacky;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.StringTextComponent;
 
 public class NewPlayerKicker implements IPlayerKicker
 {
     @Override
-    public void kickPlayer(EntityPlayerMP player, String message)
+    public void kickPlayer(ServerPlayerEntity player, String message)
     {
-        player.connection.func_194028_b(new TextComponentString(message));
+        player.connection.disconnect(new StringTextComponent(message));
     }
 }

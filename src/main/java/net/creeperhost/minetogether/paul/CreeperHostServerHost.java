@@ -96,7 +96,7 @@ public class CreeperHostServerHost implements IServerHost
             {
                 //TODO
 //                return new OrderSummary("quote.curseerror");
-                Minecraft mc = Minecraft.getMinecraft();
+                Minecraft mc = Minecraft.getInstance();
                 mc.displayGuiScreen(new GuiModPackList(mc.currentScreen));
 
             }

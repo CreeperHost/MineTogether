@@ -1,85 +1,70 @@
 package net.creeperhost.minetogether.gui.serverlist.gui.elements;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiUtilRenderComponents;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.awt.image.renderable.RenderableImage;
-import java.util.ArrayList;
-import java.util.List;
 
 public class GuiButtonLarge extends GuiButtonExt
 {
     private String description;
     private ItemStack stack;
 
-    public GuiButtonLarge(int buttonId, int x, int y, String buttonText)
+    public GuiButtonLarge(int x, int y, int widthIn, int heightIn, String buttonText, String description, ItemStack stack, Button.IPressable onPress)
     {
-        super(buttonId, x, y, buttonText);
-    }
-
-    public GuiButtonLarge(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, String description, ItemStack stack)
-    {
-        super(buttonId, x, y, widthIn, heightIn, buttonText);
+        super(x, y, widthIn, heightIn, buttonText, onPress);
         this.width = 200;
         this.height = 20;
-        this.enabled = true;
         this.visible = true;
-        this.id = buttonId;
-        this.xPosition = x;
-        this.yPosition = y;
+        this.active = true;
+        this.x = x;
+        this.y = y;
         this.width = widthIn;
         this.height = heightIn;
-        this.displayString = buttonText;
+        this.setMessage(buttonText);
         this.description = description;
         this.stack = stack;
     }
 
-    public void func_191745_a(Minecraft mc, int mouseX, int mouseY, float p_191745_4_)
+    @Override
+    public void renderButton(int mouseX, int mouseY, float partial)
     {
         if (this.visible)
         {
-            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-            int k = this.getHoverState(this.hovered);
-            GuiUtils.drawContinuousTexturedBox(BUTTON_TEXTURES, this.xPosition, this.yPosition, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.zLevel);
-            this.mouseDragged(mc, mouseX, mouseY);
+            Minecraft mc = Minecraft.getInstance();
+            this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+            int k = this.getYImage(this.isHovered);
+            GuiUtils.drawContinuousTexturedBox(WIDGETS_LOCATION, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.blitOffset);
+            this.renderBg(mc, mouseX, mouseY);
             int color = 14737632;
 
-            if (packedFGColour != 0) {
-                color = packedFGColour;
-            } else if (!this.enabled) {
+            if (packedFGColor != 0)
+            {
+                color = packedFGColor;
+            }
+            else if (!this.active)
+            {
                 color = 10526880;
-            } else if (this.hovered) {
+            }
+            else if (this.isHovered)
+            {
                 color = 16777120;
             }
 
-            this.drawCenteredString(mc.fontRendererObj, TextFormatting.BOLD + this.displayString, this.xPosition + this.width / 2, this.yPosition + (+8), color);
+            String buttonText = this.getMessage();
+            int strWidth = mc.fontRenderer.getStringWidth(buttonText);
+            int ellipsisWidth = mc.fontRenderer.getStringWidth("...");
 
-            List<ITextComponent> newstring = GuiUtilRenderComponents.splitText(new TextComponentString(description), width - 10, mc.fontRendererObj, false, true);
-            //Start needs to move based on GUI scale and screen size I guess, plz help @cloudhunter, @gigabit101, you're our only hope. (ihavenoideawhatimdoingdog.jpg)
-            int start = yPosition + 50;
+            if (strWidth > width - 6 && strWidth > ellipsisWidth)
+                buttonText = mc.fontRenderer.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
 
-
-            for (ITextComponent s : newstring) {
-                int left = ((this.xPosition + 4));
-                mc.fontRendererObj.drawStringWithShadow(padLeft(s.getFormattedText(), 20), left, start += 8, -1);
-            }
-
-            RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
+            this.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, color);
+//            RenderItem renderItem = Minecraft.getInstance().getRenderItem();
             GlStateManager.pushMatrix();
-            GlStateManager.scale(2.0f, 2.0f, 2.0f);
-            renderItem.renderItemAndEffectIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
+            GlStateManager.scalef(2.0f, 2.0f, 2.0f);
+//            renderItem.renderItemAndEffectIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
             //renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
             GlStateManager.popMatrix();
         }

@@ -4,7 +4,6 @@ import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldValidate;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.Constants;

@@ -11,7 +11,7 @@ public class GuiListEntry implements GuiListExtended.IGuiListEntry
     public GuiListEntry(GuiList list)
     {
         this.list = list;
-        this.mc = this.list.gui.mc;
+        this.mc = Minecraft.getInstance();
     }
     
     public void setSelected(int par1, int par2, int par3) {}

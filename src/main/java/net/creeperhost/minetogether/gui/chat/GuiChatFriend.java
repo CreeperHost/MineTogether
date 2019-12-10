@@ -1,30 +1,30 @@
 package net.creeperhost.minetogether.gui.chat;
 
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.StringTextComponent;
 
-import java.io.IOException;
-
-public class GuiChatFriend extends GuiScreen
+public class GuiChatFriend extends Screen
 {
     private final String playerName;
     private final String chatInternalName;
     private final String friendCode;
     private final boolean accept;
     private final String friendName;
-    private final GuiScreen parent;
-    private GuiButton acceptBtn;
-    private GuiButton cancelBtn;
-    private GuiTextField nameEntry;
+    private final Screen parent;
+    private Button acceptBtn;
+    private Button cancelBtn;
+    private TextFieldWidget nameEntry;
+    Minecraft mc = Minecraft.getInstance();
     
-    public GuiChatFriend(GuiScreen parent, String playerName, String chatInternalName, String friendCode, String friendName, boolean accept)
+    public GuiChatFriend(Screen parent, String playerName, String chatInternalName, String friendCode, String friendName, boolean accept)
     {
+        super(new StringTextComponent(""));
         this.playerName = playerName;
         this.chatInternalName = chatInternalName;
         this.friendCode = friendCode;
@@ -32,52 +32,28 @@ public class GuiChatFriend extends GuiScreen
         this.parent = parent;
         this.friendName = friendName;
     }
-    
+
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void render(int mouseX, int mouseY, float partialTicks)
     {
-        drawDefaultBackground();
-        super.drawScreen(mouseX, mouseY, partialTicks);
-        nameEntry.drawTextBox();
-        drawCenteredString(fontRendererObj, accept ? I18n.format("minetogether.friend.acceptgui") : I18n.format("minetogether.friend.addgui"), width / 2, 5, 0xFFFFFFFF);
-        drawCenteredString(fontRendererObj, accept ? I18n.format("minetogether.friend.acceptname") : I18n.format("minetogether.friend.addname"), width / 2, height / 2 - 30, 0xFFFFFFFF);
+        renderDirtBackground(1);
+        super.render(mouseX, mouseY, partialTicks);
+        nameEntry.setEnableBackgroundDrawing(true);
+        drawCenteredString(mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptgui") : I18n.format("minetogether.friend.addgui"), width / 2, 5, 0xFFFFFFFF);
+        drawCenteredString(mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptname") : I18n.format("minetogether.friend.addname"), width / 2, height / 2 - 30, 0xFFFFFFFF);
     }
     
     boolean first = true;
     
     @Override
-    public void initGui()
+    public void init()
     {
-        super.initGui();
-        
-        buttonList.add(cancelBtn = new GuiButton(0, width / 2 - 180, height - 50, 80, 20, "Cancel"));
-        buttonList.add(acceptBtn = new GuiButton(1, width / 2 + 100, height - 50, 80, 20, accept ? "Accept" : "Send request"));
-        
-        nameEntry = new GuiTextFieldCompat(0, fontRendererObj, width / 2 - 100, height / 2 - 10, 200, 20);
-        if (first)
-            nameEntry.setText(playerName); // default to player name
-        first = false;
-        
-        acceptBtn.enabled = nameEntry.getText().trim().length() >= 3;
-        nameEntry.setFocused(true);
-        nameEntry.setCanLoseFocus(false);
-    }
+        super.init();
+        this.minecraft.keyboardListener.enableRepeatEvents(true);
 
-    @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        nameEntry.mouseClicked(mouseX, mouseY, mouseButton);
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-    }
-
-    @Override
-    protected void actionPerformed(GuiButton button) throws IOException
-    {
-        if (button == cancelBtn)
-        {
-            Minecraft.getMinecraft().displayGuiScreen(parent);
-            return;
-        }
-        else if (button == acceptBtn)
+        this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, "Cancel", (button) -> Minecraft.getInstance().displayGuiScreen(parent)));
+        
+        this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? "Accept" : "Send request", (buttons) ->
         {
             if (accept)
             {
@@ -88,16 +64,31 @@ public class GuiChatFriend extends GuiScreen
             {
                 ChatHandler.sendFriendRequest(chatInternalName, nameEntry.getText().trim());
             }
-            Minecraft.getMinecraft().displayGuiScreen(parent);
-            return;
-        }
+            Minecraft.getInstance().displayGuiScreen(parent);
+        }));
+        
+        nameEntry = new TextFieldWidget(mc.fontRenderer, width / 2 - 100, height / 2 - 10, 200, 20, "");
+        if (first)
+            nameEntry.setText(playerName); // default to player name
+        first = false;
+
+        acceptBtn.active = nameEntry.getText().trim().length() >= 3;
+        nameEntry.setFocused2(true);
+        nameEntry.setCanLoseFocus(false);
     }
-    
+
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
-        nameEntry.textboxKeyTyped(typedChar, keyCode);
-        acceptBtn.enabled = nameEntry.getText().trim().length() >= 3;
-        super.keyTyped(typedChar, keyCode);
+        nameEntry.mouseClicked(mouseX, mouseY, mouseButton);
+        return false;
+    }
+
+    @Override
+    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
+    {
+        nameEntry.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+        acceptBtn.active = nameEntry.getText().trim().length() >= 3;
+        return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
     }
 }

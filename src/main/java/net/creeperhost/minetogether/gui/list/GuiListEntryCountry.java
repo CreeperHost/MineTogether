@@ -15,6 +15,6 @@ public class GuiListEntryCountry extends GuiListEntry
     @Override
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
     {
-        this.mc.fontRendererObj.drawString(this.countryName, x + 5, y + 5, 16777215);
+        this.mc.fontRenderer.drawString(this.countryName, x + 5, y + 5, 16777215);
     }
 }

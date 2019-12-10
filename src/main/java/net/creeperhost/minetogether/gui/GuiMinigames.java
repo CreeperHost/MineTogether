@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.api.Minigame;
 import net.creeperhost.minetogether.aries.Aries;
@@ -12,19 +13,22 @@ import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.gui.element.GuiActiveFake;
-import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompatCensor;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.serverstuffs.CreeperHostServer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.apache.commons.io.FileUtils;
@@ -46,7 +50,7 @@ import java.util.concurrent.Future;
 
 import static net.creeperhost.minetogether.paul.Callbacks.getPlayerHash;
 
-public class GuiMinigames extends GuiScreen
+public class GuiMinigames extends Screen
 {
     private static GuiMinigames current;
     private List<Minigame> minigames;
@@ -54,8 +58,8 @@ public class GuiMinigames extends GuiScreen
     private GuiScrollingMinigames minigameScroll;
     private static HashMap<Integer, ResourceLocation> minigameTexturesCache = new HashMap<>();
     private static HashMap<Integer, Pair<Integer, Integer>> minigameTexturesSize = new HashMap<>();
-    private GuiButton settingsButton;
-    private GuiButton spinupButton;
+    private Button settingsButton;
+    private Button spinupButton;
     private static File credentialsFile = new File("config/minetogether/credentials.json");
     private static String key = "";
     private static String secret = "";
@@ -73,11 +77,12 @@ public class GuiMinigames extends GuiScreen
     private boolean isModded = true;
     private GuiActiveFake moddedButton;
     private GuiActiveFake vanillaButton;
-    private GuiScreen parent;
-    private GuiButton cancelButton;
+    private Screen parent;
+    private Button cancelButton;
     
-    public GuiMinigames(GuiScreen parent)
+    public GuiMinigames(Screen parent)
     {
+        super(new StringTextComponent(""));
         this.parent = parent;
         current = this;
         State.pushState(State.CHECKING_CREDENTIALS);
@@ -90,7 +95,7 @@ public class GuiMinigames extends GuiScreen
     
     public boolean spinDown = false;
     
-    public GuiMinigames(GuiScreen parent, boolean spinDown)
+    public GuiMinigames(Screen parent, boolean spinDown)
     {
         this(parent);
         this.spinDown = spinDown;
@@ -116,8 +121,8 @@ public class GuiMinigames extends GuiScreen
         });
         
     }
-    
-    @Override
+    //TODO
+//    @Override
     public void updateScreen()
     {
         ticks++;
@@ -171,56 +176,56 @@ public class GuiMinigames extends GuiScreen
         int throbTickMax = 20;
         int rotateTicks = ticks % rotateTickMax;
         int throbTicks = ticks % throbTickMax;
-        GlStateManager.translate(width / 2, height / 2 + 20 + 10, 0);
+        GlStateManager.translated(width / 2, height / 2 + 20 + 10, 0);
         GlStateManager.pushMatrix();
         float scale = 1F + ((throbTicks >= (throbTickMax / 2) ? (throbTickMax - (throbTicks + partialTicks)) : (throbTicks + partialTicks)) * (2F / throbTickMax));
-        GlStateManager.scale(scale, scale, scale);
-        GlStateManager.rotate((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
+        GlStateManager.scalef(scale, scale, scale);
+        GlStateManager.rotatef((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
         GlStateManager.pushMatrix();
         
-        itemRender.renderItemAndEffectIntoGUI(stack, -8, -8);
+//        itemRender.renderItemAndEffectIntoGUI(stack, -8, -8);
         
         GlStateManager.popMatrix();
         GlStateManager.popMatrix();
     }
     
     @Override
-    public void initGui()
+    public void init()
     {
         if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
         {
-            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMinigames(parent)));
+            minecraft.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMinigames(parent)));
             return;
         }
-        super.initGui();
+        super.init();
         GuiScrollingMinigames tempMinigameScroll = new GuiScrollingMinigames(34);
         tempMinigameScroll.update(minigameScroll);
         minigameScroll = tempMinigameScroll;
-        buttonList.add(settingsButton = new GuiButton(808, width - 10 - 100, 5, 100, 20, "Login"));
-        buttonList.add(spinupButton = new GuiButton(809, width - 10 - 100, height - 5 - 20, 100, 20, "Start minigame"));
+        buttonList.add(settingsButton = new Button(808, width - 10 - 100, 5, 100, 20, "Login"));
+        buttonList.add(spinupButton = new Button(809, width - 10 - 100, height - 5 - 20, 100, 20, "Start minigame"));
         buttonList.add(moddedButton = new GuiActiveFake(0xb00b, 10, 30, (width / 2) - 5, 20, "Modded"));
         buttonList.add(vanillaButton = new GuiActiveFake(0xb00b5, width - 10 - ((width / 2) - 10), 30, (width / 2) - 5, 20, "Vanilla"));
-        buttonList.add(cancelButton = new GuiButton(909, 10, height - 5 - 20, 100, 20, "Cancel"));
+        buttonList.add(cancelButton = new Button(909, 10, height - 5 - 20, 100, 20, "Cancel"));
         moddedButton.setActive(isModded);
         vanillaButton.setActive(!isModded);
         State.refreshState();
     }
     
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void render(int mouseX, int mouseY, float partialTicks)
     {
-        drawDefaultBackground();
+        renderDirtBackground(1);
         if (Config.getInstance().isChatEnabled() && !ChatHandler.isOnline())
         {
             spinupButton.visible = spinupButton.enabled = vanillaButton.visible = vanillaButton.enabled =
                     moddedButton.visible = moddedButton.enabled = settingsButton.visible = settingsButton.enabled = false;
-            drawCenteredString(fontRendererObj, I18n.format("minetogether.minigames.notavailable"), width / 2, height / 2, 0xFFFFFFFF);
-            super.drawScreen(mouseX, mouseY, partialTicks);
+            drawCenteredString(minecraft.fontRenderer, I18n.format("minetogether.minigames.notavailable"), width / 2, height / 2, 0xFFFFFFFF);
+            super.render(mouseX, mouseY, partialTicks);
             return;
         }
         if (!spinDown)
         {
-            spinupButton.enabled = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null && credit >= quote;
+            spinupButton.active = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null && credit >= quote;
             minigameScroll.drawScreen(mouseX, mouseY, partialTicks);
             super.drawScreen(mouseX, mouseY, partialTicks);
             String creditStr;
@@ -238,9 +243,9 @@ public class GuiMinigames extends GuiScreen
                     creditStr = "CreeperHost credit: " + curPrefix + formattedCredit + curSuffix;
             }
             
-            drawCenteredString(fontRendererObj, "MineTogether Minigames", width / 2, 5, 0xFFFFFFFF);
+            drawCenteredString(minecraft.fontRenderer, "MineTogether Minigames", width / 2, 5, 0xFFFFFFFF);
             
-            drawString(fontRendererObj, creditStr, 5, 5, 0xFFFFFFFF);
+            drawString(minecraft.fontRenderer, creditStr, 5, 5, 0xFFFFFFFF);
             drawStatusString(width / 2, height - 40);
             
             String currencyFormat = String.valueOf((int) quote);
@@ -264,16 +269,16 @@ public class GuiMinigames extends GuiScreen
                 }
                 
                 String formattedQuote = first + curPrefix + currencyFormat + curSuffix;
-                drawString(fontRendererObj, formattedQuote, 5, height - 40, 0xFFFFFFFF);
-                int stringLen = fontRendererObj.getStringWidth(formattedQuote);
+                drawString(minecraft.fontRenderer, formattedQuote, 5, height - 40, 0xFFFFFFFF);
+                int stringLen = minecraft.fontRenderer.getStringWidth(formattedQuote);
                 if (!creditType.equals("credit") && !curPrefix.equals("£") && mouseX >= 5 && mouseX <= 5 + stringLen && mouseY >= height - 40 && mouseY <= height - 30)
                 {
-                    drawHoveringText(Arrays.asList("Figure provided based on exchange rate of " + exchangeRate), mouseX, mouseY);
+//                    drawHoveringText(Arrays.asList("Figure provided based on exchange rate of " + exchangeRate), mouseX, mouseY);
                 } else
                 {
                     if (spinupButton.isMouseOver() && credit < quote)
                     {
-                        drawHoveringText(Arrays.asList("Cannot start minigame as you do not have enough credit"), mouseX, mouseY);
+//                        drawHoveringText(Arrays.asList("Cannot start minigame as you do not have enough credit"), mouseX, mouseY);
                     }
                 }
             }
@@ -283,7 +288,7 @@ public class GuiMinigames extends GuiScreen
             loadingSpin(partialTicks);
             if (doSpindown)
             {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
+                Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
             }
         }
     }
@@ -306,32 +311,32 @@ public class GuiMinigames extends GuiScreen
     }
     
     
-    @Override
-    public void actionPerformed(GuiButton button)
-    {
-        if (button == settingsButton)
-        {
-            Minecraft.getMinecraft().displayGuiScreen(settings = new Settings());
-        } else if (button == spinupButton && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null)
-        {
-            Minecraft.getMinecraft().displayGuiScreen(new StartMinigame(minigameScroll.getMinigame()));
-        } else if (button == vanillaButton)
-        {
-            isModded = false;
-            minigameScroll.clearSelected();
-            vanillaButton.setActive(true);
-            moddedButton.setActive(false);
-        } else if (button == moddedButton)
-        {
-            isModded = true;
-            minigameScroll.clearSelected();
-            moddedButton.setActive(true);
-            vanillaButton.setActive(false);
-        } else if (button == cancelButton)
-        {
-            this.mc.displayGuiScreen(parent);
-        }
-    }
+//    @Override
+//    public void actionPerformed(GuiButton button)
+//    {
+//        if (button == settingsButton)
+//        {
+//            Minecraft.getMinecraft().displayGuiScreen(settings = new Settings());
+//        } else if (button == spinupButton && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null)
+//        {
+//            Minecraft.getMinecraft().displayGuiScreen(new StartMinigame(minigameScroll.getMinigame()));
+//        } else if (button == vanillaButton)
+//        {
+//            isModded = false;
+//            minigameScroll.clearSelected();
+//            vanillaButton.setActive(true);
+//            moddedButton.setActive(false);
+//        } else if (button == moddedButton)
+//        {
+//            isModded = true;
+//            minigameScroll.clearSelected();
+//            moddedButton.setActive(true);
+//            vanillaButton.setActive(false);
+//        } else if (button == cancelButton)
+//        {
+//            this.mc.displayGuiScreen(parent);
+//        }
+//    }
     
     private boolean areCredentialsValid()
     {
@@ -523,11 +528,11 @@ public class GuiMinigames extends GuiScreen
     private void drawCenteredSplitString(String drawText, int x, int y, int width, int drawColour)
     {
         
-        List<String> strings = fontRendererObj.listFormattedStringToWidth(drawText, width);
+        List<String> strings = font.listFormattedStringToWidth(drawText, width);
         for (String str : strings)
         {
-            drawCenteredString(fontRendererObj, str, x, y, drawColour);
-            y += fontRendererObj.FONT_HEIGHT;
+            drawCenteredString(font, str, x, y, drawColour);
+            y += font.FONT_HEIGHT;
         }
     }
     
@@ -541,7 +546,7 @@ public class GuiMinigames extends GuiScreen
         {
             if (current.settingsButton == null)
                 return;
-            GuiMinigames.current.settingsButton.enabled = true;
+            GuiMinigames.current.settingsButton.active = true;
             switch (state)
             {
                 case LOGGING_IN:
@@ -628,7 +633,7 @@ public class GuiMinigames extends GuiScreen
                 GuiMinigames.current.settingsButton.displayString = "Log in";
             }
             
-            GuiScreen curScreen = Minecraft.getMinecraft().currentScreen;
+            GuiScreen curScreen = Minecraft.getInstance().currentScreen;
             if (curScreen instanceof IStateHandler)
             {
                 ((IStateHandler) curScreen).handleStatePush(state);
@@ -650,7 +655,7 @@ public class GuiMinigames extends GuiScreen
     {
         public GuiScrollingMinigames(int entryHeight)
         {
-            super(Minecraft.getMinecraft(), GuiMinigames.this.width - 20, GuiMinigames.this.height - 50, 50, GuiMinigames.this.height - 50, 10, entryHeight, GuiMinigames.this.width, GuiMinigames.this.height);
+            super(Minecraft.getInstance(), GuiMinigames.this.width - 20, GuiMinigames.this.height - 50, 50, GuiMinigames.this.height - 50, 10, entryHeight, GuiMinigames.this.width, GuiMinigames.this.height);
         }
         
         @Override
@@ -684,7 +689,7 @@ public class GuiMinigames extends GuiScreen
             List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
             if (minigames == null)
             {
-                drawCenteredString(fontRendererObj, "Loading minigames...", width / 2, slotTop, 0xFFFFFFFF);
+                drawCenteredString(font, "Loading minigames...", width / 2, slotTop, 0xFFFFFFFF);
             } else
             {
                 Minigame game = minigames.get(slotIdx);
@@ -701,7 +706,7 @@ public class GuiMinigames extends GuiScreen
                     if (imageData != null)
                     {
                         DynamicTexture texture = new DynamicTexture(imageData);
-                        mc.getTextureManager().loadTexture(resourceLocation, texture);
+                        minecraft.getTextureManager().loadTexture(resourceLocation, texture);
                         texture.updateDynamicTexture();
                         minigameTexturesCache.put(game.id, resourceLocation);
                         minigameTexturesSize.put(game.id, new Pair<>(imageData.getWidth(), imageData.getHeight()));
@@ -720,25 +725,25 @@ public class GuiMinigames extends GuiScreen
                 
                 GlStateManager.pushMatrix();
                 float scale = 1.5f;
-                GlStateManager.scale(scale, scale, scale);
+                GlStateManager.scalef(scale, scale, scale);
                 int x = width / 2;
                 int y = slotTop;
                 x = (int) (x / scale);
                 y = (int) (y / scale);
                 
-                int gameWidth = (int) (fontRendererObj.getStringWidth(minigames.get(slotIdx).displayName) * scale);
+                int gameWidth = (int) (font.getStringWidth(minigames.get(slotIdx).displayName) * scale);
                 int newX = (width / 2) + (gameWidth / 2);
                 
-                drawCenteredString(fontRendererObj, minigames.get(slotIdx).displayName, x, y, 0xFFFFFFFF);
+                drawCenteredString(font, minigames.get(slotIdx).displayName, x, y, 0xFFFFFFFF);
                 
                 GlStateManager.popMatrix();
                 
-                drawString(fontRendererObj, " by " + minigames.get(slotIdx).author, newX, slotTop + 2, 0xFFAAAAAA);
+                drawString(font, " by " + minigames.get(slotIdx).author, newX, slotTop + 2, 0xFFAAAAAA);
                 
                 String displayDescription = minigames.get(slotIdx).displayDescription;
-                if (fontRendererObj.getStringWidth(displayDescription) > (width - 96) * 2)
+                if (font.getStringWidth(displayDescription) > (width - 96) * 2)
                 {
-                    while (fontRendererObj.getStringWidth(displayDescription + "...") > (width - 96) * 2)
+                    while (font.getStringWidth(displayDescription + "...") > (width - 96) * 2)
                     {
                         displayDescription = displayDescription.substring(0, displayDescription.lastIndexOf(" "));
                     }

@@ -10,18 +10,19 @@ import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerListPublic
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerSelectionListPublic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.screen.MultiplayerScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.network.LanServerDetector;
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
-public class GuiMultiplayerPublic extends GuiMultiplayer
+public class GuiMultiplayerPublic extends MultiplayerScreen
 {
     private static Field savedServerListField;
     private static Field lanServerDetectorField;
@@ -30,32 +31,32 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     public ListType listType = ListType.PUBLIC;
     public SortOrder sortOrder = SortOrder.RANDOM;
     private boolean initialized;
-    private GuiScreen parent;
-    private GuiButton modeToggle;
+    private Screen parent;
+    private Screen modeToggle;
     private boolean changeSort;
     //private DropdownButton<ListType> modeToggle;
     private DropdownButton<SortOrder> sortOrderButton;
     private ServerListPublic ourSavedServerList = null;
-    private LanServerDetector.ThreadLanServerFind ourLanServerDetector = null;
+    private LanServerDetector.LanServerFindThread ourLanServerDetector = null;
     private LanServerDetector.LanServerList ourLanServerList = null;
     private ServerSelectionListPublic ourServerListSelector = null;
     private String ourTooltip;
     public boolean selectedListType = false;
     
-    public GuiMultiplayerPublic(GuiScreen parentScreen)
+    public GuiMultiplayerPublic(Screen parentScreen)
     {
         super(parentScreen);
         parent = parentScreen;
     }
     
-    public GuiMultiplayerPublic(GuiScreen parentScreen, ListType listType, SortOrder order)
+    public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order)
     {
         this(parentScreen);
         this.listType = listType;
         sortOrder = order;
     }
     
-    public GuiMultiplayerPublic(GuiScreen parentScreen, ListType listType, SortOrder order, boolean selectedListType)
+    public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order, boolean selectedListType)
     {
         this(parentScreen);
         this.listType = listType;
@@ -121,7 +122,7 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
     public void createButtons()
     {
         super.createButtons();
-        for (GuiButton button : buttonList)
+        for (Button button : buttonList)
         {
             if (button.id != 0 && button.id != 1 && button.id != 3 && button.id != 7)
             {
@@ -138,12 +139,13 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
                 button.enabled = true;
             }
         }
-        modeToggle = new GuiButton(80085101, width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"));
+        modeToggle = new Button(80085101, width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"));
         //modeToggle = new DropdownButton<>(80085101, width - 5 - 80, 5, 80, 20, "creeperhost.multiplayer.list", listType, false);
         sortOrderButton = new DropdownButton<>(80085102, width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false);
         buttonList.add(modeToggle);
         buttonList.add(sortOrderButton);
     }
+
     
     @SuppressWarnings("Duplicates")
     @Override

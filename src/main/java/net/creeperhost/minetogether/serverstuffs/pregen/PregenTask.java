@@ -1,8 +1,11 @@
 package net.creeperhost.minetogether.serverstuffs.pregen;
 
 import net.creeperhost.minetogether.common.Pair;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.DimensionManager;
 
 import java.util.ArrayList;
@@ -10,7 +13,7 @@ import java.util.ArrayList;
 public class PregenTask
 {
     public boolean preventJoin = true;
-    public int dimension;
+    public DimensionType dimension;
     public transient ArrayList<Pair<Integer, Integer>> chunksToGen;
     public int chunksPerTick;
     public int storedCurX;
@@ -30,7 +33,7 @@ public class PregenTask
     public transient int chunkLoadCount;
     public transient int curChunksPerTick;
     
-    public PregenTask(int dimension, int minX, int maxX, int minZ, int maxZ, int chunksPerTick, boolean preventJoin)
+    public PregenTask(DimensionType dimension, int minX, int maxX, int minZ, int maxZ, int chunksPerTick, boolean preventJoin)
     {
         this.dimension = dimension;
         this.chunksPerTick = chunksPerTick;
@@ -50,8 +53,7 @@ public class PregenTask
     {
         startTime = 0;
         if (chunksToGen != null) return;
-        
-        WorldServer world = DimensionManager.getWorld(dimension);
+        ServerWorld world = DimensionManager.getWorld(dimension);
         if (diameterX > 0 && totalChunks == 0) // only the first time
         {
             BlockPos pos = world.getSpawnPoint();

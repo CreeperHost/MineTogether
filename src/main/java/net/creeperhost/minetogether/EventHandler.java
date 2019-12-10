@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.aries.Aries;
 import net.creeperhost.minetogether.chat.ChatHandler;
@@ -27,6 +28,7 @@ import net.creeperhost.minetogether.serverstuffs.CreeperHostServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.*;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
@@ -39,9 +41,11 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.versions.forge.ForgeVersion;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -550,13 +554,13 @@ public class EventHandler
     @SubscribeEvent
     public void onActionPerformed(ActionPerformedEvent.Pre event)
     {
-        GuiScreen gui = event.getGui();
-        GuiButton button = event.getButton();
-        if (gui instanceof GuiMainMenu)
+        Screen gui = event.getGui();
+        Button button = event.getButton();
+        if (gui instanceof MainMenuScreen)
         {
             if (button != null && button.id == MAIN_BUTTON_ID)
             {
-                Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+                Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
             }
             if (button != null && button.id == MINIGAMES_BUTTON_ID)
             {
@@ -576,7 +580,7 @@ public class EventHandler
             {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames(gui));
             }
-        } else if (gui instanceof GuiIngameMenu)
+        } else if (gui instanceof IngameMenuScreen)
         {
             if (button != null && button.id == FRIEND_BUTTON_ID)
             {
@@ -617,7 +621,7 @@ public class EventHandler
             return;
         }
         
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         
         ScaledResolution resolution = new ScaledResolution(mc);
         guiServerInfo.setWorldAndResolution(mc, resolution.getScaledWidth(), resolution.getScaledHeight());
@@ -733,7 +737,7 @@ public class EventHandler
                             if(temp != null)
                             {
                                 CreeperHost.instance.displayToast(I18n.format("Your friend %s invited you to a private chat", CreeperHost.instance.getNameForUser(temp.getOwner()), ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, () -> {
-                                    mc.displayGuiScreen(new GuiMTChat(Minecraft.getMinecraft().currentScreen, true));
+                                    mc.displayGuiScreen(new GuiMTChat(Minecraft.getInstance().currentScreen, true));
                                 });
                             }
                         }
@@ -808,7 +812,7 @@ public class EventHandler
             
             if (friend != null)
             {
-                if (friendMessage && Minecraft.getMinecraft().currentScreen instanceof GuiMTChat)
+                if (friendMessage && Minecraft.getInstance().currentScreen instanceof GuiMTChat)
                     return;
                 if(Config.getInstance().isFriendOnlineToastsEnabled())
                 {
@@ -864,7 +868,7 @@ public class EventHandler
                 drawTexturedModalRect(res.getScaledWidth() - 160, 0, u, v, 160, 32);
                 GlStateManager.enableBlend();
                 int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
-                mc.fontRendererObj.drawSplitString(CreeperHost.instance.toastText, res.getScaledWidth() - 160 + 5, 3, 160, textColour);
+                mc.fontRenderer.drawSplitString(CreeperHost.instance.toastText, res.getScaledWidth() - 160 + 5, 3, 160, textColour);
             } else
             {
                 CreeperHost.instance.clearToast(false);
@@ -916,7 +920,7 @@ public class EventHandler
 
     public boolean onMouseInput(MouseEvent event)
     {
-        GuiScreen activeScreen = Minecraft.getMinecraft().currentScreen;
+        Screen activeScreen = Minecraft.getInstance().currentScreen;
         if (activeScreen == null)
             return false; // just to stop the compiler from bitching mainly, and better to be safe than sorry
         if (!(event.isButtonstate() && event.getButton() == 0))

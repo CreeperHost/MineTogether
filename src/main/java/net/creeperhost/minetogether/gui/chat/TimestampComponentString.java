@@ -2,10 +2,11 @@ package net.creeperhost.minetogether.gui.chat;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.event.HoverEvent;
 
-public class TimestampComponentString extends TextComponentString {
+public class TimestampComponentString extends StringTextComponent
+{
     public String text;
     public static TimestampComponentString currentActive = null;
     public static TimestampComponentString currentFakeActive = null;
@@ -29,7 +30,7 @@ public class TimestampComponentString extends TextComponentString {
     }
 
     @Override
-    public TextComponentString createCopy() {
+    public StringTextComponent deepCopy() {
         TimestampComponentString textcomponentstring = new TimestampComponentString(text);
         if (isActive())
             textcomponentstring.pretendActive = true;
@@ -37,7 +38,7 @@ public class TimestampComponentString extends TextComponentString {
 
         for (ITextComponent itextcomponent : this.getSiblings())
         {
-            textcomponentstring.appendSibling(itextcomponent.createCopy());
+            textcomponentstring.appendSibling(itextcomponent.deepCopy());
         }
 
         return textcomponentstring;
@@ -82,10 +83,10 @@ public class TimestampComponentString extends TextComponentString {
     public String getRawText() {
         HoverEvent event = getStyle().getHoverEvent();
         String ret = text;
-        if (event != null && event.getAction() == CreeperHost.instance.TIMESTAMP)
-        {
-            ret = event.getValue().getFormattedText();
-        }
+//        if (event != null && event.getAction() == CreeperHost.instance.TIMESTAMP)
+//        {
+//            ret = event.getValue().getFormattedText();
+//        }
         return ret;
     }
 }

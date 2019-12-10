@@ -8,25 +8,29 @@ import net.creeperhost.minetogether.gui.serverlist.gui.elements.MockServerListEn
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerListEntryPublic;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.client.config.GuiCheckBox;
 
 import java.io.IOException;
 
-public class GuiInvited extends GuiScreen
+public class GuiInvited extends Screen
 {
     private final Invite invite;
     private final ServerListEntryPublic server;
-    private final GuiScreen parent;
+    private final Screen parent;
     private final boolean canConnect;
-    private GuiButton connectButton;
-    private GuiButton cancelButton;
+    private Button connectButton;
+    private Button cancelButton;
     private GuiCheckBox checkBox;
     private boolean addToServerList = true;
     
-    public GuiInvited(Invite invite, GuiScreen parent)
+    public GuiInvited(Invite invite, Screen parent)
     {
+        super(new StringTextComponent(""));
         this.invite = invite;
         this.parent = parent;
         server = new ServerListEntryPublic(new MockServerListEntryNormal(new ServerDataPublic(invite.server)));

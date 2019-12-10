@@ -4,7 +4,7 @@ import net.creeperhost.minetogether.gui.hacky.IBufferProxy;
 import net.creeperhost.minetogether.gui.hacky.IBufferProxyGetter;
 import net.creeperhost.minetogether.gui.hacky.IServerListEntryWrapper;
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.common.ForgeVersion;
+import net.minecraftforge.versions.forge.ForgeVersion;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

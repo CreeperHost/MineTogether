@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.gui.element.TextFieldDetails;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
@@ -27,7 +28,7 @@ public class GuiPersonalDetails extends GuiGetServer
     public TextFieldDetails focusedField;
     public boolean isEmailValid = false;
     private boolean loginMode;
-    private GuiButton loginButton;
+    private Button loginButton;
     private boolean loggingIn;
     private String loggingInError = "";
     private boolean loggedIn;

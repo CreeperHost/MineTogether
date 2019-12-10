@@ -2,13 +2,6 @@ package net.creeperhost.minetogether.gui.list;
 
 import net.creeperhost.minetogether.gui.GuiModPackList;
 import net.creeperhost.minetogether.paul.Callbacks;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentString;
-
-import java.util.List;
 
 public class GuiListEntryModpack extends GuiListEntry
 {
@@ -24,7 +17,7 @@ public class GuiListEntryModpack extends GuiListEntry
         this.modpackList = modPackList;
         this.modpack = modpack;
         cross = new String(Character.toChars(10006));
-        stringWidth = this.mc.fontRendererObj.getStringWidth(cross);
+        stringWidth = this.mc.fontRenderer.getStringWidth(cross);
     }
 
     @Override
@@ -40,7 +33,7 @@ public class GuiListEntryModpack extends GuiListEntry
                 transparency -= 0.04;
         }
 
-        this.mc.fontRendererObj.drawString(modpack.getName() + " (" + modpack.getDisplayVersion() + ")", x + 5, y + 5, 16777215);
+        this.mc.fontRenderer.drawString(modpack.getName() + " (" + modpack.getDisplayVersion() + ")", x + 5, y + 5, 16777215);
     }
 
     public Callbacks.Modpack getModpack()

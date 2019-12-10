@@ -4,12 +4,12 @@ import net.creeperhost.minetogether.common.IOrderValidation;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.DefferedValidation;
 import net.creeperhost.minetogether.gui.GuiPersonalDetails;
-import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 
 import java.util.ArrayList;
 
-public class TextFieldDetails extends GuiTextFieldCompat
+public class TextFieldDetails extends TextFieldWidget
 {
     private final GuiPersonalDetails gui;
     private final String displayString;
@@ -27,7 +27,7 @@ public class TextFieldDetails extends GuiTextFieldCompat
     
     public TextFieldDetails(GuiPersonalDetails gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators, boolean canBeFocused)
     {
-        super(id, gui.mc.fontRendererObj, x, y, width, height);
+        super(Minecraft.getInstance().fontRenderer, x, y, width, height, "");
         
         this.ourID = id;
         
@@ -72,59 +72,60 @@ public class TextFieldDetails extends GuiTextFieldCompat
     {
         return ourID;
     }
-    
+
+    //TODO
     @SuppressWarnings("Duplicates")
-    @Override
-    public void drawTextBox()
-    {
-        if (!this.censorText.isEmpty())
-        {
-            String text = this.getText();
-            
-            double censorLength = censorText.length();
-            
-            double mainLength = text.length();
-            
-            double timesRaw = mainLength / censorLength;
-            
-            int times = (int) Math.ceil(timesRaw);
-            
-            String obscure = new String(new char[times]).replace("\0", censorText).substring(0, (int) mainLength);
-            boolean oldNotValidate = doNotValidate;
-            doNotValidate = true;
-            this.setText(obscure);
-            super.drawTextBox();
-
-            this.setText(text);
-            doNotValidate = oldNotValidate;
-        } else
-        {
-            super.drawTextBox();
-        }
-        
-        int startX = (this.xPosition + this.width + 3) / 2;
-        int startY = (this.yPosition + 4) / 2;
-        
-        GlStateManager.scale(2.0F, 2.0F, 2.0F);
-        
-        if (isValidated)
-        {
-            this.drawString(this.gui.mc.fontRendererObj, acceptString, startX, startY, 0x00FF00);
-        } else
-        {
-            this.drawString(this.gui.mc.fontRendererObj, denyString, startX, startY, 0xFF0000);
-        }
-
-        GL11.glScalef(0.5F, 0.5F, 0.5F);
-
-        if (!this.isFocused() && this.getText().trim().isEmpty())
-        {
-            int x = this.xPosition + 4;
-            int y = this.yPosition + (this.height - 8) / 2;
-
-            this.gui.mc.fontRendererObj.drawStringWithShadow("\u00A7o" + this.displayString, x, y, 14737632);
-        }
-    }
+//    @Override
+//    public void drawTextBox()
+//    {
+//        if (!this.censorText.isEmpty())
+//        {
+//            String text = this.getText();
+//
+//            double censorLength = censorText.length();
+//
+//            double mainLength = text.length();
+//
+//            double timesRaw = mainLength / censorLength;
+//
+//            int times = (int) Math.ceil(timesRaw);
+//
+//            String obscure = new String(new char[times]).replace("\0", censorText).substring(0, (int) mainLength);
+//            boolean oldNotValidate = doNotValidate;
+//            doNotValidate = true;
+//            this.setText(obscure);
+//            super.drawTextBox();
+//
+//            this.setText(text);
+//            doNotValidate = oldNotValidate;
+//        } else
+//        {
+//            super.drawTextBox();
+//        }
+//
+//        int startX = (this.x + this.width + 3) / 2;
+//        int startY = (this.y + 4) / 2;
+//
+//        GlStateManager.scalef(2.0F, 2.0F, 2.0F);
+//
+//        if (isValidated)
+//        {
+//            this.drawString(Minecraft.getInstance().fontRenderer, acceptString, startX, startY, 0x00FF00);
+//        } else
+//        {
+//            this.drawString(Minecraft.getInstance().fontRenderer, denyString, startX, startY, 0xFF0000);
+//        }
+//
+//        GL11.glScalef(0.5F, 0.5F, 0.5F);
+//
+//        if (!this.isFocused() && this.getText().trim().isEmpty())
+//        {
+//            int x = this.x + 4;
+//            int y = this.y + (this.height - 8) / 2;
+//
+//            Minecraft.getInstance().fontRenderer.drawStringWithShadow("\u00A7o" + this.displayString, x, y, 14737632);
+//        }
+//    }
     
     public boolean canBeFocused()
     {

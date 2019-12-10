@@ -1,11 +1,11 @@
 package net.creeperhost.minetogether.gui.element;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.gui.hacky.IBufferProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
@@ -45,8 +45,8 @@ public class GuiWell
         Tessellator tessellator = Tessellator.getInstance();
         
         IBufferProxy buffer = Util.getBufferProxy();
-        this.mc.getTextureManager().bindTexture(Gui.OPTIONS_BACKGROUND);
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        this.mc.getTextureManager().bindTexture(Screen.BACKGROUND_LOCATION);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float f = 32.0F;
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex((double) ((float) this.left / f), (double) ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
@@ -55,12 +55,12 @@ public class GuiWell
         buffer.pos((double) this.left, (double) this.top, 0.0D).tex((double) ((float) this.left / f), (double) ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
         tessellator.draw();
         
-        GlStateManager.disableDepth();
+        GlStateManager.disableDepthTest();
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
-        GlStateManager.disableAlpha();
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+        GlStateManager.disableAlphaTest();
         GlStateManager.shadeModel(7425);
-        GlStateManager.disableTexture2D();
+        GlStateManager.disableTexture();
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         buffer.pos((double) this.left, (double) (this.top + 4), 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 0).endVertex();
         buffer.pos((double) this.right, (double) (this.top + 4), 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 0).endVertex();
@@ -74,12 +74,12 @@ public class GuiWell
         buffer.pos((double) this.left, (double) (this.bottom - 4), 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 0).endVertex();
         tessellator.draw();
         
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
         GlStateManager.shadeModel(7424);
-        GlStateManager.enableAlpha();
+        GlStateManager.enableAlphaTest();
         GlStateManager.disableBlend();
         
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+        FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
         
         int titleWidth = fontRenderer.getStringWidth(title);
         fontRenderer.drawStringWithShadow(title, this.left + ((this.right - this.left) / 2) - (titleWidth / 2), this.top + 2, 0xFFFFFF);

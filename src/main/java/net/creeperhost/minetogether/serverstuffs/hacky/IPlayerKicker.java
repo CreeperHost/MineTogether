@@ -1,8 +1,8 @@
 package net.creeperhost.minetogether.serverstuffs.hacky;
 
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 
 public interface IPlayerKicker
 {
-    void kickPlayer(EntityPlayerMP player, String message);
+    void kickPlayer(ServerPlayerEntity player, String message);
 }

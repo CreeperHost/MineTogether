@@ -4,6 +4,8 @@ import net.creeperhost.minetogether.EventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.ConnectingScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.resources.I18n;
@@ -19,9 +21,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GuiProgressDisconnected extends GuiScreen
+public class GuiProgressDisconnected extends Screen
 {
-    private final GuiScreen parentScreen;
+    private final Screen parentScreen;
     double percent = 0;
     Pattern pattern = Pattern.compile("(\\d+/\\d+).*");
     Field cancelField = null;
@@ -31,10 +33,10 @@ public class GuiProgressDisconnected extends GuiScreen
     private int textHeight;
     private long lastConnectAttempt;
     private NetworkManager lastNetworkManager;
-    private GuiConnecting captiveConnecting;
+    private ConnectingScreen captiveConnecting;
     private String ip = "";
     
-    public GuiProgressDisconnected(GuiScreen screen, String reasonLocalizationKey, ITextComponent chatComp, NetworkManager lastNetworkManager)
+    public GuiProgressDisconnected(ConnectingScreen screen, String reasonLocalizationKey, ITextComponent chatComp, NetworkManager lastNetworkManager)
     {
         this.parentScreen = screen;
         this.ourReason = I18n.format(reasonLocalizationKey);

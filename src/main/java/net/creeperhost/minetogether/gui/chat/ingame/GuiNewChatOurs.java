@@ -9,22 +9,18 @@ import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.TimestampComponentString;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
-public class GuiNewChatOurs extends GuiNewChat
+public class GuiNewChatOurs extends NewChatGui
 {
     private boolean base = true;
     public static boolean tabCompletion = false;

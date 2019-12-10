@@ -3,17 +3,18 @@ package net.creeperhost.minetogether.gui.list;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GuiList<T extends GuiListEntry> extends GuiListExtended
 {
-    public final GuiScreen gui;
+    public final Screen gui;
     private List<T> options;
     private int currSelected = -1;
     
-    public GuiList(GuiScreen gui, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
+    public GuiList(Screen gui, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
     {
         super(mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
         this.gui = gui;

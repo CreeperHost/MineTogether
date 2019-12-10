@@ -1,11 +1,13 @@
 package net.creeperhost.minetogether.gui.list;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextComponentString;
 
 public class GuiListEntryFriend extends GuiListEntry
@@ -24,7 +26,7 @@ public class GuiListEntryFriend extends GuiListEntry
         friendsList = friendsListIn;
         this.friend = friend;
         cross = new String(Character.toChars(10006));
-        stringWidth = this.mc.fontRendererObj.getStringWidth(cross);
+        stringWidth = this.mc.fontRenderer.getStringWidth(cross);
     }
     
     @SuppressWarnings("Duplicates")
@@ -41,21 +43,21 @@ public class GuiListEntryFriend extends GuiListEntry
                 transparency -= 0.04;
         }
         
-        this.mc.fontRendererObj.drawString(friend.getName(), x + 5, y + 5, 16777215);
-        this.mc.fontRendererObj.drawString(new TextComponentString(friend.isAccepted() ? "Accepted" : "Pending").getText(), x + 5, y + 5 + 10, 16777215);
+        this.mc.fontRenderer.drawString(friend.getName(), x + 5, y + 5, 16777215);
+        this.mc.fontRenderer.drawString(new StringTextComponent(friend.isAccepted() ? "Accepted" : "Pending").getText(), x + 5, y + 5 + 10, 16777215);
         
         int transparentString = (int) (transparency * 254) << 24;
         
-        GlStateManager.enableAlpha();
+        GlStateManager.enableAlphaTest();
         GlStateManager.enableBlend();
-        this.mc.fontRendererObj.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
+        this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
 
-        Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);
+        Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
 
-        GlStateManager.color(0, 1, 0, 1);
-        Gui.drawModalRectWithCustomSizedTexture(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10F, 10F);
+        GlStateManager.color4f(0, 1, 0, 1);
+//        Gui.drawModalRectWithCustomSizedTexture(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10F, 10F);
 
-        GlStateManager.disableAlpha();
+        GlStateManager.disableAlphaTest();
         GlStateManager.disableBlend();
         
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)

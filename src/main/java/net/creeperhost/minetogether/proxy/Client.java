@@ -2,13 +2,11 @@ package net.creeperhost.minetogether.proxy;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.authlib.Agent;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
-import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
@@ -21,24 +19,17 @@ import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiIngame;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.Session;
-import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.client.settings.KeyModifier;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.commons.io.IOUtils;
-import org.lwjgl.input.Keyboard;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,14 +41,15 @@ public class Client implements IProxy
     @Override
     public void registerKeys()
     {
-        openGuiKey = new KeyBinding("minetogether.key.friends", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_M, "minetogether.keys");
-        ClientRegistry.registerKeyBinding(openGuiKey);
+        //TODO
+//        openGuiKey = new KeyBinding("minetogether.key.friends", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_M, "minetogether.keys");
+//        ClientRegistry.registerKeyBinding(openGuiKey);
     }
     
     @Override
     public void openFriendsGui()
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         if (CreeperHost.instance.handledInvite == null)
         {
             mc.displayGuiScreen(new GuiFriendsList(mc.currentScreen));
@@ -73,7 +65,7 @@ public class Client implements IProxy
     {
         if (cache != null)
             return cache;
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         Session session = mc.getSession();
         boolean online = CreeperHost.instance.online;
 
@@ -83,11 +75,11 @@ public class Client implements IProxy
         {
             YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(mc.getProxy(), UUID.randomUUID().toString());
             GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
-            PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository, new File(mc.mcDataDir, MinecraftServer.USER_CACHE_FILE.getName()));
-            uuid = playerprofilecache.getGameProfileForUsername(Minecraft.getMinecraft().getSession().getUsername()).getId();
+            PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository, new File(mc.gameDir, MinecraftServer.USER_CACHE_FILE.getName()));
+            uuid = playerprofilecache.getGameProfileForUsername(Minecraft.getInstance().getSession().getUsername()).getId();
         } else
         {
-            uuid = EntityPlayer.getOfflineUUID(session.getUsername().toLowerCase());
+            uuid = PlayerEntity.getOfflineUUID(session.getUsername().toLowerCase());
         }
         cache = uuid;
 
@@ -145,7 +137,7 @@ public class Client implements IProxy
         CreeperHost.instance.ingameChat.setDisabledIngameChat(true);
         if (isChatReplaced)
         {
-            ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
+            ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
         }
     }
     
@@ -157,24 +149,24 @@ public class Client implements IProxy
         if (!isChatReplaced)
         {
             isChatReplaced = true;
-            try
-            {
-                Field field = ReflectionHelper.findField(GuiIngame.class, "persistantChatGUI", "field_73840_e", "");
-                field.set(Minecraft.getMinecraft().ingameGUI, new GuiNewChatOurs(Minecraft.getMinecraft()));
-            } catch (IllegalAccessException ignored) {}
+//            try
+//            {
+//                Field field = ReflectionHelper.findField(GuiIngame.class, "persistantChatGUI", "field_73840_e", "");
+//                field.set(Minecraft.getInstance().ingameGUI, new GuiNewChatOurs(Minecraft.getInstance()));
+//            } catch (IllegalAccessException ignored) {}
         }
     }
 
     @Override
     public void closeGroupChat() {
         ChatHandler.closePrivateChat();
-        GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+        GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
         chatGUI.setBase(true);
         chatGUI.rebuildChat(ChatHandler.CHANNEL);
-        GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+        Screen currentScreen = Minecraft.getInstance().currentScreen;
         if (currentScreen != null) {
             if (currentScreen instanceof GuiChatOurs)
-                currentScreen.setWorldAndResolution(Minecraft.getMinecraft(), currentScreen.width, currentScreen.height);
+                currentScreen.setSize(currentScreen.width, currentScreen.height);
             if (currentScreen instanceof GuiMTChat) {
                 for(DropdownButton.IDropdownOption target: Target.getMainTarget().getPossibleVals())
                 {
@@ -183,25 +175,26 @@ public class Client implements IProxy
                         Target.updateCache();
                     }
                 }
-                currentScreen.setWorldAndResolution(Minecraft.getMinecraft(), currentScreen.width, currentScreen.height);
+                currentScreen.setSize(currentScreen.width, currentScreen.height);
             }
         }
     }
 
     @Override
     public void messageReceived(String target, Message messagePair) {
-        if (!Config.getInstance().isChatEnabled() || (!target.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase()) && !target.toLowerCase().equals(ChatHandler.currentGroup.toLowerCase())) || !(Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
+        if (!Config.getInstance().isChatEnabled() || (!target.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase()) && !target.toLowerCase().equals(ChatHandler.currentGroup.toLowerCase())) || !(Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
-        GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
-        if (target.toLowerCase().equals(ourChat.chatTarget.toLowerCase()))
-            ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+        GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
+        //TODO
+//        if (target.toLowerCase().equals(ourChat.chatTarget.toLowerCase()))
+//            ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getInstance().ingameGUI.getUpdateCounter(), false);
     }
 
     @Override
     public void updateChatChannel() {
-        if (Config.getInstance().isChatEnabled() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
+        if (Config.getInstance().isChatEnabled() && Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
         {
-            GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+            GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
             if (chatGUI.chatTarget.equals("#MineTogether"))
                 chatGUI.chatTarget = ChatHandler.CHANNEL;
         }
@@ -209,11 +202,11 @@ public class Client implements IProxy
 
     @Override
     public void refreshChat() {
-        if (Config.getInstance().isChatEnabled() && Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) {
-            GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+        if (Config.getInstance().isChatEnabled() && Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) {
+            GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
             if (!chatGUI.isBase())
                 chatGUI.rebuildChat(chatGUI.chatTarget);
-            GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+            Screen currentScreen = Minecraft.getInstance().currentScreen;
             if (currentScreen != null && currentScreen instanceof GuiMTChat)
                 ((GuiMTChat)currentScreen).rebuildChat();
         }
@@ -221,9 +214,9 @@ public class Client implements IProxy
 
     @Override
     public boolean checkOnline() {
-        YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Minecraft.getMinecraft().getProxy(), UUID.randomUUID().toString());
+        YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Minecraft.getInstance().getProxy(), UUID.randomUUID().toString());
         YggdrasilMinecraftSessionService sessionService = (YggdrasilMinecraftSessionService) authService.createMinecraftSessionService();
-        Session session = Minecraft.getMinecraft().getSession();
+        Session session = Minecraft.getInstance().getSession();
         GameProfile profile = session.getProfile();
         String token = session.getToken();
         String serverId = UUID.randomUUID().toString();
