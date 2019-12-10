@@ -1,0 +1,10 @@
+modLoader="javafml" #mandatory
+loaderVersion="[28,]" #mandatory
+credits="" #optional
+authors="Gigabit101, Cloudhunter, Creeperhost" #optional
+[[mods]] #mandatory
+    modId="minetogether" #mandatory
+    version="${file.jarVersion}" #mandatory
+    displayName="MineTogether" #mandatory
+    description='''
+'''
