@@ -598,7 +598,7 @@ public class GuiMTChat extends GuiScreen
         ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
         if (CreeperHost.bannedUsers.contains(inputNick))
-            messageComp = new TextComponentString("message deleted").setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Message deleted as user was banned"))).setColor(TextFormatting.DARK_GRAY).setItalic(true));
+//            messageComp = new TextComponentString("message deleted").setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Message deleted as user was banned"))).setColor(TextFormatting.DARK_GRAY).setItalic(true));
 
         messageComp.getStyle().setColor(TextFormatting.WHITE);
 
@@ -623,7 +623,7 @@ public class GuiMTChat extends GuiScreen
         
         if (friend)
         {
-            userComp.getStyle().setColor(TextFormatting.YELLOW).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Friend! MineTogether Friend!")));
+//            userComp.getStyle().setColor(TextFormatting.YELLOW).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Friend! MineTogether Friend!")));
         }
         else if (outputNick.equals("System"))
         {
@@ -635,7 +635,7 @@ public class GuiMTChat extends GuiScreen
                 outputNick = outputNick.substring(0, outputNick.length() - 1);
                 messageComp = newChatWithLinksOurs(messageStr);
                 userComp = new TextComponentString("<" + outputNick + ">");
-                userComp.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Moderator")));
+//                userComp.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Moderator")));
             }
             userComp.getStyle().setColor(TextFormatting.AQUA);
         }
