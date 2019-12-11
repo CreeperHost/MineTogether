@@ -731,20 +731,24 @@ public class EventHandler
 
                         try
                         {
-                            tempInvite = Callbacks.getInvite();
-                            temp = ChatHandler.privateChatInvite;
-
-                            synchronized (CreeperHost.instance.inviteLock)
+                            if(ChatHandler.isOnline()) //No point in trying this without a connection
                             {
-                                if (tempInvite != null)
-                                    CreeperHost.instance.invite = tempInvite;
-                            }
+                                tempInvite = Callbacks.getInvite();
+                                temp = ChatHandler.privateChatInvite;
 
-                            if(temp != null)
-                            {
-                                CreeperHost.instance.displayToast(I18n.format("Your friend %s invited you to a private chat", CreeperHost.instance.getNameForUser(temp.getOwner()), ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, () -> {
-                                    mc.displayGuiScreen(new GuiMTChat(Minecraft.getMinecraft().currentScreen, true));
-                                });
+                                synchronized (CreeperHost.instance.inviteLock)
+                                {
+                                    if (tempInvite != null)
+                                        CreeperHost.instance.invite = tempInvite;
+                                }
+
+                                if (temp != null)
+                                {
+                                    CreeperHost.instance.displayToast(I18n.format("Your friend %s invited you to a private chat", CreeperHost.instance.getNameForUser(temp.getOwner()), ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, () ->
+                                    {
+                                        mc.displayGuiScreen(new GuiMTChat(Minecraft.getMinecraft().currentScreen, true));
+                                    });
+                                }
                             }
                         }
                         catch (Exception e)

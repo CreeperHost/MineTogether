@@ -66,7 +66,6 @@ public class GuiMTChat extends GuiScreen
         inviteTemp = invite;
     }
 
-
     @Override
     public void onGuiClosed()
     {
@@ -648,7 +647,7 @@ public class GuiMTChat extends GuiScreen
             base.getStyle().setColor(TextFormatting.RED);
         }
 
-        base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
+        base.appendSibling(new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY)));
 
         base.appendSibling(new TimestampComponentString("Test"));
         
