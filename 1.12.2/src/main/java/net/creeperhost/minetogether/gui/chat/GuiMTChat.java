@@ -611,7 +611,8 @@ public class GuiMTChat extends GuiScreen
 
             if(name2.contains(Config.getInstance().curseProjectID))
             {
-                userComp.getStyle().setColor(TextFormatting.DARK_PURPLE).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("User on same modpack")));
+//                userComp.getStyle().setColor(TextFormatting.DARK_PURPLE).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("User on same modpack")));
+                userComp.getStyle().setColor(TextFormatting.DARK_PURPLE);
             }
         }
 
@@ -624,6 +625,7 @@ public class GuiMTChat extends GuiScreen
         if (friend)
         {
 //            userComp.getStyle().setColor(TextFormatting.YELLOW).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Friend! MineTogether Friend!")));
+            userComp.getStyle().setColor(TextFormatting.YELLOW);
         }
         else if (outputNick.equals("System"))
         {

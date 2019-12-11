@@ -786,7 +786,7 @@ public final class Callbacks
 
     public static List<Modpack> getModpackFromCurse(String modpack)
     {
-        String url = "https://www.creeperhost.net/json/modpacks/mc/search/" + modpack;
+        String url = "https://www.creeperhost.net/json/modpacks/mc/search/unique/" + modpack;
 
         //Return the recommended if nothing is searched
         if(modpack == null || modpack.isEmpty())
