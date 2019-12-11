@@ -54,14 +54,16 @@ public class GuiChatOurs extends GuiChat
     }
 
     @Override
-    protected void handleComponentHover(ITextComponent component, int x, int y) {
+    protected void handleComponentHover(ITextComponent component, int x, int y)
+    {
         if (component != null && component.getStyle().getHoverEvent() != null)
         {
             HoverEvent event = component.getStyle().getHoverEvent();
-            if (event.getAction() == CreeperHost.instance.TIMESTAMP)
+            if (event.getAction() == CreeperHost.instance.TIMESTAMP && !menuDropdownButton.dropdownOpen)
             {
-                List<ITextComponent> siblings = ((GuiNewChatOurs)mc.ingameGUI.getChatGUI()).getBaseChatComponent(Mouse.getX(), Mouse.getY()).getSiblings();
-                for(ITextComponent sibling: siblings) {
+                List<ITextComponent> siblings = ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).getBaseChatComponent(Mouse.getX(), Mouse.getY()).getSiblings();
+                for(ITextComponent sibling: siblings)
+                {
                     if (sibling instanceof TimestampComponentString)
                     {
                         ((TimestampComponentString)sibling).setActive();
@@ -383,10 +385,13 @@ public class GuiChatOurs extends GuiChat
         if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
         {
             this.handleComponentHover(itextcomponent, mouseX, mouseY);
-            if (!TimestampComponentString.getChanged())
+            if (!TimestampComponentString.getChanged() && !menuDropdownButton.dropdownOpen)
                 TimestampComponentString.clearActive();
         } else {
-            TimestampComponentString.clearActive();
+            if(!menuDropdownButton.dropdownOpen)
+            {
+                TimestampComponentString.clearActive();
+            }
         }
 
     }
