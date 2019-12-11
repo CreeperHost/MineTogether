@@ -647,7 +647,14 @@ public class GuiMTChat extends GuiScreen
             base.getStyle().setColor(TextFormatting.RED);
         }
 
-        base.appendSibling(new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY)));
+        if(Minecraft.getMinecraft().currentScreen instanceof GuiMTChat)
+        {
+            base.appendSibling(new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY)));
+        }
+        else
+        {
+            base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
+        }
 
         base.appendSibling(new TimestampComponentString("Test"));
         
