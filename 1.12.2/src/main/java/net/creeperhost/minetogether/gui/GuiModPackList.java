@@ -8,9 +8,17 @@ import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryModpack;
 import net.creeperhost.minetogether.paul.Callbacks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
+import org.lwjgl.input.Keyboard;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 public class GuiModPackList extends GuiScreen
@@ -18,7 +26,6 @@ public class GuiModPackList extends GuiScreen
     private final GuiScreen parent;
     private GuiList<GuiListEntryModpack> list;
     private GuiButton buttonCancel;
-    private GuiButton buttonRefresh;
     private GuiButton buttonSelect;
     private boolean first = true;
     private GuiTextFieldCompat displayEntry;
@@ -53,7 +60,7 @@ public class GuiModPackList extends GuiScreen
 
         int buttonX = margin;
 
-        displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 90, y, 160, 20);
+        displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, y, 160, 20);
         displayEntry.setVisible(true);
 
         buttonCancel = new GuiButton(0, buttonX, y, buttonWidth, 20, Util.localize("button.cancel"));
@@ -62,27 +69,31 @@ public class GuiModPackList extends GuiScreen
         buttonSelect = new GuiButton(0, this.width - 90, y, buttonWidth, 20, "Select");
         buttonList.add(buttonSelect);
 
-        buttonRefresh = new GuiButtonRefresh(0, this.width / 2 + 72, y);
-        buttonList.add(buttonRefresh);
     }
+
+    public static List<Callbacks.Modpack> modpacks;
 
     private void refreshList()
     {
-        String s = "";
-        if(displayEntry != null) {
-            s = displayEntry.getText();
-        }
-
-        List<Callbacks.Modpack> modpacks = Callbacks.getModpackFromCurse(s);
-        list.clearList();
-        if (modpacks != null)
+        try
         {
-            for (Callbacks.Modpack mp : modpacks)
+            String s = "";
+            if (displayEntry != null)
             {
-                GuiListEntryModpack entry = new GuiListEntryModpack(this, list, mp);
-                list.addEntry(entry);
+                s = displayEntry.getText();
             }
-        }
+            list.clearList();
+
+            modpacks = Callbacks.getModpackFromCurse(s, 10);
+            if (!modpacks.isEmpty())
+            {
+                modpacks.forEach(mp ->
+                {
+                    GuiListEntryModpack entry = new GuiListEntryModpack(this, list, mp);
+                    list.addEntry(entry);
+                });
+            }
+        } catch (Exception ignored) {}
     }
 
     @Override
@@ -96,13 +107,28 @@ public class GuiModPackList extends GuiScreen
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        this.drawCenteredString(this.fontRendererObj, Util.localize("gui.modpack.selector"), this.width / 2, 10, -1);
+        this.drawCenteredString(this.fontRendererObj, "Minecraft Modpack Selector", this.width / 2, 10, -1);
     }
+
+    int delay = 10;
+    int i;
+    boolean hasChanged;
 
     @Override
     public void updateScreen()
     {
         super.updateScreen();
+
+        if(displayEntry.isFocused() && hasChanged)
+        {
+            i++;
+            if(i >= delay)
+            {
+                refreshList();
+                i = 0;
+                hasChanged = false;
+            }
+        }
     }
 
     @Override
@@ -111,10 +137,6 @@ public class GuiModPackList extends GuiScreen
         if(button == buttonCancel)
         {
             mc.displayGuiScreen(new GuiMainMenu());
-        }
-        if(button == buttonRefresh)
-        {
-            refreshList();
         }
         if(button == buttonSelect)
         {
@@ -151,6 +173,13 @@ public class GuiModPackList extends GuiScreen
         if (displayEntry != null && displayEntry.isFocused())
         {
             displayEntry.textboxKeyTyped(typedChar, keyCode);
+            i = 0;
+            hasChanged = true;
+            if(Keyboard.KEY_RETURN == keyCode)
+            {
+                refreshList();
+                displayEntry.setFocused(false);
+            }
         }
     }
 }

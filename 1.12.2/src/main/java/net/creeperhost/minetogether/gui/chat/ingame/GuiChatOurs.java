@@ -393,7 +393,6 @@ public class GuiChatOurs extends GuiChat
                 TimestampComponentString.clearActive();
             }
         }
-
     }
     
     @Deprecated

@@ -70,6 +70,8 @@ public class GuiMTChat extends GuiScreen
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
+        chat.updateLines(currentTarget);
+        TimestampComponentString.clearActive();
     }
 
     @Override
@@ -258,6 +260,8 @@ public class GuiMTChat extends GuiScreen
             ChatHandler.reInit();
         } else if (button == cancelButton)
         {
+            TimestampComponentString.clearActive();
+            chat.updateLines(currentTarget);
             this.mc.displayGuiScreen(parent);
         }
         else if (button == invited && ChatHandler.privateChatInvite != null)
@@ -333,6 +337,7 @@ public class GuiMTChat extends GuiScreen
         chat.handleElementClicks();
         this.chat.handleMouseInput(mouseX, mouseY);
     }
+
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
@@ -598,6 +603,7 @@ public class GuiMTChat extends GuiScreen
         ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
         if (CreeperHost.bannedUsers.contains(inputNick))
+            messageComp.getStyle().setColor(TextFormatting.DARK_GRAY).setItalic(true);
 //            messageComp = new TextComponentString("message deleted").setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Message deleted as user was banned"))).setColor(TextFormatting.DARK_GRAY).setItalic(true));
 
         messageComp.getStyle().setColor(TextFormatting.WHITE);
@@ -649,14 +655,14 @@ public class GuiMTChat extends GuiScreen
             base.getStyle().setColor(TextFormatting.RED);
         }
 
-        if(Minecraft.getMinecraft().currentScreen instanceof GuiMTChat)
-        {
-            base.appendSibling(new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY)));
-        }
-        else
-        {
+//        if(Minecraft.getMinecraft().currentScreen instanceof GuiMTChat)
+//        {
+//            base.appendSibling(new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY)));
+//        }
+//        else
+//        {
             base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
-        }
+//        }
 
         base.appendSibling(new TimestampComponentString("Test"));
         

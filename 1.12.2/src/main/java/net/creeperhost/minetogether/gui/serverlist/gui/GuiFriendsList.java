@@ -50,7 +50,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
     private String unmutePlayer;
     private Friend invitedPlayer;
     private boolean channelInvite = false;
-    private boolean isMuted;
+    private boolean isMuted = false;
     
     public GuiFriendsList(GuiScreen currentScreen)
     {
@@ -252,14 +252,14 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         }
         else if(button.id == toggle.id)
         {
-            if(button.displayString.contains("Friends"))
-            {
-                button.displayString = "Muted";
-                isMuted = true;
-            }
-            else if(button.displayString.contains("Muted"))
+            if(button.displayString.contains("Muted"))
             {
                 button.displayString = "Friends";
+                isMuted = true;
+            }
+            else if(button.displayString.contains("Friends"))
+            {
+                button.displayString = "Muted";
                 isMuted = false;
             }
         }
@@ -347,7 +347,8 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         this.codeEntry.myMouseClicked(mouseX, mouseY, mouseButton);
         this.displayEntry.myMouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        if(!isMuted) {
+        if(!isMuted)
+        {
             this.list.mouseClicked(mouseX, mouseY, mouseButton);
         }
         else
