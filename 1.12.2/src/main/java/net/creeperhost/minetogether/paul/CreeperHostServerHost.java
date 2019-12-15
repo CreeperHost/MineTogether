@@ -103,7 +103,12 @@ public class CreeperHostServerHost implements IServerHost
             String url = "https://www.creeperhost.net/json/order/mc/" + version + "/recommend/" + order.playerAmount;
             
             String resp = WebUtils.getWebResponse(url);
-            
+
+            String applyPromo = WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
+            if (applyPromo.equals("error"))
+            {
+                return new OrderSummary("quote.promoerror");
+            }
             JsonElement jElement = new JsonParser().parse(resp);
             
             JsonObject jObject = jElement.getAsJsonObject();

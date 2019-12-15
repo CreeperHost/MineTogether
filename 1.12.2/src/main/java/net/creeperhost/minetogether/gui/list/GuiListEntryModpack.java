@@ -64,6 +64,8 @@ public class GuiListEntryModpack extends GuiListEntry
         fontRendererIn.drawStringWithShadow(text, (float)(x - fontRendererIn.getStringWidth(text) / 2), (float)y, color);
     }
 
+    String test = "https://files.gigabit101.net/screenshots/test.gif";
+
     public void createDynamicTexture(Callbacks.Modpack modpack)
     {
         try
