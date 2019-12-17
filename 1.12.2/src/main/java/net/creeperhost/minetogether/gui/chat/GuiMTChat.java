@@ -70,7 +70,11 @@ public class GuiMTChat extends GuiScreen
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
-        chat.updateLines(currentTarget);
+        try
+        {
+            chat.updateLines(currentTarget);
+        } catch (Exception ignored) {}
+
         TimestampComponentString.clearActive();
     }
 
@@ -236,40 +240,42 @@ public class GuiMTChat extends GuiScreen
     @Override
     public void actionPerformed(GuiButton button) throws IOException
     {
-        if(button == targetDropdownButton && targetDropdownButton.displayString.contains("new channel"))
+        if(button != null)
         {
-            PrivateChat p = new PrivateChat("#" + CreeperHost.instance.ourNick, CreeperHost.instance.ourNick);
-            ChatHandler.privateChatList = p;
-            ChatHandler.createChannel(p.getChannelname());
-        }
-        if (button == menuDropdownButton)
-        {
-            if (menuDropdownButton.getSelected().option.equals("Mute"))
+            if (button == targetDropdownButton && targetDropdownButton.displayString.contains("new channel"))
             {
-                CreeperHost.instance.muteUser(activeDropdown);
-                chat.updateLines(currentTarget);
-            } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
-            {
-                mc.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                PrivateChat p = new PrivateChat("#" + CreeperHost.instance.ourNick, CreeperHost.instance.ourNick);
+                ChatHandler.privateChatList = p;
+                ChatHandler.createChannel(p.getChannelname());
             }
-        } else if (button == friendsButton)
-        {
-            CreeperHost.proxy.openFriendsGui();
-        } else if (button == reconnectionButton)
-        {
-            ChatHandler.reInit();
-        } else if (button == cancelButton)
-        {
-            TimestampComponentString.clearActive();
-            chat.updateLines(currentTarget);
-            this.mc.displayGuiScreen(parent);
+            if (button == menuDropdownButton)
+            {
+                if (menuDropdownButton.getSelected().option.equals("Mute"))
+                {
+                    CreeperHost.instance.muteUser(activeDropdown);
+                    chat.updateLines(currentTarget);
+                } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
+                {
+                    mc.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                }
+            } else if (button == friendsButton)
+            {
+                CreeperHost.proxy.openFriendsGui();
+            } else if (button == reconnectionButton)
+            {
+                ChatHandler.reInit();
+            } else if (button == cancelButton)
+            {
+                TimestampComponentString.clearActive();
+                chat.updateLines(currentTarget);
+                this.mc.displayGuiScreen(parent);
+            } else if (button == invited && ChatHandler.privateChatInvite != null)
+            {
+                confirmInvite();
+            }
+            chat.actionPerformed(button);
+            super.actionPerformed(button);
         }
-        else if (button == invited && ChatHandler.privateChatInvite != null)
-        {
-            confirmInvite();
-        }
-        chat.actionPerformed(button);
-        super.actionPerformed(button);
     }
 
     public void confirmInvite()

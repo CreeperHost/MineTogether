@@ -41,10 +41,10 @@ public class GuiModPackList extends GuiScreen
         super.initGui();
         if(list == null)
         {
-            list = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
+            list = new GuiList(this, mc, width, height, 40, this.height - 32, 36);
         }
         {
-            list.setDimensions(width, height, 32, this.height - 64);
+            list.setDimensions(width, height, 32, this.height - 40);
         }
 
         if (first)
@@ -53,7 +53,7 @@ public class GuiModPackList extends GuiScreen
             refreshList();
         }
 
-        int y = this.height - 60;
+        int y = this.height - 32;
 
         int margin = 10;
         int buttonWidth = 80;
@@ -68,7 +68,6 @@ public class GuiModPackList extends GuiScreen
 
         buttonSelect = new GuiButton(0, this.width - 90, y, buttonWidth, 20, "Select");
         buttonList.add(buttonSelect);
-
     }
 
     public static List<Callbacks.Modpack> modpacks;
@@ -104,6 +103,11 @@ public class GuiModPackList extends GuiScreen
         this.list.drawScreen(mouseX, mouseY, partialTicks);
 
         if(displayEntry != null) this.displayEntry.drawTextBox();
+
+        if(displayEntry != null && displayEntry.getText().trim().isEmpty() && !displayEntry.isFocused())
+        {
+            fontRendererObj.drawStringWithShadow(TextFormatting.ITALIC + "Search", displayEntry.xPosition + 3, displayEntry.yPosition + 5, 14737632);
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
