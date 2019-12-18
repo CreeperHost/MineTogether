@@ -41,10 +41,10 @@ public class GuiModPackList extends GuiScreen
         super.initGui();
         if(list == null)
         {
-            list = new GuiList(this, mc, width, height, 40, this.height - 32, 36);
+            list = new GuiList(this, mc, width, height, 40, this.height - 40, 36);
         }
         {
-            list.setDimensions(width, height, 32, this.height - 40);
+            list.setDimensions(width + 11, height, 32, this.height - 40);
         }
 
         if (first)
@@ -55,15 +55,12 @@ public class GuiModPackList extends GuiScreen
 
         int y = this.height - 32;
 
-        int margin = 10;
         int buttonWidth = 80;
-
-        int buttonX = margin;
 
         displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, y, 160, 20);
         displayEntry.setVisible(true);
 
-        buttonCancel = new GuiButton(0, buttonX, y, buttonWidth, 20, Util.localize("button.cancel"));
+        buttonCancel = new GuiButton(0, 10, y, buttonWidth, 20, Util.localize("button.cancel"));
         buttonList.add(buttonCancel);
 
         buttonSelect = new GuiButton(0, this.width - 90, y, buttonWidth, 20, "Select");
@@ -84,7 +81,7 @@ public class GuiModPackList extends GuiScreen
             list.clearList();
 
             modpacks = Callbacks.getModpackFromCurse(s, 10);
-            if (!modpacks.isEmpty())
+            if (modpacks != null && !modpacks.isEmpty())
             {
                 modpacks.forEach(mp ->
                 {
@@ -140,7 +137,7 @@ public class GuiModPackList extends GuiScreen
     {
         if(button == buttonCancel)
         {
-            mc.displayGuiScreen(new GuiMainMenu());
+            mc.displayGuiScreen(parent);
         }
         if(button == buttonSelect)
         {
@@ -161,7 +158,6 @@ public class GuiModPackList extends GuiScreen
         this.list.handleMouseInput();
     }
 
-    @SuppressWarnings("Duplicates")
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
