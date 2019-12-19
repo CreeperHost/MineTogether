@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.chat;
 
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
-import net.creeperhost.minetogether.serverlist.data.Friend;
+import net.creeperhost.minetogether.data.Friend;
 import net.engio.mbassy.listener.Handler;
 import org.kitteh.irc.client.library.Client;
 import org.kitteh.irc.client.library.command.WhoisCommand;

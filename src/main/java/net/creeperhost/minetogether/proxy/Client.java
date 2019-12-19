@@ -7,17 +7,16 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
-import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
-import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.gui.chat.Target;
-import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
-import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
-import net.creeperhost.minetogether.gui.element.DropdownButton;
-import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
-import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
+import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
+import net.creeperhost.minetogether.client.gui.chat.Target;
+import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
+import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
+import net.creeperhost.minetogether.client.gui.element.DropdownButton;
+import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
@@ -50,13 +49,13 @@ public class Client implements IProxy
     public void openFriendsGui()
     {
         Minecraft mc = Minecraft.getInstance();
-        if (CreeperHost.instance.handledInvite == null)
+        if (MineTogether.instance.handledInvite == null)
         {
             mc.displayGuiScreen(new GuiFriendsList(mc.currentScreen));
         } else
         {
-            mc.displayGuiScreen(new GuiInvited(CreeperHost.instance.handledInvite, mc.currentScreen));
-            CreeperHost.instance.handledInvite = null;
+//            mc.displayGuiScreen(new GuiInvited(MineTogether.instance.handledInvite, mc.currentScreen));
+//            MineTogether.instance.handledInvite = null;
         }
     }
     
@@ -67,7 +66,7 @@ public class Client implements IProxy
             return cache;
         Minecraft mc = Minecraft.getInstance();
         Session session = mc.getSession();
-        boolean online = CreeperHost.instance.online;
+        boolean online = MineTogether.instance.online;
 
         UUID uuid;
 
@@ -83,7 +82,7 @@ public class Client implements IProxy
         }
         cache = uuid;
 
-        CreeperHost.instance.online = online;
+        MineTogether.instance.online = online;
         return uuid;
     }
     
@@ -95,27 +94,27 @@ public class Client implements IProxy
         if (Config.getInstance().isChatEnabled())
         {
             
-            if (!CreeperHost.instance.ingameChat.hasDisabledIngameChat())
+            if (!MineTogether.instance.ingameChat.hasDisabledIngameChat())
                 enableIngameChat();
             
-            CreeperHost.instance.getNameForUser("");
-            CreeperHost.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
+            MineTogether.instance.getNameForUser("");
+            MineTogether.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
             InputStream mutedUsersStream = null;
             try
             {
                 String configString;
-                if (CreeperHost.instance.mutedUsersFile.exists())
+                if (MineTogether.instance.mutedUsersFile.exists())
                 {
-                    mutedUsersStream = new FileInputStream(CreeperHost.instance.mutedUsersFile);
+                    mutedUsersStream = new FileInputStream(MineTogether.instance.mutedUsersFile);
                     configString = IOUtils.toString(mutedUsersStream);
                 } else
                 {
-                    CreeperHost.instance.mutedUsersFile.getParentFile().mkdirs();
+                    MineTogether.instance.mutedUsersFile.getParentFile().mkdirs();
                     configString = "[]";
                 }
                 
                 Gson gson = new Gson();
-                CreeperHost.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>() {}.getType());
+                MineTogether.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>() {}.getType());
             } catch (Throwable ignored) {}
             finally
             {
@@ -127,24 +126,24 @@ public class Client implements IProxy
                     }
                 } catch (Throwable ignored) {}
             }
-            new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
+            new Thread(() -> ChatHandler.init(MineTogether.instance.ourNick, MineTogether.instance.realName, MineTogether.instance.online, MineTogether.instance)).start(); // start in thread as can hold up the UI thread for some reason.
         }
     }
     
     @Override
     public void disableIngameChat()
     {
-        CreeperHost.instance.ingameChat.setDisabledIngameChat(true);
+        MineTogether.instance.ingameChat.setDisabledIngameChat(true);
         if (isChatReplaced)
         {
-            ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
+//            ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
         }
     }
     
     @Override
     public void enableIngameChat()
     {
-        CreeperHost.instance.ingameChat.setDisabledIngameChat(false);
+        MineTogether.instance.ingameChat.setDisabledIngameChat(false);
         
         if (!isChatReplaced)
         {
@@ -161,8 +160,8 @@ public class Client implements IProxy
     public void closeGroupChat() {
         ChatHandler.closePrivateChat();
         GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-        chatGUI.setBase(true);
-        chatGUI.rebuildChat(ChatHandler.CHANNEL);
+//        chatGUI.setBase(true);
+//        chatGUI.rebuildChat(ChatHandler.CHANNEL);
         Screen currentScreen = Minecraft.getInstance().currentScreen;
         if (currentScreen != null) {
             if (currentScreen instanceof GuiChatOurs)
@@ -204,8 +203,8 @@ public class Client implements IProxy
     public void refreshChat() {
         if (Config.getInstance().isChatEnabled() && Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) {
             GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-            if (!chatGUI.isBase())
-                chatGUI.rebuildChat(chatGUI.chatTarget);
+//            if (!chatGUI.isBase())
+//                chatGUI.rebuildChat(chatGUI.chatTarget);
             Screen currentScreen = Minecraft.getInstance().currentScreen;
             if (currentScreen != null && currentScreen instanceof GuiMTChat)
                 ((GuiMTChat)currentScreen).rebuildChat();

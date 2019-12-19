@@ -1,5 +1,8 @@
 package net.creeperhost.minetogether.siv;
 
+import net.minecraft.world.dimension.Dimension;
+import net.minecraft.world.dimension.DimensionType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +73,7 @@ public class ExtendedServerData {
         this.requesting = requesting;
     }
     
-    public Map<String, Double> getTPS(int worldIndex) {
+    public Map<String, Double> getTPS(DimensionType worldIndex) {
         
         if (tpsList.containsKey(String.format("%s", worldIndex))) {
             return tpsList.get(String.format("%s", worldIndex));
@@ -132,7 +135,7 @@ public class ExtendedServerData {
         return tileEntities;
     }
     
-    public Map<String, Integer> getEntitiesInDimension(int worldIndex) {
+    public Map<String, Integer> getEntitiesInDimension(Dimension worldIndex) {
         
         if (entities.containsKey(String.format("%s", worldIndex))) {
             return entities.get(String.format("%s", worldIndex));

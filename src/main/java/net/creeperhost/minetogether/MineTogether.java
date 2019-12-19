@@ -8,14 +8,16 @@ import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.common.*;
-import net.creeperhost.minetogether.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.ConfigHandler;
+import net.creeperhost.minetogether.events.ScreenEvents;
+import net.creeperhost.minetogether.lib.ModInfo;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.IProxy;
-import net.creeperhost.minetogether.serverlist.data.Friend;
-import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
+import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.siv.QueryGetter;
-import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -28,19 +30,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-@Mod(value = CreeperHost.MOD_ID)
-public class CreeperHost implements ICreeperHostMod, IHost
+@Mod(value = ModInfo.MOD_ID)
+public class MineTogether implements ICreeperHostMod, IHost
 {
-    public static final String MOD_ID = "minetogether";
-    public static final String NAME = "MineTogether";
-    public static final String VERSION = "@VERSION@";
     public static final Logger logger = LogManager.getLogger("minetogether");
     public static ArrayList<String> mutedUsers = new ArrayList<>();
     public static ArrayList<String> bannedUsers = new ArrayList<>();
@@ -73,94 +70,62 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public File mutedUsersFile;
     public Runnable toastMethod;
 
-    public static CreeperHost instance;
+    public static MineTogether instance;
 
 //    public HoverEvent.Action TIMESTAMP = EnumHelper.addEnum(HoverEvent.Action.class, "TIMESTAMP", new Class[]{String.class, boolean.class}, "timestamp_hover", true);
 
-    public CreeperHost()
+    public MineTogether()
     {
         instance = this;
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverStarted);
+
+//        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverStarted);
+        MinecraftForge.EVENT_BUS.register(new ScreenEvents());
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
     public void preInit(FMLCommonSetupEvent event)
     {
-        proxy.checkOnline();
-        configFile = new File("/config");
-        InputStream configStream = null;
-        try
-        {
-            String configString;
-            if (configFile.exists())
-            {
-                configStream = new FileInputStream(configFile);
-                configString = IOUtils.toString(configStream);
-            } else
-            {
-                File parent = configFile.getParentFile();
-                File tempConfigFile = new File(parent, "creeperhost.cfg");
-                if (tempConfigFile.exists())
-                {
-                    configStream = new FileInputStream(tempConfigFile);
-                    configString = IOUtils.toString(configStream);
-                } else
-                {
-                    configString = "{}";
-                }
-            }
-            Config.loadConfig(configString);
-        } catch (Throwable t)
-        {
-            logger.error("Fatal error, unable to read config. Not starting mod.", t);
-            active = false;
-        } finally
-        {
-            try
-            {
-                if (configStream != null)
-                {
-                    configStream.close();
-                }
-            } catch (Throwable ignored) {}
-            if (!active) return;
-        }
-        saveConfig();
+        ConfigHandler.init();
+//        proxy.checkOnline();
+        registerImplementation(new CreeperHostServerHost());
+        setRandomImplementation();
+
         
-        PacketHandler.packetRegister();
-        
+//        PacketHandler.packetRegister();
+
 //        if (event.getSide() != Side.SERVER)
 //        {
-            HostHolder.host = this;
-            File gdprFile = new File("local/minetogether/gdpr.txt");
-            gdpr = new GDPR(gdprFile);
-            File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
-            ingameChat = new IngameChat(ingameChatFile);
-            ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
-            
-            HashMap<String, String> jsonObj = new HashMap<>();
-            
-            int packID;
-            
-            try
-            {
-                packID = Integer.parseInt(Config.getInstance().curseProjectID);
-            } catch (NumberFormatException e)
-            {
-                packID = -1;
-            }
-            
-            jsonObj.put("p", String.valueOf(packID));
-            
-            Gson gson = new Gson();
-            try //Temp fix until we cxan figure out why this fails
-            {
-                realName = gson.toJson(jsonObj);
-            } catch (Exception e) {}
-            
-            MinecraftForge.EVENT_BUS.register(new EventHandler());
-            proxy.registerKeys();
+//            HostHolder.host = this;
+//            File gdprFile = new File("local/minetogether/gdpr.txt");
+//            gdpr = new GDPR(gdprFile);
+//            File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
+//            ingameChat = new IngameChat(ingameChatFile);
+//            ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 15);
+//
+//            HashMap<String, String> jsonObj = new HashMap<>();
+//
+//            int packID;
+//
+//            try
+//            {
+//                packID = Integer.parseInt(Config.getInstance().curseProjectID);
+//            } catch (NumberFormatException e)
+//            {
+//                packID = -1;
+//            }
+//
+//            jsonObj.put("p", String.valueOf(packID));
+//
+//            Gson gson = new Gson();
+//            try //Temp fix until we cxan figure out why this fails
+//            {
+//                realName = gson.toJson(jsonObj);
+//            } catch (Exception e) {}
+//
+//            MinecraftForge.EVENT_BUS.register(new EventHandler());
+//            proxy.registerKeys();
 //        }
     }
     
@@ -187,14 +152,14 @@ public class CreeperHost implements ICreeperHostMod, IHost
         
         if (Config.getInstance().isCreeperhostEnabled())
         {
-            CreeperHost.instance.implementations.remove(implement);
+            MineTogether.instance.implementations.remove(implement);
             implement = new CreeperHostServerHost();
             CreeperHostAPI.registerImplementation(implement);
         }
         
         if (!Config.getInstance().isCreeperhostEnabled())
         {
-            CreeperHost.instance.implementations.remove(implement);
+            MineTogether.instance.implementations.remove(implement);
             implement = null;
         }
     }
@@ -205,7 +170,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
         {
             Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
         }
-        
         lastCurse = Config.getInstance().curseProjectID;
     }
     
@@ -420,7 +384,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-            //mutedUsers.clear(); // why?
         } catch (IOException ignored) {}
     }
     

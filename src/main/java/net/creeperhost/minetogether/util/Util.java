@@ -1,8 +1,9 @@
-package net.creeperhost.minetogether;
+package net.creeperhost.minetogether.util;
 
-import net.creeperhost.minetogether.gui.hacky.IBufferProxy;
-import net.creeperhost.minetogether.gui.hacky.IBufferProxyGetter;
-import net.creeperhost.minetogether.gui.hacky.IServerListEntryWrapper;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.client.gui.hacky.IBufferProxy;
+import net.creeperhost.minetogether.client.gui.hacky.IBufferProxyGetter;
+import net.creeperhost.minetogether.client.gui.hacky.IServerListEntryWrapper;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.versions.forge.ForgeVersion;
 
@@ -14,6 +15,7 @@ public final class Util
 {
     private static Random random = new Random();
     @SuppressWarnings("Duplicates")
+    @Deprecated
     private static ArrayList<String> oldVersions = new ArrayList<String>()
     {{
         add("1.9");
@@ -29,7 +31,7 @@ public final class Util
     
     public static String localize(String key, Object... format)
     {
-        return I18n.format((CreeperHost.instance.getImplementation() == null ? "creeperhost" : CreeperHost.instance.getImplementation().getLocalizationRoot()) + "." + key, format);
+        return I18n.format((MineTogether.instance.getImplementation() == null ? "creeperhost" : MineTogether.instance.getImplementation().getLocalizationRoot()) + "." + key, format);
     }
     
     @SuppressWarnings("Duplicates")
@@ -68,7 +70,7 @@ public final class Util
     {
         if (proxyGetter == null)
         {
-            String className = "net.creeperhost.minetogether.gui.hacky.BufferProxyGetterNew";
+            String className = "net.creeperhost.minetogether.client.gui.hacky.BufferProxyGetterNew";
             String mcVersion;
             try
             {
@@ -83,7 +85,7 @@ public final class Util
             }
             if (oldVersions.contains(mcVersion))
             {
-                className = "net.creeperhost.minetogether.gui.hacky.BufferProxyGetterOld";
+                className = "net.creeperhost.minetogether.client.gui.hacky.BufferProxyGetterOld";
             }
             
             try
@@ -99,7 +101,7 @@ public final class Util
     {
         if (wrapper == null)
         {
-            String className = "net.creeperhost.minetogether.gui.hacky.ServerListEntryWrapperNew";
+            String className = "net.creeperhost.minetogether.client.gui.hacky.ServerListEntryWrapperNew";
             String mcVersion;
             try
             {
@@ -114,7 +116,7 @@ public final class Util
             }
             if (oldVersions.contains(mcVersion))
             {
-                className = "net.creeperhost.minetogether.gui.hacky.ServerListEntryWrapperOld";
+                className = "net.creeperhost.minetogether.client.gui.hacky.ServerListEntryWrapperOld";
             }
             
             try

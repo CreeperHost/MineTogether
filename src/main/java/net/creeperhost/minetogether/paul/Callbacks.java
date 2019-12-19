@@ -2,15 +2,15 @@ package net.creeperhost.minetogether.paul;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.*;
-import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.common.WebUtils;
-import net.creeperhost.minetogether.gui.serverlist.data.Invite;
-import net.creeperhost.minetogether.gui.serverlist.data.Server;
-import net.creeperhost.minetogether.serverlist.data.EnumFlag;
-import net.creeperhost.minetogether.serverlist.data.Friend;
+import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.data.EnumFlag;
+import net.creeperhost.minetogether.data.Friend;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.nio.charset.Charset;
@@ -283,7 +283,7 @@ public final class Callbacks
     
     public static Invite getInvite()
     {
-        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        String hash = getPlayerHash(MineTogether.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
         {
             sendMap.put("hash", hash);
@@ -345,12 +345,12 @@ public final class Callbacks
     
     public static boolean inviteFriend(Friend friend)
     {
-        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        String hash = getPlayerHash(MineTogether.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
         {
             sendMap.put("hash", hash);
             sendMap.put("target", friend.getCode());
-            sendMap.put("server", String.valueOf(CreeperHost.instance.curServerId));
+            sendMap.put("server", String.valueOf(MineTogether.instance.curServerId));
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
@@ -367,8 +367,8 @@ public final class Callbacks
                 return true;
             }
         }
-        CreeperHost.logger.error("Unable to invite friend.");
-        CreeperHost.logger.error(resp);
+        MineTogether.logger.error("Unable to invite friend.");
+        MineTogether.logger.error(resp);
         return false;
     }
     
@@ -397,7 +397,7 @@ public final class Callbacks
         if (friendCode != null)
             return friendCode;
         
-        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        String hash = getPlayerHash(MineTogether.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
         {
             sendMap.put("hash", hash);
@@ -416,8 +416,8 @@ public final class Callbacks
                 friendCode = obj.get("code").getAsString();
             } else
             {
-                CreeperHost.logger.error("Unable to get friendcode.");
-                CreeperHost.logger.error(resp);
+                MineTogether.logger.error("Unable to get friendcode.");
+                MineTogether.logger.error(resp);
             }
         }
         return friendCode;
@@ -425,7 +425,7 @@ public final class Callbacks
     
     public static String addFriend(String code, String display)
     {
-        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        String hash = getPlayerHash(MineTogether.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
         {
             sendMap.put("hash", hash);
@@ -443,8 +443,8 @@ public final class Callbacks
             JsonElement status = obj.get("status");
             if (!status.getAsString().equals("success"))
             {
-                CreeperHost.logger.error("Unable to add friend.");
-                CreeperHost.logger.error(resp);
+                MineTogether.logger.error("Unable to add friend.");
+                MineTogether.logger.error(resp);
                 return obj.get("message").getAsString();
             }
         }
@@ -453,7 +453,7 @@ public final class Callbacks
     
     public static boolean removeFriend(String friendHash)
     {
-        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        String hash = getPlayerHash(MineTogether.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<>();
         {
             sendMap.put("hash", hash);
@@ -470,8 +470,8 @@ public final class Callbacks
             JsonElement status = obj.get("status");
             if (!status.getAsString().equals("success"))
             {
-                CreeperHost.logger.error("Unable to remove friend.");
-                CreeperHost.logger.error(resp);
+                MineTogether.logger.error("Unable to remove friend.");
+                MineTogether.logger.error(resp);
                 return false;
             }
         }
@@ -526,7 +526,7 @@ public final class Callbacks
                     friendsGetting = true;
                     Map<String, String> sendMap = new HashMap<String, String>();
                     {
-                        sendMap.put("hash", getPlayerHash(CreeperHost.proxy.getUUID()));
+                        sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
                     }
                     
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
@@ -591,7 +591,7 @@ public final class Callbacks
                     Enum listType = (Enum) args[0];
                     int enumOrdinal = listType.ordinal();
                     lastRequest = listType;
-                    CreeperHost.logger.info("Loading " + (listType.name().toLowerCase()) + " server list.");
+                    MineTogether.logger.info("Loading " + (listType.name().toLowerCase()) + " server list.");
                     List<Server> list = new ArrayList<Server>();
                     
                     Config defaultConfig = new Config();
@@ -607,7 +607,7 @@ public final class Callbacks
                     {
                         if (playerHash == null)
                         {
-                            playerHash = getPlayerHash(CreeperHost.proxy.getUUID());
+                            playerHash = getPlayerHash(MineTogether.proxy.getUUID());
                         }
                         
                         jsonPass.put("hash", playerHash);
@@ -682,7 +682,7 @@ public final class Callbacks
     
     public static Map<String, String> getAllServerLocations()
     {
-        IServerHost implementation = CreeperHost.instance.getImplementation();
+        IServerHost implementation = MineTogether.instance.getImplementation();
         if (locationCache.get(implementation) == null)
             locationCache.put(implementation, implementation.getAllServerLocations());
         return locationCache.get(implementation);
@@ -695,7 +695,7 @@ public final class Callbacks
     
     public static AvailableResult getNameAvailable(String name)
     {
-        return CreeperHost.instance.getImplementation().getNameAvailable(name);
+        return MineTogether.instance.getImplementation().getNameAvailable(name);
     }
     
     public static String getUserCountry()
@@ -712,7 +712,7 @@ public final class Callbacks
                 userCountry = jObject.getAsJsonPrimitive("country").getAsString();
             } catch (Throwable t)
             {
-                CreeperHost.logger.error("Unable to get user's country automatically, assuming USA", t);
+                MineTogether.logger.error("Unable to get user's country automatically, assuming USA", t);
                 userCountry = "US"; // default
             }
         return userCountry;
@@ -720,32 +720,32 @@ public final class Callbacks
     
     public static String getRecommendedLocation()
     {
-        return CreeperHost.instance.getImplementation().getRecommendedLocation();
+        return MineTogether.instance.getImplementation().getRecommendedLocation();
     }
     
     public static OrderSummary getSummary(Order order)
     {
-        return CreeperHost.instance.getImplementation().getSummary(order);
+        return MineTogether.instance.getImplementation().getSummary(order);
     }
     
     public static boolean doesEmailExist(final String email)
     {
-        return CreeperHost.instance.getImplementation().doesEmailExist(email);
+        return MineTogether.instance.getImplementation().doesEmailExist(email);
     }
     
     public static String doLogin(final String email, final String password)
     {
-        return CreeperHost.instance.getImplementation().doLogin(email, password);
+        return MineTogether.instance.getImplementation().doLogin(email, password);
     }
     
     public static String createAccount(final Order order)
     {
-        return CreeperHost.instance.getImplementation().createAccount(order);
+        return MineTogether.instance.getImplementation().createAccount(order);
     }
     
     public static String createOrder(final Order order)
     {
-        return CreeperHost.instance.getImplementation().createOrder(order);
+        return MineTogether.instance.getImplementation().createOrder(order);
     }
     
     public static String getVersionFromCurse(String curse)

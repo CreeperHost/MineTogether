@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.serverstuffs;
+package net.creeperhost.minetogether.proxy;
 
 public interface IServerProxy
 {

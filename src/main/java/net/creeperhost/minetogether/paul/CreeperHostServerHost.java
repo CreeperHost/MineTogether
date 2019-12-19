@@ -5,15 +5,16 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
-import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.common.WebUtils;
-import net.creeperhost.minetogether.gui.GuiModPackList;
+import net.creeperhost.minetogether.client.gui.GuiModPackList;
+import net.creeperhost.minetogether.lib.ModInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.ResourceLocation;
@@ -33,8 +34,8 @@ public class CreeperHostServerHost implements IServerHost
 {
     public static Map<String, String> locations = new HashMap<String, String>();
     
-    private ResourceLocation buttonIcon = new ResourceLocation("creeperhost", "textures/gui.png");
-    private ResourceLocation menuIcon = new ResourceLocation("creeperhost", "textures/creeperhost.png");
+    private ResourceLocation buttonIcon = ModInfo.CREEPER_HOST_BUTTON_LOCATION;
+    private ResourceLocation menuIcon = ModInfo.CREEPER_HOST_MENU_ICON;
     
     @Override
     public ResourceLocation getButtonIcon()
@@ -64,7 +65,7 @@ public class CreeperHostServerHost implements IServerHost
             rawMap = g.fromJson(el.getAsJsonObject().get("nameMap"), type);
         } catch (Exception e)
         {
-            CreeperHost.logger.error("Unable to fetch server locations" + e);
+            MineTogether.logger.error("Unable to fetch server locations" + e);
             locations.put("no", "Unable to fetch server locations");
         }
         for (Map.Entry<String, String> entry : rawMap.entrySet())
@@ -176,7 +177,7 @@ public class CreeperHostServerHost implements IServerHost
             
         } catch (Throwable t)
         {
-            CreeperHost.logger.error("Unable to fetch summary", t);
+            MineTogether.logger.error("Unable to fetch summary", t);
             return null;
         }
         
@@ -197,7 +198,7 @@ public class CreeperHostServerHost implements IServerHost
             return new AvailableResult(statusBool, message);
         } catch (Throwable t)
         {
-            CreeperHost.logger.error("Unable to check if name available", t);
+            MineTogether.logger.error("Unable to check if name available", t);
         }
         
         return new AvailableResult(false, "unknown");
@@ -227,7 +228,7 @@ public class CreeperHostServerHost implements IServerHost
             }
         } catch (Throwable t)
         {
-            CreeperHost.logger.error("Unable to check if email exists", t);
+            MineTogether.logger.error("Unable to check if email exists", t);
             return false;
         }
         return true;
@@ -262,7 +263,7 @@ public class CreeperHostServerHost implements IServerHost
             return "Unknown Error";
         } catch (Throwable t)
         {
-            CreeperHost.logger.error("Unable to do login", t);
+            MineTogether.logger.error("Unable to do login", t);
             return "Unknown Error";
         }
     }
@@ -307,7 +308,7 @@ public class CreeperHostServerHost implements IServerHost
             return "Unknown error";
         } catch (Throwable t)
         {
-            CreeperHost.logger.error("Unable to create account", t);
+            MineTogether.logger.error("Unable to create account", t);
             return "Unknown error";
         }
     }
@@ -344,7 +345,7 @@ public class CreeperHostServerHost implements IServerHost
             return "Unknown error";
         } catch (Throwable t)
         {
-            CreeperHost.logger.error("Unable to create order");
+            MineTogether.logger.error("Unable to create order");
             return "Unknown error";
         }
     }
@@ -357,7 +358,7 @@ public class CreeperHostServerHost implements IServerHost
             String response = WebUtils.getWebResponse("https://www.creeperhost.net/json/order/" + orderNum + "/cancel");
         } catch (Throwable t)
         {
-            CreeperHost.logger.error("Unable to cancel order");
+            MineTogether.logger.error("Unable to cancel order");
             return false;
         }
         return true;

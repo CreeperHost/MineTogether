@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.serverstuffs;
+package net.creeperhost.minetogether.server;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,7 +29,7 @@ public class MineTogetherPropertyManager
                 this.serverProperties.load(fileinputstream);
             } catch (Exception exception)
             {
-                CreeperHostServer.logger.warn("Failed to load {}", propertiesFile, exception);
+//                CreeperHostServer.logger.warn("Failed to load {}", propertiesFile, exception);
                 this.generateNewProperties();
             } finally
             {
@@ -45,7 +45,7 @@ public class MineTogetherPropertyManager
             }
         } else
         {
-            CreeperHostServer.logger.warn("{} does not exist", (Object) propertiesFile);
+//            CreeperHostServer.logger.warn("{} does not exist", (Object) propertiesFile);
             this.generateNewProperties();
         }
     }
@@ -69,7 +69,7 @@ public class MineTogetherPropertyManager
             this.serverProperties.store(fileoutputstream, "MineTogether properties");
         } catch (Exception exception)
         {
-            CreeperHostServer.logger.warn("Failed to save {}", this.serverPropertiesFile, exception);
+//            CreeperHostServer.logger.warn("Failed to save {}", this.serverPropertiesFile, exception);
             this.generateNewProperties();
         } finally
         {
