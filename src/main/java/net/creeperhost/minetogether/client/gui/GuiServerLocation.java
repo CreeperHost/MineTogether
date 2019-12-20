@@ -37,8 +37,8 @@ public class GuiServerLocation extends GuiGetServer
             if (this.order.serverLocation.equals(listEntry.locationName))
             {
                 topEntryName = entry.getKey();
-                this.list.addEntry(listEntry);
-                this.list.setCurrSelected(listEntry);
+                this.list.add(listEntry);
+                this.list.setSelected(listEntry);
                 break;
             }
         }
@@ -50,7 +50,7 @@ public class GuiServerLocation extends GuiGetServer
                 continue;
             }
             GuiListEntryLocation listEntry = new GuiListEntryLocation(this.list, entry.getKey(), entry.getValue());
-            this.list.addEntry(listEntry);
+            this.list.add(listEntry);
         }
     }
     
@@ -64,8 +64,7 @@ public class GuiServerLocation extends GuiGetServer
     public void tick()
     {
         super.tick();
-        
-        this.buttonNext.active = this.list.getCurrSelected() != null;
+        this.buttonNext.active = this.list.getSelected() != null;
     }
     
     @Override
@@ -73,26 +72,25 @@ public class GuiServerLocation extends GuiGetServer
     {
         super.onClose();
         
-        GuiListEntry entry = this.list.getCurrSelected();
+        GuiListEntry entry = (GuiListEntry) this.list.getSelected();
         if (entry instanceof GuiListEntryLocation)
         {
             this.order.serverLocation = ((GuiListEntryLocation) entry).locationName;
         }
     }
     
-//    @Override
-//    public void handleMouseInput() throws IOException
-//    {
-//        super.handleMouseInput();
-//        this.list.handleMouseInput();
-//    }
+    @Override
+    public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
+    {
+        this.list.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
+        return true;
+    }
     
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
         this.list.render(mouseX, mouseY, partialTicks);
-        
         super.render(mouseX, mouseY, partialTicks);
     }
     

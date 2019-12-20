@@ -1,7 +1,5 @@
 package net.creeperhost.minetogether.client.gui.list;
 
-import net.minecraft.client.gui.widget.list.ExtendedList;
-
 public class GuiListEntryCountry extends GuiListEntry
 {
     public final String countryID;
@@ -13,9 +11,9 @@ public class GuiListEntryCountry extends GuiListEntry
         this.countryID = countryID;
         this.countryName = countryName;
     }
-
+    
     @Override
-    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
+    public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
     {
         this.mc.fontRenderer.drawString(this.countryName, x + 5, y + 5, 16777215);
     }

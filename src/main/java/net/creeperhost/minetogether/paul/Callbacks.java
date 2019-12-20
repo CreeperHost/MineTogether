@@ -784,14 +784,14 @@ public final class Callbacks
         return true;
     }
 
-    public static List<Modpack> getModpackFromCurse(String modpack)
+    public static List<Modpack> getModpackFromCurse(String modpack, int limit)
     {
         String url = "https://www.creeperhost.net/json/modpacks/mc/search/" + modpack;
 
         //Return the recommended if nothing is searched
         if(modpack == null || modpack.isEmpty())
         {
-            url = "https://www.creeperhost.net/json/modpacks/weekly/20";
+            url = "https://www.creeperhost.net/json/modpacks/weekly/" + limit;
         }
 
         String resp = WebUtils.getWebResponse(url);
@@ -808,13 +808,15 @@ public final class Callbacks
             {
                 for (JsonElement serverEl : array)
                 {
-                    JsonObject server = (JsonObject) serverEl;
-                    String id = server.get("id").getAsString();
-                    String name = server.get("displayName").getAsString();
-                    String displayVersion = server.get("displayVersion").getAsString();
-
-                    modpackList.add(new Modpack(id, name, displayVersion));
-
+                    if(modpackList.isEmpty() || modpackList.size() <= limit)
+                    {
+                        JsonObject server = (JsonObject) serverEl;
+                        String id = server.get("id").getAsString();
+                        String name = server.get("displayName").getAsString();
+                        String displayVersion = server.get("displayVersion").getAsString();
+        
+                        modpackList.add(new Modpack(id, name, displayVersion));
+                    }
                 }
                 return modpackList;
             }

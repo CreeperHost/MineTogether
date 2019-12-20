@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.gui;
 
+import com.google.common.base.Splitter;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
@@ -341,11 +342,11 @@ public class GuiPersonalDetails extends GuiGetServer
                 {
                     if (field.getId() < 2)
                     {
-//                        field.drawTextBox();
+                        field.render(mouseX, mouseY, partialTicks);
                     }
                 } else
                 {
-//                    field.drawTextBox();
+                    field.render(mouseX, mouseY, partialTicks);
                 }
             }
             
@@ -384,7 +385,7 @@ public class GuiPersonalDetails extends GuiGetServer
                     if (event != null)
                         if (event.getAction() == HoverEvent.Action.SHOW_TEXT)
                         {
-//                            this.drawHoveringText(Splitter.on("\n").splitToList(event.getValue().getFormattedText()), mouseX, mouseY);
+                            this.renderTooltip(Splitter.on("\n").splitToList(event.getValue().getFormattedText()), mouseX, mouseY);
                         }
                 }
             }

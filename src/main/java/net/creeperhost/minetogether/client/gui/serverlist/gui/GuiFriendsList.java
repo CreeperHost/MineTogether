@@ -119,7 +119,7 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
 
         }));
 
-        buttonInvite.active = list.getCurrSelected() != null;
+        buttonInvite.active = list.getSelected() != null;
 
         codeEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 - 50, 160, 20, "");
         displayEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 + 0, 160, 20, "");
@@ -158,12 +158,12 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
                     String s = searchEntry.getText();
                     if(s.toLowerCase().contains(friend.getName().toLowerCase()))
                     {
-                        list.addEntry(friendEntry);
+                        list.add(friendEntry);
                     }
                 }
                 else
                     {
-                        list.addEntry(friendEntry);
+                        list.add(friendEntry);
                     }
             }
         }
@@ -184,12 +184,12 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
                     String s = searchEntry.getText();
                     if(mute.toLowerCase().contains(s.toLowerCase()))
                     {
-                        listMuted.addEntry(mutedEntry);
+                        listMuted.add(mutedEntry);
                     }
                 }
                 else
                     {
-                        listMuted.addEntry(mutedEntry);
+                        listMuted.add(mutedEntry);
                     }
             }
         }
@@ -369,8 +369,8 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
         {
             this.listMuted.mouseClicked(mouseX, mouseY, mouseButton);
         }
-        if (list.getCurrSelected() != null)
-            if (list.getCurrSelected().getFriend().isAccepted())
+        if (list.getSelected() != null)
+            if (((GuiListEntryFriend) list.getSelected()).getFriend().isAccepted())
                 this.buttonInvite.active = true;
             else
                 this.buttonInvite.active = false;

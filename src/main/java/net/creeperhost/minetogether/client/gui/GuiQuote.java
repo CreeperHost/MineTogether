@@ -56,7 +56,7 @@ public class GuiQuote extends GuiGetServer
         {
             countryOnRelease = true;
             this.oldButtonxPrev = this.buttonPrev.x;
-            this.countryPrev =  (GuiListEntryCountry) this.list.getCurrSelected();
+            this.countryPrev =  (GuiListEntryCountry) this.list.getSelected();
             this.oldButtonxNext = this.buttonNext.x;
             this.buttonPrev.x = this.buttonNext.x;
             this.buttonNext.y = -50;
@@ -77,11 +77,11 @@ public class GuiQuote extends GuiGetServer
             for (Map.Entry<String, String> entry : locations.entrySet())
             {
                 GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
-                list.addEntry(listEntry);
+                list.add(listEntry);
                 
                 if (order.country.equals(listEntry.countryID))
                 {
-                    list.setCurrSelected(listEntry);
+                    list.setSelected(listEntry);
                 }
             }
         }
@@ -109,11 +109,11 @@ public class GuiQuote extends GuiGetServer
                 for (Map.Entry<String, String> entry : locations.entrySet())
                 {
                     GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
-                    list.addEntry(listEntry);
+                    list.add(listEntry);
 
                     if (order.country.equals(listEntry.countryID))
                     {
-                        list.setCurrSelected(listEntry);
+                        list.setSelected(listEntry);
                     }
                 }
             }
@@ -140,7 +140,7 @@ public class GuiQuote extends GuiGetServer
     {
         super.tick();
         
-        this.buttonNext.active = this.list.getCurrSelected() != null && !countryEnabled && !refreshing;
+        this.buttonNext.active = this.list.getSelected() != null && !countryEnabled && !refreshing;
         this.buttonPrev.active = !refreshing;
     }
     
@@ -274,7 +274,7 @@ public class GuiQuote extends GuiGetServer
         {
             if (this.list.mouseClicked(mouseX, mouseY, mouseButton))
             {
-                GuiListEntryCountry country = (GuiListEntryCountry) this.list.getCurrSelected();
+                GuiListEntryCountry country = (GuiListEntryCountry) this.list.getSelected();
                 order.country = country.countryID;
                 changed = true;
                 return true;
