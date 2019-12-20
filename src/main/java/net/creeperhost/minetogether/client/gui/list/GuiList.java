@@ -1,14 +1,13 @@
-package net.creeperhost.minetogether.gui.list;
+package net.creeperhost.minetogether.client.gui.list;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiListExtended;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.list.ExtendedList;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiList<T extends GuiListEntry> extends GuiListExtended
+public class GuiList<T extends GuiListEntry> extends ExtendedList
 {
     public final Screen gui;
     private List<T> options;
@@ -53,22 +52,10 @@ public class GuiList<T extends GuiListEntry> extends GuiListExtended
     {
         options = new ArrayList<T>();
     }
-    
+
     @Override
-    protected boolean isSelected(int slotIndex)
+    protected boolean isSelectedItem(int slotIndex)
     {
-        return slotIndex == this.currSelected;
-    }
-    
-    @Override
-    public IGuiListEntry getListEntry(int index)
-    {
-        return this.options.get(index);
-    }
-    
-    @Override
-    protected int getSize()
-    {
-        return this.options.size();
+        return super.isSelectedItem(slotIndex);
     }
 }

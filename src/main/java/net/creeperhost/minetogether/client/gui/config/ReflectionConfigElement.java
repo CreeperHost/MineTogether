@@ -1,6 +1,6 @@
-//package net.creeperhost.minetogether.gui.config;
+//package net.creeperhost.minetogether.client.gui.config;
 //
-//import net.creeperhost.minetogether.common.Config;
+//import net.creeperhost.minetogether.config.Config;
 //import net.minecraftforge.fml.client.config.ConfigGuiType;
 //import net.minecraftforge.fml.client.config.GuiConfigEntries;
 //import net.minecraftforge.fml.client.config.GuiEditArrayEntries;

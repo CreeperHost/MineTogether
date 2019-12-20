@@ -1,19 +1,26 @@
-package net.creeperhost.minetogether.gui.list;
+package net.creeperhost.minetogether.client.gui.list;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiListExtended;
+import net.minecraft.client.gui.screen.ServerSelectionList;
+import net.minecraft.client.gui.widget.list.ExtendedList;
 
-public class GuiListEntry implements GuiListExtended.IGuiListEntry
+public class GuiListEntry extends ExtendedList<ServerSelectionList.Entry>
 {
-    protected final Minecraft mc;
+    protected final Minecraft mc = Minecraft.getInstance();
     protected final GuiList list;
     
+    public GuiListEntry(GuiList list, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
+    {
+        super(mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
+        this.list = list;
+    }
+
     public GuiListEntry(GuiList list)
     {
+        super(Minecraft.getInstance(), 50, 50, 50, 50, 0);
         this.list = list;
-        this.mc = Minecraft.getInstance();
     }
-    
+
     public void setSelected(int par1, int par2, int par3) {}
     
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected) {}
@@ -28,19 +35,19 @@ public class GuiListEntry implements GuiListExtended.IGuiListEntry
         drawEntry(p_192634_1_, p_192634_2_, p_192634_3_, p_192634_4_, p_192634_5_, p_192634_6_, p_192634_7_, p_192634_8_);
     }
     
-    @Override
-    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY)
-    {
-        if (this.list.getCurrSelected() != this)
-        {
-            this.list.setCurrSelected(this);
-            return true;
-        } else
-        {
-            return false;
-        }
-    }
-    
-    @Override
-    public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY) {}
+//    @Override
+//    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY)
+//    {
+//        if (this.list.getCurrSelected() != this)
+//        {
+//            this.list.setCurrSelected(this);
+//            return true;
+//        } else
+//        {
+//            return false;
+//        }
+//    }
+//
+//    @Override
+//    public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY) {}
 }

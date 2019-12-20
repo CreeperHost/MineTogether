@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui.hacky;
+package net.creeperhost.minetogether.client.gui.hacky;
 
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;

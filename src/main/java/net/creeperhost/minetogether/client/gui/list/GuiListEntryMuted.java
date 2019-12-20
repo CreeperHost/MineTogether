@@ -1,8 +1,7 @@
-package net.creeperhost.minetogether.gui.list;
+package net.creeperhost.minetogether.client.gui.list;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
-import net.minecraft.client.renderer.GlStateManager;
+import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
 
 public class GuiListEntryMuted extends GuiListEntry
 {
@@ -12,7 +11,7 @@ public class GuiListEntryMuted extends GuiListEntry
     private float transparency = 0.5F;
     private boolean wasHovering;
     private final GuiFriendsList friendsListgui;
-    
+
     public GuiListEntryMuted(GuiFriendsList friendsListIngui, GuiList list, String muted)
     {
         super(list);
@@ -21,7 +20,7 @@ public class GuiListEntryMuted extends GuiListEntry
         cross = new String(Character.toChars(10006));
         stringWidth = this.mc.fontRenderer.getStringWidth(cross);
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
@@ -36,17 +35,17 @@ public class GuiListEntryMuted extends GuiListEntry
             if (transparency >= 0.5F)
                 transparency -= 0.04;
         }
-        
+
         this.mc.fontRenderer.drawString(muted, x + 5, y + 5, 16777215);
-        
+
         int transparentString = (int) (transparency * 254) << 24;
-        
+
         GlStateManager.enableAlphaTest();
         GlStateManager.enableBlend();
         this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
         GlStateManager.disableAlphaTest();
         GlStateManager.disableBlend();
-        
+
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
         {
             wasHovering = true;
@@ -58,23 +57,24 @@ public class GuiListEntryMuted extends GuiListEntry
             friendsListgui.setHoveringText(null);
         }
     }
-    
+
     public String getMuted()
     {
         return muted;
     }
-    
-    @Override
-    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
-    {
-        int listWidth = list.getListWidth();
-        if (x >= listWidth - stringWidth - 4 && x <= listWidth - 5 && y >= 0 && y <= 7)
-        {
-            friendsListgui.unmutePlayer(muted);
-            wasHovering = false;
-            friendsListgui.setHoveringText(null);
-            return false;
-        }
-        return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
-    }
+
+//
+//    @Override
+//    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
+//    {
+//        int listWidth = list.getListWidth();
+//        if (x >= listWidth - stringWidth - 4 && x <= listWidth - 5 && y >= 0 && y <= 7)
+//        {
+//            friendsListgui.unmutePlayer(muted);
+//            wasHovering = false;
+//            friendsListgui.setHoveringText(null);
+//            return false;
+//        }
+//        return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
+//    }
 }

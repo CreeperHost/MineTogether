@@ -1,13 +1,12 @@
-package net.creeperhost.minetogether.gui;
+package net.creeperhost.minetogether.client.gui;
 
-import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.gui.list.GuiList;
-import net.creeperhost.minetogether.gui.list.GuiListEntry;
-import net.creeperhost.minetogether.gui.list.GuiListEntryLocation;
+import net.creeperhost.minetogether.client.gui.list.GuiList;
+import net.creeperhost.minetogether.client.gui.list.GuiListEntry;
+import net.creeperhost.minetogether.client.gui.list.GuiListEntryLocation;
 import net.creeperhost.minetogether.paul.Callbacks;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class GuiServerLocation extends GuiGetServer
@@ -21,11 +20,11 @@ public class GuiServerLocation extends GuiGetServer
     
     @SuppressWarnings("Duplicates")
     @Override
-    public void initGui()
+    public void init()
     {
-        super.initGui();
+        super.init();
         
-        this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height - 36, 36);
+        this.list = new GuiList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36);
         
         Map<String, String> locations = Callbacks.getAllServerLocations();
         
@@ -62,17 +61,17 @@ public class GuiServerLocation extends GuiGetServer
     }
     
     @Override
-    public void updateScreen()
+    public void tick()
     {
-        super.updateScreen();
+        super.tick();
         
-        this.buttonNext.enabled = this.list.getCurrSelected() != null;
+        this.buttonNext.active = this.list.getCurrSelected() != null;
     }
     
     @Override
-    public void onGuiClosed()
+    public void onClose()
     {
-        super.onGuiClosed();
+        super.onClose();
         
         GuiListEntry entry = this.list.getCurrSelected();
         if (entry instanceof GuiListEntryLocation)
@@ -81,33 +80,35 @@ public class GuiServerLocation extends GuiGetServer
         }
     }
     
-    @Override
-    public void handleMouseInput() throws IOException
-    {
-        super.handleMouseInput();
-        this.list.handleMouseInput();
-    }
+//    @Override
+//    public void handleMouseInput() throws IOException
+//    {
+//        super.handleMouseInput();
+//        this.list.handleMouseInput();
+//    }
     
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void render(int mouseX, int mouseY, float partialTicks)
     {
-        this.drawDefaultBackground();
-        this.list.drawScreen(mouseX, mouseY, partialTicks);
+        this.renderDirtBackground(0);
+        this.list.render(mouseX, mouseY, partialTicks);
         
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        super.render(mouseX, mouseY, partialTicks);
     }
     
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.list.mouseClicked(mouseX, mouseY, mouseButton);
+        return true;
     }
     
     @Override
-    protected void mouseReleased(int mouseX, int mouseY, int state)
+    public boolean mouseReleased(double mouseX, double mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);
         this.list.mouseReleased(mouseX, mouseY, state);
+        return true;
     }
 }

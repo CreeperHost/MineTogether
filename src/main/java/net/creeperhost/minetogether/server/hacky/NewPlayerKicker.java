@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.serverstuffs.hacky;
+package net.creeperhost.minetogether.server.hacky;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.StringTextComponent;

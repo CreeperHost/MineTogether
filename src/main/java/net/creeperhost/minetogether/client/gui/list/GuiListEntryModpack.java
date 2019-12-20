@@ -1,6 +1,6 @@
-package net.creeperhost.minetogether.gui.list;
+package net.creeperhost.minetogether.client.gui.list;
 
-import net.creeperhost.minetogether.gui.GuiModPackList;
+import net.creeperhost.minetogether.client.gui.GuiModPackList;
 import net.creeperhost.minetogether.paul.Callbacks;
 
 public class GuiListEntryModpack extends GuiListEntry
@@ -42,8 +42,8 @@ public class GuiListEntryModpack extends GuiListEntry
     }
 
     @Override
-    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
+    public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
     {
-        return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
+        return super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
     }
 }

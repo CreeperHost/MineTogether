@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui.serverlist.gui.elements;
+package net.creeperhost.minetogether.client.gui.serverlist.gui.elements;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;

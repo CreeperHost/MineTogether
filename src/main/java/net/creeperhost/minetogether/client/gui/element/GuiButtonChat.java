@@ -1,7 +1,7 @@
-package net.creeperhost.minetogether.gui.element;
+package net.creeperhost.minetogether.client.gui.element;
 
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 
@@ -62,7 +62,7 @@ public class GuiButtonChat extends Button
     {
         boolean ret = super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
         if (ret)
-            if (CreeperHost.instance.gdpr.hasAcceptedGDPR())
+            if (MineTogether.instance.gdpr.hasAcceptedGDPR())
                 ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).unread = false;
 
         return ret;

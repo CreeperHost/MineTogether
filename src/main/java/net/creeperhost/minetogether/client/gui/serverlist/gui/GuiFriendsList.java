@@ -1,27 +1,21 @@
-package net.creeperhost.minetogether.gui.serverlist.gui;
+package net.creeperhost.minetogether.client.gui.serverlist.gui;
 
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.Util;
-import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.gui.GuiGDPR;
-import net.creeperhost.minetogether.gui.GuiYahNah;
-import net.creeperhost.minetogether.gui.list.GuiList;
-import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
-import net.creeperhost.minetogether.gui.list.GuiListEntryMuted;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.util.Util;
+import net.creeperhost.minetogether.client.gui.GuiGDPR;
+import net.creeperhost.minetogether.client.gui.list.GuiList;
+import net.creeperhost.minetogether.client.gui.list.GuiListEntryFriend;
+import net.creeperhost.minetogether.client.gui.list.GuiListEntryMuted;
 import net.creeperhost.minetogether.paul.Callbacks;
-import net.creeperhost.minetogether.serverlist.data.Friend;
+import net.creeperhost.minetogether.data.Friend;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
 
-import java.awt.*;
-import java.awt.datatransfer.StringSelection;
-import java.io.IOException;
 import java.util.ArrayList;
 
-public class GuiFriendsList extends Screen implements GuiYesNoCallback
+public class GuiFriendsList extends Screen// implements GuiYesNoCallback
 {
     private final Screen parent;
     private GuiList<GuiListEntryFriend> list;
@@ -59,33 +53,33 @@ public class GuiFriendsList extends Screen implements GuiYesNoCallback
         super(new StringTextComponent(""));
         this.parent = currentScreen;
         friendCode = Callbacks.getFriendCode();
-        CreeperHost.instance.clearToast(false);
+        MineTogether.instance.clearToast(false);
     }
     
     @Override
-    public void initGui()
+    public void init()
     {
-        if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
+        if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
-            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiFriendsList(parent)));
+            minecraft.displayGuiScreen(new GuiGDPR(parent, () -> new GuiFriendsList(parent)));
             return;
         }
-        super.initGui();
+        super.init();
 
         if(listMuted == null)
         {
-            listMuted = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
+            listMuted = new GuiList(this, minecraft, width, height, 32, this.height - 64, 36);
         } else {
-            listMuted.setDimensions(width, height, 32, this.height - 64);
+//            listMuted.setDimensions(width, height, 32, this.height - 64);
         }
         
         if (list == null)
         {
-            list = new GuiList(this, mc, width, height, 32, this.height - 64, 36);
+            list = new GuiList(this, minecraft, width, height, 32, this.height - 64, 36);
         }
         else
         {
-            list.setDimensions(width, height, 32, this.height - 64);
+//            list.setDimensions(width, height, 32, this.height - 64);
         }
         
         if (first)
@@ -108,33 +102,45 @@ public class GuiFriendsList extends Screen implements GuiYesNoCallback
         
         int buttonX = margin;
         
-        buttonCancel = new GuiButton(0, buttonX, y, buttonWidth, 20, Util.localize("button.cancel"));
-        buttonList.add(buttonCancel);
+        buttonCancel = addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("button.cancel"), p ->
+        {
+
+        }));
         buttonX += spaceInbetween;
 
-        buttonAdd = new GuiButton(1, buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.addfriend"));
-        buttonList.add(buttonAdd);
+        buttonAdd = addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.addfriend"), p ->
+        {
+
+        }));
         buttonX += spaceInbetween;
 
-        buttonInvite = new GuiButton(4, buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.invite"));
-        buttonInvite.enabled = list.getCurrSelected() != null;
-        buttonList.add(buttonInvite);
-        
-        codeEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 - 50, 160, 20);
-        displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 + 0, 160, 20);
+        buttonInvite = addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.invite"), p ->
+        {
+
+        }));
+
+        buttonInvite.active = list.getCurrSelected() != null;
+
+        codeEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 - 50, 160, 20, "");
+        displayEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 + 0, 160, 20, "");
         
 //        friendDisplayString = Util.localize("multiplayer.friendcode", friendCode);
 //        int friendWidth = fontRendererObj.getStringWidth(friendDisplayString);
 //        buttonCopy = new GuiButton(4, 10 + friendWidth + 3, this.height - 26, 80, 20, Util.localize("multiplayer.button.copy"));
 //        buttonList.add(buttonCopy);
 
-        buttonRefresh = new GuiButton(1337, this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"));
-        buttonList.add(buttonRefresh);
-        
-        toggle = new GuiButton(5, width - 60,   6, 60, 20,isMuted ? "Friends" : "Muted");
-        buttonList.add(toggle);
+        buttonRefresh = addButton(new Button(this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"), p ->
+        {
 
-        searchEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, y + 28, 160, 20);
+        }));
+
+
+        toggle = addButton(new Button( width - 60,   6, 60, 20,  isMuted ? "Friends" : "Muted", p ->
+        {
+
+        }));
+
+        searchEntry = new TextFieldWidget(this.font, this.width / 2 - 80, y + 28, 160, 20, "");
         searchEntry.setVisible(true);
     }
     
@@ -165,13 +171,13 @@ public class GuiFriendsList extends Screen implements GuiYesNoCallback
 
     protected void refreshMutedList(boolean force)
     {
-        ArrayList<String> mutedUsers = CreeperHost.mutedUsers;
+        ArrayList<String> mutedUsers = MineTogether.mutedUsers;
         listMuted.clearList();
         if (mutedUsers != null)
         {
             for (String mute : mutedUsers)
             {
-                String username = CreeperHost.instance.getNameForUser(mute);
+                String username = MineTogether.instance.getNameForUser(mute);
                 GuiListEntryMuted mutedEntry = new GuiListEntryMuted(this, listMuted, username);
                 if(searchEntry != null && !searchEntry.getText().isEmpty())
                 {
@@ -188,115 +194,115 @@ public class GuiFriendsList extends Screen implements GuiYesNoCallback
             }
         }
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
-    public void onGuiClosed()
+    public void onClose()
     {
-        CreeperHost.instance.clearToast(false);
+        MineTogether.instance.clearToast(false);
     }
     
-    @SuppressWarnings("Duplicates")
-    @Override
-    protected void actionPerformed(GuiButton button) throws IOException
-    {
-        if (button == buttonCancel)
-        {
-            if (!addFriend)
-                mc.displayGuiScreen(parent);
-            else
-            {
-                addFriend = false;
-                buttonInvite.visible = true;
-                codeEntry.setText("");
-            }
-        } else if (button == buttonAdd)
-        {
-            if (!addFriend)
-            {
-                addFriend = true;
-                buttonInvite.visible = false;
-            } else if (!codeEntry.getText().isEmpty())
-            {
-                String result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
-                addFriend = false;
-                if (result == null)
-                    list.addEntry(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
-                buttonInvite.visible = true;
-                showAlert(result == null ? Util.localize("multiplayer.friendsent") : result, 0x00FF00, 5000);
-            }
-            
-        } else if (button == buttonInvite && button.enabled && button.visible)
-        {
-            if (CreeperHost.instance.curServerId == -1)
-            {
-                showAlert(Util.localize("multiplayer.notinvite"), 0xFF0000, 5000);
-                return;
-            } else
-            {
-                boolean ret = Callbacks.inviteFriend(list.getCurrSelected().getFriend());
-                if (ret)
-                {
-                    Callbacks.inviteFriend(list.getCurrSelected().getFriend());
-                    showAlert(Util.localize("multiplayer.invitesent"), 0x00FF00, 5000);
-                } else
-                {
-                    showAlert(Util.localize("multiplayer.couldnotinvite"), 0xFF0000, 5000);
-                }
-            }
-        } else if (button == buttonCopy)
-        {
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(friendCode), null);
-            showAlert("Copied to clipboard.", 0x00FF00, 5000);
-        } else if (button == buttonRefresh)
-        {
-            refreshFriendsList(false);
-            refreshMutedList(false);
-        }
-        else if(button.id == toggle.id)
-        {
-            if(button.displayString.contains("Friends"))
-            {
-                button.displayString = "Muted";
-                isMuted = true;
-            }
-            else if(button.displayString.contains("Muted"))
-            {
-                button.displayString = "Friends";
-                isMuted = false;
-            }
-        }
-    }
+//    @SuppressWarnings("Duplicates")
+//    @Override
+//    protected void actionPerformed(GuiButton button) throws IOException
+//    {
+//        if (button == buttonCancel)
+//        {
+//            if (!addFriend)
+//                mc.displayGuiScreen(parent);
+//            else
+//            {
+//                addFriend = false;
+//                buttonInvite.visible = true;
+//                codeEntry.setText("");
+//            }
+//        } else if (button == buttonAdd)
+//        {
+//            if (!addFriend)
+//            {
+//                addFriend = true;
+//                buttonInvite.visible = false;
+//            } else if (!codeEntry.getText().isEmpty())
+//            {
+//                String result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
+//                addFriend = false;
+//                if (result == null)
+//                    list.addEntry(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
+//                buttonInvite.visible = true;
+//                showAlert(result == null ? Util.localize("multiplayer.friendsent") : result, 0x00FF00, 5000);
+//            }
+//
+//        } else if (button == buttonInvite && button.enabled && button.visible)
+//        {
+//            if (MineTogether.instance.curServerId == -1)
+//            {
+//                showAlert(Util.localize("multiplayer.notinvite"), 0xFF0000, 5000);
+//                return;
+//            } else
+//            {
+//                boolean ret = Callbacks.inviteFriend(list.getCurrSelected().getFriend());
+//                if (ret)
+//                {
+//                    Callbacks.inviteFriend(list.getCurrSelected().getFriend());
+//                    showAlert(Util.localize("multiplayer.invitesent"), 0x00FF00, 5000);
+//                } else
+//                {
+//                    showAlert(Util.localize("multiplayer.couldnotinvite"), 0xFF0000, 5000);
+//                }
+//            }
+//        } else if (button == buttonCopy)
+//        {
+//            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(friendCode), null);
+//            showAlert("Copied to clipboard.", 0x00FF00, 5000);
+//        } else if (button == buttonRefresh)
+//        {
+//            refreshFriendsList(false);
+//            refreshMutedList(false);
+//        }
+//        else if(button.id == toggle.id)
+//        {
+//            if(button.displayString.contains("Friends"))
+//            {
+//                button.displayString = "Muted";
+//                isMuted = true;
+//            }
+//            else if(button.displayString.contains("Muted"))
+//            {
+//                button.displayString = "Friends";
+//                isMuted = false;
+//            }
+//        }
+//    }
     
     @SuppressWarnings("Duplicates")
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void render(int mouseX, int mouseY, float partialTicks)
     {
-        drawBackground(0);
+        renderDirtBackground(0);
         if(!isMuted)
         {
             if (!addFriend)
             {
-                this.list.drawScreen(mouseX, mouseY, partialTicks);
+                this.list.render(mouseX, mouseY, partialTicks);
             }
             else
             {
-                this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.othercode"), this.width / 2, this.height / 2 - 60, 0xFFFFFF);
-                this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.displayname"), this.width / 2, this.height / 2 - 10, 0xFFFFFF);
-                this.codeEntry.drawTextBox();
-                this.displayEntry.drawTextBox();
+                this.drawCenteredString(this.font, Util.localize("multiplayer.othercode"), this.width / 2, this.height / 2 - 60, 0xFFFFFF);
+                this.drawCenteredString(this.font, Util.localize("multiplayer.displayname"), this.width / 2, this.height / 2 - 10, 0xFFFFFF);
+                this.codeEntry.render(mouseX, mouseY, partialTicks);
+                this.displayEntry.render(mouseX, mouseY, partialTicks);
             }
-            this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
+            this.drawCenteredString(this.font, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         }
         else
         {
-            this.listMuted.drawScreen(mouseX, mouseY, partialTicks);
-            this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
+            this.listMuted.render(mouseX, mouseY, partialTicks);
+            this.drawCenteredString(this.font, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
         }
         
 //        this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
         
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        super.render(mouseX, mouseY, partialTicks);
         
         if (hoveringText != null)
         {
@@ -306,49 +312,55 @@ public class GuiFriendsList extends Screen implements GuiYesNoCallback
                 hoverTextCache.add(hoveringText);
                 lastHoveringText = hoveringText;
             }
-            drawHoveringText(hoverTextCache, mouseX + 12, mouseY);
+//            drawHoveringText(hoverTextCache, mouseX + 12, mouseY);
         }
-        if(searchEntry != null) this.searchEntry.drawTextBox();
+        if(searchEntry != null) this.searchEntry.render(mouseX, mouseY, partialTicks);
     }
     
     @Override
-    public void updateScreen()
+    public void tick()
     {
-        super.updateScreen();
+        super.tick();
     }
-    
+
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException
+    public boolean charTyped(char typedChar, int keyCode)
     {
-        super.keyTyped(typedChar, keyCode);
+        super.charTyped(typedChar, keyCode);
         if (codeEntry.isFocused())
         {
-            codeEntry.textboxKeyTyped(typedChar, keyCode);
+            codeEntry.charTyped(typedChar, keyCode);
+            return true;
         }
         else if (displayEntry.isFocused())
         {
-            displayEntry.textboxKeyTyped(typedChar, keyCode);
+            displayEntry.charTyped(typedChar, keyCode);
+            return true;
         }
         else if (searchEntry.isFocused())
         {
-            searchEntry.textboxKeyTyped(typedChar, keyCode);
+            searchEntry.charTyped(typedChar, keyCode);
             refreshFriendsList(false);
+            return true;
         }
+        return false;
     }
     
-    @Override
-    public void handleMouseInput() throws IOException
-    {
-        super.handleMouseInput();
-        this.list.handleMouseInput();
-    }
-    
+//    @Override
+//    public void handleMouseInput() throws IOException
+//    {
+//        super.handleMouseInput();
+//        this.list.handleMouseInput();
+//    }
+
+
+
     @SuppressWarnings("Duplicates")
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
-        this.codeEntry.myMouseClicked(mouseX, mouseY, mouseButton);
-        this.displayEntry.myMouseClicked(mouseX, mouseY, mouseButton);
+        this.codeEntry.mouseClicked(mouseX, mouseY, mouseButton);
+        this.displayEntry.mouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if(!isMuted) {
             this.list.mouseClicked(mouseX, mouseY, mouseButton);
@@ -359,17 +371,19 @@ public class GuiFriendsList extends Screen implements GuiYesNoCallback
         }
         if (list.getCurrSelected() != null)
             if (list.getCurrSelected().getFriend().isAccepted())
-                this.buttonInvite.enabled = true;
+                this.buttonInvite.active = true;
             else
-                this.buttonInvite.enabled = false;
+                this.buttonInvite.active = false;
         else
-            this.buttonInvite.enabled = false;
+            this.buttonInvite.active = false;
 
         this.searchEntry.mouseClicked(mouseX, mouseY, mouseButton);
+        return true;
     }
-    
+
+
     @Override
-    protected void mouseReleased(int mouseX, int mouseY, int state)
+    public boolean mouseReleased(double mouseX, double mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);
         if(isMuted) {
@@ -378,11 +392,12 @@ public class GuiFriendsList extends Screen implements GuiYesNoCallback
         else {
             this.listMuted.mouseReleased(mouseX, mouseY, state);
         }
+        return true;
     }
     
     private void showAlert(String text, int colour, int time)
     {
-        CreeperHost.instance.displayToast(text, time, null);
+        MineTogether.instance.displayToast(text, time, null);
     }
     
     public void setHoveringText(String hoveringText)
@@ -393,48 +408,48 @@ public class GuiFriendsList extends Screen implements GuiYesNoCallback
     public void removeFriend(Friend friend)
     {
         removeFriend = friend;
-        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.removefriend.sure1"), I18n.format("minetogether.removefriend.sure2"), 0));
+//        minecraft.displayGuiScreen(new ConfirmScreen(this, I18n.format("minetogether.removefriend.sure1"), I18n.format("minetogether.removefriend.sure2"), 0));
     }
 
     public void inviteGroupChat(Friend invited)
     {
         invitedPlayer = invited;
-        mc.displayGuiScreen(new GuiYahNah(this, I18n.format("minetogether.groupinvite.sure1"), I18n.format("minetogether.groupinvite.sure2"), 1));
+//        mc.displayGuiScreen(new GuiYahNah(this, I18n.format("minetogether.groupinvite.sure1"), I18n.format("minetogether.groupinvite.sure2"), 1));
     }
 
     public void unmutePlayer(String muted)
     {
         unmutePlayer = muted;
-        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.unmute.sure1"), I18n.format("minetogether.unmute.sure2"), 2));
+//        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.unmute.sure1"), I18n.format("minetogether.unmute.sure2"), 2));
     }
     
-    @Override
-    public void confirmClicked(boolean result, int id)
-    {
-        if (result)
-        {
-            if(id == 0)
-            {
-                Callbacks.removeFriend(removeFriend.getCode());
-                refreshFriendsList(true);
-            }
-            else if(id == 2)
-            {
-                CreeperHost.instance.unmuteUser(unmutePlayer);
-                listMuted.clearList();
-                refreshMutedList(false);
-            }
-            else if(id == 1)
-            {
-                if (!invitedPlayer.isAccepted())
-                    showAlert("Cannot invite pending friends", 0x00FF00, 5000);
-                else {
-                    String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
-                    showAlert("Sent invite to " + invitedPlayer.getName(), 0x00FF00, 5000);
-                    ChatHandler.sendChannelInvite(friendCode, CreeperHost.instance.ourNick);
-                }
-            }
-        }
-        mc.displayGuiScreen(this);
-    }
+//    @Override
+//    public void confirmClicked(boolean result, int id)
+//    {
+//        if (result)
+//        {
+//            if(id == 0)
+//            {
+//                Callbacks.removeFriend(removeFriend.getCode());
+//                refreshFriendsList(true);
+//            }
+//            else if(id == 2)
+//            {
+//                MineTogether.instance.unmuteUser(unmutePlayer);
+//                listMuted.clearList();
+//                refreshMutedList(false);
+//            }
+//            else if(id == 1)
+//            {
+//                if (!invitedPlayer.isAccepted())
+//                    showAlert("Cannot invite pending friends", 0x00FF00, 5000);
+//                else {
+//                    String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
+//                    showAlert("Sent invite to " + invitedPlayer.getName(), 0x00FF00, 5000);
+//                    ChatHandler.sendChannelInvite(friendCode, MineTogether.instance.ourNick);
+//                }
+//            }
+//        }
+//        minecraft.displayGuiScreen(this);
+//    }
 }

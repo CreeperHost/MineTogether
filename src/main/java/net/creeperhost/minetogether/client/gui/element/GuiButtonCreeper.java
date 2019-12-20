@@ -1,8 +1,7 @@
-package net.creeperhost.minetogether.gui.element;
+package net.creeperhost.minetogether.client.gui.element;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.lib.ModInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
@@ -26,17 +25,14 @@ public class GuiButtonCreeper extends Button
     @Override
     public void renderButton(int x, int y, float partialTicks)
     {
+        super.renderButton(x, y, partialTicks);
         if (this.visible)
         {
-            ResourceLocation buttonImage = buttonImg;
-            if (Config.getInstance().isServerHostButtonImage())
-                buttonImage = CreeperHost.instance.getImplementation().getButtonIcon();
+            ResourceLocation buttonImage = ModInfo.NO_BUTTON_ICON;
+            buttonImage = ModInfo.CREEPER_HOST_BUTTON_LOCATION;
             Minecraft.getInstance().getTextureManager().bindTexture(buttonImage);
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-            //TODO
-//            boolean over = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-//            this.drawTexturedModalRect(this.xPosition, this.yPosition, index * 20, over ? this.height : 0, this.width, this.height);
+            this.blit(this.x, this.y, index * 20, isHovered ? this.height : 0, this.width, this.height);
         }
     }
 }

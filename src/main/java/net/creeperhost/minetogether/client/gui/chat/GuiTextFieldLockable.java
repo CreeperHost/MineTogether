@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui.chat;
+package net.creeperhost.minetogether.client.gui.chat;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -50,10 +50,10 @@ public class GuiTextFieldLockable extends TextFieldWidget
         disableText = message;
     }
     
-//    public boolean isHovered(int mouseX, int mouseY)
-//    {
-//        return mouseX >= this.xPosition && mouseX < this.xPosition + this.width && mouseY >= this.yPosition && mouseY < this.yPosition + this.height;
-//    }
+    public boolean isHovered(int mouseX, int mouseY)
+    {
+        return mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height;
+    }
     
     public boolean getOurEnabled()
     {

@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui.element;
+package net.creeperhost.minetogether.client.gui.element;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
@@ -24,13 +24,13 @@ public class GuiButtonRefresh extends Button
     @Override
     public void renderButton(int mouseX, int mouseY, float tick)
     {
+        super.renderButton(x, y, tick);
+
         if (this.visible)
         {
             Minecraft.getInstance().getTextureManager().bindTexture(BUTTON_TEXTURES);
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-//            boolean over = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-//            this.drawTexturedModalRect(this.xPosition, this.yPosition, (index + 2)* 20, over ? this.height : 0, this.width, this.height);
+            this.blit(this.x, this.y, index * 20, isHovered ? this.height : 0, this.width, this.height);
         }
     }
 }

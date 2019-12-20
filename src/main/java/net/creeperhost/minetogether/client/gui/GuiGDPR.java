@@ -1,6 +1,6 @@
-package net.creeperhost.minetogether.gui;
+package net.creeperhost.minetogether.client.gui;
 
-import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
@@ -11,7 +11,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,14 +93,14 @@ public class GuiGDPR extends Screen
             minecraft.fontRenderer.drawString(gdprline.getFormattedText(), left, start += 10, -1);
         }
         
-        handleComponentHover(getComponentUnderMouse(mouseX, mouseY), mouseX, mouseY);
+//        handleComponentHover(getComponentUnderMouse(mouseX, mouseY), mouseX, mouseY);
     }
     
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
-        handleComponentClick(getComponentUnderMouse(mouseX, mouseY));
-        super.mouseClicked(mouseX, mouseY, mouseButton);
+//        handleComponentClick(getComponentUnderMouse(mouseX, mouseY));
+        return super.mouseClicked(mouseX, mouseY, mouseButton);
     }
     
     private ITextComponent getComponentUnderMouse(int mouseX, int mouseY)

@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui.chat;
+package net.creeperhost.minetogether.client.gui.chat;
 
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.paul.Callbacks;

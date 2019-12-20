@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui.serverlist.data;
+package net.creeperhost.minetogether.client.gui.serverlist.data;
 
 import net.minecraft.client.multiplayer.ServerData;
 

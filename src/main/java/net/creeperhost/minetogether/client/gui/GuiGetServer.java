@@ -1,7 +1,7 @@
-package net.creeperhost.minetogether.gui;
+package net.creeperhost.minetogether.client.gui;
 
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -20,7 +20,7 @@ public abstract class GuiGetServer extends Screen
     public GuiGetServer(int stepId, Order order)
     {
         super(new TranslationTextComponent(""));
-        CreeperHost.instance.updateCurse();
+        MineTogether.instance.updateCurse();
         this.stepId = stepId;
         this.order = order;
     }

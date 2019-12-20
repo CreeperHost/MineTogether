@@ -1,17 +1,19 @@
-package net.creeperhost.minetogether.gui.list;
+package net.creeperhost.minetogether.client.gui.list;
+
+import net.minecraft.client.gui.widget.list.ExtendedList;
 
 public class GuiListEntryCountry extends GuiListEntry
 {
     public final String countryID;
     public final String countryName;
-    
+
     public GuiListEntryCountry(GuiList list, String countryID, String countryName)
     {
         super(list);
         this.countryID = countryID;
         this.countryName = countryName;
     }
-    
+
     @Override
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
     {

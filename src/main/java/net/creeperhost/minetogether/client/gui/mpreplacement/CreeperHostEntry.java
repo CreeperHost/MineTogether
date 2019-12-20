@@ -1,53 +1,48 @@
-package net.creeperhost.minetogether.gui.mpreplacement;
+package net.creeperhost.minetogether.client.gui.mpreplacement;
 
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.Util;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.GuiGetServer;
+import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.client.gui.GuiGetServer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiMultiplayer;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.gui.ServerListEntryNormal;
+import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 @OnlyIn(Dist.CLIENT)
-public class CreeperHostEntry extends ServerListEntryNormal
+public class CreeperHostEntry extends ServerData
 {
     protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/hidebtn.png");
     protected static final ResourceLocation MPPARTNER_TEXTURES = new ResourceLocation("creeperhost", "textures/mppartner.png");
-    private final Minecraft mc = Minecraft.getMinecraft();
+    private final Minecraft mc = Minecraft.getInstance();
     private final String cross;
     private final int stringWidth;
     private ResourceLocation serverIcon;
-    private GuiMultiplayer ourMP;
+    private MultiplayerScreen ourMP;
     
     private float transparency = 0.5F;
     private int lastWidth;
     private int lastHeight;
-    private ScaledResolution res = null;
+//    private ScaledResolution res = null;
     
-    protected CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn)
+    protected CreeperHostEntry(String name, String ip, boolean isLan)
     {
-        super(p_i45048_1_, serverIn);
-        ourMP = p_i45048_1_;
-        serverIcon = Config.getInstance().isServerHostMenuImage() ? CreeperHost.instance.getImplementation().getMenuIcon() : new ResourceLocation("creeperhost", "textures/nobrandmp.png");
+        super(name, ip, isLan);
+//        ourMP = p_i45048_1_;
+        serverIcon = Config.getInstance().isServerHostMenuImage() ? MineTogether.instance.getImplementation().getMenuIcon() : new ResourceLocation("creeperhost", "textures/nobrandmp.png");
         cross = new String(Character.toChars(10006));
-        stringWidth = this.mc.fontRendererObj.getStringWidth(cross);
+        stringWidth = this.mc.fontRenderer.getStringWidth(cross);
     }
     
-    public CreeperHostEntry(GuiMultiplayer p_i45048_1_, ServerData serverIn, boolean diffSig)
-    {
-        this(p_i45048_1_, serverIn);
-    }
+//    public CreeperHostEntry(MultiplayerScreen p_i45048_1_, ServerData serverIn, boolean diffSig)
+//    {
+//        this(p_i45048_1_, serverIn);
+//    }
     
     public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float newthingy)
     {
@@ -75,29 +70,29 @@ public class CreeperHostEntry extends ServerListEntryNormal
         
         this.mc.getTextureManager().bindTexture(serverIcon);
         GlStateManager.enableBlend();
-        GlStateManager.color(1.0F, 1.0F, 1.0F, transparency);
-        Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
-        this.mc.fontRendererObj.drawString(Util.localize("mp.partner"), x+35, y, 16777215);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
+//        Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
+        this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x+35, y, 16777215);
         int transparentString = (int) (transparency * 254) << 24;
         GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
         GlStateManager.enableBlend();
-        this.mc.fontRendererObj.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRendererObj.FONT_HEIGHT + 1, 16777215 + transparentString);
+        this.mc.fontRenderer.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 1, 16777215 + transparentString);
         String s = Util.localize(Config.getInstance().isServerHostMenuImage() ? "mp.clickherebrand" : "mp.clickherebranding");
-        this.mc.fontRendererObj.drawString(s, x + 32 + 3, y + (this.mc.fontRendererObj.FONT_HEIGHT * 2) + 3, 8421504 + transparentString);
-        this.mc.fontRendererObj.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
+        this.mc.fontRenderer.drawString(s, x + 32 + 3, y + (this.mc.fontRenderer.FONT_HEIGHT * 2) + 3, 8421504 + transparentString);
+        this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
         {
-            if (lastWidth != this.mc.displayWidth || lastHeight != this.mc.displayHeight || res == null)
-            {
-                res = new ScaledResolution(this.mc);
-                lastWidth = this.mc.displayWidth;
-                lastHeight = this.mc.displayHeight;
-            }
-            
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+//            if (lastWidth != this.mc.displayWidth || lastHeight != this.mc.displayHeight || res == null)
+//            {
+//                res = new ScaledResolution(this.mc);
+//                lastWidth = this.mc.displayWidth;
+//                lastHeight = this.mc.displayHeight;
+//            }
+//
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             
             final int tooltipX = mouseX - 72;
-            final int tooltipY = mouseY + ((res.getScaledHeight() / 2 >= mouseY) ? 11 : -11);
+            final int tooltipY = mouseY + 11;
             final int tooltipTextWidth = 56;
             final int tooltipHeight = 7;
             
@@ -117,9 +112,9 @@ public class CreeperHostEntry extends ServerListEntryNormal
             GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
             GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
             
-            GlStateManager.color(1.0F, 1.0F, 1.0F, transparency);
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
             mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-            Gui.drawModalRectWithCustomSizedTexture(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60F, 10F);
+//            Gui.drawModalRectWithCustomSizedTexture(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60F, 10F);
         }
     }
     
@@ -133,11 +128,11 @@ public class CreeperHostEntry extends ServerListEntryNormal
         if (x >= 303 - stringWidth - 2 && x <= 303 - 3 && y >= 0 && y <= 7)
         {
             Config.getInstance().setMpMenuEnabled(false);
-            CreeperHost.instance.saveConfig(false);
-            this.mc.displayGuiScreen(new GuiMultiplayer(null));
+            MineTogether.instance.saveConfig();
+            this.mc.displayGuiScreen(new MultiplayerScreen(null));
             return true;
         }
-        Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+        Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
         return true;
     }
     

@@ -1,41 +1,28 @@
-package net.creeperhost.minetogether.gui.chat;
+package net.creeperhost.minetogether.client.gui.chat;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
-import net.creeperhost.minetogether.chat.PrivateChat;
-import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.common.LimitedSizeQueue;
-import net.creeperhost.minetogether.common.Pair;
-import net.creeperhost.minetogether.gui.GuiGDPR;
-import net.creeperhost.minetogether.gui.element.DropdownButton;
+import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.client.gui.GuiGDPR;
+import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 
-import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.client.GuiScrollingList;
 import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,7 +32,7 @@ import static net.creeperhost.minetogether.chat.ChatHandler.ircLock;
 public class GuiMTChat extends Screen
 {
     private final Screen parent;
-    private GuiScrollingChat chat;
+//    private GuiScrollingChat chat;
     private GuiTextFieldLockable send;
     public DropdownButton<Target> targetDropdownButton;
     private Button friendsButton;
@@ -81,33 +68,33 @@ public class GuiMTChat extends Screen
     public void init()
     {
         this.minecraft.keyboardListener.enableRepeatEvents(true);
-        if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
+        if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
             minecraft.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMTChat(parent)));
             return;
         }
         
-        chat = new GuiScrollingChat(10);
+//        chat = new GuiScrollingChat(10);
         send = new GuiTextFieldLockable(minecraft.fontRenderer, 10, this.height - 50, width - 20, 20, "");
         if (targetDropdownButton == null)
         {
-            targetDropdownButton = new DropdownButton<>(-1337, width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true);
+//            targetDropdownButton = new DropdownButton<>(-1337, width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true);
         }
 //        else
 //        {
 //            targetDropdownButton.xPosition = width - 5 - 100;
 //        }
-        buttonList.add(targetDropdownButton);
-        List<String> strings = new ArrayList<>();
-        strings.add("Mute");
-        strings.add("Add friend");
-        buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new Menu(strings), true));
-        buttonList.add(friendsButton = new GuiButton(-80088, 5, 5, 100, 20, "Friends list"));
-        buttonList.add(cancelButton = new GuiButton(-800885, width - 100 - 5, height - 5 - 20, 100, 20, "Cancel"));
-        buttonList.add(reconnectionButton = new GuiButton(-80084, 5 + 80, height - 5 - 20, 100, 20, "Reconnect"));
-        reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
-
-        buttonList.add(invited = new GuiButton(777, 5 + 70, height - 5 - 20, 60, 20, "Invites"));
+//        buttonList.add(targetDropdownButton);
+//        List<String> strings = new ArrayList<>();
+//        strings.add("Mute");
+//        strings.add("Add friend");
+//        buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new Menu(strings), true));
+//        buttonList.add(friendsButton = new GuiButton(-80088, 5, 5, 100, 20, "Friends list"));
+//        buttonList.add(cancelButton = new GuiButton(-800885, width - 100 - 5, height - 5 - 20, 100, 20, "Cancel"));
+//        buttonList.add(reconnectionButton = new GuiButton(-80084, 5 + 80, height - 5 - 20, 100, 20, "Reconnect"));
+//        reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
+//
+//        buttonList.add(invited = new GuiButton(777, 5 + 70, height - 5 - 20, 60, 20, "Invites"));
         invited.visible = ChatHandler.privateChatInvite != null;
 
         send.setMaxStringLength(120);
@@ -144,7 +131,7 @@ public class GuiMTChat extends Screen
             reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
             if (changed || ChatHandler.hasNewMessages(currentTarget))
             {
-                chat.updateLines(currentTarget);
+//                chat.updateLines(currentTarget);
                 ChatHandler.setMessagesRead(currentTarget);
             }
         }
@@ -152,7 +139,7 @@ public class GuiMTChat extends Screen
 
     public void rebuildChat()
     {
-        chat.updateLines(currentTarget);
+//        chat.updateLines(currentTarget);
     }
     
     boolean disabledDueToConnection = false;
@@ -163,9 +150,9 @@ public class GuiMTChat extends Screen
         ChatHandler.ConnectionStatus status = ChatHandler.connectionStatus;
         renderDirtBackground(1);
         targetDropdownButton.updateDisplayString();
-        chat.drawScreen(mouseX, mouseY, partialTicks);
-        send.setFocused(true);
-        send.drawTextBox();
+//        chat.render(mouseX, mouseY, partialTicks);
+//        send.setFocused(true);
+//        send.drawTextBox();
         if (!ChatHandler.isOnline())
         {
             send.setDisabled("Cannot send messages as not connected");
@@ -183,16 +170,16 @@ public class GuiMTChat extends Screen
                 targetDropdownButton.setSelected(Target.getMainTarget());
             processBadwords();
         }
-        drawCenteredString(fontRendererObj, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
-        ITextComponent comp = new TextComponentString("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
-        comp.appendSibling(new TextComponentString(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
-        drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
-        drawLogo(fontRendererObj, width - 20, height - 30, 20, 30, 0.75F);
-        super.drawScreen(mouseX, mouseY, partialTicks);
-        if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
-        {
-            drawHoveringText(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
-        }
+        drawCenteredString(font, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
+        ITextComponent comp = new StringTextComponent("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
+        comp.appendSibling(new StringTextComponent(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
+        drawString(font, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
+        drawLogo(font, width - 20, height - 30, 20, 30, 0.75F);
+        super.render(mouseX, mouseY, partialTicks);
+//        if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
+//        {
+//            drawHoveringText(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
+//        }
     }
 
     public static void drawLogo(FontRenderer fontRendererObj, int containerWidth, int containerHeight, int containerX, int containerY, float scale)
@@ -223,7 +210,7 @@ public class GuiMTChat extends Screen
         totalWidth *= adjust;
 
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationMineTogetherLogo);
-        Gui.drawModalRectWithCustomSizedTexture(x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
+//        Gui.drawModalRectWithCustomSizedTexture(x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
 
         String created = "Created by";
         int stringWidth = fontRendererObj.getStringWidth(created);
@@ -233,70 +220,70 @@ public class GuiMTChat extends Screen
         GlStateManager.color4f(1F,1F,1F,1F); // reset alpha as font renderer isn't nice like that
 
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
-        Gui.drawModalRectWithCustomSizedTexture(x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
+//        Gui.drawModalRectWithCustomSizedTexture(x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
         
 
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glPopMatrix();
     }
-    
-    @Override
-    public void actionPerformed(GuiButton button) throws IOException
-    {
-        if(button == targetDropdownButton && targetDropdownButton.displayString.contains("new channel"))
-        {
-            PrivateChat p = new PrivateChat("#" + CreeperHost.instance.ourNick, CreeperHost.instance.ourNick);
-            ChatHandler.privateChatList = p;
-            ChatHandler.createChannel(p.getChannelname());
-        }
-        if (button == menuDropdownButton)
-        {
-            if (menuDropdownButton.getSelected().option.equals("Mute"))
-            {
-                CreeperHost.instance.muteUser(activeDropdown);
-                chat.updateLines(currentTarget);
-            } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
-            {
-                mc.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
-            }
-        } else if (button == friendsButton)
-        {
-            CreeperHost.proxy.openFriendsGui();
-        } else if (button == reconnectionButton)
-        {
-            ChatHandler.reInit();
-        } else if (button == cancelButton)
-        {
-            this.mc.displayGuiScreen(parent);
-        }
-        else if (button == invited && ChatHandler.privateChatInvite != null)
-        {
-            confirmInvite();
-        }
-        chat.actionPerformed(button);
-        super.actionPerformed(button);
-    }
+    //TODO
+//    @Override
+//    public void actionPerformed(GuiButton button) throws IOException
+//    {
+//        if(button == targetDropdownButton && targetDropdownButton.displayString.contains("new channel"))
+//        {
+//            PrivateChat p = new PrivateChat("#" + MineTogether.instance.ourNick, MineTogether.instance.ourNick);
+//            ChatHandler.privateChatList = p;
+//            ChatHandler.createChannel(p.getChannelname());
+//        }
+//        if (button == menuDropdownButton)
+//        {
+//            if (menuDropdownButton.getSelected().option.equals("Mute"))
+//            {
+//                MineTogether.instance.muteUser(activeDropdown);
+//                chat.updateLines(currentTarget);
+//            } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
+//            {
+//                mc.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+//            }
+//        } else if (button == friendsButton)
+//        {
+//            MineTogether.proxy.openFriendsGui();
+//        } else if (button == reconnectionButton)
+//        {
+//            ChatHandler.reInit();
+//        } else if (button == cancelButton)
+//        {
+//            this.mc.displayGuiScreen(parent);
+//        }
+//        else if (button == invited && ChatHandler.privateChatInvite != null)
+//        {
+//            confirmInvite();
+//        }
+//        chat.actionPerformed(button);
+//        super.actionPerformed(button);
+//    }
 
     public void confirmInvite()
     {
-        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("You have been invited to join a private channel by %s", CreeperHost.instance.getNameForUser(ChatHandler.privateChatInvite.getOwner())), "Do you wish to accept this invite?" + (ChatHandler.hasGroup ? " You are already in a group chat - if you continue, you will swap groups - or disband the group if you are the host." : ""), 777));
+//        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("You have been invited to join a private channel by %s", MineTogether.instance.getNameForUser(ChatHandler.privateChatInvite.getOwner())), "Do you wish to accept this invite?" + (ChatHandler.hasGroup ? " You are already in a group chat - if you continue, you will swap groups - or disband the group if you are the host." : ""), 777));
     }
 
-    @Override
-    public void confirmClicked(boolean result, int id)
-    {
-        if(result)
-        {
-            if(id == 777 && ChatHandler.privateChatInvite != null)
-            {
-                ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
-                mc.displayGuiScreen(this);
-                CreeperHost.instance.clearToast(false);
-                return;
-            }
-        }
-        super.confirmClicked(result, id);
-    }
+//    @Override
+//    public void confirmClicked(boolean result, int id)
+//    {
+//        if(result)
+//        {
+//            if(id == 777 && ChatHandler.privateChatInvite != null)
+//            {
+//                ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
+//                mc.displayGuiScreen(this);
+//                MineTogether.instance.clearToast(false);
+//                return;
+//            }
+//        }
+//        super.confirmClicked(result, id);
+//    }
 
     boolean disabledDueToBadwords = false;
 
@@ -332,37 +319,41 @@ public class GuiMTChat extends Screen
             send.setEnabled(true);
         }
     }
-    
+
+//    @Override
+//    public void handleMouseInput() throws IOException
+//    {
+//        int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+//        int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+//        super.handleMouseInput();
+//        chat.handleElementClicks();
+//        this.chat.handleMouseInput(mouseX, mouseY);
+//    }
+
     @Override
-    public void handleMouseInput() throws IOException
-    {
-        int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        super.handleMouseInput();
-        chat.handleElementClicks();
-        this.chat.handleMouseInput(mouseX, mouseY);
-    }
-    @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
         {
-            menuDropdownButton.xPosition = menuDropdownButton.yPosition = -10000;
+            menuDropdownButton.x = menuDropdownButton.y = -10000;
             menuDropdownButton.wasJustClosed = false;
+            return true;
         }
+        return false;
     }
     //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
     final static Pattern patternA = Pattern.compile("((?:user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     final static Pattern patternB = Pattern.compile("((?:@)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     final static Pattern patternC = Pattern.compile("((?:@user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
     @SuppressWarnings("Duplicates")
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException
+    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {
-        super.keyTyped(typedChar, keyCode);
+        super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
         
-        if ((keyCode == 28 || keyCode == 156) && send.getOurEnabled() && !send.getText().trim().isEmpty())
+        if ((p_keyPressed_2_ == 28 || p_keyPressed_2_ == 156) && send.getOurEnabled() && !send.getText().trim().isEmpty())
         {
             ChatHandler.sendMessage(currentTarget, getStringForSending(send.getText()));
             send.setText("");
@@ -375,13 +366,15 @@ public class GuiMTChat extends Screen
             send.setEnabled(true);
         }
         
-        send.textboxKeyTyped(typedChar, keyCode);
+//        send.textboxKeyTyped(typedChar, keyCode);
         
         if (!ourEnabled)
         {
             send.setEnabled(false);
         }
         processBadwords();
+
+        return false;
     }
 
     public static String getStringForSending(String text)
@@ -414,7 +407,7 @@ public class GuiMTChat extends Screen
                 split[i] = result.replaceAll(justNick, tempWord);
             else
             if (justNick.toLowerCase().equals(playerName.toLowerCase()))
-                split[i] = result.replaceAll(justNick, CreeperHost.instance.ourNick);
+                split[i] = result.replaceAll(justNick, MineTogether.instance.ourNick);
         }
         text = String.join(" ", split);
 
@@ -425,52 +418,52 @@ public class GuiMTChat extends Screen
     
     static
     {
-        try
-        {
-            field = GuiScrollingList.class.getDeclaredField("scrollDistance");
-            field.setAccessible(true);
-        } catch (NoSuchFieldException e) {}
+//        try
+//        {
+//            field = GuiScrollingList.class.getDeclaredField("scrollDistance");
+//            field.setAccessible(true);
+//        } catch (NoSuchFieldException e) {}
     }
     
-    @Override
-    public boolean handleComponentClick(ITextComponent component)
-    {
-        ClickEvent event = component.getStyle().getClickEvent();
-        if (event == null)
-            return false;
-        if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
-        {
-            String eventValue = event.getValue();
-            if (eventValue.contains(":"))
-            {
-                String[] split = eventValue.split(":");
-                if (split.length < 3)
-                    return false;
-                
-                String chatInternalName = split[1];
-                
-                String friendCode = split[2];
-                
-                StringBuilder builder = new StringBuilder();
-                
-                for (int i = 3; i < split.length; i++)
-                    builder.append(split[i]).append(" ");
-                
-                String friendName = builder.toString().trim();
-                
-                Minecraft.getMinecraft().displayGuiScreen(new GuiChatFriend(this, playerName, chatInternalName, friendCode, friendName, true));
-                
-                return true;
-            }
-            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
-            menuDropdownButton.xPosition = mouseX;
-            menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-            menuDropdownButton.dropdownOpen = true;
-            activeDropdown = event.getValue();
-            return true;
-        }
-        return super.handleComponentClick(component);
-    }
+//    @Override
+//    public boolean handleComponentClick(ITextComponent component)
+//    {
+//        ClickEvent event = component.getStyle().getClickEvent();
+//        if (event == null)
+//            return false;
+//        if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
+//        {
+//            String eventValue = event.getValue();
+//            if (eventValue.contains(":"))
+//            {
+//                String[] split = eventValue.split(":");
+//                if (split.length < 3)
+//                    return false;
+//
+//                String chatInternalName = split[1];
+//
+//                String friendCode = split[2];
+//
+//                StringBuilder builder = new StringBuilder();
+//
+//                for (int i = 3; i < split.length; i++)
+//                    builder.append(split[i]).append(" ");
+//
+//                String friendName = builder.toString().trim();
+//
+//                Minecraft.getInstance().displayGuiScreen(new GuiChatFriend(this, playerName, chatInternalName, friendCode, friendName, true));
+//
+//                return true;
+//            }
+//            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.minecraft.displayWidth;
+//            menuDropdownButton.xPosition = mouseX;
+//            menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+//            menuDropdownButton.dropdownOpen = true;
+//            activeDropdown = event.getValue();
+//            return true;
+//        }
+//        return super.handleComponentClick(component);
+//    }
 
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
 
@@ -510,9 +503,9 @@ public class GuiMTChat extends Screen
                     
                     String friendName = nameBuilder.toString();
                     
-                    ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") would like to add you as a friend. Click to ");
+                    ITextComponent userComp = new StringTextComponent(friendName + " (" + nickDisplay + ") would like to add you as a friend. Click to ");
                     
-                    ITextComponent accept = new TextComponentString("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
+                    ITextComponent accept = new StringTextComponent("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
                     
                     userComp.appendSibling(accept);
                     
@@ -526,7 +519,7 @@ public class GuiMTChat extends Screen
                     
                     String friendName = message.messageStr;
                     
-                    ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") accepted your friend request.");
+                    ITextComponent userComp = new StringTextComponent(friendName + " (" + nickDisplay + ") accepted your friend request.");
                     
                     return userComp;
             }
@@ -535,11 +528,11 @@ public class GuiMTChat extends Screen
         boolean friend = false;
         if (inputNick.startsWith("MT"))
         {
-            if (inputNick.equals(CreeperHost.instance.ourNick) || inputNick.equals(CreeperHost.instance.ourNick + "`"))
+            if (inputNick.equals(MineTogether.instance.ourNick) || inputNick.equals(MineTogether.instance.ourNick + "`"))
             {
                 outputNick = playerName;
             } else {
-                if (CreeperHost.instance.mutedUsers.contains(inputNick))
+                if (MineTogether.instance.mutedUsers.contains(inputNick))
                     return null;
                 
                 String newNick = ChatHandler.getNameForUser(inputNick);
@@ -558,12 +551,12 @@ public class GuiMTChat extends Screen
             return null;
         }
         
-        ITextComponent base = new TextComponentString("");
+        ITextComponent base = new StringTextComponent("");
         
-        ITextComponent userComp = new TextComponentString("<" + outputNick + ">");
+        ITextComponent userComp = new StringTextComponent("<" + outputNick + ">");
         userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
         
-        if (!inputNick.equals(CreeperHost.instance.ourNick) && !inputNick.equals(CreeperHost.instance.ourNick + "`") && inputNick.startsWith("MT"))
+        if (!inputNick.equals(MineTogether.instance.ourNick) && !inputNick.equals(MineTogether.instance.ourNick + "`") && inputNick.startsWith("MT"))
         {
             userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
         }
@@ -606,7 +599,7 @@ public class GuiMTChat extends Screen
 
         ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
-        if (CreeperHost.bannedUsers.contains(inputNick))
+        if (MineTogether.bannedUsers.contains(inputNick))
             messageComp = new StringTextComponent("message deleted").setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Message deleted as user was banned"))).setColor(TextFormatting.DARK_GRAY).setItalic(true));
 
         messageComp.getStyle().setColor(TextFormatting.WHITE);
@@ -624,7 +617,7 @@ public class GuiMTChat extends Screen
             }
         }
 
-        if(inputNick.equals(CreeperHost.instance.ourNick) || inputNick.equals(CreeperHost.instance.ourNick + "`"))
+        if(inputNick.equals(MineTogether.instance.ourNick) || inputNick.equals(MineTogether.instance.ourNick + "`"))
         {
             messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             userComp.getStyle().setColor(TextFormatting.GRAY); // make sure re:set
@@ -666,144 +659,144 @@ public class GuiMTChat extends Screen
         return base.appendSibling(messageComp);
     }
 
-    private class GuiScrollingChat extends GuiScrollingList
-    {
-        private ArrayList<ITextComponent> lines;
-        
-        GuiScrollingChat(int entryHeight)
-        {
-            super(Minecraft.getInstance(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 50, 30, GuiMTChat.this.height - 50, 10, entryHeight, GuiMTChat.this.width, GuiMTChat.this.height);
-            lines = new ArrayList<>();
-            updateLines(currentTarget);
-        }
-        
-        @Override
-        protected int getContentHeight()
-        {
-            int viewHeight = this.bottom - this.top - 4;
-            return super.getContentHeight() < viewHeight ? viewHeight : super.getContentHeight();
-        }
-        
-        protected void updateLines(String key)
-        {
-            LimitedSizeQueue<Message> tempMessages;
-            synchronized (ircLock)
-            {
-                if (ChatHandler.messages == null || ChatHandler.messages.size() == 0)
-                    return;
-                tempMessages = ChatHandler.messages.get(key);
-            }
-
-            ArrayList<ITextComponent> oldLines = lines;
-            int listHeight = this.getContentHeight() - (this.bottom - this.top - 4);
-            lines = new ArrayList<>();
-            if (tempMessages == null)
-                return;
-            for (Message message : tempMessages)
-            {
-                ITextComponent display = formatLine(message);
-                if (display == null)
-                    continue;
-                List<ITextComponent> strings = GuiUtilRenderComponents.splitText(display, listWidth - 6, fontRendererObj, false, true);
-                for (ITextComponent string : strings)
-                {
-                    lines.add(string);
-                }
-            }
-            try
-            {
-                if (lines.size() > oldLines.size() && ((float) field.get(this) == listHeight) || listHeight < 0)
-                {
-                    listHeight = this.getContentHeight() - (this.bottom - this.top - 4);
-                    field.set(this, listHeight);
-                }
-            } catch (IllegalAccessException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        
-        @Override
-        protected int getSize()
-        {
-            return lines.size();
-        }
-        
-        int elementClicked = -1;
-        
-        protected void handleElementClicks()
-        {
-            if (elementClicked == -1)
-                return;
-            
-            ITextComponent component = lines.get(elementClicked);
-            elementClicked = -1;
-            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
-            mouseX -= this.left;
-            int totalWidth = 0;
-            for (ITextComponent sibling : component.getSiblings())
-            {
-                int oldTotal = totalWidth;
-                totalWidth += fontRendererObj.getStringWidth(sibling.getFormattedText());
-                if (sibling.getStyle().getClickEvent() != null)
-                {
-                    if (mouseX > oldTotal && mouseX < totalWidth)
-                    {
-                        handleComponentClick(sibling);
-                        return;
-                    }
-                }
-            }
-        }
-        
-        @Override
-        protected void elementClicked(int index, boolean doubleClick)
-        {
-            elementClicked = index; // defer until later as this is done in the screen handling which is too soon for us to intercept properly
-        }
-        
-        @Override
-        protected boolean isSelected(int index)
-        {
-            return false;
-        }
-        
-        @Override
-        protected void drawBackground() {}
-        @Override
-        protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess)
-        {
-            ITextComponent component = lines.get(slotIdx);
-            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
-            mouseX -= this.left;
-            int totalWidth = 5;
-            for (ITextComponent sibling : component.getSiblings())
-            {
-                int oldTotal = totalWidth;
-                totalWidth += minecraft.fontRenderer.getStringWidth(sibling.getFormattedText());
-                boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > slotTop && mouseY < slotTop + slotHeight;
-                if (sibling.getStyle().getClickEvent() != null)
-                {
-                    if (hovering)
-                    {
-                        minecraft.fontRenderer.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), left + oldTotal, slotTop, 0xFF000000);
-                        GlStateManager.enableBlend();
-                        GlStateManager.color4f(1, 1, 1, 0.90F);
-                        minecraft.fontRenderer.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xBBFFFFFF);
-                        GlStateManager.color4f(1, 1, 1, 1);
-                        
-                    } else
-                    {
-                        minecraft.fontRenderer.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xFFFFFFFF);
-                    }
-                    
-                } else
-                {
-                    minecraft.fontRenderer.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xFFFFFF);
-                }
-            }
-        }
-    }
+//    private class GuiScrollingChat extends ExtendedList
+//    {
+//        private ArrayList<ITextComponent> lines;
+//
+//        GuiScrollingChat(int entryHeight)
+//        {
+//            super(Minecraft.getInstance(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 50, 30, GuiMTChat.this.height - 50, 10);
+//            lines = new ArrayList<>();
+//            updateLines(currentTarget);
+//        }
+//
+//        @Override
+//        protected int getContentHeight()
+//        {
+//            int viewHeight = this.bottom - this.top - 4;
+//            return super.getContentHeight() < viewHeight ? viewHeight : super.getContentHeight();
+//        }
+//
+//        protected void updateLines(String key)
+//        {
+//            LimitedSizeQueue<Message> tempMessages;
+//            synchronized (ircLock)
+//            {
+//                if (ChatHandler.messages == null || ChatHandler.messages.size() == 0)
+//                    return;
+//                tempMessages = ChatHandler.messages.get(key);
+//            }
+//
+//            ArrayList<ITextComponent> oldLines = lines;
+//            int listHeight = this.getContentHeight() - (this.bottom - this.top - 4);
+//            lines = new ArrayList<>();
+//            if (tempMessages == null)
+//                return;
+//            for (Message message : tempMessages)
+//            {
+//                ITextComponent display = formatLine(message);
+//                if (display == null)
+//                    continue;
+//                List<ITextComponent> strings = GuiUtilRenderComponents.splitText(display, listWidth - 6, fontRendererObj, false, true);
+//                for (ITextComponent string : strings)
+//                {
+//                    lines.add(string);
+//                }
+//            }
+//            try
+//            {
+//                if (lines.size() > oldLines.size() && ((float) field.get(this) == listHeight) || listHeight < 0)
+//                {
+//                    listHeight = this.getContentHeight() - (this.bottom - this.top - 4);
+//                    field.set(this, listHeight);
+//                }
+//            } catch (IllegalAccessException e)
+//            {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        @Override
+//        protected int getSize()
+//        {
+//            return lines.size();
+//        }
+//
+//        int elementClicked = -1;
+//
+//        protected void handleElementClicks()
+//        {
+//            if (elementClicked == -1)
+//                return;
+//
+//            ITextComponent component = lines.get(elementClicked);
+//            elementClicked = -1;
+//            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
+//            mouseX -= this.left;
+//            int totalWidth = 0;
+//            for (ITextComponent sibling : component.getSiblings())
+//            {
+//                int oldTotal = totalWidth;
+//                totalWidth += fontRendererObj.getStringWidth(sibling.getFormattedText());
+//                if (sibling.getStyle().getClickEvent() != null)
+//                {
+//                    if (mouseX > oldTotal && mouseX < totalWidth)
+//                    {
+//                        handleComponentClick(sibling);
+//                        return;
+//                    }
+//                }
+//            }
+//        }
+//
+//        @Override
+//        protected void elementClicked(int index, boolean doubleClick)
+//        {
+//            elementClicked = index; // defer until later as this is done in the screen handling which is too soon for us to intercept properly
+//        }
+//
+//        @Override
+//        protected boolean isSelected(int index)
+//        {
+//            return false;
+//        }
+//
+//        @Override
+//        protected void drawBackground() {}
+//        @Override
+//        protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess)
+//        {
+//            ITextComponent component = lines.get(slotIdx);
+//            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
+//            mouseX -= this.left;
+//            int totalWidth = 5;
+//            for (ITextComponent sibling : component.getSiblings())
+//            {
+//                int oldTotal = totalWidth;
+//                totalWidth += minecraft.fontRenderer.getStringWidth(sibling.getFormattedText());
+//                boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > slotTop && mouseY < slotTop + slotHeight;
+//                if (sibling.getStyle().getClickEvent() != null)
+//                {
+//                    if (hovering)
+//                    {
+//                        minecraft.fontRenderer.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), left + oldTotal, slotTop, 0xFF000000);
+//                        GlStateManager.enableBlend();
+//                        GlStateManager.color4f(1, 1, 1, 0.90F);
+//                        minecraft.fontRenderer.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xBBFFFFFF);
+//                        GlStateManager.color4f(1, 1, 1, 1);
+//
+//                    } else
+//                    {
+//                        minecraft.fontRenderer.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xFFFFFFFF);
+//                    }
+//
+//                } else
+//                {
+//                    minecraft.fontRenderer.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xFFFFFF);
+//                }
+//            }
+//        }
+//    }
     
     public static class Menu implements DropdownButton.IDropdownOption
     {

@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.serverlist.data;
+package net.creeperhost.minetogether.data;
 
 import java.util.Random;
 

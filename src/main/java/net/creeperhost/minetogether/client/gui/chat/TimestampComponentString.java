@@ -1,6 +1,5 @@
-package net.creeperhost.minetogether.gui.chat;
+package net.creeperhost.minetogether.client.gui.chat;
 
-import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.event.HoverEvent;

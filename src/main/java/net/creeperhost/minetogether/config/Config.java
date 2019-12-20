@@ -1,12 +1,13 @@
-package net.creeperhost.minetogether.common;
+package net.creeperhost.minetogether.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 import net.creeperhost.minetogether.lib.ModInfo;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 
 /**
@@ -30,7 +31,7 @@ public class Config
 
     private int pregenDiameter = 120;
 
-    private static Config instance;
+    public static Config instance;
 
     public Config() {
         this.version = "0";
@@ -147,29 +148,14 @@ public class Config
         instance = new Config(version, promoCode, creeperhostEnabled, mpMenuEnabled, mainMenuEnabled, serverHostButtonImage, serverHostMenuImage);
     }
 
-    public static void init()
+    public static void loadFromFile(File file)
     {
-        File configDir = new File("/config");
-        if(configDir.exists())
-        {
-            try
-            {
-                File f1 = new File(configDir + File.separator + ModInfo.MOD_ID + ".json");
-                if(!f1.exists())
-                {
-                    instance = new Config();
-
-                    FileWriter tileWriter = new FileWriter(configDir + "/" + ModInfo.MOD_ID + ".json");
-                    tileWriter.write(saveConfig());
-                    tileWriter.close();
-                }
-            } catch (Exception ignored) {}
-        }
-    }
-
-    public static void loadConfig(String configString) {
         Gson gson = new Gson();
-        instance = gson.fromJson(configString, Config.class);
+        try
+        {
+            FileReader fileReader = new FileReader(file);
+            instance = gson.fromJson(fileReader, Config.class);
+        } catch (Exception ignored) {}
     }
 
     public static String saveConfig() {
