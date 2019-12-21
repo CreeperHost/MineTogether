@@ -90,7 +90,6 @@ public class MineTogether implements ICreeperHostMod, IHost
         ConfigHandler.init();
 //        proxy.checkOnline();
         registerImplementation(new CreeperHostServerHost());
-        setRandomImplementation();
 
         
 //        PacketHandler.packetRegister();

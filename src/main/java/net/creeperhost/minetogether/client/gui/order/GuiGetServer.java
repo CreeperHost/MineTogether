@@ -1,6 +1,7 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.gui.order;
 
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.client.gui.order.*;
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.minecraft.client.gui.screen.MultiplayerScreen;

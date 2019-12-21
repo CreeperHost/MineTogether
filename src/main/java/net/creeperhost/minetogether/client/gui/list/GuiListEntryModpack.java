@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.client.gui.list;
 
-import net.creeperhost.minetogether.client.gui.GuiModPackList;
+import net.creeperhost.minetogether.client.gui.order.GuiModPackList;
 import net.creeperhost.minetogether.paul.Callbacks;
 
 public class GuiListEntryModpack extends GuiListEntry

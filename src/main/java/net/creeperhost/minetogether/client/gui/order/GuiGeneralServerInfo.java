@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.gui.order;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.util.Util;

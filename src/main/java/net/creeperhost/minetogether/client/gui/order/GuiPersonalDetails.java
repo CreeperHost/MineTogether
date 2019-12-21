@@ -1,7 +1,8 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.gui.order;
 
 import com.google.common.base.Splitter;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.client.gui.DefferedValidation;
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.IOrderValidation;
@@ -56,6 +57,38 @@ public class GuiPersonalDetails extends GuiGetServer
         
         this.loginButton = addButton(new Button( this.width / 2 - 40, (this.height / 2) - 10, 80, 20, Util.localize("button.login"), p ->
         {
+            if (orderPressed && !isSure)
+            {
+                isSure = true;
+//                actionPerformed(buttonNext);
+                return;
+            }
+            loggingIn = true;
+            loginButton.active = false;
+            loginButton.setMessage(Util.localize("button.logging"));
+            Runnable runnable = () -> {
+                String result = Callbacks.doLogin(order.emailAddress, order.password);
+                String[] resultSplit = result.split(":");
+                if (resultSplit[0].equals("success"))
+                {
+                    order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
+                    order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
+                    loggingIn = false;
+                    loggedIn = true;
+                    loggingInError = "";
+                    loginButton.setMessage(Util.localize("button.done"));
+                } else
+                {
+                    loggingIn = false;
+                    loggedIn = false;
+                    loggingInError = result;
+                    loginButton.active = true;
+                    loginButton.setMessage(Util.localize("button.logintryagain"));
+                }
+            };
+            Thread thread = new Thread(runnable);
+            thread.start();
+            return;
 
         }));
 
@@ -223,7 +256,7 @@ public class GuiPersonalDetails extends GuiGetServer
         for (TextFieldDetails field : this.fields)
         {
             field.checkPendingValidations();
-//            field.updateCursorCounter();
+            field.tick();
             
             if (!field.isValidated)
             {
@@ -236,31 +269,26 @@ public class GuiPersonalDetails extends GuiGetServer
         this.buttonNext.active = this.loggedIn || this.buttonNext.active;
     }
 
-    @SuppressWarnings("Duplicates")
     @Override
     public boolean charTyped(char typedChar, int keyCode)
     {
         TextFieldDetails field = this.focusedField;
-        
+
         if (focusedField == null)
             return false;
 
         if (keyCode == 15)
         {
             int adjustAm = 1;
-//            if (isShiftKeyDown())
-//            {
-//                adjustAm = -1;
-//            }
-            
+
             int fieldsSize = fields.size();
-            
+
             field.setFocused(false);
-            
+
             int newField = (field.getId() + adjustAm) % fieldsSize;
             if (newField == -1)
                 newField = fieldsSize - 1;
-            
+
             TextFieldDetails newF = null;
             while (newF == null)
             {
@@ -275,15 +303,14 @@ public class GuiPersonalDetails extends GuiGetServer
                         newField = fieldsSize - 1;
                 }
             }
-            
+
             newF.setFocused(true);
-            
-            return false;
+
         } else if (field.charTyped(typedChar, keyCode))
         {
             int id = field.getId();
             String text = field.getText().trim();
-            
+
             switch (id)
             {
                 case 0:
@@ -317,11 +344,58 @@ public class GuiPersonalDetails extends GuiGetServer
                     this.order.phone = text;
                     break;
             }
-            return false;
         }
         return super.charTyped(typedChar, keyCode);
     }
-    
+
+    @Override
+    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
+    {
+        if(focusedField != null)
+        {
+            if (focusedField.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_))
+            {
+                int id = focusedField.getId();
+                String text = focusedField.getText().trim();
+
+                switch (id)
+                {
+                    case 0:
+                        this.order.emailAddress = text;
+                        break;
+                    case 1:
+                        this.order.password = text;
+                        break;
+                    case 2:
+                        this.order.firstName = text;
+                        break;
+                    case 3:
+                        this.order.lastName = text;
+                        break;
+                    case 4:
+                        this.order.address = text;
+                        break;
+                    case 5:
+                        this.order.city = text;
+                        break;
+                    case 6:
+                        this.order.zip = text;
+                        break;
+                    case 7:
+                        this.order.state = text;
+                        break;
+                    case 8:
+                        this.order.country = text;
+                        break;
+                    case 9:
+                        this.order.phone = text;
+                        break;
+                }
+            }
+        }
+        return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+    }
+
     @SuppressWarnings("Duplicates")
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
@@ -424,7 +498,10 @@ public class GuiPersonalDetails extends GuiGetServer
         
         for (TextFieldDetails field : this.fields)
         {
-            field.mouseClicked(mouseX, mouseY, mouseButton);
+            if(field.mouseClicked(mouseX, mouseY, mouseButton))
+            {
+                field.setFocused(true);
+            }
         }
         return false;
     }
@@ -466,40 +543,7 @@ public class GuiPersonalDetails extends GuiGetServer
 //    @Override
 //    protected void actionPerformed(final GuiButton button) throws IOException
 //    {
-//        if (button.id == 80085)
-//        {
-//            if (orderPressed && !isSure)
-//            {
-//                isSure = true;
-//                actionPerformed(buttonNext);
-//                return;
-//            }
-//            loggingIn = true;
-//            button.enabled = false;
-//            button.displayString = Util.localize("button.logging");
-//            Runnable runnable = () -> {
-//                String result = Callbacks.doLogin(order.emailAddress, order.password);
-//                String[] resultSplit = result.split(":");
-//                if (resultSplit[0].equals("success"))
-//                {
-//                    order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
-//                    order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
-//                    loggingIn = false;
-//                    loggedIn = true;
-//                    loggingInError = "";
-//                    button.displayString = Util.localize("button.done");
-//                } else
-//                {
-//                    loggingIn = false;
-//                    loggedIn = false;
-//                    loggingInError = result;
-//                    button.enabled = true;
-//                    button.displayString = Util.localize("button.logintryagain");
-//                }
-//            };
-//            Thread thread = new Thread(runnable);
-//            thread.start();
-//            return;
+
 //        } else if (button.id == buttonNext.id && !isSure)
 //        {
 //            orderPressed = true;

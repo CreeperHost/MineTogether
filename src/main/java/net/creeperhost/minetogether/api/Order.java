@@ -4,7 +4,6 @@ import net.creeperhost.minetogether.paul.Constants;
 
 public class Order
 {
-
     public String name = "";
     public int playerAmount = Constants.DEF_PLAYER_COUNT;
     public String serverLocation = "";

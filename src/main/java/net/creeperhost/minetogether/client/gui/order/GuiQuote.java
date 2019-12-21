@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.gui.order;
 
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
