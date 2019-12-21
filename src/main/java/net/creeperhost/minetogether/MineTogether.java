@@ -21,6 +21,7 @@ import net.creeperhost.minetogether.siv.QueryGetter;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -78,6 +79,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         instance = this;
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInitClient);
 
 //        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverStarted);
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
@@ -126,6 +128,13 @@ public class MineTogether implements ICreeperHostMod, IHost
 //            MinecraftForge.EVENT_BUS.register(new EventHandler());
 //            proxy.registerKeys();
 //        }
+    }
+
+    @SubscribeEvent
+    public void preInitClient(FMLClientSetupEvent event)
+    {
+        File gdprFile = new File("local/minetogether/gdpr.txt");
+        gdpr = new GDPR(gdprFile);
     }
     
     @SuppressWarnings("Duplicates")

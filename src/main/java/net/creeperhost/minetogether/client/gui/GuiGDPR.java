@@ -1,6 +1,10 @@
 package net.creeperhost.minetogether.client.gui;
 
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.util.ScreenUtils;
 import net.creeperhost.minetogether.util.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
@@ -54,29 +58,6 @@ public class GuiGDPR extends Screen
         this(parent);
         getter = getterIn;
     }
-    
-//    @Override
-//    protected void actionPerformed(GuiButton button) throws IOException
-//    {
-//        if (button == acceptButton)
-//        {
-//            CreeperHost.instance.gdpr.setAcceptedGDPR();
-//            CreeperHost.proxy.startChat();
-//            Minecraft.getMinecraft().displayGuiScreen(getter == null ? parent : getter.method());
-//        }
-//        else if (button == declineButton)
-//        {
-//            Minecraft.getMinecraft().displayGuiScreen(parent);
-//        }
-//        else
-//        {
-//            button.visible = button.enabled = false;
-//            moreInfo = !moreInfo;
-//            buttonList.clear();
-//            initGui();
-//        }
-//    }
-
 
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
@@ -99,6 +80,7 @@ public class GuiGDPR extends Screen
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
+
 //        handleComponentClick(getComponentUnderMouse(mouseX, mouseY));
         return super.mouseClicked(mouseX, mouseY, mouseButton);
     }
@@ -175,12 +157,25 @@ public class GuiGDPR extends Screen
         
         component.appendSibling(new StringTextComponent(currentText.substring(lastEnd)));
 
+        gdprlines = ScreenUtils.splitText(component, width - 10, minecraft.fontRenderer, false, true);
+        this.addButton(moreInfoButton = new Button( (width / 2) - 40, (gdprlines.size() * 10) + 50, 80, 20, (moreInfo ? "Less" : "More") + " Info", b ->
+        {
+            moreInfoButton.visible = moreInfoButton.active = false;
+            moreInfo = !moreInfo;
+            this.buttons.clear();
+            init();
+        }));
 
-        //TODO
-//        gdprlines = GuiUtilRenderComponents.splitText(component, width - 10, minecraft.fontRenderer, false, true);
-//        this.buttonList.add(moreInfoButton = new Button(8008, (width / 2) - 40, (gdprlines.size() * 10) + 50, 80, 20, (moreInfo ? "Less" : "More") + " Info"));
-//        this.buttonList.add(declineButton = new Button(8008, 50, (gdprlines.size() * 10) + 50, 80, 20, "Decline"));
-//        this.buttonList.add(acceptButton = new Button(8008, width - 80 - 50, (gdprlines.size() * 10) + 50, 80, 20, "Accept"));
+        this.addButton(declineButton = new Button( 50, (gdprlines.size() * 10) + 50, 80, 20, "Decline", b ->
+        {
+            Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
+        }));
+        this.addButton(acceptButton = new Button( width - 80 - 50, (gdprlines.size() * 10) + 50, 80, 20, "Accept", b ->
+        {
+            MineTogether.instance.gdpr.setAcceptedGDPR();
+            MineTogether.proxy.startChat();
+            Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
+        }));
     }
     
     @FunctionalInterface
