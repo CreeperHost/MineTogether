@@ -71,9 +71,7 @@ public class ScreenUtils
                         s2 = "";
                         s3 = s4;
                     }
-
-//                    s3 = FontRenderer.getFormatFromString(s2) + s3; //Forge: Fix chat formatting not surviving line wrapping.
-
+                    
                     StringTextComponent textcomponentstring1 = new StringTextComponent(s3);
                     textcomponentstring1.setStyle(itextcomponent1.getStyle().createShallowCopy());
                     list1.add(j + 1, textcomponentstring1);

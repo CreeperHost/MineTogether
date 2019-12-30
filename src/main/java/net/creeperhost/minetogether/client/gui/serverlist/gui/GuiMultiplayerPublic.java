@@ -1,110 +1,127 @@
-//package net.creeperhost.minetogether.client.gui.serverlist.gui;
-//
-//import com.google.common.base.Splitter;
-//import com.google.common.collect.Lists;
-//import net.creeperhost.minetogether.MineTogether;
-//import net.creeperhost.minetogether.client.gui.GuiGDPR;
-//import net.creeperhost.minetogether.client.gui.element.DropdownButton;
-//import net.creeperhost.minetogether.client.gui.serverlist.data.ServerListNoEdit;
-//import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
-//import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerSelectionListPublic;
-//import net.minecraft.client.Minecraft;
-//import net.minecraft.client.gui.*;
-//import net.minecraft.client.gui.screen.MultiplayerScreen;
-//import net.minecraft.client.gui.screen.Screen;
-//import net.minecraft.client.gui.widget.button.Button;
-//import net.minecraft.client.multiplayer.ServerList;
-//import net.minecraft.client.network.LanServerDetector;
-//import net.minecraft.client.resources.I18n;
-//
-//import java.io.IOException;
-//import java.lang.reflect.Field;
-//import java.util.Arrays;
-//import java.util.List;
-//
-//public class GuiMultiplayerPublic extends MultiplayerScreen
-//{
-//    private static Field savedServerListField;
-//    private static Field lanServerDetectorField;
-//    private static Field lanServerListField;
-//    private static Field serverListSelectorField;
-//    public ListType listType = ListType.PUBLIC;
-//    public SortOrder sortOrder = SortOrder.RANDOM;
-//    private boolean initialized;
-//    private Screen parent;
-//    private Screen modeToggle;
-//    private boolean changeSort;
-//    //private DropdownButton<ListType> modeToggle;
-//    private DropdownButton<SortOrder> sortOrderButton;
-//    private ServerListPublic ourSavedServerList = null;
-//    private LanServerDetector.LanServerFindThread ourLanServerDetector = null;
-//    private LanServerDetector.LanServerList ourLanServerList = null;
-//    private ServerSelectionListPublic ourServerListSelector = null;
-//    private String ourTooltip;
-//    public boolean selectedListType = false;
-//
-//    public GuiMultiplayerPublic(Screen parentScreen)
-//    {
-//        super(parentScreen);
-//        parent = parentScreen;
-//    }
-//
-//    public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order)
-//    {
-//        this(parentScreen);
-//        this.listType = listType;
-//        sortOrder = order;
-//    }
-//
-//    public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order, boolean selectedListType)
-//    {
-//        this(parentScreen);
-//        this.listType = listType;
-//        this.selectedListType = selectedListType;
-//        sortOrder = order;
-//    }
-//
-//    @Override
-//    public void initGui()
-//    {
-//        if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
-//        {
-//            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMultiplayerPublic(parent, listType, sortOrder)));
-//            return;
-//        }
-//
+package net.creeperhost.minetogether.client.gui.serverlist.gui;
+
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.client.gui.GuiGDPR;
+import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
+import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
+import net.creeperhost.minetogether.client.gui.element.DropdownButton;
+import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
+import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
+import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerSelectionListPublic;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.MultiplayerScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.network.LanServerDetector;
+import net.minecraft.client.resources.I18n;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
+
+public class GuiMultiplayerPublic extends MultiplayerScreen
+{
+    private static Field savedServerListField;
+    private static Field lanServerDetectorField;
+    private static Field lanServerListField;
+    private static Field serverListSelectorField;
+    public ListType listType = ListType.PUBLIC;
+    public SortOrder sortOrder = SortOrder.RANDOM;
+    private boolean initialized;
+    private Screen parent;
+    private Screen modeToggle;
+    private boolean changeSort;
+    //private DropdownButton<ListType> modeToggle;
+    private DropdownButton<SortOrder> sortOrderButton;
+    private ServerListPublic ourSavedServerList = null;
+    private LanServerDetector.LanServerFindThread ourLanServerDetector = null;
+    private LanServerDetector.LanServerList ourLanServerList = null;
+    private ServerSelectionListPublic ourServerListSelector = null;
+    private String ourTooltip;
+    public boolean selectedListType = false;
+    private Minecraft mc = Minecraft.getInstance();
+
+    public GuiMultiplayerPublic(Screen parentScreen)
+    {
+        super(parentScreen);
+        parent = parentScreen;
+    }
+
+    public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order)
+    {
+        this(parentScreen);
+        this.listType = listType;
+        sortOrder = order;
+    }
+
+    public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order, boolean selectedListType)
+    {
+        this(parentScreen);
+        this.listType = listType;
+        this.selectedListType = selectedListType;
+        sortOrder = order;
+    }
+
+    @Override
+    public void init()
+    {
+        if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
+        {
+            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMultiplayerPublic(parent, listType, sortOrder)));
+            return;
+        }
+
 //        if (!selectedListType)
 //        {
 //            mc.displayGuiScreen(new GuiServerType(this));
 //        }
+        
+        super.init();
+        
+        this.buttons.clear();
+    
+        addButton(new Button(width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"), p ->
+        {
+            if(changeSort) {
+                changeSort = false;
+            }
+            mc.displayGuiScreen(new GuiServerType(this));
+        }));
+    
+        addButton(new GuiButtonCreeper(width - 105, 5, p ->
+        {
+            mc.displayGuiScreen(new GuiMTChat(this));
+        }));
+
+
+//        this.minecraft.keyboardListener.enableRepeatEvents(true);
 //
-//        Keyboard.enableRepeatEvents(true);
-//        this.buttonList.clear();
+//        this.buttons.clear();
 //
 //        if (this.initialized)
 //        {
-//            this.ourServerListSelector.setDimensions(this.width, this.height, 32, this.height - 64);
+////            this.ourServerListSelector.setDimensions(this.width, this.height, 32, this.height - 64);
 //        } else
 //        {
 //            this.initialized = true;
-//            setServerList(new ServerListPublic(this.mc, this));
-//            ourSavedServerList.loadServerList();
-//            setLanServerList(new LanServerDetector.LanServerList());
+////            setServerList(new ServerListPublic(this.mc, this));
+////            ourSavedServerList.loadServerList();
+////            setLanServerList(new LanServerDetector.LanServerList());
 //
 //            try
 //            {
-//                setLanServerDetector(new LanServerDetector.ThreadLanServerFind(this.ourLanServerList));
-//                ourLanServerDetector.start();
+////                setLanServerDetector(new LanServerDetector.ThreadLanServerFind(this.ourLanServerList));
+////                ourLanServerDetector.start();
 //            } catch (Exception exception)
 //            {
 //            }
 //
-//            setServerListSelector(new ServerSelectionListPublic(this, this.mc, this.width, this.height, 32, this.height - 64, 46));
-//            ourServerListSelector.updateOnlineServers(this.ourSavedServerList);
+////            setServerListSelector(new ServerSelectionListPublic(this, this.mc, this.width, this.height, 32, this.height - 64, 46));
+////            ourServerListSelector.updateOnlineServers(this.ourSavedServerList);
 //        }
-//        this.createButtons();
-//    }
-//
+////        this.createButtons();
+    }
+
 //    @Override
 //    public boolean canMoveUp(ServerListEntryNormal p_175392_1_, int p_175392_2_)
 //    {
@@ -116,8 +133,8 @@
 //    {
 //        return false;
 //    }
-//
-//    @SuppressWarnings("Duplicates")
+
+    @SuppressWarnings("Duplicates")
 //    @Override
 //    public void createButtons()
 //    {
@@ -145,8 +162,8 @@
 //        buttonList.add(modeToggle);
 //        buttonList.add(sortOrderButton);
 //    }
-//
-//
+
+
 //    @SuppressWarnings("Duplicates")
 //    @Override
 //    protected void actionPerformed(GuiButton button) throws IOException
@@ -178,25 +195,25 @@
 //        }
 //        super.actionPerformed(button);
 //    }
-//
+
 //    private void refresh()
 //    {
-//        Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayerPublic(parent, listType, sortOrder, true));
+//        Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(parent, listType, sortOrder, true));
 //    }
 //
 //    @Override
 //    public void connectToSelected()
 //    {
-//        GuiListExtended.IGuiListEntry entry = this.ourServerListSelector.getSelected() < 0 ? null : this.ourServerListSelector.getListEntry(this.ourServerListSelector.getSelected());
+////        GuiListExtended.IGuiListEntry entry = this.ourServerListSelector.getSelected() < 0 ? null : this.ourServerListSelector.getListEntry(this.ourServerListSelector.getSelected());
 //        ServerList savedServerList = new ServerListNoEdit(this.mc);
 //        savedServerList.loadServerList();
-//        savedServerList.addServerData(((ServerListEntryNormal) entry).getServerData());
+////        savedServerList.addServerData(((ServerListEntryNormal) entry).getServerData());
 //        savedServerList.saveServerList();
 //
-//        Minecraft mc = Minecraft.getMinecraft();
-//        if (parent instanceof GuiMultiplayer)
+//        Minecraft mc = Minecraft.getInstance();
+//        if (parent instanceof MultiplayerScreen)
 //        {
-//            mc.displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
+//            mc.displayGuiScreen(new MultiplayerScreen(new MainMenuScreen()));
 //            return;
 //        }
 //
@@ -214,7 +231,7 @@
 //            this.ourTooltip = text;
 //        }
 //    }
-//
+
 //    private void setServerList(ServerListPublic serverList)
 //    {
 //        ourSavedServerList = serverList;
@@ -232,7 +249,7 @@
 //            MineTogether.logger.error("Unable to set server list", e);
 //        }
 //    }
-//
+
 //    private void setLanServerDetector(LanServerDetector.ThreadLanServerFind detector)
 //    {
 //        ourLanServerDetector = detector;
@@ -250,7 +267,7 @@
 //            MineTogether.logger.error("Unable to set server list", e);
 //        }
 //    }
-//
+
 //    private void setLanServerList(LanServerDetector.LanServerList detector)
 //    {
 //        ourLanServerList = detector;
@@ -286,18 +303,19 @@
 //            MineTogether.logger.error("Unable to set server list", e);
 //        }
 //    }
-//
+
 //    @Override
-//    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+//    public void render(int mouseX, int mouseY, float partialTicks)
 //    {
+//        renderDirtBackground(0);
 //        ourTooltip = null;
-//        super.drawScreen(mouseX, mouseY, partialTicks);
+////        super.render(mouseX, mouseY, partialTicks);
 //
-//        drawCenteredString(fontRendererObj, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
+//        drawCenteredString(font, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
 //
 //        if (this.ourTooltip != null)
 //        {
-//            this.drawHoveringText(Lists.newArrayList(Splitter.on("\n").split(ourTooltip)), mouseX, mouseY);
+//            this.renderTooltip(Lists.newArrayList(Splitter.on("\n").split(ourTooltip)), mouseX, mouseY);
 //        }
 //    }
 //
@@ -318,68 +336,68 @@
 //        }
 //        super.drawCenteredString(fontRendererIn, text, x, y, color);
 //    }
-//
-//    public enum SortOrder implements DropdownButton.IDropdownOption
-//    {
-//        RANDOM("random"),
-//        PLAYER("player"),
-//        NAME("name"),
-//        UPTIME("uptime"),
-//        LOCATION("location"),
-//        PING("ping", true);
-//
-//        public final boolean constant;
-//
-//        private static List<DropdownButton.IDropdownOption> enumCache;
-//
-//        public String translate;
-//
-//        SortOrder(String translate, boolean constant)
-//        {
-//            this.translate = translate;
-//            this.constant = constant;
-//        }
-//
-//        SortOrder(String translate)
-//        {
-//            this(translate, false);
-//        }
-//
-//        @Override
-//        public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
-//        {
-//            return "creeperhost.multiplayer.sort." + translate;
-//        }
-//
-//        @Override
-//        public List<DropdownButton.IDropdownOption> getPossibleVals()
-//        {
-//            if (enumCache == null)
-//                enumCache = Arrays.asList(SortOrder.values());
-//
-//            return enumCache;
-//        }
-//    }
-//
-//    public enum ListType implements DropdownButton.IDropdownOption
-//    {
-//        PUBLIC, INVITE, APPLICATION;
-//
-//        private static List<DropdownButton.IDropdownOption> enumCache;
-//
-//        @Override
-//        public List<DropdownButton.IDropdownOption> getPossibleVals()
-//        {
-//            if (enumCache == null)
-//                enumCache = Arrays.asList(ListType.values());
-//
-//            return enumCache;
-//        }
-//
-//        @Override
-//        public String getTranslate(DropdownButton.IDropdownOption currentDO, boolean dropdownOpen)
-//        {
-//            return "creeperhost.multiplayer.list." + this.name().toLowerCase();
-//        }
-//    }
-//}
+
+    public enum SortOrder implements DropdownButton.IDropdownOption
+    {
+        RANDOM("random"),
+        PLAYER("player"),
+        NAME("name"),
+        UPTIME("uptime"),
+        LOCATION("location"),
+        PING("ping", true);
+
+        public final boolean constant;
+
+        private static List<DropdownButton.IDropdownOption> enumCache;
+
+        public String translate;
+
+        SortOrder(String translate, boolean constant)
+        {
+            this.translate = translate;
+            this.constant = constant;
+        }
+
+        SortOrder(String translate)
+        {
+            this(translate, false);
+        }
+
+        @Override
+        public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
+        {
+            return "creeperhost.multiplayer.sort." + translate;
+        }
+
+        @Override
+        public List<DropdownButton.IDropdownOption> getPossibleVals()
+        {
+            if (enumCache == null)
+                enumCache = Arrays.asList(SortOrder.values());
+
+            return enumCache;
+        }
+    }
+
+    public enum ListType implements DropdownButton.IDropdownOption
+    {
+        PUBLIC, INVITE, APPLICATION;
+
+        private static List<DropdownButton.IDropdownOption> enumCache;
+
+        @Override
+        public List<DropdownButton.IDropdownOption> getPossibleVals()
+        {
+            if (enumCache == null)
+                enumCache = Arrays.asList(ListType.values());
+
+            return enumCache;
+        }
+
+        @Override
+        public String getTranslate(DropdownButton.IDropdownOption currentDO, boolean dropdownOpen)
+        {
+            return "creeperhost.multiplayer.list." + this.name().toLowerCase();
+        }
+    }
+}

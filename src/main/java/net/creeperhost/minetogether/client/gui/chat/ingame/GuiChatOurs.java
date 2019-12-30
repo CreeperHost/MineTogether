@@ -4,6 +4,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.chat.GuiChatFriend;
+
 import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.chat.GuiTextFieldLockable;
 import net.creeperhost.minetogether.client.gui.chat.TimestampComponentString;
@@ -35,7 +36,7 @@ import java.util.List;
 
 public class GuiChatOurs extends ChatScreen
 {
-    private DropdownButton<GuiMTChat.Menu> menuDropdownButton;
+//    private DropdownButton<GuiMTChat.Menu> menuDropdownButton;
     private String activeDropdown;
     private GuiButtonPair switchButton;
     private String presetString;
@@ -169,12 +170,12 @@ public class GuiChatOurs extends ChatScreen
         TimestampComponentString.setFakeActive(true);
         super.mouseClicked(mouseX, mouseY, mouseButton);
         TimestampComponentString.setFakeActive(false);
-        if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
-        {
-            menuDropdownButton.x = menuDropdownButton.y = -10000;
-            menuDropdownButton.wasJustClosed = false;
-            return true;
-        }
+//        if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
+//        {
+//            menuDropdownButton.x = menuDropdownButton.y = -10000;
+//            menuDropdownButton.wasJustClosed = false;
+//            return true;
+//        }
         return false;
     }
 
@@ -276,7 +277,7 @@ public class GuiChatOurs extends ChatScreen
 //            this.buttons.add(switchButton = new GuiButtonPair(808, x, height - 156, 156, 16, !MineTogether.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).isBase() ? 0 : 1, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global")));
         }
 //        this.buttons.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
-        menuDropdownButton.flipped = true;
+//        menuDropdownButton.flipped = true;
         if (sleep)
         {
 //            this.buttons.add(new Button(1, this.width / 2 - 100, this.height - 40, I18n.format("multiplayer.stopSleeping")));
@@ -464,7 +465,7 @@ public class GuiChatOurs extends ChatScreen
 //            int mouseX = Mouse.getX() * width / mc.displayWidth;
 //            menuDropdownButton.xPosition = mouseX;
 //            menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-            menuDropdownButton.dropdownOpen = true;
+//            menuDropdownButton.dropdownOpen = true;
             activeDropdown = event.getValue();
             return true;
         }

@@ -15,11 +15,13 @@ import net.creeperhost.minetogether.events.ScreenEvents;
 import net.creeperhost.minetogether.lib.ModInfo;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
-import net.creeperhost.minetogether.proxy.IProxy;
+import net.creeperhost.minetogether.proxy.*;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.siv.QueryGetter;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -78,10 +80,12 @@ public class MineTogether implements ICreeperHostMod, IHost
     public MineTogether()
     {
         instance = this;
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInitClient);
+        proxy = DistExecutor.runForDist(() -> Client::new, () -> Server::new);
+        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        eventBus.addListener(this::preInit);
+        eventBus.addListener(this::preInitClient);
+        eventBus.addListener(this::serverStarted);
 
-//        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverStarted);
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -90,10 +94,13 @@ public class MineTogether implements ICreeperHostMod, IHost
     public void preInit(FMLCommonSetupEvent event)
     {
         ConfigHandler.init();
-//        proxy.checkOnline();
+        proxy.checkOnline();
         registerImplementation(new CreeperHostServerHost());
-
         
+        proxy.registerKeys();
+
+
+
 //        PacketHandler.packetRegister();
 
 //        if (event.getSide() != Side.SERVER)
@@ -135,6 +142,37 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         File gdprFile = new File("local/minetogether/gdpr.txt");
         gdpr = new GDPR(gdprFile);
+    
+        HostHolder.host = this;
+        File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
+        ingameChat = new IngameChat(ingameChatFile);
+        ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 15);
+    
+        HashMap<String, String> jsonObj = new HashMap<>();
+
+        int packID;
+
+        try
+        {
+            packID = Integer.parseInt(Config.getInstance().curseProjectID);
+        } catch (NumberFormatException e)
+        {
+            packID = -1;
+        }
+
+        jsonObj.put("p", String.valueOf(packID));
+
+        Gson gson = new Gson();
+        try //Temp fix until we cxan figure out why this fails
+        {
+            realName = gson.toJson(jsonObj);
+        } catch (Exception ignored) {}
+    }
+    
+    @SubscribeEvent
+    public void serverStarted(FMLServerStartingEvent event)
+    {
+//        event.registerServerCommand(new CommandKill());
     }
     
     @SuppressWarnings("Duplicates")
@@ -423,9 +461,5 @@ public class MineTogether implements ICreeperHostMod, IHost
         proxy.refreshChat();
     }
 
-    @SubscribeEvent
-    public void serverStarted(FMLServerStartingEvent event)
-    {
-//        event.registerServerCommand(new CommandKill());
-    }
+
 }

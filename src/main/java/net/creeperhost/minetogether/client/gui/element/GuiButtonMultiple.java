@@ -24,9 +24,7 @@ public class GuiButtonMultiple extends Button
             ResourceLocation buttonImage = buttonImg;
             Minecraft.getInstance().getTextureManager().bindTexture(buttonImage);
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            
-//            boolean over = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-//            this.drawTexturedModalRect(this.xPosition, this.yPosition, index * 20, over ? this.height : 0, this.width, this.height);
+            this.blit(this.x, this.y, index * 20, isHovered ? this.height : 0, this.width, this.height);
         }
     }
 }

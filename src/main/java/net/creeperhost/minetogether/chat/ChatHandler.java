@@ -313,7 +313,7 @@ public class ChatHandler
                     {
                         channel.commands().mode().add(ModeStatus.Action.ADD, client.getServerInfo().getChannelMode('i').get()).execute();
                     }
-                    //addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Chat joined"));
+                    addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Chat joined"));
                 }
             }
             updateFriends(event.getChannel().getNicknames());

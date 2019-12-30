@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.client.gui.list;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.ServerSelectionList;
 import net.minecraft.client.gui.widget.list.ExtendedList;
 
 public class GuiListEntry extends ExtendedList.AbstractListEntry

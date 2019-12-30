@@ -10,6 +10,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
+import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.chat.Target;
@@ -24,12 +25,14 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.Session;
+import net.minecraft.util.text.StringTextComponent;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Client implements IProxy
@@ -54,8 +57,8 @@ public class Client implements IProxy
             mc.displayGuiScreen(new GuiFriendsList(mc.currentScreen));
         } else
         {
-//            mc.displayGuiScreen(new GuiInvited(MineTogether.instance.handledInvite, mc.currentScreen));
-//            MineTogether.instance.handledInvite = null;
+            mc.displayGuiScreen(new GuiInvited(MineTogether.instance.handledInvite, mc.currentScreen));
+            MineTogether.instance.handledInvite = null;
         }
     }
     
@@ -186,7 +189,7 @@ public class Client implements IProxy
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
         //TODO
 //        if (target.toLowerCase().equals(ourChat.chatTarget.toLowerCase()))
-//            ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getInstance().ingameGUI.getUpdateCounter(), false);
+//            ourChat.setChatLine(Objects.requireNonNull(GuiMTChat.formatLine(messagePair)), 0, Minecraft.getInstance().ingameGUI.getTicks(), false);
     }
 
     @Override

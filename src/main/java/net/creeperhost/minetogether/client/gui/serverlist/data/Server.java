@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.gui.serverlist.data;
 
+import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListEntryPublic;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.data.EnumFlag;
 
@@ -54,40 +55,40 @@ public class Server
 //        }
 //    }
 //
-//    public static class PlayerComparator implements Comparator<ServerListEntryPublic>
-//    {
-//        public static final PlayerComparator INSTANCE = new PlayerComparator();
-//
-//        private PlayerComparator()
-//        {
-//        }
-//
-//        @Override
-//        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
-//        {
-//            return o1.getServerData().server.playerCount > o2.getServerData().server.playerCount ? -1
-//                    : o1.getServerData().server.playerCount < o2.getServerData().server.playerCount ? 1
-//                    : 0;
-//        }
-//    }
-//
-//    public static class UptimeComparator implements Comparator<ServerListEntryPublic>
-//    {
-//        public static final UptimeComparator INSTANCE = new UptimeComparator();
-//
-//        private UptimeComparator()
-//        {
-//        }
-//
-//        @Override
-//        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
-//        {
-//            return o1.getServerData().server.uptime > o2.getServerData().server.uptime ? -1
-//                    : o1.getServerData().server.uptime < o2.getServerData().server.uptime ? 1
-//                    : 0;
-//        }
-//    }
-//
+    public static class PlayerComparator implements Comparator<ServerListEntryPublic>
+    {
+        public static final PlayerComparator INSTANCE = new PlayerComparator();
+
+        private PlayerComparator()
+        {
+        }
+
+        @Override
+        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
+        {
+            return o1.getServerData().server.playerCount > o2.getServerData().server.playerCount ? -1
+                    : o1.getServerData().server.playerCount < o2.getServerData().server.playerCount ? 1
+                    : 0;
+        }
+    }
+
+    public static class UptimeComparator implements Comparator<ServerListEntryPublic>
+    {
+        public static final UptimeComparator INSTANCE = new UptimeComparator();
+
+        private UptimeComparator()
+        {
+        }
+
+        @Override
+        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
+        {
+            return o1.getServerData().server.uptime > o2.getServerData().server.uptime ? -1
+                    : o1.getServerData().server.uptime < o2.getServerData().server.uptime ? 1
+                    : 0;
+        }
+    }
+
 //    public static class LocationComparator extends NameComparator
 //    {
 //        public static final LocationComparator INSTANCE = new LocationComparator();
@@ -139,33 +140,33 @@ public class Server
 //            }
 //        }
 //    }
-//
-//    public static class PingComparator implements Comparator<ServerListEntryPublic>
-//    {
-//        public static final PingComparator INSTANCE = new PingComparator();
-//
-//        private PingComparator()
-//        {
-//        }
-//
-//        @Override
-//        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
-//        {
-//            if (o1.getServerData().pingToServer == o2.getServerData().pingToServer)
-//            {
-//                return 0;
-//            }
-//            if (o1.getServerData().pingToServer <= 0)
-//            {
-//                return 1;
-//            }
-//            if (o2.getServerData().pingToServer <= 0)
-//            {
-//                return -1;
-//            }
-//            return o1.getServerData().pingToServer < o2.getServerData().pingToServer ? -1
-//                    : o1.getServerData().pingToServer > o2.getServerData().pingToServer ? 1
-//                    : 0;
-//        }
-//    }
+
+    public static class PingComparator implements Comparator<ServerListEntryPublic>
+    {
+        public static final PingComparator INSTANCE = new PingComparator();
+
+        private PingComparator()
+        {
+        }
+
+        @Override
+        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
+        {
+            if (o1.getServerData().pingToServer == o2.getServerData().pingToServer)
+            {
+                return 0;
+            }
+            if (o1.getServerData().pingToServer <= 0)
+            {
+                return 1;
+            }
+            if (o2.getServerData().pingToServer <= 0)
+            {
+                return -1;
+            }
+            return o1.getServerData().pingToServer < o2.getServerData().pingToServer ? -1
+                    : o1.getServerData().pingToServer > o2.getServerData().pingToServer ? 1
+                    : 0;
+        }
+    }
 }
