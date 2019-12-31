@@ -1,8 +1,5 @@
 package net.creeperhost.minetogether.proxy;
 
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.dedicated.ServerHangWatchdog;
-
 import java.lang.reflect.Field;
 
 
@@ -44,8 +41,8 @@ public class ServerProxy implements IServerProxy
 //        } catch (Throwable e) { return false; }
         return false;
     }
-
-
+    
+    
     @Override
     public void resuscitateWatchdog()
     {
@@ -59,7 +56,7 @@ public class ServerProxy implements IServerProxy
 //            CreeperHostServer.logger.info("Performing CPR. Server Watchdog is alive again!");
 //        }
     }
-
+    
     @Override
     public boolean needsToBeKilled()
     {

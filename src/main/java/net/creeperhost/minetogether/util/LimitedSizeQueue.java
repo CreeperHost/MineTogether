@@ -2,27 +2,33 @@ package net.creeperhost.minetogether.util;
 
 import java.util.ArrayList;
 
-public class LimitedSizeQueue<K> extends ArrayList<K> {
-
+public class LimitedSizeQueue<K> extends ArrayList<K>
+{
+    
     private int maxSize;
-
-    public LimitedSizeQueue(int size){
+    
+    public LimitedSizeQueue(int size)
+    {
         this.maxSize = size;
     }
-
-    public boolean add(K k){
+    
+    public boolean add(K k)
+    {
         boolean r = super.add(k);
-        if (size() > maxSize){
+        if (size() > maxSize)
+        {
             removeRange(0, size() - maxSize);
         }
         return r;
     }
-
-    public K getYongest() {
+    
+    public K getYongest()
+    {
         return get(size() - 1);
     }
-
-    public K getOldest() {
+    
+    public K getOldest()
+    {
         return get(0);
     }
 }

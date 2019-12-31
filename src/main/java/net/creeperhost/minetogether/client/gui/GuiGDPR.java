@@ -46,7 +46,7 @@ public class GuiGDPR extends Screen
     
     private List<ITextComponent> gdprlines;
     private boolean moreInfo = false;
-
+    
     public GuiGDPR(Screen parent)
     {
         super(new StringTextComponent(""));
@@ -58,7 +58,7 @@ public class GuiGDPR extends Screen
         this(parent);
         getter = getterIn;
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
@@ -73,7 +73,7 @@ public class GuiGDPR extends Screen
             int left = (width - minecraft.fontRenderer.getStringWidth(gdprline.getFormattedText())) / 2;
             minecraft.fontRenderer.drawString(gdprline.getFormattedText(), left, start += 10, -1);
         }
-        
+
 //        handleComponentHover(getComponentUnderMouse(mouseX, mouseY), mouseX, mouseY);
     }
     
@@ -156,17 +156,17 @@ public class GuiGDPR extends Screen
             component = new StringTextComponent("");
         
         component.appendSibling(new StringTextComponent(currentText.substring(lastEnd)));
-
+        
         gdprlines = ScreenUtils.splitText(component, width - 10, minecraft.fontRenderer, false, true);
-        this.addButton(moreInfoButton = new Button( (width / 2) - 40, (gdprlines.size() * 10) + 50, 80, 20, (moreInfo ? "Less" : "More") + " Info", b ->
+        this.addButton(moreInfoButton = new Button((width / 2) - 40, (gdprlines.size() * 10) + 50, 80, 20, (moreInfo ? "Less" : "More") + " Info", b ->
         {
             moreInfoButton.visible = moreInfoButton.active = false;
             moreInfo = !moreInfo;
             this.buttons.clear();
             init();
         }));
-
-        this.addButton(declineButton = new Button( 50, (gdprlines.size() * 10) + 50, 80, 20, "Decline", b ->
+        
+        this.addButton(declineButton = new Button(50, (gdprlines.size() * 10) + 50, 80, 20, "Decline", b ->
         {
             Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
         }));

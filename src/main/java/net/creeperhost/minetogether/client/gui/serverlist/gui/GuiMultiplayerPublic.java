@@ -3,7 +3,6 @@ package net.creeperhost.minetogether.client.gui.serverlist.gui;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
@@ -40,20 +39,20 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     private String ourTooltip;
     public boolean selectedListType = false;
     private Minecraft mc = Minecraft.getInstance();
-
+    
     public GuiMultiplayerPublic(Screen parentScreen)
     {
         super(parentScreen);
         parent = parentScreen;
     }
-
+    
     public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order)
     {
         this(parentScreen);
         this.listType = listType;
         sortOrder = order;
     }
-
+    
     public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order, boolean selectedListType)
     {
         this(parentScreen);
@@ -61,7 +60,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         this.selectedListType = selectedListType;
         sortOrder = order;
     }
-
+    
     @Override
     public void init()
     {
@@ -79,15 +78,16 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         super.init();
         
         this.buttons.clear();
-    
+        
         addButton(new Button(width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"), p ->
         {
-            if(changeSort) {
+            if (changeSort)
+            {
                 changeSort = false;
             }
             mc.displayGuiScreen(new GuiServerType(this));
         }));
-    
+        
         addButton(new GuiButtonCreeper(width - 105, 5, p ->
         {
             mc.displayGuiScreen(new GuiMTChat(this));
@@ -133,7 +133,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
 //    {
 //        return false;
 //    }
-
+    
     @SuppressWarnings("Duplicates")
 //    @Override
 //    public void createButtons()
@@ -336,7 +336,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
 //        }
 //        super.drawCenteredString(fontRendererIn, text, x, y, color);
 //    }
-
+    
     public enum SortOrder implements DropdownButton.IDropdownOption
     {
         RANDOM("random"),
@@ -345,55 +345,55 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         UPTIME("uptime"),
         LOCATION("location"),
         PING("ping", true);
-
+        
         public final boolean constant;
-
+        
         private static List<DropdownButton.IDropdownOption> enumCache;
-
+        
         public String translate;
-
+        
         SortOrder(String translate, boolean constant)
         {
             this.translate = translate;
             this.constant = constant;
         }
-
+        
         SortOrder(String translate)
         {
             this(translate, false);
         }
-
+        
         @Override
         public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
         {
             return "creeperhost.multiplayer.sort." + translate;
         }
-
+        
         @Override
         public List<DropdownButton.IDropdownOption> getPossibleVals()
         {
             if (enumCache == null)
                 enumCache = Arrays.asList(SortOrder.values());
-
+            
             return enumCache;
         }
     }
-
+    
     public enum ListType implements DropdownButton.IDropdownOption
     {
         PUBLIC, INVITE, APPLICATION;
-
+        
         private static List<DropdownButton.IDropdownOption> enumCache;
-
+        
         @Override
         public List<DropdownButton.IDropdownOption> getPossibleVals()
         {
             if (enumCache == null)
                 enumCache = Arrays.asList(ListType.values());
-
+            
             return enumCache;
         }
-
+        
         @Override
         public String getTranslate(DropdownButton.IDropdownOption currentDO, boolean dropdownOpen)
         {

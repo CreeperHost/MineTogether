@@ -2,10 +2,10 @@ package net.creeperhost.minetogether.client.gui.mpreplacement;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
+import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -38,7 +38,7 @@ public class CreeperHostEntry extends ServerData
         cross = new String(Character.toChars(10006));
         stringWidth = this.mc.fontRenderer.getStringWidth(cross);
     }
-    
+
 //    public CreeperHostEntry(MultiplayerScreen p_i45048_1_, ServerData serverIn, boolean diffSig)
 //    {
 //        this(p_i45048_1_, serverIn);
@@ -72,7 +72,7 @@ public class CreeperHostEntry extends ServerData
         GlStateManager.enableBlend();
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
 //        Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
-        this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x+35, y, 16777215);
+        this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x + 35, y, 16777215);
         int transparentString = (int) (transparency * 254) << 24;
         GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
         GlStateManager.enableBlend();

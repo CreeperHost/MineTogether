@@ -7,10 +7,14 @@ import java.util.UUID;
 public class Server implements IProxy
 {
     @Override
-    public void registerKeys() {}
+    public void registerKeys()
+    {
+    }
     
     @Override
-    public void openFriendsGui() {}
+    public void openFriendsGui()
+    {
+    }
     
     @Override
     public UUID getUUID()
@@ -19,28 +23,43 @@ public class Server implements IProxy
     }
     
     @Override
-    public void startChat() {}
+    public void startChat()
+    {
+    }
     
     @Override
-    public void disableIngameChat() {}
+    public void disableIngameChat()
+    {
+    }
     
     @Override
-    public void enableIngameChat() {}
-
+    public void enableIngameChat()
+    {
+    }
+    
     @Override
-    public void closeGroupChat() {}
-
+    public void closeGroupChat()
+    {
+    }
+    
     @Override
-    public void messageReceived(String target, Message messagePair) {}
-
+    public void messageReceived(String target, Message messagePair)
+    {
+    }
+    
     @Override
-    public void updateChatChannel() {}
-
+    public void updateChatChannel()
+    {
+    }
+    
     @Override
-    public void refreshChat() {}
-
+    public void refreshChat()
+    {
+    }
+    
     @Override
-    public boolean checkOnline() {
+    public boolean checkOnline()
+    {
         return false;
     }
 }

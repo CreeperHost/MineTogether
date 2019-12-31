@@ -9,9 +9,9 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Minigame;
 import net.creeperhost.minetogether.aries.Aries;
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.client.gui.element.GuiActiveFake;
 import net.creeperhost.minetogether.client.gui.element.GuiTextFieldCompatCensor;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.ModInfo;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Pair;
@@ -70,13 +70,13 @@ public class GuiMinigames extends Screen
     private float quote = -1;
     private String curPrefix = "";
     private String curSuffix = "";
-
+    
     private boolean isModded = true;
     private GuiActiveFake moddedButton;
     private GuiActiveFake vanillaButton;
     private Screen parent;
     private Button cancelButton;
-
+    
     public GuiMinigames(Screen parent)
     {
         super(new StringTextComponent(""));
@@ -87,17 +87,17 @@ public class GuiMinigames extends Screen
         refreshMinigames();
         isModded = true;
     }
-
+    
     Minigame lastMinigame = null;
-
+    
     public boolean spinDown = false;
-
+    
     public GuiMinigames(Screen parent, boolean spinDown)
     {
         this(parent);
         this.spinDown = spinDown;
     }
-
+    
     private void refreshMinigames()
     {
         executor.submit(() ->
@@ -111,13 +111,14 @@ public class GuiMinigames extends Screen
                     tempVanilla.add(minigame);
                 else
                     tempModded.add(minigame);
-
+                
             }
             minigames = tempModded;
             vanillaMinigames = tempVanilla;
         });
-
+        
     }
+    
     @Override
     public void tick()
     {
@@ -135,16 +136,16 @@ public class GuiMinigames extends Screen
                     try
                     {
                         Map<String, String> sendMap = new HashMap<>();
-
+                        
                         sendMap.put("id", String.valueOf(minigame.id));
                         sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
                         sendMap.put("key2", key);
                         sendMap.put("secret2", secret);
-
+                        
                         Aries aries = new Aries(key, secret);
-
+                        
                         Map map = aries.doApiCall("minetogether", "minigamequote", sendMap);
-
+                        
                         if (map.get("status").equals("success"))
                         {
                             quote = Float.valueOf(String.valueOf(map.get("quote")));
@@ -158,14 +159,14 @@ public class GuiMinigames extends Screen
                     }
                 });
             }
-
+            
         }
         lastMinigame = minigame;
     }
-
+    
     private int ticks = 0;
     private ItemStack stack = new ItemStack(Items.BEEF, 1);
-
+    
     private void loadingSpin(float partialTicks)
     {
         int rotateTickMax = 30;
@@ -180,11 +181,11 @@ public class GuiMinigames extends Screen
         GlStateManager.pushMatrix();
 
 //        itemRender.renderItemAndEffectIntoGUI(stack, -8, -8);
-
+        
         GlStateManager.popMatrix();
         GlStateManager.popMatrix();
     }
-
+    
     @Override
     public void init()
     {
@@ -207,7 +208,7 @@ public class GuiMinigames extends Screen
         vanillaButton.setActive(!isModded);
         State.refreshState();
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
@@ -239,14 +240,14 @@ public class GuiMinigames extends Screen
                     String formattedCredit = new DecimalFormat("0.00##").format(credit);
                     creditStr = "CreeperHost credit: " + curPrefix + formattedCredit + curSuffix;
             }
-
+            
             drawCenteredString(minecraft.fontRenderer, "MineTogether Minigames", width / 2, 5, 0xFFFFFFFF);
-
+            
             drawString(minecraft.fontRenderer, creditStr, 5, 5, 0xFFFFFFFF);
             drawStatusString(width / 2, height - 40);
-
+            
             String currencyFormat = String.valueOf((int) quote);
-
+            
             if (quote > 0)
             {
                 double exchangedQuote = round(quote * exchangeRate, 2);
@@ -264,7 +265,7 @@ public class GuiMinigames extends Screen
                         first = "Estimated cost: ";
                         currencyFormat = new DecimalFormat("0.00##").format(exchangedQuote);
                 }
-
+                
                 String formattedQuote = first + curPrefix + currencyFormat + curSuffix;
                 drawString(minecraft.fontRenderer, formattedQuote, 5, height - 40, 0xFFFFFFFF);
                 int stringLen = minecraft.fontRenderer.getStringWidth(formattedQuote);
@@ -289,16 +290,16 @@ public class GuiMinigames extends Screen
             }
         }
     }
-
+    
     public static double round(double value, int places)
     {
         if (places < 0) throw new IllegalArgumentException();
-
+        
         BigDecimal bd = new BigDecimal(value);
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
-
+    
     protected void drawTextureAt(int p_178012_1_, int p_178012_2_, int texturew, int textureh, int width, int height, ResourceLocation p_178012_3_)
     {
         this.minecraft.getTextureManager().bindTexture(p_178012_3_);
@@ -334,14 +335,14 @@ public class GuiMinigames extends Screen
 //            this.mc.displayGuiScreen(parent);
 //        }
 //    }
-
+    
     private boolean areCredentialsValid()
     {
         Aries aries = new Aries(key, secret);
         Map resp = aries.doApiCall("os", "systemstate");
         return resp.containsKey("status") && resp.get("status").equals("success");
     }
-
+    
     private Future<Boolean> checkCredentials()
     {
         return executor.submit(() ->
@@ -356,7 +357,7 @@ public class GuiMinigames extends Screen
                     map.put("key2", key);
                     map.put("secret2", secret);
                     map.put("hash", Callbacks.getPlayerHash(MineTogether.proxy.getUUID()));
-
+                    
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/minigamecredit", new Gson().toJson(map), true, false);
                     Map creditResp = new Gson().fromJson(resp, Map.class);
                     credit = Float.parseFloat(String.valueOf(creditResp.get("credit")));
@@ -382,8 +383,8 @@ public class GuiMinigames extends Screen
                 {
                     e.printStackTrace();
                 }
-
-
+                
+                
             } catch (Exception e)
             {
                 e.printStackTrace();
@@ -391,7 +392,7 @@ public class GuiMinigames extends Screen
             return credentialsValid;
         });
     }
-
+    
     private void loadCredentials()
     {
         if (credentialsFile.exists())
@@ -417,11 +418,11 @@ public class GuiMinigames extends Screen
         }
         checkCredentials();
     }
-
+    
     private void saveCredentials()
     {
         credentialsFile.getParentFile().mkdirs();
-
+        
         HashMap<String, String> creds = new HashMap<>();
         creds.put("key", key);
         creds.put("secret", secret);
@@ -432,7 +433,7 @@ public class GuiMinigames extends Screen
         {
         }
     }
-
+    
     private void drawStatusString(int x, int y)
     {
         String drawText;
@@ -485,46 +486,48 @@ public class GuiMinigames extends Screen
                 drawText = "Checking credentials...";
                 drawColour = 0xFFFFFFFF;
         }
-
+        
         drawCenteredSplitString(drawText, x, y, width, drawColour);
     }
-
+    
     private boolean doSpindown = false;
-
+    
     private void doSpindown()
     {
         final boolean[] started = {false};
         executor.submit(() ->
         {
             Map<String, String> sendMap = new HashMap<>();
-
+            
             Aries aries = new Aries(key, secret);
-
+            
             sendMap.put("uuid", MineTogether.instance.activeMinigame);
             sendMap.put("key2", key);
             sendMap.put("secret2", secret);
-
+            
             MineTogether.instance.activeMinigame = null;
-
+            
             started[0] = true;
-
+            
             Map map = aries.doApiCall("minetogether", "stopminigame", sendMap);
         });
-
+        
         while (!started[0])
         {
             try
             {
                 Thread.sleep(50);
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored)
+            {
+            }
         }
-
+        
         doSpindown = true;
     }
-
+    
     private void drawCenteredSplitString(String drawText, int x, int y, int width, int drawColour)
     {
-
+        
         List<String> strings = font.listFormattedStringToWidth(drawText, width);
         for (String str : strings)
         {
@@ -532,13 +535,13 @@ public class GuiMinigames extends Screen
             y += font.FONT_HEIGHT;
         }
     }
-
+    
     private enum State
     {
         LOGGING_IN, CHECKING_CREDENTIALS, CREDENTIALS_OK, CREDENTIALS_INVALID, LOGIN_FAILURE, TWOFACTOR_NEEDED, STARTING_MINIGAME, LOGIN_SUCCESS, TWOFACTOR_FAILURE, MINIGAME_ACTIVE, MINIGAME_FAILED, NOT_ENOUGH_CREDIT, UNKNOWN_ERROR, READY_TO_JOIN;
-
+        
         private static State currentState = CHECKING_CREDENTIALS;
-
+        
         public static void pushState(State state)
         {
             if (current.settingsButton == null)
@@ -571,7 +574,7 @@ public class GuiMinigames extends Screen
                         GuiMinigames.settings.loginButton.active = true;
                         GuiMinigames.settings.loginButton.visible = true;
                     }
-
+                    
                     if (GuiMinigames.current.spinDown)
                     {
                         GuiMinigames.current.doSpindown();
@@ -629,32 +632,32 @@ public class GuiMinigames extends Screen
             {
                 GuiMinigames.current.settingsButton.setMessage("Log in");
             }
-
+            
             Screen curScreen = Minecraft.getInstance().currentScreen;
             if (curScreen instanceof IStateHandler)
             {
                 ((IStateHandler) curScreen).handleStatePush(state);
             }
         }
-
+        
         public static State getCurrentState()
         {
             return currentState;
         }
-
+        
         public static void refreshState()
         {
             pushState(currentState);
         }
     }
-
+    
     private class GuiScrollingMinigames extends ExtendedList
     {
         public GuiScrollingMinigames(int entryHeight)
         {
             super(Minecraft.getInstance(), GuiMinigames.this.width - 20, GuiMinigames.this.height - 50, 50, GuiMinigames.this.height - 50, 10);
         }
-    
+        
         @Override
         protected int getItemCount()
         {
@@ -671,7 +674,7 @@ public class GuiMinigames extends Screen
             } else
             {
                 Minigame game = minigames.get(slotIdx);
-
+                
                 if (!minigameTexturesCache.containsKey(game.id))
                 {
                     ResourceLocation resourceLocation = new ResourceLocation(ModInfo.MOD_ID, "minigame/" + game.id);
@@ -679,8 +682,10 @@ public class GuiMinigames extends Screen
                     try
                     {
                         imageData = ImageIO.read(new URL(game.displayIcon));
-                    } catch (IOException ignored) {}
-
+                    } catch (IOException ignored)
+                    {
+                    }
+                    
                     if (imageData != null)
                     {
 //                        DynamicTexture texture = new DynamicTexture(imageData);
@@ -694,13 +699,13 @@ public class GuiMinigames extends Screen
                         minigameTexturesSize.put(game.id, new Pair(32, 32));
                     }
                 }
-
+                
                 ResourceLocation resourceLocation = minigameTexturesCache.get(game.id);
-
+                
                 Pair<Integer, Integer> wh = minigameTexturesSize.get(game.id);
-
+                
                 drawTextureAt(13, slotTop + 1, 28, 28, 28, 28, resourceLocation);
-
+                
                 GlStateManager.pushMatrix();
                 float scale = 1.5f;
                 GlStateManager.scalef(scale, scale, scale);
@@ -708,16 +713,16 @@ public class GuiMinigames extends Screen
                 int y = slotTop;
                 x = (int) (x / scale);
                 y = (int) (y / scale);
-
+                
                 int gameWidth = (int) (font.getStringWidth(minigames.get(slotIdx).displayName) * scale);
                 int newX = (width / 2) + (gameWidth / 2);
-
+                
                 drawCenteredString(font, minigames.get(slotIdx).displayName, x, y, 0xFFFFFFFF);
-
+                
                 GlStateManager.popMatrix();
-
+                
                 drawString(font, " by " + minigames.get(slotIdx).author, newX, slotTop + 2, 0xFFAAAAAA);
-
+                
                 String displayDescription = minigames.get(slotIdx).displayDescription;
                 if (font.getStringWidth(displayDescription) > (width - 96) * 2)
                 {
@@ -727,11 +732,11 @@ public class GuiMinigames extends Screen
                     }
                     displayDescription += "...";
                 }
-
+                
                 drawCenteredSplitString(displayDescription, width / 2, slotTop + 12, width - 84, 0xFFAAAAAA);
             }
         }
-
+        
         public Minigame getMinigame()
         {
             List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
@@ -745,7 +750,7 @@ public class GuiMinigames extends Screen
             setSelected(previous.getSelected());
         }
     }
-
+    
     public class Settings extends Screen
     {
         public TextFieldWidget emailField;
@@ -757,30 +762,30 @@ public class GuiMinigames extends Screen
         public Button cancelButton;
         public Button loginButton;
         private boolean previous2fa;
-    
+        
         protected Settings(ITextComponent p_i51108_1_)
         {
             super(new StringTextComponent(""));
         }
-    
+        
         @Override
         public void init()
         {
             super.init();
 //            labelList.clear();
-    
+            
             emailField = new TextFieldWidget(font, width / 2 - 100, height / 2 - 20, 200, 20, "");
 //            labelList.add(emailLabel = new GuiLabel(fontRendererObj, 80856, emailField.xPosition, emailField.yPosition - 10, 200, 20, 0xFFFFFFFF));
 //            emailLabel.addLine("Email");
-    
+            
             oneCodeField = new TextFieldWidget(font, width / 2 - 100, emailField.y - 10, 200, 20, "");
 //            labelList.add(oneCodeLabel = new GuiLabel(fontRendererObj, 80856, oneCodeField.xPosition, oneCodeField.yPosition - 10, 200, 20, 0xFFFFFFFF));
 //            oneCodeLabel.addLine("One-time code");
-    
+            
             passwordField = new GuiTextFieldCompatCensor(font, width / 2 - 100, height / 2 + 10, 200, 20, "");
 //            labelList.add(passwordLabel = new GuiLabel(fontRendererObj, 80856, passwordField.xPosition, passwordField.yPosition - 10, 200, 20, 0xFFFFFFFF));
 //            passwordLabel.addLine("Password");
-    
+            
             addButton(cancelButton = new Button(width - 10 - 100, height - 5 - 20, 100, 20, "Go back", p ->
             {
             
@@ -803,11 +808,11 @@ public class GuiMinigames extends Screen
                             credentials.put("email", emailField.getText());
                             credentials.put("password", passwordField.getText());
                             credentials.put("oneCode", oneCodeField.getText().replaceAll("[^0-9]", ""));
-    
+                            
                             State.pushState(State.LOGGING_IN);
                             String resp = WebUtils.postWebResponse("https://staging-panel.creeper.host/mt.php", credentials);
-    
-    
+                            
+                            
                             JsonParser parser = new JsonParser();
                             JsonElement el = parser.parse(resp);
                             if (el.isJsonObject())
@@ -862,10 +867,10 @@ public class GuiMinigames extends Screen
                     });
                 }
             }));
-    
+            
             State.refreshState();
         }
-    
+        
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int p_mouseClicked_5_)
         {
@@ -874,7 +879,7 @@ public class GuiMinigames extends Screen
             oneCodeField.mouseClicked(mouseX, mouseY, p_mouseClicked_5_);
             return false;
         }
-    
+        
         @Override
         public boolean charTyped(char typedChar, int keyCode)
         {
@@ -883,7 +888,7 @@ public class GuiMinigames extends Screen
             oneCodeField.charTyped(typedChar, keyCode);
             return super.charTyped(typedChar, keyCode);
         }
-    
+        
         @Override
         public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
         {
@@ -892,7 +897,7 @@ public class GuiMinigames extends Screen
             oneCodeField.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
             return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
         }
-    
+        
         @Override
         public void render(int mouseX, int mouseY, float partialTicks)
         {
@@ -908,11 +913,11 @@ public class GuiMinigames extends Screen
             {
                 drawCenteredSplitString("If you would like to use your CreeperHost credit balance instead of the free minigame credits, please login with your CreeperHost username and password here.", width / 2, height / 2 - 60, width, 0xFFFFFFFF);
             }
-    
+            
             drawStatusString(width / 2, height - 40);
         }
     }
-
+    
     public class StartMinigame extends Screen implements IStateHandler
     {
         private final Minigame minigame;
@@ -920,39 +925,39 @@ public class GuiMinigames extends Screen
         private int port;
         private String ip;
         private Button joinServerButton;
-
+        
         public StartMinigame(Minigame minigame)
         {
             super(new StringTextComponent(""));
             this.minigame = minigame;
-
+            
             State.pushState(State.STARTING_MINIGAME);
-
+            
             executor.submit(() ->
             {
                 try
                 {
                     String url = minigame.template;
                     int ram = minigame.ram;
-
+                    
                     Aries aries = new Aries(key, secret);
-
+                    
                     Map creditResp = aries.doApiCall("minetogether", "minigamecredit");
-
+                    
                     if (creditResp.get("status").equals("success"))
                     {
                         String credit = creditResp.get("credit").toString();
                         if (true) // credit check here
                         {
                             Map<String, String> sendMap = new HashMap<>();
-
+                            
                             sendMap.put("id", String.valueOf(minigame.id));
                             sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
                             sendMap.put("key2", key);
                             sendMap.put("secret2", secret);
-
+                            
                             Map map = aries.doApiCall("minetogether", "startminigame", sendMap);
-
+                            
                             if (map.get("status").equals("success"))
                             {
                                 try
@@ -1002,13 +1007,13 @@ public class GuiMinigames extends Screen
                 }
             });
         }
-
+        
         @Override
         public void tick()
         {
             ticks++;
         }
-
+        
         @Override
         public void init()
         {
@@ -1026,7 +1031,7 @@ public class GuiMinigames extends Screen
             joinServerButton.visible = false;
             State.refreshState();
         }
-
+        
         @Override
         public void render(int mouseX, int mouseY, float partialTicks)
         {
@@ -1042,7 +1047,7 @@ public class GuiMinigames extends Screen
             if (State.getCurrentState() != State.READY_TO_JOIN && State.getCurrentState() != State.MINIGAME_FAILED)
                 loadingSpin(partialTicks);
         }
-
+        
         @Override
         public void handleStatePush(State state)
         {
@@ -1058,7 +1063,7 @@ public class GuiMinigames extends Screen
             }
         }
     }
-
+    
     public interface IStateHandler
     {
         void handleStatePush(State state);

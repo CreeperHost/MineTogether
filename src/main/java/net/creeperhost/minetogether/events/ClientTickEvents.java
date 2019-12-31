@@ -38,7 +38,8 @@ public class ClientTickEvents
         {
             if (inviteCheckThread == null)
             {
-                inviteCheckThread = new Thread(() -> {
+                inviteCheckThread = new Thread(() ->
+                {
                     while (Config.getInstance().isServerListEnabled())
                     {
                         Invite tempInvite = null;
@@ -55,14 +56,14 @@ public class ClientTickEvents
                                     MineTogether.instance.invite = tempInvite;
                             }
                             
-                            if(temp != null)
+                            if (temp != null)
                             {
-                                ToastHandler.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () -> {
+                                ToastHandler.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
+                                {
                                     mc.displayGuiScreen(new GuiMTChat(Minecraft.getInstance().currentScreen, true));
                                 });
                             }
-                        }
-                        catch (Exception e)
+                        } catch (Exception e)
                         {
                             e.printStackTrace();
                             // carry on - we'll just try again later, saves thread dying.
@@ -71,7 +72,9 @@ public class ClientTickEvents
                         try
                         {
                             Thread.sleep(1000);
-                        } catch (InterruptedException ignored) {}
+                        } catch (InterruptedException ignored)
+                        {
+                        }
                     }
                 });
                 inviteCheckThread.setDaemon(true);
@@ -110,7 +113,7 @@ public class ClientTickEvents
                     MineTogether.proxy.openFriendsGui();
                 } else
                 {
-                    ToastHandler.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, ()->
+                    ToastHandler.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
                     {
 //                        mc.displayGuiScreen(new GuiInvited(MineTogether.instance.handledInvite, mc.currentScreen));
                         MineTogether.instance.handledInvite = null;
@@ -135,7 +138,7 @@ public class ClientTickEvents
             {
                 if (friendMessage && Minecraft.getInstance().currentScreen instanceof GuiMTChat)
                     return;
-                if(Config.getInstance().isFriendOnlineToastsEnabled())
+                if (Config.getInstance().isFriendOnlineToastsEnabled())
                 {
                     ToastHandler.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000, null);
                 }

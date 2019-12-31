@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.client.gui.serverlist.data;
 
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListEntryPublic;
-import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.data.EnumFlag;
 
 import java.util.Comparator;
@@ -33,7 +32,7 @@ public class Server
         return "Server[" + displayName + ", " + host + ", " + uptime + ", " + playerCount + ", " + flag.name() + "]";
     }
 
-//    public static class NameComparator implements Comparator<ServerListEntryPublic>
+    //    public static class NameComparator implements Comparator<ServerListEntryPublic>
 //    {
 //        public static final NameComparator INSTANCE = new NameComparator();
 //

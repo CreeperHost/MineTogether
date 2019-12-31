@@ -11,7 +11,6 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -99,14 +98,14 @@ public class GuiProgressDisconnected extends Screen
         if (captiveConnecting != null)
             captiveConnecting.tick();
     }
-
+    
     @SuppressWarnings("all")
     @Override
     public void init()
     {
         update(ourReason, ourMessage);
         this.textHeight = this.multilineMessage.size() * this.font.FONT_HEIGHT;
-        addButton(new Button( this.width / 2 - 100, Math.min(this.height / 2 + 80, this.height - 30), 20, 20, I18n.format("gui.toMenu"), p ->
+        addButton(new Button(this.width / 2 - 100, Math.min(this.height / 2 + 80, this.height - 30), 20, 20, I18n.format("gui.toMenu"), p ->
         {
             if (captiveConnecting != null)
             {
@@ -114,7 +113,7 @@ public class GuiProgressDisconnected extends Screen
                 {
                     lastNetworkManager.closeChannel(new StringTextComponent("Aborted"));
                 }
-
+                
                 try
                 {
                     if (cancelField == null)
@@ -122,7 +121,9 @@ public class GuiProgressDisconnected extends Screen
 //                        cancelField = ReflectionHelper.findField(GuiConnecting.class, "cancel", "field_146373_h", "");
                     }
                     cancelField.set(captiveConnecting, true);
-                } catch (Throwable ignored) {}
+                } catch (Throwable ignored)
+                {
+                }
             }
             this.minecraft.displayGuiScreen(this.parentScreen);
         }));
@@ -150,5 +151,5 @@ public class GuiProgressDisconnected extends Screen
             }
         }
     }
-
+    
 }

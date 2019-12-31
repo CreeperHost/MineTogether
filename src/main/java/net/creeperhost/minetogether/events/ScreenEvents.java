@@ -3,8 +3,8 @@ package net.creeperhost.minetogether.events;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
-import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
+import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.ModInfo;
@@ -16,7 +16,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Mod.EventBusSubscriber(modid = ModInfo.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ScreenEvents
@@ -26,25 +25,24 @@ public class ScreenEvents
     @SubscribeEvent
     public void openScreen(GuiScreenEvent.InitGuiEvent.Post event)
     {
-        if(event.getGui() instanceof MainMenuScreen)
+        if (event.getGui() instanceof MainMenuScreen)
         {
             if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
             {
                 Minecraft.getInstance().currentScreen = new GuiGDPR(event.getGui());
-            }
-            else
+            } else
+            {
+                if (first)
                 {
-                    if (first)
-                    {
-                        first = false;
-                        MineTogether.proxy.startChat();
-                    }
+                    first = false;
+                    MineTogether.proxy.startChat();
                 }
-
-            if(Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())
+            }
+            
+            if (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())
             {
                 MineTogether.instance.setRandomImplementation();
-
+                
                 event.addWidget(new GuiButtonCreeper(event.getGui().width / 2 - 124, event.getGui().height / 4 + 96, p ->
                 {
                     Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
@@ -73,7 +71,7 @@ public class ScreenEvents
                     }
                 }
             });
-    
+            
             event.addWidget(new Button(x.get(), y.get(), width.get(), height.get(), "YEET", p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(event.getGui()));

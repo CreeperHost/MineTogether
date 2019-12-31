@@ -1,11 +1,11 @@
 package net.creeperhost.minetogether.client.gui.order;
 
-import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.list.GuiList;
 import net.creeperhost.minetogether.client.gui.list.GuiListEntry;
 import net.creeperhost.minetogether.client.gui.list.GuiListEntryLocation;
 import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.util.Util;
 
 import java.util.Map;
 

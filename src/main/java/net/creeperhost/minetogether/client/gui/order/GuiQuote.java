@@ -1,12 +1,12 @@
 package net.creeperhost.minetogether.client.gui.order;
 
-import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.client.gui.element.GuiWell;
 import net.creeperhost.minetogether.client.gui.list.GuiList;
 import net.creeperhost.minetogether.client.gui.list.GuiListEntryCountry;
 import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.widget.button.Button;
 
 import java.util.ArrayList;
@@ -56,12 +56,12 @@ public class GuiQuote extends GuiGetServer
         {
             countryOnRelease = true;
             this.oldButtonxPrev = this.buttonPrev.x;
-            this.countryPrev =  (GuiListEntryCountry) this.list.getSelected();
+            this.countryPrev = (GuiListEntryCountry) this.list.getSelected();
             this.oldButtonxNext = this.buttonNext.x;
             this.buttonPrev.x = this.buttonNext.x;
             this.buttonNext.y = -50;
         }));
-
+        
         if (summary == null)
         {
             if (!refreshing)
@@ -96,12 +96,13 @@ public class GuiQuote extends GuiGetServer
         
         final Order order = this.order;
         
-        Runnable runnable = () -> {
+        Runnable runnable = () ->
+        {
             summary = Callbacks.getSummary(order);
-
+            
             order.productID = summary.productID;
             order.currency = summary.currency;
-
+            
             if (firstTime)
             {
                 firstTime = false;
@@ -110,14 +111,14 @@ public class GuiQuote extends GuiGetServer
                 {
                     GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
                     list.add(listEntry);
-
+                    
                     if (order.country.equals(listEntry.countryID))
                     {
                         list.setSelected(listEntry);
                     }
                 }
             }
-
+            
             wellLeft.lines = summary.serverFeatures;
             wellRight.lines = summary.serverIncluded;
             countryButton.setMessage(Callbacks.getCountries().get(order.country));
@@ -143,7 +144,7 @@ public class GuiQuote extends GuiGetServer
         this.buttonNext.active = this.list.getSelected() != null && !countryEnabled && !refreshing;
         this.buttonPrev.active = !refreshing;
     }
-    
+
 //    @Override
 //    public void handleMouseInput() throws IOException
 //    {
@@ -265,7 +266,7 @@ public class GuiQuote extends GuiGetServer
         
         super.render(mouseX, mouseY, partialTicks);
     }
-
+    
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
@@ -282,8 +283,8 @@ public class GuiQuote extends GuiGetServer
         }
         return false;
     }
-
-
+    
+    
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state)
     {

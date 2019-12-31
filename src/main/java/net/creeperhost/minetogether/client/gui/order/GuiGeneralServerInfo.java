@@ -1,12 +1,12 @@
 package net.creeperhost.minetogether.client.gui.order;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.element.GuiTextFieldValidate;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.Constants;
+import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
@@ -15,7 +15,7 @@ import net.minecraftforge.fml.client.config.GuiSlider;
 
 public class GuiGeneralServerInfo extends GuiGetServer// implements GuiPageButtonList.GuiResponder
 {
-//    private static final GuiSlider.FormatHelper SLIDER_FORMATTER = (id, name, value) -> name + ": " + (int) value;
+    //    private static final GuiSlider.FormatHelper SLIDER_FORMATTER = (id, name, value) -> name + ": " + (int) value;
     private static ResourceLocation lockIcon;
     private TextFieldWidget nameField;
     private GuiSlider slotSlider;
@@ -38,7 +38,7 @@ public class GuiGeneralServerInfo extends GuiGetServer// implements GuiPageButto
     public void init()
     {
         super.init();
-
+        
         int halfWidth = this.width / 2;
         int halfHeight = this.height / 2;
         
@@ -51,8 +51,8 @@ public class GuiGeneralServerInfo extends GuiGetServer// implements GuiPageButto
         
         int checkboxWidth = this.font.getStringWidth(checkboxString) + 11 + 2;
         
-        pregen = new GuiCheckBox( halfWidth - (checkboxWidth / 2), halfHeight - 8, checkboxString, order.pregen);
-        
+        pregen = new GuiCheckBox(halfWidth - (checkboxWidth / 2), halfHeight - 8, checkboxString, order.pregen);
+
 //        if (Config.getInstance().getPregenDiameter() > 0)
 //        {
 //            this.buttonList.add(pregen);
@@ -64,7 +64,7 @@ public class GuiGeneralServerInfo extends GuiGetServer// implements GuiPageButto
 //        modpack = new Button(21212, width - 90,  10, 86, 20, "Change Modpack");
 //        buttonList.add(modpack);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void tick()
@@ -84,7 +84,8 @@ public class GuiGeneralServerInfo extends GuiGetServer// implements GuiPageButto
                 isAcceptable = false;
             } else
             {
-                Runnable task = () -> {
+                Runnable task = () ->
+                {
                     AvailableResult result = Callbacks.getNameAvailable(nameToCheck);
                     isAcceptable = result.getSuccess();
                     message = result.getMessage();
@@ -97,7 +98,7 @@ public class GuiGeneralServerInfo extends GuiGetServer// implements GuiPageButto
         }
         this.buttonNext.active = !isEmpty && nameChecked && isAcceptable;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public boolean charTyped(char typedChar, int keyCode)
@@ -106,8 +107,7 @@ public class GuiGeneralServerInfo extends GuiGetServer// implements GuiPageButto
         if (!this.nameField.charTyped(typedChar, keyCode))
         {
             super.charTyped(typedChar, keyCode);
-        }
-        else
+        } else
         {
             if (!nameFieldOldValue.equals(nameField.getText()))
             {
@@ -153,7 +153,7 @@ public class GuiGeneralServerInfo extends GuiGetServer// implements GuiPageButto
         
         this.drawCenteredString(font, message, (this.width / 2), (this.height / 2) - 26, colour);
     }
-
+    
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {

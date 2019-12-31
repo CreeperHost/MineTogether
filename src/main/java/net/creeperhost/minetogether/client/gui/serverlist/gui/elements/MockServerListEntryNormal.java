@@ -8,12 +8,12 @@ import net.minecraft.client.multiplayer.ServerData;
 public class MockServerListEntryNormal extends ServerSelectionList.Entry
 {
     public static final GuiMockMultiplayer mockMP = new GuiMockMultiplayer();
-
+    
     protected MockServerListEntryNormal(MultiplayerScreen p_i45048_1_, ServerData serverIn)
     {
 //        super(p_i45048_1_, serverIn);
     }
-
+    
     public MockServerListEntryNormal(ServerData serverIn)
     {
 //        super(mockMP, serverIn);

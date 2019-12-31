@@ -1,14 +1,11 @@
 package net.creeperhost.minetogether.client.gui.serverlist.gui.elements;
 
-import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerList;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,7 +17,7 @@ public class ServerSelectionListPublic extends ServerSelectionList
     private List<ServerListEntryPublic> ourList;
     private GuiMultiplayerPublic ourParent;
     private long nextSort;
-
+    
     public ServerSelectionListPublic(GuiMultiplayerPublic ownerIn, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
     {
         super(ownerIn, mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
@@ -39,18 +36,18 @@ public class ServerSelectionListPublic extends ServerSelectionList
     {
         return super.getEntry(p_getEntry_1_);
     }
-    
+
 //    @Override
 //    public GuiListExtended.IGuiListEntry getListEntry(int index)
 //    {
 //        return super.getListEntry(index);
 //    }
-
+    
     @Override
     public void updateOnlineServers(ServerList serverList)
     {
         ourList.clear();
-
+        
         if (serverList instanceof ServerListPublic)
         {
             ServerListPublic pub = (ServerListPublic) serverList;

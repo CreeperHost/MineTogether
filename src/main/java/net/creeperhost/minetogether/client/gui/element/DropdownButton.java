@@ -32,7 +32,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
     {
         this(x, y, 200, 20, buttonText, def, dynamic, onPress);
     }
-
+    
     public boolean flipped = false;
     
     @SuppressWarnings("Duplicates")
@@ -109,7 +109,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
     {
         return mouseOver ? 2 : active ? dropdownOpen ? 2 : 1 : 0;
     }
-
+    
     @Override
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
     {
@@ -155,10 +155,14 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
     
     public void setSelected(E selected)
     {
-        try {
+        try
+        {
             this.selected = selected;
             updateDisplayString();
-        }catch (Exception e){ e.printStackTrace(); }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
     
     public void updateDisplayString()
@@ -195,6 +199,8 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
         
         String getTranslate(IDropdownOption currentDO, boolean dropdownOpen);
         
-        default void updateDynamic() {}
+        default void updateDynamic()
+        {
+        }
     }
 }

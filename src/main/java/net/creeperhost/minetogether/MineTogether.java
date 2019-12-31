@@ -7,17 +7,22 @@ import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
-import net.creeperhost.minetogether.common.*;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.common.GDPR;
+import net.creeperhost.minetogether.common.HostHolder;
+import net.creeperhost.minetogether.common.IHost;
+import net.creeperhost.minetogether.common.IngameChat;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
+import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.events.ClientTickEvents;
 import net.creeperhost.minetogether.events.ScreenEvents;
 import net.creeperhost.minetogether.lib.ModInfo;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
-import net.creeperhost.minetogether.proxy.*;
-import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.proxy.Client;
+import net.creeperhost.minetogether.proxy.IProxy;
+import net.creeperhost.minetogether.proxy.Server;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -69,11 +74,11 @@ public class MineTogether implements ICreeperHostMod, IHost
     
     public String ourNick;
     public File mutedUsersFile;
-
+    
     public static MineTogether instance;
 
 //    public HoverEvent.Action TIMESTAMP = EnumHelper.addEnum(HoverEvent.Action.class, "TIMESTAMP", new Class[]{String.class, boolean.class}, "timestamp_hover", true);
-
+    
     public MineTogether()
     {
         instance = this;
@@ -86,7 +91,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(this);
     }
-
+    
     @SubscribeEvent
     public void preInit(FMLCommonSetupEvent event)
     {
@@ -95,25 +100,25 @@ public class MineTogether implements ICreeperHostMod, IHost
         registerImplementation(new CreeperHostServerHost());
         
         proxy.registerKeys();
-        
+
 //        PacketHandler.packetRegister();
     }
-
+    
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
         File gdprFile = new File("local/minetogether/gdpr.txt");
         gdpr = new GDPR(gdprFile);
-    
+        
         HostHolder.host = this;
         File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
         ingameChat = new IngameChat(ingameChatFile);
         ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 15);
-    
+        
         HashMap<String, String> jsonObj = new HashMap<>();
-
+        
         int packID;
-
+        
         try
         {
             packID = Integer.parseInt(Config.getInstance().curseProjectID);
@@ -121,15 +126,17 @@ public class MineTogether implements ICreeperHostMod, IHost
         {
             packID = -1;
         }
-
+        
         jsonObj.put("p", String.valueOf(packID));
-
+        
         Gson gson = new Gson();
         try //Temp fix until we cxan figure out why this fails
         {
             realName = gson.toJson(jsonObj);
-        } catch (Exception ignored) {}
-    
+        } catch (Exception ignored)
+        {
+        }
+        
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
     }
     
@@ -148,8 +155,9 @@ public class MineTogether implements ICreeperHostMod, IHost
             configOut = new FileOutputStream(configFile);
             IOUtils.write(Config.saveConfig(), configOut);
             configOut.close();
-        } catch (Throwable ignored) {}
-        finally
+        } catch (Throwable ignored)
+        {
+        } finally
         {
             try
             {
@@ -157,7 +165,9 @@ public class MineTogether implements ICreeperHostMod, IHost
                 {
                     configOut.close();
                 }
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored)
+            {
+            }
         }
         
         if (Config.getInstance().isCreeperhostEnabled())
@@ -270,8 +280,9 @@ public class MineTogether implements ICreeperHostMod, IHost
                 {
                     ChatHandler.anonUsersReverse.put(entry.getValue(), entry.getKey());
                 }
-            } catch (Throwable ignored) {}
-            finally
+            } catch (Throwable ignored)
+            {
+            } finally
             {
                 try
                 {
@@ -279,7 +290,9 @@ public class MineTogether implements ICreeperHostMod, IHost
                     {
                         anonUsersStream.close();
                     }
-                } catch (Throwable ignored) {}
+                } catch (Throwable ignored)
+                {
+                }
             }
             anonLoaded = true;
         }
@@ -320,7 +333,9 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers));
-        } catch (IOException ignored) {}
+        } catch (IOException ignored)
+        {
+        }
     }
     
     public void muteUser(String user)
@@ -330,9 +345,11 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-        } catch (IOException ignored) {}
+        } catch (IOException ignored)
+        {
+        }
     }
-
+    
     public void unmuteUser(String user)
     {
         String mtUser = ChatHandler.anonUsersReverse.get(user);
@@ -342,7 +359,9 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-        } catch (IOException ignored) {}
+        } catch (IOException ignored)
+        {
+        }
     }
     
     @Override
@@ -356,17 +375,19 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         new Thread(() -> Callbacks.addFriend(friendCode, name)).start();
     }
-
+    
     @Override
-    public void closeGroupChat() {
+    public void closeGroupChat()
+    {
         proxy.closeGroupChat();
     }
-
+    
     @Override
-    public void updateChatChannel() {
+    public void updateChatChannel()
+    {
         proxy.updateChatChannel();
     }
-
+    
     @Override
     public void userBanned(String username)
     {

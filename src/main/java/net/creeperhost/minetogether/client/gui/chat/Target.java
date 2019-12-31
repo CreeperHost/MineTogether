@@ -6,7 +6,10 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 public class Target implements DropdownButton.IDropdownOption
 {
@@ -131,8 +134,8 @@ public class Target implements DropdownButton.IDropdownOption
                 }
             }
         }
-
-        if(ChatHandler.privateChatList != null)
+        
+        if (ChatHandler.privateChatList != null)
         {
             Target p = new Target("Group Chat", ChatHandler.privateChatList.getChannelname(), true);
             privateChannel = p;
@@ -175,7 +178,7 @@ public class Target implements DropdownButton.IDropdownOption
     {
         return obj instanceof Target && (((Target) obj).internalTarget.equals(internalTarget)) && ((Target) obj).targetName.equals(targetName);
     }
-
+    
     public static Target getPrivateChannel()
     {
         return privateChannel;

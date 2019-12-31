@@ -1,12 +1,12 @@
 package net.creeperhost.minetogether.client.gui.order;
 
-import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonRefresh;
 import net.creeperhost.minetogether.client.gui.list.GuiList;
 import net.creeperhost.minetogether.client.gui.list.GuiListEntryModpack;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -20,20 +20,20 @@ public class GuiModPackList extends Screen
     private GuiList<GuiListEntryModpack> list;
     private boolean first = true;
     private TextFieldWidget displayEntry;
-
+    
     public GuiModPackList(Screen currentScreen)
     {
         super(new StringTextComponent(""));
         this.parent = currentScreen;
     }
-
+    
     @SuppressWarnings("unchecked")
     @Override
     public void init()
     {
         super.init();
         this.minecraft.keyboardListener.enableRepeatEvents(true);
-        if(list == null)
+        if (list == null)
         {
             list = new GuiList(this, minecraft, width, height, 32, this.height - 64, 36);
         }
@@ -42,28 +42,28 @@ public class GuiModPackList extends Screen
         }
         
         this.children.add(list);
-
+        
         if (first)
         {
             first = false;
             refreshList();
         }
-
+        
         int y = this.height - 60;
-
+        
         int margin = 10;
         int buttonWidth = 80;
-
+        
         int buttonX = margin;
-
+        
         displayEntry = new TextFieldWidget(this.font, this.width / 2 - 90, y, 160, 20, "");
         displayEntry.setVisible(true);
-
+        
         this.addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("button.cancel"), (button) -> minecraft.displayGuiScreen(parent)));
-
+        
         this.addButton(new Button(this.width - 90, y, buttonWidth, 20, "Select", (button) ->
         {
-            if(list.getSelected() != null)
+            if (list.getSelected() != null)
             {
                 String ID = ((GuiListEntryModpack) list.getSelected()).getModpack().getId();
                 Config.getInstance().setVersion(ID);
@@ -71,23 +71,24 @@ public class GuiModPackList extends Screen
                 minecraft.displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
             }
         }));
-
+        
         this.addButton(new GuiButtonRefresh(this.width / 2 + 72, y, (button) -> refreshList()));
     }
-
+    
     @Override
     public void tick()
     {
 //        this.displayEntry.tick();
     }
-
+    
     private void refreshList()
     {
         String s = "";
-        if(displayEntry != null) {
+        if (displayEntry != null)
+        {
             s = displayEntry.getText();
         }
-
+        
         List<Callbacks.Modpack> modpacks = Callbacks.getModpackFromCurse(s, 10);
         list.clearList();
         if (modpacks != null)
@@ -99,19 +100,19 @@ public class GuiModPackList extends Screen
             }
         }
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
-        if(list != null) this.list.render(mouseX, mouseY, partialTicks);
+        if (list != null) this.list.render(mouseX, mouseY, partialTicks);
         
-        if(displayEntry != null) this.displayEntry.render(mouseX, mouseX, partialTicks);
-
+        if (displayEntry != null) this.displayEntry.render(mouseX, mouseX, partialTicks);
+        
         this.drawCenteredString(this.font, Util.localize("gui.modpack.selector"), this.width / 2, 10, -1);
-    
+        
         super.render(mouseX, mouseY, partialTicks);
     }
-
+    
     @Override
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
@@ -119,7 +120,7 @@ public class GuiModPackList extends Screen
         super.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
         return true;
     }
-
+    
     @Override
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
     {
@@ -128,17 +129,17 @@ public class GuiModPackList extends Screen
         super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
         return true;
     }
-
+    
     @Override
     public boolean charTyped(char p_charTyped_1_, int p_charTyped_2_)
     {
-        if(displayEntry != null && displayEntry.isFocused())
+        if (displayEntry != null && displayEntry.isFocused())
         {
             displayEntry.charTyped(p_charTyped_1_, p_charTyped_2_);
         }
         return super.charTyped(p_charTyped_1_, p_charTyped_2_);
     }
-
+    
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {

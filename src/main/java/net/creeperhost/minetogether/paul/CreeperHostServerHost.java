@@ -6,15 +6,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
-import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.util.WebUtils;
 import net.creeperhost.minetogether.client.gui.order.GuiModPackList;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.ModInfo;
+import net.creeperhost.minetogether.util.Util;
+import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.ResourceLocation;
@@ -99,7 +99,6 @@ public class CreeperHostServerHost implements IServerHost
 //                return new OrderSummary("quote.curseerror");
                 Minecraft mc = Minecraft.getInstance();
                 mc.displayGuiScreen(new GuiModPackList(mc.currentScreen));
-
             }
             String url = "https://www.creeperhost.net/json/order/mc/" + version + "/recommend/" + order.playerAmount;
             
@@ -122,8 +121,7 @@ public class CreeperHostServerHost implements IServerHost
             try
             {
                 discount = jObject.getAsJsonPrimitive("Discount").getAsDouble();
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 discount = 0;
             }
@@ -180,7 +178,6 @@ public class CreeperHostServerHost implements IServerHost
             MineTogether.logger.error("Unable to fetch summary", t);
             return null;
         }
-        
     }
     
     @Override
@@ -394,7 +391,7 @@ public class CreeperHostServerHost implements IServerHost
             jObject = jObject.getAsJsonObject("datacentre");
             
             return jObject.getAsJsonPrimitive("name").getAsString();
-        } catch (Throwable t)
+        } catch (Throwable ignored)
         {
         }
         return ""; // default

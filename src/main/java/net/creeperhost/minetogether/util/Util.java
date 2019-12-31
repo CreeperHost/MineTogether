@@ -61,7 +61,9 @@ public final class Util
                 Method m = clazz.getDeclaredMethod(methodName, methodTypes);
                 m.setAccessible(true);
                 return m;
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored)
+            {
+            }
         }
         return null;
     }
@@ -92,7 +94,10 @@ public final class Util
             {
                 Class clazz = Class.forName(className);
                 proxyGetter = (IBufferProxyGetter) clazz.newInstance();
-            } catch (Throwable t) { t.printStackTrace(); }
+            } catch (Throwable t)
+            {
+                t.printStackTrace();
+            }
         }
         return proxyGetter.get();
     }

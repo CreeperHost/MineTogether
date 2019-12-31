@@ -17,14 +17,14 @@ public interface IProxy
     void disableIngameChat();
     
     void enableIngameChat();
-
+    
     void closeGroupChat();
-
+    
     void messageReceived(String target, Message messagePair);
-
+    
     void updateChatChannel();
-
+    
     void refreshChat();
-
+    
     boolean checkOnline();
 }

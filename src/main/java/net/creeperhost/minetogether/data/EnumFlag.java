@@ -254,14 +254,14 @@ public enum EnumFlag
     ZA(384, 84, 32, 21),
     ZM(448, 21, 32, 21),
     ZW(64, 398, 32, 16);
-
+    
     private static Random random = new Random();
     private static EnumFlag[] vals = values();
     public final int x;
     public final int y;
     public final int width;
     public final int height;
-
+    
     EnumFlag(int x, int y, int width, int height)
     {
         this.x = x;
@@ -269,7 +269,7 @@ public enum EnumFlag
         this.width = width;
         this.height = height;
     }
-
+    
     public static EnumFlag random()
     {
         return vals[random.nextInt(vals.length)];

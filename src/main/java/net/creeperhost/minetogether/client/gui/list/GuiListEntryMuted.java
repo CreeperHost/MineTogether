@@ -11,7 +11,7 @@ public class GuiListEntryMuted extends GuiListEntry
     private float transparency = 0.5F;
     private boolean wasHovering;
     private final GuiFriendsList friendsListgui;
-
+    
     public GuiListEntryMuted(GuiFriendsList friendsListIngui, GuiList list, String muted)
     {
         super(list);
@@ -29,35 +29,33 @@ public class GuiListEntryMuted extends GuiListEntry
         {
             if (transparency <= 1.0F)
                 transparency += 0.04;
-        }
-        else
+        } else
         {
             if (transparency >= 0.5F)
                 transparency -= 0.04;
         }
-
+        
         this.mc.fontRenderer.drawString(muted, x + 5, y + 5, 16777215);
-
+        
         int transparentString = (int) (transparency * 254) << 24;
-
+        
         GlStateManager.enableAlphaTest();
         GlStateManager.enableBlend();
         this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
         GlStateManager.disableAlphaTest();
         GlStateManager.disableBlend();
-
+        
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
         {
             wasHovering = true;
             friendsListgui.setHoveringText("Click here to unmute");
-        }
-        else if (wasHovering)
+        } else if (wasHovering)
         {
             wasHovering = false;
             friendsListgui.setHoveringText(null);
         }
     }
-
+    
     public String getMuted()
     {
         return muted;

@@ -1,18 +1,15 @@
 package net.creeperhost.minetogether.client.gui.serverlist.gui.elements;
 
-import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.client.gui.serverlist.data.ServerDataPublic;
-import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.data.EnumFlag;
+import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.ServerSelectionList;
 import net.minecraft.client.gui.screen.ServerSelectionList.NormalEntry;
-import net.minecraft.client.gui.widget.list.ExtendedList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ServerListEntryPublic extends ServerSelectionList.Entry
 {
@@ -20,7 +17,7 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
     public final MultiplayerScreen owner;
     private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
     private ResourceLocation applicationGui = new ResourceLocation("creeperhost", "textures/gui.png");
-
+    
     public ServerListEntryPublic(MultiplayerScreen mp, NormalEntry wrapped)
     {
 //        super(mp, wrapped.getServerData());
@@ -32,19 +29,19 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
 //    {
 //        this(wrapped.mockMP, wrapped);
 //    }
-
+    
     public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float newthingy)
     {
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
-
+    
     // < 1.12 compat
     public void func_180790_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
-    
-    
+
+
 //    @Override
 //    public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
 //    {
@@ -68,11 +65,11 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
 //        }*/
 //        return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
 //    }
-
+    
     public void ourDrawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
         Util.getWrapper().draw(wrapped, slotIndex, x, y, listWidth, slotHeight, mouseX > (listWidth / 2) ? mouseX : Integer.MAX_VALUE, mouseY, false);
-
+        
         Server server = null;//getServerData().server;
         EnumFlag flag = server.flag;
         String applicationURL = server.applicationURL;
@@ -95,7 +92,7 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
                 owner.setHoveringText(countryName + (server.subdivision.equals("Unknown") ? "" : "\n" + server.subdivision));
             }
         }
-
+        
         if (applicationURL != null)
         {
             Minecraft.getInstance().getTextureManager().bindTexture(applicationGui);
@@ -112,7 +109,7 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
         }
     }
     
-//    @Override
+    //    @Override
     public ServerDataPublic getServerData()
     {
         return null;//(ServerDataPublic) super.getServerData();

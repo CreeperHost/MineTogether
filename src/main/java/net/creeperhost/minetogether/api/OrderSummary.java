@@ -9,7 +9,7 @@ import java.util.List;
 public class OrderSummary
 {
     public final String summaryError;
-
+    
     public final String serverHostName;
     public final List<String> serverFeatures;
     public final List<String> serverIncluded;
@@ -22,8 +22,9 @@ public class OrderSummary
     public final String prefix;
     public final String currency;
     public final String productID;
-
-    public OrderSummary(String productID, String serverHostName, List<String> serverFeatures, List<String> serverIncluded, double preDiscount, double subTotal, double total, double tax, double discount, String suffix, String prefix, String currency) {
+    
+    public OrderSummary(String productID, String serverHostName, List<String> serverFeatures, List<String> serverIncluded, double preDiscount, double subTotal, double total, double tax, double discount, String suffix, String prefix, String currency)
+    {
         this.productID = productID;
         this.serverHostName = serverHostName;
         this.serverFeatures = serverFeatures;
@@ -38,8 +39,9 @@ public class OrderSummary
         this.currency = currency;
         this.summaryError = "";
     }
-
-    public OrderSummary(String summaryError) {
+    
+    public OrderSummary(String summaryError)
+    {
         this.productID = "";
         this.serverHostName = "";
         this.serverFeatures = new ArrayList<String>();

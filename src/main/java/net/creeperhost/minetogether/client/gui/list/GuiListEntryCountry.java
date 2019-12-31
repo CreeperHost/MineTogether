@@ -4,7 +4,7 @@ public class GuiListEntryCountry extends GuiListEntry
 {
     public final String countryID;
     public final String countryName;
-
+    
     public GuiListEntryCountry(GuiList list, String countryID, String countryName)
     {
         super(list);

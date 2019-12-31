@@ -32,7 +32,7 @@ public class GuiChatFriend extends Screen
         this.parent = parent;
         this.friendName = friendName;
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
@@ -50,7 +50,7 @@ public class GuiChatFriend extends Screen
     {
         super.init();
         this.minecraft.keyboardListener.enableRepeatEvents(true);
-
+        
         this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, "Cancel", (button) -> Minecraft.getInstance().displayGuiScreen(parent)));
         
         this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? "Accept" : "Send request", (buttons) ->
@@ -59,8 +59,7 @@ public class GuiChatFriend extends Screen
             {
                 ChatHandler.acceptFriendRequest(chatInternalName, nameEntry.getText().trim());
                 new Thread(() -> Callbacks.addFriend(friendCode, friendName)).start();
-            }
-            else
+            } else
             {
                 ChatHandler.sendFriendRequest(chatInternalName, nameEntry.getText().trim());
             }
@@ -71,19 +70,19 @@ public class GuiChatFriend extends Screen
         if (first)
             nameEntry.setText(playerName); // default to player name
         first = false;
-
+        
         acceptBtn.active = nameEntry.getText().trim().length() >= 3;
         nameEntry.setFocused2(true);
         nameEntry.setCanLoseFocus(false);
     }
-
+    
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
         nameEntry.mouseClicked(mouseX, mouseY, mouseButton);
         return false;
     }
-
+    
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {

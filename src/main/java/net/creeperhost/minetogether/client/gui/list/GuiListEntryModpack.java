@@ -10,7 +10,7 @@ public class GuiListEntryModpack extends GuiListEntry
     private final String cross;
     private final int stringWidth;
     private float transparency = 0.5F;
-
+    
     public GuiListEntryModpack(GuiModPackList modPackList, GuiList list, Callbacks.Modpack modpack)
     {
         super(list);
@@ -24,7 +24,7 @@ public class GuiListEntryModpack extends GuiListEntry
     public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
     {
         super.render(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isSelected, p_render_9_);
-    
+        
         if (isSelected)
         {
             if (transparency <= 1.0F)
@@ -34,7 +34,7 @@ public class GuiListEntryModpack extends GuiListEntry
             if (transparency >= 0.5F)
                 transparency -= 0.04;
         }
-    
+        
         this.mc.fontRenderer.drawString(modpack.getName() + " (" + modpack.getDisplayVersion() + ")", x + 5, y + 5, 16777215);
     }
     

@@ -1,9 +1,9 @@
 package net.creeperhost.minetogether.client.gui.order;
 
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerList;
 
@@ -51,7 +51,7 @@ public class GuiOrderDetails extends GuiGetServer
         this.buttonNext.visible = false;
         buttonCancel.setMessage(Util.localize("order.ordercancel"));
         buttonCancel.active = false;
-        buttonInvoice = addButton(new Button( this.width / 2 - 40, (this.height / 2) + 30, 80, 20, Util.localize("button.invoice"), p ->
+        buttonInvoice = addButton(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, Util.localize("button.invoice"), p ->
         {
             try
             {
@@ -65,7 +65,7 @@ public class GuiOrderDetails extends GuiGetServer
         }));
         buttonInvoice.visible = false;
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void tick()
     {
@@ -78,14 +78,15 @@ public class GuiOrderDetails extends GuiGetServer
                 return;
             }
             creatingAccount = true;
-            Runnable runnable = () -> {
+            Runnable runnable = () ->
+            {
                 String result = Callbacks.createAccount(order);
                 String[] resultSplit = result.split(":");
                 if (resultSplit[0].equals("success"))
                 {
                     order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
                     order.clientID = resultSplit[2] != null ? resultSplit[2] : "0"; // random test account fallback
-
+                    
                 } else
                 {
                     createdAccountError = result;
@@ -107,7 +108,8 @@ public class GuiOrderDetails extends GuiGetServer
         {
             placingOrder = true;
             buttonNext.active = false;
-            Runnable runnable = () -> {
+            Runnable runnable = () ->
+            {
                 String result = Callbacks.createOrder(order);
                 String[] resultSplit = result.split(":");
                 if (resultSplit[0].equals("success"))
@@ -140,7 +142,8 @@ public class GuiOrderDetails extends GuiGetServer
             buttonNext.visible = true;
             buttonCancel.active = true;
             return;
-        } else {
+        } else
+        {
             buttonNext.active = true;
         }
     }

@@ -18,7 +18,7 @@ public class GuiButtonChat extends Button
     {
         this.active = active;
     }
-    
+
 //    @Override
 //    public void func_191745_a(Minecraft p_191745_1_, int mouseX, int mouseY, float p_191745_4_)
 //    {
@@ -55,8 +55,8 @@ public class GuiButtonChat extends Button
 //
 //        }
 //    }
-
-
+    
+    
     @Override
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
     {
@@ -64,7 +64,7 @@ public class GuiButtonChat extends Button
         if (ret)
             if (MineTogether.instance.gdpr.hasAcceptedGDPR())
                 ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).unread = false;
-
+        
         return ret;
     }
 }

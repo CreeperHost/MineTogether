@@ -16,17 +16,18 @@ public class GuiServerType extends Screen
 {
     private GuiGDPR.IScreenGetter getter = null;
     private Screen parent = null;
-
-    public GuiServerType() {
+    
+    public GuiServerType()
+    {
         super(new StringTextComponent(""));
     }
-
+    
     public GuiServerType(Screen parent)
     {
         super(new StringTextComponent(""));
         this.parent = parent;
     }
-
+    
     public GuiServerType(Screen parent, GuiGDPR.IScreenGetter getterIn)
     {
         this(parent);
@@ -39,36 +40,36 @@ public class GuiServerType extends Screen
         renderDirtBackground(1);
         GlStateManager.pushMatrix();
         GlStateManager.scalef(1.5f, 1.5f, 1.5f);
-        drawCenteredString(font, TextFormatting.BOLD  + I18n.format("minetogether.listing.title"), (width/3), 12, -1);
+        drawCenteredString(font, TextFormatting.BOLD + I18n.format("minetogether.listing.title"), (width / 3), 12, -1);
         GlStateManager.popMatrix();
         super.render(mouseX, mouseY, partialTicks);
     }
-
+    
     @Override
     public void init()
     {
         super.init();
-
+        
         buttons.clear();
-
-        addButton(new GuiButtonLarge( (width / 2) - 180, (height / 8)+20, 120, 165, "PUBLIC", I18n.format("minetogether.listing.public"), new ItemStack(Items.GUNPOWDER), p ->
+        
+        addButton(new GuiButtonLarge((width / 2) - 180, (height / 8) + 20, 120, 165, "PUBLIC", I18n.format("minetogether.listing.public"), new ItemStack(Items.GUNPOWDER), p ->
         {
             Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(parent, GuiMultiplayerPublic.ListType.PUBLIC, GuiMultiplayerPublic.SortOrder.NAME, true));
         }));
-        addButton(new GuiButtonLarge( (width / 2) - 60, (height / 8)+20, 120, 165, "COMMUNITY", I18n.format("minetogether.listing.community"), new ItemStack(Items.FISHING_ROD), p ->
+        addButton(new GuiButtonLarge((width / 2) - 60, (height / 8) + 20, 120, 165, "COMMUNITY", I18n.format("minetogether.listing.community"), new ItemStack(Items.FISHING_ROD), p ->
         {
             Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(parent, GuiMultiplayerPublic.ListType.APPLICATION, GuiMultiplayerPublic.SortOrder.NAME, true));
         }));
-        addButton(new GuiButtonLarge( (width / 2) + 60, (height / 8)+20, 120, 165, "CLOSED", I18n.format("minetogether.listing.closed"), new ItemStack(Items.CHAINMAIL_CHESTPLATE), p ->
+        addButton(new GuiButtonLarge((width / 2) + 60, (height / 8) + 20, 120, 165, "CLOSED", I18n.format("minetogether.listing.closed"), new ItemStack(Items.CHAINMAIL_CHESTPLATE), p ->
         {
             Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(parent, GuiMultiplayerPublic.ListType.INVITE, GuiMultiplayerPublic.SortOrder.NAME, true));
         }));
-        addButton(new Button( (width / 2)-110, height - 22, 220, 20, I18n.format("gui.cancel"), p ->
+        addButton(new Button((width / 2) - 110, height - 22, 220, 20, I18n.format("gui.cancel"), p ->
         {
             Minecraft.getInstance().displayGuiScreen(new GuiMockMultiplayer());
         }));
     }
-
+    
     @FunctionalInterface
     public interface IScreenGetter
     {

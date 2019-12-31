@@ -15,7 +15,7 @@ public class GuiButtonMultiple extends Button
         super(xPos, yPos, 20, 20, "", onPress);
         this.index = index;
     }
-
+    
     @Override
     public void renderButton(int mouseX, int mouseY, float partialTicks)
     {

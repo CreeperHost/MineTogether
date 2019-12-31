@@ -3,14 +3,14 @@ package net.creeperhost.minetogether.paul;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.*;
+import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.util.WebUtils;
-import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.data.EnumFlag;
 import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.util.Util;
+import net.creeperhost.minetogether.util.WebUtils;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.nio.charset.Charset;
@@ -750,7 +750,7 @@ public final class Callbacks
     
     public static String getVersionFromCurse(String curse)
     {
-        if(isInteger(curse))
+        if (isInteger(curse))
         {
             String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
             try
@@ -770,51 +770,50 @@ public final class Callbacks
         }
         return "0";
     }
-
+    
     public static boolean isInteger(String s)
     {
         try
         {
             Integer.parseInt(s);
-        }
-        catch(NumberFormatException | NullPointerException e)
+        } catch (NumberFormatException | NullPointerException e)
         {
             return false;
         }
         return true;
     }
-
+    
     public static List<Modpack> getModpackFromCurse(String modpack, int limit)
     {
         String url = "https://www.creeperhost.net/json/modpacks/mc/search/" + modpack;
-
+        
         //Return the recommended if nothing is searched
-        if(modpack == null || modpack.isEmpty())
+        if (modpack == null || modpack.isEmpty())
         {
             url = "https://www.creeperhost.net/json/modpacks/weekly/" + limit;
         }
-
+        
         String resp = WebUtils.getWebResponse(url);
         List<Modpack> modpackList = new ArrayList<>();
-
+        
         JsonElement jElement = new JsonParser().parse(resp);
-
+        
         if (jElement.isJsonObject())
         {
             JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
             JsonArray array = object.getAsJsonArray("mc");
-
+            
             if (array != null)
             {
                 for (JsonElement serverEl : array)
                 {
-                    if(modpackList.isEmpty() || modpackList.size() <= limit)
+                    if (modpackList.isEmpty() || modpackList.size() <= limit)
                     {
                         JsonObject server = (JsonObject) serverEl;
                         String id = server.get("id").getAsString();
                         String name = server.get("displayName").getAsString();
                         String displayVersion = server.get("displayVersion").getAsString();
-        
+                        
                         modpackList.add(new Modpack(id, name, displayVersion));
                     }
                 }
@@ -823,29 +822,32 @@ public final class Callbacks
         }
         return null;
     }
-
+    
     public static class Modpack
     {
         String id;
         String name;
         String displayVersion;
-
+        
         public Modpack(String id, String name, String displayVersion)
         {
             this.id = id;
             this.name = name;
             this.displayVersion = displayVersion;
         }
-
-        public String getName() {
+        
+        public String getName()
+        {
             return name;
         }
-
-        public String getId() {
+        
+        public String getId()
+        {
             return id;
         }
-
-        public String getDisplayVersion() {
+        
+        public String getDisplayVersion()
+        {
             return displayVersion;
         }
     }

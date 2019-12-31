@@ -1,30 +1,18 @@
 package net.creeperhost.minetogether;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.aries.Aries;
-import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.chat.PrivateChat;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.client.gui.GuiProgressDisconnected;
-import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.client.gui.mpreplacement.CreeperHostServerSelectionList;
-import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.client.gui.serverlist.data.ServerListNoEdit;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
-import net.creeperhost.minetogether.paul.Callbacks;
-import net.creeperhost.minetogether.proxy.Client;
-import net.creeperhost.minetogether.data.Friend;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -32,12 +20,9 @@ import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.versions.forge.ForgeVersion;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +35,7 @@ public class EventHandler
     private static final int FRIEND_BUTTON_ID = 1337420;
     private static final int MINIGAMES_BUTTON_ID = 0xdeadbeef;
     
-//    private static GuiServerInfo guiServerInfo = new GuiServerInfo();
+    //    private static GuiServerInfo guiServerInfo = new GuiServerInfo();
     private static Field reasonField = null;
     private static Field messageField = null;
     private static Field parentField = null;
@@ -62,7 +47,9 @@ public class EventHandler
     Field serverListField = null;
     Field editButtonField = null;
     Minecraft mc = Minecraft.getInstance();
-    Screen fakeGui = new Screen(new StringTextComponent("")) {};
+    Screen fakeGui = new Screen(new StringTextComponent(""))
+    {
+    };
     private MultiplayerScreen lastInitialized = null;
     private ServerListNoEdit ourServerList;
     private boolean hasJoinedWorld;
@@ -96,7 +83,7 @@ public class EventHandler
     boolean first = true;
     
     Field defaultInputFieldTextField = null;
-
+    
     boolean firstOpen = true;
     
     @SubscribeEvent
@@ -159,7 +146,9 @@ public class EventHandler
                     event.setGui(new GuiProgressDisconnected((ConnectingScreen) parentField.get(dc), reason, message, lastNetworkManager));
                     lastNetworkManager = null;
                 }
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored)
+            {
+            }
         } else if (gui instanceof ConnectingScreen)
         {
             //lastNetworkManager = getNetworkManager((GuiConnecting) gui);
@@ -178,7 +167,7 @@ public class EventHandler
             {
                 sleep = true;
             }
-            
+
 //            if (defaultInputFieldTextField == null)
 //            {
 //                try
@@ -196,10 +185,15 @@ public class EventHandler
 //                    firstOpen = false;
 //                    ((GuiNewChatOurs)Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(!MineTogether.instance.gdpr.hasAcceptedGDPR());
 //                }
-            } catch (IllegalAccessException ignored) {}
-            try {
+            } catch (IllegalAccessException ignored)
+            {
+            }
+            try
+            {
                 event.setGui(new GuiChatOurs(presetString, sleep));
-            }catch (Exception ignored){}
+            } catch (Exception ignored)
+            {
+            }
         }
     }
     
@@ -221,25 +215,27 @@ public class EventHandler
             if (buttonList != null)
             {
                 //Multiplayer button
-                if(buttonList.size() > 2) {
-                //if(buttonList.contains(2)) {
+                if (buttonList.size() > 2)
+                {
+                    //if(buttonList.contains(2)) {
                     int x = buttonList.get(2).x - buttonList.get(2).getWidth() - 26;
                     buttonList.add(new GuiButtonCreeper(x, gui.height / 4 + 48 + 24, p ->
                     {
-
+                    
                     }));
-                } else {
+                } else
+                {
                     buttonList.add(new GuiButtonCreeper(gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12, p ->
                     {
-
+                    
                     }));
                 }
             }
         } else if (gui instanceof MultiplayerScreen) //&& !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
         {
             MultiplayerScreen mpGUI = (MultiplayerScreen) gui;
-			if (MineTogether.instance.getImplementation() == null)
-				MineTogether.instance.setRandomImplementation();
+            if (MineTogether.instance.getImplementation() == null)
+                MineTogether.instance.setRandomImplementation();
             if (Config.getInstance().isMpMenuEnabled() && MineTogether.instance.getImplementation() != null)
             {
                 try
@@ -249,7 +245,7 @@ public class EventHandler
 //                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h", "");
 //                        serverListSelectorField.setAccessible(true);
 //                    }
-                    
+
 //                    if (serverListInternetField == null)
 //                    {
 //                        serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "serverListInternet", "field_148198_l", "");
@@ -267,7 +263,7 @@ public class EventHandler
                     MineTogether.logger.warn("Reflection to alter server list failed.", e);
                 }
             }
-
+            
             if (Config.getInstance().isServerListEnabled())
             {
                 try
@@ -293,7 +289,9 @@ public class EventHandler
                     serverListSelector.updateOnlineServers(ourServerList);
                     
                     
-                } catch (IllegalAccessException ignored) {}
+                } catch (IllegalAccessException ignored)
+                {
+                }
             }
             lastInitialized = mpGUI;
         }
@@ -304,7 +302,7 @@ public class EventHandler
             {
                 event.addWidget(new Button(gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.public"), p ->
                 {
-
+                
                 }));
                 buttonDrawn = true;
                 Button editButton = null;
@@ -322,7 +320,7 @@ public class EventHandler
                 {
                     event.removeWidget(editButton);
                     ServerSelectionList list = null;
-                    
+
 //                    if (serverListSelectorField == null)
 //                    {
 //                        serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h", "");
@@ -332,20 +330,22 @@ public class EventHandler
                     try
                     {
                         list = (ServerSelectionList) serverListSelectorField.get(gui);
-                    } catch (IllegalAccessException ignored) {}
+                    } catch (IllegalAccessException ignored)
+                    {
+                    }
                     
                     final ServerSelectionList finalList = list;
                     event.addWidget(editButton = new Button(gui.width / 2 - 154, gui.height - 28, 70, 20, "selectServer.edit", p ->
                     {
-
+                    
                     }));
 //                    {
 //                        public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
 //                        {
 //                            myDrawButton(p_191745_1_, p_191745_2_, p_191745_3_);
 //                        }
-
-                        // < 1.12 compat
+                    
+                    // < 1.12 compat
 //                        public void func_146112_a(Minecraft mc, int mouseX, int mouseY)
 //                        {
 //                            myDrawButton(mc, mouseX, mouseY);
@@ -369,8 +369,8 @@ public class EventHandler
 //                                    enabled = true;
 //                                }
 //                            }
-
-                            // Below copied from GuiButton code to avoid having to use reflection logic to call the right function
+                    
+                    // Below copied from GuiButton code to avoid having to use reflection logic to call the right function
 
 //                            if (this.visible)
 //                            {
@@ -415,8 +415,8 @@ public class EventHandler
 //                        editButtonField.set(gui, editButton);
 //                    } catch (IllegalAccessException ignored) {}
 //                }
-            }
-            
+                }
+
 //            if (gui instanceof GuiIngameMenu)
 //            {
 //                buttonDrawn = true;
@@ -438,7 +438,7 @@ public class EventHandler
 //
 //                event.getButtonList().add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 + 2, yPosition, 98, 20, "Minigames"));
             }
-            
+
 //            if (gui instanceof MultiplayerScreen && !(gui instanceof GuiMultiplayerPublic))
 //            {
 //                List<GuiButton> buttonList = event.getButtonList();
@@ -505,13 +505,13 @@ public class EventHandler
             }
         }
     }
-    
+
 //    @SubscribeEvent
 //    public void serverLoginEvent(FMLNetworkEvent.ClientConnectedToServerEvent event)
 //    {
 //        hasJoinedWorld = false;
 //    }
-    
+
 //    @SubscribeEvent
 //    public void onEntityJoinedWorld(EntityJoinWorldEvent event)
 //    {
@@ -527,7 +527,7 @@ public class EventHandler
 //            }
 //        }
 //    }
-    
+
 //    @SubscribeEvent
 //    public void onActionPerformed(ActionPerformedEvent.Pre event)
 //    {
@@ -584,7 +584,8 @@ public class EventHandler
 //    }
     
     @SubscribeEvent
-    public void onRenderGameOverlay(RenderGameOverlayEvent event) {
+    public void onRenderGameOverlay(RenderGameOverlayEvent event)
+    {
         if (!Config.getInstance().isSivIntegration())
         {
             return;
@@ -599,7 +600,7 @@ public class EventHandler
 //        }
         
         Minecraft mc = Minecraft.getInstance();
-        
+
 //        ScaledResolution resolution = new ScaledResolution(mc);
 //        guiServerInfo.setWorldAndResolution(mc, resolution.getScaledWidth(), resolution.getScaledHeight());
 //        if (guiServerInfo.renderServerInfo())
@@ -660,7 +661,7 @@ public class EventHandler
 //            ticks--;
 //        } catch (Throwable ignored) {}
     }
-    
+
 //    @SubscribeEvent
 //    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs)
 //    {
@@ -671,7 +672,7 @@ public class EventHandler
 //
 //        MineTogether.instance.saveConfig(false);
 //    }
-    
+
 //    @SubscribeEvent
 //    public void clientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent evt)
 //    {
@@ -682,7 +683,7 @@ public class EventHandler
 //    }
     
     @SuppressWarnings("Duplicates")
-
+    
     public void handleToastInteraction()
     {
         Runnable method = ToastHandler.toastMethod;

@@ -5,7 +5,8 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.ChatLine;
+import net.minecraft.client.gui.NewChatGui;
 import net.minecraft.util.math.MathHelper;
 
 import java.lang.reflect.Field;
@@ -105,9 +106,9 @@ public class GuiNewChatOurs extends NewChatGui
 ////            getVanillaDrawnChatLines().clear(); // instantly clear so that no surprises happen whilst we're in our chat (I'm looking at you, Quark!)
 ////        }
 //    }
-
+    
     private final Minecraft mc;
-
+    
     private final List<ChatLine> chatLines = Lists.<ChatLine>newArrayList();
     /**
      * List of the ChatLines currently drawn
@@ -115,11 +116,11 @@ public class GuiNewChatOurs extends NewChatGui
     public final List<ChatLine> drawnChatLines = Lists.<ChatLine>newArrayList();
     private int scrollPos;
     private boolean isScrolled;
-
+    
     private final List<String> sentMessages = Lists.<String>newArrayList();
 
 //    public final ITextComponent closeComponent;
-
+    
     public GuiNewChatOurs(Minecraft mcIn)
     {
         super(mcIn);
@@ -128,16 +129,16 @@ public class GuiNewChatOurs extends NewChatGui
 
 //        closeComponent = new StringTextComponent(new String(Character.toChars(10006))).setStyle(new Style().setColor(TextFormatting.RED).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Click to close group chat"))));
     }
-
+    
     @Override
     public int getChatWidth()
     {
         return (int) (super.getChatWidth() - (16 * 0.75));
     }
-
+    
     private static Field drawnChatLinesField = null;
     private List<ChatLine> vanillaDrawnChatLines = null;
-
+    
     @Override
     public void render(int updateCounter)
     {
@@ -146,7 +147,7 @@ public class GuiNewChatOurs extends NewChatGui
 //        int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
 
 //        if (isBase())
-            super.render(updateCounter);
+        super.render(updateCounter);
 //        else
 //        {
 //            if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && updateCounter % 6000 == 0)
@@ -284,14 +285,14 @@ public class GuiNewChatOurs extends NewChatGui
 //        {
 //            tempDrawnChatLines = getVanillaDrawnChatLines();
 //        }
-
+        
         if (getChatOpen() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
         {
             double f1 = this.getScale();
             GlStateManager.pushMatrix();
             GlStateManager.translatef(2.0F, 8.0F, 0.0F);
             GlStateManager.scaled(f1, f1, 1.0F);
-
+            
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
 
 //            for (int line = tempDrawnChatLines.size(); line < minLines; line++)
@@ -300,25 +301,25 @@ public class GuiNewChatOurs extends NewChatGui
 //                int j2 = -line * 9;
 //                drawRect(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
 //            }
-
-
+            
+            
             //lines = lines - minLines;
             //lines = 1;
-
+            
             //if (!isBase() && getChatOpen())
             //GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
-
-
+            
+            
             GlStateManager.popMatrix();
         }
     }
-
+    
     @Override
     public List<String> getSentMessages()
     {
         return super.getSentMessages();
     }
-
+    
     @Override
     public void addToSentMessages(String message)
     {
@@ -332,7 +333,7 @@ public class GuiNewChatOurs extends NewChatGui
 //            }
 //        }
     }
-
+    
     public boolean unread;
     public String chatTarget;
 
@@ -408,7 +409,7 @@ public class GuiNewChatOurs extends NewChatGui
 //            this.isScrolled = false;
 //        }
     }
-    
+
 //    @Override
 //    public void scroll(int amount)
 //    {
@@ -431,7 +432,7 @@ public class GuiNewChatOurs extends NewChatGui
 //            }
 //        }
 //    }
-    
+
 //    @Nullable
 //    @Override
 //    public ITextComponent getChatComponent(int mouseX, int mouseY)
