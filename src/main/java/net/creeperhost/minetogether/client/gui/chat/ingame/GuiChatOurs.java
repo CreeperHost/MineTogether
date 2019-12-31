@@ -22,11 +22,12 @@ import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class GuiChatOurs extends ChatScreen
 {
-    //    private DropdownButton<GuiMTChat.Menu> menuDropdownButton;
+//        private DropdownButton<GuiMTChat.Menu> menuDropdownButton;
     private String activeDropdown;
     private GuiButtonPair switchButton;
     private String presetString;
@@ -86,8 +87,7 @@ public class GuiChatOurs extends ChatScreen
             }
         }
         
-        if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
-            ;// && ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase())
+        if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase())
         veryNaughty = false;
         
         if (veryNaughty)
@@ -122,8 +122,8 @@ public class GuiChatOurs extends ChatScreen
             return false;
         }
         
-        if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
-        {// && ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()) {
+        if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase())
+        {
             inputField.setEnabled(true);
             super.charTyped(typedChar, keyCode);
             return false;
@@ -144,8 +144,10 @@ public class GuiChatOurs extends ChatScreen
         {
             inputField.setEnabled(false);
         }
-        if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
-            ;// && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()) processBadwords();
+        if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()))
+        {
+            processBadwords();
+        }
         
         return ourEnabled;
     }
@@ -183,7 +185,7 @@ public class GuiChatOurs extends ChatScreen
         if (msg.startsWith("/"))
         {
             super.sendMessage(msg, addToChat);
-//            ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true);
+            ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true);
             return;
         } else
         {
@@ -201,7 +203,7 @@ public class GuiChatOurs extends ChatScreen
             if (ChatHandler.isOnline())
             {
                 String text = GuiMTChat.getStringForSending(msg);
-                //ChatHandler.sendMessage(ChatHandler.CHANNEL, text);
+                ChatHandler.sendMessage(ChatHandler.CHANNEL, text);
                 String currentTarget = ChatHandler.CHANNEL;
                 switch (switchButton.activeButton)
                 {
@@ -365,7 +367,7 @@ public class GuiChatOurs extends ChatScreen
 //            this.labelList.get(j).drawLabel(this.mc, mouseX, mouseY);
 //        }
 
-//        drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
+        blit(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE, 0);
         this.inputField.func_212955_f();
         
         ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getTextComponent(mouseX, mouseY);
@@ -374,19 +376,19 @@ public class GuiChatOurs extends ChatScreen
             return;
         
         GuiNewChatOurs chatGui = (GuiNewChatOurs) mc.ingameGUI.getChatGUI();
-//        if ((!chatGui.isBase()) && (!chatGui.chatTarget.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase())) && (!chatGui.chatTarget.toLowerCase().contains(ChatHandler.CHANNEL.toLowerCase())) && (chatGui.chatTarget.length() > 0)&&(!chatGui.chatTarget.toLowerCase().equals("#minetogether")))
-//        {
-//            String str = chatGui.closeComponent.getFormattedText();
-//            int x = mc.ingameGUI.getChatGUI().getChatWidth() - 2;
-//            int y = height - 40 - (mc.fontRenderer.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
-//            mc.fontRenderer.drawString(str, x, y, 0xFFFFFF);
-//        }
+        if ((!chatGui.isBase()) && (!chatGui.chatTarget.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase())) && (!chatGui.chatTarget.toLowerCase().contains(ChatHandler.CHANNEL.toLowerCase())) && (chatGui.chatTarget.length() > 0)&&(!chatGui.chatTarget.toLowerCase().equals("#minetogether")))
+        {
+            String str = chatGui.closeComponent.getFormattedText();
+            int x = mc.ingameGUI.getChatGUI().getChatWidth() - 2;
+            int y = height - 40 - (mc.fontRenderer.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
+            mc.fontRenderer.drawString(str, x, y, 0xFFFFFF);
+        }
         
         //TimestampComponentString.clearActive();
         
         if (!((GuiTextFieldLockable) inputField).getOurEnabled() && ((GuiTextFieldLockable) inputField).isHovered(mouseX, mouseY))
         {
-//            drawHoveringText(Arrays.asList(((GuiTextFieldLockable)inputField).getDisabledMessage()), mouseX, mouseY);
+            renderTooltip(Arrays.asList(((GuiTextFieldLockable)inputField).getDisabledMessage()), mouseX, mouseY);
         }
         
         if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
@@ -401,24 +403,6 @@ public class GuiChatOurs extends ChatScreen
         
     }
     
-    @Deprecated
-    public void drawLogo()
-    {
-        ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/creeperhost25.png");
-        ResourceLocation resourceLocationMinetogetherLogo = new ResourceLocation("creeperhost", "textures/minetogether25.png");
-        
-        GL11.glPushMatrix();
-        Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
-        GL11.glEnable(GL11.GL_BLEND);
-//        Gui.drawModalRectWithCustomSizedTexture(-8, this.height - 80, 0.0F, 0.0F, 40, 40, 40F, 40);
-        
-        Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationMinetogetherLogo);
-//        Gui.drawModalRectWithCustomSizedTexture(this.width / 2 - 160, this.height - 155, 0.0F, 0.0F, 160, 120, 160F, 120F);
-        
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glPopMatrix();
-    }
-    
     private void wakeFromSleep()
     {
         ClientPlayNetHandler nethandlerplayclient = this.mc.player.connection;
@@ -428,16 +412,16 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean handleComponentClicked(ITextComponent component)
     {
-        if (!(Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))// || ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).isBase())
+        if (!(Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs || ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).isBase()))
         {
             return super.handleComponentClicked(component);
         }
 
-//        if(component == ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).closeComponent)
-//        {
-//            MineTogether.instance.closeGroupChat();
-//            return true;
-//        }
+        if(component == ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).closeComponent)
+        {
+            MineTogether.instance.closeGroupChat();
+            return true;
+        }
         ClickEvent event = component.getStyle().getClickEvent();
         if (event == null)
             return false;
