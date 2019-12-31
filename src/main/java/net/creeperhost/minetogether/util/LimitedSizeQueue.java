@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.common;
+package net.creeperhost.minetogether.util;
 
 import java.util.ArrayList;
 

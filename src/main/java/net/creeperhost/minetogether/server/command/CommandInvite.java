@@ -2,7 +2,7 @@
 //
 //import com.google.gson.Gson;
 //import com.mojang.authlib.GameProfile;
-//import net.creeperhost.minetogether.common.WebUtils;
+//import net.creeperhost.minetogether.util.WebUtils;
 //import net.creeperhost.minetogether.CreeperHostServer;
 //import net.minecraft.command.CommandBase;
 //import net.minecraft.command.CommandException;

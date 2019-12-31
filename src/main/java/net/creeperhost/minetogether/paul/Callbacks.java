@@ -7,7 +7,7 @@ import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.*;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.common.WebUtils;
+import net.creeperhost.minetogether.util.WebUtils;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.data.EnumFlag;
 import net.creeperhost.minetogether.data.Friend;

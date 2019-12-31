@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.client.gui.DefferedValidation;
 import net.creeperhost.minetogether.client.gui.order.GuiPersonalDetails;
 import net.creeperhost.minetogether.common.IOrderValidation;
-import net.creeperhost.minetogether.common.Pair;
+import net.creeperhost.minetogether.util.Pair;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import org.lwjgl.opengl.GL11;
 

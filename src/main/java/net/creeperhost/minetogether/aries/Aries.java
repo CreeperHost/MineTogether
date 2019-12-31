@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.aries;
 
 import com.google.gson.Gson;
-import net.creeperhost.minetogether.common.WebUtils;
+import net.creeperhost.minetogether.util.WebUtils;
 
 import java.util.HashMap;
 import java.util.Map;

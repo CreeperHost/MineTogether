@@ -4,8 +4,8 @@
 //import com.google.gson.reflect.TypeToken;
 //import net.creeperhost.minetogether.network.PacketHandler;
 //import net.creeperhost.minetogether.config.Config;
-//import net.creeperhost.minetogether.common.Pair;
-//import net.creeperhost.minetogether.common.WebUtils;
+//import net.creeperhost.minetogether.util.Pair;
+//import net.creeperhost.minetogether.util.WebUtils;
 //import net.creeperhost.minetogether.proxy.IServerProxy;
 //import net.creeperhost.minetogether.server.MineTogetherPropertyManager;
 //import net.creeperhost.minetogether.server.command.CommandInvite;

@@ -12,10 +12,6 @@ public class ChatConnectionHandler {
     public boolean banned;
     public String banReason = "";
 
-    {
-
-    }
-
     public synchronized void setup(String nickIn, String realNameIn, boolean onlineIn, IHost _host) {
         ChatHandler.online = onlineIn;
         ChatHandler.realName = realNameIn;

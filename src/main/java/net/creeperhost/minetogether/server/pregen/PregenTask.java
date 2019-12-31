@@ -1,6 +1,6 @@
 //package net.creeperhost.minetogether.server.pregen;
 //
-//import net.creeperhost.minetogether.common.Pair;
+//import net.creeperhost.minetogether.util.Pair;
 //import net.minecraft.util.math.BlockPos;
 //import net.minecraft.world.WorldServer;
 //import net.minecraft.world.dimension.DimensionType;

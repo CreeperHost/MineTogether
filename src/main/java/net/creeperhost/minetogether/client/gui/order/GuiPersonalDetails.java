@@ -6,7 +6,7 @@ import net.creeperhost.minetogether.client.gui.DefferedValidation;
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.IOrderValidation;
-import net.creeperhost.minetogether.common.RegexValidator;
+import net.creeperhost.minetogether.util.RegexValidator;
 import net.creeperhost.minetogether.client.gui.element.TextFieldDetails;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.gui.widget.button.Button;

@@ -1,4 +1,6 @@
-package net.creeperhost.minetogether.common;
+package net.creeperhost.minetogether.util;
+
+import net.creeperhost.minetogether.common.IOrderValidation;
 
 import java.util.regex.Pattern;
 

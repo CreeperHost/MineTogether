@@ -4,24 +4,11 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.chat.Message;
-import net.creeperhost.minetogether.common.LimitedSizeQueue;
-import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.client.gui.chat.TimestampComponentString;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.entity.player.ChatVisibility;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.event.HoverEvent;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.Iterator;
 import java.util.List;
 
 public class GuiNewChatOurs extends NewChatGui

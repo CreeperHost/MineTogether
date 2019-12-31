@@ -132,12 +132,7 @@ public class Target implements DropdownButton.IDropdownOption
             }
         }
 
-        if(ChatHandler.privateChatList == null)
-        {
-            //Target t = new Target("new channel", ChatHandler.CHANNEL, false);
-            //tempSet.add(t);
-        }
-        else
+        if(ChatHandler.privateChatList != null)
         {
             Target p = new Target("Group Chat", ChatHandler.privateChatList.getChannelname(), true);
             privateChannel = p;

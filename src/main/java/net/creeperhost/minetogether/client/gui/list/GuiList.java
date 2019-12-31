@@ -23,4 +23,9 @@ public class GuiList<T extends GuiListEntry> extends ExtendedList
     {
         clearEntries();
     }
+    
+    public T getCurrSelected()
+    {
+        return (T) getSelected();
+    }
 }

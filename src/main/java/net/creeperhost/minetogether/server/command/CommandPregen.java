@@ -1,6 +1,6 @@
 //package net.creeperhost.minetogether.server.command;
 //
-//import net.creeperhost.minetogether.common.Pair;
+//import net.creeperhost.minetogether.util.Pair;
 //import net.creeperhost.minetogether.CreeperHostServer;
 //import net.minecraft.command.CommandBase;
 //import net.minecraft.command.CommandException;

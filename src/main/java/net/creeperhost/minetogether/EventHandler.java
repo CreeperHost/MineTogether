@@ -13,10 +13,12 @@ import net.creeperhost.minetogether.client.gui.mpreplacement.CreeperHostServerSe
 import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.client.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
 import net.creeperhost.minetogether.data.Friend;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.RenderHelper;
@@ -57,20 +59,13 @@ public class EventHandler
     private static Field serverListSelectorField;
     private static Field serverListInternetField;
     private static int ticks = 0;
-    private final ResourceLocation earlyResource = new ResourceLocation("textures/gui/achievement/achievement_background.png");
-    private final ResourceLocation newResouce = new ResourceLocation("textures/gui/toasts.png");
     Field serverListField = null;
     Field editButtonField = null;
     Minecraft mc = Minecraft.getInstance();
     Screen fakeGui = new Screen(new StringTextComponent("")) {};
-    String mcVersion;
-    int u = 0;
-    int v = 0;
     private MultiplayerScreen lastInitialized = null;
     private ServerListNoEdit ourServerList;
     private boolean hasJoinedWorld;
-    private Thread inviteCheckThread;
-    private int inviteTicks = -1;
     
     public static NetworkManager getNetworkManager(ConnectingScreen con)
     {
@@ -109,22 +104,6 @@ public class EventHandler
     {
         Screen gui = event.getGui();
         Screen curGui = Minecraft.getInstance().currentScreen;
-        
-        if (gui instanceof MainMenuScreen && (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled()))
-        {
-            if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
-            {
-                //Why is this still here?
-                //event.setGui(new GuiGDPR());
-            } else
-            {
-                if (first)
-                {
-                    first = false;
-                    MineTogether.proxy.startChat();
-                }
-            }
-        }
         
         if (gui instanceof DisconnectedScreen)
         {
@@ -533,21 +512,21 @@ public class EventHandler
 //        hasJoinedWorld = false;
 //    }
     
-    @SubscribeEvent
-    public void onEntityJoinedWorld(EntityJoinWorldEvent event)
-    {
-        if (!Config.getInstance().isSivIntegration())
-            return;
-        if (event.getWorld().isRemote && !hasJoinedWorld && Minecraft.getInstance().player != null)
-        {
-            hasJoinedWorld = true;
-            MineTogether.instance.makeQueryGetter();
-            if (MineTogether.instance.getQueryGetter() != null)
-            {
-                MineTogether.instance.getQueryGetter().run();
-            }
-        }
-    }
+//    @SubscribeEvent
+//    public void onEntityJoinedWorld(EntityJoinWorldEvent event)
+//    {
+//        if (!Config.getInstance().isSivIntegration())
+//            return;
+//        if (event.getWorld().isRemote && !hasJoinedWorld && Minecraft.getInstance().player != null)
+//        {
+//            hasJoinedWorld = true;
+//            MineTogether.instance.makeQueryGetter();
+//            if (MineTogether.instance.getQueryGetter() != null)
+//            {
+//                MineTogether.instance.getQueryGetter().run();
+//            }
+//        }
+//    }
     
 //    @SubscribeEvent
 //    public void onActionPerformed(ActionPerformedEvent.Pre event)
@@ -703,181 +682,11 @@ public class EventHandler
 //    }
     
     @SuppressWarnings("Duplicates")
-    @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent evt)
-    {
-        //CreeperHost.instance.curServerId = CreeperHostServer.updateID;
-        inviteTicks = (inviteTicks + 1) % 20;
-        if (inviteTicks != 0)
-            return;
-        
-        if (Config.getInstance().isServerListEnabled() && MineTogether.instance.gdpr.hasAcceptedGDPR())
-        {
-            if (inviteCheckThread == null)
-            {
-                inviteCheckThread = new Thread(() -> {
-                    while (Config.getInstance().isServerListEnabled())
-                    {
-                        Invite tempInvite = null;
-                        PrivateChat temp = null;
-
-                        try
-                        {
-                            tempInvite = Callbacks.getInvite();
-                            temp = ChatHandler.privateChatInvite;
-
-                            synchronized (MineTogether.instance.inviteLock)
-                            {
-                                if (tempInvite != null)
-                                    MineTogether.instance.invite = tempInvite;
-                            }
-
-                            if(temp != null)
-                            {
-//                                MineTogether.instance.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () -> {
-//                                    mc.displayGuiScreen(new GuiMTChat(Minecraft.getInstance().currentScreen, true));
-//                                });
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                            // carry on - we'll just try again later, saves thread dying.
-                        }
-
-                        try
-                        {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ignored) {}
-                    }
-                });
-                inviteCheckThread.setDaemon(true);
-                inviteCheckThread.setName("MineTogether invite check thread");
-                inviteCheckThread.start();
-            }
-            
-            boolean handled = false;
-            synchronized (MineTogether.instance.inviteLock)
-            {
-                if (MineTogether.instance.invite != null)
-                {
-                    MineTogether.instance.handledInvite = MineTogether.instance.invite;
-                    MineTogether.instance.invite = null;
-                    
-                    handled = true;
-                }
-            }
-            
-            if (handled)
-            {
-                ArrayList<Friend> friendsList = Callbacks.getFriendsList(true);
-                String friendName = "Unknown";
-                
-                for (Friend friend : friendsList)
-                {
-                    if (friend.getCode().equals(MineTogether.instance.handledInvite.by))
-                    {
-                        friendName = friend.getName();
-                        MineTogether.instance.handledInvite.by = friendName;
-                        break;
-                    }
-                }
-                if (mc.currentScreen != null && mc.currentScreen instanceof GuiFriendsList)
-                {
-                    MineTogether.proxy.openFriendsGui();
-                } else
-                {
-                    MineTogether.instance.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, ()->
-                    {
-//                        mc.displayGuiScreen(new GuiInvited(MineTogether.instance.handledInvite, mc.currentScreen));
-                        MineTogether.instance.handledInvite = null;
-                    });
-                }
-            }
-        }
-        
-        if (Config.getInstance().isChatEnabled())
-        {
-            String friend;
-            boolean friendMessage;
-            
-            synchronized (MineTogether.instance.friendLock)
-            {
-                friend = MineTogether.instance.friend;
-                friendMessage = MineTogether.instance.friendMessage;
-                MineTogether.instance.friend = null;
-            }
-            
-            if (friend != null)
-            {
-                if (friendMessage && Minecraft.getInstance().currentScreen instanceof GuiMTChat)
-                    return;
-                if(Config.getInstance().isFriendOnlineToastsEnabled())
-                {
-                    MineTogether.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000, null);
-                }
-            }
-        }
-    }
-    
-    private ResourceLocation getToastResourceLocation()
-    {
-        if (mcVersion == null)
-            try
-            {
-                /*
-                We need to get this at runtime as Java is smart and interns final fields.
-                Certainly not the dirtiest hack we do in this codebase.
-                */
-                mcVersion = (String) ForgeVersion.class.getField("mcVersion").get(null);
-            } catch (Throwable e)
-            {
-                mcVersion = "unknown"; // will default to new method
-            }
-        String[] split = mcVersion.split("\\.");
-        if (split.length >= 2)
-        {
-            if (split[1].equals("10") || split[1].equals("11") || split[1].equals("9") || split[1].equals("7"))
-            {
-                u = 96;
-                v = 202;
-                return earlyResource;
-            }
-        }
-        return newResouce;
-    }
-    
-    @SubscribeEvent
-    public void guiRendered(TickEvent.RenderTickEvent evt)
-    {
-        if (MineTogether.instance.toastText != null)
-        {
-            long curTime = System.currentTimeMillis();
-            if (MineTogether.instance.fadeTime > curTime)
-            {
-                long fadeDiff = MineTogether.instance.fadeTime - MineTogether.instance.endTime;
-                long curFade = Math.min(MineTogether.instance.fadeTime - curTime, fadeDiff);
-                float alpha = (float) curFade / (float) fadeDiff;
-                
-                RenderHelper.disableStandardItemLighting();
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
-//                mc.renderEngine.bindTexture(getToastResourceLocation());
-//                ScaledResolution res = new ScaledResolution(mc);
-//                drawTexturedModalRect(res.getScaledWidth() - 160, 0, u, v, 160, 32);
-                GlStateManager.enableBlend();
-                int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
-//                mc.fontRenderer.drawSplitString(MineTogether.instance.toastText, res.getScaledWidth() - 160 + 5, 3, 160, textColour);
-            } else
-            {
-                MineTogether.instance.clearToast(false);
-            }
-        }
-    }
 
     public void handleToastInteraction()
     {
-        Runnable method = MineTogether.instance.toastMethod;
-        MineTogether.instance.clearToast(false);
+        Runnable method = ToastHandler.toastMethod;
+        ToastHandler.clearToast(false);
         if (method != null) method.run();
     }
 

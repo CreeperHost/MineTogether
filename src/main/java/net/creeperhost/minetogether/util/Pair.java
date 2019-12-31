@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.common;
+package net.creeperhost.minetogether.util;
 
 /**
  * Created by Aaron on 02/05/2017.

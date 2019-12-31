@@ -11,13 +11,13 @@ import net.creeperhost.minetogether.common.*;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
+import net.creeperhost.minetogether.events.ClientTickEvents;
 import net.creeperhost.minetogether.events.ScreenEvents;
 import net.creeperhost.minetogether.lib.ModInfo;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.*;
 import net.creeperhost.minetogether.data.Friend;
-import net.creeperhost.minetogether.siv.QueryGetter;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -61,17 +61,14 @@ public class MineTogether implements ICreeperHostMod, IHost
     public long joinTime;
     public String realName;
     public boolean online;
-    String toastText;
-    long endTime;
-    long fadeTime;
-    private QueryGetter queryGetter;
+    
+    //    private QueryGetter queryGetter;
     private String lastCurse = "";
     private Random randomGenerator;
     private CreeperHostServerHost implement;
     
     public String ourNick;
     public File mutedUsersFile;
-    public Runnable toastMethod;
 
     public static MineTogether instance;
 
@@ -85,7 +82,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         eventBus.addListener(this::preInit);
         eventBus.addListener(this::preInitClient);
         eventBus.addListener(this::serverStarted);
-
+        
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -98,43 +95,8 @@ public class MineTogether implements ICreeperHostMod, IHost
         registerImplementation(new CreeperHostServerHost());
         
         proxy.registerKeys();
-
-
-
+        
 //        PacketHandler.packetRegister();
-
-//        if (event.getSide() != Side.SERVER)
-//        {
-//            HostHolder.host = this;
-//            File gdprFile = new File("local/minetogether/gdpr.txt");
-//            gdpr = new GDPR(gdprFile);
-//            File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
-//            ingameChat = new IngameChat(ingameChatFile);
-//            ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 15);
-//
-//            HashMap<String, String> jsonObj = new HashMap<>();
-//
-//            int packID;
-//
-//            try
-//            {
-//                packID = Integer.parseInt(Config.getInstance().curseProjectID);
-//            } catch (NumberFormatException e)
-//            {
-//                packID = -1;
-//            }
-//
-//            jsonObj.put("p", String.valueOf(packID));
-//
-//            Gson gson = new Gson();
-//            try //Temp fix until we cxan figure out why this fails
-//            {
-//                realName = gson.toJson(jsonObj);
-//            } catch (Exception e) {}
-//
-//            MinecraftForge.EVENT_BUS.register(new EventHandler());
-//            proxy.registerKeys();
-//        }
     }
 
     @SubscribeEvent
@@ -167,6 +129,8 @@ public class MineTogether implements ICreeperHostMod, IHost
         {
             realName = gson.toJson(jsonObj);
         } catch (Exception ignored) {}
+    
+        MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
     }
     
     @SubscribeEvent
@@ -243,58 +207,6 @@ public class MineTogether implements ICreeperHostMod, IHost
         implementations.add(serverHost);
     }
     
-    public void makeQueryGetter()
-    {
-//        try
-//        {
-//            if (FMLClientHandler.instance().getClientToServerNetworkManager() != null)
-//            {
-//                SocketAddress socketAddress = FMLClientHandler.instance().getClientToServerNetworkManager().getRemoteAddress();
-//
-//                String host = "127.0.0.1";
-//                int port = 25565;
-//
-//                if (socketAddress instanceof InetSocketAddress)
-//                {
-//                    InetSocketAddress add = (InetSocketAddress) socketAddress;
-//                    host = add.getHostName();
-//                    port = add.getPort();
-//                }
-//
-//                queryGetter = new QueryGetter(host, port);
-//            }
-//        } catch (Throwable ignored) {}
-    }
-    
-    public QueryGetter getQueryGetter()
-    {
-        if (queryGetter == null)
-        {
-            makeQueryGetter();
-        }
-        return queryGetter;
-    }
-    
-    public void displayToast(String text, int duration, Runnable method)
-    {
-        toastText = text;
-        endTime = System.currentTimeMillis() + duration;
-        fadeTime = endTime + 500;
-        toastMethod = method;
-    }
-    
-    public void clearToast(boolean fade)
-    {
-        toastText = null;
-        endTime = System.currentTimeMillis();
-        toastMethod = null;
-        fadeTime = endTime + (fade ? 500 : 0);
-    }
-
-    public boolean isActiveToast()
-    {
-        return fadeTime >= System.currentTimeMillis();
-    }
     
     @Override
     public ArrayList<Friend> getFriends()
@@ -302,9 +214,9 @@ public class MineTogether implements ICreeperHostMod, IHost
         return Callbacks.getFriendsList(false);
     }
     
-    final Object friendLock = new Object();
-    String friend = null;
-    boolean friendMessage = false;
+    public final Object friendLock = new Object();
+    public String friend = null;
+    public boolean friendMessage = false;
     
     @Override
     public void friendEvent(String name, boolean isMessage)
@@ -456,10 +368,9 @@ public class MineTogether implements ICreeperHostMod, IHost
     }
 
     @Override
-    public void userBanned(String username) {
+    public void userBanned(String username)
+    {
         bannedUsers.add(username);
         proxy.refreshChat();
     }
-
-
 }

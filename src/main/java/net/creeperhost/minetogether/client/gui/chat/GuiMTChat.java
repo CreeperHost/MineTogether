@@ -5,7 +5,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
-import net.creeperhost.minetogether.common.LimitedSizeQueue;
+import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
@@ -13,24 +13,20 @@ import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.widget.list.ExtendedList;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.client.config.GuiUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -141,7 +137,7 @@ public class GuiMTChat extends Screen
         }
     }
 
-    long tickCounter = 0;
+    private long tickCounter = 0;
     
     @Override
     public void tick()
@@ -205,7 +201,7 @@ public class GuiMTChat extends Screen
             processBadwords();
         }
         drawCenteredString(font, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
-        ITextComponent comp = new StringTextComponent("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
+        ITextComponent comp = new StringTextComponent("\u2022").setStyle(new Style().setColor(Objects.requireNonNull(TextFormatting.getValueByName(status.colour))));
         comp.appendSibling(new StringTextComponent(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
         drawString(font, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
         drawLogo(font, width - 20, height - 30, 20, 30, 0.75F);
@@ -350,7 +346,7 @@ public class GuiMTChat extends Screen
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         send.mouseClicked(mouseX, mouseY, mouseButton);
-        chat.mouseClicked(mouseX, mouseY, mouseButton);
+//        chat.mouseClicked(mouseX, mouseY, mouseButton);
 //        menuDropdownButton.mouseClicked(mouseX, mouseY, mouseButton);
         return true;
     }
@@ -682,7 +678,7 @@ public class GuiMTChat extends Screen
         public int getHeight()
         {
             int viewHeight = this.getBottom() - this.getTop() - 4;
-            return super.getHeight() < viewHeight ? viewHeight : super.getHeight();
+            return Math.max(super.getHeight(), viewHeight);
         }
     
         protected void updateLines(String key)
@@ -746,6 +742,7 @@ public class GuiMTChat extends Screen
 //                }
 //            }
 //        }
+
 
 //        @Override
 //        protected void elementClicked(int index, boolean doubleClick)
