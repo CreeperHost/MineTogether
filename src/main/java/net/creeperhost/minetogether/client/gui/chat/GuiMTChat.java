@@ -54,26 +54,26 @@ public class GuiMTChat extends Screen
     private Button cancelButton;
     private Button invited;
     private boolean inviteTemp = false;
-    
+
     public GuiMTChat(Screen parent)
     {
         super(new StringTextComponent(""));
         this.parent = parent;
     }
-    
+
     public GuiMTChat(Screen parent, boolean invite)
     {
         super(new StringTextComponent(""));
         this.parent = parent;
         inviteTemp = invite;
     }
-    
+
     @Override
     public void onClose()
     {
         this.minecraft.keyboardListener.enableRepeatEvents(false);
     }
-    
+
     @Override
     public void init()
     {
@@ -83,9 +83,10 @@ public class GuiMTChat extends Screen
             minecraft.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMTChat(parent)));
             return;
         }
-        
+
         chat = new GuiScrollingChat(10);
-        send = new GuiTextFieldLockable(minecraft.fontRenderer, 10, this.height - 50, width - 20, 20, "");
+        chat.setLeftPos(10);
+        send = new GuiTextFieldLockable(minecraft.fontRenderer, 11, this.height - 48, width - 22, 20, "");
         if (targetDropdownButton == null)
         {
             targetDropdownButton = new DropdownButton<Target>(width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true, p ->
@@ -102,10 +103,27 @@ public class GuiMTChat extends Screen
             targetDropdownButton.x = width - 5 - 100;
         }
         addButton(targetDropdownButton);
-//        List<String> strings = new ArrayList<>();
-//        strings.add("Mute");
-//        strings.add("Add friend");
-//        buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new Menu(strings), true));
+        List<String> strings = new ArrayList<>();
+        strings.add("Mute");
+        strings.add("Add friend");
+//        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
+//        {
+//        if (button == menuDropdownButton)
+//        {
+//            if (menuDropdownButton.getSelected().option.equals("Mute"))
+//            {
+//                MineTogether.instance.muteUser(activeDropdown);
+//                chat.updateLines(currentTarget);
+//            } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
+//            {
+//                mc.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+//            }
+//        else if (button == invited && ChatHandler.privateChatInvite != null)
+//        {
+//            confirmInvite();
+//        }
+//
+//        }));
         addButton(friendsButton = new Button(5, 5, 100, 20, "Friends list", p ->
         {
             MineTogether.proxy.openFriendsGui();
@@ -119,7 +137,7 @@ public class GuiMTChat extends Screen
             ChatHandler.reInit();
         }));
         reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
-        
+
         addButton(invited = new Button(5 + 70, height - 5 - 20, 60, 20, "Invites", p ->
         {
             if (ChatHandler.privateChatInvite != null)
@@ -128,19 +146,19 @@ public class GuiMTChat extends Screen
             }
         }));
         invited.visible = ChatHandler.privateChatInvite != null;
-        
+
         send.setMaxStringLength(120);
         send.setFocused2(true);
-        
+
         if (inviteTemp)
         {
             confirmInvite();
             inviteTemp = false;
         }
     }
-    
+
     private long tickCounter = 0;
-    
+
     @Override
     public void tick()
     {
@@ -170,14 +188,14 @@ public class GuiMTChat extends Screen
             }
         }
     }
-    
+
     public void rebuildChat()
     {
         chat.updateLines(currentTarget);
     }
-    
+
     boolean disabledDueToConnection = false;
-    
+
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
@@ -214,7 +232,7 @@ public class GuiMTChat extends Screen
             renderTooltip(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
         }
     }
-    
+
     public static void drawLogo(FontRenderer fontRendererObj, int containerWidth, int containerHeight, int containerX, int containerY, float scale)
     {
         GlStateManager.color4f(1F, 1F, 1F, 1F); // reset alpha
@@ -225,61 +243,40 @@ public class GuiMTChat extends Screen
         int y = (int) (containerY * adjust);
         ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/creeperhost_logo_1-25.png");
         ResourceLocation resourceLocationMineTogetherLogo = new ResourceLocation("creeperhost", "textures/minetogether25.png");
-        
+
         GL11.glPushMatrix();
         GlStateManager.scaled(scale, scale, scale);
         GL11.glEnable(GL11.GL_BLEND);
-        
+
         int mtHeight = (int) (318 / 2.5);
         int mtWidth = (int) (348 / 2.5);
-        
+
         int creeperHeight = 22;
         int creeperWidth = 80;
-        
+
         int totalHeight = mtHeight + creeperHeight;
         int totalWidth = mtWidth + creeperWidth;
-        
+
         totalHeight *= adjust;
         totalWidth *= adjust;
-        
+
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationMineTogetherLogo);
         blit(x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
-        
+
         String created = "Created by";
         int stringWidth = fontRendererObj.getStringWidth(created);
-        
+
         int creeperTotalWidth = creeperWidth + stringWidth;
         fontRendererObj.drawStringWithShadow(created, x + (width / 2 - (creeperTotalWidth / 2)), y + (height / 2 - (totalHeight / 2) + mtHeight + 7), 0x40FFFFFF);
         GlStateManager.color4f(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
-        
+
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
         blit(x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
-        
+
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glPopMatrix();
     }
-    //TODO
-//    @Override
-//    public void actionPerformed(GuiButton button) throws IOException
-//    {
-//        if (button == menuDropdownButton)
-//        {
-//            if (menuDropdownButton.getSelected().option.equals("Mute"))
-//            {
-//                MineTogether.instance.muteUser(activeDropdown);
-//                chat.updateLines(currentTarget);
-//            } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
-//            {
-//                mc.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
-//            }
-//        else if (button == invited && ChatHandler.privateChatInvite != null)
-//        {
-//            confirmInvite();
-//        }
-//        chat.actionPerformed(button);
-//        super.actionPerformed(button);
-//    }
-    
+
     public void confirmInvite()
     {
 //        minecraft.displayGuiScreen(new ConfirmScreen(this, I18n.format("You have been invited to join a private channel by %s", MineTogether.instance.getNameForUser(ChatHandler.privateChatInvite.getOwner())), "Do you wish to accept this invite?" + (ChatHandler.hasGroup ? " You are already in a group chat - if you continue, you will swap groups - or disband the group if you are the host." : ""), 777));
@@ -300,9 +297,9 @@ public class GuiMTChat extends Screen
 //        }
 //        super.confirmClicked(result, id);
 //    }
-    
+
     boolean disabledDueToBadwords = false;
-    
+
     public void processBadwords()
     {
         String text = send.getText().replaceAll(ChatHandler.badwordsFormat, "");
@@ -321,21 +318,21 @@ public class GuiMTChat extends Screen
                 }
             }
         }
-        
+
         if (veryNaughty)
         {
             send.setDisabled("Cannot send message as contains content which may not be suitable for all audiences");
             disabledDueToBadwords = true;
             return;
         }
-        
+
         if (disabledDueToBadwords)
         {
             disabledDueToBadwords = false;
             send.setEnabled(true);
         }
     }
-    
+
     @Override
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
@@ -343,7 +340,7 @@ public class GuiMTChat extends Screen
         //this.chat.handleMouseInput(mouseX, mouseY);
         return true;
     }
-    
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
@@ -353,49 +350,49 @@ public class GuiMTChat extends Screen
 //        menuDropdownButton.mouseClicked(mouseX, mouseY, mouseButton);
         return true;
     }
-    
+
     //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
     final static Pattern patternA = Pattern.compile("((?:user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     final static Pattern patternB = Pattern.compile("((?:@)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     final static Pattern patternC = Pattern.compile("((?:@user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {
         super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
-        
+
         if ((p_keyPressed_2_ == 28 || p_keyPressed_2_ == 156) && send.getOurEnabled() && !send.getText().trim().isEmpty())
         {
             ChatHandler.sendMessage(currentTarget, getStringForSending(send.getText()));
             send.setText("");
         }
-        
+
         boolean ourEnabled = send.getOurEnabled();
-        
+
         if (!ourEnabled)
         {
             send.setEnabled(true);
         }
-        
+
         send.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
-        
+
         if (!ourEnabled)
         {
             send.setEnabled(false);
         }
         processBadwords();
-        
+
         return false;
     }
-    
+
     @Override
     public boolean charTyped(char p_charTyped_1_, int p_charTyped_2_)
     {
         send.charTyped(p_charTyped_1_, p_charTyped_2_);
         return false;
     }
-    
+
     public static String getStringForSending(String text)
     {
         String[] split = text.split(" ");
@@ -403,7 +400,7 @@ public class GuiMTChat extends Screen
         {
             String word = split[i].toLowerCase();
             final String subst = "User$2";
-            
+
             final Matcher matcher = patternA.matcher(word);
             final Matcher matcherb = patternB.matcher(word);
             final Matcher matcherc = patternC.matcher(word);
@@ -420,8 +417,8 @@ public class GuiMTChat extends Screen
                 result = matcherc.replaceAll(subst);
             }
             justNick = result.replaceAll("[^A-Za-z0-9]", "");
-            
-            
+
+
             String tempWord = ChatHandler.anonUsersReverse.get(justNick);
             if (tempWord != null)
                 split[i] = result.replaceAll(justNick, tempWord);
@@ -429,7 +426,7 @@ public class GuiMTChat extends Screen
                 split[i] = result.replaceAll(justNick, MineTogether.instance.ourNick);
         }
         text = String.join(" ", split);
-        
+
         return text;
     }
 
@@ -472,16 +469,16 @@ public class GuiMTChat extends Screen
 //        }
 //        return super.handleComponentClick(component);
 //    }
-    
+
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
-    
+
     static SimpleDateFormat timestampFormat = new SimpleDateFormat("[HH:mm:ss] ");
-    
+
     public static ITextComponent formatLine(Message message)
     {
         String inputNick = message.sender;
         String outputNick = inputNick;
-        
+
         if (inputNick.contains(":"))
         {
             String[] split = inputNick.split(":");
@@ -495,28 +492,28 @@ public class GuiMTChat extends Screen
                     String nickDisplay = ChatHandler.getNameForUser(nick);
                     if (!nickDisplay.startsWith("User"))
                         return null;
-                    
+
                     String cmdStr = message.messageStr;
                     String[] cmdSplit = cmdStr.split(" ");
-                    
+
                     if (cmdSplit.length < 2)
                         return null;
-                    
+
                     String friendCode = cmdSplit[0];
-                    
+
                     StringBuilder nameBuilder = new StringBuilder();
-                    
+
                     for (int i = 1; i < cmdSplit.length; i++)
                         nameBuilder.append(cmdSplit[i]);
-                    
+
                     String friendName = nameBuilder.toString();
-                    
+
                     ITextComponent userComp = new StringTextComponent(friendName + " (" + nickDisplay + ") would like to add you as a friend. Click to ");
-                    
+
                     ITextComponent accept = new StringTextComponent("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
-                    
+
                     userComp.appendSibling(accept);
-                    
+
                     return userComp;
                 }
                 case "FA":
@@ -524,15 +521,15 @@ public class GuiMTChat extends Screen
                         return null;
                     String nick = split[1];
                     String nickDisplay = ChatHandler.getNameForUser(nick);
-                    
+
                     String friendName = message.messageStr;
-                    
+
                     ITextComponent userComp = new StringTextComponent(friendName + " (" + nickDisplay + ") accepted your friend request.");
-                    
+
                     return userComp;
             }
         }
-        
+
         boolean friend = false;
         if (inputNick.startsWith("MT"))
         {
@@ -543,7 +540,7 @@ public class GuiMTChat extends Screen
             {
                 if (MineTogether.instance.mutedUsers.contains(inputNick))
                     return null;
-                
+
                 String newNick = ChatHandler.getNameForUser(inputNick);
                 if (newNick == null)
                     return null;
@@ -559,28 +556,28 @@ public class GuiMTChat extends Screen
         {
             return null;
         }
-        
+
         ITextComponent base = new StringTextComponent("");
-        
+
         ITextComponent userComp = new StringTextComponent("<" + outputNick + ">");
         userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
-        
+
         if (!inputNick.equals(MineTogether.instance.ourNick) && !inputNick.equals(MineTogether.instance.ourNick + "`") && inputNick.startsWith("MT"))
         {
             userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
         }
-        
+
         String messageStr = message.messageStr;
-        
+
         for (String swear : ChatHandler.badwords)
         {
             messageStr = messageStr.replace(swear, StringUtils.repeat("*", swear.length()));
         }
-        
+
         String[] split = messageStr.split(" ");
-        
+
         boolean highlight = false;
-        
+
         for (int i = 0; i < split.length; i++)
         {
             String splitStr = split[i];
@@ -603,35 +600,35 @@ public class GuiMTChat extends Screen
                 }
             }
         }
-        
+
         messageStr = String.join(" ", split);
-        
+
         ITextComponent messageComp = GuiMTChat.newChatWithLinksOurs(messageStr);
-        
+
         if (MineTogether.bannedUsers.contains(inputNick))
             messageComp = new StringTextComponent("message deleted").setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Message deleted as user was banned"))).setColor(TextFormatting.DARK_GRAY).setItalic(true));
-        
+
         messageComp.getStyle().setColor(TextFormatting.WHITE);
-        
+
         if (ChatHandler.curseSync.containsKey(inputNick))
         {
             String realname = ChatHandler.curseSync.get(inputNick).trim();
             String[] splitString = realname.split(":");
-            
+
             String name2 = splitString[1];
-            
+
             if (name2.contains(Config.getInstance().curseProjectID))
             {
                 userComp.getStyle().setColor(TextFormatting.DARK_PURPLE).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("User on same modpack")));
             }
         }
-        
+
         if (inputNick.equals(MineTogether.instance.ourNick) || inputNick.equals(MineTogether.instance.ourNick + "`"))
         {
             messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             userComp.getStyle().setColor(TextFormatting.GRAY); // make sure re:set
         }
-        
+
         if (friend)
         {
             userComp.getStyle().setColor(TextFormatting.YELLOW).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Friend! MineTogether Friend!")));
@@ -649,7 +646,7 @@ public class GuiMTChat extends Screen
             }
             userComp.getStyle().setColor(TextFormatting.AQUA);
         }
-        
+
         if (highlight)
         {
             userComp.getStyle().setColor(TextFormatting.RED);
@@ -660,31 +657,31 @@ public class GuiMTChat extends Screen
 //        base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new StringTextComponent(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
 
 //        base.appendSibling(new TimestampComponentString("Test"));
-        
+
         base.appendSibling(userComp);
         base.appendSibling(new StringTextComponent(" ").setStyle(new Style().setColor(TextFormatting.WHITE)));
-        
+
         return base.appendSibling(messageComp);
     }
-    
+
     private class GuiScrollingChat extends ExtendedList
     {
         private ArrayList<ITextComponent> lines;
-        
+
         GuiScrollingChat(int entryHeight)
         {
             super(Minecraft.getInstance(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 50, 30, GuiMTChat.this.height - 50, 10);
             lines = new ArrayList<>();
             updateLines(currentTarget);
         }
-        
+
         @Override
         public int getHeight()
         {
             int viewHeight = this.getBottom() - this.getTop() - 4;
             return Math.max(super.getHeight(), viewHeight);
         }
-        
+
         protected void updateLines(String key)
         {
             LimitedSizeQueue<Message> tempMessages;
@@ -694,7 +691,7 @@ public class GuiMTChat extends Screen
                     return;
                 tempMessages = ChatHandler.messages.get(key);
             }
-            
+
             ArrayList<ITextComponent> oldLines = lines;
             int listHeight = this.getHeight() - (this.getBottom() - this.getTop() - 4);
             lines = new ArrayList<>();
@@ -713,13 +710,13 @@ public class GuiMTChat extends Screen
             }
             setScrollAmount(Integer.MAX_VALUE);
         }
-        
+
         @Override
         protected int getItemCount()
         {
             return lines.size();
         }
-        
+
         int elementClicked = -1;
 
 //        protected void handleElementClicks()
@@ -753,13 +750,13 @@ public class GuiMTChat extends Screen
 //        {
 //            elementClicked = index; // defer until later as this is done in the screen handling which is too soon for us to intercept properly
 //        }
-        
+
         @Override
         protected boolean isSelectedItem(int index)
         {
             return false;
         }
-        
+
         public void renderEntry(int index, int mouseX, int mouseY, float p_renderList_5_)
         {
             ITextComponent component = lines.get(index);
@@ -773,42 +770,42 @@ public class GuiMTChat extends Screen
                 {
                     if (hovering)
                     {
-                        minecraft.fontRenderer.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), oldTotal, getRowTop(index), 0xFF000000);
+                        minecraft.fontRenderer.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), 10 + oldTotal, getRowTop(index), 0xFF000000);
                         GlStateManager.enableBlend();
                         GlStateManager.color4f(1, 1, 1, 0.90F);
-                        minecraft.fontRenderer.drawString(sibling.getFormattedText(), oldTotal, getRowTop(index), 0xBBFFFFFF);
+                        minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
                         GlStateManager.color4f(1, 1, 1, 1);
-                        
+
                     } else
                     {
-                        minecraft.fontRenderer.drawString(sibling.getFormattedText(), oldTotal, getRowTop(index), 0xFFFFFFFF);
+                        minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xFFFFFFFF);
                     }
-                    
+
                 } else
                 {
-                    minecraft.fontRenderer.drawString(sibling.getFormattedText(), oldTotal, getRowTop(index), 0xFFFFFF);
+                    minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xFFFFFF);
                 }
             }
         }
-        
+
         private int getRowBottom(int p_getRowBottom_1_)
         {
             return this.getRowTop(p_getRowBottom_1_) + this.itemHeight;
         }
-        
+
         @Override
         protected int getScrollbarPosition()
         {
-            return width;
+            return width + 4;
         }
-        
+
         @Override
         protected void renderList(int p_renderList_1_, int p_renderList_2_, int mouseX, int mouseY, float p_renderList_5_)
         {
             int i = lines.size();
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder bufferbuilder = tessellator.getBuffer();
-            
+
             for (int j = 0; j < i; ++j)
             {
                 int k = this.getRowTop(j);
@@ -844,12 +841,12 @@ public class GuiMTChat extends Screen
                 }
             }
         }
-        
+
         public class Menu implements DropdownButton.IDropdownOption
         {
             List<DropdownButton.IDropdownOption> possibleValsCache;
             public String option;
-            
+
             public Menu(List<String> options)
             {
                 possibleValsCache = new ArrayList<>();
@@ -861,19 +858,19 @@ public class GuiMTChat extends Screen
                     possibleValsCache.add(new Menu(possibleValsCache, option));
                 }
             }
-            
+
             public Menu(List<DropdownButton.IDropdownOption> vals, String option)
             {
                 possibleValsCache = vals;
                 this.option = option;
             }
-            
+
             @Override
             public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
             {
                 return option;
             }
-            
+
             @Override
             public List<DropdownButton.IDropdownOption> getPossibleVals()
             {
@@ -881,14 +878,14 @@ public class GuiMTChat extends Screen
             }
         }
     }
-    
-    final Pattern URL_PATTERN = Pattern.compile(
-            //         schema                          ipv4            OR        namespace                 port     path         ends
-            //   |-----------------|        |-------------------------|  |-------------------------|    |---------| |--|   |---------------|
-            "((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))",
-            Pattern.CASE_INSENSITIVE);
-    
-    
+
+        final Pattern URL_PATTERN = Pattern.compile(
+                //         schema                          ipv4            OR        namespace                 port     path         ends
+                //   |-----------------|        |-------------------------|  |-------------------------|    |---------| |--|   |---------------|
+                "((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))",
+                Pattern.CASE_INSENSITIVE);
+
+
     public static ITextComponent newChatWithLinksOurs(String string)
     {
         ITextComponent component = ForgeHooks.newChatWithLinks(string);
