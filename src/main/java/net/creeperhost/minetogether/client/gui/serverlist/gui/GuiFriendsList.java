@@ -426,7 +426,6 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
             if(t)
             {
                 MineTogether.instance.unmuteUser(unmutePlayer);
-                listMuted.clearList();
                 refreshMutedList(false);
             }
             minecraft.displayGuiScreen(new GuiFriendsList(null));

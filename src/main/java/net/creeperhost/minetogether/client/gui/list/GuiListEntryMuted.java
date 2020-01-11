@@ -65,14 +65,13 @@ public class GuiListEntryMuted extends GuiListEntry
     public boolean mouseClicked(double mouseX, double mouseY, int p_mouseClicked_5_)
     {
         int listWidth = list.getWidth();
-        if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY >= 0 && mouseY <= 7)
-        {
-            System.out.println("fnmposnfop");
+//        if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY >= 0 && mouseY <= 7)
+//        {
             friendsListgui.unmutePlayer(muted);
             wasHovering = false;
             friendsListgui.setHoveringText(null);
-            return true;
-        }
+//            return true;
+//        }
         return super.mouseClicked(mouseX, mouseY, p_mouseClicked_5_);
     }
 }

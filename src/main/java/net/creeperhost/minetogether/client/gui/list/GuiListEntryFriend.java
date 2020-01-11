@@ -96,6 +96,6 @@ public class GuiListEntryFriend extends GuiListEntry
             friendsList.setHoveringText(null);
             return false;
         }
-        return false;
+        return super.mouseClicked(x, y, p_mouseClicked_5_);
     }
 }
