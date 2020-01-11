@@ -216,8 +216,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         implementations.add(serverHost);
     }
-    
-    
+
     @Override
     public ArrayList<Friend> getFriends()
     {

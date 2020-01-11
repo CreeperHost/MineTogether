@@ -7,7 +7,9 @@ import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
+import net.creeperhost.minetogether.client.gui.list.GuiListEntry;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
@@ -48,7 +50,7 @@ public class GuiMTChat extends Screen
     private Button friendsButton;
     public static String playerName = Minecraft.getInstance().getSession().getUsername();
     private String currentTarget = ChatHandler.CHANNEL;
-    private DropdownButton<GuiScrollingChat.Menu> menuDropdownButton;
+    private DropdownButton<Menu> menuDropdownButton;
     private String activeDropdown;
     private Button reconnectionButton;
     private Button cancelButton;
@@ -106,24 +108,21 @@ public class GuiMTChat extends Screen
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         strings.add("Add friend");
-//        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
-//        {
-//        if (button == menuDropdownButton)
-//        {
-//            if (menuDropdownButton.getSelected().option.equals("Mute"))
-//            {
-//                MineTogether.instance.muteUser(activeDropdown);
-//                chat.updateLines(currentTarget);
-//            } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
-//            {
-//                mc.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
-//            }
-//        else if (button == invited && ChatHandler.privateChatInvite != null)
-//        {
-//            confirmInvite();
-//        }
-//
-//        }));
+        addButton(menuDropdownButton = new DropdownButton<Menu>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
+        {
+            if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
+            {
+                MineTogether.instance.muteUser(activeDropdown);
+                chat.updateLines(currentTarget);
+            } else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
+            {
+                minecraft.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+            }
+        else if (ChatHandler.privateChatInvite != null)
+        {
+            confirmInvite();
+        }
+        }));
         addButton(friendsButton = new Button(5, 5, 100, 20, "Friends list", p ->
         {
             MineTogether.proxy.openFriendsGui();
@@ -337,7 +336,6 @@ public class GuiMTChat extends Screen
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
         chat.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
-        //this.chat.handleMouseInput(mouseX, mouseY);
         return true;
     }
 
@@ -346,8 +344,8 @@ public class GuiMTChat extends Screen
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         send.mouseClicked(mouseX, mouseY, mouseButton);
-//        chat.mouseClicked(mouseX, mouseY, mouseButton);
-//        menuDropdownButton.mouseClicked(mouseX, mouseY, mouseButton);
+        chat.mouseClicked(mouseX, mouseY, mouseButton);
+//        if(menuDropdownButton != null) menuDropdownButton.mouseClicked(mouseX, mouseY, mouseButton);
         return true;
     }
 
@@ -430,45 +428,46 @@ public class GuiMTChat extends Screen
         return text;
     }
 
-//    @Override
-//    public boolean handleComponentClick(ITextComponent component)
-//    {
-//        ClickEvent event = component.getStyle().getClickEvent();
-//        if (event == null)
-//            return false;
-//        if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
-//        {
-//            String eventValue = event.getValue();
-//            if (eventValue.contains(":"))
-//            {
-//                String[] split = eventValue.split(":");
-//                if (split.length < 3)
-//                    return false;
-//
-//                String chatInternalName = split[1];
-//
-//                String friendCode = split[2];
-//
-//                StringBuilder builder = new StringBuilder();
-//
-//                for (int i = 3; i < split.length; i++)
-//                    builder.append(split[i]).append(" ");
-//
-//                String friendName = builder.toString().trim();
-//
-//                Minecraft.getInstance().displayGuiScreen(new GuiChatFriend(this, playerName, chatInternalName, friendCode, friendName, true));
-//
-//                return true;
-//            }
-//            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.minecraft.displayWidth;
-//            menuDropdownButton.xPosition = mouseX;
-//            menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-//            menuDropdownButton.dropdownOpen = true;
-//            activeDropdown = event.getValue();
-//            return true;
-//        }
-//        return super.handleComponentClick(component);
-//    }
+    public boolean handleComponentClick(ITextComponent component, double mouseX, double mouseY)
+    {
+        ClickEvent event = component.getStyle().getClickEvent();
+        if (event == null)
+        {
+            return false;
+        }
+
+        if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
+        {
+            String eventValue = event.getValue();
+            if (eventValue.contains(":"))
+            {
+                String[] split = eventValue.split(":");
+                if (split.length < 3)
+                    return false;
+
+                String chatInternalName = split[1];
+
+                String friendCode = split[2];
+
+                StringBuilder builder = new StringBuilder();
+
+                for (int i = 3; i < split.length; i++)
+                    builder.append(split[i]).append(" ");
+
+                String friendName = builder.toString().trim();
+
+                Minecraft.getInstance().displayGuiScreen(new GuiChatFriend(this, playerName, chatInternalName, friendCode, friendName, true));
+
+                return true;
+            }
+            menuDropdownButton.x = (int) mouseX;
+            menuDropdownButton.y = (int) mouseY;
+            menuDropdownButton.dropdownOpen = true;
+            activeDropdown = event.getValue();
+            return true;
+        }
+        return false;
+    }
 
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
 
@@ -717,39 +716,27 @@ public class GuiMTChat extends Screen
             return lines.size();
         }
 
-        int elementClicked = -1;
-
-//        protected void handleElementClicks()
-//        {
-//            if (elementClicked == -1)
-//                return;
-//
-//            ITextComponent component = lines.get(elementClicked);
-//            elementClicked = -1;
-//            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
-//            mouseX -= this.left;
-//            int totalWidth = 0;
-//            for (ITextComponent sibling : component.getSiblings())
-//            {
-//                int oldTotal = totalWidth;
-//                totalWidth += fontRendererObj.getStringWidth(sibling.getFormattedText());
-//                if (sibling.getStyle().getClickEvent() != null)
-//                {
-//                    if (mouseX > oldTotal && mouseX < totalWidth)
-//                    {
-//                        handleComponentClick(sibling);
-//                        return;
-//                    }
-//                }
-//            }
-//        }
-
-
-//        @Override
-//        protected void elementClicked(int index, boolean doubleClick)
-//        {
-//            elementClicked = index; // defer until later as this is done in the screen handling which is too soon for us to intercept properly
-//        }
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int p_mouseClicked_5_)
+        {
+            for (int i = 0; i < lines.size(); i++)
+            {
+                ITextComponent component = lines.get(i);
+                int totalWidth = 5;
+                for (ITextComponent sibling : component.getSiblings())
+                {
+                    int oldTotal = totalWidth;
+                    totalWidth += minecraft.fontRenderer.getStringWidth(sibling.getFormattedText());
+                    boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(i) && mouseY < getRowTop(i) + itemHeight;
+                    if(hovering && sibling.getStyle().getClickEvent() != null)
+                    {
+                        handleComponentClick(sibling, mouseX, mouseY);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         @Override
         protected boolean isSelectedItem(int index)
@@ -765,7 +752,7 @@ public class GuiMTChat extends Screen
             {
                 int oldTotal = totalWidth;
                 totalWidth += minecraft.fontRenderer.getStringWidth(sibling.getFormattedText());
-                boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getTop() && mouseY < getTop() + itemHeight;
+                boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(index) && mouseY < getRowTop(index) + itemHeight;
                 if (sibling.getStyle().getClickEvent() != null)
                 {
                     if (hovering)
@@ -841,6 +828,7 @@ public class GuiMTChat extends Screen
                 }
             }
         }
+    }
 
         public class Menu implements DropdownButton.IDropdownOption
         {
@@ -877,7 +865,6 @@ public class GuiMTChat extends Screen
                 return possibleValsCache;
             }
         }
-    }
 
         final Pattern URL_PATTERN = Pattern.compile(
                 //         schema                          ipv4            OR        namespace                 port     path         ends

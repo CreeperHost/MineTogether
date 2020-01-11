@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.data.Friend;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 
@@ -52,7 +53,7 @@ public class GuiListEntryFriend extends GuiListEntry
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
         
         GlStateManager.color4f(0, 1, 0, 1);
-//        Gui.drawModalRectWithCustomSizedTexture(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10F, 10F);
+        Screen.blit(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10, 10);
         
         GlStateManager.disableAlphaTest();
         GlStateManager.disableBlend();
@@ -78,23 +79,23 @@ public class GuiListEntryFriend extends GuiListEntry
     }
     
     @Override
-    public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
+    public boolean mouseClicked(double x, double y, int p_mouseClicked_5_)
     {
-//        int listWidth = list.getWidth();
-//        if (x >= listWidth - stringWidth - 4 && x <= listWidth - 5 && y >= 0 && y <= 7)
-//        {
-//            friendsList.removeFriend(friend);
-//            wasHovering = false;
-//            friendsList.setHoveringText(null);
-//            return false;
-//        }
-//        else if (x >= listWidth - stringWidth - 4 && x <= listWidth - 2 && y >= 0 && y <= 27)
-//        {
-//            friendsList.inviteGroupChat(friend);
-//            wasHovering = false;
-//            friendsList.setHoveringText(null);
-//            return false;
-//        }
+        int listWidth = list.getWidth();
+        if (x >= listWidth - stringWidth - 4 && x <= listWidth - 5 && y >= 0 && y <= 7)
+        {
+            friendsList.removeFriend(friend);
+            wasHovering = false;
+            friendsList.setHoveringText(null);
+            return false;
+        }
+        else if (x >= listWidth - stringWidth - 4 && x <= listWidth - 2 && y >= 0 && y <= 27)
+        {
+            friendsList.inviteGroupChat(friend);
+            wasHovering = false;
+            friendsList.setHoveringText(null);
+            return false;
+        }
         return false;
     }
 }

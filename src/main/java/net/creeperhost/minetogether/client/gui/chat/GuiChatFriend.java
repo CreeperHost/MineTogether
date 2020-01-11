@@ -19,6 +19,7 @@ public class GuiChatFriend extends Screen
     private final Screen parent;
     private Button acceptBtn;
     private Button cancelBtn;
+    boolean first = true;
     private TextFieldWidget nameEntry;
     Minecraft mc = Minecraft.getInstance();
     
@@ -32,26 +33,19 @@ public class GuiChatFriend extends Screen
         this.parent = parent;
         this.friendName = friendName;
     }
-    
-    @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
-    {
-        renderDirtBackground(1);
-        super.render(mouseX, mouseY, partialTicks);
-        nameEntry.setEnableBackgroundDrawing(true);
-        drawCenteredString(mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptgui") : I18n.format("minetogether.friend.addgui"), width / 2, 5, 0xFFFFFFFF);
-        drawCenteredString(mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptname") : I18n.format("minetogether.friend.addname"), width / 2, height / 2 - 30, 0xFFFFFFFF);
-    }
-    
-    boolean first = true;
-    
+
+
     @Override
     public void init()
     {
         super.init();
-        this.minecraft.keyboardListener.enableRepeatEvents(true);
+        buttons.clear();
+        mc.keyboardListener.enableRepeatEvents(true);
         
-        this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, "Cancel", (button) -> Minecraft.getInstance().displayGuiScreen(parent)));
+        this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, "Cancel", (button) -> {
+            System.out.println("BOOP");
+            Minecraft.getInstance().displayGuiScreen(parent);
+        }));
         
         this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? "Accept" : "Send request", (buttons) ->
         {
@@ -75,12 +69,23 @@ public class GuiChatFriend extends Screen
         nameEntry.setFocused2(true);
         nameEntry.setCanLoseFocus(false);
     }
+
+    @Override
+    public void render(int mouseX, int mouseY, float partialTicks)
+    {
+        renderDirtBackground(1);
+        super.render(mouseX, mouseY, partialTicks);
+        nameEntry.setEnableBackgroundDrawing(true);
+        nameEntry.render(mouseX, mouseY, partialTicks);
+        drawCenteredString(mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptgui") : I18n.format("minetogether.friend.addgui"), width / 2, 5, 0xFFFFFFFF);
+        drawCenteredString(mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptname") : I18n.format("minetogether.friend.addname"), width / 2, height / 2 - 30, 0xFFFFFFFF);
+    }
     
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
         nameEntry.mouseClicked(mouseX, mouseY, mouseButton);
-        return false;
+        return super.mouseClicked(mouseX, mouseY, mouseButton);
     }
     
     @Override
@@ -89,5 +94,12 @@ public class GuiChatFriend extends Screen
         nameEntry.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
         acceptBtn.active = nameEntry.getText().trim().length() >= 3;
         return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+    }
+
+    @Override
+    public boolean charTyped(char p_charTyped_1_, int p_charTyped_2_)
+    {
+        nameEntry.charTyped(p_charTyped_1_, p_charTyped_2_);
+        return false;
     }
 }

@@ -11,6 +11,7 @@ import net.creeperhost.minetogether.lib.ModInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -59,7 +60,10 @@ public class ScreenEvents
                 if (widget instanceof Button)
                 {
                     Button button = (Button) widget;
-                    if (button.getMessage().contains("Multiplayer"))
+                    //Get the translated name so we can make sure to remove the correct button
+                    String name = I18n.format("menu.multiplayer");
+
+                    if (button.getMessage().equalsIgnoreCase(name))
                     {
                         width.set(button.getWidth());
                         height.set(button.getHeight());
@@ -72,7 +76,7 @@ public class ScreenEvents
                 }
             });
             
-            event.addWidget(new Button(x.get(), y.get(), width.get(), height.get(), "YEET", p ->
+            event.addWidget(new Button(x.get(), y.get(), width.get(), height.get(), I18n.format("menu.multiplayer"), p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(event.getGui()));
             }));

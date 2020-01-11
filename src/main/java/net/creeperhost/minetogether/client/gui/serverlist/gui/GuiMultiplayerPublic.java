@@ -77,7 +77,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         
         super.init();
         
-        this.buttons.clear();
+//        this.buttons.clear();
         
         addButton(new Button(width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"), p ->
         {
@@ -162,6 +162,8 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
 //        buttonList.add(modeToggle);
 //        buttonList.add(sortOrderButton);
 //    }
+
+
 
 
 //    @SuppressWarnings("Duplicates")

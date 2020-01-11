@@ -1,6 +1,8 @@
 package net.creeperhost.minetogether.client.gui.serverlist.gui;
 
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.list.GuiList;
 import net.creeperhost.minetogether.client.gui.list.GuiListEntryFriend;
@@ -9,9 +11,11 @@ import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
+import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
@@ -72,7 +76,7 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
             listMuted = new GuiList(this, minecraft, width, height, 32, this.height - 64, 36);
         } else
         {
-//            listMuted.setDimensions(width, height, 32, this.height - 64);
+            listMuted.updateSize(width, height, 32, this.height - 64);
         }
         
         if (list == null)
@@ -80,7 +84,7 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
             list = new GuiList(this, minecraft, width, height, 32, this.height - 64, 36);
         } else
         {
-//            list.setDimensions(width, height, 32, this.height - 64);
+            list.updateSize(width, height, 32, this.height - 64);
         }
         
         if (first)
@@ -174,13 +178,13 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
         
         toggle = addButton(new Button(width - 60, 6, 60, 20, isMuted ? "Friends" : "Muted", p ->
         {
-            if (toggle.getMessage().contains("Friends"))
-            {
-                toggle.setMessage("Muted");
-                isMuted = true;
-            } else if (toggle.getMessage().contains("Muted"))
+            if (toggle.getMessage().contains("Muted"))
             {
                 toggle.setMessage("Friends");
+                isMuted = true;
+            } else if (toggle.getMessage().contains("Friends"))
+            {
+                toggle.setMessage("Muted");
                 isMuted = false;
             }
         }));
@@ -370,52 +374,67 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
     {
         this.hoveringText = hoveringText;
     }
-    
+
+    BooleanConsumer removeConsumer = new BooleanConsumer()
+    {
+        @Override
+        public void accept(boolean t)
+        {
+            if(t)
+            {
+                Callbacks.removeFriend(removeFriend.getCode());
+                refreshFriendsList(true);
+            }
+            minecraft.displayGuiScreen(new GuiFriendsList(null));
+        }
+    };
     public void removeFriend(Friend friend)
     {
         removeFriend = friend;
-//        minecraft.displayGuiScreen(new ConfirmScreen(this, I18n.format("minetogether.removefriend.sure1"), I18n.format("minetogether.removefriend.sure2"), 0));
+        minecraft.displayGuiScreen(new ConfirmScreen(removeConsumer, new StringTextComponent(I18n.format("minetogether.removefriend.sure1")), new StringTextComponent(I18n.format("minetogether.removefriend.sure2"))));
     }
-    
+
+    BooleanConsumer invitedConsumer = new BooleanConsumer()
+    {
+        @Override
+        public void accept(boolean t)
+        {
+            if(t)
+            {
+                if (!invitedPlayer.isAccepted())
+                    showAlert("Cannot invite pending friends", 0x00FF00, 5000);
+                else {
+                    String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
+                    showAlert("Sent invite to " + invitedPlayer.getName(), 0x00FF00, 5000);
+                    ChatHandler.sendChannelInvite(friendCode, MineTogether.instance.ourNick);
+                }
+            }
+            minecraft.displayGuiScreen(new GuiFriendsList(null));
+        }
+    };
     public void inviteGroupChat(Friend invited)
     {
         invitedPlayer = invited;
-//        mc.displayGuiScreen(new GuiYahNah(this, I18n.format("minetogether.groupinvite.sure1"), I18n.format("minetogether.groupinvite.sure2"), 1));
+        minecraft.displayGuiScreen(new ConfirmScreen(invitedConsumer, new StringTextComponent(I18n.format("minetogether.groupinvite.sure1")), new StringTextComponent(I18n.format("minetogether.groupinvite.sure2"))));
     }
-    
+
+    BooleanConsumer unmuteConsumer = new BooleanConsumer()
+    {
+        @Override
+        public void accept(boolean t)
+        {
+            if(t)
+            {
+                MineTogether.instance.unmuteUser(unmutePlayer);
+                listMuted.clearList();
+                refreshMutedList(false);
+            }
+            minecraft.displayGuiScreen(new GuiFriendsList(null));
+        }
+    };
     public void unmutePlayer(String muted)
     {
         unmutePlayer = muted;
-//        mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.unmute.sure1"), I18n.format("minetogether.unmute.sure2"), 2));
+        minecraft.displayGuiScreen(new ConfirmScreen(unmuteConsumer, new StringTextComponent(I18n.format("minetogether.unmute.sure1")), new StringTextComponent(I18n.format("minetogether.unmute.sure2"))));
     }
-
-//    @Override
-//    public void confirmClicked(boolean result, int id)
-//    {
-//        if (result)
-//        {
-//            if(id == 0)
-//            {
-//                Callbacks.removeFriend(removeFriend.getCode());
-//                refreshFriendsList(true);
-//            }
-//            else if(id == 2)
-//            {
-//                MineTogether.instance.unmuteUser(unmutePlayer);
-//                listMuted.clearList();
-//                refreshMutedList(false);
-//            }
-//            else if(id == 1)
-//            {
-//                if (!invitedPlayer.isAccepted())
-//                    showAlert("Cannot invite pending friends", 0x00FF00, 5000);
-//                else {
-//                    String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
-//                    showAlert("Sent invite to " + invitedPlayer.getName(), 0x00FF00, 5000);
-//                    ChatHandler.sendChannelInvite(friendCode, MineTogether.instance.ourNick);
-//                }
-//            }
-//        }
-//        minecraft.displayGuiScreen(this);
-//    }
 }
