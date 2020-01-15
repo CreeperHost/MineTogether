@@ -28,4 +28,8 @@ public class GuiList<T extends GuiListEntry> extends ExtendedList
     {
         return (T) getSelected();
     }
+
+    public int getRowTop(T entry) {
+        return getRowTop(this.children().indexOf(entry));
+    }
 }

@@ -45,7 +45,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
             FontRenderer fontrenderer = minecraft.fontRenderer;
             minecraft.getTextureManager().bindTexture(WIDGETS_LOCATION);
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.isHovered = x >= this.x && y >= drawY && x < this.x + this.width && y < drawY + this.height;
+            this.isHovered = mouseX >= this.x && mouseY >= drawY && mouseX < this.x + this.width && mouseY < drawY + this.height;
             int i = this.getHoverState(this.isHovered);
             GlStateManager.enableBlend();
             GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -80,7 +80,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                 for (E e : possibleVals)
                 {
                     drawY += yOffset;
-                    boolean ourHovered = x >= this.x && y >= drawY && x < this.x + this.width && y < drawY + this.height - 2;
+                    boolean ourHovered = mouseX >= this.x && mouseY >= drawY && mouseX < this.x + this.width && mouseY < drawY + this.height - 2;
                     
                     int subHovered = ourHovered ? 2 : 0;
                     
@@ -146,6 +146,8 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
     {
         dropdownOpen = false;
         wasJustClosed = true;
+        x = -1000;
+        y = -1000;
     }
     
     public E getSelected()

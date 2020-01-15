@@ -91,7 +91,7 @@ public class GuiMTChat extends Screen
         send = new GuiTextFieldLockable(minecraft.fontRenderer, 11, this.height - 48, width - 22, 20, "");
         if (targetDropdownButton == null)
         {
-            targetDropdownButton = new DropdownButton<Target>(width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true, p ->
+            targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true, p ->
             {
                 if (targetDropdownButton.getMessage().contains("new channel"))
                 {
@@ -105,10 +105,11 @@ public class GuiMTChat extends Screen
             targetDropdownButton.x = width - 5 - 100;
         }
         addButton(targetDropdownButton);
+
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         strings.add("Add friend");
-        addButton(menuDropdownButton = new DropdownButton<Menu>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
+        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
         {
             if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
             {
@@ -118,10 +119,10 @@ public class GuiMTChat extends Screen
             {
                 minecraft.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
             }
-        else if (ChatHandler.privateChatInvite != null)
-        {
-            confirmInvite();
-        }
+            else if (ChatHandler.privateChatInvite != null)
+            {
+                confirmInvite();
+            }
         }));
         addButton(friendsButton = new Button(5, 5, 100, 20, "Friends list", p ->
         {
@@ -345,7 +346,6 @@ public class GuiMTChat extends Screen
         super.mouseClicked(mouseX, mouseY, mouseButton);
         send.mouseClicked(mouseX, mouseY, mouseButton);
         chat.mouseClicked(mouseX, mouseY, mouseButton);
-//        if(menuDropdownButton != null) menuDropdownButton.mouseClicked(mouseX, mouseY, mouseButton);
         return true;
     }
 
@@ -732,6 +732,10 @@ public class GuiMTChat extends Screen
                     {
                         handleComponentClick(sibling, mouseX, mouseY);
                         return true;
+                    }
+                    else if(sibling.getStyle().getClickEvent() == null && menuDropdownButton.dropdownOpen)
+                    {
+                        menuDropdownButton.close();
                     }
                 }
             }

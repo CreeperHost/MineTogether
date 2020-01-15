@@ -79,23 +79,26 @@ public class GuiListEntryFriend extends GuiListEntry
     }
     
     @Override
-    public boolean mouseClicked(double x, double y, int p_mouseClicked_5_)
+    public boolean mouseClicked(double mouseX, double mouseY, int p_mouseClicked_5_)
     {
-        int listWidth = list.getWidth();
-        if (x >= listWidth - stringWidth - 4 && x <= listWidth - 5 && y >= 0 && y <= 7)
+        int listWidth = ((list.getWidth() - list.getRowWidth()) / 2) + list.getRowWidth();
+
+        int yTop = list.getRowTop(this);
+
+        if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY - yTop >= 0 && mouseY - yTop <= 7)
         {
             friendsList.removeFriend(friend);
             wasHovering = false;
             friendsList.setHoveringText(null);
             return false;
         }
-        else if (x >= listWidth - stringWidth - 4 && x <= listWidth - 2 && y >= 0 && y <= 27)
+        else if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 2 && mouseY - yTop >= 0 && mouseY - yTop <= 27)
         {
             friendsList.inviteGroupChat(friend);
             wasHovering = false;
             friendsList.setHoveringText(null);
             return false;
         }
-        return super.mouseClicked(x, y, p_mouseClicked_5_);
+        return super.mouseClicked(mouseX, mouseY, p_mouseClicked_5_);
     }
 }

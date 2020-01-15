@@ -285,7 +285,7 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
                 hoverTextCache.add(hoveringText);
                 lastHoveringText = hoveringText;
             }
-            renderTooltip(hoverTextCache, mouseX + 12, mouseY);
+            renderTooltip(hoverTextCache, mouseX, mouseY);
         }
         if (searchEntry != null) this.searchEntry.render(mouseX, mouseY, partialTicks);
     }
