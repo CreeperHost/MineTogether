@@ -7,7 +7,6 @@ import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
-import net.creeperhost.minetogether.client.gui.list.GuiListEntry;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
@@ -32,10 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +52,7 @@ public class GuiMTChat extends Screen
     private Button cancelButton;
     private Button invited;
     private boolean inviteTemp = false;
+    public static List<TextFormatting> formattingList = new ArrayList<>();
 
     public GuiMTChat(Screen parent)
     {
@@ -79,6 +76,14 @@ public class GuiMTChat extends Screen
     @Override
     public void init()
     {
+        formattingList.add(TextFormatting.RED);
+        formattingList.add(TextFormatting.GREEN);
+        formattingList.add(TextFormatting.BLUE);
+        formattingList.add(TextFormatting.YELLOW);
+        formattingList.add(TextFormatting.AQUA);
+        formattingList.add(TextFormatting.GOLD);
+        formattingList.add(TextFormatting.LIGHT_PURPLE);
+
         this.minecraft.keyboardListener.enableRepeatEvents(true);
         if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
@@ -109,21 +114,25 @@ public class GuiMTChat extends Screen
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         strings.add("Add friend");
-        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
+        if(menuDropdownButton == null)
         {
-            if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
+            addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
             {
-                MineTogether.instance.muteUser(activeDropdown);
-                chat.updateLines(currentTarget);
-            } else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
-            {
-                minecraft.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
-            }
-            else if (ChatHandler.privateChatInvite != null)
-            {
-                confirmInvite();
-            }
-        }));
+                if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
+                {
+                    MineTogether.instance.muteUser(activeDropdown);
+                    chat.updateLines(currentTarget);
+                }
+                else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
+                {
+                    minecraft.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                }
+                else if (ChatHandler.privateChatInvite != null)
+                {
+                    confirmInvite();
+                }
+            }));
+        }
         addButton(friendsButton = new Button(5, 5, 100, 20, "Friends list", p ->
         {
             MineTogether.proxy.openFriendsGui();
@@ -163,6 +172,8 @@ public class GuiMTChat extends Screen
     public void tick()
     {
         super.tick();
+        if(tickCounter % 20 == 0) rebuildChat();
+
         if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
             if (!ChatHandler.isInitting)
@@ -643,6 +654,9 @@ public class GuiMTChat extends Screen
                 userComp = new StringTextComponent("<" + outputNick + ">");
                 userComp.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Moderator")));
             }
+
+//            TextFormatting formatting = TextFormatting.values()[Minecraft.getInstance().fontRenderer.random.nextInt(TextFormatting.values().length)];
+//
             userComp.getStyle().setColor(TextFormatting.AQUA);
         }
 
@@ -662,6 +676,20 @@ public class GuiMTChat extends Screen
 
         return base.appendSibling(messageComp);
     }
+
+//    public static String rainbow(String s)
+//    {
+//        char[] strings = s.toCharArray();
+//        StringBuilder out = new StringBuilder();
+//
+//        for (char sss : strings)
+//        {
+//            TextFormatting random = formattingList.get(Minecraft.getInstance().fontRenderer.random.nextInt(formattingList.size()));
+//            out.append(random).append(sss);
+//        }
+//
+//        return out.toString();
+//    }
 
     private class GuiScrollingChat extends ExtendedList
     {
@@ -732,10 +760,6 @@ public class GuiMTChat extends Screen
                     {
                         handleComponentClick(sibling, mouseX, mouseY);
                         return true;
-                    }
-                    else if(sibling.getStyle().getClickEvent() == null && menuDropdownButton.dropdownOpen)
-                    {
-                        menuDropdownButton.close();
                     }
                 }
             }

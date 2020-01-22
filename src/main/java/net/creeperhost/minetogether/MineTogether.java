@@ -23,6 +23,7 @@ import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.Client;
 import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.proxy.Server;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -76,6 +77,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     public File mutedUsersFile;
     
     public static MineTogether instance;
+    public static MinecraftServer server;
 
 //    public HoverEvent.Action TIMESTAMP = EnumHelper.addEnum(HoverEvent.Action.class, "TIMESTAMP", new Class[]{String.class, boolean.class}, "timestamp_hover", true);
     
@@ -143,6 +145,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void serverStarted(FMLServerStartingEvent event)
     {
+        server = event.getServer();
 //        event.registerServerCommand(new CommandKill());
     }
     

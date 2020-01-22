@@ -17,8 +17,10 @@ import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiInvited;
+import net.creeperhost.minetogether.common.IngameChat;
 import net.creeperhost.minetogether.config.Config;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
@@ -31,6 +33,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Client implements IProxy
@@ -142,7 +145,7 @@ public class Client implements IProxy
         MineTogether.instance.ingameChat.setDisabledIngameChat(true);
         if (isChatReplaced)
         {
-//            ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
+            ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
         }
     }
     
@@ -154,6 +157,9 @@ public class Client implements IProxy
         if (!isChatReplaced)
         {
             isChatReplaced = true;
+            IngameGui ingameGui = Minecraft.getInstance().ingameGUI;
+            ingameGui.persistantChatGUI = new GuiNewChatOurs(Minecraft.getInstance());
+
 //            try
 //            {
 //                Field field = ReflectionHelper.findField(GuiIngame.class, "persistantChatGUI", "field_73840_e", "");
@@ -167,8 +173,8 @@ public class Client implements IProxy
     {
         ChatHandler.closePrivateChat();
         GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-//        chatGUI.setBase(true);
-//        chatGUI.rebuildChat(ChatHandler.CHANNEL);
+        chatGUI.setBase(true);
+        chatGUI.rebuildChat(ChatHandler.CHANNEL);
         Screen currentScreen = Minecraft.getInstance().currentScreen;
         if (currentScreen != null)
         {
@@ -195,9 +201,8 @@ public class Client implements IProxy
         if (!Config.getInstance().isChatEnabled() || (!target.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase()) && !target.toLowerCase().equals(ChatHandler.currentGroup.toLowerCase())) || !(Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-        //TODO
-//        if (target.toLowerCase().equals(ourChat.chatTarget.toLowerCase()))
-//            ourChat.setChatLine(Objects.requireNonNull(GuiMTChat.formatLine(messagePair)), 0, Minecraft.getInstance().ingameGUI.getTicks(), false);
+        if (target.toLowerCase().equals(ourChat.chatTarget.toLowerCase()))
+            ourChat.setChatLine(Objects.requireNonNull(GuiMTChat.formatLine(messagePair)), 0, Minecraft.getInstance().ingameGUI.getTicks(), false);
     }
     
     @Override
@@ -217,8 +222,8 @@ public class Client implements IProxy
         if (Config.getInstance().isChatEnabled() && Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
         {
             GuiNewChatOurs chatGUI = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-//            if (!chatGUI.isBase())
-//                chatGUI.rebuildChat(chatGUI.chatTarget);
+            if (!chatGUI.isBase())
+                chatGUI.rebuildChat(chatGUI.chatTarget);
             Screen currentScreen = Minecraft.getInstance().currentScreen;
             if (currentScreen != null && currentScreen instanceof GuiMTChat)
                 ((GuiMTChat) currentScreen).rebuildChat();

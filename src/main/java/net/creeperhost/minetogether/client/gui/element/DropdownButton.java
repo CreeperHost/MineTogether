@@ -146,8 +146,6 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
     {
         dropdownOpen = false;
         wasJustClosed = true;
-        x = -1000;
-        y = -1000;
     }
     
     public E getSelected()

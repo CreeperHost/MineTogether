@@ -21,6 +21,7 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -168,13 +169,13 @@ public class EventHandler
                 sleep = true;
             }
 
-//            if (defaultInputFieldTextField == null)
-//            {
-//                try
-//                {
-//                    defaultInputFieldTextField = ReflectionHelper.findField(GuiChat.class, "defaultInputFieldText", "field_146409_v", "");
-//                } catch (Exception e) { e.printStackTrace(); }
-//            }
+            if (defaultInputFieldTextField == null)
+            {
+                try
+                {
+                    defaultInputFieldTextField = ObfuscationReflectionHelper.findField(ChatScreen.class, "defaultInputFieldText");//, "field_146409_v", "");
+                } catch (Exception e) { e.printStackTrace(); }
+            }
             try
             {
                 presetString = (String) defaultInputFieldTextField.get(gui);
@@ -191,9 +192,7 @@ public class EventHandler
             try
             {
                 event.setGui(new GuiChatOurs(presetString, sleep));
-            } catch (Exception ignored)
-            {
-            }
+            } catch (Exception ignored) {}
         }
     }
     

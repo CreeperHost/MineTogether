@@ -1,11 +1,18 @@
 package net.creeperhost.minetogether.client.gui.serverlist.gui.elements;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.client.config.GuiUtils;
+
+import java.util.List;
 
 public class GuiButtonLarge extends GuiButtonExt
 {
@@ -50,6 +57,16 @@ public class GuiButtonLarge extends GuiButtonExt
             {
                 color = 16777120;
             }
+
+            List<ITextComponent> newstring = ScreenUtils.splitText(new StringTextComponent(description), width - 10, mc.fontRenderer, false, true);
+            //Start needs to move based on GUI scale and screen size I guess, plz help @cloudhunter, @gigabit101, you're our only hope. (ihavenoideawhatimdoingdog.jpg)
+            int start = y + 50;
+
+
+            for (ITextComponent s : newstring) {
+                int left = ((this.x + 4));
+                mc.fontRenderer.drawStringWithShadow(padLeft(s.getFormattedText(), 20), left, start += 8, -1);
+            }
             
             String buttonText = this.getMessage();
             int strWidth = mc.fontRenderer.getStringWidth(buttonText);
@@ -58,11 +75,11 @@ public class GuiButtonLarge extends GuiButtonExt
             if (strWidth > width - 6 && strWidth > ellipsisWidth)
                 buttonText = mc.fontRenderer.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
             
-            this.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, color);
-//            RenderItem renderItem = Minecraft.getInstance().getRenderItem();
+            this.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + 10, color);
+            ItemRenderer renderItem = Minecraft.getInstance().getItemRenderer();
             GlStateManager.pushMatrix();
             GlStateManager.scalef(2.0f, 2.0f, 2.0f);
-//            renderItem.renderItemAndEffectIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
+            renderItem.renderItemAndEffectIntoGUI(stack, (this.x / 2) + (width / 4) - 8, (this.y / 2) + 10);
             //renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
             GlStateManager.popMatrix();
         }

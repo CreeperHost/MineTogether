@@ -73,10 +73,9 @@ public class GuiButtonPair extends Button
             }
         }
     }
-    
-    //TODO
-//    @Override
-    public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
+
+    @Override
+    public void render(int p_191745_2_, int p_191745_3_, float p_191745_4_)
     {
         double mouseX = p_191745_2_;
         double mouseY = p_191745_3_;
@@ -141,11 +140,10 @@ public class GuiButtonPair extends Button
             GlStateManager.rotatef(90, 0, 0, 1);
         }
         
-        //TODO
-//        for(GuiButtonChat button: buttons)
-//        {
-//            button.func_191745_a(p_191745_1_, (int) mouseX, (int) mouseY, p_191745_4_);
-//        }
+        for(GuiButtonChat button: buttons)
+        {
+            button.render((int) mouseX, (int) mouseY, p_191745_4_);
+        }
         
         if (vertical)
         {
@@ -160,9 +158,7 @@ public class GuiButtonPair extends Button
                 button.x = cachedX[buttNum];
                 button.y = cachedY[buttNum];
             }
-            
         }
-        
     }
     
     @Override
@@ -172,25 +168,24 @@ public class GuiButtonPair extends Button
         double mouseY = mouseYIn;
         if (vertical)
         {
-            double xDiff = (mouseX - button1.y) / 0.75;
+            double xDiff = (mouseX - button1.x) / 0.75;
             double yDiff = (mouseY - button1.y) / 0.75;
-            
+
             mouseX = button1.x + yDiff;
             mouseY = button1.y + xDiff + height;
         }
-        
+
         boolean pressed = false;
-        
-        for (int buttonNum = 0; buttonNum < buttons.size(); buttonNum++)
+
+        for(int buttonNum = 0; buttonNum < buttons.size(); buttonNum++)
         {
             GuiButtonChat button = buttons.get(buttonNum);
-            if (button.mouseClicked(mouseX, mouseY, p_mouseClicked_5_))
+            if (button.mouseClicked(mouseX,  mouseY, p_mouseClicked_5_))
             {
                 activeButton = buttonNum;
                 button.setActive(true);
                 pressed = true;
-            } else
-            {
+            } else {
                 button.setActive(false);
             }
         }

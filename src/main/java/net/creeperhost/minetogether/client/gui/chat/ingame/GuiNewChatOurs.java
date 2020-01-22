@@ -179,7 +179,7 @@ public class GuiNewChatOurs extends NewChatGui
             {
                 int i = this.getLineCount();
                 int j = this.drawnChatLines.size();
-//                float f = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
+                double f = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
 
                 if (j > 0)
                 {
@@ -219,21 +219,21 @@ public class GuiNewChatOurs extends NewChatGui
                                     l1 = 255;
                                 }
 
-                                l1 = (int) ((float) l1);
+                                l1 = (int) ((float) l1 * f);
                                 ++l;
 
                                 if (l1 > 3)
                                 {
                                     int i2 = 0;
                                     int j2 = -i1 * 9;
-//                                    drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
+                                    fill(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
                                     GlStateManager.enableBlend();
                                 }
                             }
                         }
                     }
 
-//                    if (!isBase() && getChatOpen())
+                    if (!isBase() && getChatOpen())
                         GuiMTChat.drawLogo(mc.fontRenderer, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
 
                     for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
@@ -288,8 +288,8 @@ public class GuiNewChatOurs extends NewChatGui
                         {
                             int k3 = j3 > 0 ? 170 : 96;
                             int l3 = this.isScrolled ? 13382451 : 3355562;
-//                            drawRect(0, -j3, 2, -j3 - k1, l3 + (k3 << 24));
-//                            drawRect(2, -j3, 1, -j3 - k1, 13421772 + (k3 << 24));
+                            fill(0, -j3, 2, -j3 - k1, l3 + (k3 << 24));
+                            fill(2, -j3, 1, -j3 - k1, 13421772 + (k3 << 24));
                         }
                     }
 
@@ -325,8 +325,7 @@ public class GuiNewChatOurs extends NewChatGui
             
             //if (!isBase() && getChatOpen())
             //GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
-            
-            
+
             GlStateManager.popMatrix();
         }
     }
@@ -385,7 +384,7 @@ public class GuiNewChatOurs extends NewChatGui
         }
 
         int i = MathHelper.floor((float) this.getChatWidth() / this.getScale());
-        List<ITextComponent> list = splitText(chatComponent, i, this.mc.fontRenderer, false, false);
+        List<ITextComponent> list = RenderComponentsUtil.splitText(chatComponent, i, this.mc.fontRenderer, false, false);
         boolean flag = this.getChatOpen();
 
         for (ITextComponent itextcomponent : list)
@@ -393,7 +392,7 @@ public class GuiNewChatOurs extends NewChatGui
             if (flag && this.scrollPos > 0)
             {
                 this.isScrolled = true;
-//                this.scroll(1);
+                this.func_194813_a(1);
             }
 
             this.drawnChatLines.add(0, new ChatLine(updateCounter, itextcomponent, chatLineId));
@@ -427,29 +426,29 @@ public class GuiNewChatOurs extends NewChatGui
         }
     }
 
-//    @Override
-//    public void scroll(int amount)
-//    {
-//        if (isBase())
-//            super.scroll(amount);
-//        else
-//        {
-//            this.scrollPos += amount;
-//            int i = this.drawnChatLines.size();
-//
-//            if (this.scrollPos > i - this.getLineCount())
-//            {
-//                this.scrollPos = i - this.getLineCount();
-//            }
-//
-//            if (this.scrollPos <= 0)
-//            {
-//                this.scrollPos = 0;
-//                this.isScrolled = false;
-//            }
-//        }
-//    }
-//
+    @Override
+    public void func_194813_a(double amount)
+    {
+        if (isBase())
+            super.func_194813_a(amount);
+        else
+        {
+            this.scrollPos += amount;
+            int i = this.drawnChatLines.size();
+
+            if (this.scrollPos > i - this.getLineCount())
+            {
+                this.scrollPos = i - this.getLineCount();
+            }
+
+            if (this.scrollPos <= 0)
+            {
+                this.scrollPos = 0;
+                this.isScrolled = false;
+            }
+        }
+    }
+
     
     @Nullable
     @Override
@@ -674,18 +673,11 @@ public class GuiNewChatOurs extends NewChatGui
         }
     }
 
-    public List<ChatLine> getVanillaDrawnChatLines() {
+    public List<ChatLine> getVanillaDrawnChatLines()
+    {
         if (vanillaDrawnChatLines == null)
         {
-            if (drawnChatLinesField == null)
-            {
-//                drawnChatLinesField = ReflectionHelper.findField(GuiNewChat.class, "drawnChatLines", "field_146253_i", "");
-            }
-
-            try
-            {
-                vanillaDrawnChatLines = (List<ChatLine>) drawnChatLinesField.get(this);
-            } catch (IllegalAccessException ignored) {}
+            vanillaDrawnChatLines =  drawnChatLines;
         }
         return vanillaDrawnChatLines;
     }
