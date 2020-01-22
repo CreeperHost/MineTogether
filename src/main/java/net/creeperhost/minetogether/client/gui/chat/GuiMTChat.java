@@ -858,7 +858,7 @@ public class GuiMTChat extends Screen
         }
     }
 
-        public class Menu implements DropdownButton.IDropdownOption
+        public static class Menu implements DropdownButton.IDropdownOption
         {
             List<DropdownButton.IDropdownOption> possibleValsCache;
             public String option;

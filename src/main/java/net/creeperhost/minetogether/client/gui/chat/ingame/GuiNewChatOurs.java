@@ -267,7 +267,7 @@ public class GuiNewChatOurs extends NewChatGui
                                     int j2 = -i1 * 9;
                                     String s = chatline.getChatComponent().getFormattedText();
                                     GlStateManager.enableBlend();
-                                    this.mc.fontRenderer.drawStringWithShadow(s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
+                                    this.mc.fontRenderer.drawString(s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
                                     GlStateManager.disableAlphaTest();
                                     GlStateManager.disableBlend();
                                 }
@@ -384,7 +384,7 @@ public class GuiNewChatOurs extends NewChatGui
         }
 
         int i = MathHelper.floor((float) this.getChatWidth() / this.getScale());
-        List<ITextComponent> list = RenderComponentsUtil.splitText(chatComponent, i, this.mc.fontRenderer, false, false);
+        List<ITextComponent> list = splitText(chatComponent, i, this.mc.fontRenderer, false, false);
         boolean flag = this.getChatOpen();
 
         for (ITextComponent itextcomponent : list)
@@ -656,7 +656,7 @@ public class GuiNewChatOurs extends NewChatGui
         }
 
         list.add(itextcomponent);
-        return null;
+        return list;
     }
 
     public boolean isBase() {
