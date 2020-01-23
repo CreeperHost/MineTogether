@@ -1,51 +1,26 @@
-//package net.creeperhost.minetogether.server.command;
-//
-//import net.creeperhost.minetogether.util.Pair;
-//import net.creeperhost.minetogether.CreeperHostServer;
-//import net.minecraft.command.CommandBase;
-//import net.minecraft.command.CommandException;
-//import net.minecraft.command.ICommandSender;
-//import net.minecraft.command.WrongUsageException;
-//import net.minecraft.server.MinecraftServer;
-//import net.minecraft.util.math.BlockPos;
-//import net.minecraft.util.text.TextComponentTranslation;
-//import net.minecraft.util.text.TextFormatting;
-//import net.minecraft.world.World;
-//import net.minecraftforge.common.DimensionManager;
-//
-//import javax.annotation.Nullable;
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//public class CommandPregen extends CommandBase
-//{
-//    @Override
-//    public String getName()
-//    {
-//        return "chpregen";
-//    }
-//
-//    @Override
-//    public String getUsage(ICommandSender sender)
-//    {
-//        TextComponentTranslation chatcomponenttranslation1 = new TextComponentTranslation("creeperhostserver.command.pregen.usage1");
-//        chatcomponenttranslation1.getStyle().setColor(TextFormatting.RED);
-//        sender.sendMessage(chatcomponenttranslation1);
-//        TextComponentTranslation chatcomponenttranslation2 = new TextComponentTranslation("creeperhostserver.command.pregen.usage2");
-//        chatcomponenttranslation2.getStyle().setColor(TextFormatting.RED);
-//        sender.sendMessage(chatcomponenttranslation2);
-//        TextComponentTranslation chatcomponenttranslation3 = new TextComponentTranslation("creeperhostserver.command.pregen.usage3");
-//        chatcomponenttranslation3.getStyle().setColor(TextFormatting.RED);
-//        sender.sendMessage(chatcomponenttranslation3);
-//        TextComponentTranslation chatcomponenttranslation4 = new TextComponentTranslation("creeperhostserver.command.pregen.usage4");
-//        chatcomponenttranslation4.getStyle().setColor(TextFormatting.RED);
-//        sender.sendMessage(chatcomponenttranslation4);
-//        return "creeperhostserver.command.pregen.usage5";
-//    }
-//
-//    @Override
-//    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-//    {
+package net.creeperhost.minetogether.server.command;
+
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.DimensionArgument;
+import net.minecraft.world.dimension.DimensionType;
+
+public class CommandPregen
+{
+    public static ArgumentBuilder<CommandSource, ?> register()
+    {
+        return Commands.literal("pregen")
+                .requires(cs -> cs.hasPermissionLevel(4))
+                .then(Commands.argument("dim", DimensionArgument.getDimension())
+                        .executes(cs -> execute(cs, DimensionArgument.func_212592_a(cs, "dim"))));
+    }
+
+    public static int execute(CommandContext<CommandSource> ctx, DimensionType dimensionType) throws CommandException
+    {
+        return 0;
 //        int xDiameterPos = -1;
 //        int yDiameterPos = -1;
 //        int dimensionPos = -1;
@@ -184,32 +159,5 @@
 //            sender.sendMessage(new TextComponentTranslation("creeperhostserver.command.pregen.added"));
 //        else
 //            throw new WrongUsageException("creeperhostserver.command.pregen.alreadyexists");
-//    }
-//
-//    @Override
-//    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
-//    {
-//        Integer[] dimensions = DimensionManager.getStaticDimensionIDs();
-//        if (args.length == 1)
-//        {
-//            List<String> completions = new ArrayList<String>();
-//            completions.add("current");
-//            completions.add("remove");
-//            for (int dimension : dimensions)
-//            {
-//                completions.add(String.valueOf(dimension));
-//            }
-//            return getListOfStringsMatchingLastWord(args, completions);
-//        } else if (args.length == 2 && args[0].equals("remove"))
-//        {
-//            List<String> completions = new ArrayList<String>();
-//            completions.add("current");
-//            for (int dimension : dimensions)
-//            {
-//                completions.add(String.valueOf(dimension));
-//            }
-//            return getListOfStringsMatchingLastWord(args, completions);
-//        }
-//        return super.getTabCompletions(server, sender, args, targetPos);
-//    }
-//}
+    }
+}

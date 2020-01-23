@@ -2,6 +2,7 @@
 //
 //import com.google.gson.Gson;
 //import com.mojang.authlib.GameProfile;
+//import net.creeperhost.minetogether.MineTogether;
 //import net.creeperhost.minetogether.util.WebUtils;
 //import net.creeperhost.minetogether.CreeperHostServer;
 //import net.minecraft.command.CommandBase;
@@ -10,6 +11,7 @@
 //import net.minecraft.command.WrongUsageException;
 //import net.minecraft.server.MinecraftServer;
 //import net.minecraft.server.management.UserListWhitelist;
+//import net.minecraft.server.management.WhiteList;
 //import net.minecraft.util.math.BlockPos;
 //import net.minecraft.util.text.TextComponentString;
 //import net.minecraft.util.text.TextComponentTranslation;
@@ -24,17 +26,17 @@
 //import java.util.Collections;
 //import java.util.List;
 //
-//public class CommandInvite extends CommandBase
+//public class CommandInvite
 //{
 //    public static void reloadInvites(String[] prevNames)
 //    {
-//        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+//        MinecraftServer server = MineTogether.server;
 //        if (server == null)
 //        {
 //            return;
 //        }
 //        Gson gson = new Gson();
-//        UserListWhitelist whitelistedPlayers = server.getPlayerList().getWhitelistedPlayers();
+//        WhiteList whitelistedPlayers = server.getPlayerList().getWhitelistedPlayers();
 //        final ArrayList<String> tempHash = new ArrayList<String>();
 //        final ArrayList<String> removeHash = new ArrayList<String>();
 //

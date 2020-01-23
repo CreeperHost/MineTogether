@@ -1,66 +1,56 @@
 package net.creeperhost.minetogether.proxy;
 
+import net.creeperhost.minetogether.MineTogether;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.dedicated.ServerHangWatchdog;
+
 import java.lang.reflect.Field;
 
 
 public class ServerProxy implements IServerProxy
 {
-    private Field field = null;
-    private Field server = null;
-    
     @Override
     public boolean killWatchdog()
     {
-//        if (field == null)
-//        {
-//            try
-//            {
-//                field = Thread.class.getDeclaredField("target");
-//                field.setAccessible(true);
-//                server = ReflectionHelper.findField(ServerHangWatchdog.class, "server", "field_180249_b", "");
-//                server.setAccessible(true);
-//            } catch (Throwable e)
-//            {
-//                return false;
-//            }
-//        }
-//        Thread watchdogThread = CreeperHostServer.getThreadByName("Server Watchdog");
-//        if (watchdogThread == null)
-//        {
-//            return true;
-//        }
-//
-//        CreeperHostServer.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
-//
-//        try
-//        {
-//            ServerHangWatchdog target = (ServerHangWatchdog) field.get(watchdogThread);
+        Thread watchdogThread = MineTogether.getThreadByName("Server Watchdog");
+        if (watchdogThread == null)
+        {
+            return true;
+        }
+
+        MineTogether.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
+
+        try
+        {
+//            ServerHangWatchdog target = (ServerHangWatchdog) watchdogThread;
 //            server.set(target, null);
-//            watchdogThread.interrupt();
-//            return true;
-//        } catch (Throwable e) { return false; }
-        return false;
+            watchdogThread.interrupt();
+            return true;
+        }
+        catch (Throwable e)
+        {
+            return false;
+        }
     }
-    
     
     @Override
     public void resuscitateWatchdog()
     {
-//        DedicatedServer server = (DedicatedServer) instance().getMinecraftServerInstance();
-//        if (server.getMaxTickTime() > 0L)
-//        {
-//            Thread thread1 = new Thread(new ServerHangWatchdog(server));
-//            thread1.setName("Server Watchdog");
-//            thread1.setDaemon(true);
-//            thread1.start();
-//            CreeperHostServer.logger.info("Performing CPR. Server Watchdog is alive again!");
-//        }
+        DedicatedServer server = (DedicatedServer) MineTogether.server;
+        if (server.getMaxTickTime() > 0L)
+        {
+            Thread thread1 = new Thread(new ServerHangWatchdog(server));
+            thread1.setName("Server Watchdog");
+            thread1.setDaemon(true);
+            thread1.start();
+            MineTogether.logger.info("Performing CPR. Server Watchdog is alive again!");
+        }
     }
     
     @Override
     public boolean needsToBeKilled()
     {
         return false;
-//        return ((DedicatedServer) instance().getMinecraftServerInstance()).getMaxTickTime() > 0;
+//        return ((DedicatedServer) MineTogether.server.getMaxTickTime() > 0);
     }
 }

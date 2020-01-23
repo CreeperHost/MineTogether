@@ -91,7 +91,7 @@ public class GuiNewChatOurs extends NewChatGui
                 if (flag && this.scrollPos > 0)
                 {
                     this.isScrolled = true;
-//                    this.scroll(1);
+                    this.func_194813_a(1);
                 }
 
                 this.drawnChatLines.add(0, new ChatLine(updateCounter, itextcomponent, chatLineId));
@@ -152,7 +152,6 @@ public class GuiNewChatOurs extends NewChatGui
         return (int) (super.getChatWidth() - (16 * 0.75));
     }
     
-    private static Field drawnChatLinesField = null;
     private List<ChatLine> vanillaDrawnChatLines = null;
     
     @Override
@@ -318,13 +317,6 @@ public class GuiNewChatOurs extends NewChatGui
                 int j2 = -line * 9;
                 blit(-2, j2 - 9, k + 4, j2, l1 / 2 << 24, 0);
             }
-            
-            
-            //lines = lines - minLines;
-            //lines = 1;
-            
-            //if (!isBase() && getChatOpen())
-            //GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
 
             GlStateManager.popMatrix();
         }
@@ -463,14 +455,12 @@ public class GuiNewChatOurs extends NewChatGui
                 return null;
             } else
             {
-//                ScaledResolution scaledresolution = new ScaledResolution(this.mc);
-                double i = mouseX - 2.0D;
-                double f = mc.mainWindow.getScaledHeight() - mouseY - 40.0D;
-                double j = mouseX / i - 2;
-                double k = mouseY / i - 40;
+                double i = this.getScale();
+                double j = mouseX - 2.0D;
+                double k = (double)this.mc.mainWindow.getScaledHeight() - mouseY - 40.0D;
 
-                j = MathHelper.floor((float) j / f);
-                k = MathHelper.floor((float) k / f);
+                j = MathHelper.floor((float) j / i);
+                k = MathHelper.floor((float) k / i);
 
                 int l = Math.max(Math.min(this.getLineCount(), this.drawnChatLines.size()), 20);
 
@@ -677,7 +667,7 @@ public class GuiNewChatOurs extends NewChatGui
     {
         if (vanillaDrawnChatLines == null)
         {
-            vanillaDrawnChatLines =  drawnChatLines;
+            vanillaDrawnChatLines = drawnChatLines;
         }
         return vanillaDrawnChatLines;
     }

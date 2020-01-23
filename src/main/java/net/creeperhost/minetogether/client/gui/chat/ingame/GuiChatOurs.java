@@ -48,8 +48,9 @@ public class GuiChatOurs extends ChatScreen
     }
     
     @Override
-    protected void renderComponentHoverEffect(ITextComponent component, int x, int y)
+    protected void renderComponentHoverEffect(ITextComponent component, int mouseX, int mouseY)
     {
+        System.out.println(component.getFormattedText());
 //        if (component != null && component.getStyle().getHoverEvent() != null)
 //        {
 //            HoverEvent event = component.getStyle().getHoverEvent();
@@ -64,7 +65,7 @@ public class GuiChatOurs extends ChatScreen
 //                }
 //            }
 //        }
-        super.renderComponentHoverEffect(component, x, y);
+        super.renderComponentHoverEffect(component, mouseX, mouseY);
     }
     
     public void processBadwords()
@@ -169,12 +170,12 @@ public class GuiChatOurs extends ChatScreen
     {
 //        TimestampComponentString.setFakeActive(true);
 //        TimestampComponentString.setFakeActive(false);
-//        if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
-//        {
-//            menuDropdownButton.x = menuDropdownButton.y = -10000;
-//            menuDropdownButton.wasJustClosed = false;
-//            return true;
-//        }
+        if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
+        {
+            menuDropdownButton.x = menuDropdownButton.y = -10000;
+            menuDropdownButton.wasJustClosed = false;
+            return true;
+        }
         return super.mouseClicked(mouseX, mouseY, mouseButton);
     }
     
@@ -222,21 +223,6 @@ public class GuiChatOurs extends ChatScreen
         }
     }
     
-    private Field tabCompleterField = null;
-    
-    public void replaceTabCompleter()
-    {
-//        if (tabCompleterField == null)
-//        {
-//            tabCompleterField = ReflectionHelper.findField(ChatScreen.class, "tabCompleter", "field_184096_i", "");
-//            tabCompleterField.setAccessible(true);
-//        }
-
-//        try {
-//            tabCompleterField.set(this, new OurChatTabCompleter(inputField));
-//        } catch (IllegalAccessException ignored) {}
-    }
-    
     @Override
     public void init()
     {
@@ -256,7 +242,6 @@ public class GuiChatOurs extends ChatScreen
         this.inputField.setFocused2(true);
         this.inputField.setText(oldInputField.getText());
         this.inputField.setCanLoseFocus(false);
-        replaceTabCompleter();
         List<String> strings = new ArrayList<>();
         
         strings.add(I18n.format("minetogether.chat.button.mute"));
@@ -271,9 +256,8 @@ public class GuiChatOurs extends ChatScreen
             {
                 defaultStr = I18n.format("minetogether.ingame.chat.server");
             }
-        } catch (NullPointerException ignored)
-        {
-        }//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
+        } catch (NullPointerException ignored) {}//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
+
         if (ChatHandler.hasGroup)
         {
             addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, !MineTogether.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).isBase() ? 0 : ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).chatTarget.equals(ChatHandler.CHANNEL) ? 1 : 2, false, false, true, p->
@@ -282,29 +266,32 @@ public class GuiChatOurs extends ChatScreen
                 {
                     GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
                     ourChat.setBase(switchButton.activeButton == 0);
-                    if (!ourChat.isBase()) {
-                        ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);//ChatHandler.privateChatList.getChannelname());
+                    if (!ourChat.isBase())
+                    {
+                        ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);
                         processBadwords();
                     }
                     switchButton.setMessage(ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat");
                 }
-                else {
-                    try {
+                else
+                {
+                    try
+                    {
                         Minecraft.getInstance().displayGuiScreen(new GuiGDPR(null, () ->
                         {
                             GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-                            if(switchButton.activeButton == 1) {
+                            if(switchButton.activeButton == 1)
+                            {
                                 ourChat.setBase(false);
                                 ourChat.rebuildChat(ChatHandler.CHANNEL);
                             }
                             return new GuiChatOurs(presetString, sleep);
                         }));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    } catch (Exception e) { e.printStackTrace(); }
                 }
             }, defaultStr, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
-        } else
+        }
+        else
         {
             addButton(switchButton = new GuiButtonPair(x, height - 156, 156, 16, 0, false, false, true, p->
             {
@@ -312,26 +299,28 @@ public class GuiChatOurs extends ChatScreen
                 {
                     GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
                     ourChat.setBase(switchButton.activeButton == 0);
-                    if (!ourChat.isBase()) {
+                    if (!ourChat.isBase())
+                    {
                         ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);
                         processBadwords();
                     }
                     switchButton.setMessage(ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat");
                 }
-                else {
-                    try {
+                else
+                {
+                    try
+                    {
                         Minecraft.getInstance().displayGuiScreen(new GuiGDPR(null, () ->
                         {
                             GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-                            if(switchButton.activeButton == 1) {
+                            if(switchButton.activeButton == 1)
+                            {
                                 ourChat.setBase(false);
                                 ourChat.rebuildChat(ChatHandler.CHANNEL);
                             }
                             return new GuiChatOurs(presetString, sleep);
                         }));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    } catch (Exception e) { e.printStackTrace(); }
                 }
             }, defaultStr, I18n.format("minetogether.ingame.chat.global")));
         }
@@ -369,7 +358,7 @@ public class GuiChatOurs extends ChatScreen
         }
         super.tick();
     }
-    
+
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
@@ -381,19 +370,7 @@ public class GuiChatOurs extends ChatScreen
         this.inputField.render(mouseX, mouseY, partialTicks);
         this.inputField.func_212955_f();
 
-//        if (this.suggestions != null) {
-//            this.suggestions.render(mouseX, mouseY);
-//        } else {
-//            int i = 0;
-//
-//            for(String s : this.commandUsage) {
-//                fill(this.commandUsagePosition - 1, this.height - 14 - 13 - 12 * i, this.commandUsagePosition + this.commandUsageWidth + 1, this.height - 2 - 13 - 12 * i, -16777216);
-//                this.font.drawStringWithShadow(s, (float)this.commandUsagePosition, (float)(this.height - 14 - 13 + 2 - 12 * i), -1);
-//                ++i;
-//            }
-//        }
-
-        ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getTextComponent(mouseX, mouseY);
+        ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getTextComponent(mouseY, mouseX);
 
         if (!(this.mc.ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
@@ -407,19 +384,9 @@ public class GuiChatOurs extends ChatScreen
             mc.fontRenderer.drawString(str, x, y, 0xFFFFFF);
         }
 
-        if (!((GuiTextFieldLockable) inputField).getOurEnabled() && ((GuiTextFieldLockable) inputField).isHovered(mouseX, mouseY))
-        {
-            renderTooltip(Collections.singletonList(((GuiTextFieldLockable) inputField).getDisabledMessage()), mouseX, mouseY);
-        }
-
         if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
         {
             this.renderComponentHoverEffect(itextcomponent, mouseX, mouseY);
-            if (!TimestampComponentString.getChanged())
-                TimestampComponentString.clearActive();
-        } else
-        {
-            TimestampComponentString.clearActive();
         }
     }
     
@@ -432,6 +399,8 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean handleComponentClicked(ITextComponent component)
     {
+        System.out.println(component.getFormattedText());
+
         if (!(Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs || ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).isBase()))
         {
             return super.handleComponentClicked(component);
