@@ -22,6 +22,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.widget.list.ExtendedList;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -180,7 +181,8 @@ public class GuiMinigames extends Screen
         GlStateManager.rotatef((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
         GlStateManager.pushMatrix();
 
-//        itemRender.renderItemAndEffectIntoGUI(stack, -8, -8);
+        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+        itemRenderer.renderItemAndEffectIntoGUI(stack, -8, -8);
         
         GlStateManager.popMatrix();
         GlStateManager.popMatrix();
@@ -198,14 +200,37 @@ public class GuiMinigames extends Screen
         GuiScrollingMinigames tempMinigameScroll = new GuiScrollingMinigames(34);
         tempMinigameScroll.tick(minigameScroll);
         minigameScroll = tempMinigameScroll;
-        //TODO
-//        buttonList.add(settingsButton = new Button(808, width - 10 - 100, 5, 100, 20, "Login"));
-//        buttonList.add(spinupButton = new Button(809, width - 10 - 100, height - 5 - 20, 100, 20, "Start minigame"));
-//        buttonList.add(moddedButton = new GuiActiveFake(0xb00b, 10, 30, (width / 2) - 5, 20, "Modded"));
-//        buttonList.add(vanillaButton = new GuiActiveFake(0xb00b5, width - 10 - ((width / 2) - 10), 30, (width / 2) - 5, 20, "Vanilla"));
-//        buttonList.add(cancelButton = new Button(909, 10, height - 5 - 20, 100, 20, "Cancel"));
-        moddedButton.setActive(isModded);
-        vanillaButton.setActive(!isModded);
+        addButton(settingsButton = new Button( width - 10 - 100, 5, 100, 20, "Login", p ->
+        {
+            Minecraft.getInstance().displayGuiScreen(settings = new Settings());
+        }));
+        addButton(spinupButton = new Button(width - 10 - 100, height - 5 - 20, 100, 20, "Start minigame", p ->
+        {
+            if((State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null)
+            {
+                Minecraft.getInstance().displayGuiScreen(new StartMinigame(minigameScroll.getMinigame()));
+            }
+        }));
+        addButton(moddedButton = new GuiActiveFake(10, 30, (width / 2) - 5, 20, "Modded", p ->
+        {
+            isModded = true;
+            minigameScroll.setSelected(null);
+            moddedButton.setActive(true);
+            vanillaButton.setActive(false);
+        }));
+        addButton(vanillaButton = new GuiActiveFake( width - 10 - ((width / 2) - 10), 30, (width / 2) - 5, 20, "Vanilla", p ->
+        {
+            isModded = false;
+            minigameScroll.setSelected(null);
+            vanillaButton.setActive(true);
+            moddedButton.setActive(false);
+        }));
+        addButton(cancelButton = new Button( 10, height - 5 - 20, 100, 20, "Cancel", p ->
+        {
+            Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
+        }));
+//        moddedButton.setActive(isModded);
+//        vanillaButton.setActive(!isModded);
         State.refreshState();
     }
     
@@ -215,8 +240,8 @@ public class GuiMinigames extends Screen
         renderDirtBackground(1);
         if (Config.getInstance().isChatEnabled() && !ChatHandler.isOnline())
         {
-//            spinupButton.visible = spinupButton.enabled = vanillaButton.visible = vanillaButton.enabled =
-//                    moddedButton.visible = moddedButton.enabled = settingsButton.visible = settingsButton.enabled = false;
+            spinupButton.visible = spinupButton.active = vanillaButton.visible = vanillaButton.active =
+                    moddedButton.visible = moddedButton.active = settingsButton.visible = settingsButton.active = false;
             drawCenteredString(minecraft.fontRenderer, I18n.format("minetogether.minigames.notavailable"), width / 2, height / 2, 0xFFFFFFFF);
             super.render(mouseX, mouseY, partialTicks);
             return;
@@ -307,34 +332,6 @@ public class GuiMinigames extends Screen
         blit(p_178012_1_, p_178012_2_, 0.0F, 0.0F, width, height, texturew, textureh);
         GlStateManager.disableBlend();
     }
-
-
-//    @Override
-//    public void actionPerformed(GuiButton button)
-//    {
-//        if (button == settingsButton)
-//        {
-//            Minecraft.getMinecraft().displayGuiScreen(settings = new Settings());
-//        } else if (button == spinupButton && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null)
-//        {
-//            Minecraft.getMinecraft().displayGuiScreen(new StartMinigame(minigameScroll.getMinigame()));
-//        } else if (button == vanillaButton)
-//        {
-//            isModded = false;
-//            minigameScroll.clearSelected();
-//            vanillaButton.setActive(true);
-//            moddedButton.setActive(false);
-//        } else if (button == moddedButton)
-//        {
-//            isModded = true;
-//            minigameScroll.clearSelected();
-//            moddedButton.setActive(true);
-//            vanillaButton.setActive(false);
-//        } else if (button == cancelButton)
-//        {
-//            this.mc.displayGuiScreen(parent);
-//        }
-//    }
     
     private boolean areCredentialsValid()
     {
@@ -408,9 +405,7 @@ public class GuiMinigames extends Screen
                     key = obj.get("key").getAsString();
                     secret = obj.get("secret").getAsString();
                 }
-            } catch (IOException e)
-            {
-            }
+            } catch (IOException ignored) {}
         } else
         {
             credentialsFile.getParentFile().mkdirs();
@@ -429,9 +424,7 @@ public class GuiMinigames extends Screen
         try
         {
             FileUtils.writeStringToFile(credentialsFile, new Gson().toJson(creds));
-        } catch (IOException e)
-        {
-        }
+        } catch (IOException ignored) {}
     }
     
     private void drawStatusString(int x, int y)
@@ -664,7 +657,7 @@ public class GuiMinigames extends Screen
             List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
             return minigames == null ? 1 : minigames.size();
         }
-        
+
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess)
         {
             List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
@@ -674,7 +667,7 @@ public class GuiMinigames extends Screen
             } else
             {
                 Minigame game = minigames.get(slotIdx);
-                
+
                 if (!minigameTexturesCache.containsKey(game.id))
                 {
                     ResourceLocation resourceLocation = new ResourceLocation(ModInfo.MOD_ID, "minigame/" + game.id);
@@ -685,7 +678,7 @@ public class GuiMinigames extends Screen
                     } catch (IOException ignored)
                     {
                     }
-                    
+
                     if (imageData != null)
                     {
 //                        DynamicTexture texture = new DynamicTexture(imageData);
@@ -699,13 +692,13 @@ public class GuiMinigames extends Screen
                         minigameTexturesSize.put(game.id, new Pair(32, 32));
                     }
                 }
-                
+
                 ResourceLocation resourceLocation = minigameTexturesCache.get(game.id);
-                
+
                 Pair<Integer, Integer> wh = minigameTexturesSize.get(game.id);
-                
+
                 drawTextureAt(13, slotTop + 1, 28, 28, 28, 28, resourceLocation);
-                
+
                 GlStateManager.pushMatrix();
                 float scale = 1.5f;
                 GlStateManager.scalef(scale, scale, scale);
@@ -713,16 +706,16 @@ public class GuiMinigames extends Screen
                 int y = slotTop;
                 x = (int) (x / scale);
                 y = (int) (y / scale);
-                
+
                 int gameWidth = (int) (font.getStringWidth(minigames.get(slotIdx).displayName) * scale);
                 int newX = (width / 2) + (gameWidth / 2);
-                
+
                 drawCenteredString(font, minigames.get(slotIdx).displayName, x, y, 0xFFFFFFFF);
-                
+
                 GlStateManager.popMatrix();
-                
+
                 drawString(font, " by " + minigames.get(slotIdx).author, newX, slotTop + 2, 0xFFAAAAAA);
-                
+
                 String displayDescription = minigames.get(slotIdx).displayDescription;
                 if (font.getStringWidth(displayDescription) > (width - 96) * 2)
                 {
@@ -732,7 +725,7 @@ public class GuiMinigames extends Screen
                     }
                     displayDescription += "...";
                 }
-                
+
                 drawCenteredSplitString(displayDescription, width / 2, slotTop + 12, width - 84, 0xFFAAAAAA);
             }
         }
@@ -763,7 +756,7 @@ public class GuiMinigames extends Screen
         public Button loginButton;
         private boolean previous2fa;
         
-        protected Settings(ITextComponent p_i51108_1_)
+        protected Settings()
         {
             super(new StringTextComponent(""));
         }
@@ -782,13 +775,13 @@ public class GuiMinigames extends Screen
 //            labelList.add(oneCodeLabel = new GuiLabel(fontRendererObj, 80856, oneCodeField.xPosition, oneCodeField.yPosition - 10, 200, 20, 0xFFFFFFFF));
 //            oneCodeLabel.addLine("One-time code");
             
-            passwordField = new GuiTextFieldCompatCensor(font, width / 2 - 100, height / 2 + 10, 200, 20, "");
+            passwordField = new GuiTextFieldCompatCensor(font, width / 2 - 100, height / 2 + 10, 200, 20, "Password");
 //            labelList.add(passwordLabel = new GuiLabel(fontRendererObj, 80856, passwordField.xPosition, passwordField.yPosition - 10, 200, 20, 0xFFFFFFFF));
 //            passwordLabel.addLine("Password");
             
             addButton(cancelButton = new Button(width - 10 - 100, height - 5 - 20, 100, 20, "Go back", p ->
             {
-            
+                Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
             }));
             addButton(loginButton = new Button(width / 2 - 50, height / 2 + 40, 100, 20, "Save", p ->
             {
@@ -877,7 +870,7 @@ public class GuiMinigames extends Screen
             emailField.mouseClicked(mouseX, mouseY, p_mouseClicked_5_);
             passwordField.mouseClicked(mouseX, mouseY, p_mouseClicked_5_);
             oneCodeField.mouseClicked(mouseX, mouseY, p_mouseClicked_5_);
-            return false;
+            return super.mouseClicked(mouseX, mouseY, p_mouseClicked_5_);
         }
         
         @Override
@@ -962,28 +955,28 @@ public class GuiMinigames extends Screen
                             {
                                 try
                                 {
-//                                    State.pushState(State.MINIGAME_ACTIVE);
-//                                    ip = map.get("ip").toString();
-//                                    port = Double.valueOf(map.get("port").toString()).intValue();
-//                                    CreeperHostServer.serverOn = true;
-//                                    CreeperHostServer.startMinetogetherThread(map.get("ip").toString(), "Minigame: " + Minecraft.getInstance().getSession().getUsername(), Config.getInstance().curseProjectID, port, CreeperHostServer.Discoverability.INVITE);
-//                                    while (true)
-//                                    {
-//                                        if (CreeperHostServer.isActive)
-//                                        {
-//                                            State.pushState(State.READY_TO_JOIN);
-//                                            MineTogether.instance.curServerId = CreeperHostServer.updateID;
-//                                            MineTogether.instance.activeMinigame = String.valueOf(map.get("uuid"));
-//                                            MineTogether.instance.minigameID = minigame.id;
-//                                            MineTogether.instance.trialMinigame = map.get("type").equals("trial");
-//                                            break;
-//                                        } else if (CreeperHostServer.failed)
-//                                        {
-//                                            State.pushState(State.MINIGAME_FAILED);
-//                                            break;
-//                                        }
-//                                        Thread.sleep(1000);
-//                                    }
+                                    State.pushState(State.MINIGAME_ACTIVE);
+                                    ip = map.get("ip").toString();
+                                    port = Double.valueOf(map.get("port").toString()).intValue();
+                                    MineTogether.serverOn = true;
+                                    MineTogether.startMinetogetherThread(map.get("ip").toString(), "Minigame: " + Minecraft.getInstance().getSession().getUsername(), Config.getInstance().curseProjectID, port, MineTogether.Discoverability.INVITE);
+                                    while (true)
+                                    {
+                                        if (MineTogether.isActive)
+                                        {
+                                            State.pushState(State.READY_TO_JOIN);
+                                            MineTogether.instance.curServerId = MineTogether.updateID;
+                                            MineTogether.instance.activeMinigame = String.valueOf(map.get("uuid"));
+                                            MineTogether.instance.minigameID = minigame.id;
+                                            MineTogether.instance.trialMinigame = map.get("type").equals("trial");
+                                            break;
+                                        } else if (MineTogether.failed)
+                                        {
+                                            State.pushState(State.MINIGAME_FAILED);
+                                            break;
+                                        }
+                                        Thread.sleep(1000);
+                                    }
                                 } catch (Exception e)
                                 {
                                     e.printStackTrace();

@@ -3,18 +3,17 @@ package net.creeperhost.minetogether.events;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
+import net.creeperhost.minetogether.client.gui.GuiMinigames;
 import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
+import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.ModInfo;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.SleepInMultiplayerScreen;
+import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.server.MinecraftServer;
@@ -90,6 +89,56 @@ public class ScreenEvents
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(event.getGui()));
             }));
+        }
+
+        if(event.getGui() instanceof MultiplayerScreen || event.getGui() instanceof GuiMultiplayerPublic)
+        {
+            event.getWidgetList().forEach(b ->
+            {
+                if(b instanceof Button)
+                {
+                    if(b.getMessage().equalsIgnoreCase(I18n.format("selectServer.refresh")))
+                    {
+                        b.active = false;
+                        b.visible = false;
+                    }
+                    if(b.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")))
+                    {
+                        b.x -= 7;
+                        b.setWidth(b.getWidth() + 1);
+                    }
+                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.direct")))
+                    {
+                        b.x = event.getGui().width / 2 - 8;
+                        b.y = event.getGui().height - 28;
+                        b.setWidth(b.getWidth() - 14);
+                    }
+                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.add")))
+                    {
+                        b.x -= 25;
+                    }
+                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.cancel")))
+                    {
+                        b.x += 1;
+                        b.setWidth(b.getWidth() - 2);
+                    }
+                }
+            });
+
+            event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 133, event.getGui().height - 52, 2, p ->
+            {
+                Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen()));
+            }));
+
+            event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 75, 20, "Minigames", p ->
+            {
+                Minecraft.getInstance().displayGuiScreen(new GuiMinigames(event.getGui()));
+            }));
+            MultiplayerScreen multiplayerScreen = (MultiplayerScreen) event.getGui();
+            ServerSelectionList serverSelectionList = multiplayerScreen.serverListSelector;
+            ServerSelectionList.LanDetectedEntry entry = new ServerSelectionList.LanDetectedEntry();
+
+            multiplayerScreen.serverListSelector.serverListLan.add();
         }
     }
 

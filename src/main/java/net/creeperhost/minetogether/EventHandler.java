@@ -30,12 +30,6 @@ import java.util.Map;
 
 public class EventHandler
 {
-    private static final int MAIN_BUTTON_ID = 30051988;
-    private static final int MP_BUTTON_ID = 8008135;
-    private static final int CHAT_BUTTON_ID = 800813;
-    private static final int FRIEND_BUTTON_ID = 1337420;
-    private static final int MINIGAMES_BUTTON_ID = 0xdeadbeef;
-    
     //    private static GuiServerInfo guiServerInfo = new GuiServerInfo();
     private static Field reasonField = null;
     private static Field messageField = null;
@@ -160,39 +154,6 @@ public class EventHandler
                 MineTogether.instance.trialMinigame = true;
 //                event.setGui(new GuiMinigames(null, true));
             }
-        } else if (gui instanceof ChatScreen && Config.getInstance().isChatEnabled() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
-        {
-            String presetString = "";
-            boolean sleep = false;
-            if (gui instanceof SleepInMultiplayerScreen)
-            {
-                sleep = true;
-            }
-
-            if (defaultInputFieldTextField == null)
-            {
-                try
-                {
-                    defaultInputFieldTextField = ObfuscationReflectionHelper.findField(ChatScreen.class, "defaultInputFieldText");//, "field_146409_v", "");
-                } catch (Exception e) { e.printStackTrace(); }
-            }
-            try
-            {
-                presetString = (String) defaultInputFieldTextField.get(gui);
-//                MinecraftServer minecraftServerInstance = FMLCommonHandler.instance().getMinecraftServerInstance();
-//
-//                if (Config.getInstance().isAutoMT() && minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer() && Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs && firstOpen)
-//                {
-//                    firstOpen = false;
-//                    ((GuiNewChatOurs)Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(!MineTogether.instance.gdpr.hasAcceptedGDPR());
-//                }
-            } catch (IllegalAccessException ignored)
-            {
-            }
-            try
-            {
-                event.setGui(new GuiChatOurs(presetString, sleep));
-            } catch (Exception ignored) {}
         }
     }
     
@@ -421,62 +382,7 @@ public class EventHandler
 //                buttonDrawn = true;
 //                event.getButtonList().add(new GuiButton(FRIEND_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends")));
 //            }
-
-//            if (gui instanceof MainMenuScreen)
-//            {
-//
-//                int yPosition = 0;
-//                for (GuiButton butt : event.getButtonList())
-//                {
-//                    if (butt.id == 2)
-//                    {  // Multi Player
-//                        yPosition = butt.yPosition;
-//                        butt.width = 98;
-//                    }
-//                }
-//
-//                event.getButtonList().add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 + 2, yPosition, 98, 20, "Minigames"));
             }
-
-//            if (gui instanceof MultiplayerScreen && !(gui instanceof GuiMultiplayerPublic))
-//            {
-//                List<GuiButton> buttonList = event.getButtonList();
-//                for (GuiButton button : buttonList)
-//                {
-//                    if (button.id == 8)
-//                    {
-//                        button.visible = false;
-//                        button.enabled = false;
-//                    }
-//
-//                    if (button.id == 2)
-//                    {
-//                        button.xPosition -= 7;
-//                        button.width += 1;
-//                    }
-//
-//                    if (button.id == 4)
-//                    {
-//                        button.xPosition = gui.width / 2 - 8;
-//                        button.yPosition = gui.height - 28;
-//                        button.width -= 14;
-//                    }
-//
-//                    if (button.id == 3)
-//                    {
-//                        button.xPosition -= 25;
-//                    }
-//
-//
-//                    if (button.id == 0)
-//                    {
-//                        button.xPosition += 1;
-//                        button.width -= 2;
-//                    }
-//                }
-//                buttonList.add(new GuiButtonMultiple(8, gui.width / 2 + 133, gui.height - 52, 2));
-//                buttonList.add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 - 50, gui.height - 52, 75, 20, "Minigames"));
-//            }
         }
         
         if (Config.getInstance().isChatEnabled())

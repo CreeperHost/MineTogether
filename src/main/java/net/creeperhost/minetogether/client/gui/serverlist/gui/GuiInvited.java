@@ -1,6 +1,8 @@
 package net.creeperhost.minetogether.client.gui.serverlist.gui;
 
 import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.client.gui.serverlist.data.ServerDataPublic;
+import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.MockServerListEntryNormal;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListEntryPublic;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.util.Util;
@@ -27,7 +29,7 @@ public class GuiInvited extends Screen
         super(new StringTextComponent(""));
         this.invite = invite;
         this.parent = parent;
-        server = null;// new ServerListEntryPublic(new MockServerListEntryNormal(new ServerDataPublic(invite.server)));
+        server = null;//new ServerListEntryPublic(new MockServerListEntryNormal(new ServerDataPublic(invite.server)));
         canConnect = invite.project == Integer.valueOf(Config.getInstance().curseProjectID);
     }
     

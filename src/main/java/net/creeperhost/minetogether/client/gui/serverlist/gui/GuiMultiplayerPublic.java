@@ -69,16 +69,9 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMultiplayerPublic(parent, listType, sortOrder)));
             return;
         }
-
-//        if (!selectedListType)
-//        {
-//            mc.displayGuiScreen(new GuiServerType(this));
-//        }
         
         super.init();
-        
-//        this.buttons.clear();
-        
+
         addButton(new Button(width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"), p ->
         {
             if (changeSort)
@@ -133,70 +126,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
 //    {
 //        return false;
 //    }
-    
-    @SuppressWarnings("Duplicates")
-//    @Override
-//    public void createButtons()
-//    {
-//        super.createButtons();
-//        for (Button button : buttonList)
-//        {
-//            if (button.id != 0 && button.id != 1 && button.id != 3 && button.id != 7)
-//            {
-//                button.visible = false;
-//            } else if (button.id == 1) // original connect button
-//            {
-//                button.displayString = I18n.format("selectServer.add");
-//            } else if (button.id == 3) // original add button
-//            {
-//                button.displayString = I18n.format("selectServer.refresh");
-//            } else if (button.id == 7) // original edit button
-//            {
-//                button.displayString = I18n.format("creeperhost.multiplayer.friends");
-//                button.enabled = true;
-//            }
-//        }
-//        modeToggle = new Button(80085101, width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"));
-//        //modeToggle = new DropdownButton<>(80085101, width - 5 - 80, 5, 80, 20, "creeperhost.multiplayer.list", listType, false);
-//        sortOrderButton = new DropdownButton<>(80085102, width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false);
-//        buttonList.add(modeToggle);
-//        buttonList.add(sortOrderButton);
-//    }
 
-
-
-
-//    @SuppressWarnings("Duplicates")
-//    @Override
-//    protected void actionPerformed(GuiButton button) throws IOException
-//    {
-//        if (button.id == 3)
-//        {
-//            refresh();
-//            return;
-//        } else if (button.id == modeToggle.id)
-//        {
-//            if(changeSort) {
-//                changeSort = false;
-//            }
-//            mc.displayGuiScreen(new GuiServerType(this));
-//            return;
-//        } else if (button.id == 7)
-//        {
-//            MineTogether.proxy.openFriendsGui();
-//            return;
-//        } else if (button.id == sortOrderButton.id)
-//        {
-//            changeSort=true;
-//            sortOrder = sortOrderButton.getSelected();
-//            ourServerListSelector.sort();
-//            return;
-//        } else if(button.id == 0) {
-//            mc.displayGuiScreen(new GuiMockMultiplayer());
-//            return;
-//        }
-//        super.actionPerformed(button);
-//    }
 
 //    private void refresh()
 //    {
@@ -206,10 +136,10 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
 //    @Override
 //    public void connectToSelected()
 //    {
-////        GuiListExtended.IGuiListEntry entry = this.ourServerListSelector.getSelected() < 0 ? null : this.ourServerListSelector.getListEntry(this.ourServerListSelector.getSelected());
+//        GuiListExtended.IGuiListEntry entry = this.ourServerListSelector.getSelected() < 0 ? null : this.ourServerListSelector.getListEntry(this.ourServerListSelector.getSelected());
 //        ServerList savedServerList = new ServerListNoEdit(this.mc);
 //        savedServerList.loadServerList();
-////        savedServerList.addServerData(((ServerListEntryNormal) entry).getServerData());
+//        savedServerList.addServerData(((ServerListEntryNormal) entry).getServerData());
 //        savedServerList.saveServerList();
 //
 //        Minecraft mc = Minecraft.getInstance();
