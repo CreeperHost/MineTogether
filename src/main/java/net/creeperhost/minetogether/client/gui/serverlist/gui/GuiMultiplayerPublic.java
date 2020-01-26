@@ -8,15 +8,12 @@ import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerSelectionListPublic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.network.LanServerDetector;
 import net.minecraft.client.resources.I18n;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,16 +21,8 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
 {
     public ListType listType = null;
     public SortOrder sortOrder = SortOrder.RANDOM;
-    private boolean initialized;
     private Screen parent;
-    private Screen modeToggle;
     private boolean changeSort;
-    //private DropdownButton<ListType> modeToggle;
-    private DropdownButton<SortOrder> sortOrderButton;
-    private ServerListPublic ourSavedServerList = null;
-    private LanServerDetector.LanServerFindThread ourLanServerDetector = null;
-    private LanServerDetector.LanServerList ourLanServerList = null;
-    private ServerSelectionListPublic ourServerListSelector = null;
     private String ourTooltip;
     public boolean selectedListType = false;
     private Minecraft mc = Minecraft.getInstance();
@@ -106,8 +95,11 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         ourTooltip = null;
         super.render(mouseX, mouseY, partialTicks);
 
-        drawCenteredString(font, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
-
+        if(listType != null)
+        {
+            drawCenteredString(font, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
+        }
+        
         if (this.ourTooltip != null)
         {
             this.renderTooltip(Lists.newArrayList(Splitter.on("\n").split(ourTooltip)), mouseX, mouseY);

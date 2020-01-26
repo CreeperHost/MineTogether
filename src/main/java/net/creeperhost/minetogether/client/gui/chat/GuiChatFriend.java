@@ -1,8 +1,10 @@
 package net.creeperhost.minetogether.client.gui.chat;
 
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -33,8 +35,7 @@ public class GuiChatFriend extends Screen
         this.parent = parent;
         this.friendName = friendName;
     }
-
-
+    
     @Override
     public void init()
     {
@@ -43,7 +44,7 @@ public class GuiChatFriend extends Screen
         mc.keyboardListener.enableRepeatEvents(true);
         
         this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, "Cancel", (button) -> {
-            Minecraft.getInstance().displayGuiScreen(parent);
+            Minecraft.getInstance().displayGuiScreen(new GuiMTChat(new GuiMultiplayerPublic(new MainMenuScreen())));
         }));
         
         this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? "Accept" : "Send request", (buttons) ->
@@ -56,7 +57,7 @@ public class GuiChatFriend extends Screen
             {
                 ChatHandler.sendFriendRequest(chatInternalName, nameEntry.getText().trim());
             }
-            Minecraft.getInstance().displayGuiScreen(parent);
+            Minecraft.getInstance().displayGuiScreen(new GuiMTChat(new GuiMultiplayerPublic(new MainMenuScreen())));
         }));
         
         nameEntry = new TextFieldWidget(mc.fontRenderer, width / 2 - 100, height / 2 - 10, 200, 20, "");

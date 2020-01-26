@@ -52,7 +52,6 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
             GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             this.blit(this.x, drawY, 0, 46 + i * 20, this.width / 2, this.height);
             this.blit(this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
-//            this.mouseDragged(minecraft, x, y);
             int j = 14737632;
             
             if (getFGColor() != 0)
@@ -125,6 +124,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
             if (clickedElement != null)
             {
                 setSelected(clickedElement);
+                onPress();
                 close();
                 return true;
             }
