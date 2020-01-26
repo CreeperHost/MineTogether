@@ -65,15 +65,18 @@ public class ServerListPublic extends ServerList
     @Override
     public void swapServers(int pos1, int pos2)
     {
+        super.swapServers(pos1, pos2);
     }
 
     @Override
     public void set(int index, ServerData server)
     {
+        super.set(index, server);
     }
 
     @Override
     public void saveServerList()
     {
+        super.saveServerList();
     }
 }

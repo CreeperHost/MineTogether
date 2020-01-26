@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class LimitedSizeQueue<K> extends ArrayList<K>
 {
-    
     private int maxSize;
     
     public LimitedSizeQueue(int size)

@@ -2,8 +2,9 @@ package net.creeperhost.minetogether.client.gui.serverlist.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.GuiButtonLarge;
+import net.creeperhost.minetogether.client.gui.element.GuiButtonLarge;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
@@ -66,7 +67,7 @@ public class GuiServerType extends Screen
         }));
         addButton(new Button((width / 2) - 110, height - 22, 220, 20, I18n.format("gui.cancel"), p ->
         {
-            Minecraft.getInstance().displayGuiScreen(new GuiMockMultiplayer());
+            Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen()));
         }));
     }
     

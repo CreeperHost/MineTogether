@@ -665,7 +665,6 @@ public final class Callbacks
                             }
                         }
                     }
-                    
                     return list;
                 }
                 

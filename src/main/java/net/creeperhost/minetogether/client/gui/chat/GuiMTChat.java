@@ -120,12 +120,14 @@ public class GuiMTChat extends Screen
             {
                 if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
                 {
-                    MineTogether.instance.muteUser(activeDropdown);
-                    chat.updateLines(currentTarget);
+                    System.out.println("MUTE");
+//                    MineTogether.instance.muteUser(activeDropdown);
+//                    chat.updateLines(currentTarget);
                 }
                 else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
                 {
-                    minecraft.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                    System.out.println("FRIEND");
+//                    minecraft.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
                 }
                 else if (ChatHandler.privateChatInvite != null)
                 {
@@ -357,7 +359,18 @@ public class GuiMTChat extends Screen
         super.mouseClicked(mouseX, mouseY, mouseButton);
         send.mouseClicked(mouseX, mouseY, mouseButton);
         chat.mouseClicked(mouseX, mouseY, mouseButton);
-        return true;
+        if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
+        {
+            menuDropdownButton.x = menuDropdownButton.y = -10000;
+            menuDropdownButton.wasJustClosed = false;
+            return true;
+        }
+        
+        if(menuDropdownButton != null && menuDropdownButton.dropdownOpen)
+        {
+            menuDropdownButton.mouseClicked(mouseX, mouseY, mouseButton);
+        }
+        return false;
     }
 
     //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
@@ -446,7 +459,7 @@ public class GuiMTChat extends Screen
         {
             return false;
         }
-
+        
         if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
             String eventValue = event.getValue();

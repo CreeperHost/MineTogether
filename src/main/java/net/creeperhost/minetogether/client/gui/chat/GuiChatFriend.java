@@ -43,7 +43,6 @@ public class GuiChatFriend extends Screen
         mc.keyboardListener.enableRepeatEvents(true);
         
         this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, "Cancel", (button) -> {
-            System.out.println("BOOP");
             Minecraft.getInstance().displayGuiScreen(parent);
         }));
         

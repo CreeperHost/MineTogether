@@ -166,32 +166,7 @@ public class EventHandler
         boolean buttonDrawn = false;
         
         final Screen gui = event.getGui();
-        if (Config.getInstance().isMainMenuEnabled() && gui instanceof MainMenuScreen)
-        {
-            MineTogether.instance.setRandomImplementation();
-            if (MineTogether.instance.getImplementation() == null)
-                return;
-            List<Button> buttonList = null;
-            if (buttonList != null)
-            {
-                //Multiplayer button
-                if (buttonList.size() > 2)
-                {
-                    //if(buttonList.contains(2)) {
-                    int x = buttonList.get(2).x - buttonList.get(2).getWidth() - 26;
-                    buttonList.add(new GuiButtonCreeper(x, gui.height / 4 + 48 + 24, p ->
-                    {
-                    
-                    }));
-                } else
-                {
-                    buttonList.add(new GuiButtonCreeper(gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12, p ->
-                    {
-                    
-                    }));
-                }
-            }
-        } else if (gui instanceof MultiplayerScreen) //&& !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
+        if (gui instanceof MultiplayerScreen) //&& !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
         {
             MultiplayerScreen mpGUI = (MultiplayerScreen) gui;
             if (MineTogether.instance.getImplementation() == null)

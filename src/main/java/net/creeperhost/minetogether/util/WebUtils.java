@@ -15,7 +15,6 @@ import java.util.Map;
 
 public class WebUtils
 {
-    
     private static List<String> cookies;
     private static boolean logHide;
     
@@ -75,9 +74,8 @@ public class WebUtils
             {
                 postDataStringBuilder.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append("=").append(URLEncoder.encode(entry.getValue(), "UTF-8")).append("&");
             }
-        } catch (Exception e)
-        {
-        } finally
+        } catch (Exception ignored) {}
+        finally
         {
             postDataString = postDataStringBuilder.toString();
         }

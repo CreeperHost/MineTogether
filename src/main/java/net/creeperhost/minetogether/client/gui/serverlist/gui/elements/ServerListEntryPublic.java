@@ -17,7 +17,7 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
     public final MultiplayerScreen owner;
     private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
     private ResourceLocation applicationGui = new ResourceLocation("creeperhost", "textures/gui.png");
-    
+
     public ServerListEntryPublic(MultiplayerScreen mp, NormalEntry wrapped)
     {
 //        super(mp, wrapped.getServerData());
@@ -29,12 +29,12 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
 //    {
 //        this(wrapped.mockMP, wrapped);
 //    }
-    
+
     public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float newthingy)
     {
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
-    
+
     // < 1.12 compat
     public void func_180790_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
@@ -65,11 +65,11 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
 //        }*/
 //        return super.mousePressed(slotIndex, mouseX, mouseY, mouseEvent, x, y);
 //    }
-    
+
     public void ourDrawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
         Util.getWrapper().draw(wrapped, slotIndex, x, y, listWidth, slotHeight, mouseX > (listWidth / 2) ? mouseX : Integer.MAX_VALUE, mouseY, false);
-        
+
         Server server = null;//getServerData().server;
         EnumFlag flag = server.flag;
         String applicationURL = server.applicationURL;
@@ -92,7 +92,7 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
                 owner.setHoveringText(countryName + (server.subdivision.equals("Unknown") ? "" : "\n" + server.subdivision));
             }
         }
-        
+
         if (applicationURL != null)
         {
             Minecraft.getInstance().getTextureManager().bindTexture(applicationGui);
@@ -108,16 +108,16 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
             }
         }
     }
-    
+
     //    @Override
     public ServerDataPublic getServerData()
     {
         return null;//(ServerDataPublic) super.getServerData();
     }
-    
+
     @Override
     public void render(int p_render_1_, int p_render_2_, int p_render_3_, int p_render_4_, int p_render_5_, int p_render_6_, int p_render_7_, boolean p_render_8_, float p_render_9_)
     {
-    
+
     }
 }

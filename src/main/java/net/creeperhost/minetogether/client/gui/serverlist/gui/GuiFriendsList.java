@@ -163,11 +163,6 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
         
         codeEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 - 50, 160, 20, "");
         displayEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 + 0, 160, 20, "");
-
-//        friendDisplayString = Util.localize("multiplayer.friendcode", friendCode);
-//        int friendWidth = fontRendererObj.getStringWidth(friendDisplayString);
-//        buttonCopy = new GuiButton(4, 10 + friendWidth + 3, this.height - 26, 80, 20, Util.localize("multiplayer.button.copy"));
-//        buttonList.add(buttonCopy);
         
         buttonRefresh = addButton(new Button(this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"), p ->
         {
@@ -272,8 +267,6 @@ public class GuiFriendsList extends Screen// implements GuiYesNoCallback
             this.listMuted.render(mouseX, mouseY, partialTicks);
             this.drawCenteredString(this.font, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
         }
-
-//        this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
         
         super.render(mouseX, mouseY, partialTicks);
         

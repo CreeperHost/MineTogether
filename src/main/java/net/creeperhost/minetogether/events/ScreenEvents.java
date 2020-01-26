@@ -136,9 +136,9 @@ public class ScreenEvents
             }));
             MultiplayerScreen multiplayerScreen = (MultiplayerScreen) event.getGui();
             ServerSelectionList serverSelectionList = multiplayerScreen.serverListSelector;
-            ServerSelectionList.LanDetectedEntry entry = new ServerSelectionList.LanDetectedEntry();
+//            ServerSelectionList.LanDetectedEntry entry = new ServerSelectionList.LanDetectedEntry();
 
-            multiplayerScreen.serverListSelector.serverListLan.add();
+//            multiplayerScreen.serverListSelector.serverListLan.add();
         }
     }
 
