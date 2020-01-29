@@ -6,10 +6,10 @@ import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
-import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 
+import net.creeperhost.minetogether.oauth.ServerAuthTest;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -54,6 +54,7 @@ public class GuiMTChat extends GuiScreen
     private GuiButton cancelButton;
     private GuiButton invited;
     private boolean inviteTemp = false;
+    private GuiButton testButton;
 
     public GuiMTChat(GuiScreen parent)
     {
@@ -114,6 +115,8 @@ public class GuiMTChat extends GuiScreen
             confirmInvite();
             inviteTemp = false;
         }
+
+        buttonList.add(testButton = new GuiButton(-80089, 5 + 80, height - 5 - 25, 100, 20, "TARST")); // TODO: remove
     }
 
     long tickCounter = 0;
@@ -122,6 +125,7 @@ public class GuiMTChat extends GuiScreen
     public void updateScreen()
     {
         super.updateScreen();
+        ServerAuthTest.processPackets();
         if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
             if(!ChatHandler.isInitting) {
@@ -272,6 +276,8 @@ public class GuiMTChat extends GuiScreen
             } else if (button == invited && ChatHandler.privateChatInvite != null)
             {
                 confirmInvite();
+            } else if (button == testButton) {
+                ServerAuthTest.auth();
             }
             chat.actionPerformed(button);
             super.actionPerformed(button);
