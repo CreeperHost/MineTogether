@@ -20,7 +20,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 
-public class GuiFriendsList extends Screen// implements GuiYesNoCallback
+public class GuiFriendsList extends Screen
 {
     private final Screen parent;
     private GuiList<GuiListEntryFriend> list;

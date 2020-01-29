@@ -21,10 +21,6 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.event.server.ServerLifecycleEvent;
-
-import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Mod.EventBusSubscriber(modid = ModInfo.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -134,11 +130,6 @@ public class ScreenEvents
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMinigames(event.getGui()));
             }));
-            MultiplayerScreen multiplayerScreen = (MultiplayerScreen) event.getGui();
-            ServerSelectionList serverSelectionList = multiplayerScreen.serverListSelector;
-//            ServerSelectionList.LanDetectedEntry entry = new ServerSelectionList.LanDetectedEntry();
-
-//            multiplayerScreen.serverListSelector.serverListLan.add();
         }
     }
 
