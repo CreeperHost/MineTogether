@@ -511,9 +511,7 @@ public class CreeperHostServer
         try
         {
             output = gson.fromJson(IOUtils.toString(file.toURI()), listOfPregenTask);
-        } catch (Exception e)
-        {
-        }
+        } catch (Exception ignored) {}
         if (output == null)
             pregenTasks = new HashMap<Integer, PregenTask>();
         else
