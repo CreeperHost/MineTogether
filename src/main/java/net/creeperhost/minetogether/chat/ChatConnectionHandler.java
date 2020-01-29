@@ -12,10 +12,6 @@ public class ChatConnectionHandler {
     public boolean banned;
     public String banReason = "";
 
-    {
-
-    }
-
     public synchronized void setup(String nickIn, String realNameIn, boolean onlineIn, IHost _host) {
         ChatHandler.online = onlineIn;
         ChatHandler.realName = realNameIn;
@@ -52,7 +48,7 @@ public class ChatConnectionHandler {
                 ((Client.WithManagement) ChatHandler.client).getActorTracker().setQueryChannelInformation(true);
                 ChatHandler.client.getEventManager().registerEventListener(new ChatHandler.Listener());
                 ChatHandler.client.addChannel(ChatHandler.CHANNEL);
-                ChatHandler.inited = true;
+                ChatHandler.inited.set(true);
                 ChatHandler.isInitting = false;
             }
         }).start();
@@ -67,7 +63,7 @@ public class ChatConnectionHandler {
 
     public boolean canConnect()
     {
-        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited || ChatHandler.isInitting;
+        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited.get() || ChatHandler.isInitting;
     }
 
     public void nextConnectAllow(int timeout) {

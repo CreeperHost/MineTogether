@@ -20,6 +20,7 @@ import org.kitteh.irc.client.library.event.user.*;
 import org.kitteh.irc.client.library.util.Format;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class ChatHandler
@@ -37,7 +38,7 @@ public class ChatHandler
     static boolean online = false;
     public static boolean isInitting = false;
     public static int tries = 0;
-    static boolean inited = false;
+    static AtomicBoolean inited = new AtomicBoolean(false);
     public static List<String> badwords;
     public static String badwordsFormat;
     public static String currentGroup = "";
@@ -51,13 +52,14 @@ public class ChatHandler
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
         ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn, _host);
+        System.out.println("Attempting to connect to chat server");
         ChatConnectionHandler.INSTANCE.connect();
     }
 
     public static void reInit()
     {
         if(!isInitting && host != null && initedString != null && realName != null) {
-            inited = false;
+            inited.set(false);
             init(initedString, realName, online, host);
         }
     }
@@ -331,7 +333,6 @@ public class ChatHandler
                     if (privateChatList != null && channelName.equals(privateChatList.channelname)) {
                         if (privateChatList.owner.equals(event.getUser().getNick())) {
                             host.closeGroupChat();
-                            // TODO: make sure the chat closes too
                         }
                     }
                 }
@@ -347,7 +348,6 @@ public class ChatHandler
             friends.remove(friendNick);
             if (privateChatList != null && privateChatList.owner.equals(friendNick)) {
                 host.closeGroupChat();
-                // TODO: make sure the chat closes too
             }
         }
 

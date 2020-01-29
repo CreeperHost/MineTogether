@@ -428,8 +428,10 @@ public class CreeperHostServer
                     task.curChunksPerTick = 1;
                 }
             }
-            
-            if (world.getChunkProvider().getLoadedChunkCount() >= task.chunkLoadCount + (chunksDelta * 2))
+
+            double percentage = ((double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / Runtime.getRuntime().totalMemory()) * 100;
+
+            if (world.getChunkProvider().getLoadedChunkCount() >= task.chunkLoadCount + (chunksDelta * 2) || percentage >= 80)
             {
                 // handle runaway unloading - if we've stored up the equivalent of 20 seconds worth of chunks not being unloaded, if a mod is doing bad(tm) things.
                 task.chunkLoadCount = world.getChunkProvider().getLoadedChunkCount();
