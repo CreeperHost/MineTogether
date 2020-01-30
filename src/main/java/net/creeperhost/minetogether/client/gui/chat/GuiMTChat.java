@@ -486,6 +486,10 @@ public class GuiMTChat extends Screen
             activeDropdown = event.getValue();
             return true;
         }
+        if(event.getAction() == ClickEvent.Action.OPEN_URL)
+        {
+            this.handleComponentClicked(component);
+        }
         return false;
     }
 

@@ -50,21 +50,6 @@ public class GuiChatOurs extends ChatScreen
     @Override
     protected void renderComponentHoverEffect(ITextComponent component, int mouseX, int mouseY)
     {
-        System.out.println(component.getFormattedText());
-//        if (component != null && component.getStyle().getHoverEvent() != null)
-//        {
-//            HoverEvent event = component.getStyle().getHoverEvent();
-//            if (event.getAction() == CreeperHost.instance.TIMESTAMP)
-//            {
-//                List<ITextComponent> siblings = ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).getBaseChatComponent(x, y).getSiblings();
-//                for(ITextComponent sibling: siblings) {
-//                    if (sibling instanceof TimestampComponentString)
-//                    {
-//                        ((TimestampComponentString)sibling).setActive();
-//                    }
-//                }
-//            }
-//        }
         super.renderComponentHoverEffect(component, mouseX, mouseY);
     }
     
@@ -168,15 +153,14 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
-//        TimestampComponentString.setFakeActive(true);
-//        TimestampComponentString.setFakeActive(false);
+        super.mouseClicked(mouseX, mouseY, mouseButton);
         if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
         {
             menuDropdownButton.x = menuDropdownButton.y = -10000;
             menuDropdownButton.wasJustClosed = false;
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, mouseButton);
+        return false;
     }
     
     @Override
@@ -200,11 +184,6 @@ public class GuiChatOurs extends ChatScreen
             {
                 this.mc.ingameGUI.getChatGUI().addToSentMessages(msg);
             }
-//            if (net.minecraftforge.client.ClientCommandHandler.instance.executeCommand(mc.player, msg) != 0)
-//            {
-//                ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true);
-//                return;
-//            }
             if (ChatHandler.isOnline())
             {
                 String text = GuiMTChat.getStringForSending(msg);
@@ -338,7 +317,7 @@ public class GuiChatOurs extends ChatScreen
                 mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
             }
         }));
-        menuDropdownButton.flipped = true;
+        menuDropdownButton.flipped = false;
         if (sleep)
         {
             addButton(new Button(this.width / 2 - 100, this.height - 40, 20, 20, I18n.format("multiplayer.stopSleeping"), p->
@@ -384,10 +363,10 @@ public class GuiChatOurs extends ChatScreen
             mc.fontRenderer.drawString(str, x, y, 0xFFFFFF);
         }
 
-        if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
-        {
-            this.renderComponentHoverEffect(itextcomponent, mouseX, mouseY);
-        }
+//        if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
+//        {
+//            this.renderComponentHoverEffect(itextcomponent, mouseX, mouseY);
+//        }
     }
     
     private void wakeFromSleep()
@@ -399,8 +378,6 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean handleComponentClicked(ITextComponent component)
     {
-        System.out.println(component.getFormattedText());
-
         if (!(Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs || ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).isBase()))
         {
             return super.handleComponentClicked(component);
@@ -437,13 +414,13 @@ public class GuiChatOurs extends ChatScreen
                 Minecraft.getInstance().displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), chatInternalName, friendCode, friendName, true));
                 
                 return true;
-            };
-            menuDropdownButton.x = width / 2;
-            menuDropdownButton.y = this.height / 2;// - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+            }
+            menuDropdownButton.x = (int) mc.mouseHelper.getMouseX() * this.height / this.mc.mainWindow.getWidth() + 28;
+            menuDropdownButton.y = (int) mc.mouseHelper.getMouseY() * this.height / this.mc.mainWindow.getHeight() - 1;
             menuDropdownButton.dropdownOpen = true;
             activeDropdown = event.getValue();
             return true;
         }
-        return super.handleComponentClicked(component);
+        return false;
     }
 }

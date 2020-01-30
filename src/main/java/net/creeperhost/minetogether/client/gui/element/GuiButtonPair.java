@@ -184,6 +184,7 @@ public class GuiButtonPair extends Button
             {
                 activeButton = buttonNum;
                 button.setActive(true);
+                onPress();
                 pressed = true;
             } else {
                 button.setActive(false);

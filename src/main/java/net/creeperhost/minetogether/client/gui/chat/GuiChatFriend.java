@@ -44,7 +44,7 @@ public class GuiChatFriend extends Screen
         mc.keyboardListener.enableRepeatEvents(true);
         
         this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, "Cancel", (button) -> {
-            Minecraft.getInstance().displayGuiScreen(new GuiMTChat(new GuiMultiplayerPublic(new MainMenuScreen())));
+            Minecraft.getInstance().displayGuiScreen(parent);
         }));
         
         this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? "Accept" : "Send request", (buttons) ->
@@ -57,7 +57,7 @@ public class GuiChatFriend extends Screen
             {
                 ChatHandler.sendFriendRequest(chatInternalName, nameEntry.getText().trim());
             }
-            Minecraft.getInstance().displayGuiScreen(new GuiMTChat(new GuiMultiplayerPublic(new MainMenuScreen())));
+            Minecraft.getInstance().displayGuiScreen(parent);
         }));
         
         nameEntry = new TextFieldWidget(mc.fontRenderer, width / 2 - 100, height / 2 - 10, 200, 20, "");

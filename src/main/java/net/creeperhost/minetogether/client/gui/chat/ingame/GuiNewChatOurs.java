@@ -441,9 +441,7 @@ public class GuiNewChatOurs extends NewChatGui
         }
     }
 
-    
     @Nullable
-    @Override
     public ITextComponent getTextComponent(double mouseX, double mouseY)
     {
         if (isBase())
@@ -455,99 +453,48 @@ public class GuiNewChatOurs extends NewChatGui
                 return null;
             } else
             {
-                double i = this.getScale();
-                double j = mouseX - 2.0D;
-                double k = (double)this.mc.mainWindow.getScaledHeight() - mouseY - 40.0D;
-
-                j = MathHelper.floor((float) j / i);
-                k = MathHelper.floor((float) k / i);
-
-                int l = Math.max(Math.min(this.getLineCount(), this.drawnChatLines.size()), 20);
-
-                int width = getChatWidth() + 3;
-
-                int top = this.mc.fontRenderer.FONT_HEIGHT * l + 1;
-
-                if (!chatTarget.equals(ChatHandler.CHANNEL) && j <= width && j >= width - mc.fontRenderer.getStringWidth(closeComponent.getFormattedText()) && k <= top && k >= top - (this.mc.fontRenderer.FONT_HEIGHT))
-                    return closeComponent;
-
-                if (j >= 0 && k >= 0)
+                double lvt_5_1_ = this.getScale();
+                double lvt_7_1_ = mouseX - 2.0D;
+                double lvt_9_1_ = (double) this.mc.mainWindow.getScaledHeight() - mouseY - 40.0D;
+                lvt_7_1_ = (double) MathHelper.floor(lvt_7_1_ / lvt_5_1_);
+                lvt_9_1_ = (double) MathHelper.floor(lvt_9_1_ / lvt_5_1_);
+                if (lvt_7_1_ >= 0.0D && lvt_9_1_ >= 0.0D)
                 {
-                    if (j <= MathHelper.floor((float) this.getChatWidth() / mc.mainWindow.getScaledHeight()) && k < this.mc.fontRenderer.FONT_HEIGHT * l + l)
+                    int lvt_11_1_ = Math.min(this.getLineCount(), this.drawnChatLines.size());
+                    if (lvt_7_1_ <= (double) MathHelper.floor((double) this.getChatWidth() / this.getScale()))
                     {
-                        int i1 = (int) (k / this.mc.fontRenderer.FONT_HEIGHT + this.scrollPos);
-
-                        if (i1 >= 0 && i1 < this.drawnChatLines.size())
+                        this.mc.fontRenderer.getClass();
+                        if (lvt_9_1_ < (double) (9 * lvt_11_1_ + lvt_11_1_))
                         {
-                            ChatLine chatline = this.drawnChatLines.get(i1);
-                            int j1 = 0;
-
-                            for (ITextComponent itextcomponent : chatline.getChatComponent())
+                            this.mc.fontRenderer.getClass();
+                            int lvt_12_1_ = (int) (lvt_9_1_ / 9.0D + (double) this.scrollPos);
+                            if (lvt_12_1_ >= 0 && lvt_12_1_ < this.drawnChatLines.size())
                             {
-                                if (itextcomponent instanceof StringTextComponent)
+                                ChatLine lvt_13_1_ = (ChatLine) this.drawnChatLines.get(lvt_12_1_);
+                                int lvt_14_1_ = 0;
+                                Iterator var15 = lvt_13_1_.getChatComponent().iterator();
+
+                                while (var15.hasNext())
                                 {
-                                    j1 += this.mc.fontRenderer.getStringWidth(RenderComponentsUtil.removeTextColorsIfConfigured(((StringTextComponent) itextcomponent).getText(), false));
-                                    if (j1 > j)
+                                    ITextComponent lvt_16_1_ = (ITextComponent) var15.next();
+                                    if (lvt_16_1_ instanceof StringTextComponent)
                                     {
-                                        return itextcomponent;
+                                        lvt_14_1_ += this.mc.fontRenderer.getStringWidth(RenderComponentsUtil.removeTextColorsIfConfigured(((StringTextComponent) lvt_16_1_).getText(), false));
+                                        if ((double) lvt_14_1_ > lvt_7_1_)
+                                        {
+                                            return lvt_16_1_;
+                                        }
                                     }
                                 }
                             }
+                            return null;
                         }
-
-                        return null;
-                    } else
-                    {
-                        return null;
                     }
+                    return null;
                 } else
                 {
                     return null;
                 }
-            }
-        }
-    }
-
-    @Nullable
-    public ITextComponent getBaseChatComponent(int mouseX, int mouseY)
-    {
-        if (!this.getChatOpen())
-        {
-            return null;
-        }
-        else
-        {
-            double i = mouseX - 2.0D;
-            double f = mc.mainWindow.getScaledHeight() - mouseY - 40.0D;
-            double j = mouseX / i - 2;
-            double k = mouseY / i - 40;
-            j = MathHelper.floor((float)j / f);
-            k = MathHelper.floor((float)k / f);
-
-            if (j >= 0 && k >= 0)
-            {
-                int l = Math.min(this.getLineCount(), this.drawnChatLines.size());
-
-                if (j <= MathHelper.floor((float)this.getChatWidth() / mc.mainWindow.getScaledHeight()) && k < this.mc.fontRenderer.FONT_HEIGHT * l + l)
-                {
-                    int i1 = (int) (k / this.mc.fontRenderer.FONT_HEIGHT + this.scrollPos);
-
-                    if (i1 >= 0 && i1 < this.drawnChatLines.size())
-                    {
-                        ChatLine chatline = this.drawnChatLines.get(i1);
-                        return chatline.getChatComponent();
-                    }
-
-                    return null;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
             }
         }
     }

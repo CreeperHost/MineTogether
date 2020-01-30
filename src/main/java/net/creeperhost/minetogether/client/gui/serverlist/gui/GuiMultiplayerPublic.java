@@ -24,9 +24,11 @@ import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GuiMultiplayerPublic extends MultiplayerScreen
 {
@@ -86,9 +88,24 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
 
         mc.keyboardListener.enableRepeatEvents(true);
 
-        if(listType == null)
+        CreeperHostEntry creeperHostEntry = new CreeperHostEntry(serverListSelector);
+
+        AtomicBoolean hasEntry = new AtomicBoolean(false);
+
+        if(listType == null && !hasEntry.get())
         {
-            serverListSelector.children().add(serverListSelector.children().lastIndexOf(serverListSelector.lanScanEntry), new CreeperHostEntry(serverListSelector));
+            serverListSelector.children().forEach(p ->
+            {
+                if(p instanceof CreeperHostEntry)
+                {
+                    hasEntry.set(true);
+                }
+            });
+
+            if(!hasEntry.get())
+            {
+                serverListSelector.children().add(serverListSelector.children().lastIndexOf(serverListSelector.lanScanEntry), creeperHostEntry);
+            }
         }
         
         if(listType != null)
@@ -195,8 +212,8 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         private final int stringWidth;
         protected final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/hidebtn.png");
 
-
-        public CreeperHostEntry(ServerSelectionList list) {
+        public CreeperHostEntry(ServerSelectionList list)
+        {
             super();
             mc = Minecraft.getInstance();
             serverIcon = new ResourceLocation("creeperhost", "textures/creeperhost.png");
@@ -205,7 +222,8 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         }
 
         @Override
-        public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float p_render_9_) {
+        public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float p_render_9_)
+        {
             ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
         }
 
@@ -230,12 +248,11 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
             GlStateManager.enableBlend();
             this.mc.fontRenderer.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 1, 16777215 + transparentString);
-            String s = Util.localize("mp.clickherebranding");
+            String s = Util.localize("mp.clickherebrand");
             this.mc.fontRenderer.drawString(s, x + 32 + 3, y + (this.mc.fontRenderer.FONT_HEIGHT * 2) + 3, 8421504 + transparentString);
             this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
             if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
             {
-
                 GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
                 final int tooltipX = mouseX - 72;
