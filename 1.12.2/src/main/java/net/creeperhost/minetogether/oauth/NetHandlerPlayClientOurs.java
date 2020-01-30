@@ -4,6 +4,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.*;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 
 @SuppressWarnings("NullableProblems")
 public class NetHandlerPlayClientOurs implements INetHandlerPlayClient {
@@ -16,7 +17,7 @@ public class NetHandlerPlayClientOurs implements INetHandlerPlayClient {
 
     @Override
     public void onDisconnect(ITextComponent reason) {
-        ServerAuthTest.disconnected(reason.getUnformattedComponentText());
+        ServerAuthTest.disconnected(TextFormatting.getTextWithoutFormattingCodes(reason.getUnformattedText()));
     }
 
     @Override

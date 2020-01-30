@@ -277,7 +277,15 @@ public class GuiMTChat extends GuiScreen
             {
                 confirmInvite();
             } else if (button == testButton) {
-                ServerAuthTest.auth();
+                ServerAuthTest.auth((success, message) -> {
+                    if (success)
+                    {
+                        // Do code stuff here
+                    } else {
+                        // Handle error here
+                    }
+                    return null;
+                });
             }
             chat.actionPerformed(button);
             super.actionPerformed(button);

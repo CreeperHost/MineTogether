@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Main {
     static AtomicReference<String> code = new AtomicReference<>(null);
 
-    public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
+    public static void oauth() throws IOException, InterruptedException, ExecutionException {
         try {
             new WebServer(false);
         } catch (IOException e) {

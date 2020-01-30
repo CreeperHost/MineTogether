@@ -1,13 +1,15 @@
 package net.creeperhost.minetogether.oauth;
 
 import com.mojang.authlib.GameProfile;
+import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerLoginClient;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.login.server.SPacketLoginSuccess;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 
 
 public class NetHandlerLoginClientOurs extends NetHandlerLoginClient {

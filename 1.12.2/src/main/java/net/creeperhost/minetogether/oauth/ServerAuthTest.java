@@ -7,9 +7,15 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.handshake.client.C00Handshake;
 import net.minecraft.network.login.client.CPacketLoginStart;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ServerAuthTest {
 
@@ -17,18 +23,29 @@ public class ServerAuthTest {
 
     private static boolean cancel = false;
 
-    public static String auth() {
+    private static NetworkManager networkManager = null;
+    private static BiFunction<Boolean, String, Void> callback = null;
+
+    public static void auth(BiFunction<Boolean, String, Void> callbackIn) {
+
+        if (true) {
+            try {
+                Main.oauth();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+        callback = callbackIn;
         //TODO: Callback based?
-        connect("5.181.12.90", 25565);
-        return "";
-    }
-
-    static NetworkManager networkManager = null;
-
-    private static void connect(final String ip, final int port)
-    {
         Minecraft mc = Minecraft.getMinecraft();
-        CreeperHost.logger.info("Connecting to {}, {}", ip, port);
+        final String address = "mc.auth.minetogether.io";
+        final int port = 25565;
+        CreeperHost.logger.info("Connecting to {}, {}", address, port);
         (new Thread("Server Connector #" + CONNECTION_ID.incrementAndGet())
         {
 
@@ -43,10 +60,10 @@ public class ServerAuthTest {
                         return;
                     }
 
-                    inetaddress = InetAddress.getByName(ip);
+                    inetaddress = InetAddress.getByName(address);
                     networkManager = NetworkManager.createNetworkManagerAndConnect(inetaddress, port, mc.gameSettings.isUsingNativeTransport());
                     networkManager.setNetHandler(new NetHandlerLoginClientOurs(networkManager, mc));
-                    networkManager.sendPacket(new C00Handshake(ip, port, EnumConnectionState.LOGIN, true));
+                    networkManager.sendPacket(new C00Handshake(address, port, EnumConnectionState.LOGIN, true));
                     networkManager.sendPacket(new CPacketLoginStart(mc.getSession().getProfile()));
                 }
                 catch (UnknownHostException unknownhostexception)
@@ -57,6 +74,7 @@ public class ServerAuthTest {
                     }
 
                     CreeperHost.logger.error("Couldn't connect to server", unknownhostexception);
+                    fireCallback(false, "Unknown Host");
                 }
                 catch (Exception exception)
                 {
@@ -66,6 +84,7 @@ public class ServerAuthTest {
                     }
 
                     CreeperHost.logger.error("Couldn't connect to server", exception);
+                    fireCallback(false, exception.getMessage());
                     String s = exception.toString();
 
                     if (inetaddress != null)
@@ -93,8 +112,23 @@ public class ServerAuthTest {
         }
     }
 
+    static final String regex = "code: (\\w{5})";
+    static final Pattern pattern = Pattern.compile(regex);
+
     public static void disconnected(String reason) {
-        CreeperHost.logger.info(reason);
+        final Matcher matcher = pattern.matcher(reason);
+        if (matcher.find()) {
+            String code = matcher.group(1);
+            fireCallback(true, code);
+        } else {
+            fireCallback(false, reason);
+        }
         networkManager = null;
+    }
+
+    public static void fireCallback(boolean status, String message) {
+        if (callback == null) return;
+        callback.apply(status, message);
+        callback = null;
     }
 }
