@@ -162,7 +162,7 @@ public class GuiChatOurs extends ChatScreen
         }
         return false;
     }
-    
+
     @Override
     public void sendMessage(String msg, boolean addToChat)
     {
@@ -327,7 +327,6 @@ public class GuiChatOurs extends ChatScreen
         }
     }
     
-    
     @Override
     public void tick()
     {
@@ -343,9 +342,15 @@ public class GuiChatOurs extends ChatScreen
     {
         this.buttons.forEach(p -> p.render(mouseX, mouseY, partialTicks));
 
+        if(isBase()) //Let Minecraft handle the rendering for the default chat as well as suggestions
+        {
+            super.render(mouseX, mouseY, partialTicks);
+            return;
+        }
+
         this.setFocused(this.inputField);
         this.inputField.setFocused2(true);
-        fill(2, this.height - 14, this.width - 2, this.height - 2, this.minecraft.gameSettings.func_216839_a(-2147483648));
+        fill(2, this.height - 14, this.width - 2, this.height - 2, mc.gameSettings.func_216839_a(-2147483648));
         this.inputField.render(mouseX, mouseY, partialTicks);
         this.inputField.func_212955_f();
 
@@ -362,11 +367,6 @@ public class GuiChatOurs extends ChatScreen
             int y = height - 40 - (mc.fontRenderer.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
             mc.fontRenderer.drawString(str, x, y, 0xFFFFFF);
         }
-
-//        if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
-//        {
-//            this.renderComponentHoverEffect(itextcomponent, mouseX, mouseY);
-//        }
     }
     
     private void wakeFromSleep()

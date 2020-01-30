@@ -22,8 +22,6 @@ public class ServerProxy implements IServerProxy
 
         try
         {
-//            ServerHangWatchdog target = (ServerHangWatchdog) watchdogThread;
-//            server.set(target, null);
             watchdogThread.interrupt();
             return true;
         }
@@ -50,7 +48,6 @@ public class ServerProxy implements IServerProxy
     @Override
     public boolean needsToBeKilled()
     {
-        return false;
-//        return ((DedicatedServer) MineTogether.server.getMaxTickTime() > 0);
+        return true;
     }
 }

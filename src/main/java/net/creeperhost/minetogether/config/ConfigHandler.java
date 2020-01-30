@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.config;
 
 import net.creeperhost.minetogether.lib.ModInfo;
-import net.minecraft.client.Minecraft;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -10,8 +9,7 @@ public class ConfigHandler
 {
     public static void init()
     {
-        //TODO this will not work on servers...
-        File base = Minecraft.getInstance().gameDir;
+        File base = new File("");
         
         File configDir = new File(base + File.separator + "config");
         if (configDir.exists())

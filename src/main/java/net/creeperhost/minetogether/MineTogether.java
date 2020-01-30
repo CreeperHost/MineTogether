@@ -22,31 +22,21 @@ import net.creeperhost.minetogether.lib.ModInfo;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.*;
-import net.creeperhost.minetogether.server.MineTogetherPropertyManager;
 import net.creeperhost.minetogether.server.command.CommandKill;
 import net.creeperhost.minetogether.server.hacky.IPlayerKicker;
 import net.creeperhost.minetogether.server.pregen.PregenTask;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.IServerPlayNetHandler;
-import net.minecraft.network.play.ServerPlayNetHandler;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.dedicated.ServerProperties;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -119,7 +109,6 @@ public class MineTogether implements ICreeperHostMod, IHost
         eventBus.addListener(this::serverStarting);
 //        eventBus.addListener(this::serverStarted);
 
-        MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(this);
     }
     
@@ -128,8 +117,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         ConfigHandler.init();
         proxy.checkOnline();
-        registerImplementation(new CreeperHostServerHost());
-        
+
         proxy.registerKeys();
 
 //        PacketHandler.packetRegister();
@@ -138,6 +126,8 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
+        registerImplementation(new CreeperHostServerHost());
+
         File gdprFile = new File("local/minetogether/gdpr.txt");
         gdpr = new GDPR(gdprFile);
         
@@ -167,7 +157,8 @@ public class MineTogether implements ICreeperHostMod, IHost
         } catch (Exception ignored)
         {
         }
-        
+
+        MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
     }
     

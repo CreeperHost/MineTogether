@@ -19,6 +19,7 @@ import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.common.IngameChat;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.events.ScreenEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.gui.screen.Screen;
@@ -27,6 +28,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.Session;
+import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -158,13 +160,6 @@ public class Client implements IProxy
         {
             isChatReplaced = true;
             IngameGui ingameGui = Minecraft.getInstance().ingameGUI;
-            ingameGui.persistantChatGUI = new GuiNewChatOurs(Minecraft.getInstance());
-
-//            try
-//            {
-//                Field field = ReflectionHelper.findField(GuiIngame.class, "persistantChatGUI", "field_73840_e", "");
-//                field.set(Minecraft.getInstance().ingameGUI, new GuiNewChatOurs(Minecraft.getInstance()));
-//            } catch (IllegalAccessException ignored) {}
         }
     }
     
