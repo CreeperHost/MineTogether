@@ -128,7 +128,7 @@ public class GuiMTChat extends GuiScreen
         ServerAuthTest.processPackets();
         if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
-            if(!ChatHandler.isInitting) {
+            if(!ChatHandler.isInitting.get()) {
                 ChatHandler.reInit();
             }
         }
@@ -187,7 +187,14 @@ public class GuiMTChat extends GuiScreen
         drawCenteredString(fontRendererObj, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
         ITextComponent comp = new TextComponentString("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
         comp.appendSibling(new TextComponentString(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
-        drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
+        if(ChatHandler.isInChannel.get())
+        {
+            drawString(fontRendererObj, "Please Contact Support at with your nick " + ChatHandler.nick + " " + new TextComponentString("here").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:creeperhost.net/contact"))), 10, height - 20, 0xFFFFFF);
+        } else
+        {
+            drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
+        }
+
         drawLogo(fontRendererObj, width - 20, height - 30, 20, 30, 0.75F);
         super.drawScreen(mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))

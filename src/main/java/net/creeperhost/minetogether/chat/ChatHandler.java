@@ -36,29 +36,29 @@ public class ChatHandler
     static Client client = null;
     static IHost host;
     static boolean online = false;
-    public static boolean isInitting = false;
+    public static AtomicBoolean isInitting = new AtomicBoolean(false);
     public static int tries = 0;
     static AtomicBoolean inited = new AtomicBoolean(false);
     public static List<String> badwords;
     public static String badwordsFormat;
     public static String currentGroup = "";
     public static String initedString = null;
-    static String nick;
+    public static String nick;
     static String realName;
     public static PrivateChat privateChatList = null;
     public static PrivateChat privateChatInvite = null;
     public static boolean hasGroup = false;
+    public static AtomicBoolean isInChannel = new AtomicBoolean(false);
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
         ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn, _host);
-        System.out.println("Attempting to connect to chat server");
         ChatConnectionHandler.INSTANCE.connect();
     }
 
     public static void reInit()
     {
-        if(!isInitting && host != null && initedString != null && realName != null) {
+        if(!isInitting.get() && host != null && initedString != null && realName != null) {
             inited.set(false);
             init(initedString, realName, online, host);
         }
