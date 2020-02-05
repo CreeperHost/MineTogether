@@ -399,7 +399,6 @@ public final class Callbacks
         {
             sendMap.put("hash", hash);
         }
-        System.out.println(hash);
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
