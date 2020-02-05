@@ -117,7 +117,6 @@ public class GuiMinigames extends Screen
             minigames = tempModded;
             vanillaMinigames = tempVanilla;
         });
-        
     }
     
     @Override

@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
+import net.creeperhost.minetogether.client.gui.element.ButtonString;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.paul.Callbacks;
@@ -34,8 +35,11 @@ import net.minecraftforge.common.ForgeHooks;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,6 +61,8 @@ public class GuiMTChat extends Screen
     private Button invited;
     private boolean inviteTemp = false;
     public static List<TextFormatting> formattingList = new ArrayList<>();
+    private String banMessage = "";
+    private ButtonString banButton;
 
     public GuiMTChat(Screen parent)
     {
@@ -168,6 +174,15 @@ public class GuiMTChat extends Screen
         {
             confirmInvite();
             inviteTemp = false;
+        }
+
+        if(Callbacks.isBanned())
+        {
+            banMessage = Callbacks.getBanMessage();
+            addButton(banButton = new ButtonString(30, height - 26, 60, 20, "Ban Reason: " + banMessage, p ->
+            {
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(Callbacks.banID), null);
+            }));
         }
     }
 

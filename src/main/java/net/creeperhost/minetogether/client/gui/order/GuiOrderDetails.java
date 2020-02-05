@@ -51,18 +51,20 @@ public class GuiOrderDetails extends GuiGetServer
         this.buttonNext.visible = false;
         buttonCancel.setMessage(Util.localize("order.ordercancel"));
         buttonCancel.active = false;
+        buttonPrev.active = false;
+        buttonPrev.visible = false;
         buttonInvoice = addButton(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, Util.localize("button.invoice"), p ->
         {
             try
             {
-                Class<?> oclass = Class.forName("java.awt.Desktop");
-                Object object = oclass.getMethod("getDesktop", new Class[0]).invoke((Object) null, new Object[0]);
-                oclass.getMethod("browse", new Class[]{URI.class}).invoke(object, new Object[]{new URI(MineTogether.instance.getImplementation().getPaymentLink(invoiceID))});
+                net.minecraft.util.Util.getOSType().openURI(new URI(MineTogether.instance.getImplementation().getPaymentLink(invoiceID)));
             } catch (Throwable throwable)
             {
                 MineTogether.logger.error("Couldn\'t open link", throwable);
             }
         }));
+        buttonNext.visible = true;
+        buttonNext.active = true;
         buttonInvoice.visible = false;
     }
     
@@ -141,7 +143,7 @@ public class GuiOrderDetails extends GuiGetServer
             buttonInvoice.visible = true;
             buttonNext.visible = true;
             buttonCancel.active = true;
-            return;
+            buttonNext.active = true;
         } else
         {
             buttonNext.active = true;

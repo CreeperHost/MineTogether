@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.client.gui.order;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.util.Util;
+import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -77,7 +78,7 @@ public abstract class GuiGetServer extends Screen
         {
             if ((this.stepId + 1) == STEP_AMOUNT)
             {
-                this.minecraft.displayGuiScreen(new MultiplayerScreen(null));
+                this.minecraft.displayGuiScreen(new MultiplayerScreen(new MainMenuScreen()));
             } else
             {
                 this.minecraft.displayGuiScreen(getByStep(this.stepId + 1, this.order));

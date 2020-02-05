@@ -2,6 +2,8 @@ package net.creeperhost.minetogether.client.gui.serverlist.data;
 
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListEntryPublic;
 import net.creeperhost.minetogether.data.EnumFlag;
+import net.creeperhost.minetogether.paul.Callbacks;
+import net.minecraft.client.gui.screen.ServerSelectionList;
 
 import java.util.Comparator;
 
@@ -32,29 +34,29 @@ public class Server
         return "Server[" + displayName + ", " + host + ", " + uptime + ", " + playerCount + ", " + flag.name() + "]";
     }
 
-    //    public static class NameComparator implements Comparator<ServerListEntryPublic>
-//    {
-//        public static final NameComparator INSTANCE = new NameComparator();
-//
-//        private NameComparator()
-//        {
-//        }
-//
-//        @Override
-//        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
-//        {
-//            String str1 = o1.getServerData().server.displayName;
-//            String str2 = o2.getServerData().server.displayName;
-//            int res = String.CASE_INSENSITIVE_ORDER.compare(str1, str2);
-//            if (res == 0)
-//            {
-//                res = str1.compareTo(str2);
-//            }
-//            return res;
-//        }
-//    }
-//
-    public static class PlayerComparator implements Comparator<ServerListEntryPublic>
+    public static class NameComparator implements Comparator<ServerSelectionList.NormalEntry>
+    {
+        public static final NameComparator INSTANCE = new NameComparator();
+
+        private NameComparator()
+        {
+        }
+
+        @Override
+        public int compare(ServerSelectionList.NormalEntry o1, ServerSelectionList.NormalEntry o2)
+        {
+            String str1 = o1.getServerData().serverName;
+            String str2 = o2.getServerData().serverName;
+            int res = String.CASE_INSENSITIVE_ORDER.compare(str1, str2);
+            if (res == 0)
+            {
+                res = str1.compareTo(str2);
+            }
+            return res;
+        }
+    }
+
+    public static class PlayerComparator implements Comparator<ServerSelectionList.NormalEntry>
     {
         public static final PlayerComparator INSTANCE = new PlayerComparator();
 
@@ -63,11 +65,9 @@ public class Server
         }
 
         @Override
-        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
+        public int compare(ServerSelectionList.NormalEntry o1, ServerSelectionList.NormalEntry o2)
         {
-            return o1.getServerData().server.playerCount > o2.getServerData().server.playerCount ? -1
-                    : o1.getServerData().server.playerCount < o2.getServerData().server.playerCount ? 1
-                    : 0;
+            return Integer.compare(o2.getServerData().playerList.length(), o1.getServerData().playerList.length());
         }
     }
 
@@ -82,9 +82,7 @@ public class Server
         @Override
         public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
         {
-            return o1.getServerData().server.uptime > o2.getServerData().server.uptime ? -1
-                    : o1.getServerData().server.uptime < o2.getServerData().server.uptime ? 1
-                    : 0;
+            return Integer.compare(o2.getServerData().server.uptime, o1.getServerData().server.uptime);
         }
     }
 
@@ -97,7 +95,7 @@ public class Server
 //        }
 //
 //        @Override
-//        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
+//        public int compare(ServerSelectionList.NormalEntry o1, ServerSelectionList.NormalEntry o2)
 //        {
 //            if (o1.getServerData().server.flag == null)
 //            {
@@ -140,7 +138,7 @@ public class Server
 //        }
 //    }
 
-    public static class PingComparator implements Comparator<ServerListEntryPublic>
+    public static class PingComparator implements Comparator<ServerSelectionList.NormalEntry>
     {
         public static final PingComparator INSTANCE = new PingComparator();
 
@@ -149,7 +147,7 @@ public class Server
         }
 
         @Override
-        public int compare(ServerListEntryPublic o1, ServerListEntryPublic o2)
+        public int compare(ServerSelectionList.NormalEntry o1, ServerSelectionList.NormalEntry o2)
         {
             if (o1.getServerData().pingToServer == o2.getServerData().pingToServer)
             {
@@ -163,9 +161,7 @@ public class Server
             {
                 return -1;
             }
-            return o1.getServerData().pingToServer < o2.getServerData().pingToServer ? -1
-                    : o1.getServerData().pingToServer > o2.getServerData().pingToServer ? 1
-                    : 0;
+            return Long.compare(o1.getServerData().pingToServer, o2.getServerData().pingToServer);
         }
     }
 }

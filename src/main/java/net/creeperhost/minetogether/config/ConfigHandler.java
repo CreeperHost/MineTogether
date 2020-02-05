@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.config;
 
 import net.creeperhost.minetogether.lib.ModInfo;
+import net.minecraft.client.Minecraft;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -9,7 +10,7 @@ public class ConfigHandler
 {
     public static void init()
     {
-        File base = new File("");
+        File base = Minecraft.getInstance().gameDir;
         
         File configDir = new File(base + File.separator + "config");
         if (configDir.exists())
@@ -28,9 +29,7 @@ public class ConfigHandler
                 {
                     Config.loadFromFile(f1);
                 }
-            } catch (Exception ignored)
-            {
-            }
+            } catch (Exception ignored) {}
         }
     }
 }

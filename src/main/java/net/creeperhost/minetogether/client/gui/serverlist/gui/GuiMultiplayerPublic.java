@@ -11,6 +11,8 @@ import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.client.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
+import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
+import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListEntryPublic;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.util.Util;
@@ -26,18 +28,21 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GuiMultiplayerPublic extends MultiplayerScreen
 {
     public ListType listType = null;
-    public SortOrder sortOrder = SortOrder.RANDOM;
+    public SortOrder sortOrder = SortOrder.PING;
     private Screen parent;
     private boolean changeSort;
     private String ourTooltip;
     public boolean selectedListType = false;
+    private DropdownButton<SortOrder> sortOrderButton;
     private Minecraft mc = Minecraft.getInstance();
     
     public GuiMultiplayerPublic(Screen parentScreen)
@@ -114,12 +119,45 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             serverListPublic.loadServerList();
     
             setServerList(serverListPublic);
+
+            addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false, p ->
+            {
+                changeSort = true;
+                sortOrder = sortOrderButton.getSelected();
+                sort();
+            }));
         }
     }
 
     private void setServerList(ServerListPublic serverList)
     {
         serverListSelector.updateOnlineServers(serverList);
+    }
+
+    public void sort()
+    {
+        switch (this.sortOrder)
+        {
+            default:
+            case RANDOM:
+                Collections.shuffle(serverListSelector.serverListInternet);
+                break;
+            case PLAYER:
+                serverListSelector.serverListInternet.sort(Server.PlayerComparator.INSTANCE);
+                break;
+//            case UPTIME:
+//                Collections.sort(serverListSelector.serverListInternet, Server.UptimeComparator.INSTANCE);
+//                break;
+            case NAME:
+                serverListSelector.serverListInternet.sort(Server.NameComparator.INSTANCE);
+                break;
+//            case LOCATION:
+//                Collections.sort(serverListSelector.serverListInternet, Server.LocationComparator.INSTANCE);
+//                break;
+            case PING:
+                serverListSelector.serverListInternet.sort(Server.PingComparator.INSTANCE);
+                break;
+        }
     }
 
     @Override

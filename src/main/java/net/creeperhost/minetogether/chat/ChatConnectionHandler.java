@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 public class ChatConnectionHandler
 {
-    
     public static final ChatConnectionHandler INSTANCE = new ChatConnectionHandler();
     public long timeout = 0;
     public boolean banned;

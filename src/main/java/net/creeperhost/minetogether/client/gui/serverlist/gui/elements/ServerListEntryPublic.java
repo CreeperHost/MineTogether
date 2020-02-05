@@ -109,7 +109,7 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
         }
     }
 
-    //    @Override
+//        @Override
     public ServerDataPublic getServerData()
     {
         return null;//(ServerDataPublic) super.getServerData();
@@ -118,6 +118,6 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
     @Override
     public void render(int p_render_1_, int p_render_2_, int p_render_3_, int p_render_4_, int p_render_5_, int p_render_6_, int p_render_7_, boolean p_render_8_, float p_render_9_)
     {
-
+        ourDrawEntry(p_render_1_, p_render_2_, p_render_3_, p_render_4_, p_render_5_, p_render_6_, p_render_7_, p_render_8_);
     }
 }

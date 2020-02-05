@@ -13,7 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiCheckBox;
 import net.minecraftforge.fml.client.config.GuiSlider;
 
-public class GuiGeneralServerInfo extends GuiGetServer// implements GuiPageButtonList.GuiResponder
+public class GuiGeneralServerInfo extends GuiGetServer
 {
     //    private static final GuiSlider.FormatHelper SLIDER_FORMATTER = (id, name, value) -> name + ": " + (int) value;
     private static ResourceLocation lockIcon;

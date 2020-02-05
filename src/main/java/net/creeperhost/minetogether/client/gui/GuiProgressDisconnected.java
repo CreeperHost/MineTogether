@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.client.gui;
 
-import net.creeperhost.minetogether.EventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -80,12 +79,12 @@ public class GuiProgressDisconnected extends Screen
 //        drawRect(left, top, left + loadingWidth, top + loadingHeight, loadingBackColour);
 //        drawRect(left, top, left + loadingPercentWidth, top + loadingHeight, loadingFrontColour);
         
-        if (false)
-        {
-            lastConnectAttempt = System.currentTimeMillis();
-            captiveConnecting = new ConnectingScreen(this, Minecraft.getInstance(), new ServerData("lol", ip, false));
-            lastNetworkManager = EventHandler.getNetworkManager(captiveConnecting);
-        }
+//        if (false)
+//        {
+//            lastConnectAttempt = System.currentTimeMillis();
+//            captiveConnecting = new ConnectingScreen(this, Minecraft.getInstance(), new ServerData("lol", ip, false));
+//            lastNetworkManager = EventHandler.getNetworkManager(captiveConnecting);
+//        }
         
         super.render(mouseX, mouseY, partialTicks);
         

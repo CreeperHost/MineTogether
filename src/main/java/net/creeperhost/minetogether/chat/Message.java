@@ -12,5 +12,4 @@ public class Message
         this.messageStr = messageStr;
         this.sender = sender;
     }
-    
 }
