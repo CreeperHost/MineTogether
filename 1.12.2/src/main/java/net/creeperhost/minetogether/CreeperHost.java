@@ -15,6 +15,7 @@ import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
 import net.creeperhost.minetogether.siv.QueryGetter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;

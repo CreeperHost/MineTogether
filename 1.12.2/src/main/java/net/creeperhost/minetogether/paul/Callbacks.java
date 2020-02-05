@@ -391,6 +391,73 @@ public final class Callbacks
         hashCache.put(uuid, playerHash);
         return playerHash;
     }
+
+    public static boolean isBanned()
+    {
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+        }
+        System.out.println(hash);
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            JsonElement status = obj.get("status");
+            if (status.getAsString().equals("success"))
+            {
+                JsonElement banned = obj.get("banned");
+                return banned.getAsBoolean();
+            } else
+            {
+                CreeperHost.logger.error(resp);
+            }
+        }
+        return false;
+    }
+
+    public static String banID = "";
+
+    public static String getBanMessage()
+    {
+        String hash = getPlayerHash(CreeperHost.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+        }
+        System.out.println(hash);
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
+
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            JsonElement status = obj.get("status");
+            if (status.getAsString().equals("success"))
+            {
+                JsonElement ban = obj.get("ban");
+                JsonElement id = ban.getAsJsonObject().get("id");
+                JsonElement timestamp = ban.getAsJsonObject().get("timestamp");
+                JsonElement reason = ban.getAsJsonObject().get("reason");
+
+                banID = id.getAsString();
+
+                return reason.getAsString() + " " + timestamp.getAsString();
+            } else
+            {
+                CreeperHost.logger.error(resp);
+            }
+        }
+        return "";
+    }
     
     public static String getFriendCode()
     {

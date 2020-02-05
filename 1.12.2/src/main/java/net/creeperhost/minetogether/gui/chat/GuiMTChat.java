@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.gui.GuiGDPR;
+import net.creeperhost.minetogether.gui.element.ButtonString;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 
 import net.creeperhost.minetogether.oauth.ServerAuthTest;
@@ -27,6 +28,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -54,6 +57,8 @@ public class GuiMTChat extends GuiScreen
     private GuiButton cancelButton;
     private GuiButton invited;
     private boolean inviteTemp = false;
+    private String banMessage = "";
+    private ButtonString banButton;
     private GuiButton testButton;
 
     public GuiMTChat(GuiScreen parent)
@@ -116,6 +121,11 @@ public class GuiMTChat extends GuiScreen
             inviteTemp = false;
         }
 
+        if(Callbacks.isBanned())
+        {
+            banMessage = Callbacks.getBanMessage();
+            buttonList.add(banButton = new ButtonString(8888, 30, height - 26, "Ban Reason: " + banMessage));
+        }
         buttonList.add(testButton = new GuiButton(-80089, 5 + 80, height - 5 - 25, 100, 20, "TARST")); // TODO: remove
     }
 
@@ -190,7 +200,8 @@ public class GuiMTChat extends GuiScreen
         if(ChatHandler.isInChannel.get())
         {
             drawString(fontRendererObj, "Please Contact Support at with your nick " + ChatHandler.nick + " " + new TextComponentString("here").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:creeperhost.net/contact"))), 10, height - 20, 0xFFFFFF);
-        } else
+        }
+        else if(banMessage.isEmpty())
         {
             drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
         }
@@ -200,6 +211,11 @@ public class GuiMTChat extends GuiScreen
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
         {
             drawHoveringText(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
+        }
+
+        if(banButton != null && banButton.isMouseOver())
+        {
+            drawHoveringText(Arrays.asList("Click here copy Ban-ID to clipboard"), mouseX, mouseY);
         }
     }
 
@@ -283,7 +299,12 @@ public class GuiMTChat extends GuiScreen
             } else if (button == invited && ChatHandler.privateChatInvite != null)
             {
                 confirmInvite();
-            } else if (button == testButton) {
+            }
+            else if (button == banButton)
+            {
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(Callbacks.banID), null);
+            }
+            else if (button == testButton) {
                 ServerAuthTest.auth((success, message) -> {
                     if (success)
                     {

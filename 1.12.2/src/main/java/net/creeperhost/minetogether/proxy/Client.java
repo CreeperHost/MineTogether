@@ -79,6 +79,7 @@ public class Client implements IProxy
 
         UUID uuid;
 
+
         if (online)
         {
             YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(mc.getProxy(), UUID.randomUUID().toString());
@@ -92,6 +93,7 @@ public class Client implements IProxy
         cache = uuid;
 
         CreeperHost.instance.online = online;
+        System.out.println("UUID " + uuid);
         return uuid;
     }
     

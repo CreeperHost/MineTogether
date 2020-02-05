@@ -239,7 +239,7 @@ public class ChatHandler
     public static void closePrivateChat() {
         String channelName = privateChatList.getChannelname();
         Optional<Channel> channel = client.getChannel(channelName);
-        channel.ifPresent(channel1 -> channel1.part("My buddy left :("));
+        channel.ifPresent(channel1 -> channel1.part("My budy left :("));
         privateChatList = null;
         ChatHandler.hasGroup = false;
     }
