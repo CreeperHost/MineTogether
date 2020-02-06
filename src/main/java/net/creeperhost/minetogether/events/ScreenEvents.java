@@ -4,6 +4,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.GuiMinigames;
+import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
@@ -29,6 +30,8 @@ public class ScreenEvents
     @SubscribeEvent
     public void openScreen(GuiScreenEvent.InitGuiEvent.Post event)
     {
+        boolean buttonDrawn = false;
+
         if (event.getGui() instanceof MainMenuScreen)
         {
             if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
@@ -119,7 +122,7 @@ public class ScreenEvents
                 }
             });
 
-            event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 133, event.getGui().height - 52, 2, p ->
+            event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 133, event.getGui().height - 52, 1, p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen()));
             }));
@@ -127,6 +130,40 @@ public class ScreenEvents
             event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 75, 20, "Minigames", p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMinigames(event.getGui()));
+            }));
+        }
+
+        if(event.getGui() instanceof MainMenuScreen)
+        {
+            buttonDrawn = true;
+            event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends"), p ->
+            {
+                MineTogether.proxy.openFriendsGui();
+            }));
+
+            int x = event.getGui().width - 20 - 5;
+            if (buttonDrawn) x -= 99;
+
+            event.addWidget(new GuiButtonMultiple(x, 5, 1, p ->
+            {
+                Minecraft.getInstance().displayGuiScreen(new GuiMTChat(event.getGui()));
+            }));
+        }
+
+        if(event.getGui() instanceof IngameMenuScreen)
+        {
+            buttonDrawn = true;
+            event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends"), p ->
+            {
+                MineTogether.proxy.openFriendsGui();
+            }));
+
+            int x = event.getGui().width - 20 - 5;
+            if (buttonDrawn) x -= 99;
+
+            event.addWidget(new GuiButtonMultiple(x, 5, 1, p ->
+            {
+                Minecraft.getInstance().displayGuiScreen(new GuiMTChat(event.getGui()));
             }));
         }
     }
