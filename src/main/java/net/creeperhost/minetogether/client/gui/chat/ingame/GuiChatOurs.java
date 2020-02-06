@@ -106,16 +106,15 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean charTyped(char typedChar, int keyCode)
     {
+        if (isBase())
+        {
+//            inputField.setEnabled(true);
+            return super.charTyped(typedChar, keyCode);
+        }
+
         if (keyCode == 1 && sleep)
         {
             wakeFromSleep();
-            super.charTyped(typedChar, keyCode);
-            return false;
-        }
-        
-        if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase())
-        {
-            inputField.setEnabled(true);
             super.charTyped(typedChar, keyCode);
             return false;
         }
@@ -124,11 +123,11 @@ public class GuiChatOurs extends ChatScreen
         
         if (!ourEnabled)
         {
-            if ((keyCode == 28 || keyCode == 156) && ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)))// && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()))
+            if ((keyCode == 28 || keyCode == 156) && ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()))
                 return ourEnabled;
             inputField.setEnabled(true);
         }
-        
+
         super.charTyped(typedChar, keyCode);
         
         if (!ourEnabled)
@@ -153,8 +152,14 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-        if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
+        boolean flag = super.mouseClicked(mouseX, mouseY, mouseButton);
+
+        if(isBase())
+        {
+            return flag;
+        }
+
+        if (menuDropdownButton != null && menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
         {
             menuDropdownButton.x = menuDropdownButton.y = -10000;
             menuDropdownButton.wasJustClosed = false;
@@ -205,6 +210,16 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public void init()
     {
+        String defaultStr = "Default";
+        defaultStr = I18n.format("minetogether.ingame.chat.local");
+        addToggleButtons(defaultStr);
+
+        if(isBase())
+        {
+            super.init();
+            return;
+        }
+
         if (!presetString.isEmpty())
         {
             if (Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
@@ -225,10 +240,7 @@ public class GuiChatOurs extends ChatScreen
         
         strings.add(I18n.format("minetogether.chat.button.mute"));
         strings.add(I18n.format("minetogether.chat.button.addfriend"));
-        
-        int x = MathHelper.ceil(((float) mc.ingameGUI.getChatGUI().getChatWidth())) + 16 + 2;
-        String defaultStr = "Default";
-        defaultStr = I18n.format("minetogether.ingame.chat.local");
+
         try
         {
             if (mc.getCurrentServerData().isOnLAN() || (!mc.getCurrentServerData().serverIP.equals("127.0.0.1")))
@@ -236,6 +248,34 @@ public class GuiChatOurs extends ChatScreen
                 defaultStr = I18n.format("minetogether.ingame.chat.server");
             }
         } catch (NullPointerException ignored) {}//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
+
+        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true, p ->
+        {
+            if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mute")))
+            {
+                MineTogether.instance.muteUser(activeDropdown);
+                GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
+                ourChat.rebuildChat(ourChat.chatTarget);
+                ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setChatLine(new StringTextComponent(I18n.format("minetogether.chat.muted")), 0, 5, false);
+            }
+            else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
+            {
+                mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
+            }
+        }));
+        menuDropdownButton.flipped = false;
+        if (sleep)
+        {
+            addButton(new Button(this.width / 2 - 100, this.height - 40, 20, 20, I18n.format("multiplayer.stopSleeping"), p->
+            {
+                wakeFromSleep();
+            }));
+        }
+    }
+
+    public void addToggleButtons(String defaultString)
+    {
+        int x = MathHelper.ceil(((float) mc.ingameGUI.getChatGUI().getChatWidth())) + 16 + 2;
 
         if (ChatHandler.hasGroup)
         {
@@ -268,7 +308,7 @@ public class GuiChatOurs extends ChatScreen
                         }));
                     } catch (Exception e) { e.printStackTrace(); }
                 }
-            }, defaultStr, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
+            }, defaultString, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
         }
         else
         {
@@ -301,29 +341,7 @@ public class GuiChatOurs extends ChatScreen
                         }));
                     } catch (Exception e) { e.printStackTrace(); }
                 }
-            }, defaultStr, I18n.format("minetogether.ingame.chat.global")));
-        }
-        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true, p ->
-        {
-            if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mute")))
-            {
-                MineTogether.instance.muteUser(activeDropdown);
-                GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-                ourChat.rebuildChat(ourChat.chatTarget);
-                ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setChatLine(new StringTextComponent(I18n.format("minetogether.chat.muted")), 0, 5, false);
-            }
-            else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
-            {
-                mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
-            }
-        }));
-        menuDropdownButton.flipped = false;
-        if (sleep)
-        {
-            addButton(new Button(this.width / 2 - 100, this.height - 40, 20, 20, I18n.format("multiplayer.stopSleeping"), p->
-            {
-                wakeFromSleep();
-            }));
+            }, defaultString, I18n.format("minetogether.ingame.chat.global")));
         }
     }
     
@@ -342,7 +360,7 @@ public class GuiChatOurs extends ChatScreen
     {
         this.buttons.forEach(p -> p.render(mouseX, mouseY, partialTicks));
 
-        if(isBase()) //Let Minecraft handle the rendering for the default chat as well as suggestions
+        if (isBase())
         {
             super.render(mouseX, mouseY, partialTicks);
             return;
@@ -354,7 +372,7 @@ public class GuiChatOurs extends ChatScreen
         this.inputField.render(mouseX, mouseY, partialTicks);
         this.inputField.func_212955_f();
 
-        ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getTextComponent(mouseY, mouseX);
+//        ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getTextComponent(mouseY, mouseX);
 
         if (!(this.mc.ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
@@ -378,7 +396,7 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean handleComponentClicked(ITextComponent component)
     {
-        if (!(Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs || ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).isBase()))
+        if (isBase())
         {
             return super.handleComponentClicked(component);
         }

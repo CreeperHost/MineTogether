@@ -163,7 +163,7 @@ public class GuiNewChatOurs extends NewChatGui
         int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
 
         if (isBase())
-        super.render(updateCounter);
+            super.render(updateCounter);
         else
         {
             if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && updateCounter % 6000 == 0)

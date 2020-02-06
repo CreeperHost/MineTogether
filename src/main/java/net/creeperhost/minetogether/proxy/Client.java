@@ -160,6 +160,7 @@ public class Client implements IProxy
         {
             isChatReplaced = true;
             IngameGui ingameGui = Minecraft.getInstance().ingameGUI;
+            ingameGui.persistantChatGUI = new GuiNewChatOurs(Minecraft.getInstance());
         }
     }
     

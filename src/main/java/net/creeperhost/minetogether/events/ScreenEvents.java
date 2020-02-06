@@ -11,7 +11,6 @@ import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.lib.ModInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
@@ -20,7 +19,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScreenEvents

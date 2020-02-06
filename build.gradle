@@ -6,11 +6,11 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-  //      classpath "com.github.jengelman.gradle.plugins:shadow:2.0.0"
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.0"
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
-//apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: "com.github.johnrengelman.shadow"
 
 ext.configFile = file "build.properties"
 
@@ -111,9 +111,20 @@ jar {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.14.4-28.1.114'
-    //minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
+    minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
     compile 'org.kitteh.irc:client-lib:7.2.2'
+}
+
+shadowJar {
+    // Only shadow fluent-hc
+    dependencies {
+        include(dependency('org.kitteh.irc:client-lib:7.2.2'))
+    }
+
+    // Relocate fluent-hc to prevent conflicts with other mods that include it
+    relocate 'org.kitteh.irc', 'net.creeperhost.minetogether.org.kitteh.irc'
+
+    classifier '' // Replace the default JAR
 }
 
 def reobfFile = file("$buildDir/reobfJar/output.jar")
@@ -121,3 +132,8 @@ def reobfArtifact = artifacts.add('default', reobfFile) {
     type 'jar'
     builtBy 'reobfJar'
 }
+
+reobf {
+    shadowJar {} // Reobfuscate the shadowed JAR
+}
+

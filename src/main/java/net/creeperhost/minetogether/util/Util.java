@@ -151,7 +151,7 @@ public final class Util
             {
                 mcVersion = "unknown"; // will default to new method
             }
-        return mcVersion;
+        return "1.12.2";
     }
     
     public static class CachedValue<T>

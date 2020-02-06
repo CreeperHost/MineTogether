@@ -1,11 +1,16 @@
 package net.creeperhost.minetogether.server.command;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.server.pregen.PregenTask;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.DimensionArgument;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.dimension.DimensionType;
 
 public class CommandPregen
@@ -15,11 +20,29 @@ public class CommandPregen
         return Commands.literal("pregen")
                 .requires(cs -> cs.hasPermissionLevel(4))
                 .then(Commands.argument("dim", DimensionArgument.getDimension())
-                        .executes(cs -> execute(cs, DimensionArgument.func_212592_a(cs, "dim"))));
+                        .then(Commands.argument("chunkMinX", IntegerArgumentType.integer(1))
+                                .then(Commands.argument("chunkMaxX", IntegerArgumentType.integer(1))
+                                        .then(Commands.argument("chunkMinZ", IntegerArgumentType.integer(1))
+                                                .then(Commands.argument("chunkMaxZ", IntegerArgumentType.integer(1))
+                                                        .then(Commands.argument("chunksPerTick", IntegerArgumentType.integer(1))
+                                                                .then(Commands.argument("preventJoin", BoolArgumentType.bool())
+                                                                        .executes(cs -> execute(cs, DimensionArgument.func_212592_a(cs, "dim"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunkMinX"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunkMaxX"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunkMinZ"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunkMaxZ"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunksPerTick"),
+                                                                                BoolArgumentType.getBool(cs, "preventJoin"))))))))));
     }
 
-    public static int execute(CommandContext<CommandSource> ctx, DimensionType dimensionType) throws CommandException
+    public static int execute(CommandContext<CommandSource> ctx, DimensionType dimensionType, int chunkMinX, int chunkMaxX, int chunkMinZ, int chunkMaxZ, int chunksPerTick, boolean preventJoin) throws CommandException
     {
+        PregenTask task = new PregenTask(dimensionType, chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick, preventJoin);
+
+        MineTogether.instance.createTask(task);
+
+        ctx.getSource().sendFeedback(new StringTextComponent("Starting pre-gen task for dimention " + task.dimension.toString()), true);
+
         return 0;
 //        int xDiameterPos = -1;
 //        int yDiameterPos = -1;

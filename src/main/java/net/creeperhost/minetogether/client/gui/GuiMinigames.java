@@ -112,7 +112,6 @@ public class GuiMinigames extends Screen
                     tempVanilla.add(minigame);
                 else
                     tempModded.add(minigame);
-                
             }
             minigames = tempModded;
             vanillaMinigames = tempVanilla;
@@ -228,8 +227,8 @@ public class GuiMinigames extends Screen
         {
             Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
         }));
-//        moddedButton.setActive(isModded);
-//        vanillaButton.setActive(!isModded);
+        moddedButton.setActive(isModded);
+        vanillaButton.setActive(!isModded);
         State.refreshState();
     }
     

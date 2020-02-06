@@ -23,11 +23,11 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.*;
 import net.creeperhost.minetogether.server.command.CommandKill;
+import net.creeperhost.minetogether.server.command.CommandPregen;
 import net.creeperhost.minetogether.server.hacky.IPlayerKicker;
 import net.creeperhost.minetogether.server.pregen.PregenTask;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.MinecraftForge;
@@ -115,7 +115,6 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInit(FMLCommonSetupEvent event)
     {
-        ConfigHandler.init();
         proxy.checkOnline();
 
         proxy.registerKeys();
@@ -126,6 +125,8 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
+        ConfigHandler.init();
+
         registerImplementation(new CreeperHostServerHost());
 
         File gdprFile = new File("local/minetogether/gdpr.txt");
@@ -151,12 +152,10 @@ public class MineTogether implements ICreeperHostMod, IHost
         jsonObj.put("p", String.valueOf(packID));
         
         Gson gson = new Gson();
-        try //Temp fix until we cxan figure out why this fails
+        try //Temp fix until we can figure out why this fails
         {
             realName = gson.toJson(jsonObj);
-        } catch (Exception ignored)
-        {
-        }
+        } catch (Exception ignored) {}
 
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
@@ -165,10 +164,10 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void serverStarting(FMLServerStartingEvent event)
     {
-        LiteralArgumentBuilder<CommandSource> root = Commands.literal("ch")
-                .then(CommandKill.register());
-
-        event.getCommandDispatcher().register(root);
+        event.getCommandDispatcher().register(
+                LiteralArgumentBuilder.<CommandSource>literal("mt")
+                        .then(CommandKill.register())
+                        .then(CommandPregen.register()));
 
         server = event.getServer();
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
@@ -205,6 +204,7 @@ public class MineTogether implements ICreeperHostMod, IHost
 //            }
 //
 //            final String displayName = displayNameTemp;
+//
 //
 //            serverOn = true;
 //            try
@@ -662,6 +662,12 @@ public class MineTogether implements ICreeperHostMod, IHost
 
         pregenTasks.put(dimension, new PregenTask(dimension, xMin, xMax, zMin, zMax, chunksPerTick, preventJoin));
 
+        return true;
+    }
+
+    public boolean createTask(PregenTask task)
+    {
+        pregenTasks.put(task.dimension, task);
         return true;
     }
 
