@@ -22,7 +22,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class GuiNewChatOurs extends NewChatGui
 {
     private boolean base = true;
     public static boolean tabCompletion = false;
-    
+
     int updateCounter;
 
     @Override
@@ -122,9 +121,9 @@ public class GuiNewChatOurs extends NewChatGui
             getVanillaDrawnChatLines().clear(); // instantly clear so that no surprises happen whilst we're in our chat (I'm looking at you, Quark!)
         }
     }
-    
+
     private final Minecraft mc;
-    
+
     private final List<ChatLine> chatLines = Lists.<ChatLine>newArrayList();
     /**
      * List of the ChatLines currently drawn
@@ -132,11 +131,11 @@ public class GuiNewChatOurs extends NewChatGui
     public final List<ChatLine> drawnChatLines = Lists.<ChatLine>newArrayList();
     private int scrollPos;
     private boolean isScrolled;
-    
+
     private final List<String> sentMessages = Lists.<String>newArrayList();
 
     public final ITextComponent closeComponent;
-    
+
     public GuiNewChatOurs(Minecraft mcIn)
     {
         super(mcIn);
@@ -145,15 +144,15 @@ public class GuiNewChatOurs extends NewChatGui
 
         closeComponent = new StringTextComponent(new String(Character.toChars(10006))).setStyle(new Style().setColor(TextFormatting.RED).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Click to close group chat"))));
     }
-    
+
     @Override
     public int getChatWidth()
     {
         return (int) (super.getChatWidth() - (16 * 0.75));
     }
-    
+
     private List<ChatLine> vanillaDrawnChatLines = null;
-    
+
     @Override
     public void render(int updateCounter)
     {
@@ -301,14 +300,14 @@ public class GuiNewChatOurs extends NewChatGui
         {
             tempDrawnChatLines = getVanillaDrawnChatLines();
         }
-        
+
         if (getChatOpen() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
         {
             double f1 = this.getScale();
             GlStateManager.pushMatrix();
             GlStateManager.translatef(2.0F, 8.0F, 0.0F);
             GlStateManager.scaled(f1, f1, 1.0F);
-            
+
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
 
             for (int line = tempDrawnChatLines.size(); line < minLines; line++)
@@ -321,18 +320,18 @@ public class GuiNewChatOurs extends NewChatGui
             GlStateManager.popMatrix();
         }
     }
-    
+
     @Override
     public List<String> getSentMessages()
     {
         return super.getSentMessages();
     }
-    
+
     @Override
     public void addToSentMessages(String message)
     {
         if (isBase())
-        super.addToSentMessages(message);
+            super.addToSentMessages(message);
         else
         {
             if (this.sentMessages.isEmpty() || !(this.sentMessages.get(this.sentMessages.size() - 1)).equals(message))
@@ -341,7 +340,7 @@ public class GuiNewChatOurs extends NewChatGui
             }
         }
     }
-    
+
     public boolean unread;
     public String chatTarget;
 
@@ -353,9 +352,11 @@ public class GuiNewChatOurs extends NewChatGui
         LimitedSizeQueue<Message> messages = ChatHandler.messages.get(chatKey);
         if (messages == null)
             return;
-        synchronized (ChatHandler.ircLock) {
+        synchronized (ChatHandler.ircLock)
+        {
             int size = messages.size();
-            for (Message message : messages) {
+            for (Message message : messages)
+            {
                 ITextComponent component = GuiMTChat.formatLine(message);
                 if (component == null)
                     continue;
@@ -405,7 +406,7 @@ public class GuiNewChatOurs extends NewChatGui
             }
         }
     }
-    
+
     @Override
     public void resetScroll()
     {
@@ -504,15 +505,16 @@ public class GuiNewChatOurs extends NewChatGui
         int i = 0;
         ITextComponent itextcomponent = new StringTextComponent("");
         List<ITextComponent> list = Lists.<ITextComponent>newArrayList();
-        if(textComponent == null) return list;
+        if (textComponent == null) return list;
         List<ITextComponent> list1 = Lists.newArrayList(textComponent);
 
         for (int j = 0; j < list1.size(); ++j)
         {
             ITextComponent itextcomponent1 = list1.get(j);
-            if (itextcomponent1 instanceof TimestampComponentString) {
+            if (itextcomponent1 instanceof TimestampComponentString)
+            {
                 itextcomponent.appendSibling(itextcomponent1);
-                i += fontRendererIn.getStringWidth(((TimestampComponentString)itextcomponent1).getRawText());
+                i += fontRendererIn.getStringWidth(((TimestampComponentString) itextcomponent1).getRawText());
                 continue;
             }
             String s = itextcomponent1.getUnformattedComponentText();
@@ -554,8 +556,7 @@ public class GuiNewChatOurs extends NewChatGui
                         }
 
                         s3 = s4.substring(l);
-                    }
-                    else if (i > 0 && !s4.contains(" "))
+                    } else if (i > 0 && !s4.contains(" "))
                     {
                         s2 = "";
                         s3 = s4;
@@ -578,8 +579,7 @@ public class GuiNewChatOurs extends NewChatGui
             {
                 i += i1;
                 itextcomponent.appendSibling(textcomponentstring);
-            }
-            else
+            } else
             {
                 flag = true;
             }
@@ -596,16 +596,19 @@ public class GuiNewChatOurs extends NewChatGui
         return list;
     }
 
-    public boolean isBase() {
+    public boolean isBase()
+    {
         return base;
     }
 
-    public void setBase(boolean base) {
+    public void setBase(boolean base)
+    {
         this.base = base;
         if (base)
         {
             refreshChat();
-        } else {
+        } else
+        {
             getVanillaDrawnChatLines().clear();
         }
     }

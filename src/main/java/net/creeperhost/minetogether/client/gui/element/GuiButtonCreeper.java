@@ -10,18 +10,18 @@ public class GuiButtonCreeper extends Button
 {
     private static ResourceLocation buttonImg = new ResourceLocation("creeperhost", "textures/nobrand.png");
     private final int index;
-    
+
     public GuiButtonCreeper(int xPos, int yPos, int index, Button.IPressable onPress)
     {
         super(xPos, yPos, 20, 20, "", onPress);
         this.index = index;
     }
-    
+
     public GuiButtonCreeper(int xPos, int yPos, Button.IPressable onPress)
     {
         this(xPos, yPos, 0, onPress);
     }
-    
+
     @Override
     public void renderButton(int x, int y, float partialTicks)
     {

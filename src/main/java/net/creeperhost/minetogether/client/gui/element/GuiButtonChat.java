@@ -11,13 +11,13 @@ public class GuiButtonChat extends Button
 {
     private boolean active;
     String buttonText;
-    
+
     public GuiButtonChat(int x, int y, int widthIn, int heightIn, String buttonText, Button.IPressable onPress)
     {
         super(x, y, widthIn, heightIn, buttonText, onPress);
         this.buttonText = buttonText;
     }
-    
+
     public void setActive(boolean active)
     {
         this.active = active;
@@ -59,8 +59,8 @@ public class GuiButtonChat extends Button
 
         }
     }
-    
-    
+
+
     @Override
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
     {
@@ -68,7 +68,7 @@ public class GuiButtonChat extends Button
         if (ret)
             if (MineTogether.instance.gdpr.hasAcceptedGDPR())
                 ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).unread = false;
-        
+
         return ret;
     }
 }

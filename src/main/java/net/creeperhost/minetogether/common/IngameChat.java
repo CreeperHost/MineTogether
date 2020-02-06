@@ -11,18 +11,18 @@ public class IngameChat
 {
     private final File ingameChatFile;
     private boolean disabledIngameChat;
-    
+
     public IngameChat(File ingameChatFile)
     {
         this.ingameChatFile = ingameChatFile;
         this.disabledIngameChat = this.loadingameChatFile(ingameChatFile);
     }
-    
+
     private boolean loadingameChatFile(File inFile)
     {
         FileInputStream fileinputstream = null;
         boolean flag = false;
-        
+
         try
         {
             String hardwareAddress = identity();
@@ -37,15 +37,15 @@ public class IngameChat
         {
             IOUtils.closeQuietly((InputStream) fileinputstream);
         }
-        
+
         return flag;
     }
-    
+
     public boolean hasDisabledIngameChat()
     {
         return this.disabledIngameChat;
     }
-    
+
     public void setDisabledIngameChat(boolean state)
     {
         FileOutputStream fileoutputstream = null;
@@ -63,16 +63,16 @@ public class IngameChat
             IOUtils.closeQuietly((OutputStream) fileoutputstream);
         }
     }
-    
+
     public void setDisabledIngameChat()
     {
         setDisabledIngameChat(true);
     }
-    
+
     public void createingameChatFile()
     {
         FileOutputStream fileoutputstream = null;
-        
+
         try
         {
             ingameChatFile.getParentFile().mkdirs();

@@ -24,12 +24,12 @@ public class CreeperHostEntry extends ServerData
     private final int stringWidth;
     private ResourceLocation serverIcon;
     private MultiplayerScreen ourMP;
-    
+
     private float transparency = 0.5F;
     private int lastWidth;
     private int lastHeight;
 //    private ScaledResolution res = null;
-    
+
     protected CreeperHostEntry(String name, String ip, boolean isLan)
     {
         super(name, ip, isLan);
@@ -43,18 +43,18 @@ public class CreeperHostEntry extends ServerData
 //    {
 //        this(p_i45048_1_, serverIn);
 //    }
-    
+
     public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float newthingy)
     {
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
-    
+
     // < 1.12 compat
     public void func_180790_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
         ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
     }
-    
+
     @SuppressWarnings("Duplicates")
     public void ourDrawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
     {
@@ -67,7 +67,7 @@ public class CreeperHostEntry extends ServerData
             if (transparency >= 0.5F)
                 transparency -= 0.04;
         }
-        
+
         this.mc.getTextureManager().bindTexture(serverIcon);
         GlStateManager.enableBlend();
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
@@ -90,14 +90,14 @@ public class CreeperHostEntry extends ServerData
 //            }
 //
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            
+
             final int tooltipX = mouseX - 72;
             final int tooltipY = mouseY + 11;
             final int tooltipTextWidth = 56;
             final int tooltipHeight = 7;
-            
+
             final int zLevel = 300;
-            
+
             // re-purposed code from tooltip rendering
             final int backgroundColor = 0xF0100010;
             GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
@@ -111,17 +111,17 @@ public class CreeperHostEntry extends ServerData
             GuiUtils.drawGradientRect(zLevel, tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
             GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
             GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
-            
+
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
             mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
 //            Gui.drawModalRectWithCustomSizedTexture(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60F, 10F);
         }
     }
-    
+
     public void setSelected(int p_178011_1_, int p_178011_2_, int p_178011_3_)
     {
     }
-    
+
     @SuppressWarnings("Duplicates")
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int x, int y)
     {
@@ -135,7 +135,7 @@ public class CreeperHostEntry extends ServerData
         Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
         return true;
     }
-    
+
     public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY)
     {
     }

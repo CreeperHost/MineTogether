@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ScreenEvents
 {
     boolean first = true;
-    
+
     @SubscribeEvent
     public void openScreen(GuiScreenEvent.InitGuiEvent.Post event)
     {
@@ -45,11 +45,11 @@ public class ScreenEvents
                     MineTogether.proxy.startChat();
                 }
             }
-            
+
             if (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())
             {
                 MineTogether.instance.setRandomImplementation();
-                
+
                 event.addWidget(new GuiButtonCreeper(event.getGui().width / 2 - 124, event.getGui().height / 4 + 96, p ->
                 {
                     Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
@@ -60,7 +60,7 @@ public class ScreenEvents
             AtomicInteger height = new AtomicInteger();
             AtomicInteger x = new AtomicInteger();
             AtomicInteger y = new AtomicInteger();
-            
+
             event.getWidgetList().forEach(widget ->
             {
                 if (widget instanceof Button)
@@ -75,31 +75,31 @@ public class ScreenEvents
                         height.set(button.getHeight());
                         x.set(button.x);
                         y.set(button.y);
-                        
+
                         button.active = false;
                         button.visible = false;
                     }
                 }
             });
-            
+
             event.addWidget(new Button(x.get(), y.get(), width.get(), height.get(), I18n.format("menu.multiplayer"), p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(event.getGui()));
             }));
         }
 
-        if(event.getGui() instanceof MultiplayerScreen || event.getGui() instanceof GuiMultiplayerPublic)
+        if (event.getGui() instanceof MultiplayerScreen || event.getGui() instanceof GuiMultiplayerPublic)
         {
             event.getWidgetList().forEach(b ->
             {
-                if(b instanceof Button)
+                if (b instanceof Button)
                 {
-                    if(b.getMessage().equalsIgnoreCase(I18n.format("selectServer.refresh")))
+                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.refresh")))
                     {
                         b.active = false;
                         b.visible = false;
                     }
-                    if(b.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")))
+                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")))
                     {
                         b.x -= 7;
                         b.setWidth(b.getWidth() + 1);
@@ -133,7 +133,7 @@ public class ScreenEvents
             }));
         }
 
-        if(event.getGui() instanceof MainMenuScreen)
+        if (event.getGui() instanceof MainMenuScreen)
         {
             buttonDrawn = true;
             event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends"), p ->
@@ -150,7 +150,7 @@ public class ScreenEvents
             }));
         }
 
-        if(event.getGui() instanceof IngameMenuScreen)
+        if (event.getGui() instanceof IngameMenuScreen)
         {
             buttonDrawn = true;
             event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends"), p ->
@@ -196,7 +196,9 @@ public class ScreenEvents
             try
             {
                 event.setGui(new GuiChatOurs(presetString, sleep));
-            } catch (Exception ignored){}
+            } catch (Exception ignored)
+            {
+            }
         }
     }
 }

@@ -25,7 +25,7 @@ public class GuiFriendsList extends Screen
     private final Screen parent;
     private GuiList<GuiListEntryFriend> list;
     private GuiList<GuiListEntryMuted> listMuted;
-    
+
     private Button buttonAdd;
     private Button buttonCancel;
     private Button buttonInvite;
@@ -38,7 +38,7 @@ public class GuiFriendsList extends Screen
     private TextFieldWidget codeEntry;
     private TextFieldWidget displayEntry;
     private TextFieldWidget searchEntry;
-    
+
     private boolean addFriend = false;
     private String friendCode;
     private boolean first = true;
@@ -52,7 +52,7 @@ public class GuiFriendsList extends Screen
     private Friend invitedPlayer;
     private boolean channelInvite = false;
     private boolean isMuted;
-    
+
     public GuiFriendsList(Screen currentScreen)
     {
         super(new StringTextComponent(""));
@@ -60,7 +60,7 @@ public class GuiFriendsList extends Screen
         friendCode = Callbacks.getFriendCode();
         ToastHandler.clearToast(false);
     }
-    
+
     @Override
     public void init()
     {
@@ -70,7 +70,7 @@ public class GuiFriendsList extends Screen
             return;
         }
         super.init();
-        
+
         if (listMuted == null)
         {
             listMuted = new GuiList(this, minecraft, width, height, 32, this.height - 64, 36);
@@ -78,7 +78,7 @@ public class GuiFriendsList extends Screen
         {
             listMuted.updateSize(width, height, 32, this.height - 64);
         }
-        
+
         if (list == null)
         {
             list = new GuiList(this, minecraft, width, height, 32, this.height - 64, 36);
@@ -86,27 +86,27 @@ public class GuiFriendsList extends Screen
         {
             list.updateSize(width, height, 32, this.height - 64);
         }
-        
+
         if (first)
         {
             first = false;
             refreshFriendsList(true);
             refreshMutedList(true);
         }
-        
+
         int y = this.height - 60;
-        
+
         int margin = 10;
         int buttons = 3;
         int buttonWidth = 80;
-        
+
         int totalButtonSize = (buttonWidth * buttons);
         int nonButtonSpace = (width - (margin * 2)) - totalButtonSize;
-        
+
         int spaceInbetween = (nonButtonSpace / (buttons - 1)) + buttonWidth;
-        
+
         int buttonX = margin;
-        
+
         buttonCancel = addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("button.cancel"), p ->
         {
             if (!addFriend)
@@ -119,7 +119,7 @@ public class GuiFriendsList extends Screen
             }
         }));
         buttonX += spaceInbetween;
-        
+
         buttonAdd = addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.addfriend"), p ->
         {
             if (!addFriend)
@@ -135,10 +135,10 @@ public class GuiFriendsList extends Screen
                 buttonInvite.visible = true;
                 showAlert(result == null ? Util.localize("multiplayer.friendsent") : result, 0x00FF00, 5000);
             }
-            
+
         }));
         buttonX += spaceInbetween;
-        
+
         buttonInvite = addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.invite"), p ->
         {
             if (MineTogether.instance.curServerId == -1)
@@ -158,19 +158,19 @@ public class GuiFriendsList extends Screen
                 }
             }
         }));
-        
+
         buttonInvite.active = list.getSelected() != null;
-        
+
         codeEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 - 50, 160, 20, "");
         displayEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 + 0, 160, 20, "");
-        
+
         buttonRefresh = addButton(new Button(this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"), p ->
         {
             refreshFriendsList(false);
             refreshMutedList(false);
         }));
-        
-        
+
+
         toggle = addButton(new Button(width - 60, 6, 60, 20, isMuted ? "Friends" : "Muted", p ->
         {
             if (toggle.getMessage().contains("Muted"))
@@ -183,11 +183,11 @@ public class GuiFriendsList extends Screen
                 isMuted = false;
             }
         }));
-        
+
         searchEntry = new TextFieldWidget(this.font, this.width / 2 - 80, y + 28, 160, 20, "");
         searchEntry.setVisible(true);
     }
-    
+
     protected void refreshFriendsList(boolean force)
     {
         ArrayList<Friend> friends = Callbacks.getFriendsList(force);
@@ -211,7 +211,7 @@ public class GuiFriendsList extends Screen
             }
         }
     }
-    
+
     protected void refreshMutedList(boolean force)
     {
         ArrayList<String> mutedUsers = MineTogether.mutedUsers;
@@ -236,14 +236,14 @@ public class GuiFriendsList extends Screen
             }
         }
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void onClose()
     {
         ToastHandler.clearToast(false);
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
@@ -267,9 +267,9 @@ public class GuiFriendsList extends Screen
             this.listMuted.render(mouseX, mouseY, partialTicks);
             this.drawCenteredString(this.font, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
         }
-        
+
         super.render(mouseX, mouseY, partialTicks);
-        
+
         if (hoveringText != null)
         {
             if (hoveringText != lastHoveringText)
@@ -282,13 +282,13 @@ public class GuiFriendsList extends Screen
         }
         if (searchEntry != null) this.searchEntry.render(mouseX, mouseY, partialTicks);
     }
-    
+
     @Override
     public void tick()
     {
         super.tick();
     }
-    
+
     @Override
     public boolean charTyped(char typedChar, int keyCode)
     {
@@ -309,14 +309,14 @@ public class GuiFriendsList extends Screen
         }
         return false;
     }
-    
+
     @Override
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
         list.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
         return false;
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
@@ -338,12 +338,12 @@ public class GuiFriendsList extends Screen
                 this.buttonInvite.active = false;
         else
             this.buttonInvite.active = false;
-        
+
         this.searchEntry.mouseClicked(mouseX, mouseY, mouseButton);
         return true;
     }
-    
-    
+
+
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state)
     {
@@ -357,12 +357,12 @@ public class GuiFriendsList extends Screen
         }
         return true;
     }
-    
+
     private void showAlert(String text, int colour, int time)
     {
         ToastHandler.displayToast(text, time, null);
     }
-    
+
     public void setHoveringText(String hoveringText)
     {
         this.hoveringText = hoveringText;
@@ -373,7 +373,7 @@ public class GuiFriendsList extends Screen
         @Override
         public void accept(boolean t)
         {
-            if(t)
+            if (t)
             {
                 Callbacks.removeFriend(removeFriend.getCode());
                 refreshFriendsList(true);
@@ -381,6 +381,7 @@ public class GuiFriendsList extends Screen
             minecraft.displayGuiScreen(new GuiFriendsList(null));
         }
     };
+
     public void removeFriend(Friend friend)
     {
         removeFriend = friend;
@@ -392,11 +393,12 @@ public class GuiFriendsList extends Screen
         @Override
         public void accept(boolean t)
         {
-            if(t)
+            if (t)
             {
                 if (!invitedPlayer.isAccepted())
                     showAlert("Cannot invite pending friends", 0x00FF00, 5000);
-                else {
+                else
+                {
                     String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
                     showAlert("Sent invite to " + invitedPlayer.getName(), 0x00FF00, 5000);
                     ChatHandler.sendChannelInvite(friendCode, MineTogether.instance.ourNick);
@@ -405,6 +407,7 @@ public class GuiFriendsList extends Screen
             minecraft.displayGuiScreen(new GuiFriendsList(null));
         }
     };
+
     public void inviteGroupChat(Friend invited)
     {
         invitedPlayer = invited;
@@ -416,7 +419,7 @@ public class GuiFriendsList extends Screen
         @Override
         public void accept(boolean t)
         {
-            if(t)
+            if (t)
             {
                 MineTogether.instance.unmuteUser(unmutePlayer);
                 refreshMutedList(false);
@@ -424,6 +427,7 @@ public class GuiFriendsList extends Screen
             minecraft.displayGuiScreen(new GuiFriendsList(null));
         }
     };
+
     public void unmutePlayer(String muted)
     {
         unmutePlayer = muted;

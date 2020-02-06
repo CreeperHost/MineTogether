@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.client.gui.serverlist.data;
 
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListEntryPublic;
 import net.creeperhost.minetogether.data.EnumFlag;
-import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.gui.screen.ServerSelectionList;
 
 import java.util.Comparator;

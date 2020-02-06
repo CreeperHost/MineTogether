@@ -109,7 +109,7 @@ public class ServerListEntryPublic extends ServerSelectionList.Entry
         }
     }
 
-//        @Override
+    //        @Override
     public ServerDataPublic getServerData()
     {
         return null;//(ServerDataPublic) super.getServerData();

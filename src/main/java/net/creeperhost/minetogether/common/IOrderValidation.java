@@ -6,15 +6,15 @@ package net.creeperhost.minetogether.common;
 public interface IOrderValidation
 {
     boolean validationCheckAtPhase(ValidationPhase phase);
-    
+
     boolean isValid(String string);
-    
+
     boolean isAsync();
-    
+
     String getValidationMessage();
-    
+
     String getName();
-    
+
     enum ValidationPhase
     {
         CHANGED,

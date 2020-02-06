@@ -32,7 +32,7 @@ public class CommandKill
         Stream<Entity> entityList = world.getEntities();
         entityList.forEach(index ->
         {
-            if(index.getEntity() == entity && !(index.getEntity() instanceof PlayerEntity))
+            if (index.getEntity() == entity && !(index.getEntity() instanceof PlayerEntity))
             {
                 i.getAndIncrement();
                 world.removeEntity(index);
@@ -40,7 +40,7 @@ public class CommandKill
         });
 
         PlayerEntity playerEntity = (PlayerEntity) ctx.getSource().getEntity();
-        if(playerEntity != null)
+        if (playerEntity != null)
         {
             playerEntity.sendMessage(new TranslationTextComponent("Removed " + i + " entities from the world"));
         }

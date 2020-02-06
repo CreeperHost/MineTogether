@@ -24,7 +24,7 @@ public class GuiWell
     public List<String> lines;
     private boolean centeredF;
     private String title;
-    
+
     public GuiWell(Minecraft mcIn, int width, int topIn, int bottomIn, String title, List<String> linesToDraw, boolean centred, int left)
     {
         this.title = title;
@@ -36,14 +36,14 @@ public class GuiWell
         this.left = left;
         this.right = width;
     }
-    
+
     @SuppressWarnings("Duplicates")
     public void drawScreen()
     {
         GlStateManager.disableLighting();
         GlStateManager.disableFog();
         Tessellator tessellator = Tessellator.getInstance();
-        
+
         IBufferProxy buffer = Util.getBufferProxy();
         this.mc.getTextureManager().bindTexture(Screen.BACKGROUND_LOCATION);
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -54,7 +54,7 @@ public class GuiWell
         buffer.pos((double) this.right, (double) this.top, 0.0D).tex((double) ((float) this.right / f), (double) ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
         buffer.pos((double) this.left, (double) this.top, 0.0D).tex((double) ((float) this.left / f), (double) ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
         tessellator.draw();
-        
+
         GlStateManager.disableDepthTest();
         GlStateManager.enableBlend();
         GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
@@ -73,19 +73,19 @@ public class GuiWell
         buffer.pos((double) this.right, (double) (this.bottom - 4), 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 0).endVertex();
         buffer.pos((double) this.left, (double) (this.bottom - 4), 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 0).endVertex();
         tessellator.draw();
-        
+
         GlStateManager.enableTexture();
         GlStateManager.shadeModel(7424);
         GlStateManager.enableAlphaTest();
         GlStateManager.disableBlend();
-        
+
         FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
-        
+
         int titleWidth = fontRenderer.getStringWidth(title);
         fontRenderer.drawStringWithShadow(title, this.left + ((this.right - this.left) / 2) - (titleWidth / 2), this.top + 2, 0xFFFFFF);
-        
+
         int topStart = this.top + 15;
-        
+
         for (String line : lines)
         {
             if (centeredF)

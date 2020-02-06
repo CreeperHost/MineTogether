@@ -17,9 +17,7 @@ import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiInvited;
-import net.creeperhost.minetogether.common.IngameChat;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.events.ScreenEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.gui.screen.Screen;
@@ -28,7 +26,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.Session;
-import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -42,7 +39,7 @@ public class Client implements IProxy
 {
     public KeyBinding openGuiKey;
     private UUID cache;
-    
+
     @Override
     public void registerKeys()
     {
@@ -50,7 +47,7 @@ public class Client implements IProxy
 //        openGuiKey = new KeyBinding("minetogether.key.friends", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_M, "minetogether.keys");
 //        ClientRegistry.registerKeyBinding(openGuiKey);
     }
-    
+
     @Override
     public void openFriendsGui()
     {
@@ -64,7 +61,7 @@ public class Client implements IProxy
             MineTogether.instance.handledInvite = null;
         }
     }
-    
+
     @Override
     public UUID getUUID()
     {
@@ -73,9 +70,9 @@ public class Client implements IProxy
         Minecraft mc = Minecraft.getInstance();
         Session session = mc.getSession();
         boolean online = MineTogether.instance.online;
-        
+
         UUID uuid;
-        
+
         if (online)
         {
             YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(mc.getProxy(), UUID.randomUUID().toString());
@@ -87,22 +84,22 @@ public class Client implements IProxy
             uuid = PlayerEntity.getOfflineUUID(session.getUsername().toLowerCase());
         }
         cache = uuid;
-        
+
         MineTogether.instance.online = online;
         return uuid;
     }
-    
+
     boolean isChatReplaced = false;
-    
+
     @Override
     public void startChat()
     {
         if (Config.getInstance().isChatEnabled())
         {
-            
+
             if (!MineTogether.instance.ingameChat.hasDisabledIngameChat())
                 enableIngameChat();
-            
+
             MineTogether.instance.getNameForUser("");
             MineTogether.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
             InputStream mutedUsersStream = null;
@@ -118,7 +115,7 @@ public class Client implements IProxy
                     MineTogether.instance.mutedUsersFile.getParentFile().mkdirs();
                     configString = "[]";
                 }
-                
+
                 Gson gson = new Gson();
                 MineTogether.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>()
                 {
@@ -140,7 +137,7 @@ public class Client implements IProxy
             new Thread(() -> ChatHandler.init(MineTogether.instance.ourNick, MineTogether.instance.realName, MineTogether.instance.online, MineTogether.instance)).start(); // start in thread as can hold up the UI thread for some reason.
         }
     }
-    
+
     @Override
     public void disableIngameChat()
     {
@@ -150,12 +147,12 @@ public class Client implements IProxy
             ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
         }
     }
-    
+
     @Override
     public void enableIngameChat()
     {
         MineTogether.instance.ingameChat.setDisabledIngameChat(false);
-        
+
         if (!isChatReplaced)
         {
             isChatReplaced = true;
@@ -163,7 +160,7 @@ public class Client implements IProxy
             ingameGui.persistantChatGUI = new GuiNewChatOurs(Minecraft.getInstance());
         }
     }
-    
+
     @Override
     public void closeGroupChat()
     {
@@ -190,7 +187,7 @@ public class Client implements IProxy
             }
         }
     }
-    
+
     @Override
     public void messageReceived(String target, Message messagePair)
     {
@@ -200,7 +197,7 @@ public class Client implements IProxy
         if (target.toLowerCase().equals(ourChat.chatTarget.toLowerCase()))
             ourChat.setChatLine(Objects.requireNonNull(GuiMTChat.formatLine(messagePair)), 0, Minecraft.getInstance().ingameGUI.getTicks(), false);
     }
-    
+
     @Override
     public void updateChatChannel()
     {
@@ -211,7 +208,7 @@ public class Client implements IProxy
                 chatGUI.chatTarget = ChatHandler.CHANNEL;
         }
     }
-    
+
     @Override
     public void refreshChat()
     {
@@ -225,7 +222,7 @@ public class Client implements IProxy
                 ((GuiMTChat) currentScreen).rebuildChat();
         }
     }
-    
+
     @Override
     public boolean checkOnline()
     {

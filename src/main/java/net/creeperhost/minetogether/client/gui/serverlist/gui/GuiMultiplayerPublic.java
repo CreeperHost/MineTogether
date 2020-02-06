@@ -9,10 +9,8 @@ import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
-import net.creeperhost.minetogether.client.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListEntryPublic;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.util.Util;
@@ -22,13 +20,10 @@ import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ServerSelectionList;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,20 +39,20 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     public boolean selectedListType = false;
     private DropdownButton<SortOrder> sortOrderButton;
     private Minecraft mc = Minecraft.getInstance();
-    
+
     public GuiMultiplayerPublic(Screen parentScreen)
     {
         super(parentScreen);
         parent = parentScreen;
     }
-    
+
     public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order)
     {
         this(parentScreen);
         this.listType = listType;
         sortOrder = order;
     }
-    
+
     public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order, boolean selectedListType)
     {
         this(parentScreen);
@@ -65,7 +60,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         this.selectedListType = selectedListType;
         sortOrder = order;
     }
-    
+
     @Override
     public void init()
     {
@@ -74,7 +69,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMultiplayerPublic(parent, listType, sortOrder)));
             return;
         }
-        
+
         super.init();
 
         addButton(new Button(width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"), p ->
@@ -85,7 +80,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             }
             mc.displayGuiScreen(new GuiServerType(this));
         }));
-        
+
         addButton(new GuiButtonCreeper(width - 105, 5, p ->
         {
             mc.displayGuiScreen(new GuiMTChat(this));
@@ -97,27 +92,27 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
 
         AtomicBoolean hasEntry = new AtomicBoolean(false);
 
-        if(listType == null && !hasEntry.get())
+        if (listType == null && !hasEntry.get())
         {
             serverListSelector.children().forEach(p ->
             {
-                if(p instanceof CreeperHostEntry)
+                if (p instanceof CreeperHostEntry)
                 {
                     hasEntry.set(true);
                 }
             });
 
-            if(!hasEntry.get())
+            if (!hasEntry.get())
             {
                 serverListSelector.children().add(serverListSelector.children().lastIndexOf(serverListSelector.lanScanEntry), creeperHostEntry);
             }
         }
-        
-        if(listType != null)
+
+        if (listType != null)
         {
             ServerListPublic serverListPublic = new ServerListPublic(mc, this);
             serverListPublic.loadServerList();
-    
+
             setServerList(serverListPublic);
 
             addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false, p ->
@@ -166,17 +161,17 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         ourTooltip = null;
         super.render(mouseX, mouseY, partialTicks);
 
-        if(listType != null)
+        if (listType != null)
         {
             drawCenteredString(font, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
         }
-        
+
         if (this.ourTooltip != null)
         {
             this.renderTooltip(Lists.newArrayList(Splitter.on("\n").split(ourTooltip)), mouseX, mouseY);
         }
     }
-    
+
     public enum SortOrder implements DropdownButton.IDropdownOption
     {
         RANDOM("random"),
@@ -185,55 +180,55 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         UPTIME("uptime"),
         LOCATION("location"),
         PING("ping", true);
-        
+
         public final boolean constant;
-        
+
         private static List<DropdownButton.IDropdownOption> enumCache;
-        
+
         public String translate;
-        
+
         SortOrder(String translate, boolean constant)
         {
             this.translate = translate;
             this.constant = constant;
         }
-        
+
         SortOrder(String translate)
         {
             this(translate, false);
         }
-        
+
         @Override
         public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
         {
             return "creeperhost.multiplayer.sort." + translate;
         }
-        
+
         @Override
         public List<DropdownButton.IDropdownOption> getPossibleVals()
         {
             if (enumCache == null)
                 enumCache = Arrays.asList(SortOrder.values());
-            
+
             return enumCache;
         }
     }
-    
+
     public enum ListType implements DropdownButton.IDropdownOption
     {
         PUBLIC, INVITE, APPLICATION;
-        
+
         private static List<DropdownButton.IDropdownOption> enumCache;
-        
+
         @Override
         public List<DropdownButton.IDropdownOption> getPossibleVals()
         {
             if (enumCache == null)
                 enumCache = Arrays.asList(ListType.values());
-            
+
             return enumCache;
         }
-        
+
         @Override
         public String getTranslate(DropdownButton.IDropdownOption currentDO, boolean dropdownOpen)
         {
@@ -282,7 +277,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
             blit(x, y, 0.0F, 0.0F, 32, 32, 32, 32);
             int transparentString = (int) (transparency * 254) << 24;
-            this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x+35, y, 16777215 + transparentString);
+            this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x + 35, y, 16777215 + transparentString);
             GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
             GlStateManager.enableBlend();
             this.mc.fontRenderer.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 1, 16777215 + transparentString);

@@ -21,13 +21,13 @@ public class GuiModPackList extends Screen
     private GuiList<GuiListEntryModpack> list;
     private boolean first = true;
     private TextFieldWidget displayEntry;
-    
+
     public GuiModPackList(Screen currentScreen)
     {
         super(new StringTextComponent(""));
         this.parent = currentScreen;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public void init()
@@ -41,27 +41,27 @@ public class GuiModPackList extends Screen
         {
             list.updateSize(width, height, 32, this.height - 64);
         }
-        
+
         this.children.add(list);
-        
+
         if (first)
         {
             first = false;
             refreshList();
         }
-        
+
         int y = this.height - 60;
-        
+
         int margin = 10;
         int buttonWidth = 80;
-        
+
         int buttonX = margin;
-        
+
         displayEntry = new TextFieldWidget(this.font, this.width / 2 - 90, y, 160, 20, "");
         displayEntry.setVisible(true);
-        
+
         this.addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("button.cancel"), (button) -> minecraft.displayGuiScreen(parent)));
-        
+
         this.addButton(new Button(this.width - 90, y, buttonWidth, 20, "Select", (button) ->
         {
             if (list.getSelected() != null)
@@ -72,10 +72,10 @@ public class GuiModPackList extends Screen
                 minecraft.displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
             }
         }));
-        
+
         this.addButton(new GuiButtonRefresh(this.width / 2 + 72, y, (button) -> refreshList()));
     }
-    
+
     private void refreshList()
     {
         String s = "";
@@ -83,7 +83,7 @@ public class GuiModPackList extends Screen
         {
             s = displayEntry.getText();
         }
-        
+
         List<ModPack> modpacks = Callbacks.getModpackFromCurse(s, 10);
         list.clearList();
         if (modpacks != null)
@@ -95,19 +95,19 @@ public class GuiModPackList extends Screen
             }
         }
     }
-    
+
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         if (list != null) this.list.render(mouseX, mouseY, partialTicks);
-        
+
         if (displayEntry != null) this.displayEntry.render(mouseX, mouseX, partialTicks);
-        
+
         this.drawCenteredString(this.font, Util.localize("gui.modpack.selector"), this.width / 2, 10, -1);
-        
+
         super.render(mouseX, mouseY, partialTicks);
     }
-    
+
     @Override
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
@@ -115,7 +115,7 @@ public class GuiModPackList extends Screen
         super.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
         return true;
     }
-    
+
     @Override
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
     {
@@ -124,7 +124,7 @@ public class GuiModPackList extends Screen
         super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
         return true;
     }
-    
+
     @Override
     public boolean charTyped(char p_charTyped_1_, int p_charTyped_2_)
     {
@@ -134,7 +134,7 @@ public class GuiModPackList extends Screen
         }
         return super.charTyped(p_charTyped_1_, p_charTyped_2_);
     }
-    
+
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {

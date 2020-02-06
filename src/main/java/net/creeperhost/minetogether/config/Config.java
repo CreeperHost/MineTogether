@@ -24,11 +24,11 @@ public class Config
     private boolean chatEnabled;
     private boolean autoMT;
     private boolean enableFriendOnlineToasts;
-    
+
     private int pregenDiameter = 120;
-    
+
     public static Config instance;
-    
+
     public Config()
     {
         this.version = "0";
@@ -45,7 +45,7 @@ public class Config
         autoMT = true;
         enableFriendOnlineToasts = true;
     }
-    
+
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
     {
         super();
@@ -57,112 +57,112 @@ public class Config
         this.serverHostButtonImage = serverHostButtonImage;
         this.serverHostMenuImage = serverHostMenuImage;
     }
-    
+
     public static Config getInstance()
     {
         return instance;
     }
-    
+
     public String getVersion()
     {
         return version;
     }
-    
+
     public void setVersion(String version)
     {
         this.version = version;
     }
-    
+
     public String getPromo()
     {
         return promoCode;
     }
-    
+
     public boolean isSivIntegration()
     {
         return sivIntegration;
     }
-    
+
     public boolean isMpMenuEnabled()
     {
         return mpMenuEnabled;
     }
-    
+
     public boolean isCreeperhostEnabled()
     {
         return creeperhostEnabled;
     }
-    
+
     public boolean isMainMenuEnabled()
     {
         return mainMenuEnabled;
     }
-    
+
     public boolean isServerHostButtonImage()
     {
         return serverHostButtonImage;
     }
-    
+
     public boolean isServerHostMenuImage()
     {
         return serverHostMenuImage;
     }
-    
+
     public boolean isServerListEnabled()
     {
         return serverListEnabled;
     }
-    
+
     public int getPregenDiameter()
     {
         return pregenDiameter;
     }
-    
+
     public void setMpMenuEnabled(boolean value)
     {
         mpMenuEnabled = value;
     }
-    
+
     public void setServerListEnabled(boolean value)
     {
         serverListEnabled = value;
     }
-    
+
     public void setChatEnabled(boolean value)
     {
         chatEnabled = value;
     }
-    
+
     public boolean isChatEnabled()
     {
         return chatEnabled;
     }
-    
+
     public boolean isFriendOnlineToastsEnabled()
     {
         return enableFriendOnlineToasts;
     }
-    
+
     public String getCurseProjectID()
     {
         return curseProjectID;
     }
-    
+
     public boolean isAutoMT()
     {
         return autoMT;
     }
-    
+
     public static void makeConfig(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
     {
         if (instance != null)
         {
             return;
         }
-        
+
         instance = new Config(version, promoCode, creeperhostEnabled, mpMenuEnabled, mainMenuEnabled, serverHostButtonImage, serverHostMenuImage);
     }
-    
+
     public static void loadFromFile(File file)
     {
         Gson gson = new Gson();
@@ -174,7 +174,7 @@ public class Config
         {
         }
     }
-    
+
     public static String saveConfig()
     {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

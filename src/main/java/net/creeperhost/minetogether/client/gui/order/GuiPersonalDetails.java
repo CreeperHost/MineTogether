@@ -39,25 +39,25 @@ public class GuiPersonalDetails extends GuiGetServer
     private String prevLoginString;
     private boolean prevLoginVisible;
     private boolean prevLoginEnabled;
-    
+
     public GuiPersonalDetails(int stepId, Order order)
     {
         super(stepId, order);
         order.clientID = "";
     }
-    
+
     @Override
     public String getStepName()
     {
         return Util.localize("gui.personal_details");
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void init()
     {
         super.init();
-        
+
         this.loginButton = addButton(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, Util.localize("button.login"), p ->
         {
             if (orderPressed && !isSure)
@@ -93,11 +93,11 @@ public class GuiPersonalDetails extends GuiGetServer
             Thread thread = new Thread(runnable);
             thread.start();
             return;
-            
+
         }));
-        
+
         loginButton.visible = loginMode;
-        
+
         if (orderPressed && !isSure)
         {
             loginButton.setMessage(Util.localize("button.order"));
@@ -116,13 +116,13 @@ public class GuiPersonalDetails extends GuiGetServer
         {
             loginButton.setMessage(Util.localize("button.logintryagain"));
         }
-        
+
         fields = new ArrayList<TextFieldDetails>();
-        
+
         int x = this.width / 2;
-        
+
         int fieldWidths = 185;
-        
+
         ArrayList<IOrderValidation> defaultValidators = new ArrayList<IOrderValidation>();
         defaultValidators.add(new IOrderValidation()
         {
@@ -131,36 +131,36 @@ public class GuiPersonalDetails extends GuiGetServer
             {
                 return phase.equals(IOrderValidation.ValidationPhase.CHANGED);
             }
-            
+
             @Override
             public boolean isValid(String string)
             {
                 return !string.isEmpty();
             }
-            
+
             @Override
             public boolean isAsync()
             {
                 return false;
             }
-            
+
             @Override
             public String getValidationMessage()
             {
                 return "Cannot be blank";
             }
-            
+
             @Override
             public String getName()
             {
                 return "NotBlankValidator";
             }
         });
-        
+
         ArrayList<IOrderValidation> emailValidators = new ArrayList<IOrderValidation>(defaultValidators);
-        
+
         emailValidators.add(new RegexValidator("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])", "Invalid email address"));
-        
+
         emailValidators.add(new DefferedValidation()
         {
             @Override
@@ -168,61 +168,61 @@ public class GuiPersonalDetails extends GuiGetServer
             {
                 return phase.equals(ValidationPhase.FOCUSLOST);
             }
-            
+
             @Override
             public boolean isValidReal(String string)
             {
                 return Callbacks.doesEmailExist(string);
             }
-            
+
             public String getMessageReal()
             {
                 return "Email already exists";
             }
-            
+
             @Override
             public String getName()
             {
                 return "NotEmailExistsValidator";
             }
         });
-        
+
         this.fields.add(new TextFieldDetails(this, 0, Util.localize("info.e_mail"), this.order.emailAddress, x - 205, 45, fieldWidths, 20, emailValidators));
-        
+
         // Validation done, I guess - the website itself doesn't do any password strength validation etc so I won't force it here
-        
+
         this.fields.add(new TextFieldDetails(this, 1, Util.localize("info.password"), this.order.password, x + 5, 45, fieldWidths, 20, defaultValidators, "*"));
-        
+
         this.fields.add(new TextFieldDetails(this, 2, Util.localize("info.first_name"), this.order.firstName, x - 205, 75, fieldWidths, 20, defaultValidators));
         this.fields.add(new TextFieldDetails(this, 3, Util.localize("info.last_name"), this.order.lastName, x + 5, 75, fieldWidths, 20, defaultValidators));
-        
+
         this.fields.add(new TextFieldDetails(this, 4, Util.localize("info.address"), this.order.address, x - 205, 105, fieldWidths, 20, defaultValidators));
         this.fields.add(new TextFieldDetails(this, 5, Util.localize("info.city"), this.order.city, x + 5, 105, fieldWidths, 20, defaultValidators));
-        
+
         this.fields.add(new TextFieldDetails(this, 6, Util.localize("info.zip"), this.order.zip, x - 205, 135, fieldWidths, 20, defaultValidators));
         this.fields.add(new TextFieldDetails(this, 7, Util.localize("info.state"), this.order.state, x + 5, 135, fieldWidths, 20, defaultValidators));
-        
+
         TextFieldDetails countryField = new TextFieldDetails(this, 8, Util.localize("info.country"), Callbacks.getCountries().get(this.order.country), x - 205, 165, fieldWidths, 20, defaultValidators, false);
         this.fields.add(countryField);
-        
+
         this.fields.add(new TextFieldDetails(this, 9, Util.localize("info.phone"), this.order.phone, x + 5, 165, fieldWidths, 20, defaultValidators));
-        
+
         String info2Text = Util.localize("order.info2");
-        
+
         final String regex = "\\((.*?)\\|(.*?)\\)";
-        
+
         final Pattern pattern = Pattern.compile(regex);
         final Matcher matcher = pattern.matcher(info2Text);
-        
+
         int lastEnd = 0;
-        
+
         ITextComponent component = null;
-        
+
         while (matcher.find())
         {
             int start = matcher.start();
             int end = matcher.end();
-            
+
             String part = info2Text.substring(lastEnd, start);
             if (part.length() > 0)
             {
@@ -231,7 +231,7 @@ public class GuiPersonalDetails extends GuiGetServer
                 else
                     component.appendText(part);
             }
-            
+
             lastEnd = end;
             ITextComponent link = new StringTextComponent(matcher.group(1));
             Style style = link.getStyle();
@@ -239,7 +239,7 @@ public class GuiPersonalDetails extends GuiGetServer
             style.setColor(TextFormatting.BLUE);
             style.setUnderlined(true);
             style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(Util.localize("order.url"))));
-            
+
             if (component == null)
                 component = link;
             else
@@ -247,52 +247,52 @@ public class GuiPersonalDetails extends GuiGetServer
         }
         info2 = component;
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void tick()
     {
         super.tick();
-        
+
         this.buttonNext.active = true;
         this.loginButton.visible = loginMode || (orderPressed && !isSure);
-        
+
         for (TextFieldDetails field : this.fields)
         {
             field.checkPendingValidations();
             field.tick();
-            
+
             if (!field.isValidated)
             {
                 this.buttonNext.active = false;
             }
         }
-        
+
         this.buttonNext.active = this.buttonNext.active && isEmailValid;
-        
+
         this.buttonNext.active = this.loggedIn || this.buttonNext.active;
     }
-    
+
     @Override
     public boolean charTyped(char typedChar, int keyCode)
     {
         TextFieldDetails field = this.focusedField;
-        
+
         if (focusedField == null)
             return false;
-        
+
         if (keyCode == 15)
         {
             int adjustAm = 1;
-            
+
             int fieldsSize = fields.size();
-            
+
             field.setFocused(false);
-            
+
             int newField = (field.getId() + adjustAm) % fieldsSize;
             if (newField == -1)
                 newField = fieldsSize - 1;
-            
+
             TextFieldDetails newF = null;
             while (newF == null)
             {
@@ -307,14 +307,14 @@ public class GuiPersonalDetails extends GuiGetServer
                         newField = fieldsSize - 1;
                 }
             }
-            
+
             newF.setFocused(true);
-            
+
         } else if (field.charTyped(typedChar, keyCode))
         {
             int id = field.getId();
             String text = field.getText().trim();
-            
+
             switch (id)
             {
                 case 0:
@@ -351,7 +351,7 @@ public class GuiPersonalDetails extends GuiGetServer
         }
         return super.charTyped(typedChar, keyCode);
     }
-    
+
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {
@@ -361,7 +361,7 @@ public class GuiPersonalDetails extends GuiGetServer
             {
                 int id = focusedField.getId();
                 String text = focusedField.getText().trim();
-                
+
                 switch (id)
                 {
                     case 0:
@@ -399,19 +399,19 @@ public class GuiPersonalDetails extends GuiGetServer
         }
         return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
         super.render(mouseX, mouseY, partialTicks);
-        
+
         if ((!orderPressed || !isSure) && !loginMode)
         {
             this.drawCenteredString(font, "No data will be sent until you complete the order.", this.width / 2, this.height - 45, 0xFFFFFF);
         }
-        
+
         if (!orderPressed || isSure)
         {
             for (TextFieldDetails field : this.fields)
@@ -427,7 +427,7 @@ public class GuiPersonalDetails extends GuiGetServer
                     field.render(mouseX, mouseY, partialTicks);
                 }
             }
-            
+
             if (loginMode)
             {
                 if (loggingIn)
@@ -447,16 +447,16 @@ public class GuiPersonalDetails extends GuiGetServer
         } else
         {
             int info2Start = (this.height / 2) - 50;
-            
+
             this.drawCenteredString(font, Util.localize("order.info1"), this.width / 2, (this.height / 2) - 60, 0xFFFFFF);
             this.drawCenteredString(font, info2.getFormattedText(), this.width / 2, (this.height / 2) - 50, 0xFFFFFF);
             this.drawCenteredString(font, Util.localize("order.info3"), this.width / 2, (this.height / 2) - 30, 0xFFFFFF);
             this.drawCenteredString(font, Util.localize("order.info4"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-            
+
             if (mouseY >= info2Start && mouseY <= info2Start + font.FONT_HEIGHT)
             {
                 ITextComponent component = getComponent(mouseX, mouseY);
-                
+
                 if (component != null)
                 {
                     HoverEvent event = component.getStyle().getHoverEvent();
@@ -469,19 +469,19 @@ public class GuiPersonalDetails extends GuiGetServer
             }
         }
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        
+
         int info2Start = (this.height / 2) - 50;
-        
+
         if (orderPressed && !isSure && mouseY >= info2Start && mouseY <= info2Start + font.FONT_HEIGHT)
         {
             ITextComponent comp = getComponent(mouseX, mouseY);
-            
+
             ClickEvent clickevent = comp.getStyle().getClickEvent();
             if (clickevent != null && clickevent.getAction() == ClickEvent.Action.OPEN_URL)
             {
@@ -499,7 +499,7 @@ public class GuiPersonalDetails extends GuiGetServer
                 return false;
             }
         }
-        
+
         for (TextFieldDetails field : this.fields)
         {
             if (field.mouseClicked(mouseX, mouseY, mouseButton))
@@ -509,23 +509,23 @@ public class GuiPersonalDetails extends GuiGetServer
         }
         return false;
     }
-    
+
     private ITextComponent getComponent(double mouseX, double mouseY)
     {
         int stringWidth = font.getStringWidth(info2.getFormattedText());
         int begin = (width / 2) - (stringWidth / 2);
-        
+
         if (info2 instanceof StringTextComponent)
         {
             StringTextComponent comp = (StringTextComponent) info2;
-            
+
             int prevWidth = begin;
-            
+
             for (ITextComponent inner : comp)
             {
                 StringBuilder stringbuilder = new StringBuilder();
                 String s = inner.getUnformattedComponentText();
-                
+
                 if (!s.isEmpty())
                 {
                     stringbuilder.append(inner.getStyle().getFormattingCode());
@@ -581,7 +581,7 @@ public class GuiPersonalDetails extends GuiGetServer
 //        }
 //        super.actionPerformed(button);
 //    }
-    
+
     public void validationChanged(TextFieldDetails details, boolean valid, IOrderValidation validator, IOrderValidation.ValidationPhase phase)
     {
         if (details.getId() == 0)
@@ -603,7 +603,7 @@ public class GuiPersonalDetails extends GuiGetServer
             }
         }
     }
-    
+
     public void validationChangedDeferred(TextFieldDetails textFieldDetails, DefferedValidation pendingValidation)
     {
         textFieldDetails.setEnabled(true);

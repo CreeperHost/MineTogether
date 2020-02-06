@@ -11,7 +11,7 @@ public class ConfigHandler
     public static void init()
     {
         File base = Minecraft.getInstance().gameDir;
-        
+
         File configDir = new File(base + File.separator + "config");
         if (configDir.exists())
         {
@@ -21,7 +21,7 @@ public class ConfigHandler
                 if (!f1.exists())
                 {
                     Config.instance = new Config();
-                    
+
                     FileWriter tileWriter = new FileWriter(configDir + "/" + ModInfo.MOD_ID + ".json");
                     tileWriter.write(Config.saveConfig());
                     tileWriter.close();
@@ -29,7 +29,9 @@ public class ConfigHandler
                 {
                     Config.loadFromFile(f1);
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored)
+            {
+            }
         }
     }
 }

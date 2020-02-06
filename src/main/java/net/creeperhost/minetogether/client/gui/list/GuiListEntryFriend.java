@@ -17,7 +17,7 @@ public class GuiListEntryFriend extends GuiListEntry
     private boolean wasHovering;
     private final GuiFriendsList friendsList;
     ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/icon2.png");
-    
+
     public GuiListEntryFriend(GuiFriendsList friendsListIn, GuiList list, Friend friend)
     {
         super(list);
@@ -26,7 +26,7 @@ public class GuiListEntryFriend extends GuiListEntry
         cross = new String(Character.toChars(10006));
         stringWidth = this.mc.fontRenderer.getStringWidth(cross);
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
@@ -40,24 +40,24 @@ public class GuiListEntryFriend extends GuiListEntry
             if (transparency >= 0.5F)
                 transparency -= 0.04;
         }
-        
+
         this.mc.fontRenderer.drawString(friend.getName(), x + 5, y + 5, 16777215);
         this.mc.fontRenderer.drawString(new StringTextComponent(friend.isAccepted() ? "Accepted" : "Pending").getText(), x + 5, y + 5 + 10, 16777215);
-        
+
         int transparentString = (int) (transparency * 254) << 24;
-        
+
         GlStateManager.enableAlphaTest();
         GlStateManager.enableBlend();
         this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
-        
+
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
-        
+
         GlStateManager.color4f(0, 1, 0, 1);
-        Screen.blit(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10, 10);
-        
+        Screen.blit(listWidth + x - 14, y + 20, 0.0F, 0.0F, 10, 10, 10, 10);
+
         GlStateManager.disableAlphaTest();
         GlStateManager.disableBlend();
-        
+
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
         {
             wasHovering = true;
@@ -72,12 +72,12 @@ public class GuiListEntryFriend extends GuiListEntry
             friendsList.setHoveringText(null);
         }
     }
-    
+
     public Friend getFriend()
     {
         return friend;
     }
-    
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int p_mouseClicked_5_)
     {
@@ -91,8 +91,7 @@ public class GuiListEntryFriend extends GuiListEntry
             wasHovering = false;
             friendsList.setHoveringText(null);
             return false;
-        }
-        else if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 2 && mouseY - yTop >= 0 && mouseY - yTop <= 27)
+        } else if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 2 && mouseY - yTop >= 0 && mouseY - yTop <= 27)
         {
             friendsList.inviteGroupChat(friend);
             wasHovering = false;

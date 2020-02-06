@@ -23,12 +23,10 @@ public class ButtonString extends GuiButtonExt
             if (packedFGColor != 0)
             {
                 color = packedFGColor;
-            }
-            else if (!this.active)
+            } else if (!this.active)
             {
                 color = 10526880;
-            }
-            else if (this.isHovered)
+            } else if (this.isHovered)
             {
                 color = 16777120;
             }

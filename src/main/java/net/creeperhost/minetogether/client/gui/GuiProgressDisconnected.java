@@ -1,10 +1,8 @@
 package net.creeperhost.minetogether.client.gui;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.text.ITextComponent;
@@ -30,7 +28,7 @@ public class GuiProgressDisconnected extends Screen
     private NetworkManager lastNetworkManager;
     private ConnectingScreen captiveConnecting;
     private String ip = "";
-    
+
     public GuiProgressDisconnected(ConnectingScreen screen, String reasonLocalizationKey, ITextComponent chatComp, NetworkManager lastNetworkManager)
     {
         super(new StringTextComponent(""));
@@ -45,14 +43,14 @@ public class GuiProgressDisconnected extends Screen
             ip = address.getHostName() + ":" + address.getPort();
         }
     }
-    
+
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
         this.drawCenteredString(this.font, this.ourReason, this.width / 2, this.height / 2 - this.textHeight / 2 - this.font.FONT_HEIGHT * 2, 11184810);
         int x = this.height / 2 - this.textHeight / 2;
-        
+
         if (this.multilineMessage != null)
         {
             for (String s : this.multilineMessage)
@@ -61,43 +59,43 @@ public class GuiProgressDisconnected extends Screen
                 x += this.font.FONT_HEIGHT;
             }
         }
-        
+
         //percent = (percent + 1) % 100;
-        
+
         int loadingBackColour = 0xFF000000;
         int loadingFrontColour = 0xFF00FF00;
         int loadingOutsideColour = 0xFF222222;
-        
+
         int loadingHeight = 20;
         int loadingWidth = this.width - 60;
         int left = this.width / 2 - (loadingWidth / 2);
         int top = this.height / 2 - (loadingHeight / 2) + 45;
-        
+
         int loadingPercentWidth = (int) (((double) loadingWidth / (double) 100) * (double) percent);
 
 //        drawRect(left - 1, top - 1, left + loadingWidth + 1, top + loadingHeight + 1, loadingOutsideColour);
 //        drawRect(left, top, left + loadingWidth, top + loadingHeight, loadingBackColour);
 //        drawRect(left, top, left + loadingPercentWidth, top + loadingHeight, loadingFrontColour);
-        
+
 //        if (false)
 //        {
 //            lastConnectAttempt = System.currentTimeMillis();
 //            captiveConnecting = new ConnectingScreen(this, Minecraft.getInstance(), new ServerData("lol", ip, false));
 //            lastNetworkManager = EventHandler.getNetworkManager(captiveConnecting);
 //        }
-        
+
         super.render(mouseX, mouseY, partialTicks);
-        
+
         //drawCenteredString(fontRendererObj, I18n.format("creeperhost.pregen.refresh"), this.width / 2, Math.min(this.height / 2 + 60, this.height - 30), 0xFFFFFFFF);
     }
-    
+
     @Override
     public void tick()
     {
         if (captiveConnecting != null)
             captiveConnecting.tick();
     }
-    
+
     @SuppressWarnings("all")
     @Override
     public void init()
@@ -112,7 +110,7 @@ public class GuiProgressDisconnected extends Screen
                 {
                     lastNetworkManager.closeChannel(new StringTextComponent("Aborted"));
                 }
-                
+
                 try
                 {
                     if (cancelField == null)
@@ -127,7 +125,7 @@ public class GuiProgressDisconnected extends Screen
             this.minecraft.displayGuiScreen(this.parentScreen);
         }));
     }
-    
+
     @SuppressWarnings("Duplicates")
     public void update(String reason, ITextComponent message)
     {
@@ -150,5 +148,4 @@ public class GuiProgressDisconnected extends Screen
             }
         }
     }
-    
 }

@@ -9,7 +9,7 @@ public class GuiTextFieldCompatCensor extends TextFieldWidget
     {
         super(fontrendererObj, x, y, par5Width, par6Height, s);
     }
-    
+
     @Override
     public void render(int p_render_1_, int p_render_2_, float p_render_3_)
     {

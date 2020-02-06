@@ -38,8 +38,10 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,21 +126,19 @@ public class GuiMTChat extends Screen
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         strings.add("Add friend");
-        if(menuDropdownButton == null)
+        if (menuDropdownButton == null)
         {
             addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
             {
-                
+
                 if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
                 {
                     MineTogether.instance.muteUser(activeDropdown);
                     chat.updateLines(currentTarget);
-                }
-                else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
+                } else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
                 {
                     minecraft.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
-                }
-                else if (ChatHandler.privateChatInvite != null)
+                } else if (ChatHandler.privateChatInvite != null)
                 {
                     confirmInvite();
                 }
@@ -176,7 +176,7 @@ public class GuiMTChat extends Screen
             inviteTemp = false;
         }
 
-        if(Callbacks.isBanned())
+        if (Callbacks.isBanned())
         {
             banMessage = Callbacks.getBanMessage();
             addButton(banButton = new ButtonString(30, height - 26, 60, 20, "Ban Reason: " + banMessage, p ->
@@ -192,7 +192,7 @@ public class GuiMTChat extends Screen
     public void tick()
     {
         super.tick();
-        if(tickCounter % 20 == 0) rebuildChat();
+        if (tickCounter % 20 == 0) rebuildChat();
 
         if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
@@ -307,12 +307,12 @@ public class GuiMTChat extends Screen
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glPopMatrix();
     }
-    
+
     BooleanConsumer booleanConsumer = result ->
     {
-        if(result)
+        if (result)
         {
-            if(ChatHandler.privateChatInvite != null)
+            if (ChatHandler.privateChatInvite != null)
             {
                 ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
 //                    MineTogether.instance.clearToast(false);
@@ -470,7 +470,7 @@ public class GuiMTChat extends Screen
         {
             return false;
         }
-        
+
         if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
             String eventValue = event.getValue();
@@ -501,7 +501,7 @@ public class GuiMTChat extends Screen
             activeDropdown = event.getValue();
             return true;
         }
-        if(event.getAction() == ClickEvent.Action.OPEN_URL)
+        if (event.getAction() == ClickEvent.Action.OPEN_URL)
         {
             this.handleComponentClicked(component);
         }
@@ -763,7 +763,7 @@ public class GuiMTChat extends Screen
                     int oldTotal = totalWidth;
                     totalWidth += minecraft.fontRenderer.getStringWidth(sibling.getFormattedText());
                     boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(i) && mouseY < getRowTop(i) + itemHeight;
-                    if(hovering && sibling.getStyle().getClickEvent() != null)
+                    if (hovering && sibling.getStyle().getClickEvent() != null)
                     {
                         handleComponentClick(sibling, mouseX, mouseY);
                         return true;
@@ -865,47 +865,47 @@ public class GuiMTChat extends Screen
         }
     }
 
-        public static class Menu implements DropdownButton.IDropdownOption
+    public static class Menu implements DropdownButton.IDropdownOption
+    {
+        List<DropdownButton.IDropdownOption> possibleValsCache;
+        public String option;
+
+        public Menu(List<String> options)
         {
-            List<DropdownButton.IDropdownOption> possibleValsCache;
-            public String option;
-
-            public Menu(List<String> options)
+            possibleValsCache = new ArrayList<>();
+            possibleValsCache.add(this);
+            option = options.get(0);
+            options.remove(0);
+            for (String option : options)
             {
-                possibleValsCache = new ArrayList<>();
-                possibleValsCache.add(this);
-                option = options.get(0);
-                options.remove(0);
-                for (String option : options)
-                {
-                    possibleValsCache.add(new Menu(possibleValsCache, option));
-                }
-            }
-
-            public Menu(List<DropdownButton.IDropdownOption> vals, String option)
-            {
-                possibleValsCache = vals;
-                this.option = option;
-            }
-
-            @Override
-            public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
-            {
-                return option;
-            }
-
-            @Override
-            public List<DropdownButton.IDropdownOption> getPossibleVals()
-            {
-                return possibleValsCache;
+                possibleValsCache.add(new Menu(possibleValsCache, option));
             }
         }
 
-        final Pattern URL_PATTERN = Pattern.compile(
-                //         schema                          ipv4            OR        namespace                 port     path         ends
-                //   |-----------------|        |-------------------------|  |-------------------------|    |---------| |--|   |---------------|
-                "((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))",
-                Pattern.CASE_INSENSITIVE);
+        public Menu(List<DropdownButton.IDropdownOption> vals, String option)
+        {
+            possibleValsCache = vals;
+            this.option = option;
+        }
+
+        @Override
+        public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
+        {
+            return option;
+        }
+
+        @Override
+        public List<DropdownButton.IDropdownOption> getPossibleVals()
+        {
+            return possibleValsCache;
+        }
+    }
+
+    final Pattern URL_PATTERN = Pattern.compile(
+            //         schema                          ipv4            OR        namespace                 port     path         ends
+            //   |-----------------|        |-------------------------|  |-------------------------|    |---------| |--|   |---------------|
+            "((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))",
+            Pattern.CASE_INSENSITIVE);
 
 
     public static ITextComponent newChatWithLinksOurs(String string)

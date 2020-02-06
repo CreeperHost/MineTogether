@@ -10,7 +10,7 @@ public class GuiActiveFake extends Button
     {
         super(x, y, widthIn, heightIn, buttonText, onPress);
     }
-    
+
     public void setActive(boolean active)
     {
         this.active = active;

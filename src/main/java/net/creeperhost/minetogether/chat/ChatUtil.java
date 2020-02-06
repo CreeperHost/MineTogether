@@ -21,11 +21,11 @@ public class ChatUtil
 {
     private static List<String> cookies;
     private static boolean logHide;
-    
+
     private static final List<String> FALLBACK_BADWORDS = Arrays.asList("fuck", "shit", "bitch", "cunt", "twat", "tits", "titties", "titty", "nigger", "nigga", "crap", "chink", "whore", "faggot", "fag", "dyke", "slut", "hitler", "tranny");
-    
+
     private static String allowedCharactersRegex;
-    
+
     public static List<String> getBadWords()
     {
         String resp = getWebResponse("https://api.creeper.host/serverlist/badwords");
@@ -47,18 +47,18 @@ public class ChatUtil
         allowedCharactersRegex = "[^A-Za-z0-9]";
         return FALLBACK_BADWORDS;
     }
-    
+
     public static String getAllowedCharactersRegex()
     {
         if (allowedCharactersRegex == null)
             getBadWords();
         return allowedCharactersRegex;
     }
-    
+
     public static IRCServer getIRCServerDetails()
     {
         String resp = getWebResponse("https://api.creeper.host/serverlist/chatserver");
-        
+
         if (resp.equals("error"))
         {
             return new IRCServer("irc.minetogether.io", 6667, false, "#public");
@@ -78,7 +78,7 @@ public class ChatUtil
             return new IRCServer("irc.minetogether.io", 6667, false, "#public");
         }
     }
-    
+
     public static String getWebResponse(String urlString)
     {
         try
@@ -89,7 +89,7 @@ public class ChatUtil
             // lul
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
-            
+
             if (cookies != null)
             {
                 for (String cookie : cookies)
@@ -105,31 +105,31 @@ public class ChatUtil
             {
                 respData.append(line);
             }
-            
+
             List<String> setCookies = conn.getHeaderFields().get("Set-Cookie");
-            
+
             if (setCookies != null)
             {
                 cookies = setCookies;
             }
-            
+
             rd.close();
             return respData.toString();
         } catch (Throwable t)
         {
             System.out.println("An error occurred while fetching " + urlString + " " + t.getMessage() + " " + t.getStackTrace().toString());
         }
-        
+
         return "error";
-        
+
     }
-    
+
     private static String mapToFormString(Map<String, String> map)
     {
         StringBuilder postDataStringBuilder = new StringBuilder();
-        
+
         String postDataString;
-        
+
         try
         {
             for (Map.Entry<String, String> entry : map.entrySet())
@@ -144,23 +144,23 @@ public class ChatUtil
         }
         return postDataString;
     }
-    
+
     public static String postWebResponse(String urlString, Map<String, String> postDataMap)
     {
         return postWebResponse(urlString, mapToFormString(postDataMap));
     }
-    
+
     public static String methodWebResponse(String urlString, String postDataString, String method, boolean isJson, boolean silent)
     {
         try
         {
             postDataString.substring(0, postDataString.length() - 1);
-            
+
             byte[] postData = postDataString.getBytes(Charset.forName("UTF-8"));
             int postDataLength = postData.length;
-            
+
             URL url = new URL(urlString);
-            
+
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56");
             conn.setRequestMethod(method);
@@ -188,7 +188,7 @@ public class ChatUtil
                     t.printStackTrace();
                 }
             }
-            
+
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             StringBuilder respData = new StringBuilder();
@@ -196,14 +196,14 @@ public class ChatUtil
             {
                 respData.append(line);
             }
-            
+
             List<String> setCookies = conn.getHeaderFields().get("Set-Cookie");
-            
+
             if (setCookies != null)
             {
                 cookies = setCookies;
             }
-            
+
             rd.close();
             logHide = false;
             return respData.toString();
@@ -216,27 +216,27 @@ public class ChatUtil
             logHide = true;
             System.out.println("An error occurred while fetching " + urlString + ". Will hide repeated errors. " + t.getMessage() + " " + t.getStackTrace());
         }
-        
+
         return "error";
     }
-    
+
     public static String postWebResponse(String urlString, String postDataString)
     {
         return methodWebResponse(urlString, postDataString, "POST", false, false);
     }
-    
+
     public static String putWebResponse(String urlString, String body, boolean isJson, boolean isSilent)
     {
         return methodWebResponse(urlString, body, "PUT", isJson, isSilent);
     }
-    
+
     public static class IRCServer
     {
         public final String address;
         public final int port;
         public final boolean ssl;
         public final String channel;
-        
+
         public IRCServer(String address, int port, boolean ssl, String channel)
         {
             this.address = address;

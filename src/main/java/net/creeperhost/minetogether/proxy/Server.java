@@ -10,53 +10,53 @@ public class Server implements IProxy
     public void registerKeys()
     {
     }
-    
+
     @Override
     public void openFriendsGui()
     {
     }
-    
+
     @Override
     public UUID getUUID()
     {
         return null;
     }
-    
+
     @Override
     public void startChat()
     {
     }
-    
+
     @Override
     public void disableIngameChat()
     {
     }
-    
+
     @Override
     public void enableIngameChat()
     {
     }
-    
+
     @Override
     public void closeGroupChat()
     {
     }
-    
+
     @Override
     public void messageReceived(String target, Message messagePair)
     {
     }
-    
+
     @Override
     public void updateChatChannel()
     {
     }
-    
+
     @Override
     public void refreshChat()
     {
     }
-    
+
     @Override
     public boolean checkOnline()
     {
