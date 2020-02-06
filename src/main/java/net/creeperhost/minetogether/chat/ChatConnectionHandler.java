@@ -42,9 +42,7 @@ public class ChatConnectionHandler
             {
                 Client.Builder mineTogether = Client.builder().nick(ChatHandler.nick).realName(ChatHandler.realName).user("MineTogether");
                 mineTogether.server().host(ChatHandler.IRC_SERVER.address).port(ChatHandler.IRC_SERVER.port).secure(ChatHandler.IRC_SERVER.ssl);
-                mineTogether.listeners().exception(e ->
-                {
-                }); // no-op
+                mineTogether.listeners().exception(e -> {}); // no-op
                 if (ChatHandler.client != null) return; // hopefully prevent multiples
                 ChatHandler.client = mineTogether.buildAndConnect();
                 
