@@ -1,17 +1,18 @@
 package net.creeperhost.minetogether.client.gui.list;
 
 import net.creeperhost.minetogether.client.gui.order.GuiModPackList;
+import net.creeperhost.minetogether.data.ModPack;
 import net.creeperhost.minetogether.paul.Callbacks;
 
 public class GuiListEntryModpack extends GuiListEntry
 {
     private GuiModPackList modpackList;
-    Callbacks.Modpack modpack;
+    ModPack modpack;
     private final String cross;
     private final int stringWidth;
     private float transparency = 0.5F;
     
-    public GuiListEntryModpack(GuiModPackList modPackList, GuiList list, Callbacks.Modpack modpack)
+    public GuiListEntryModpack(GuiModPackList modPackList, GuiList list, ModPack modpack)
     {
         super(list);
         this.modpackList = modPackList;
@@ -38,14 +39,8 @@ public class GuiListEntryModpack extends GuiListEntry
         this.mc.fontRenderer.drawString(modpack.getName() + " (" + modpack.getDisplayVersion() + ")", x + 5, y + 5, 16777215);
     }
     
-    public Callbacks.Modpack getModpack()
+    public ModPack getModpack()
     {
         return modpack;
     }
-
-//    @Override
-//    public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
-//    {
-//        return super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
-//    }
 }

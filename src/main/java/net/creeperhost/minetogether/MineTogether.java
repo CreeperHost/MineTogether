@@ -81,8 +81,6 @@ public class MineTogether implements ICreeperHostMod, IHost
     private Random randomGenerator;
     private CreeperHostServerHost implement;
     Discoverability discoverMode = Discoverability.UNLISTED;
-    ArrayList<UUID> playersJoined = new ArrayList<UUID>();
-
     public static int updateID;
     static int tries = 0;
     public IPlayerKicker kicker;
@@ -93,10 +91,6 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static MineTogether instance;
     public static MinecraftServer server;
     public static String secret;
-
-    private boolean needsToBeKilled = true;
-    private boolean watchdogKilled = false;
-    private boolean watchdogChecked = false;
 
     public MineTogether()
     {
@@ -421,9 +415,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers));
-        } catch (IOException ignored)
-        {
-        }
+        } catch (IOException ignored) {}
     }
     
     public void muteUser(String user)
@@ -433,9 +425,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-        } catch (IOException ignored)
-        {
-        }
+        } catch (IOException ignored) {}
     }
     
     public void unmuteUser(String user)
@@ -447,9 +437,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-        } catch (IOException ignored)
-        {
-        }
+        } catch (IOException ignored) {}
     }
     
     @Override
@@ -503,9 +491,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             output = gson.fromJson(IOUtils.toString(file.toURI()), listOfPregenTask);
-        } catch (Exception e)
-        {
-        }
+        } catch (Exception ignored) {}
         if (output == null)
             pregenTasks = new HashMap<DimensionType, PregenTask>();
         else
@@ -667,8 +653,11 @@ public class MineTogether implements ICreeperHostMod, IHost
 
     public boolean createTask(PregenTask task)
     {
+        if (pregenTasks.get(task.dimension) != null)
+            return false;
+
         pregenTasks.put(task.dimension, task);
-        return true;
+            return true;
     }
 
     public void setupPlayerKicker()
@@ -692,44 +681,5 @@ public class MineTogether implements ICreeperHostMod, IHost
                 kicker = (IPlayerKicker) clazz.newInstance();
             } catch (Throwable ignored) {}
         }
-    }
-
-    private void killWatchdog()
-    {
-        if (!watchdogChecked)
-        {
-            needsToBeKilled = serverProxy.needsToBeKilled();
-            watchdogChecked = true;
-        }
-        if (!watchdogKilled && needsToBeKilled)
-        {
-            watchdogKilled = serverProxy.killWatchdog();
-        }
-    }
-
-    private void resuscitateWatchdog()
-    {
-        if (watchdogKilled && needsToBeKilled)
-        {
-            serverProxy.resuscitateWatchdog();
-            watchdogKilled = false;
-        }
-    }
-
-    @SubscribeEvent
-    public void clientConnectedtoServer(NetworkEvent.ClientCustomPayloadLoginEvent event)
-    {
-        if (!MineTogether.instance.active)
-            return;
-        MinecraftServer server = MineTogether.server;
-        if (server == null || server.isSinglePlayer() || discoverMode != Discoverability.PUBLIC)
-            return;
-
-//        IServerPlayNetHandler handler = event.getHandler();
-//        if (handler instanceof ServerPlayNetHandler)
-//        {
-//            ServerPlayerEntity entity = ((ServerPlayNetHandler) handler).player;
-//            playersJoined.add(entity.getUniqueID());
-//        }
     }
 }

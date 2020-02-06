@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.client.gui.element.GuiButtonRefresh;
 import net.creeperhost.minetogether.client.gui.list.GuiList;
 import net.creeperhost.minetogether.client.gui.list.GuiListEntryModpack;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.data.ModPack;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.screen.Screen;
@@ -75,12 +76,6 @@ public class GuiModPackList extends Screen
         this.addButton(new GuiButtonRefresh(this.width / 2 + 72, y, (button) -> refreshList()));
     }
     
-    @Override
-    public void tick()
-    {
-//        this.displayEntry.tick();
-    }
-    
     private void refreshList()
     {
         String s = "";
@@ -89,11 +84,11 @@ public class GuiModPackList extends Screen
             s = displayEntry.getText();
         }
         
-        List<Callbacks.Modpack> modpacks = Callbacks.getModpackFromCurse(s, 10);
+        List<ModPack> modpacks = Callbacks.getModpackFromCurse(s, 10);
         list.clearList();
         if (modpacks != null)
         {
-            for (Callbacks.Modpack mp : modpacks)
+            for (ModPack mp : modpacks)
             {
                 GuiListEntryModpack entry = new GuiListEntryModpack(this, list, mp);
                 list.add(entry);

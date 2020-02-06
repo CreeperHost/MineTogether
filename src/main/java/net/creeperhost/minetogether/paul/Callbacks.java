@@ -9,6 +9,7 @@ import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.EnumFlag;
 import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.data.ModPack;
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.util.WebUtils;
 
@@ -848,7 +849,7 @@ public final class Callbacks
         return true;
     }
     
-    public static List<Modpack> getModpackFromCurse(String modpack, int limit)
+    public static List<ModPack> getModpackFromCurse(String modpack, int limit)
     {
         String url = "https://www.creeperhost.net/json/modpacks/mc/search/" + modpack;
         
@@ -859,7 +860,7 @@ public final class Callbacks
         }
         
         String resp = WebUtils.getWebResponse(url);
-        List<Modpack> modpackList = new ArrayList<>();
+        List<ModPack> modpackList = new ArrayList<>();
         
         JsonElement jElement = new JsonParser().parse(resp);
         
@@ -879,41 +880,12 @@ public final class Callbacks
                         String name = server.get("displayName").getAsString();
                         String displayVersion = server.get("displayVersion").getAsString();
                         
-                        modpackList.add(new Modpack(id, name, displayVersion));
+                        modpackList.add(new ModPack(id, name, displayVersion));
                     }
                 }
                 return modpackList;
             }
         }
         return null;
-    }
-    
-    public static class Modpack
-    {
-        String id;
-        String name;
-        String displayVersion;
-        
-        public Modpack(String id, String name, String displayVersion)
-        {
-            this.id = id;
-            this.name = name;
-            this.displayVersion = displayVersion;
-        }
-        
-        public String getName()
-        {
-            return name;
-        }
-        
-        public String getId()
-        {
-            return id;
-        }
-        
-        public String getDisplayVersion()
-        {
-            return displayVersion;
-        }
     }
 }
