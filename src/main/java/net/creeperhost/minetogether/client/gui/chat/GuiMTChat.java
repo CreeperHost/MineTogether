@@ -192,8 +192,7 @@ public class GuiMTChat extends Screen
     public void tick()
     {
         super.tick();
-        if (tickCounter % 20 == 0) rebuildChat();
-
+        
         if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
             if (!ChatHandler.isInitting)
