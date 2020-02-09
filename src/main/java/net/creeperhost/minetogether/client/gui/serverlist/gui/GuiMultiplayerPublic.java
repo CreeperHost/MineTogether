@@ -22,7 +22,8 @@ import net.minecraft.client.gui.screen.ServerSelectionList;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.client.gui.GuiUtils;
+import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -273,23 +274,23 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             }
 
             this.mc.getTextureManager().bindTexture(serverIcon);
-            GlStateManager.enableBlend();
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
+//            GlStateManager.enableBlend();
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, transparency);
             blit(x, y, 0.0F, 0.0F, 32, 32, 32, 32);
             int transparentString = (int) (transparency * 254) << 24;
             this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x + 35, y, 16777215 + transparentString);
             GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
-            GlStateManager.enableBlend();
+//            GlStateManager.enableBlend();
             this.mc.fontRenderer.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 1, 16777215 + transparentString);
             String s = Util.localize("mp.clickherebrand");
             this.mc.fontRenderer.drawString(s, x + 32 + 3, y + (this.mc.fontRenderer.FONT_HEIGHT * 2) + 3, 8421504 + transparentString);
             this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
             if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
             {
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
                 final int tooltipX = mouseX - 72;
-                final int tooltipY = mouseY + ((mc.mainWindow.getScaledWidth() / 2 >= mouseY) ? 11 : -11);
+                final int tooltipY = mouseY + ((mc.func_228018_at_().getScaledWidth() / 2 >= mouseY) ? 11 : -11);
                 final int tooltipTextWidth = 56;
                 final int tooltipHeight = 7;
 
@@ -309,7 +310,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                 GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
                 GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
+                GL11.glColor4f(1.0F, 1.0F, 1.0F, transparency);
                 mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
                 blit(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
             }

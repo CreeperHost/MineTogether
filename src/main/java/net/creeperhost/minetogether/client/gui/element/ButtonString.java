@@ -1,11 +1,11 @@
 package net.creeperhost.minetogether.client.gui.element;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.client.config.GuiButtonExt;
+import net.minecraft.client.gui.widget.button.Button;
 
-public class ButtonString extends GuiButtonExt
+public class ButtonString extends Button
 {
-    public ButtonString(int xPos, int yPos, int width, int height, String displayString, IPressable handler)
+    public ButtonString(int xPos, int yPos, int width, int height, String displayString, Button.IPressable handler)
     {
         super(xPos, yPos, width, height, displayString, handler);
     }

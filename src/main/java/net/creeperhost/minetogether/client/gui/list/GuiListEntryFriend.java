@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
+import org.lwjgl.opengl.GL11;
 
 public class GuiListEntryFriend extends GuiListEntry
 {
@@ -46,17 +47,17 @@ public class GuiListEntryFriend extends GuiListEntry
 
         int transparentString = (int) (transparency * 254) << 24;
 
-        GlStateManager.enableAlphaTest();
-        GlStateManager.enableBlend();
+//        GlStateManager.enableAlphaTest();
+//        GlStateManager.enableBlend();
         this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
 
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
 
-        GlStateManager.color4f(0, 1, 0, 1);
+        GL11.glColor4f(0, 1, 0, 1);
         Screen.blit(listWidth + x - 14, y + 20, 0.0F, 0.0F, 10, 10, 10, 10);
 
-        GlStateManager.disableAlphaTest();
-        GlStateManager.disableBlend();
+//        GlStateManager.disableAlphaTest();
+//        GlStateManager.disableBlend();
 
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
         {

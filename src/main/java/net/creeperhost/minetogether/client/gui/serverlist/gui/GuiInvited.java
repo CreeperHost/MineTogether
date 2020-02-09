@@ -6,10 +6,10 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.widget.button.CheckboxButton;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.client.config.GuiCheckBox;
 
 public class GuiInvited extends Screen
 {
@@ -19,7 +19,7 @@ public class GuiInvited extends Screen
     private final boolean canConnect;
     private Button connectButton;
     private Button cancelButton;
-    private GuiCheckBox checkBox;
+    private CheckboxButton checkBox;
     private boolean addToServerList = true;
 
     public GuiInvited(Invite invite, Screen parent)
@@ -66,7 +66,7 @@ public class GuiInvited extends Screen
 
         String checkText = I18n.format("creeperhost.multiplayer.addlist");
         int checkWidth = 11 + 2 + font.getStringWidth(checkText);
-        addButton(checkBox = new GuiCheckBox((width / 2) - (checkWidth / 2), yBase + 36 + 30 + 30, checkText, addToServerList));
+        addButton(checkBox = new CheckboxButton((width / 2) - (checkWidth / 2), 10, 10, yBase + 36 + 30 + 30, checkText, addToServerList));
     }
 
     @Override

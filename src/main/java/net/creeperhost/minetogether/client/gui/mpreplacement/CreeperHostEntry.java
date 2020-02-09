@@ -12,7 +12,8 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.client.gui.GuiUtils;
+import org.lwjgl.opengl.GL11;
 
 @OnlyIn(Dist.CLIENT)
 public class CreeperHostEntry extends ServerData
@@ -69,13 +70,13 @@ public class CreeperHostEntry extends ServerData
         }
 
         this.mc.getTextureManager().bindTexture(serverIcon);
-        GlStateManager.enableBlend();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
+//        GlStateManager.enableBlend();
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, transparency);
 //        Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
         this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x + 35, y, 16777215);
         int transparentString = (int) (transparency * 254) << 24;
         GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
-        GlStateManager.enableBlend();
+//        GlStateManager.enableBlend();
         this.mc.fontRenderer.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 1, 16777215 + transparentString);
         String s = Util.localize(Config.getInstance().isServerHostMenuImage() ? "mp.clickherebrand" : "mp.clickherebranding");
         this.mc.fontRenderer.drawString(s, x + 32 + 3, y + (this.mc.fontRenderer.FONT_HEIGHT * 2) + 3, 8421504 + transparentString);
@@ -89,7 +90,7 @@ public class CreeperHostEntry extends ServerData
 //                lastHeight = this.mc.displayHeight;
 //            }
 //
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
             final int tooltipX = mouseX - 72;
             final int tooltipY = mouseY + 11;
@@ -112,7 +113,7 @@ public class CreeperHostEntry extends ServerData
             GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
             GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, transparency);
             mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
 //            Gui.drawModalRectWithCustomSizedTexture(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60F, 10F);
         }

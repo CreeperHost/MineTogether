@@ -8,12 +8,12 @@ import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.client.config.GuiButtonExt;
-import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.client.gui.GuiUtils;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
-public class GuiButtonLarge extends GuiButtonExt
+public class GuiButtonLarge extends Button
 {
     private String description;
     private ItemStack stack;
@@ -42,7 +42,7 @@ public class GuiButtonLarge extends GuiButtonExt
             Minecraft mc = Minecraft.getInstance();
             this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
             int k = this.getYImage(this.isHovered);
-            GuiUtils.drawContinuousTexturedBox(WIDGETS_LOCATION, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.blitOffset);
+            GuiUtils.drawContinuousTexturedBox(WIDGETS_LOCATION, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.getBlitOffset());
             this.renderBg(mc, mouseX, mouseY);
             int color = 14737632;
 
@@ -77,11 +77,11 @@ public class GuiButtonLarge extends GuiButtonExt
 
             this.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + 10, color);
             ItemRenderer renderItem = Minecraft.getInstance().getItemRenderer();
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(2.0f, 2.0f, 2.0f);
+            GL11.glPushMatrix();
+            GL11.glScalef(2.0f, 2.0f, 2.0f);
             renderItem.renderItemAndEffectIntoGUI(stack, (this.x / 2) + (width / 4) - 8, (this.y / 2) + 10);
             //renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
-            GlStateManager.popMatrix();
+            GL11.glPopMatrix();
         }
     }
 

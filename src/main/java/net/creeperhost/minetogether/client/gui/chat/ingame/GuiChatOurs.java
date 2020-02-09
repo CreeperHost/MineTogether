@@ -431,8 +431,8 @@ public class GuiChatOurs extends ChatScreen
 
                 return true;
             }
-            menuDropdownButton.x = (int) mc.mouseHelper.getMouseX() * this.height / this.mc.mainWindow.getWidth() + 28;
-            menuDropdownButton.y = (int) mc.mouseHelper.getMouseY() * this.height / this.mc.mainWindow.getHeight() - 1;
+            menuDropdownButton.x = (int) mc.mouseHelper.getMouseX() * this.height / this.mc.func_228018_at_().getWidth() + 28;
+            menuDropdownButton.y = (int) mc.mouseHelper.getMouseY() * this.height / this.mc.func_228018_at_().getHeight() - 1;
             menuDropdownButton.dropdownOpen = true;
             activeDropdown = event.getValue();
             return true;

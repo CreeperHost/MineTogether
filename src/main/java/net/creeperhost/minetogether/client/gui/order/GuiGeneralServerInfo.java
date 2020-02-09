@@ -9,23 +9,24 @@ import net.creeperhost.minetogether.paul.Constants;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.widget.button.CheckboxButton;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.config.GuiCheckBox;
-import net.minecraftforge.fml.client.config.GuiSlider;
+import net.minecraftforge.fml.client.gui.widget.Slider;
+import org.lwjgl.opengl.GL11;
 
 public class GuiGeneralServerInfo extends GuiGetServer
 {
     //    private static final GuiSlider.FormatHelper SLIDER_FORMATTER = (id, name, value) -> name + ": " + (int) value;
     private static ResourceLocation lockIcon;
     private TextFieldWidget nameField;
-    private GuiSlider slotSlider;
+    private Slider slotSlider;
     private long lastKeyTyped;
     private String acceptString = new String(Character.toChars(10004));
     private String denyString = new String(Character.toChars(10006));
     private boolean isAcceptable = false;
     private boolean nameChecked = false;
     private String message = "Name can not be blank";
-    private GuiCheckBox pregen;
+    private CheckboxButton pregen;
     private Button modpack;
 
     public GuiGeneralServerInfo(int stepId, Order order)
@@ -51,7 +52,7 @@ public class GuiGeneralServerInfo extends GuiGetServer
 
         int checkboxWidth = this.font.getStringWidth(checkboxString) + 11 + 2;
 
-        pregen = new GuiCheckBox(halfWidth - (checkboxWidth / 2), halfHeight - 8, checkboxString, order.pregen);
+        pregen = new CheckboxButton(halfWidth - (checkboxWidth / 2), 10, 10, halfHeight - 8, checkboxString, order.pregen);
 
 //        if (Config.getInstance().getPregenDiameter() > 0)
 //        {
@@ -140,7 +141,7 @@ public class GuiGeneralServerInfo extends GuiGetServer
         }
 
         this.minecraft.getTextureManager().bindTexture(lockIcon);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 //        Gui.drawModalRectWithCustomSizedTexture((this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
 
         int strStart = 61;
@@ -159,7 +160,7 @@ public class GuiGeneralServerInfo extends GuiGetServer
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
-        order.pregen = pregen.isChecked();
+        order.pregen = pregen.func_212942_a();
         return true;
     }
 

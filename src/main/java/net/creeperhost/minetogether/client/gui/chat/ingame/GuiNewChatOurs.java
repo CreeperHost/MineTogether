@@ -20,6 +20,8 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -81,7 +83,7 @@ public class GuiNewChatOurs extends NewChatGui
                 this.deleteChatLine(chatLineId);
             }
 
-            int i = MathHelper.floor((float) this.getChatWidth() / mc.mainWindow.getScaledHeight());
+            int i = MathHelper.floor((float) this.getChatWidth() / mc.func_228018_at_().getScaledHeight());
             List<ITextComponent> list = RenderComponentsUtil.splitText(chatComponent, i, this.mc.fontRenderer, false, false);
             boolean flag = this.getChatOpen();
 
@@ -190,9 +192,9 @@ public class GuiNewChatOurs extends NewChatGui
 
                     double f1 = this.getScale();
                     int k = MathHelper.ceil((float) this.getChatWidth() / f1);
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translatef(2.0F, 8.0F, 0.0F);
-                    GlStateManager.scaled(f1, f1, 1.0F);
+                    GL11.glPushMatrix();
+                    GL11.glTranslatef(2.0F, 8.0F, 0.0F);
+                    GL11.glScaled(1, f1, 1.0F);
                     int l = 0;
 
                     for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
@@ -225,7 +227,7 @@ public class GuiNewChatOurs extends NewChatGui
                                     int i2 = 0;
                                     int j2 = -i1 * 9;
                                     fill(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
-                                    GlStateManager.enableBlend();
+//                                    GlStateManager.enableBlend();
                                 }
                             }
                         }
@@ -264,10 +266,10 @@ public class GuiNewChatOurs extends NewChatGui
                                     int i2 = 0;
                                     int j2 = -i1 * 9;
                                     String s = chatline.getChatComponent().getFormattedText();
-                                    GlStateManager.enableBlend();
+//                                    GlStateManager.enableBlend();
                                     this.mc.fontRenderer.drawString(s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
-                                    GlStateManager.disableAlphaTest();
-                                    GlStateManager.disableBlend();
+//                                    GlStateManager.disableAlphaTest();
+//                                    GlStateManager.disableBlend();
                                 }
                             }
                         }
@@ -276,7 +278,7 @@ public class GuiNewChatOurs extends NewChatGui
                     if (flag)
                     {
                         int k2 = this.mc.fontRenderer.FONT_HEIGHT;
-                        GlStateManager.translatef(-3.0F, 0.0F, 0.0F);
+                        GL11.glTranslatef(-3.0F, 0.0F, 0.0F);
                         int l2 = j * k2 + j;
                         int i3 = l * k2 + l;
                         int j3 = this.scrollPos * i3 / j;
@@ -291,7 +293,7 @@ public class GuiNewChatOurs extends NewChatGui
                         }
                     }
 
-                    GlStateManager.popMatrix();
+                    GL11.glPopMatrix();
                 }
             }
         }
@@ -304,9 +306,9 @@ public class GuiNewChatOurs extends NewChatGui
         if (getChatOpen() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
         {
             double f1 = this.getScale();
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(2.0F, 8.0F, 0.0F);
-            GlStateManager.scaled(f1, f1, 1.0F);
+            GL11.glPushMatrix();
+            GL11.glTranslatef(2.0F, 8.0F, 0.0F);
+            GL11.glScaled(f1, f1, 1.0F);
 
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
 
@@ -317,7 +319,7 @@ public class GuiNewChatOurs extends NewChatGui
                 blit(-2, j2 - 9, k + 4, j2, l1 / 2 << 24, 0);
             }
 
-            GlStateManager.popMatrix();
+            GL11.glPopMatrix();
         }
     }
 
@@ -456,7 +458,7 @@ public class GuiNewChatOurs extends NewChatGui
             {
                 double lvt_5_1_ = this.getScale();
                 double lvt_7_1_ = mouseX - 2.0D;
-                double lvt_9_1_ = (double) this.mc.mainWindow.getScaledHeight() - mouseY - 40.0D;
+                double lvt_9_1_ = (double) this.mc.func_228018_at_().getScaledHeight() - mouseY - 40.0D;
                 lvt_7_1_ = (double) MathHelper.floor(lvt_7_1_ / lvt_5_1_);
                 lvt_9_1_ = (double) MathHelper.floor(lvt_9_1_ / lvt_5_1_);
                 if (lvt_7_1_ >= 0.0D && lvt_9_1_ >= 0.0D)

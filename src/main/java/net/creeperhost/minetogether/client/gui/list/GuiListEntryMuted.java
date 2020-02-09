@@ -39,11 +39,11 @@ public class GuiListEntryMuted extends GuiListEntry
 
         int transparentString = (int) (transparency * 254) << 24;
 
-        GlStateManager.enableAlphaTest();
-        GlStateManager.enableBlend();
+//        GlStateManager.enableAlphaTest();
+//        GlStateManager.enableBlend();
         this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
-        GlStateManager.disableAlphaTest();
-        GlStateManager.disableBlend();
+//        GlStateManager.disableAlphaTest();
+//        GlStateManager.disableBlend();
 
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
         {

@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.client.gui.element;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.gui.widget.button.Button;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 
@@ -117,10 +118,10 @@ public class GuiButtonPair extends Button
                 }
 
             }
+    
+            GL11.glScaled(scale, scale, scale);
 
-            GlStateManager.scaled(scale, scale, scale);
-
-            GlStateManager.pushMatrix();
+            GL11.glPushMatrix();
 
             if (stack)
             {
@@ -134,9 +135,9 @@ public class GuiButtonPair extends Button
 
             tempTranslateY -= scale;
 
-            GlStateManager.translated(tempTranslateX, tempTranslateY, 0);
+            GL11.glTranslatef(tempTranslateX, tempTranslateY, 0);
 
-            GlStateManager.rotatef(90, 0, 0, 1);
+            GL11.glRotatef(90, 0, 0, 1);
         }
 
         for (GuiButtonChat button : buttons)
@@ -146,10 +147,10 @@ public class GuiButtonPair extends Button
 
         if (vertical)
         {
-            GlStateManager.rotated(90, 0, 0, -1);
-            GlStateManager.popMatrix();
+            GL11.glRotatef(90, 0, 0, -1);
+            GL11.glPopMatrix();
 
-            GlStateManager.scalef(1.0F / scale, 1.0F / scale, 1.0F / scale);
+            GL11.glScalef(1.0F / scale, 1.0F / scale, 1.0F / scale);
 
             for (int buttNum = 0; buttNum < buttonCount; buttNum++)
             {
