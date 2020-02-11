@@ -274,13 +274,13 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             }
 
             this.mc.getTextureManager().bindTexture(serverIcon);
-//            GlStateManager.enableBlend();
+            GlStateManager.enableBlend();
             GL11.glColor4f(1.0F, 1.0F, 1.0F, transparency);
             blit(x, y, 0.0F, 0.0F, 32, 32, 32, 32);
             int transparentString = (int) (transparency * 254) << 24;
             this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x + 35, y, 16777215 + transparentString);
             GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
-//            GlStateManager.enableBlend();
+            GlStateManager.enableBlend();
             this.mc.fontRenderer.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 1, 16777215 + transparentString);
             String s = Util.localize("mp.clickherebrand");
             this.mc.fontRenderer.drawString(s, x + 32 + 3, y + (this.mc.fontRenderer.FONT_HEIGHT * 2) + 3, 8421504 + transparentString);
@@ -290,7 +290,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
                 final int tooltipX = mouseX - 72;
-                final int tooltipY = mouseY + ((mc.func_228018_at_().getScaledWidth() / 2 >= mouseY) ? 11 : -11);
+                final int tooltipY = mouseY + ((mc.getMainWindow().getScaledWidth() / 2 >= mouseY) ? 11 : -11);
                 final int tooltipTextWidth = 56;
                 final int tooltipHeight = 7;
 

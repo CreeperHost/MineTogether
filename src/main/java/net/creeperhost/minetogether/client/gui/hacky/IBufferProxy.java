@@ -13,7 +13,7 @@ public interface IBufferProxy
 
     IBufferProxy color(int red, int green, int blue, int alpha);
 
-    IBufferProxy tex(double u, double v);
+    IBufferProxy tex(float u, float v);
 
     void endVertex();
 }

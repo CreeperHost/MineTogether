@@ -83,7 +83,7 @@ public class GuiNewChatOurs extends NewChatGui
                 this.deleteChatLine(chatLineId);
             }
 
-            int i = MathHelper.floor((float) this.getChatWidth() / mc.func_228018_at_().getScaledHeight());
+            int i = MathHelper.floor((float) this.getChatWidth() / mc.getMainWindow().getScaledHeight());
             List<ITextComponent> list = RenderComponentsUtil.splitText(chatComponent, i, this.mc.fontRenderer, false, false);
             boolean flag = this.getChatOpen();
 
@@ -92,7 +92,7 @@ public class GuiNewChatOurs extends NewChatGui
                 if (flag && this.scrollPos > 0)
                 {
                     this.isScrolled = true;
-                    this.func_194813_a(1);
+                    this.addScrollPos(1);
                 }
 
                 this.drawnChatLines.add(0, new ChatLine(updateCounter, itextcomponent, chatLineId));
@@ -387,7 +387,7 @@ public class GuiNewChatOurs extends NewChatGui
             if (flag && this.scrollPos > 0)
             {
                 this.isScrolled = true;
-                this.func_194813_a(1);
+                this.addScrollPos(1);
             }
 
             this.drawnChatLines.add(0, new ChatLine(updateCounter, itextcomponent, chatLineId));
@@ -420,12 +420,12 @@ public class GuiNewChatOurs extends NewChatGui
             this.isScrolled = false;
         }
     }
-
+    
     @Override
-    public void func_194813_a(double amount)
+    public void addScrollPos(double amount)
     {
         if (isBase())
-            super.func_194813_a(amount);
+            super.addScrollPos(amount);
         else
         {
             this.scrollPos += amount;
@@ -458,7 +458,7 @@ public class GuiNewChatOurs extends NewChatGui
             {
                 double lvt_5_1_ = this.getScale();
                 double lvt_7_1_ = mouseX - 2.0D;
-                double lvt_9_1_ = (double) this.mc.func_228018_at_().getScaledHeight() - mouseY - 40.0D;
+                double lvt_9_1_ = (double) this.mc.getMainWindow().getScaledHeight() - mouseY - 40.0D;
                 lvt_7_1_ = (double) MathHelper.floor(lvt_7_1_ / lvt_5_1_);
                 lvt_9_1_ = (double) MathHelper.floor(lvt_9_1_ / lvt_5_1_);
                 if (lvt_7_1_ >= 0.0D && lvt_9_1_ >= 0.0D)

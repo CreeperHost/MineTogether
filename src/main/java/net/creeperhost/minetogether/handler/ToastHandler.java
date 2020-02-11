@@ -60,7 +60,7 @@ public class ToastHandler
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, alpha);
                 mc.getTextureManager().bindTexture(getToastResourceLocation());
                 AbstractGui.blit(160, 0, u, v, 160, 32, 10, 10);
-//                GlStateManager.enableBlend();
+                GlStateManager.enableBlend();
                 int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
                 mc.fontRenderer.drawSplitString(ToastHandler.toastText, 160 + 5, 3, 160, textColour);
             } else

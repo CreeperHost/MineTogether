@@ -41,8 +41,8 @@ public class GuiWell
     @SuppressWarnings("Duplicates")
     public void drawScreen()
     {
-//        GlStateManager.disableLighting();
-//        GlStateManager.disableFog();
+        GlStateManager.disableLighting();
+        GlStateManager.disableFog();
         Tessellator tessellator = Tessellator.getInstance();
 
         IBufferProxy buffer = Util.getBufferProxy();
@@ -50,35 +50,35 @@ public class GuiWell
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         float f = 32.0F;
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex((double) ((float) this.left / f), (double) ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
-        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex((double) ((float) this.right / f), (double) ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
-        buffer.pos((double) this.right, (double) this.top, 0.0D).tex((double) ((float) this.right / f), (double) ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
-        buffer.pos((double) this.left, (double) this.top, 0.0D).tex((double) ((float) this.left / f), (double) ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex(((float) this.left / f), ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex(((float) this.right / f), ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double) this.right, (double) this.top, 0.0D).tex(((float) this.right / f), ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double) this.left, (double) this.top, 0.0D).tex(((float) this.left / f), ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
         tessellator.draw();
 
-//        GlStateManager.disableDepthTest();
-//        GlStateManager.enableBlend();
+        GlStateManager.disableDepthTest();
+        GlStateManager.enableBlend();
 //        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
-//        GlStateManager.disableAlphaTest();
-//        GlStateManager.shadeModel(7425);
-//        GlStateManager.disableTexture();
+        GlStateManager.disableAlphaTest();
+        GlStateManager.shadeModel(7425);
+        GlStateManager.disableTexture();
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        buffer.pos((double) this.left, (double) (this.top + 4), 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 0).endVertex();
-        buffer.pos((double) this.right, (double) (this.top + 4), 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 0).endVertex();
-        buffer.pos((double) this.right, (double) this.top, 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 255).endVertex();
-        buffer.pos((double) this.left, (double) this.top, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 255).endVertex();
+        buffer.pos((double) this.left, (double) (this.top + 4), 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+        buffer.pos((double) this.right, (double) (this.top + 4), 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+        buffer.pos((double) this.right, (double) this.top, 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+        buffer.pos((double) this.left, (double) this.top, 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
         tessellator.draw();
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 255).endVertex();
-        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 255).endVertex();
-        buffer.pos((double) this.right, (double) (this.bottom - 4), 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 0).endVertex();
-        buffer.pos((double) this.left, (double) (this.bottom - 4), 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 0).endVertex();
+        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+        buffer.pos((double) this.right, (double) (this.bottom - 4), 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+        buffer.pos((double) this.left, (double) (this.bottom - 4), 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
         tessellator.draw();
 
-//        GlStateManager.enableTexture();
-//        GlStateManager.shadeModel(7424);
-//        GlStateManager.enableAlphaTest();
-//        GlStateManager.disableBlend();
+        GlStateManager.enableTexture();
+        GlStateManager.shadeModel(7424);
+        GlStateManager.enableAlphaTest();
+        GlStateManager.disableBlend();
 
         FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
 

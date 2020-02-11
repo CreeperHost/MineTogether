@@ -366,9 +366,9 @@ public class GuiChatOurs extends ChatScreen
 
         this.setFocused(this.inputField);
         this.inputField.setFocused2(true);
-        fill(2, this.height - 14, this.width - 2, this.height - 2, mc.gameSettings.func_216839_a(-2147483648));
+        fill(2, this.height - 14, this.width - 2, this.height - 2, mc.gameSettings.getChatBackgroundColor(-2147483648));
         this.inputField.render(mouseX, mouseY, partialTicks);
-        this.inputField.func_212955_f();
+        this.inputField.canWrite();
 
 //        ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getTextComponent(mouseY, mouseX);
 
@@ -431,8 +431,8 @@ public class GuiChatOurs extends ChatScreen
 
                 return true;
             }
-            menuDropdownButton.x = (int) mc.mouseHelper.getMouseX() * this.height / this.mc.func_228018_at_().getWidth() + 28;
-            menuDropdownButton.y = (int) mc.mouseHelper.getMouseY() * this.height / this.mc.func_228018_at_().getHeight() - 1;
+            menuDropdownButton.x = (int) mc.mouseHelper.getMouseX() * this.height / this.mc.getMainWindow().getWidth() + 28;
+            menuDropdownButton.y = (int) mc.mouseHelper.getMouseY() * this.height / this.mc.getMainWindow().getHeight() - 1;
             menuDropdownButton.dropdownOpen = true;
             activeDropdown = event.getValue();
             return true;

@@ -26,7 +26,7 @@ public class CommandPregen
                                                 .then(Commands.argument("chunkMaxZ", IntegerArgumentType.integer(1))
                                                         .then(Commands.argument("chunksPerTick", IntegerArgumentType.integer(1))
                                                                 .then(Commands.argument("preventJoin", BoolArgumentType.bool())
-                                                                        .executes(cs -> execute(cs, DimensionArgument.func_212592_a(cs, "dim"),
+                                                                        .executes(cs -> execute(cs, DimensionArgument.getDimensionArgument(cs, "dim"),
                                                                                 IntegerArgumentType.getInteger(cs, "chunkMinX"),
                                                                                 IntegerArgumentType.getInteger(cs, "chunkMaxX"),
                                                                                 IntegerArgumentType.getInteger(cs, "chunkMinZ"),

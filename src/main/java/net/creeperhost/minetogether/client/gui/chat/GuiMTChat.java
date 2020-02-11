@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.element.ButtonString;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.util.ScreenUtils;
@@ -315,7 +316,7 @@ public class GuiMTChat extends Screen
             if (ChatHandler.privateChatInvite != null)
             {
                 ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
-//                    MineTogether.instance.clearToast(false);
+                ToastHandler.clearToast(false);
             }
         }
         minecraft.displayGuiScreen(new GuiMTChat(new MainMenuScreen()));
@@ -793,7 +794,7 @@ public class GuiMTChat extends Screen
                     if (hovering)
                     {
                         minecraft.fontRenderer.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), 10 + oldTotal, getRowTop(index), 0xFF000000);
-//                        GlStateManager.enableBlend();
+                        GlStateManager.enableBlend();
                         GL11.glColor4f(1, 1, 1, 0.90F);
                         minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
                         GL11.glColor4f(1, 1, 1, 1);
@@ -841,23 +842,23 @@ public class GuiMTChat extends Screen
                     {
                         int l1 = this.x0 + this.width / 2 - k1 / 2;
                         int i2 = this.x0 + this.width / 2 + k1 / 2;
-//                        GlStateManager.disableTexture();
+                        GlStateManager.disableTexture();
                         float f = this.isFocused() ? 1.0F : 0.5F;
                         GL11.glColor4f(f, f, f, 1.0F);
                         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
-                        bufferbuilder.func_225582_a_((double) l1, (double) (i1 + j1 + 2), 0.0D).endVertex();
-                        bufferbuilder.func_225582_a_((double) i2, (double) (i1 + j1 + 2), 0.0D).endVertex();
-                        bufferbuilder.func_225582_a_((double) i2, (double) (i1 - 2), 0.0D).endVertex();
-                        bufferbuilder.func_225582_a_((double) l1, (double) (i1 - 2), 0.0D).endVertex();
+                        bufferbuilder.pos((double) l1, (double) (i1 + j1 + 2), 0.0D).endVertex();
+                        bufferbuilder.pos((double) i2, (double) (i1 + j1 + 2), 0.0D).endVertex();
+                        bufferbuilder.pos((double) i2, (double) (i1 - 2), 0.0D).endVertex();
+                        bufferbuilder.pos((double) l1, (double) (i1 - 2), 0.0D).endVertex();
                         tessellator.draw();
                         GL11.glColor4f(0.0F, 0.0F, 0.0F, 1.0F);
                         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
-                        bufferbuilder.func_225582_a_((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
-                        bufferbuilder.func_225582_a_((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
-                        bufferbuilder.func_225582_a_((double) (i2 - 1), (double) (i1 - 1), 0.0D).endVertex();
-                        bufferbuilder.func_225582_a_((double) (l1 + 1), (double) (i1 - 1), 0.0D).endVertex();
+                        bufferbuilder.pos((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
+                        bufferbuilder.pos((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
+                        bufferbuilder.pos((double) (i2 - 1), (double) (i1 - 1), 0.0D).endVertex();
+                        bufferbuilder.pos((double) (l1 + 1), (double) (i1 - 1), 0.0D).endVertex();
                         tessellator.draw();
-//                        GlStateManager.enableTexture();
+                        GlStateManager.enableTexture();
                     }
                     renderEntry(j, mouseX, mouseY, p_renderList_5_);
                 }

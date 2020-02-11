@@ -25,21 +25,21 @@ public class BufferProxyNew implements IBufferProxy
     @Override
     public IBufferProxy pos(double x, double y, double z)
     {
-        buffer.func_225582_a_(x, y, z);
+        buffer.pos(x, y, z);
         return this;
     }
 
     @Override
     public IBufferProxy color(int red, int green, int blue, int alpha)
     {
-        buffer.func_225586_a_(red, green, blue, alpha);
+        buffer.color(red, green, blue, alpha);
         return this;
     }
 
     @Override
-    public IBufferProxy tex(double u, double v)
+    public IBufferProxy tex(float u, float v)
     {
-//        buffer.tex(u, v);
+        buffer.tex(u, v);
         return this;
     }
 

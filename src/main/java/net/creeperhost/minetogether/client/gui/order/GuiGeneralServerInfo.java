@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.client.gui.order;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.element.GuiTextFieldValidate;
@@ -160,7 +159,7 @@ public class GuiGeneralServerInfo extends GuiGetServer
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
-        order.pregen = pregen.func_212942_a();
+        order.pregen = pregen.isChecked();
         return true;
     }
 
