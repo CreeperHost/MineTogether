@@ -15,6 +15,8 @@ public class MineTogetherPropertyManager
 {
     private final Properties serverProperties = new Properties();
     private final File serverPropertiesFile;
+    String discoverability;
+    String displayname;
 
     public MineTogetherPropertyManager(File propertiesFile)
     {

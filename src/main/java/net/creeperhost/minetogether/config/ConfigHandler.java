@@ -1,16 +1,30 @@
 package net.creeperhost.minetogether.config;
 
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.lib.ModInfo;
 import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraftforge.api.distmarker.Dist;
 
 import java.io.File;
 import java.io.FileWriter;
 
 public class ConfigHandler
 {
-    public static void init()
+    public static void init(Dist dist)
     {
-        File base = Minecraft.getInstance().gameDir;
+        File base;
+
+        if(dist == Dist.DEDICATED_SERVER)
+        {
+            MinecraftServer dedicatedServer = MineTogether.server;
+            base = dedicatedServer.getDataDirectory();
+        }
+        else
+        {
+            base = Minecraft.getInstance().gameDir;
+        }
 
         File configDir = new File(base + File.separator + "config");
         if (configDir.exists())
@@ -29,9 +43,7 @@ public class ConfigHandler
                 {
                     Config.loadFromFile(f1);
                 }
-            } catch (Exception ignored)
-            {
-            }
+            } catch (Exception ignored) {}
         }
     }
 }

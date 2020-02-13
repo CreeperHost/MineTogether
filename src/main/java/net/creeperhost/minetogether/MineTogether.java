@@ -22,6 +22,7 @@ import net.creeperhost.minetogether.lib.ModInfo;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.*;
+import net.creeperhost.minetogether.server.MineTogetherPropertyManager;
 import net.creeperhost.minetogether.server.command.CommandKill;
 import net.creeperhost.minetogether.server.command.CommandPregen;
 import net.creeperhost.minetogether.server.hacky.IPlayerKicker;
@@ -29,7 +30,10 @@ import net.creeperhost.minetogether.server.pregen.PregenTask;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.dedicated.ServerProperties;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,6 +41,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -48,6 +53,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.*;
 
 @Mod(value = ModInfo.MOD_ID)
@@ -100,7 +106,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         eventBus.addListener(this::preInit);
         eventBus.addListener(this::preInitClient);
         eventBus.addListener(this::serverStarting);
-//        eventBus.addListener(this::serverStarted);
+        eventBus.addListener(this::serverStarted);
 
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -118,7 +124,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
-        ConfigHandler.init();
+        ConfigHandler.init(Dist.CLIENT);
 
         registerImplementation(new CreeperHostServerHost());
 
@@ -168,57 +174,66 @@ public class MineTogether implements ICreeperHostMod, IHost
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
     }
 
-//    @SubscribeEvent
-//    public void serverStarted(FMLServerStartedEvent event)
-//    {
-//        if (!MineTogether.instance.active)
-//            return;
-//        final MinecraftServer server = MineTogether.server;
-//        if (server != null && !server.isSinglePlayer())
-//        {
-//            DedicatedServer dediServer = (DedicatedServer) server;
-//            String discoverModeString = dediServer.getStringProperty("discoverability", "unlisted");
-//            String displayNameTemp = dediServer.getStringProperty("displayname", "Fill this in if you have set the server to public!");
-//            String serverIP = dediServer.getStringProperty("server-ip", "");
-//            final String projectid = Config.getInstance().curseProjectID;
-//
-//            if (displayNameTemp.equals("Fill this in if you have set the server to public!") && discoverModeString.equals("unlisted"))
-//            {
-//                File outProperties = new File("minetogether.properties");
-//                if (outProperties.exists())
-//                {
-//                    MineTogetherPropertyManager manager = new MineTogetherPropertyManager(outProperties);
-//                    displayNameTemp = manager.getStringProperty("displayname", "Fill this in if you have set the server to public!");
-//                    discoverModeString = manager.getStringProperty("discoverability", "unlisted");
-//                    serverIP = dediServer.getStringProperty("server-ip", "");
-//                } else
-//                {
-//                    displayNameTemp = "Unknown";
-//                    discoverModeString = "unlisted";
-//                }
-//            }
-//
-//            final String displayName = displayNameTemp;
-//
-//
-//            serverOn = true;
-//            try
-//            {
-//                discoverMode = Discoverability.valueOf(discoverModeString.toUpperCase());
-//            } catch (IllegalArgumentException ignored) {}
-//
-//            if (discoverMode != Discoverability.UNLISTED)
-//            {
-//                Config defConfig = new Config();
-//                if (projectid.isEmpty() || projectid.equals(defConfig.curseProjectID))
-//                {
-//                    MineTogether.logger.warn("Curse project ID in creeperhost.cfg not set correctly - please set this to utilize the server list feature.");
-//                    return;
-//                }
-//                startMinetogetherThread(serverIP, displayName, projectid, server.getServerPort(), discoverMode);
-//            }
-//        }
-//    }
+    @SubscribeEvent
+    public void serverStarted(FMLServerStartedEvent event)
+    {
+        ConfigHandler.init(Dist.DEDICATED_SERVER);
+
+        if (!MineTogether.instance.active)
+            return;
+        final MinecraftServer server = MineTogether.server;
+        if (server != null && !server.isSinglePlayer())
+        {
+            File properties = new File("server.properties");
+            MineTogetherPropertyManager manager = new MineTogetherPropertyManager(properties);
+            DedicatedServer dediServer = (DedicatedServer) server;
+
+            String discoverModeString = manager.getStringProperty("discoverability", "unlisted");
+            String displayNameTemp = manager.getStringProperty("displayname", "Fill this in if you have set the server to public!");
+            String serverIP = manager.getStringProperty("server-ip", "");
+            final String projectID = Config.getInstance().curseProjectID;
+
+            if (displayNameTemp.equals("Fill this in if you have set the server to public!") && discoverModeString.equals("unlisted"))
+            {
+                File outProperties = new File("minetogether.properties");
+                if (outProperties.exists())
+                {
+                    MineTogetherPropertyManager managerOut = new MineTogetherPropertyManager(outProperties);
+                    displayNameTemp = managerOut.getStringProperty("displayname", "Fill this in if you have set the server to public!");
+                    discoverModeString = managerOut.getStringProperty("discoverability", "unlisted");
+                    serverIP = managerOut.getStringProperty("server-ip", "");
+                } else
+                {
+                    displayNameTemp = "Unknown";
+                    discoverModeString = "unlisted";
+                }
+            }
+
+            final String displayName = displayNameTemp;
+
+            serverOn = true;
+            try
+            {
+                discoverMode = Discoverability.valueOf(discoverModeString.toUpperCase());
+            } catch (IllegalArgumentException ignored)
+            {
+            }
+
+            System.out.println(displayName);
+            System.out.println(discoverMode.name());
+
+            if (discoverMode != Discoverability.UNLISTED)
+            {
+                Config defConfig = new Config();
+                if (projectID.isEmpty() || projectID.equals(defConfig.curseProjectID))
+                {
+                    MineTogether.logger.warn("Curse project ID in creeperhost.cfg not set correctly - please set this to utilize the server list feature.");
+                    return;
+                }
+                startMinetogetherThread(serverIP, displayName, projectID, server.getServerPort(), discoverMode);
+            }
+        }
+    }
 
     @SubscribeEvent
     public void serverStopping(FMLServerStoppingEvent event)
@@ -519,7 +534,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         MinecraftServer server = MineTogether.server;
         if (server != null && !server.isSinglePlayer())
-            return server.getFile("");
+            return server.getFile(".");
         return null;
     }
 
@@ -543,6 +558,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SuppressWarnings("Duplicates")
     public static void startMinetogetherThread(String serverIP, String displayName, String projectid, int port, Discoverability discoverMode)
     {
+        System.out.println(serverIP);
         mtThread = new Thread(() ->
         {
             MineTogether.logger.info("Enabling server list. Servers found to be breaking Mojang's EULA may be removed if complaints are received.");
