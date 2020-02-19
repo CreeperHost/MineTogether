@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.client.gui.chat.ingame;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
@@ -20,8 +20,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -192,9 +190,9 @@ public class GuiNewChatOurs extends NewChatGui
 
                     double f1 = this.getScale();
                     int k = MathHelper.ceil((float) this.getChatWidth() / f1);
-                    GL11.glPushMatrix();
-                    GL11.glTranslatef(2.0F, 8.0F, 0.0F);
-                    GL11.glScaled(1, f1, 1.0F);
+                    RenderSystem.pushMatrix();
+                    RenderSystem.translatef(2.0F, 8.0F, 0.0F);
+                    RenderSystem.scaled(1, f1, 1.0F);
                     int l = 0;
 
                     for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
@@ -227,7 +225,7 @@ public class GuiNewChatOurs extends NewChatGui
                                     int i2 = 0;
                                     int j2 = -i1 * 9;
                                     fill(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
-//                                    GlStateManager.enableBlend();
+                                    RenderSystem.enableBlend();
                                 }
                             }
                         }
@@ -266,10 +264,10 @@ public class GuiNewChatOurs extends NewChatGui
                                     int i2 = 0;
                                     int j2 = -i1 * 9;
                                     String s = chatline.getChatComponent().getFormattedText();
-//                                    GlStateManager.enableBlend();
+                                    RenderSystem.enableBlend();
                                     this.mc.fontRenderer.drawString(s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
-//                                    GlStateManager.disableAlphaTest();
-//                                    GlStateManager.disableBlend();
+                                    RenderSystem.disableAlphaTest();
+                                    RenderSystem.disableBlend();
                                 }
                             }
                         }
@@ -278,7 +276,7 @@ public class GuiNewChatOurs extends NewChatGui
                     if (flag)
                     {
                         int k2 = this.mc.fontRenderer.FONT_HEIGHT;
-                        GL11.glTranslatef(-3.0F, 0.0F, 0.0F);
+                        RenderSystem.translatef(-3.0F, 0.0F, 0.0F);
                         int l2 = j * k2 + j;
                         int i3 = l * k2 + l;
                         int j3 = this.scrollPos * i3 / j;
@@ -293,7 +291,7 @@ public class GuiNewChatOurs extends NewChatGui
                         }
                     }
 
-                    GL11.glPopMatrix();
+                    RenderSystem.popMatrix();
                 }
             }
         }
@@ -306,9 +304,9 @@ public class GuiNewChatOurs extends NewChatGui
         if (getChatOpen() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
         {
             double f1 = this.getScale();
-            GL11.glPushMatrix();
-            GL11.glTranslatef(2.0F, 8.0F, 0.0F);
-            GL11.glScaled(f1, f1, 1.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(2.0F, 8.0F, 0.0F);
+            RenderSystem.scaled(f1, f1, 1.0F);
 
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
 
@@ -319,7 +317,7 @@ public class GuiNewChatOurs extends NewChatGui
                 blit(-2, j2 - 9, k + 4, j2, l1 / 2 << 24, 0);
             }
 
-            GL11.glPopMatrix();
+            RenderSystem.popMatrix();
         }
     }
 

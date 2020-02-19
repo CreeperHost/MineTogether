@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.client.gui.chat;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
@@ -34,8 +34,6 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
 import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -267,7 +265,7 @@ public class GuiMTChat extends Screen
 
     public static void drawLogo(FontRenderer fontRendererObj, int containerWidth, int containerHeight, int containerX, int containerY, float scale)
     {
-        GL11.glColor4f(1F, 1F, 1F, 1F); // reset alpha
+        RenderSystem.color4f(1F, 1F, 1F, 1F); // reset alpha
         float adjust = (1 / scale);
         int width = (int) (containerWidth * adjust);
         int height = (int) (containerHeight * adjust);
@@ -276,9 +274,8 @@ public class GuiMTChat extends Screen
         ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/creeperhost_logo_1-25.png");
         ResourceLocation resourceLocationMineTogetherLogo = new ResourceLocation("creeperhost", "textures/minetogether25.png");
 
-        GL11.glPushMatrix();
-        GL11.glScaled(scale, scale, scale);
-        GL11.glEnable(GL11.GL_BLEND);
+        RenderSystem.pushMatrix();
+        RenderSystem.scaled(scale, scale, scale);
 
         int mtHeight = (int) (318 / 2.5);
         int mtWidth = (int) (348 / 2.5);
@@ -293,6 +290,7 @@ public class GuiMTChat extends Screen
         totalWidth *= adjust;
 
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationMineTogetherLogo);
+        RenderSystem.enableBlend();
         blit(x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
 
         String created = "Created by";
@@ -300,13 +298,13 @@ public class GuiMTChat extends Screen
 
         int creeperTotalWidth = creeperWidth + stringWidth;
         fontRendererObj.drawStringWithShadow(created, x + (width / 2 - (creeperTotalWidth / 2)), y + (height / 2 - (totalHeight / 2) + mtHeight + 7), 0x40FFFFFF);
-        GL11.glColor4f(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
 
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
+        RenderSystem.enableBlend();
         blit(x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
 
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glPopMatrix();
+        RenderSystem.disableBlend();
+        RenderSystem.popMatrix();
     }
 
     BooleanConsumer booleanConsumer = result ->
@@ -794,10 +792,10 @@ public class GuiMTChat extends Screen
                     if (hovering)
                     {
                         minecraft.fontRenderer.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), 10 + oldTotal, getRowTop(index), 0xFF000000);
-                        GlStateManager.enableBlend();
-                        GL11.glColor4f(1, 1, 1, 0.90F);
+                        RenderSystem.enableBlend();
+                        RenderSystem.color4f(1, 1, 1, 0.90F);
                         minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
-                        GL11.glColor4f(1, 1, 1, 1);
+                        RenderSystem.color4f(1, 1, 1, 1);
 
                     } else
                     {
@@ -842,23 +840,23 @@ public class GuiMTChat extends Screen
                     {
                         int l1 = this.x0 + this.width / 2 - k1 / 2;
                         int i2 = this.x0 + this.width / 2 + k1 / 2;
-                        GlStateManager.disableTexture();
+                        RenderSystem.disableTexture();
                         float f = this.isFocused() ? 1.0F : 0.5F;
-                        GL11.glColor4f(f, f, f, 1.0F);
+                        RenderSystem.color4f(f, f, f, 1.0F);
                         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
                         bufferbuilder.pos((double) l1, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.pos((double) i2, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.pos((double) i2, (double) (i1 - 2), 0.0D).endVertex();
                         bufferbuilder.pos((double) l1, (double) (i1 - 2), 0.0D).endVertex();
                         tessellator.draw();
-                        GL11.glColor4f(0.0F, 0.0F, 0.0F, 1.0F);
+                        RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
                         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
                         bufferbuilder.pos((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.pos((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.pos((double) (i2 - 1), (double) (i1 - 1), 0.0D).endVertex();
                         bufferbuilder.pos((double) (l1 + 1), (double) (i1 - 1), 0.0D).endVertex();
                         tessellator.draw();
-                        GlStateManager.enableTexture();
+                        RenderSystem.enableTexture();
                     }
                     renderEntry(j, mouseX, mouseY, p_renderList_5_);
                 }
