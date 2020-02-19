@@ -247,7 +247,7 @@
   "creeperhost.multiplayer.muted":"Muted Player's List,",
 
   "minetogether.ingame.chat.global":"MineTogether",
-  "minetogether.ingame.chat.local":"Commands,",
+  "minetogether.ingame.chat.local":"Commands",
   "minetogether.ingame.chat.group":"Group,",
   "minetogether.ingame.chat.server":"Server,",
   "minetogether.invite.msg":"You have been invited to a private group chat,",

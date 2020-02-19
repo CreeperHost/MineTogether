@@ -102,7 +102,6 @@ public class GuiChatOurs extends ChatScreen
     {
         if (isBase())
         {
-//            inputField.setEnabled(true);
             return super.charTyped(typedChar, keyCode);
         }
 
@@ -118,8 +117,8 @@ public class GuiChatOurs extends ChatScreen
         if (!ourEnabled)
         {
             if ((keyCode == 28 || keyCode == 156) && ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()))
-                return ourEnabled;
-            inputField.setEnabled(true);
+                inputField.setEnabled(true);
+            return ourEnabled;
         }
 
         super.charTyped(typedChar, keyCode);
@@ -261,7 +260,7 @@ public class GuiChatOurs extends ChatScreen
         menuDropdownButton.flipped = false;
         if (sleep)
         {
-            addButton(new Button(this.width / 2 - 100, this.height - 40, 20, 20, I18n.format("multiplayer.stopSleeping"), p ->
+            addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, I18n.format("multiplayer.stopSleeping"), p ->
             {
                 wakeFromSleep();
             }));
@@ -370,8 +369,6 @@ public class GuiChatOurs extends ChatScreen
         this.inputField.render(mouseX, mouseY, partialTicks);
         this.inputField.func_212955_f();
 
-//        ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getTextComponent(mouseY, mouseX);
-
         if (!(this.mc.ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
 
@@ -437,6 +434,6 @@ public class GuiChatOurs extends ChatScreen
             activeDropdown = event.getValue();
             return true;
         }
-        return false;
+        return super.handleComponentClicked(component);
     }
 }

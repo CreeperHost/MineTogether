@@ -39,7 +39,7 @@ public class CommandPregen
     {
         PregenTask task = new PregenTask(dimensionType, chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick, preventJoin);
 
-        MineTogether.instance.createTask(task);
+        MineTogether.preGenHandler.createTask(task);
 
         ctx.getSource().sendFeedback(new StringTextComponent("Starting pre-gen task for dimention " + task.dimension.toString()), true);
 
