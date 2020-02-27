@@ -293,7 +293,7 @@ public class GuiNewChatOurs extends NewChatGui
                         }
                     }
 
-                    GlStateManager.popMatrix();
+                    RenderSystem.popMatrix();
                 }
             }
         }

@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.gui.mpreplacement;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
@@ -69,8 +70,8 @@ public class CreeperHostEntry extends ServerData
         }
 
         this.mc.getTextureManager().bindTexture(serverIcon);
-        GlStateManager.enableBlend();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
+        RenderSystem.enableBlend();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
 //        Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
         this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x + 35, y, 16777215);
         int transparentString = (int) (transparency * 254) << 24;
@@ -82,14 +83,7 @@ public class CreeperHostEntry extends ServerData
         this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
         {
-//            if (lastWidth != this.mc.displayWidth || lastHeight != this.mc.displayHeight || res == null)
-//            {
-//                res = new ScaledResolution(this.mc);
-//                lastWidth = this.mc.displayWidth;
-//                lastHeight = this.mc.displayHeight;
-//            }
-//
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
             final int tooltipX = mouseX - 72;
             final int tooltipY = mouseY + 11;
@@ -112,7 +106,7 @@ public class CreeperHostEntry extends ServerData
             GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
             GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, transparency);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
             mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
 //            Gui.drawModalRectWithCustomSizedTexture(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60F, 10F);
         }

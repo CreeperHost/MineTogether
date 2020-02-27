@@ -794,10 +794,10 @@ public class GuiMTChat extends Screen
                     if (hovering)
                     {
                         minecraft.fontRenderer.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), 10 + oldTotal, getRowTop(index), 0xFF000000);
-                        GlStateManager.enableBlend();
-                        GlStateManager.color4f(1, 1, 1, 0.90F);
+                        RenderSystem.enableBlend();
+                        RenderSystem.color4f(1, 1, 1, 0.90F);
                         minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
-                        GlStateManager.color4f(1, 1, 1, 1);
+                        RenderSystem.color4f(1, 1, 1, 1);
 
                     } else
                     {
@@ -842,23 +842,23 @@ public class GuiMTChat extends Screen
                     {
                         int l1 = this.x0 + this.width / 2 - k1 / 2;
                         int i2 = this.x0 + this.width / 2 + k1 / 2;
-                        GlStateManager.disableTexture();
+                        RenderSystem.disableTexture();
                         float f = this.isFocused() ? 1.0F : 0.5F;
-                        GlStateManager.color4f(f, f, f, 1.0F);
+                        RenderSystem.color4f(f, f, f, 1.0F);
                         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
                         bufferbuilder.pos((double) l1, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.pos((double) i2, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.pos((double) i2, (double) (i1 - 2), 0.0D).endVertex();
                         bufferbuilder.pos((double) l1, (double) (i1 - 2), 0.0D).endVertex();
                         tessellator.draw();
-                        GlStateManager.color4f(0.0F, 0.0F, 0.0F, 1.0F);
+                        RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
                         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
                         bufferbuilder.pos((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.pos((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.pos((double) (i2 - 1), (double) (i1 - 1), 0.0D).endVertex();
                         bufferbuilder.pos((double) (l1 + 1), (double) (i1 - 1), 0.0D).endVertex();
                         tessellator.draw();
-                        GlStateManager.enableTexture();
+                        RenderSystem.enableTexture();
                     }
                     renderEntry(j, mouseX, mouseY, p_renderList_5_);
                 }

@@ -85,7 +85,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                     int subHovered = ourHovered ? 2 : 0;
 
                     minecraft.getTextureManager().bindTexture(WIDGETS_LOCATION);
-                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                     this.blit(this.x, drawY, 0, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
                     this.blit(this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
 

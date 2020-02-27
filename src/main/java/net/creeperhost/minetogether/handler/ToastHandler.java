@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.handler;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.RenderHelper;
@@ -56,10 +57,10 @@ public class ToastHandler
                 float alpha = (float) curFade / (float) fadeDiff;
 
                 RenderHelper.disableStandardItemLighting();
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
                 mc.getTextureManager().bindTexture(getToastResourceLocation());
                 AbstractGui.blit(160, 0, u, v, 160, 32, 10, 10);
-                GlStateManager.enableBlend();
+                RenderSystem.enableBlend();
                 int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
                 mc.fontRenderer.drawSplitString(ToastHandler.toastText, 160 + 5, 3, 160, textColour);
             } else

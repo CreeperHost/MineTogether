@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.gui.element;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.gui.DefferedValidation;
 import net.creeperhost.minetogether.client.gui.order.GuiPersonalDetails;
 import net.creeperhost.minetogether.common.IOrderValidation;
@@ -107,7 +108,7 @@ public class TextFieldDetails extends TextFieldWidget
         int startX = (this.x + this.width + 3) / 2;
         int startY = (this.y + 4) / 2;
 
-        GlStateManager.scalef(2.0F, 2.0F, 2.0F);
+        RenderSystem.scalef(2.0F, 2.0F, 2.0F);
 
         if (isValidated)
         {

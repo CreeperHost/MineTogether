@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.gui.list;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
 
 public class GuiListEntryMuted extends GuiListEntry
@@ -39,11 +40,11 @@ public class GuiListEntryMuted extends GuiListEntry
 
         int transparentString = (int) (transparency * 254) << 24;
 
-        GlStateManager.enableAlphaTest();
-        GlStateManager.enableBlend();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.enableBlend();
         this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
-        GlStateManager.disableAlphaTest();
-        GlStateManager.disableBlend();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.disableBlend();
 
         if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
         {

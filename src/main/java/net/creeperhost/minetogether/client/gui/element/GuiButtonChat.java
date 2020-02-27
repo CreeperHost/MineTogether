@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.gui.element;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
 import net.minecraft.client.Minecraft;
@@ -35,7 +36,7 @@ public class GuiButtonChat extends Button
         if (this.visible)
         {
             FontRenderer fontrenderer = Minecraft.getInstance().fontRenderer;
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
             int j = 0xFFFFFF;

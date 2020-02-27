@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.gui.element;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
@@ -76,11 +77,11 @@ public class GuiButtonLarge extends Button
 
             this.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + 10, color);
             ItemRenderer renderItem = Minecraft.getInstance().getItemRenderer();
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(2.0f, 2.0f, 2.0f);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(2.0f, 2.0f, 2.0f);
             renderItem.renderItemAndEffectIntoGUI(stack, (this.x / 2) + (width / 4) - 8, (this.y / 2) + 10);
             //renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
     }
 

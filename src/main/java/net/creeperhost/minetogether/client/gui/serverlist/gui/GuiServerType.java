@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.gui.serverlist.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonLarge;
 import net.minecraft.client.Minecraft;
@@ -39,10 +40,10 @@ public class GuiServerType extends Screen
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         renderDirtBackground(1);
-        GlStateManager.pushMatrix();
-        GlStateManager.scalef(1.5f, 1.5f, 1.5f);
+        RenderSystem.pushMatrix();
+        RenderSystem.scalef(1.5f, 1.5f, 1.5f);
         drawCenteredString(font, TextFormatting.BOLD + I18n.format("minetogether.listing.title"), (width / 3), 12, -1);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         super.render(mouseX, mouseY, partialTicks);
     }
 

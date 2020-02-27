@@ -51,6 +51,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 
 @Mod(value = ModInfo.MOD_ID)
@@ -62,7 +63,6 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static IProxy proxy;
     public static IServerProxy serverProxy;
     public final Object inviteLock = new Object();
-    public ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
     public IServerHost currentImplementation;
     public File configFile;
     public int curServerId = -1;
@@ -189,19 +189,19 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         try (FileOutputStream configOut = new FileOutputStream(configFile))
         {
-            IOUtils.write(Config.saveConfig(), configOut);
+            IOUtils.write(Config.saveConfig(), configOut ,Charset.defaultCharset());
         } catch (Throwable ignored) {}
 
         if (Config.getInstance().isCreeperhostEnabled())
         {
-            MineTogether.instance.implementations.remove(implement);
+            CreeperHostAPI.implementations.remove(implement);
             implement = new CreeperHostServerHost();
             CreeperHostAPI.registerImplementation(implement);
         }
 
         if (!Config.getInstance().isCreeperhostEnabled())
         {
-            MineTogether.instance.implementations.remove(implement);
+            CreeperHostAPI.implementations.remove(implement);
             implement = null;
         }
     }
@@ -219,13 +219,13 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         if (randomGenerator == null)
             randomGenerator = new Random();
-        if (implementations.size() == 0)
+        if (CreeperHostAPI.getImplementations().size() == 0)
         {
             currentImplementation = null;
             return;
         }
-        int random = randomGenerator.nextInt(implementations.size());
-        currentImplementation = implementations.get(random);
+        int random = randomGenerator.nextInt(CreeperHostAPI.getImplementations().size());
+        currentImplementation = CreeperHostAPI.getImplementations().get(random);
     }
 
     public IServerHost getImplementation()
@@ -236,7 +236,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     @Override
     public void registerImplementation(IServerHost serverHost)
     {
-        implementations.add(serverHost);
+        CreeperHostAPI.registerImplementation(serverHost);
     }
 
     @Override
@@ -285,7 +285,7 @@ public class MineTogether implements ICreeperHostMod, IHost
                 if (anonUsersFile.exists())
                 {
                     anonUsersStream = new FileInputStream(anonUsersFile);
-                    configString = IOUtils.toString(anonUsersStream);
+                    configString = IOUtils.toString(anonUsersStream, Charset.defaultCharset());
                 } else
                 {
                     anonUsersFile.getParentFile().mkdirs();
@@ -351,7 +351,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         File anonUsersFile = new File("local/minetogether/anonusers.json");
         try
         {
-            FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers));
+            FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers), Charset.defaultCharset());
         } catch (IOException ignored) {}
     }
 
@@ -361,7 +361,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         Gson gson = new Gson();
         try
         {
-            FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
+            FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers), Charset.defaultCharset());
         } catch (IOException ignored) {}
     }
 
@@ -373,7 +373,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         Gson gson = new Gson();
         try
         {
-            FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
+            FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers), Charset.defaultCharset());
         } catch (IOException ignored) {}
     }
 

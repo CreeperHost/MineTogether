@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Minigame;
 import net.creeperhost.minetogether.aries.Aries;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -171,18 +173,18 @@ public class GuiMinigames extends Screen
         int throbTickMax = 20;
         int rotateTicks = ticks % rotateTickMax;
         int throbTicks = ticks % throbTickMax;
-        GlStateManager.translated(width / 2, height / 2 + 20 + 10, 0);
-        GlStateManager.pushMatrix();
+        RenderSystem.translated(width / 2, height / 2 + 20 + 10, 0);
+        RenderSystem.pushMatrix();
         float scale = 1F + ((throbTicks >= (throbTickMax / 2) ? (throbTickMax - (throbTicks + partialTicks)) : (throbTicks + partialTicks)) * (2F / throbTickMax));
-        GlStateManager.scalef(scale, scale, scale);
-        GlStateManager.rotatef((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
-        GlStateManager.pushMatrix();
+        RenderSystem.scalef(scale, scale, scale);
+        RenderSystem.rotatef((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
+        RenderSystem.pushMatrix();
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         itemRenderer.renderItemAndEffectIntoGUI(stack, -8, -8);
 
-        GlStateManager.popMatrix();
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     @Override
@@ -393,7 +395,7 @@ public class GuiMinigames extends Screen
         {
             try
             {
-                String creds = FileUtils.readFileToString(credentialsFile);
+                String creds = FileUtils.readFileToString(credentialsFile,  Charset.defaultCharset());
                 JsonParser parser = new JsonParser();
                 JsonElement el = parser.parse(creds);
                 if (el.isJsonObject())
@@ -422,10 +424,8 @@ public class GuiMinigames extends Screen
         creds.put("secret", secret);
         try
         {
-            FileUtils.writeStringToFile(credentialsFile, new Gson().toJson(creds));
-        } catch (IOException ignored)
-        {
-        }
+            FileUtils.writeStringToFile(credentialsFile, new Gson().toJson(creds),  Charset.defaultCharset(), true);
+        } catch (IOException ignored) {}
     }
 
     private void drawStatusString(int x, int y)
@@ -511,17 +511,13 @@ public class GuiMinigames extends Screen
             try
             {
                 Thread.sleep(50);
-            } catch (InterruptedException ignored)
-            {
-            }
+            } catch (InterruptedException ignored) {}
         }
-
         doSpindown = true;
     }
 
     private void drawCenteredSplitString(String drawText, int x, int y, int width, int drawColour)
     {
-
         List<String> strings = font.listFormattedStringToWidth(drawText, width);
         for (String str : strings)
         {
@@ -700,9 +696,9 @@ public class GuiMinigames extends Screen
 
                 drawTextureAt(13, slotTop + 1, 28, 28, 28, 28, resourceLocation);
 
-                GlStateManager.pushMatrix();
+                RenderSystem.pushMatrix();
                 float scale = 1.5f;
-                GlStateManager.scalef(scale, scale, scale);
+                RenderSystem.scalef(scale, scale, scale);
                 int x = width / 2;
                 int y = slotTop;
                 x = (int) (x / scale);
@@ -713,7 +709,7 @@ public class GuiMinigames extends Screen
 
                 drawCenteredString(font, minigames.get(slotIdx).displayName, x, y, 0xFFFFFFFF);
 
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
 
                 drawString(font, " by " + minigames.get(slotIdx).author, newX, slotTop + 2, 0xFFAAAAAA);
 

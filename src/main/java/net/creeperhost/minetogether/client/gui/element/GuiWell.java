@@ -41,13 +41,13 @@ public class GuiWell
     @SuppressWarnings("Duplicates")
     public void drawScreen()
     {
-        GlStateManager.disableLighting();
-        GlStateManager.disableFog();
+        RenderSystem.disableLighting();
+        RenderSystem.disableFog();
         Tessellator tessellator = Tessellator.getInstance();
 
         IBufferProxy buffer = Util.getBufferProxy();
         this.mc.getTextureManager().bindTexture(Screen.BACKGROUND_LOCATION);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float f = 32.0F;
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex((double) ((float) this.left / f), (double) ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
