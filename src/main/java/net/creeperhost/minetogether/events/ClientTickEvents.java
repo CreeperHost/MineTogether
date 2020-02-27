@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
+import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.handler.ToastHandler;
@@ -60,18 +61,12 @@ public class ClientTickEvents
                                     mc.displayGuiScreen(new GuiMTChat(Minecraft.getInstance().currentScreen, true));
                                 });
                             }
-                        } catch (Exception e)
-                        {
-//                            e.printStackTrace();
-                            // carry on - we'll just try again later, saves thread dying.
-                        }
+                        } catch (Exception ignored) {}
 
                         try
                         {
                             Thread.sleep(1000);
-                        } catch (InterruptedException ignored)
-                        {
-                        }
+                        } catch (InterruptedException ignored) {}
                     }
                 });
                 inviteCheckThread.setDaemon(true);
@@ -112,7 +107,7 @@ public class ClientTickEvents
                 {
                     ToastHandler.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
                     {
-//                        mc.displayGuiScreen(new GuiInvited(MineTogether.instance.handledInvite, mc.currentScreen));
+                        mc.displayGuiScreen(new GuiInvited(MineTogether.instance.handledInvite, mc.currentScreen));
                         MineTogether.instance.handledInvite = null;
                     });
                 }

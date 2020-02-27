@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
  */
 public class RegexValidator implements IOrderValidation
 {
-
     private Pattern pattern;
     private String failMessage;
 

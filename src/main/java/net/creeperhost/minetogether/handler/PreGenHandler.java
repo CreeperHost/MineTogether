@@ -12,6 +12,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -52,9 +53,7 @@ public class PreGenHandler
     {
         Gson gson = new GsonBuilder().create();
         HashMap output = null;
-        Type listOfPregenTask = new TypeToken<HashMap<DimensionType, PregenTask>>()
-        {
-        }.getType();
+        Type listOfPregenTask = new TypeToken<HashMap<DimensionType, PregenTask>>() {}.getType();
         try
         {
             output = gson.fromJson(IOUtils.toString(file.toURI()), listOfPregenTask);
@@ -62,7 +61,7 @@ public class PreGenHandler
         {
         }
         if (output == null)
-            pregenTasks = new HashMap<DimensionType, PregenTask>();
+            pregenTasks = new HashMap<>();
         else
             pregenTasks = output;
 
@@ -77,15 +76,13 @@ public class PreGenHandler
     private void serializePreload(File file)
     {
         FileOutputStream pregenOut = null;
-        Type listOfPregenTask = new TypeToken<HashMap<Integer, PregenTask>>()
-        {
-        }.getType();
+        Type listOfPregenTask = new TypeToken<HashMap<Integer, PregenTask>>() {}.getType();
         try
         {
             pregenOut = new FileOutputStream(file);
             Gson gson = new GsonBuilder().create();
             String output = gson.toJson(pregenTasks, listOfPregenTask);
-            IOUtils.write(output, pregenOut);
+            IOUtils.write(output, pregenOut, Charset.defaultCharset());
         } catch (Exception e)
         {
             e.printStackTrace();

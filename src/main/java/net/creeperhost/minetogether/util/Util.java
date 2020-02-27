@@ -4,6 +4,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.client.gui.hacky.IBufferProxy;
 import net.creeperhost.minetogether.client.gui.hacky.IBufferProxyGetter;
 import net.creeperhost.minetogether.client.gui.hacky.IServerListEntryWrapper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.versions.forge.ForgeVersion;
 
@@ -14,20 +15,8 @@ import java.util.Random;
 public final class Util
 {
     private static Random random = new Random();
-    @SuppressWarnings("Duplicates")
-    @Deprecated
-    private static ArrayList<String> oldVersions = new ArrayList<String>()
-    {{
-        add("1.9");
-        add("1.9.4");
-        add("1.10");
-        add("1.10.2");
-        add("1.11");
-        add("1.11.2");
-    }};
     private static IBufferProxyGetter proxyGetter;
     private static IServerListEntryWrapper wrapper;
-    private static String mcVersion;
 
     public static String localize(String key, Object... format)
     {
@@ -73,23 +62,6 @@ public final class Util
         if (proxyGetter == null)
         {
             String className = "net.creeperhost.minetogether.client.gui.hacky.BufferProxyGetterNew";
-            String mcVersion;
-            try
-            {
-                /*
-                We need to get this at runtime as Java is smart and interns final fields.
-                Certainly not the dirtiest hack we do in this codebase.
-                */
-                mcVersion = (String) ForgeVersion.class.getField("mcVersion").get(null);
-            } catch (Throwable e)
-            {
-                mcVersion = "unknown"; // will default to new method
-            }
-            if (oldVersions.contains(mcVersion))
-            {
-                className = "net.creeperhost.minetogether.client.gui.hacky.BufferProxyGetterOld";
-            }
-
             try
             {
                 Class clazz = Class.forName(className);
@@ -107,22 +79,6 @@ public final class Util
         if (wrapper == null)
         {
             String className = "net.creeperhost.minetogether.client.gui.hacky.ServerListEntryWrapperNew";
-            String mcVersion;
-            try
-            {
-                /*
-                We need to get this at runtime as Java is smart and interns final fields.
-                Certainly not the dirtiest hack we do in this codebase.
-                */
-                mcVersion = (String) ForgeVersion.class.getField("mcVersion").get(null);
-            } catch (Throwable e)
-            {
-                mcVersion = "unknown"; // will default to new method
-            }
-            if (oldVersions.contains(mcVersion))
-            {
-                className = "net.creeperhost.minetogether.client.gui.hacky.ServerListEntryWrapperOld";
-            }
 
             try
             {
@@ -139,19 +95,7 @@ public final class Util
 
     public static String getMinecraftVersion()
     {
-        if (mcVersion == null)
-            try
-            {
-                /*
-                We need to get this at runtime as Java is smart and interns final fields.
-                Certainly not the dirtiest hack we do in this codebase.
-                */
-                mcVersion = (String) ForgeVersion.class.getField("mcVersion").get(null);
-            } catch (Throwable e)
-            {
-                mcVersion = "unknown"; // will default to new method
-            }
-        return "1.12.2";
+        return Minecraft.getInstance().getVersion();
     }
 
     public static class CachedValue<T>

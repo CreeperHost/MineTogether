@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.handler;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -18,8 +17,6 @@ public class ToastHandler
     public static long endTime;
     public static long fadeTime;
     Minecraft mc = Minecraft.getInstance();
-
-    String mcVersion;
     int u = 0;
     int v = 0;
 
