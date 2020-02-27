@@ -107,7 +107,7 @@ public class TextFieldDetails extends TextFieldWidget
         int startX = (this.x + this.width + 3) / 2;
         int startY = (this.y + 4) / 2;
 
-        GL11.glScalef(2.0F, 2.0F, 2.0F);
+        GlStateManager.scalef(2.0F, 2.0F, 2.0F);
 
         if (isValidated)
         {

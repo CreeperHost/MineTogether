@@ -1,45 +1,38 @@
-//package net.creeperhost.minetogether.server.command;
-//
-//import com.google.gson.Gson;
-//import com.mojang.authlib.GameProfile;
-//import net.creeperhost.minetogether.MineTogether;
-//import net.creeperhost.minetogether.util.WebUtils;
-//import net.creeperhost.minetogether.CreeperHostServer;
-//import net.minecraft.command.CommandBase;
-//import net.minecraft.command.CommandException;
-//import net.minecraft.command.ICommandSender;
-//import net.minecraft.command.WrongUsageException;
-//import net.minecraft.server.MinecraftServer;
-//import net.minecraft.server.management.UserListWhitelist;
-//import net.minecraft.server.management.WhiteList;
-//import net.minecraft.util.math.BlockPos;
-//import net.minecraft.util.text.TextComponentString;
-//import net.minecraft.util.text.TextComponentTranslation;
-//import net.minecraftforge.fml.common.FMLCommonHandler;
-//
-//import javax.annotation.Nullable;
-//import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-//import java.nio.charset.Charset;
-//import java.security.MessageDigest;
-//import java.security.NoSuchAlgorithmException;
-//import java.util.ArrayList;
-//import java.util.Collections;
-//import java.util.List;
-//
-//public class CommandInvite
-//{
-//    public static void reloadInvites(String[] prevNames)
-//    {
-//        MinecraftServer server = MineTogether.server;
-//        if (server == null)
-//        {
-//            return;
-//        }
-//        Gson gson = new Gson();
-//        WhiteList whitelistedPlayers = server.getPlayerList().getWhitelistedPlayers();
-//        final ArrayList<String> tempHash = new ArrayList<String>();
-//        final ArrayList<String> removeHash = new ArrayList<String>();
-//
+package net.creeperhost.minetogether.server.command;
+
+import com.google.gson.Gson;
+import com.mojang.authlib.GameProfile;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.util.WebUtils;
+import net.minecraft.command.CommandException;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.WhiteList;
+import net.minecraft.server.management.WhitelistEntry;
+import net.minecraft.util.math.BlockPos;
+
+import javax.annotation.Nullable;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class CommandInvite
+{
+    public static void reloadInvites(String[] prevNames)
+    {
+        MinecraftServer server = MineTogether.server;
+        if (server == null)
+        {
+            return;
+        }
+        Gson gson = new Gson();
+        WhiteList whitelistedPlayers = server.getPlayerList().getWhitelistedPlayers();
+        final ArrayList<String> tempHash = new ArrayList<String>();
+        final ArrayList<String> removeHash = new ArrayList<String>();
+
 //        try
 //        {
 //            MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -63,43 +56,37 @@
 //        {
 //            e.printStackTrace();
 //        }
-//
-//        CreeperHostServer.InviteClass invite = new CreeperHostServer.InviteClass();
-//        invite.hash = tempHash;
-//        invite.id = CreeperHostServer.updateID;
-//
-//        CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
-//        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
-//        CreeperHostServer.logger.debug("Response from add endpoint " + resp);
-//        if (!removeHash.isEmpty())
+
+        MineTogether.InviteClass invite = new MineTogether.InviteClass();
+        invite.hash = tempHash;
+        invite.id = MineTogether.updateID;
+
+        MineTogether.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
+        MineTogether.logger.debug("Response from add endpoint " + resp);
+        if (!removeHash.isEmpty())
+        {
+            invite = new MineTogether.InviteClass();
+            invite.id = MineTogether.updateID;
+            invite.hash = tempHash;
+            MineTogether.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
+            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
+            MineTogether.logger.debug("Response from revoke endpoint " + resp);
+        }
+    }
+
+//    public GameProfile getByName(String profileName, WhiteList whiteList)
+//    {
+//        for (WhitelistEntry userlistwhitelistentry : whiteList.getEntries())
 //        {
-//            invite = new CreeperHostServer.InviteClass();
-//            invite.id = CreeperHostServer.updateID;
-//            invite.hash = tempHash;
-//            CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
-//            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
-//            CreeperHostServer.logger.debug("Response from revoke endpoint " + resp);
+//            if (profileName.equalsIgnoreCase((userlistwhitelistentry.getValue()).getName()))
+//            {
+//                return userlistwhitelistentry.getValue();
+//            }
 //        }
+//        return null;
 //    }
-//
-//    @Override
-//    public String getName()
-//    {
-//        return "invite";
-//    }
-//
-//    @Override
-//    public int getRequiredPermissionLevel()
-//    {
-//        return 3;
-//    }
-//
-//    @Override
-//    public String getUsage(ICommandSender sender)
-//    {
-//        return "creeperhostserver.commands.invite.usage";
-//    }
-//
+
 //    @Override
 //    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 //    {
@@ -182,62 +169,63 @@
 //            return Collections.emptyList();
 //        }
 //    }
-//
-//    private void inviteUser(GameProfile profile)
-//    {
-//        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-//        Gson gson = new Gson();
-//        UserListWhitelist whitelistedPlayers = server.getPlayerList().getWhitelistedPlayers();
-//        final ArrayList<String> tempHash = new ArrayList<String>();
-//        String name = profile.getName().toLowerCase();
-//
-//        try
-//        {
-//            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//
+
+    private void inviteUser(GameProfile profile)
+    {
+        MinecraftServer server = MineTogether.server;
+        Gson gson = new Gson();
+        WhiteList whitelistedPlayers = server.getPlayerList().getWhitelistedPlayers();
+
+        final ArrayList<String> tempHash = new ArrayList<String>();
+        String name = profile.getName().toLowerCase();
+
+        try
+        {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
 //            byte[] hash = digest.digest(whitelistedPlayers.getByName(name).getId().toString().getBytes(Charset.forName("UTF-8")));
-//
+
 //            tempHash.add((new HexBinaryAdapter()).marshal(hash));
-//        } catch (NoSuchAlgorithmException e)
-//        {
-//            e.printStackTrace();
-//        }
-//
-//        CreeperHostServer.InviteClass invite = new CreeperHostServer.InviteClass();
-//        invite.hash = tempHash;
-//        invite.id = CreeperHostServer.updateID;
-//        CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
-//        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
-//        CreeperHostServer.logger.debug("Response from add endpoint " + resp);
-//    }
-//
-//    private void removeUser(GameProfile profile)
-//    {
-//        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-//        Gson gson = new Gson();
-//        final ArrayList<String> tempHash = new ArrayList<String>();
-//
-//        try
-//        {
-//            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//
-//            byte[] hash = digest.digest(profile.getId().toString().getBytes(Charset.forName("UTF-8")));
-//
-//            String hashString = (new HexBinaryAdapter()).marshal(hash);
-//
-//            CreeperHostServer.logger.info("Removing player with hash " + hashString);
-//
-//            tempHash.add(hashString);
-//        } catch (NoSuchAlgorithmException e)
-//        {
-//            e.printStackTrace();
-//        }
-//
-//        CreeperHostServer.InviteClass invite = new CreeperHostServer.InviteClass();
-//        invite.hash = tempHash;
-//        invite.id = CreeperHostServer.updateID;
-//        CreeperHostServer.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
-//        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
-//        CreeperHostServer.logger.debug("Response from revoke endpoint " + resp);
-//    }
-//}
+        } catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
+
+        MineTogether.InviteClass invite = new MineTogether.InviteClass();
+        invite.hash = tempHash;
+        invite.id = MineTogether.updateID;
+        MineTogether.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
+        MineTogether.logger.debug("Response from add endpoint " + resp);
+    }
+
+    private void removeUser(GameProfile profile)
+    {
+        MinecraftServer server = MineTogether.server;
+        Gson gson = new Gson();
+        final ArrayList<String> tempHash = new ArrayList<String>();
+
+        try
+        {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            byte[] hash = digest.digest(profile.getId().toString().getBytes(Charset.forName("UTF-8")));
+
+            String hashString = (new HexBinaryAdapter()).marshal(hash);
+
+            MineTogether.logger.info("Removing player with hash " + hashString);
+
+            tempHash.add(hashString);
+        } catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
+
+        MineTogether.InviteClass invite = new MineTogether.InviteClass();
+        invite.hash = tempHash;
+        invite.id = MineTogether.updateID;
+        MineTogether.logger.debug("Sending " + gson.toJson(invite) + " to revoke endpoint");
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/revokeinvite", gson.toJson(invite), true, true);
+        MineTogether.logger.debug("Response from revoke endpoint " + resp);
+    }
+}

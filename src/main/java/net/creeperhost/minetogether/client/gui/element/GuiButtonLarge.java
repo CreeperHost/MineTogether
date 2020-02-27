@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.client.gui.GuiUtils;
-import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
@@ -77,11 +76,11 @@ public class GuiButtonLarge extends Button
 
             this.drawCenteredString(mc.fontRenderer, buttonText, this.x + this.width / 2, this.y + 10, color);
             ItemRenderer renderItem = Minecraft.getInstance().getItemRenderer();
-            GL11.glPushMatrix();
-            GL11.glScalef(2.0f, 2.0f, 2.0f);
+            GlStateManager.pushMatrix();
+            GlStateManager.scalef(2.0f, 2.0f, 2.0f);
             renderItem.renderItemAndEffectIntoGUI(stack, (this.x / 2) + (width / 4) - 8, (this.y / 2) + 10);
             //renderItem.renderItemIntoGUI(stack, (this.xPosition / 2) + (width / 4) - 8, (this.yPosition / 2) + 10);
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
         }
     }
 

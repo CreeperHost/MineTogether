@@ -6,7 +6,6 @@ import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.button.Button;
-import org.lwjgl.opengl.GL11;
 
 public class GuiButtonChat extends Button
 {
@@ -36,7 +35,7 @@ public class GuiButtonChat extends Button
         if (this.visible)
         {
             FontRenderer fontrenderer = Minecraft.getInstance().fontRenderer;
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
             int j = 0xFFFFFF;

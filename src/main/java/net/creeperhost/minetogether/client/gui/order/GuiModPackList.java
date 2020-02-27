@@ -8,6 +8,7 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.ModPack;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
+import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -60,7 +61,7 @@ public class GuiModPackList extends Screen
         displayEntry = new TextFieldWidget(this.font, this.width / 2 - 90, y, 160, 20, "");
         displayEntry.setVisible(true);
 
-        this.addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("button.cancel"), (button) -> minecraft.displayGuiScreen(parent)));
+        this.addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("button.cancel"), (button) -> minecraft.displayGuiScreen(new MainMenuScreen())));
 
         this.addButton(new Button(this.width - 90, y, buttonWidth, 20, "Select", (button) ->
         {

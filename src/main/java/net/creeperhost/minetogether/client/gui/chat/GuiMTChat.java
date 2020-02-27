@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.gui.chat;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
@@ -10,7 +11,6 @@ import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.element.ButtonString;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.util.ScreenUtils;
@@ -34,6 +34,7 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
 import org.apache.commons.lang3.StringUtils;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -298,6 +299,7 @@ public class GuiMTChat extends Screen
 
         int creeperTotalWidth = creeperWidth + stringWidth;
         fontRendererObj.drawStringWithShadow(created, x + (width / 2 - (creeperTotalWidth / 2)), y + (height / 2 - (totalHeight / 2) + mtHeight + 7), 0x40FFFFFF);
+        RenderSystem.color4f(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
 
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
         RenderSystem.enableBlend();
@@ -314,7 +316,7 @@ public class GuiMTChat extends Screen
             if (ChatHandler.privateChatInvite != null)
             {
                 ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
-                ToastHandler.clearToast(false);
+//                    MineTogether.instance.clearToast(false);
             }
         }
         minecraft.displayGuiScreen(new GuiMTChat(new MainMenuScreen()));
@@ -792,10 +794,10 @@ public class GuiMTChat extends Screen
                     if (hovering)
                     {
                         minecraft.fontRenderer.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), 10 + oldTotal, getRowTop(index), 0xFF000000);
-                        RenderSystem.enableBlend();
-                        RenderSystem.color4f(1, 1, 1, 0.90F);
+                        GlStateManager.enableBlend();
+                        GlStateManager.color4f(1, 1, 1, 0.90F);
                         minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
-                        RenderSystem.color4f(1, 1, 1, 1);
+                        GlStateManager.color4f(1, 1, 1, 1);
 
                     } else
                     {
@@ -840,23 +842,23 @@ public class GuiMTChat extends Screen
                     {
                         int l1 = this.x0 + this.width / 2 - k1 / 2;
                         int i2 = this.x0 + this.width / 2 + k1 / 2;
-                        RenderSystem.disableTexture();
+                        GlStateManager.disableTexture();
                         float f = this.isFocused() ? 1.0F : 0.5F;
-                        RenderSystem.color4f(f, f, f, 1.0F);
+                        GlStateManager.color4f(f, f, f, 1.0F);
                         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
                         bufferbuilder.pos((double) l1, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.pos((double) i2, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.pos((double) i2, (double) (i1 - 2), 0.0D).endVertex();
                         bufferbuilder.pos((double) l1, (double) (i1 - 2), 0.0D).endVertex();
                         tessellator.draw();
-                        RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
+                        GlStateManager.color4f(0.0F, 0.0F, 0.0F, 1.0F);
                         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
                         bufferbuilder.pos((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.pos((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.pos((double) (i2 - 1), (double) (i1 - 1), 0.0D).endVertex();
                         bufferbuilder.pos((double) (l1 + 1), (double) (i1 - 1), 0.0D).endVertex();
                         tessellator.draw();
-                        RenderSystem.enableTexture();
+                        GlStateManager.enableTexture();
                     }
                     renderEntry(j, mouseX, mouseY, p_renderList_5_);
                 }

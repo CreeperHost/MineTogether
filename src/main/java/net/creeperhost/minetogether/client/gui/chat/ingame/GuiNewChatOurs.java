@@ -1,12 +1,14 @@
 package net.creeperhost.minetogether.client.gui.chat.ingame;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.chat.TimestampComponentString;
+import net.creeperhost.minetogether.proxy.Client;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
@@ -192,7 +194,7 @@ public class GuiNewChatOurs extends NewChatGui
                     int k = MathHelper.ceil((float) this.getChatWidth() / f1);
                     RenderSystem.pushMatrix();
                     RenderSystem.translatef(2.0F, 8.0F, 0.0F);
-                    RenderSystem.scaled(1, f1, 1.0F);
+                    RenderSystem.scaled(f1, f1, 1.0F);
                     int l = 0;
 
                     for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
@@ -291,7 +293,7 @@ public class GuiNewChatOurs extends NewChatGui
                         }
                     }
 
-                    RenderSystem.popMatrix();
+                    GlStateManager.popMatrix();
                 }
             }
         }
@@ -418,7 +420,7 @@ public class GuiNewChatOurs extends NewChatGui
             this.isScrolled = false;
         }
     }
-    
+
     @Override
     public void addScrollPos(double amount)
     {
@@ -607,9 +609,11 @@ public class GuiNewChatOurs extends NewChatGui
         if (base)
         {
             refreshChat();
+            Client.chatType = 0;
         } else
         {
             getVanillaDrawnChatLines().clear();
+            Client.chatType = 1;
         }
     }
 

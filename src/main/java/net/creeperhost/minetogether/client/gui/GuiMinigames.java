@@ -30,7 +30,6 @@ import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import org.apache.commons.io.FileUtils;
-import org.lwjgl.opengl.GL11;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -172,18 +171,18 @@ public class GuiMinigames extends Screen
         int throbTickMax = 20;
         int rotateTicks = ticks % rotateTickMax;
         int throbTicks = ticks % throbTickMax;
-        GL11.glTranslated(width / 2, height / 2 + 20 + 10, 0);
-        GL11.glPushMatrix();
+        GlStateManager.translated(width / 2, height / 2 + 20 + 10, 0);
+        GlStateManager.pushMatrix();
         float scale = 1F + ((throbTicks >= (throbTickMax / 2) ? (throbTickMax - (throbTicks + partialTicks)) : (throbTicks + partialTicks)) * (2F / throbTickMax));
-        GL11.glScalef(scale, scale, scale);
-        GL11.glRotatef((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
-        GL11.glPushMatrix();
+        GlStateManager.scalef(scale, scale, scale);
+        GlStateManager.rotatef((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
+        GlStateManager.pushMatrix();
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         itemRenderer.renderItemAndEffectIntoGUI(stack, -8, -8);
-    
-        GL11.glPopMatrix();
-        GL11.glPopMatrix();
+
+        GlStateManager.popMatrix();
+        GlStateManager.popMatrix();
     }
 
     @Override
@@ -326,9 +325,9 @@ public class GuiMinigames extends Screen
     protected void drawTextureAt(int p_178012_1_, int p_178012_2_, int texturew, int textureh, int width, int height, ResourceLocation p_178012_3_)
     {
         this.minecraft.getTextureManager().bindTexture(p_178012_3_);
-//        GlStateManager.enableBlend();
+        GlStateManager.enableBlend();
         blit(p_178012_1_, p_178012_2_, 0.0F, 0.0F, width, height, texturew, textureh);
-//        GlStateManager.disableBlend();
+        GlStateManager.disableBlend();
     }
 
     private boolean areCredentialsValid()
@@ -701,9 +700,9 @@ public class GuiMinigames extends Screen
 
                 drawTextureAt(13, slotTop + 1, 28, 28, 28, 28, resourceLocation);
 
-                GL11.glPushMatrix();
+                GlStateManager.pushMatrix();
                 float scale = 1.5f;
-                GL11.glScalef(scale, scale, scale);
+                GlStateManager.scalef(scale, scale, scale);
                 int x = width / 2;
                 int y = slotTop;
                 x = (int) (x / scale);
@@ -714,7 +713,7 @@ public class GuiMinigames extends Screen
 
                 drawCenteredString(font, minigames.get(slotIdx).displayName, x, y, 0xFFFFFFFF);
 
-                GL11.glPopMatrix();
+                GlStateManager.popMatrix();
 
                 drawString(font, " by " + minigames.get(slotIdx).author, newX, slotTop + 2, 0xFFAAAAAA);
 

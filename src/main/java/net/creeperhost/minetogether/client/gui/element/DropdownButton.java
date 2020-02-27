@@ -1,11 +1,11 @@
 package net.creeperhost.minetogether.client.gui.element;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
-import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
@@ -45,12 +45,12 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
             int drawY = y;
             FontRenderer fontrenderer = minecraft.fontRenderer;
             minecraft.getTextureManager().bindTexture(WIDGETS_LOCATION);
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.isHovered = mouseX >= this.x && mouseY >= drawY && mouseX < this.x + this.width && mouseY < drawY + this.height;
             int i = this.getHoverState(this.isHovered);
-//            GlStateManager.enableBlend();
-//            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-//            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             this.blit(this.x, drawY, 0, 46 + i * 20, this.width / 2, this.height);
             this.blit(this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
             int j = 14737632;
@@ -85,7 +85,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                     int subHovered = ourHovered ? 2 : 0;
 
                     minecraft.getTextureManager().bindTexture(WIDGETS_LOCATION);
-                    GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                     this.blit(this.x, drawY, 0, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
                     this.blit(this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
 

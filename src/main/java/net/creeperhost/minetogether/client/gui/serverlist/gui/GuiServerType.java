@@ -12,7 +12,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import org.lwjgl.opengl.GL11;
 
 public class GuiServerType extends Screen
 {
@@ -40,10 +39,10 @@ public class GuiServerType extends Screen
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         renderDirtBackground(1);
-        GL11.glPushMatrix();
-        GL11.glScalef(1.5f, 1.5f, 1.5f);
+        GlStateManager.pushMatrix();
+        GlStateManager.scalef(1.5f, 1.5f, 1.5f);
         drawCenteredString(font, TextFormatting.BOLD + I18n.format("minetogether.listing.title"), (width / 3), 12, -1);
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
         super.render(mouseX, mouseY, partialTicks);
     }
 

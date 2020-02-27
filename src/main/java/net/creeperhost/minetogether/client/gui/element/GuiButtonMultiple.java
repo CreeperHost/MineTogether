@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 
 public class GuiButtonMultiple extends Button
 {
@@ -24,7 +23,7 @@ public class GuiButtonMultiple extends Button
         {
             ResourceLocation buttonImage = buttonImg;
             Minecraft.getInstance().getTextureManager().bindTexture(buttonImage);
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.blit(this.x, this.y, index * 20, isHovered ? this.height : 0, this.width, this.height);
         }
     }

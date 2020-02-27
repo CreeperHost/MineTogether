@@ -37,9 +37,9 @@ public class BufferProxyNew implements IBufferProxy
     }
 
     @Override
-    public IBufferProxy tex(float u, float v)
+    public IBufferProxy tex(double u, double v)
     {
-        buffer.tex(u, v);
+        buffer.tex((float) u, (float) v);
         return this;
     }
 

@@ -39,6 +39,7 @@ public class Client implements IProxy
 {
     public KeyBinding openGuiKey;
     private UUID cache;
+    public static int chatType = 0;
 
     @Override
     public void registerKeys()

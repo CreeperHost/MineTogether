@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.gui.order;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.element.GuiTextFieldValidate;
@@ -11,7 +12,6 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.widget.button.CheckboxButton;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.gui.widget.Slider;
-import org.lwjgl.opengl.GL11;
 
 public class GuiGeneralServerInfo extends GuiGetServer
 {
@@ -140,7 +140,7 @@ public class GuiGeneralServerInfo extends GuiGetServer
         }
 
         this.minecraft.getTextureManager().bindTexture(lockIcon);
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 //        Gui.drawModalRectWithCustomSizedTexture((this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
 
         int strStart = 61;

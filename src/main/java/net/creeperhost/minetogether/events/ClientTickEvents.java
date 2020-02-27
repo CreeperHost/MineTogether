@@ -62,7 +62,7 @@ public class ClientTickEvents
                             }
                         } catch (Exception e)
                         {
-                            e.printStackTrace();
+//                            e.printStackTrace();
                             // carry on - we'll just try again later, saves thread dying.
                         }
 

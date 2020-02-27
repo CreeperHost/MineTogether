@@ -18,18 +18,21 @@ import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.events.ClientTickEvents;
 import net.creeperhost.minetogether.events.ScreenEvents;
+import net.creeperhost.minetogether.handler.PreGenHandler;
+import net.creeperhost.minetogether.handler.ServerListHandler;
+import net.creeperhost.minetogether.handler.WatchdogHandler;
 import net.creeperhost.minetogether.lib.ModInfo;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.*;
+import net.creeperhost.minetogether.server.command.CommandInvite;
 import net.creeperhost.minetogether.server.command.CommandKill;
 import net.creeperhost.minetogether.server.command.CommandPregen;
 import net.creeperhost.minetogether.server.hacky.IPlayerKicker;
-import net.creeperhost.minetogether.server.pregen.PregenTask;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,6 +40,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -47,14 +51,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.util.*;
 
 @Mod(value = ModInfo.MOD_ID)
 public class MineTogether implements ICreeperHostMod, IHost
 {
     public static final Logger logger = LogManager.getLogger("minetogether");
-    public HashMap<DimensionType, PregenTask> pregenTasks = new HashMap<DimensionType, PregenTask>();
     public static ArrayList<String> mutedUsers = new ArrayList<>();
     public static ArrayList<String> bannedUsers = new ArrayList<>();
     public static IProxy proxy;
@@ -79,7 +81,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     private String lastCurse = "";
     private Random randomGenerator;
     private CreeperHostServerHost implement;
-    Discoverability discoverMode = Discoverability.UNLISTED;
+    public static Discoverability discoverMode = Discoverability.UNLISTED;
     public static int updateID;
     static int tries = 0;
     public IPlayerKicker kicker;
@@ -90,6 +92,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static MineTogether instance;
     public static MinecraftServer server;
     public static String secret;
+    public static PreGenHandler preGenHandler;
 
     public MineTogether()
     {
@@ -100,7 +103,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         eventBus.addListener(this::preInit);
         eventBus.addListener(this::preInitClient);
         eventBus.addListener(this::serverStarting);
-//        eventBus.addListener(this::serverStarted);
+        eventBus.addListener(this::serverStarted);
 
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -109,16 +112,14 @@ public class MineTogether implements ICreeperHostMod, IHost
     public void preInit(FMLCommonSetupEvent event)
     {
         proxy.checkOnline();
-
         proxy.registerKeys();
-
 //        PacketHandler.packetRegister();
     }
 
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
-        ConfigHandler.init();
+        ConfigHandler.init(Dist.CLIENT);
 
         registerImplementation(new CreeperHostServerHost());
 
@@ -145,12 +146,10 @@ public class MineTogether implements ICreeperHostMod, IHost
         jsonObj.put("p", String.valueOf(packID));
 
         Gson gson = new Gson();
-        try //Temp fix until we can figure out why this fails
+        try
         {
             realName = gson.toJson(jsonObj);
-        } catch (Exception ignored)
-        {
-        }
+        } catch (Exception ignored) {}
 
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
@@ -165,60 +164,16 @@ public class MineTogether implements ICreeperHostMod, IHost
                         .then(CommandPregen.register()));
 
         server = event.getServer();
-        deserializePreload(new File(getSaveFolder(), "pregenData.json"));
+        preGenHandler = new PreGenHandler();
     }
 
-//    @SubscribeEvent
-//    public void serverStarted(FMLServerStartedEvent event)
-//    {
-//        if (!MineTogether.instance.active)
-//            return;
-//        final MinecraftServer server = MineTogether.server;
-//        if (server != null && !server.isSinglePlayer())
-//        {
-//            DedicatedServer dediServer = (DedicatedServer) server;
-//            String discoverModeString = dediServer.getStringProperty("discoverability", "unlisted");
-//            String displayNameTemp = dediServer.getStringProperty("displayname", "Fill this in if you have set the server to public!");
-//            String serverIP = dediServer.getStringProperty("server-ip", "");
-//            final String projectid = Config.getInstance().curseProjectID;
-//
-//            if (displayNameTemp.equals("Fill this in if you have set the server to public!") && discoverModeString.equals("unlisted"))
-//            {
-//                File outProperties = new File("minetogether.properties");
-//                if (outProperties.exists())
-//                {
-//                    MineTogetherPropertyManager manager = new MineTogetherPropertyManager(outProperties);
-//                    displayNameTemp = manager.getStringProperty("displayname", "Fill this in if you have set the server to public!");
-//                    discoverModeString = manager.getStringProperty("discoverability", "unlisted");
-//                    serverIP = dediServer.getStringProperty("server-ip", "");
-//                } else
-//                {
-//                    displayNameTemp = "Unknown";
-//                    discoverModeString = "unlisted";
-//                }
-//            }
-//
-//            final String displayName = displayNameTemp;
-//
-//
-//            serverOn = true;
-//            try
-//            {
-//                discoverMode = Discoverability.valueOf(discoverModeString.toUpperCase());
-//            } catch (IllegalArgumentException ignored) {}
-//
-//            if (discoverMode != Discoverability.UNLISTED)
-//            {
-//                Config defConfig = new Config();
-//                if (projectid.isEmpty() || projectid.equals(defConfig.curseProjectID))
-//                {
-//                    MineTogether.logger.warn("Curse project ID in creeperhost.cfg not set correctly - please set this to utilize the server list feature.");
-//                    return;
-//                }
-//                startMinetogetherThread(serverIP, displayName, projectid, server.getServerPort(), discoverMode);
-//            }
-//        }
-//    }
+    @SubscribeEvent
+    public void serverStarted(FMLServerStartedEvent event)
+    {
+        ConfigHandler.init(Dist.DEDICATED_SERVER);
+        new WatchdogHandler();
+        new ServerListHandler();
+    }
 
     @SubscribeEvent
     public void serverStopping(FMLServerStoppingEvent event)
@@ -226,33 +181,16 @@ public class MineTogether implements ICreeperHostMod, IHost
         if (!MineTogether.instance.active)
             return;
         serverOn = false;
-        serializePreload();
-        pregenTasks.clear();
+        preGenHandler.serializePreload();
+        preGenHandler.clear();
     }
 
-    @SuppressWarnings("Duplicates")
     public void saveConfig()
     {
-        FileOutputStream configOut = null;
-        try
+        try (FileOutputStream configOut = new FileOutputStream(configFile))
         {
-            configOut = new FileOutputStream(configFile);
             IOUtils.write(Config.saveConfig(), configOut);
-            configOut.close();
-        } catch (Throwable ignored)
-        {
-        } finally
-        {
-            try
-            {
-                if (configOut != null)
-                {
-                    configOut.close();
-                }
-            } catch (Throwable ignored)
-            {
-            }
-        }
+        } catch (Throwable ignored) {}
 
         if (Config.getInstance().isCreeperhostEnabled())
         {
@@ -373,9 +311,7 @@ public class MineTogether implements ICreeperHostMod, IHost
                     {
                         anonUsersStream.close();
                     }
-                } catch (Throwable ignored)
-                {
-                }
+                } catch (Throwable ignored) {}
             }
             anonLoaded = true;
         }
@@ -416,9 +352,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers));
-        } catch (IOException ignored)
-        {
-        }
+        } catch (IOException ignored) {}
     }
 
     public void muteUser(String user)
@@ -428,9 +362,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-        } catch (IOException ignored)
-        {
-        }
+        } catch (IOException ignored) {}
     }
 
     public void unmuteUser(String user)
@@ -442,9 +374,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-        } catch (IOException ignored)
-        {
-        }
+        } catch (IOException ignored) {}
     }
 
     @Override
@@ -484,42 +414,6 @@ public class MineTogether implements ICreeperHostMod, IHost
         {
             if (t.getName().equals(threadName)) return t;
         }
-        return null;
-    }
-
-    @SuppressWarnings("Duplicates")
-    private void deserializePreload(File file)
-    {
-        Gson gson = new GsonBuilder().create();
-        HashMap output = null;
-        Type listOfPregenTask = new TypeToken<HashMap<DimensionType, PregenTask>>()
-        {
-        }.getType();
-        try
-        {
-            output = gson.fromJson(IOUtils.toString(file.toURI()), listOfPregenTask);
-        } catch (Exception ignored)
-        {
-        }
-        if (output == null)
-            pregenTasks = new HashMap<DimensionType, PregenTask>();
-        else
-            pregenTasks = output;
-
-        Collection<PregenTask> tasks = pregenTasks.values();
-
-        for (PregenTask task : tasks)
-        {
-            task.init();
-        }
-    }
-
-    @SuppressWarnings("Duplicates")
-    public File getSaveFolder()
-    {
-        MinecraftServer server = MineTogether.server;
-        if (server != null && !server.isSinglePlayer())
-            return server.getFile("");
         return null;
     }
 
@@ -604,69 +498,20 @@ public class MineTogether implements ICreeperHostMod, IHost
 
                         if (first)
                         {
-//                            CommandInvite.reloadInvites(new String[0]);
+                            CommandInvite.reloadInvites(new String[0]);
                             first = false;
                         }
                     }
-                } catch (Exception e)
-                {
-                    // so our thread doens't go byebye
-                }
+                } catch (Exception ignored) {}
 
                 try
                 {
                     Thread.sleep(sleepTime);
-                } catch (InterruptedException e)
-                {
-                    // meh
-                }
+                } catch (InterruptedException ignored) {}
             }
         });
         mtThread.setDaemon(true);
         mtThread.start();
-    }
-
-    public void serializePreload()
-    {
-        serializePreload(new File(getSaveFolder(), "pregenData.json"));
-    }
-
-    @SuppressWarnings("Duplicates")
-    private void serializePreload(File file)
-    {
-        FileOutputStream pregenOut = null;
-        Type listOfPregenTask = new TypeToken<HashMap<Integer, PregenTask>>()
-        {
-        }.getType();
-        try
-        {
-            pregenOut = new FileOutputStream(file);
-            Gson gson = new GsonBuilder().create();
-            String output = gson.toJson(pregenTasks, listOfPregenTask);
-            IOUtils.write(output, pregenOut);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean createTask(DimensionType dimension, int xMin, int xMax, int zMin, int zMax, int chunksPerTick, boolean preventJoin)
-    {
-        if (pregenTasks.get(dimension) != null)
-            return false;
-
-        pregenTasks.put(dimension, new PregenTask(dimension, xMin, xMax, zMin, zMax, chunksPerTick, preventJoin));
-
-        return true;
-    }
-
-    public boolean createTask(PregenTask task)
-    {
-        if (pregenTasks.get(task.dimension) != null)
-            return false;
-
-        pregenTasks.put(task.dimension, task);
-        return true;
     }
 
     public void setupPlayerKicker()

@@ -15,6 +15,28 @@ public class GuiTextFieldLockable extends TextFieldWidget
         fontRenderer = fontrendererObj;
     }
 
+//    @Override
+//    public void drawTextBox()
+//    {
+//        super.drawTextBox();
+//        int colour = this.ourEnabled ? -6250336 : 0xFFFF0000;
+//
+//        if (this.getEnableBackgroundDrawing()) {
+//            drawRect(this.xPosition - 1, this.yPosition - 1, this.xPosition + this.width + 1, this.yPosition + this.height + 1, colour);
+//            drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, -16777216);
+//        }
+//        super.drawTextBox();
+//
+//        int x = this.xPosition + 4;
+//        int y = this.yPosition + (this.height - 8) / 2;
+//
+//
+//        if (this.getText().trim().isEmpty() && !this.getOurEnabled())
+//        {
+//            fontRenderer.drawStringWithShadow("\u00A7o" + this.disableText, x, y, 14737632);
+//        }
+//    }
+
     @Override
     public void setEnabled(boolean enabled)
     {
