@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * Created by Aaron on 09/05/2017.
  */
-public class CreeperHostAPI
+public class MineTogetherAPI
 {
     public static ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
 

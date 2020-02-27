@@ -3,7 +3,7 @@ package net.creeperhost.minetogether;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.creeperhost.minetogether.api.CreeperHostAPI;
+import net.creeperhost.minetogether.api.MineTogetherAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
@@ -194,14 +194,14 @@ public class MineTogether implements ICreeperHostMod, IHost
 
         if (Config.getInstance().isCreeperhostEnabled())
         {
-            CreeperHostAPI.implementations.remove(implement);
+            MineTogetherAPI.implementations.remove(implement);
             implement = new CreeperHostServerHost();
-            CreeperHostAPI.registerImplementation(implement);
+            MineTogetherAPI.registerImplementation(implement);
         }
 
         if (!Config.getInstance().isCreeperhostEnabled())
         {
-            CreeperHostAPI.implementations.remove(implement);
+            MineTogetherAPI.implementations.remove(implement);
             implement = null;
         }
     }
@@ -219,13 +219,13 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         if (randomGenerator == null)
             randomGenerator = new Random();
-        if (CreeperHostAPI.getImplementations().size() == 0)
+        if (MineTogetherAPI.getImplementations().size() == 0)
         {
             currentImplementation = null;
             return;
         }
-        int random = randomGenerator.nextInt(CreeperHostAPI.getImplementations().size());
-        currentImplementation = CreeperHostAPI.getImplementations().get(random);
+        int random = randomGenerator.nextInt(MineTogetherAPI.getImplementations().size());
+        currentImplementation = MineTogetherAPI.getImplementations().get(random);
     }
 
     public IServerHost getImplementation()
@@ -236,7 +236,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     @Override
     public void registerImplementation(IServerHost serverHost)
     {
-        CreeperHostAPI.registerImplementation(serverHost);
+        MineTogetherAPI.registerImplementation(serverHost);
     }
 
     @Override
