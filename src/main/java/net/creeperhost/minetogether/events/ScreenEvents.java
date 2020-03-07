@@ -12,6 +12,7 @@ import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.universe7.WorldHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
@@ -148,6 +149,13 @@ public class ScreenEvents
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMTChat(event.getGui()));
             }));
+
+            //TEST
+//            event.addWidget(new Button(event.getGui().width / 2 - 50, 5, 100, 20, I18n.format("Universe 7"), p ->
+//            {
+//                WorldHandler worldHandler = new WorldHandler();
+//                worldHandler.createWorld();
+//            }));
         }
 
         if (event.getGui() instanceof IngameMenuScreen)

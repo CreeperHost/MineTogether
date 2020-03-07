@@ -13,7 +13,7 @@ import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.client.gui.element.GuiActiveFake;
 import net.creeperhost.minetogether.client.gui.element.GuiTextFieldCompatCensor;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.lib.ModInfo;
+import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Pair;
 import net.creeperhost.minetogether.util.WebUtils;
@@ -667,7 +667,7 @@ public class GuiMinigames extends Screen
 
                 if (!minigameTexturesCache.containsKey(game.id))
                 {
-                    ResourceLocation resourceLocation = new ResourceLocation(ModInfo.MOD_ID, "minigame/" + game.id);
+                    ResourceLocation resourceLocation = new ResourceLocation(Constants.MOD_ID, "minigame/" + game.id);
                     BufferedImage imageData = null;
                     try
                     {

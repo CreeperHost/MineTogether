@@ -1,10 +1,9 @@
 package net.creeperhost.minetogether.config;
 
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.lib.ModInfo;
+import net.creeperhost.minetogether.lib.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraftforge.api.distmarker.Dist;
 
 import java.io.File;
@@ -31,12 +30,12 @@ public class ConfigHandler
         {
             try
             {
-                File f1 = new File(configDir + File.separator + ModInfo.MOD_ID + ".json");
+                File f1 = new File(configDir + File.separator + Constants.MOD_ID + ".json");
                 if (!f1.exists())
                 {
                     Config.instance = new Config();
 
-                    FileWriter tileWriter = new FileWriter(configDir + "/" + ModInfo.MOD_ID + ".json");
+                    FileWriter tileWriter = new FileWriter(configDir + "/" + Constants.MOD_ID + ".json");
                     tileWriter.write(Config.saveConfig());
                     tileWriter.close();
                 } else

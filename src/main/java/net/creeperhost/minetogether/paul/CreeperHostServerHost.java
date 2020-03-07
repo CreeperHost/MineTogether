@@ -12,7 +12,7 @@ import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.client.gui.order.GuiModPackList;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.lib.ModInfo;
+import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.client.Minecraft;
@@ -34,8 +34,8 @@ public class CreeperHostServerHost implements IServerHost
 {
     public static Map<String, String> locations = new HashMap<String, String>();
 
-    private ResourceLocation buttonIcon = ModInfo.CREEPER_HOST_BUTTON_LOCATION;
-    private ResourceLocation menuIcon = ModInfo.CREEPER_HOST_MENU_ICON;
+    private ResourceLocation buttonIcon = Constants.CREEPER_HOST_BUTTON_LOCATION;
+    private ResourceLocation menuIcon = Constants.CREEPER_HOST_MENU_ICON;
 
     @Override
     public ResourceLocation getButtonIcon()

@@ -21,7 +21,7 @@ import net.creeperhost.minetogether.events.ScreenEvents;
 import net.creeperhost.minetogether.handler.PreGenHandler;
 import net.creeperhost.minetogether.handler.ServerListHandler;
 import net.creeperhost.minetogether.handler.WatchdogHandler;
-import net.creeperhost.minetogether.lib.ModInfo;
+import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.*;
@@ -54,7 +54,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
-@Mod(value = ModInfo.MOD_ID)
+@Mod(value = Constants.MOD_ID)
 public class MineTogether implements ICreeperHostMod, IHost
 {
     public static final Logger logger = LogManager.getLogger("minetogether");

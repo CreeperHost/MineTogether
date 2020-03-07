@@ -1,8 +1,7 @@
 package net.creeperhost.minetogether.client.gui.element;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.creeperhost.minetogether.lib.ModInfo;
+import net.creeperhost.minetogether.lib.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
@@ -29,8 +28,8 @@ public class GuiButtonCreeper extends Button
         super.renderButton(x, y, partialTicks);
         if (this.visible)
         {
-            ResourceLocation buttonImage = ModInfo.NO_BUTTON_ICON;
-            buttonImage = ModInfo.CREEPER_HOST_BUTTON_LOCATION;
+            ResourceLocation buttonImage = Constants.NO_BUTTON_ICON;
+            buttonImage = Constants.CREEPER_HOST_BUTTON_LOCATION;
             Minecraft.getInstance().getTextureManager().bindTexture(buttonImage);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.blit(this.x, this.y, index * 20, isHovered ? this.height : 0, this.width, this.height);

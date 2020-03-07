@@ -1,12 +1,11 @@
 package net.creeperhost.minetogether.client.gui.order;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.element.GuiTextFieldValidate;
+import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.paul.Callbacks;
-import net.creeperhost.minetogether.paul.Constants;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -16,7 +15,6 @@ import net.minecraftforge.fml.client.gui.widget.Slider;
 
 public class GuiGeneralServerInfo extends GuiGetServer
 {
-    //    private static final GuiSlider.FormatHelper SLIDER_FORMATTER = (id, name, value) -> name + ": " + (int) value;
     private static ResourceLocation lockIcon;
     private TextFieldWidget nameField;
     private Slider slotSlider;
@@ -53,17 +51,6 @@ public class GuiGeneralServerInfo extends GuiGetServer
         int checkboxWidth = this.font.getStringWidth(checkboxString) + 11 + 2;
 
         pregen = new CheckboxButton(halfWidth - (checkboxWidth / 2), 10, 10, halfHeight - 8, checkboxString, order.pregen);
-
-//        if (Config.getInstance().getPregenDiameter() > 0)
-//        {
-//            this.buttonList.add(pregen);
-//        }
-
-//        this.slotSlider = new GuiSlider(this, 1, halfWidth - 100, halfHeight + 15, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
-//        this.slotSlider.setWidth(200);
-//        this.buttonList.add(this.slotSlider);
-//        modpack = new Button(21212, width - 90,  10, 86, 20, "Change Modpack");
-//        buttonList.add(modpack);
     }
 
     @SuppressWarnings("Duplicates")
@@ -94,7 +81,6 @@ public class GuiGeneralServerInfo extends GuiGetServer
 
                 Thread thread = new Thread(task);
                 thread.start();
-                // Done in a thread as to not hold up the UI thread
             }
         }
         this.buttonNext.active = !isEmpty && nameChecked && isAcceptable;
