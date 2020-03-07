@@ -1,12 +1,12 @@
-package net.creeperhost.minetogether.universe7;
+package net.creeperhost.minetogether.universe7.data;
 
 import net.minecraft.entity.player.PlayerEntity;
 import java.util.UUID;
 
 public class EntityData
 {
-    String NAME;
-    UUID UUID;
+    public String NAME;
+    public UUID UUID;
 
     public EntityData(PlayerEntity playerEntity)
     {

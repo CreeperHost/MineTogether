@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.universe7;
+package net.creeperhost.minetogether.universe7.data;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -6,9 +6,9 @@ import net.minecraft.util.ResourceLocation;
 
 public class BlockData
 {
-    private ResourceLocation RESOURCE_LOCATION;
-    private BlockState BLOCK_STATE;
-    private Object[] PROPERTIES;
+    public ResourceLocation RESOURCE_LOCATION;
+    public BlockState BLOCK_STATE;
+    public Object[] PROPERTIES;
 
     public BlockData(Block block)
     {
