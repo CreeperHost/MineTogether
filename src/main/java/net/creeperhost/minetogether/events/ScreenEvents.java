@@ -123,7 +123,7 @@ public class ScreenEvents
                 }
             });
 
-            event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 133, event.getGui().height - 52, 1, p ->
+            event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 133, event.getGui().height - 52, 2, p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen()));
             }));

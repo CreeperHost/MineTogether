@@ -1,8 +1,13 @@
 package net.creeperhost.minetogether.handler;
 
 import net.creeperhost.minetogether.MineTogether;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerPropertiesProvider;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.ServerHangWatchdog;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class WatchdogHandler
 {
@@ -19,13 +24,17 @@ public class WatchdogHandler
         {
             return true;
         }
-
-        MineTogether.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
-
+        
         try
         {
-            watchdogThread.interrupt();
-            return true;
+            if(isEnabled())
+            {
+                MineTogether.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
+    
+                watchdogThread.interrupt();
+                return true;
+            }
+            return false;
         } catch (Throwable e)
         {
             return false;
@@ -44,5 +53,16 @@ public class WatchdogHandler
             thread1.start();
             MineTogether.logger.info("Performing CPR. Server Watchdog is alive again!");
         }
+    }
+    
+    private boolean isEnabled()
+    {
+        Path path = Paths.get("server.properties");
+        ServerPropertiesProvider serverpropertiesprovider = new ServerPropertiesProvider(path);
+        if(serverpropertiesprovider.getProperties().maxTickTime >= 0)
+        {
+            return false;
+        }
+        return true;
     }
 }
