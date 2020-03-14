@@ -119,8 +119,9 @@ public class GuiChatOurs extends ChatScreen
             super.charTyped(typedChar, keyCode);
             return false;
         }
-
-        boolean ourEnabled = ((GuiTextFieldLockable) inputField).getOurEnabled();
+    
+        assert inputField instanceof GuiTextFieldLockable;
+        boolean ourEnabled = inputField instanceof GuiTextFieldLockable && ((GuiTextFieldLockable) inputField).getOurEnabled();
 
         if (!ourEnabled)
         {
