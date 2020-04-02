@@ -4,7 +4,6 @@ import net.creeperhost.minetogether.MineTogether;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.ServerHangWatchdog;
 
-
 public class ServerProxy implements IServerProxy
 {
     @Override

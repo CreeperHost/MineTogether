@@ -217,9 +217,6 @@ public class MineTogether implements ICreeperHostMod, IHost
                     requestedID = Callbacks.getVersionFromApi(base64);
                     Config.getInstance().setVersion(requestedID);
                     
-                    System.out.println(Config.getInstance().getVersion());
-                    System.out.println("ReqestedID: " + requestedID);
-                    
                     this.ftbPackID = "m" + ftbPackID;
                 }
             } catch (IOException ignored)

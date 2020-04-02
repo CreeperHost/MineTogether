@@ -35,18 +35,6 @@ public class ScreenEvents
 
         if (event.getGui() instanceof MainMenuScreen)
         {
-            if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
-            {
-                Minecraft.getInstance().currentScreen = new GuiGDPR(event.getGui());
-            } else
-            {
-                if (first)
-                {
-                    first = false;
-                    MineTogether.proxy.startChat();
-                }
-            }
-
             if (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())
             {
                 MineTogether.instance.setRandomImplementation();

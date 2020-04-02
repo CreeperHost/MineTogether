@@ -66,6 +66,8 @@ public class ChatHandler
 
     private static void addMessageToChat(String target, String user, String message)
     {
+//        System.out.println(System.currentTimeMillis() + ": " + user + ": " + message);
+    
         LimitedSizeQueue<Message> tempQueue = messages.get(target);
         if (tempQueue == null)
         {
@@ -352,7 +354,6 @@ public class ChatHandler
                         if (privateChatList.owner.equals(event.getUser().getNick()))
                         {
                             host.closeGroupChat();
-                            // TODO: make sure the chat closes too
                         }
                     }
                 }
@@ -370,7 +371,6 @@ public class ChatHandler
             if (privateChatList != null && privateChatList.owner.equals(friendNick))
             {
                 host.closeGroupChat();
-                // TODO: make sure the chat closes too
             }
         }
 
@@ -392,6 +392,8 @@ public class ChatHandler
             {
                 t.printStackTrace();
             }
+            
+//            System.out.println(System.currentTimeMillis() + ": " + user.getNick() + ": " + message);
 
             synchronized (ircLock)
             {
@@ -534,7 +536,6 @@ public class ChatHandler
 
                     host.acceptFriend(split[1], builder.toString().trim());
                     addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
-
                 }
             }
         }
