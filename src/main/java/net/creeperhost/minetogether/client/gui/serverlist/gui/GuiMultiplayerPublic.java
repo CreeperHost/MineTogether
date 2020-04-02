@@ -14,6 +14,7 @@ import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
@@ -103,7 +104,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                 }
             });
 
-            if (!hasEntry.get())
+            if (!hasEntry.get() && Config.getInstance().isMpMenuEnabled())
             {
                 serverListSelector.children().add(serverListSelector.children().lastIndexOf(serverListSelector.lanScanEntry), creeperHostEntry);
             }
@@ -315,23 +316,29 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                 blit(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
             }
         }
-
-        public int getRowTop(int p_getRowTop_1_)
+    
+        private int getHeaderHeight()
         {
-            return serverListSelector.getTop() + 4 - (int) serverListSelector.getScrollAmount() + p_getRowTop_1_ * serverListSelector.getHeight() - 64;
+            return ((int)serverListSelector.getScrollAmount() - serverListSelector.getHeight()) - serverListSelector.getScrollBottom();
+        }
+    
+        private int getRowTop(int p_getRowTop_1_)
+        {
+            return serverListSelector.getTop() + 4 - (int)serverListSelector.getScrollAmount() + p_getRowTop_1_ * 36 + getHeaderHeight();
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button)
         {
-            int listWidth = serverListSelector.getRowWidth();
+            int listWidth = ((serverListSelector.getWidth() - serverListSelector.getRowWidth()) / 2) + serverListSelector.getRowWidth();
+            
             int x = serverListSelector.getLeft();
             int y = getRowTop(serverListSelector.children().indexOf(this));
-
-            if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
+            
+            if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY - y >= 0 && mouseY - y <= 7)
             {
                 Config.getInstance().setMpMenuEnabled(false);
-                MineTogether.instance.saveConfig();
+                ConfigHandler.saveConfig();
                 this.mc.displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen()));
                 return true;
             }

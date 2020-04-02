@@ -1,48 +1,41 @@
 package net.creeperhost.minetogether.config;
 
-import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.lib.Constants;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLPaths;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.nio.charset.Charset;
 
 public class ConfigHandler
 {
-    public static void init(Dist dist)
+    public static File CONFIG_LOCATION = new File(FMLPaths.CONFIGDIR.get().toFile() + File.separator + Constants.MOD_ID + ".json");
+    
+    public static void init()
     {
-        File base;
-
-        if(dist == Dist.DEDICATED_SERVER)
+        try
         {
-            MinecraftServer dedicatedServer = MineTogether.server;
-            base = dedicatedServer.getDataDirectory();
-        }
-        else
-        {
-            base = Minecraft.getInstance().gameDir;
-        }
-
-        File configDir = new File(base + File.separator + "config");
-        if (configDir.exists())
-        {
-            try
+            if (!CONFIG_LOCATION.exists())
             {
-                File f1 = new File(configDir + File.separator + Constants.MOD_ID + ".json");
-                if (!f1.exists())
-                {
-                    Config.instance = new Config();
+                Config.instance = new Config();
 
-                    FileWriter tileWriter = new FileWriter(configDir + "/" + Constants.MOD_ID + ".json");
-                    tileWriter.write(Config.saveConfig());
-                    tileWriter.close();
-                } else
-                {
-                    Config.loadFromFile(f1);
-                }
-            } catch (Exception ignored) {}
-        }
+                FileWriter tileWriter = new FileWriter(CONFIG_LOCATION);
+                tileWriter.write(Config.saveConfig());
+                tileWriter.close();
+            } else
+            {
+                Config.loadFromFile(CONFIG_LOCATION);
+            }
+        } catch (Exception ignored) {}
+    }
+    
+    public static void saveConfig()
+    {
+        try (FileOutputStream configOut = new FileOutputStream(CONFIG_LOCATION))
+        {
+            IOUtils.write(Config.saveConfig(), configOut , Charset.defaultCharset());
+        } catch (Throwable ignored) {}
     }
 }

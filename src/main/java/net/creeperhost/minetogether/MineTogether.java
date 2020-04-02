@@ -22,6 +22,7 @@ import net.creeperhost.minetogether.handler.PreGenHandler;
 import net.creeperhost.minetogether.handler.ServerListHandler;
 import net.creeperhost.minetogether.handler.WatchdogHandler;
 import net.creeperhost.minetogether.lib.Constants;
+import net.creeperhost.minetogether.network.PacketHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.paul.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.*;
@@ -32,7 +33,6 @@ import net.creeperhost.minetogether.server.hacky.IPlayerKicker;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -44,6 +44,7 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.versions.forge.ForgeVersion;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -52,6 +53,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Mod(value = Constants.MOD_ID)
@@ -64,7 +66,6 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static IServerProxy serverProxy;
     public final Object inviteLock = new Object();
     public IServerHost currentImplementation;
-    public File configFile;
     public int curServerId = -1;
     public Invite handledInvite;
     public boolean active = true;
@@ -88,6 +89,9 @@ public class MineTogether implements ICreeperHostMod, IHost
 
     public String ourNick;
     public File mutedUsersFile;
+    public String ftbPackID = "";
+    public String base64;
+    public String requestedID;
 
     public static MineTogether instance;
     public static MinecraftServer server;
@@ -113,13 +117,13 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         proxy.checkOnline();
         proxy.registerKeys();
-//        PacketHandler.packetRegister();
+        PacketHandler.register();
     }
 
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
-        ConfigHandler.init(Dist.CLIENT);
+        ConfigHandler.init();
 
         registerImplementation(new CreeperHostServerHost());
 
@@ -130,6 +134,8 @@ public class MineTogether implements ICreeperHostMod, IHost
         File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
         ingameChat = new IngameChat(ingameChatFile);
         ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 15);
+        
+        updateFtbPackID();
 
         HashMap<String, String> jsonObj = new HashMap<>();
 
@@ -140,17 +146,25 @@ public class MineTogether implements ICreeperHostMod, IHost
             packID = Integer.parseInt(Config.getInstance().curseProjectID);
         } catch (NumberFormatException e)
         {
+            if(!ftbPackID.isEmpty())
+            {
+                jsonObj.put("p", ftbPackID);
+                jsonObj.put("b", base64);
+            }
             packID = -1;
         }
 
-        jsonObj.put("p", String.valueOf(packID));
+        if(ftbPackID.isEmpty())
+        {
+            jsonObj.put("p", String.valueOf(packID));
+        }
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         try
         {
             realName = gson.toJson(jsonObj);
         } catch (Exception ignored) {}
-
+        
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
     }
@@ -170,7 +184,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void serverStarted(FMLServerStartedEvent event)
     {
-        ConfigHandler.init(Dist.DEDICATED_SERVER);
+        ConfigHandler.init();
         new WatchdogHandler();
         new ServerListHandler();
     }
@@ -184,25 +198,34 @@ public class MineTogether implements ICreeperHostMod, IHost
         preGenHandler.serializePreload();
         preGenHandler.clear();
     }
-
-    public void saveConfig()
+    
+    public void updateFtbPackID()
     {
-        try (FileOutputStream configOut = new FileOutputStream(configFile))
+        File versions = new File(FMLPaths.GAMEDIR.get().toFile() + File.separator + "version.json");
+        if(versions.exists())
         {
-            IOUtils.write(Config.saveConfig(), configOut ,Charset.defaultCharset());
-        } catch (Throwable ignored) {}
-
-        if (Config.getInstance().isCreeperhostEnabled())
-        {
-            MineTogetherAPI.implementations.remove(implement);
-            implement = new CreeperHostServerHost();
-            MineTogetherAPI.registerImplementation(implement);
-        }
-
-        if (!Config.getInstance().isCreeperhostEnabled())
-        {
-            MineTogetherAPI.implementations.remove(implement);
-            implement = null;
+            try (InputStream stream = new FileInputStream(versions))
+            {
+               JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+                if (json.isJsonObject())
+                {
+                    JsonObject object = json.getAsJsonObject();
+                    String versionID = object.getAsJsonPrimitive("id").getAsString();
+                    String ftbPackID = object.getAsJsonPrimitive("parent").getAsString();
+    
+                    base64 = Base64.getEncoder().encodeToString((ftbPackID + versionID).getBytes());
+                    requestedID = Callbacks.getVersionFromApi(base64);
+                    Config.getInstance().setVersion(requestedID);
+                    
+                    System.out.println(Config.getInstance().getVersion());
+                    System.out.println("ReqestedID: " + requestedID);
+                    
+                    this.ftbPackID = "m" + ftbPackID;
+                }
+            } catch (IOException ignored)
+            {
+                logger.info("versions.json not found returning to curse ID");
+            }
         }
     }
 

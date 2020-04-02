@@ -1,14 +1,20 @@
 var ASMAPI = Java.type("net.minecraftforge.coremod.api.ASMAPI");
 var Opcodes = Java.type("org.objectweb.asm.Opcodes");
+
 var FieldInsnNode = Java.type("org.objectweb.asm.tree.FieldInsnNode");
+
 var TICK = ASMAPI.mapMethod("func_73660_a");
 
- function patch(method, name, patchFunction)
- {
+function log(message) {
+	print("[MineTogether ServerLoginNetHandler Transformer]: " + message);
+}
+
+function patch(method, name, patchFunction) {
 	if (method.name != name) {
 		return false;
 	}
-	print("[MineTogether ServerLoginNetHandler Transformer]: Attempting to patch method: " + name + " (" + method.name + ")");
+
+	log("Patching method: " + name + " (" + method.name + ")");
 	patchFunction(method.instructions);
 	return true;
 }
@@ -28,14 +34,14 @@ function initializeCoreMod() {
 						break;
 					}
 				}
+
 				return classNode;
 			}
 		}
 	};
 }
 
-function patchTick(instructions)
-{
+function patchTick(instructions) {
 	var loginTimeout;
 
 	for (var i = 0; i < instructions.size(); i++) {
@@ -47,6 +53,7 @@ function patchTick(instructions)
 		}
 	}
 
-	instructions.insert(loginTimeout, 5000);
+	instructions.insert(loginTimeout, 50000);
+
 	instructions.remove(loginTimeout);
 }

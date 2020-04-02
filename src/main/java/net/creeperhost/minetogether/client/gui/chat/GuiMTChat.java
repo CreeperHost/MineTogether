@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.client.gui.chat;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
@@ -8,9 +7,12 @@ import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
+import net.creeperhost.minetogether.client.gui.GuiSettings;
 import net.creeperhost.minetogether.client.gui.element.ButtonString;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
+import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.util.ScreenUtils;
@@ -34,7 +36,6 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
 import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -148,6 +149,11 @@ public class GuiMTChat extends Screen
         addButton(friendsButton = new Button(5, 5, 100, 20, "Friends list", p ->
         {
             MineTogether.proxy.openFriendsGui();
+        }));
+        //Settings menu
+        addButton(new GuiButtonMultiple(width - 124, 5,  3, p ->
+        {
+            this.minecraft.displayGuiScreen(new GuiSettings(this));
         }));
         addButton(cancelButton = new Button(width - 100 - 5, height - 5 - 20, 100, 20, "Cancel", p ->
         {
@@ -316,7 +322,7 @@ public class GuiMTChat extends Screen
             if (ChatHandler.privateChatInvite != null)
             {
                 ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
-//                    MineTogether.instance.clearToast(false);
+                ToastHandler.clearToast(false);
             }
         }
         minecraft.displayGuiScreen(new GuiMTChat(new MainMenuScreen()));
@@ -563,9 +569,7 @@ public class GuiMTChat extends Screen
 
                     String friendName = message.messageStr;
 
-                    ITextComponent userComp = new StringTextComponent(friendName + " (" + nickDisplay + ") accepted your friend request.");
-
-                    return userComp;
+                    return new StringTextComponent(friendName + " (" + nickDisplay + ") accepted your friend request.");
             }
         }
 
@@ -577,7 +581,7 @@ public class GuiMTChat extends Screen
                 outputNick = playerName;
             } else
             {
-                if (MineTogether.instance.mutedUsers.contains(inputNick))
+                if (MineTogether.mutedUsers.contains(inputNick))
                     return null;
 
                 String newNick = ChatHandler.getNameForUser(inputNick);
@@ -656,7 +660,7 @@ public class GuiMTChat extends Screen
 
             String name2 = splitString[1];
 
-            if (name2.contains(Config.getInstance().curseProjectID))
+            if (name2.contains(Config.getInstance().curseProjectID) || name2.contains(MineTogether.instance.ftbPackID))
             {
                 userComp.getStyle().setColor(TextFormatting.DARK_PURPLE).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("User on same modpack")));
             }

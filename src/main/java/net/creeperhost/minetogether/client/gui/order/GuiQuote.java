@@ -145,51 +145,6 @@ public class GuiQuote extends GuiGetServer
         this.buttonPrev.active = !refreshing;
     }
 
-//    @Override
-//    public void handleMouseInput() throws IOException
-//    {
-//        super.handleMouseInput();
-//        if (this.countryEnabled)
-//        {
-//            this.list.handleMouseInput();
-//        }
-//    }
-
-    @SuppressWarnings("Duplicates")
-//    @Override
-//    protected void actionPerformed(GuiButton button) throws IOException
-//    {
-//        if (button.id == 8008135)
-//        {
-//            countryOnRelease = true;
-//            this.oldButtonxPrev = this.buttonPrev.xPosition;
-//            this.countryPrev =  (GuiListEntryCountry) this.list.getCurrSelected();
-//            this.oldButtonxNext = this.buttonNext.xPosition;
-//            this.buttonPrev.xPosition = this.buttonNext.xPosition;
-//            this.buttonNext.yPosition = -50;
-//        }
-//
-//        if (countryEnabled && button.id == buttonPrev.id||countryEnabled && button.id == -3)
-//        {
-//            this.countryEnabled = false;
-//            this.buttonPrev.displayString = Util.localize("button.prev");
-//            this.buttonPrev.xPosition = this.oldButtonxPrev;
-//            this.buttonNext.xPosition = this.oldButtonxNext;
-//            this.buttonNext.yPosition = this.buttonPrev.yPosition;
-//            if (changed && button.id != -3)
-//            {
-//                changed = false;
-//                updateSummary();
-//            } else
-//            {
-//                countryButton.visible = true;
-//                list.setCurrSelected(this.countryPrev);
-//            }
-//            return;
-//        }
-//        super.actionPerformed(button);
-//    }
-
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {

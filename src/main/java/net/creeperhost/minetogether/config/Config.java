@@ -24,6 +24,7 @@ public class Config
     private boolean chatEnabled;
     private boolean autoMT;
     private boolean enableFriendOnlineToasts;
+    private boolean enableMainMenuFriends;
 
     private int pregenDiameter = 120;
 
@@ -44,6 +45,7 @@ public class Config
         chatEnabled = true;
         autoMT = true;
         enableFriendOnlineToasts = true;
+        enableMainMenuFriends = true;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
@@ -132,7 +134,12 @@ public class Config
     {
         chatEnabled = value;
     }
-
+    
+    public void setEnableFriendOnlineToasts(boolean enableFriendOnlineToasts)
+    {
+        this.enableFriendOnlineToasts = enableFriendOnlineToasts;
+    }
+    
     public boolean isChatEnabled()
     {
         return chatEnabled;
@@ -152,7 +159,17 @@ public class Config
     {
         return autoMT;
     }
-
+    
+    public boolean isEnableMainMenuFriends()
+    {
+        return enableMainMenuFriends;
+    }
+    
+    public void setEnableMainMenuFriends(boolean enableMainMenuFriends)
+    {
+        this.enableMainMenuFriends = enableMainMenuFriends;
+    }
+    
     public static void makeConfig(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
     {
         if (instance != null)
@@ -170,9 +187,7 @@ public class Config
         {
             FileReader fileReader = new FileReader(file);
             instance = gson.fromJson(fileReader, Config.class);
-        } catch (Exception ignored)
-        {
-        }
+        } catch (Exception ignored) {}
     }
 
     public static String saveConfig()

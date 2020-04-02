@@ -1,47 +1,35 @@
-//package net.creeperhost.minetogether.network;
-//
-//import io.netty.buffer.ByteBuf;
-//import net.creeperhost.minetogether.MineTogether;
-//
-//import static net.creeperhost.minetogether.MineTogether.MOD_ID;
-//
-//public class PacketHandler implements IMessageHandler<PacketHandler.ServerIDMessage, IMessage>
-//{
-//    public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
-//
-//    public static void packetRegister()
-//    {
-//        INSTANCE.registerMessage(PacketHandler.class, ServerIDMessage.class, 0, Side.CLIENT);
-//    }
-//
-//    @Override
-//    public IMessage onMessage(ServerIDMessage message, MessageContext ctx)
-//    {
-//        MineTogether.instance.curServerId = message.serverID;
-//        return null;
-//    }
-//
-//    public static class ServerIDMessage implements IMessage
-//    {
-//        int serverID;
-//
-//        public ServerIDMessage(int serverID)
-//        {
-//            this.serverID = serverID;
-//        }
-//
-//        public ServerIDMessage() {}
-//
-//        @Override
-//        public void fromBytes(ByteBuf buf)
-//        {
-//            serverID = buf.readInt();
-//        }
-//
-//        @Override
-//        public void toBytes(ByteBuf buf)
-//        {
-//            buf.writeInt(serverID);
-//        }
-//    }
-//}
+package net.creeperhost.minetogether.network;
+
+import net.creeperhost.minetogether.lib.Constants;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
+
+public class PacketHandler
+{
+    private static final String PROTOCOL_VERSION = Integer.toString(1);
+    private static final SimpleChannel HANDLER = NetworkRegistry.ChannelBuilder
+            .named(new ResourceLocation(Constants.MOD_ID, "main_channel"))
+            .clientAcceptedVersions(PROTOCOL_VERSION::equals)
+            .serverAcceptedVersions(PROTOCOL_VERSION::equals)
+            .networkProtocolVersion(() -> PROTOCOL_VERSION)
+            .simpleChannel();
+    
+    public static void register()
+    {
+        int disc = 0;
+        
+        HANDLER.registerMessage(disc++, PacketServerID.class, PacketServerID::encode, PacketServerID::decode, PacketServerID.Handler::handle);
+    }
+    
+    public static void sendTo(Object msg, ServerPlayerEntity player)
+    {
+        if (!(player instanceof FakePlayer))
+        {
+            HANDLER.sendTo(msg, player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+        }
+    }
+}

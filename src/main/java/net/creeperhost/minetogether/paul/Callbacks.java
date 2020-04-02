@@ -813,6 +813,25 @@ public final class Callbacks
     {
         return MineTogether.instance.getImplementation().createOrder(order);
     }
+    
+    public static String getVersionFromApi(String packid)
+    {
+        String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
+        try
+        {
+            JsonElement jElement = new JsonParser().parse(resp);
+            JsonObject jObject = jElement.getAsJsonObject();
+            if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
+            {
+                return jObject.getAsJsonPrimitive("id").getAsString();
+            } else
+            {
+                return "";
+            }
+        } catch (Throwable ignored) {}
+        
+        return "";
+    }
 
     public static String getVersionFromCurse(String curse)
     {
@@ -830,9 +849,7 @@ public final class Callbacks
                 {
                     return "0";
                 }
-            } catch (Throwable ignored)
-            {
-            }
+            } catch (Throwable ignored) {}
         }
         return "0";
     }

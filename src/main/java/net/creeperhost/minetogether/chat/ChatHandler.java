@@ -384,9 +384,7 @@ public class ChatHandler
                 if (!curseSync.containsKey(user.getNick()))
                 {
                     if (user.getRealName().isPresent())
-                        curseSync.put(
-                                user.getNick(),
-                                user.getRealName().get());
+                        curseSync.put(user.getNick(), user.getRealName().get());
                     else
                         doWhois(user);
                 }

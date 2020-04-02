@@ -136,19 +136,22 @@ public class ScreenEvents
 
         if (event.getGui() instanceof MainMenuScreen)
         {
-            buttonDrawn = true;
-            event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends"), p ->
+            if(Config.getInstance().isEnableMainMenuFriends())
             {
-                MineTogether.proxy.openFriendsGui();
-            }));
-
-            int x = event.getGui().width - 20 - 5;
-            if (buttonDrawn) x -= 99;
-
-            event.addWidget(new GuiButtonMultiple(x, 5, 1, p ->
-            {
-                Minecraft.getInstance().displayGuiScreen(new GuiMTChat(event.getGui()));
-            }));
+                buttonDrawn = true;
+                event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends"), p ->
+                {
+                    MineTogether.proxy.openFriendsGui();
+                }));
+    
+                int x = event.getGui().width - 20 - 5;
+                if (buttonDrawn) x -= 99;
+    
+                event.addWidget(new GuiButtonMultiple(x, 5, 1, p ->
+                {
+                    Minecraft.getInstance().displayGuiScreen(new GuiMTChat(event.getGui()));
+                }));
+            }
 
             //TEST
 //            event.addWidget(new Button(event.getGui().width / 2 - 50, 5, 100, 20, I18n.format("Universe 7"), p ->

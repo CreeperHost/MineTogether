@@ -116,8 +116,7 @@ public class GuiChatOurs extends ChatScreen
         if (keyCode == 1 && sleep)
         {
             wakeFromSleep();
-            super.charTyped(typedChar, keyCode);
-            return false;
+            return super.charTyped(typedChar, keyCode);
         }
     
         assert inputField instanceof GuiTextFieldLockable;
@@ -233,6 +232,13 @@ public class GuiChatOurs extends ChatScreen
         if (isBase())
         {
             super.init();
+            if (sleep)
+            {
+                addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, I18n.format("multiplayer.stopSleeping"), p ->
+                {
+                    wakeFromSleep();
+                }));
+            }
             return;
         }
 
@@ -281,10 +287,7 @@ public class GuiChatOurs extends ChatScreen
         menuDropdownButton.flipped = false;
         if (sleep)
         {
-            addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, I18n.format("multiplayer.stopSleeping"), p ->
-            {
-                wakeFromSleep();
-            }));
+            addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, I18n.format("multiplayer.stopSleeping"), p -> wakeFromSleep()));
         }
     }
 
@@ -306,6 +309,7 @@ public class GuiChatOurs extends ChatScreen
                         ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);
                         processBadwords();
                     }
+                    minecraft.displayGuiScreen(new GuiChatOurs(presetString, sleep));
                     switchButton.setMessage(ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat");
                 } else
                 {
@@ -327,6 +331,7 @@ public class GuiChatOurs extends ChatScreen
                         e.printStackTrace();
                     }
                 }
+                minecraft.displayGuiScreen(new GuiChatOurs(presetString, sleep));
             }, defaultString, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
         } else
         {
@@ -361,6 +366,7 @@ public class GuiChatOurs extends ChatScreen
                         e.printStackTrace();
                     }
                 }
+                minecraft.displayGuiScreen(new GuiChatOurs(presetString, sleep));
             }, defaultString, I18n.format("minetogether.ingame.chat.global")));
         }
     }

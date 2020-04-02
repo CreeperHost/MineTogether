@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MultiplayerScreen;
@@ -122,15 +123,11 @@ public class CreeperHostEntry extends ServerData
         if (x >= 303 - stringWidth - 2 && x <= 303 - 3 && y >= 0 && y <= 7)
         {
             Config.getInstance().setMpMenuEnabled(false);
-            MineTogether.instance.saveConfig();
+            ConfigHandler.saveConfig();
             this.mc.displayGuiScreen(new MultiplayerScreen(null));
             return true;
         }
         Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
         return true;
-    }
-
-    public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY)
-    {
     }
 }
