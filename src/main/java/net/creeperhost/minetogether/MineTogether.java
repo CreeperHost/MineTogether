@@ -457,6 +457,8 @@ public class MineTogether implements ICreeperHostMod, IHost
         mtThread = new Thread(() ->
         {
             MineTogether.logger.info("Enabling server list. Servers found to be breaking Mojang's EULA may be removed if complaints are received.");
+            MineTogether.logger.info("Test");
+            MineTogether.logger.info(projectid);
             boolean first = true;
             while (serverOn)
             {
@@ -480,7 +482,8 @@ public class MineTogether implements ICreeperHostMod, IHost
                 Gson gson = new Gson();
 
                 String sendStr = gson.toJson(send);
-                
+
+
                 String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
 
                 MineTogether.logger.info(sendStr);
