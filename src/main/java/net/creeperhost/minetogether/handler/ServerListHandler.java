@@ -57,12 +57,12 @@ public class ServerListHandler
             if (MineTogether.discoverMode != MineTogether.Discoverability.UNLISTED)
             {
                 Config defConfig = new Config();
-                if (projectID.isEmpty() || projectID.equals(defConfig.curseProjectID))
+                if ((projectID.isEmpty() || projectID.equals(defConfig.curseProjectID)) && MineTogether.instance.base64 == null)
                 {
-                    MineTogether.logger.warn("Curse project ID in creeperhost.cfg not set correctly - please set this to utilize the server list feature.");
+                    MineTogether.logger.warn("Curse project ID minetogther.cfg not set correctly or version.json doesn't exist - please rectify this to utilize the server list feature.");
                     return;
                 }
-                MineTogether.startMinetogetherThread(serverIP, displayName, projectID, server.getServerPort(), MineTogether.discoverMode);
+                MineTogether.startMinetogetherThread(serverIP, displayName, MineTogether.instance.base64 == null ? projectID : MineTogether.instance.base64, server.getServerPort(), MineTogether.discoverMode);
             }
         }
     }

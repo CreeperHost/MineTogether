@@ -115,6 +115,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInit(FMLCommonSetupEvent event)
     {
+        updateFtbPackID();
         proxy.checkOnline();
         proxy.registerKeys();
         PacketHandler.register();
@@ -134,8 +135,6 @@ public class MineTogether implements ICreeperHostMod, IHost
         File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
         ingameChat = new IngameChat(ingameChatFile);
         ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 15);
-        
-        updateFtbPackID();
 
         HashMap<String, String> jsonObj = new HashMap<>();
 

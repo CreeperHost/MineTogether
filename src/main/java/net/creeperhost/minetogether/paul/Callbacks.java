@@ -664,12 +664,12 @@ public final class Callbacks
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
-                        list.add(new Server("No project ID! Please fix the MineTogether config.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
+                        list.add(new Server("No project ID! Please fix the MineTogether config or ensure a version.json exists.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
                         return list;
                     }
 
                     Map<String, String> jsonPass = new HashMap<String, String>();
-                    jsonPass.put("projectid", Config.getInstance().curseProjectID);
+                    jsonPass.put("projectid", MineTogether.instance.base64 == null ? Config.getInstance().curseProjectID : MineTogether.instance.base64);
                     if (enumOrdinal == 1)
                     {
                         if (playerHash == null)
@@ -726,7 +726,7 @@ public final class Callbacks
 
                                 String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
 
-                                applicationURL = "https://www.google.com"; // MAKE SURE TO REMOVE
+                                //applicationURL = "https://www.google.com"; // MAKE SURE TO REMOVE
 
                                 list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL));
                             }

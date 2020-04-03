@@ -956,7 +956,7 @@ public class GuiMinigames extends Screen
                                     ip = map.get("ip").toString();
                                     port = Double.valueOf(map.get("port").toString()).intValue();
                                     MineTogether.serverOn = true;
-                                    MineTogether.startMinetogetherThread(map.get("ip").toString(), "Minigame: " + Minecraft.getInstance().getSession().getUsername(), Config.getInstance().curseProjectID, port, MineTogether.Discoverability.INVITE);
+                                    MineTogether.startMinetogetherThread(map.get("ip").toString(), "Minigame: " + Minecraft.getInstance().getSession().getUsername(), MineTogether.instance.base64 == null ? Config.getInstance().curseProjectID : MineTogether.instance.base64, port, MineTogether.Discoverability.INVITE);
                                     while (true)
                                     {
                                         if (MineTogether.isActive)
