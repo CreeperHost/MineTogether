@@ -487,6 +487,8 @@ public class MineTogether implements ICreeperHostMod, IHost
 
                 try
                 {
+                    MineTogether.logger.info(sendStr);
+                    MineTogether.logger.info(resp);
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
                     {

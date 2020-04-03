@@ -686,6 +686,8 @@ public final class Callbacks
                     String jsonString = gson.toJson(jsonPass);
 
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
+                    MineTogether.logger.info(jsonString);
+                    MineTogether.logger.info(resp);
 
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
