@@ -164,13 +164,13 @@ public class GuiGDPR extends Screen
 
         this.addButton(declineButton = new Button(50, (gdprlines.size() * 10) + 50, 80, 20, "Decline", b ->
         {
-            Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
+            Minecraft.getInstance().displayGuiScreen(parent);
         }));
         this.addButton(acceptButton = new Button(width - 80 - 50, (gdprlines.size() * 10) + 50, 80, 20, "Accept", b ->
         {
             MineTogether.instance.gdpr.setAcceptedGDPR();
             MineTogether.proxy.startChat();
-            Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
+            Minecraft.getInstance().displayGuiScreen(parent);
         }));
     }
 

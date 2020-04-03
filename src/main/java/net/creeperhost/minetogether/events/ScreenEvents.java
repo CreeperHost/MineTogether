@@ -73,7 +73,14 @@ public class ScreenEvents
 
             event.addWidget(new Button(x.get(), y.get(), width.get(), height.get(), I18n.format("menu.multiplayer"), p ->
             {
-                Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(event.getGui()));
+                if (MineTogether.instance.gdpr.hasAcceptedGDPR())
+                {
+                    Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(event.getGui()));
+                }
+                else
+                    {
+                        Minecraft.getInstance().displayGuiScreen(new MultiplayerScreen(event.getGui()));
+                    }
             }));
         }
 
@@ -194,7 +201,10 @@ public class ScreenEvents
             }
             try
             {
-                event.setGui(new GuiChatOurs(presetString, sleep));
+                if(MineTogether.instance.gdpr.hasAcceptedGDPR())
+                {
+                    event.setGui(new GuiChatOurs(presetString, sleep));
+                }
             } catch (Exception ignored)
             {
             }
