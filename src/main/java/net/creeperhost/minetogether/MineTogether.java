@@ -182,6 +182,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void serverStarted(FMLServerStartedEvent event)
     {
+        MineTogether.serverOn = true;
         new WatchdogHandler();
         new ServerListHandler();
     }
@@ -457,45 +458,33 @@ public class MineTogether implements ICreeperHostMod, IHost
         mtThread = new Thread(() ->
         {
             MineTogether.logger.info("Enabling server list. Servers found to be breaking Mojang's EULA may be removed if complaints are received.");
-            MineTogether.logger.info("Test");
-            MineTogether.logger.info(projectid);
             boolean first = true;
-            System.out.println(serverOn);
             while (serverOn)
             {
-                String resp = "";
+                Map send = new HashMap<String, String>();
+
+                if (!serverIP.isEmpty())
+                {
+                    send.put("ip", serverIP);
+                }
+
+                if (MineTogether.secret != null)
+                    send.put("secret", MineTogether.secret);
+                send.put("name", displayName);
+                send.put("projectid", projectid);
+                send.put("port", String.valueOf(port));
+
+                send.put("invite-only", discoverMode == Discoverability.INVITE ? "1" : "0");
+
+                send.put("version", 2);
+
+                Gson gson = new Gson();
+
+                String sendStr = gson.toJson(send);
+
+                String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
 
                 int sleepTime = 90000;
-                try {
-                    Map send = new HashMap<String, String>();
-
-                    if (!serverIP.isEmpty()) {
-                        send.put("ip", serverIP);
-                    }
-
-                    if (MineTogether.secret != null)
-                        send.put("secret", MineTogether.secret);
-                    send.put("name", displayName);
-                    send.put("projectid", projectid);
-                    send.put("port", String.valueOf(port));
-
-                    send.put("invite-only", discoverMode == Discoverability.INVITE ? "1" : "0");
-
-                    send.put("version", 2);
-
-                    Gson gson = new Gson();
-
-                    String sendStr = gson.toJson(send);
-
-
-                    resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
-
-                    MineTogether.logger.info(sendStr);
-                    MineTogether.logger.info(resp);
-
-                } catch (Throwable e) {
-                    MineTogether.logger.error("WUT IS GOING ON IN HERE", e);
-                }
 
                 try
                 {
@@ -531,9 +520,7 @@ public class MineTogether implements ICreeperHostMod, IHost
                             first = false;
                         }
                     }
-                } catch (Exception ignored) {
-                    ignored.printStackTrace();
-                }
+                } catch (Exception ignored) {}
 
                 try
                 {
