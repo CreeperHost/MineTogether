@@ -460,6 +460,7 @@ public class MineTogether implements ICreeperHostMod, IHost
             MineTogether.logger.info("Test");
             MineTogether.logger.info(projectid);
             boolean first = true;
+            System.out.println(serverOn);
             while (serverOn)
             {
                 String resp = "";
@@ -492,8 +493,8 @@ public class MineTogether implements ICreeperHostMod, IHost
                     MineTogether.logger.info(sendStr);
                     MineTogether.logger.info(resp);
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Throwable e) {
+                    MineTogether.logger.error("WUT IS GOING ON IN HERE", e);
                 }
 
                 try
