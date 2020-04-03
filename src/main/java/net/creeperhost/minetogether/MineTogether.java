@@ -462,34 +462,39 @@ public class MineTogether implements ICreeperHostMod, IHost
             boolean first = true;
             while (serverOn)
             {
-                Map send = new HashMap<String, String>();
-
-                if (!serverIP.isEmpty())
-                {
-                    send.put("ip", serverIP);
-                }
-
-                if (MineTogether.secret != null)
-                    send.put("secret", MineTogether.secret);
-                send.put("name", displayName);
-                send.put("projectid", projectid);
-                send.put("port", String.valueOf(port));
-
-                send.put("invite-only", discoverMode == Discoverability.INVITE ? "1" : "0");
-
-                send.put("version", 2);
-
-                Gson gson = new Gson();
-
-                String sendStr = gson.toJson(send);
-
-
-                String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
-
-                MineTogether.logger.info(sendStr);
-                MineTogether.logger.info(resp);
+                String resp = "";
 
                 int sleepTime = 90000;
+                try {
+                    Map send = new HashMap<String, String>();
+
+                    if (!serverIP.isEmpty()) {
+                        send.put("ip", serverIP);
+                    }
+
+                    if (MineTogether.secret != null)
+                        send.put("secret", MineTogether.secret);
+                    send.put("name", displayName);
+                    send.put("projectid", projectid);
+                    send.put("port", String.valueOf(port));
+
+                    send.put("invite-only", discoverMode == Discoverability.INVITE ? "1" : "0");
+
+                    send.put("version", 2);
+
+                    Gson gson = new Gson();
+
+                    String sendStr = gson.toJson(send);
+
+
+                    resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
+
+                    MineTogether.logger.info(sendStr);
+                    MineTogether.logger.info(resp);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 try
                 {
