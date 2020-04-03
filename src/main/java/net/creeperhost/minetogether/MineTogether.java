@@ -480,15 +480,16 @@ public class MineTogether implements ICreeperHostMod, IHost
                 Gson gson = new Gson();
 
                 String sendStr = gson.toJson(send);
-
+                
                 String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
+
+                MineTogether.logger.info(sendStr);
+                MineTogether.logger.info(resp);
 
                 int sleepTime = 90000;
 
                 try
                 {
-                    MineTogether.logger.info(sendStr);
-                    MineTogether.logger.info(resp);
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
                     {
@@ -521,7 +522,9 @@ public class MineTogether implements ICreeperHostMod, IHost
                             first = false;
                         }
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                    ignored.printStackTrace();
+                }
 
                 try
                 {
