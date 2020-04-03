@@ -172,6 +172,17 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         {
             this.renderTooltip(Lists.newArrayList(Splitter.on("\n").split(ourTooltip)), mouseX, mouseY);
         }
+        
+        if(listType != null)
+        {
+            buttons.forEach(c ->
+            {
+                if(c.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")))
+                {
+                    c.active = false;
+                }
+            });
+        }
     }
 
     public enum SortOrder implements DropdownButton.IDropdownOption
