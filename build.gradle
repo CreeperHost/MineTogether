@@ -109,6 +109,8 @@ jar {
     }
 }
 
+targetCompatibility = sourceCompatibility = '1.8'
+
 dependencies {
     minecraft 'net.minecraftforge:forge:1.15.2-31.1.35'
 

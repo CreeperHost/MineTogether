@@ -115,6 +115,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInit(FMLCommonSetupEvent event)
     {
+        ConfigHandler.init();
         updateFtbPackID();
         proxy.checkOnline();
         proxy.registerKeys();
@@ -124,8 +125,6 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
-        ConfigHandler.init();
-
         registerImplementation(new CreeperHostServerHost());
 
         File gdprFile = new File("local/minetogether/gdpr.txt");
@@ -183,7 +182,6 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void serverStarted(FMLServerStartedEvent event)
     {
-        ConfigHandler.init();
         new WatchdogHandler();
         new ServerListHandler();
     }
