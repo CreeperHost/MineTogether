@@ -54,7 +54,7 @@ public class GuiButtonChat extends Button
                 l1 = 256;
             }
 
-            blit(x, y, x + width, y + height, l1 / 2 << 24, 0);
+            fill(x, y, x + width, y + height, l1 / 2 << 24);
 
             this.drawCenteredString(fontrenderer, this.buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
 

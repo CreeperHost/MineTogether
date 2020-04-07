@@ -35,6 +35,7 @@ public class GuiChatOurs extends ChatScreen
     private boolean sleep;
     private boolean disabledDueToBadwords;
     Minecraft mc = Minecraft.getInstance();
+    private TabCompleter tabCompleter;
 
     public GuiChatOurs(String presetString, boolean sleep)
     {
@@ -102,6 +103,10 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {
+//        if(tabCompleter != null)
+//        {
+//            tabCompleter.complete();
+//        }
         return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
     }
 
@@ -257,6 +262,7 @@ public class GuiChatOurs extends ChatScreen
         this.inputField.setFocused2(true);
         this.inputField.setText(oldInputField.getText());
         this.inputField.setCanLoseFocus(false);
+        this.tabCompleter = new TabCompleter(inputField);
         List<String> strings = new ArrayList<>();
 
         strings.add(I18n.format("minetogether.chat.button.mute"));

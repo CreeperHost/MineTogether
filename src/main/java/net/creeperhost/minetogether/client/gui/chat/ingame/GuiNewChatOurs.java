@@ -316,7 +316,7 @@ public class GuiNewChatOurs extends NewChatGui
             {
                 int l1 = 255;
                 int j2 = -line * 9;
-                blit(-2, j2 - 9, k + 4, j2, l1 / 2 << 24, 0);
+                fill(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
             }
 
             RenderSystem.popMatrix();

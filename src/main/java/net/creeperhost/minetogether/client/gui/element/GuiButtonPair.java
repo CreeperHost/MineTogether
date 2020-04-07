@@ -99,24 +99,20 @@ public class GuiButtonPair extends Button
 
             mouseX = yDiff / scale;
             mouseY = (xDiff / scale) + height;
+            int buttWidth = width / buttons.size();
 
+            for (int buttNum = 0; buttNum < buttonCount; buttNum++)
             {
-                int buttWidth = width / buttons.size();
-
-                for (int buttNum = 0; buttNum < buttonCount; buttNum++)
+                GuiButtonChat button = buttons.get(buttNum);
+                int visibleNum = buttNum;
+                if (swapOnClick)
                 {
-                    GuiButtonChat button = buttons.get(buttNum);
-                    int visibleNum = buttNum;
-                    if (swapOnClick)
-                    {
-                        visibleNum = (buttNum + buttonCount - activeButton) % buttonCount;
-                    }
-                    cachedX[buttNum] = button.x;
-                    cachedY[buttNum] = button.y;
-                    button.x = buttWidth * visibleNum;
-                    button.y = 0;
+                    visibleNum = (buttNum + buttonCount - activeButton) % buttonCount;
                 }
-
+                cachedX[buttNum] = button.x;
+                cachedY[buttNum] = button.y;
+                button.x = buttWidth * visibleNum;
+                button.y = 0;
             }
 
             RenderSystem.scaled(scale, scale, scale);
