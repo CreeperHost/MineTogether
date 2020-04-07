@@ -31,7 +31,7 @@ public class ServerListPublic extends ServerList
         if (servers == null) servers = Lists.newArrayList();
         servers.clear();
         List<Server> list = Callbacks.getServerList(owner.listType);
-
+        
         for (Server server : list)
         {
             servers.add(new ServerDataPublic(server));

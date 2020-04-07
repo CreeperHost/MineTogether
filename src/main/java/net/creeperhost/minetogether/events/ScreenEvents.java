@@ -35,6 +35,11 @@ public class ScreenEvents
 
         if (event.getGui() instanceof MainMenuScreen)
         {
+            if(MineTogether.instance.gdpr.hasAcceptedGDPR() && first)
+            {
+                first = false;
+                MineTogether.proxy.startChat();
+            }
             if (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())
             {
                 MineTogether.instance.setRandomImplementation();
@@ -120,7 +125,7 @@ public class ScreenEvents
 
             event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 133, event.getGui().height - 52, 2, p ->
             {
-                Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen()));
+                Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(((GuiMultiplayerPublic) event.getGui()).parent, ((GuiMultiplayerPublic) event.getGui()).listType, ((GuiMultiplayerPublic) event.getGui()).sortOrder));
             }));
 
             event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 75, 20, "Minigames", p ->
@@ -181,7 +186,7 @@ public class ScreenEvents
     {
         Screen screen = event.getGui();
 
-        if (screen instanceof ChatScreen && Config.getInstance().isChatEnabled() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
+        if (screen instanceof ChatScreen && Config.getInstance().isChatEnabled() && !MineTogether.instance.ingameChat.hasDisabledIngameChat() && MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
             String presetString = "";
             boolean sleep = false;
@@ -201,10 +206,7 @@ public class ScreenEvents
             }
             try
             {
-                if(MineTogether.instance.gdpr.hasAcceptedGDPR())
-                {
-                    event.setGui(new GuiChatOurs(presetString, sleep));
-                }
+                event.setGui(new GuiChatOurs(presetString, sleep));
             } catch (Exception ignored)
             {
             }

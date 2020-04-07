@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.client.gui.serverlist.gui;
 
 import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListEntryPublic;
+import net.creeperhost.minetogether.client.gui.serverlist.data.ServerSelectionListOurs;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.screen.Screen;
@@ -14,7 +14,7 @@ import net.minecraft.util.text.StringTextComponent;
 public class GuiInvited extends Screen
 {
     private final Invite invite;
-    private final ServerListEntryPublic server;
+    private final ServerSelectionListOurs.ServerListEntryPublic server;
     private final Screen parent;
     private final boolean canConnect;
     private Button connectButton;
@@ -78,7 +78,7 @@ public class GuiInvited extends Screen
         this.drawCenteredString(this.font, I18n.format("creeperhost.multiplayer.invite"), this.width / 2, 10, -1);
 
         this.drawCenteredString(this.font, I18n.format("creeperhost.multiplayer.invited", invite.by), this.width / 2, yBase, -1);
-        server.ourDrawEntry(0, (this.width / 2) - 125, yBase + 20, 250, 36, Integer.MAX_VALUE, Integer.MAX_VALUE, false);
+        server.render(0, (this.width / 2) - 125, yBase + 20, 250, 36, Integer.MAX_VALUE, Integer.MAX_VALUE, false, 0);
         this.drawCenteredString(this.font, Util.localize(canConnect ? "multiplayer.join" : "multiplayer.cantjoin", invite.by), this.width / 2, yBase + 36 + 30, -1);
 
         super.render(mouseX, mouseY, partialTicks);

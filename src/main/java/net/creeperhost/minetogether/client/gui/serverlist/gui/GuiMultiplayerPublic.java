@@ -12,9 +12,11 @@ import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
+import net.creeperhost.minetogether.client.gui.serverlist.data.ServerSelectionListOurs;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
@@ -22,10 +24,13 @@ import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ServerSelectionList;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.network.LanServerDetector;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,14 +39,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GuiMultiplayerPublic extends MultiplayerScreen
 {
     public ListType listType = null;
-    public SortOrder sortOrder = SortOrder.PING;
-    private Screen parent;
+    public SortOrder sortOrder = SortOrder.RANDOM;
+    public Screen parent;
     private boolean changeSort;
     private String ourTooltip;
     public boolean selectedListType = false;
     private DropdownButton<SortOrder> sortOrderButton;
     private Minecraft mc = Minecraft.getInstance();
-
+    public ServerSelectionListOurs serverListSelectorOurs;
+    private boolean initialized;
+    private ServerListPublic ourSavedServerList = null;
+    
     public GuiMultiplayerPublic(Screen parentScreen)
     {
         super(parentScreen);
@@ -71,9 +79,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMultiplayerPublic(parent, listType, sortOrder)));
             return;
         }
-
-        super.init();
-
+        
         addButton(new Button(width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"), p ->
         {
             if (changeSort)
@@ -89,10 +95,14 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         }));
 
         mc.keyboardListener.enableRepeatEvents(true);
-
-        CreeperHostEntry creeperHostEntry = new CreeperHostEntry(serverListSelector);
+        
+        super.init();
+        
+        CreeperHostEntry creeperHostEntry = new CreeperHostEntry(serverListSelectorOurs);
 
         AtomicBoolean hasEntry = new AtomicBoolean(false);
+        
+        serverListSelector.serverListInternet.clear();
 
         if (listType == null && !hasEntry.get())
         {
@@ -115,20 +125,28 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             ServerListPublic serverListPublic = new ServerListPublic(mc, this);
             serverListPublic.loadServerList();
 
-            setServerList(serverListPublic);
+            this.serverListSelectorOurs = new ServerSelectionListOurs(this, this.minecraft, this.width, this.height, 32, this.height - 64, 36);
+            this.serverListSelectorOurs.updateOnlineServers(serverListPublic);
 
-            addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false, p ->
+            setServerList(serverListPublic);
+        }
+    
+        addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false, p ->
+        {
+            if(sortOrder != sortOrderButton.getSelected())
             {
                 changeSort = true;
                 sortOrder = sortOrderButton.getSelected();
+                sortOrder = SortOrder.UPTIME;
                 sort();
-            }));
-        }
+                minecraft.displayGuiScreen(new GuiMultiplayerPublic(parent, listType, sortOrder));
+            }
+        }));
     }
 
     private void setServerList(ServerListPublic serverList)
     {
-        serverListSelector.updateOnlineServers(serverList);
+        serverListSelectorOurs.updateOnlineServers(serverList);
     }
 
     public void sort()
@@ -137,22 +155,22 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         {
             default:
             case RANDOM:
-                Collections.shuffle(serverListSelector.serverListInternet);
+                Collections.shuffle(serverListSelectorOurs.serverListInternetOurs);
                 break;
             case PLAYER:
-                serverListSelector.serverListInternet.sort(Server.PlayerComparator.INSTANCE);
+                serverListSelectorOurs.serverListInternetOurs.sort(Server.PlayerComparator.INSTANCE);
                 break;
-//            case UPTIME:
-//                Collections.sort(serverListSelector.serverListInternet, Server.UptimeComparator.INSTANCE);
-//                break;
+            case UPTIME:
+                serverListSelectorOurs.serverListInternetOurs.sort(Server.UptimeComparator.INSTANCE);
+                break;
             case NAME:
-                serverListSelector.serverListInternet.sort(Server.NameComparator.INSTANCE);
+                serverListSelectorOurs.serverListInternetOurs.sort(Server.NameComparator.INSTANCE);
                 break;
-//            case LOCATION:
-//                Collections.sort(serverListSelector.serverListInternet, Server.LocationComparator.INSTANCE);
-//                break;
+            case LOCATION:
+                serverListSelectorOurs.serverListInternetOurs.sort(Server.LocationComparator.INSTANCE);
+                break;
             case PING:
-                serverListSelector.serverListInternet.sort(Server.PingComparator.INSTANCE);
+                serverListSelectorOurs.serverListInternet.sort(Server.PingComparator.INSTANCE);
                 break;
         }
     }
@@ -162,12 +180,16 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     {
         ourTooltip = null;
         super.render(mouseX, mouseY, partialTicks);
+        if(serverListSelectorOurs != null)
+        {
+            this.serverListSelectorOurs.render(mouseX, mouseY, partialTicks);
+        }
+        this.drawCenteredString(this.font, this.title.getFormattedText(), this.width / 2, 20, 16777215);
 
         if (listType != null)
         {
             drawCenteredString(font, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
         }
-
         if (this.ourTooltip != null)
         {
             this.renderTooltip(Lists.newArrayList(Splitter.on("\n").split(ourTooltip)), mouseX, mouseY);
@@ -183,8 +205,32 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                 }
             });
         }
+        
+        this.buttons.forEach(button -> button.render(mouseX, mouseY, partialTicks));
     }
-
+    
+    @Override
+    public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
+    {
+        boolean flag = super.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
+        if(serverListSelectorOurs != null && serverListSelectorOurs.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_))
+        {
+            return serverListSelectorOurs.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
+    {
+        boolean flag = super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+        if(serverListSelectorOurs != null && serverListSelectorOurs.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_))
+        {
+            return serverListSelectorOurs.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+        }
+        return flag;
+    }
+    
     public enum SortOrder implements DropdownButton.IDropdownOption
     {
         RANDOM("random"),
@@ -330,21 +376,21 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     
         private int getHeaderHeight()
         {
-            return ((int)serverListSelector.getScrollAmount() - serverListSelector.getHeight()) - serverListSelector.getScrollBottom();
+            return ((int)serverListSelectorOurs.getScrollAmount() - serverListSelectorOurs.getHeight()) - serverListSelectorOurs.getScrollBottom();
         }
     
         private int getRowTop(int p_getRowTop_1_)
         {
-            return serverListSelector.getTop() + 4 - (int)serverListSelector.getScrollAmount() + p_getRowTop_1_ * 36 + getHeaderHeight();
+            return serverListSelectorOurs.getTop() + 4 - (int)serverListSelectorOurs.getScrollAmount() + p_getRowTop_1_ * 36 + getHeaderHeight();
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button)
         {
-            int listWidth = ((serverListSelector.getWidth() - serverListSelector.getRowWidth()) / 2) + serverListSelector.getRowWidth();
+            int listWidth = ((serverListSelectorOurs.getWidth() - serverListSelectorOurs.getRowWidth()) / 2) + serverListSelectorOurs.getRowWidth();
             
-            int x = serverListSelector.getLeft();
-            int y = getRowTop(serverListSelector.children().indexOf(this));
+            int x = serverListSelectorOurs.getLeft();
+            int y = getRowTop(serverListSelectorOurs.children().indexOf(this));
             
             if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY - y >= 0 && mouseY - y <= 7)
             {

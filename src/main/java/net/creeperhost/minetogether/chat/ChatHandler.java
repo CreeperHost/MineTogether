@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.chat;
 
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
@@ -281,7 +282,8 @@ public class ChatHandler
                     client.shutdown();
                     addMessageToChat(event.getChannel().getName(), "System", "Unable to rejoin chat. Disconnected from server");
                 }
-                addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Removed from chat (Reason: " + reason + "). Rejoining"));
+                addMessageToChat(event.getChannel().getName(), "System", "Disconnected From chat Rejoining");
+                MineTogether.instance.getLogger().error(Format.stripAll(reason));
                 connectionStatus = ConnectionStatus.NOT_IN_CHANNEL;
             }
         }
@@ -309,10 +311,11 @@ public class ChatHandler
                 if (tries >= 5)
                 {
                     event.setAttemptReconnect(false);
-                    addMessageToChat(CHANNEL, "System", Format.stripAll("Disconnected (Reason: " + cause + "). Too many tries, not reconnecting"));
+                    addMessageToChat(CHANNEL, "System", "Disconnected From chat Rejoining");
                     return;
                 }
-                addMessageToChat(CHANNEL, "System", Format.stripAll("Disconnected (Reason: " + cause + "). Reconnecting"));
+                addMessageToChat(CHANNEL, "System", "Disconnected From chat Rejoining");
+                MineTogether.instance.getLogger().error(Format.stripAll(cause));
                 event.setReconnectionDelay(10000);
                 event.setAttemptReconnect(true);
             }
@@ -393,8 +396,6 @@ public class ChatHandler
                 t.printStackTrace();
             }
             
-//            System.out.println(System.currentTimeMillis() + ": " + user.getNick() + ": " + message);
-
             synchronized (ircLock)
             {
                 addMessageToChat(event.getChannel().getName(), user.getNick(), Format.stripAll(message));
