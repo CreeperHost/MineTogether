@@ -415,6 +415,11 @@ public class GuiChatOurs extends ChatScreen
             int y = height - 40 - (mc.fontRenderer.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
             mc.fontRenderer.drawString(str, x, y, 0xFFFFFF);
         }
+        
+        if(tabCompleter != null)
+        {
+            tabCompleter.render(mouseX, mouseY, partialTicks);
+        }
     }
 
     private void wakeFromSleep()

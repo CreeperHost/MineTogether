@@ -27,4 +27,9 @@ public class TabCompleter
             suggestions = ChatHandler.getOnlineUsers().stream().filter(name -> ChatHandler.anonUsers.containsKey(name) || ChatHandler.friends.containsKey(name)).map(s -> MineTogether.instance.getNameForUser(s)).filter(nick -> nick.toLowerCase().startsWith(lastWord.toLowerCase().replaceFirst("@", ""))).toArray(String[]::new);
         }
     }
+    
+    public void render(int mouseX, int mouseY, float partialTicks)
+    {
+    
+    }
 }

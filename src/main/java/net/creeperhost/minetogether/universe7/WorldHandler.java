@@ -45,7 +45,7 @@ public class WorldHandler
 
         try
         {
-            this.saveDirName = FileUtil.func_214992_a(this.minecraft.getSaveLoader().func_215781_c(), this.saveDirName, "");
+            this.saveDirName = FileUtil.func_214992_a(this.minecraft.getSaveLoader().getSavesDir(), this.saveDirName, "");
         }
         catch (Exception var4)
         {
@@ -53,7 +53,7 @@ public class WorldHandler
 
             try
             {
-                this.saveDirName = FileUtil.func_214992_a(this.minecraft.getSaveLoader().func_215781_c(), this.saveDirName, "");
+                this.saveDirName = FileUtil.func_214992_a(this.minecraft.getSaveLoader().getSavesDir(), this.saveDirName, "");
             } catch (Exception exception) { throw new RuntimeException("Could not create save folder", exception); }
         }
     }

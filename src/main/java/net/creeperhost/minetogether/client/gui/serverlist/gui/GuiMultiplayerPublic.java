@@ -376,22 +376,22 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     
         private int getHeaderHeight()
         {
-            return ((int)serverListSelectorOurs.getScrollAmount() - serverListSelectorOurs.getHeight()) - serverListSelectorOurs.getScrollBottom();
+            return ((int)serverListSelector.getScrollAmount() - serverListSelector.getHeight()) - serverListSelector.getScrollBottom();
         }
     
         private int getRowTop(int p_getRowTop_1_)
         {
-            return serverListSelectorOurs.getTop() + 4 - (int)serverListSelectorOurs.getScrollAmount() + p_getRowTop_1_ * 36 + getHeaderHeight();
+            return serverListSelector.getTop() + 4 - (int)serverListSelector.getScrollAmount() + p_getRowTop_1_ * 36 + getHeaderHeight();
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button)
         {
-            int listWidth = ((serverListSelectorOurs.getWidth() - serverListSelectorOurs.getRowWidth()) / 2) + serverListSelectorOurs.getRowWidth();
-            
-            int x = serverListSelectorOurs.getLeft();
-            int y = getRowTop(serverListSelectorOurs.children().indexOf(this));
-            
+            int listWidth = ((serverListSelector.getWidth() - serverListSelector.getRowWidth()) / 2) + serverListSelector.getRowWidth();
+
+            int x = serverListSelector.getLeft();
+            int y = getRowTop(serverListSelector.children().indexOf(this));
+
             if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY - y >= 0 && mouseY - y <= 7)
             {
                 Config.getInstance().setMpMenuEnabled(false);
