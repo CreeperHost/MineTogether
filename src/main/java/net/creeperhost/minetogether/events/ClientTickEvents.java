@@ -24,14 +24,14 @@ public class ClientTickEvents
     Minecraft mc = Minecraft.getInstance();
     private Thread inviteCheckThread;
     private int inviteTicks = -1;
-
+    
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
     {
         inviteTicks = (inviteTicks + 1) % 20;
         if (inviteTicks != 0)
             return;
-
+        
         if (Config.getInstance().isServerListEnabled() && MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
             if (inviteCheckThread == null)
@@ -42,18 +42,18 @@ public class ClientTickEvents
                     {
                         Invite tempInvite = null;
                         PrivateChat temp = null;
-
+                        
                         try
                         {
                             tempInvite = Callbacks.getInvite();
                             temp = ChatHandler.privateChatInvite;
-
+                            
                             synchronized (MineTogether.instance.inviteLock)
                             {
                                 if (tempInvite != null)
                                     MineTogether.instance.invite = tempInvite;
                             }
-
+                            
                             if (temp != null)
                             {
                                 ToastHandler.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
@@ -61,19 +61,23 @@ public class ClientTickEvents
                                     mc.displayGuiScreen(new GuiMTChat(Minecraft.getInstance().currentScreen, true));
                                 });
                             }
-                        } catch (Exception ignored) {}
-
+                        } catch (Exception ignored)
+                        {
+                        }
+                        
                         try
                         {
                             Thread.sleep(1000);
-                        } catch (InterruptedException ignored) {}
+                        } catch (InterruptedException ignored)
+                        {
+                        }
                     }
                 });
                 inviteCheckThread.setDaemon(true);
                 inviteCheckThread.setName("MineTogether invite check thread");
                 inviteCheckThread.start();
             }
-
+            
             boolean handled = false;
             synchronized (MineTogether.instance.inviteLock)
             {
@@ -81,16 +85,16 @@ public class ClientTickEvents
                 {
                     MineTogether.instance.handledInvite = MineTogether.instance.invite;
                     MineTogether.instance.invite = null;
-
+                    
                     handled = true;
                 }
             }
-
+            
             if (handled)
             {
                 ArrayList<Friend> friendsList = Callbacks.getFriendsList(true);
                 String friendName = "Unknown";
-
+                
                 for (Friend friend : friendsList)
                 {
                     if (friend.getCode().equals(MineTogether.instance.handledInvite.by))
@@ -113,19 +117,19 @@ public class ClientTickEvents
                 }
             }
         }
-
+        
         if (Config.getInstance().isChatEnabled())
         {
             String friend;
             boolean friendMessage;
-
+            
             synchronized (MineTogether.instance.friendLock)
             {
                 friend = MineTogether.instance.friend;
                 friendMessage = MineTogether.instance.friendMessage;
                 MineTogether.instance.friend = null;
             }
-
+            
             if (friend != null)
             {
                 if (friendMessage && Minecraft.getInstance().currentScreen instanceof GuiMTChat)

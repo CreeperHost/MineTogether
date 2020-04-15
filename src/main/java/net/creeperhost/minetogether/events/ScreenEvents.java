@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.events;
 
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.GuiMinigames;
 import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
@@ -12,7 +11,6 @@ import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.universe7.WorldHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
@@ -27,15 +25,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ScreenEvents
 {
     boolean first = true;
-
+    
     @SubscribeEvent
     public void openScreen(GuiScreenEvent.InitGuiEvent.Post event)
     {
         boolean buttonDrawn = false;
-
+        
         if (event.getGui() instanceof MainMenuScreen)
         {
-            if(MineTogether.instance.gdpr.hasAcceptedGDPR() && first)
+            if (MineTogether.instance.gdpr.hasAcceptedGDPR() && first)
             {
                 first = false;
                 MineTogether.proxy.startChat();
@@ -43,7 +41,7 @@ public class ScreenEvents
             if (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())
             {
                 MineTogether.instance.setRandomImplementation();
-
+                
                 event.addWidget(new GuiButtonCreeper(event.getGui().width / 2 - 124, event.getGui().height / 4 + 96, p ->
                 {
                     Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
@@ -54,7 +52,7 @@ public class ScreenEvents
             AtomicInteger height = new AtomicInteger();
             AtomicInteger x = new AtomicInteger();
             AtomicInteger y = new AtomicInteger();
-
+            
             event.getWidgetList().forEach(widget ->
             {
                 if (widget instanceof Button)
@@ -62,33 +60,32 @@ public class ScreenEvents
                     Button button = (Button) widget;
                     //Get the translated name so we can make sure to remove the correct button
                     String name = I18n.format("menu.multiplayer");
-
+                    
                     if (button.getMessage().equalsIgnoreCase(name))
                     {
                         width.set(button.getWidth());
                         height.set(button.getHeight());
                         x.set(button.x);
                         y.set(button.y);
-
+                        
                         button.active = false;
                         button.visible = false;
                     }
                 }
             });
-
+            
             event.addWidget(new Button(x.get(), y.get(), width.get(), height.get(), I18n.format("menu.multiplayer"), p ->
             {
                 if (MineTogether.instance.gdpr.hasAcceptedGDPR())
                 {
                     Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(event.getGui()));
+                } else
+                {
+                    Minecraft.getInstance().displayGuiScreen(new MultiplayerScreen(event.getGui()));
                 }
-                else
-                    {
-                        Minecraft.getInstance().displayGuiScreen(new MultiplayerScreen(event.getGui()));
-                    }
             }));
         }
-
+        
         if (event.getGui() instanceof MultiplayerScreen || event.getGui() instanceof GuiMultiplayerPublic)
         {
             event.getWidgetList().forEach(b ->
@@ -122,37 +119,37 @@ public class ScreenEvents
                     }
                 }
             });
-
+            
             event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 133, event.getGui().height - 52, 2, p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(((GuiMultiplayerPublic) event.getGui()).parent, ((GuiMultiplayerPublic) event.getGui()).listType, ((GuiMultiplayerPublic) event.getGui()).sortOrder));
             }));
-
+            
             event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 75, 20, "Minigames", p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMinigames(event.getGui()));
             }));
         }
-
+        
         if (event.getGui() instanceof MainMenuScreen)
         {
-            if(Config.getInstance().isEnableMainMenuFriends())
+            if (Config.getInstance().isEnableMainMenuFriends())
             {
                 buttonDrawn = true;
                 event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends"), p ->
                 {
                     MineTogether.proxy.openFriendsGui();
                 }));
-    
+                
                 int x = event.getGui().width - 20 - 5;
                 if (buttonDrawn) x -= 99;
-    
+                
                 event.addWidget(new GuiButtonMultiple(x, 5, 1, p ->
                 {
                     Minecraft.getInstance().displayGuiScreen(new GuiMTChat(event.getGui()));
                 }));
             }
-
+            
             //TEST
 //            event.addWidget(new Button(event.getGui().width / 2 - 50, 5, 100, 20, I18n.format("Universe 7"), p ->
 //            {
@@ -160,7 +157,7 @@ public class ScreenEvents
 //                worldHandler.createWorld();
 //            }));
         }
-
+        
         if (event.getGui() instanceof IngameMenuScreen)
         {
             buttonDrawn = true;
@@ -168,24 +165,24 @@ public class ScreenEvents
             {
                 MineTogether.proxy.openFriendsGui();
             }));
-
+            
             int x = event.getGui().width - 20 - 5;
             if (buttonDrawn) x -= 99;
-
+            
             event.addWidget(new GuiButtonMultiple(x, 5, 1, p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new GuiMTChat(event.getGui()));
             }));
         }
     }
-
+    
     boolean firstOpen = true;
-
+    
     @SubscribeEvent
     public void openScreen(GuiOpenEvent event)
     {
         Screen screen = event.getGui();
-
+        
         if (screen instanceof ChatScreen && Config.getInstance().isChatEnabled() && !MineTogether.instance.ingameChat.hasDisabledIngameChat() && MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
             String presetString = "";
@@ -194,11 +191,11 @@ public class ScreenEvents
             {
                 sleep = true;
             }
-
+            
             ChatScreen chatScreen = (ChatScreen) event.getGui();
             presetString = chatScreen.defaultInputFieldText;
             MinecraftServer minecraftServerInstance = MineTogether.server;
-
+            
             if (Config.getInstance().isAutoMT() && minecraftServerInstance != null && minecraftServerInstance.isSinglePlayer() && Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs && firstOpen)
             {
                 firstOpen = false;

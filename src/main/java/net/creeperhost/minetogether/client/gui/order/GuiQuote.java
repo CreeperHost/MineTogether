@@ -28,30 +28,30 @@ public class GuiQuote extends GuiGetServer
     private boolean changed;
     private boolean firstTime = true;
     private boolean countryOnRelease;
-
+    
     public GuiQuote(int stepId, Order order)
     {
         super(stepId, order);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void init()
     {
         super.init();
-
+        
         this.list = new GuiList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36);
-
+        
         this.wellLeft = new GuiWell(this.minecraft, this.width / 2 - 10, 67, this.height - 88, Util.localize("quote.vpsfeatures"), new ArrayList<String>(), true, 0);
         this.wellRight = new GuiWell(this.minecraft, this.width, 67, this.height - 88, Util.localize("quote.vpsincluded"), new ArrayList<String>(), true, (this.width / 2) + 10);
         this.wellBottom = new GuiWell(this.minecraft, this.width, this.height - 83, this.height - 36, "", new ArrayList<String>(), true, 0);
-
+        
         int start = (this.width / 2) + 10;
         int end = this.width;
         int middle = (end - start) / 2;
-
+        
         String name = Callbacks.getCountries().get(order.country);
-
+        
         countryButton = addButton(new Button(start + middle - 100, this.height - 70, 200, 20, name, p ->
         {
             countryOnRelease = true;
@@ -61,7 +61,7 @@ public class GuiQuote extends GuiGetServer
             this.buttonPrev.x = this.buttonNext.x;
             this.buttonNext.y = -50;
         }));
-
+        
         if (summary == null)
         {
             if (!refreshing)
@@ -69,16 +69,16 @@ public class GuiQuote extends GuiGetServer
             countryButton.visible = false;
         } else
         {
-
+            
             this.wellLeft.lines = summary.serverFeatures;
             this.wellRight.lines = summary.serverIncluded;
-
+            
             Map<String, String> locations = Callbacks.getCountries();
             for (Map.Entry<String, String> entry : locations.entrySet())
             {
                 GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
                 list.add(listEntry);
-
+                
                 if (order.country.equals(listEntry.countryID))
                 {
                     list.setSelected(listEntry);
@@ -86,23 +86,23 @@ public class GuiQuote extends GuiGetServer
             }
         }
     }
-
+    
     @SuppressWarnings("Duplicates")
     private void updateSummary()
     {
         countryButton.visible = false;
         refreshing = true;
         summary = null;
-
+        
         final Order order = this.order;
-
+        
         Runnable runnable = () ->
         {
             summary = Callbacks.getSummary(order);
-
+            
             order.productID = summary.productID;
             order.currency = summary.currency;
-
+            
             if (firstTime)
             {
                 firstTime = false;
@@ -111,45 +111,45 @@ public class GuiQuote extends GuiGetServer
                 {
                     GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
                     list.add(listEntry);
-
+                    
                     if (order.country.equals(listEntry.countryID))
                     {
                         list.setSelected(listEntry);
                     }
                 }
             }
-
+            
             wellLeft.lines = summary.serverFeatures;
             wellRight.lines = summary.serverIncluded;
             countryButton.setMessage(Callbacks.getCountries().get(order.country));
             countryButton.visible = true;
             refreshing = false;
         };
-
+        
         Thread thread = new Thread(runnable);
         thread.start();
     }
-
+    
     @Override
     public String getStepName()
     {
         return Util.localize("gui.quote");
     }
-
+    
     @Override
     public void tick()
     {
         super.tick();
-
+        
         this.buttonNext.active = this.list.getSelected() != null && !countryEnabled && !refreshing;
         this.buttonPrev.active = !refreshing;
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
-
+        
         if (countryEnabled)
         {
             this.list.render(mouseX, mouseY, partialTicks);
@@ -170,12 +170,12 @@ public class GuiQuote extends GuiGetServer
                 this.wellBottom.drawScreen();
                 this.wellLeft.drawScreen();
                 this.wellRight.drawScreen();
-
-
+                
+                
                 this.drawCenteredString(this.font, Util.localize("quote.requirements") + " " + summary.serverHostName.toLowerCase() + " package", this.width / 2, 50, -1);
-
+                
                 String formatString = summary.prefix + "%1$.2f " + summary.suffix;
-
+                
                 String subTotalString = Util.localize("quote.subtotal") + ":  ";
                 int subTotalWidth = font.getStringWidth(subTotalString);
                 String discountString = Util.localize("quote.discount") + ":  ";
@@ -184,19 +184,19 @@ public class GuiQuote extends GuiGetServer
                 int taxWidth = font.getStringWidth(taxString);
                 String totalString = Util.localize("quote.total") + ":  ";
                 int totalWidth = font.getStringWidth(totalString);
-
+                
                 int headerSize = Math.max(subTotalWidth, Math.max(taxWidth, Math.max(totalWidth, discountWidth)));
-
+                
                 int subTotalValueWidth = font.getStringWidth(String.format(formatString, summary.subTotal));
                 int discountValueWidth = font.getStringWidth(String.format(formatString, summary.discount));
                 int taxValueWidth = font.getStringWidth(String.format(formatString, summary.tax));
                 int totalValueWidth = font.getStringWidth(String.format(formatString, summary.tax));
-
+                
                 int maxStringSize = headerSize + Math.max(subTotalValueWidth, Math.max(discountValueWidth, Math.max(taxValueWidth, totalValueWidth)));
-
+                
                 int offset = maxStringSize / 2;
                 int otherOffset = ((this.width / 2 - 10) / 2) - offset;
-
+                
                 this.drawString(this.font, subTotalString, otherOffset, this.height - 80, 0xFFFFFF);
                 this.drawString(this.font, String.format(formatString, summary.preDiscount), otherOffset + headerSize, this.height - 80, 0xFFFFFF);
                 this.drawString(this.font, discountString, otherOffset, this.height - 70, 0xFFFFFF);
@@ -205,23 +205,23 @@ public class GuiQuote extends GuiGetServer
                 this.drawString(this.font, String.format(formatString, summary.tax), otherOffset + headerSize, this.height - 60, 0xFFFFFF);
                 this.drawString(this.font, totalString, otherOffset, this.height - 50, 0xFFFFFF);
                 this.drawString(this.font, String.format(formatString, summary.total), otherOffset + headerSize, this.height - 50, 0xFFFFFF);
-
+                
                 int start = (this.width / 2) + 10;
                 int end = this.width;
                 int middle = (end - start) / 2;
                 int stringStart = this.font.getStringWidth(Util.localize("quote.figures")) / 2;
-
+                
                 this.drawString(this.font, Util.localize("quote.figures"), start + middle - stringStart, this.height - 80, 0xFFFFFF);
             } else
             {
                 this.drawCenteredString(this.font, Util.localize("quote.refreshing"), this.width / 2, 50, -1);
             }
-
+            
         }
-
+        
         super.render(mouseX, mouseY, partialTicks);
     }
-
+    
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
@@ -238,8 +238,8 @@ public class GuiQuote extends GuiGetServer
         }
         return false;
     }
-
-
+    
+    
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int state)
     {

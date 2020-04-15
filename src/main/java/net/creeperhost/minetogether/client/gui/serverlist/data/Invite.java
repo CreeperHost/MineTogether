@@ -7,7 +7,7 @@ public class Invite
     public final int project;
     public final Server server;
     public String by;
-
+    
     public Invite(Server server, int project, String by)
     {
         this.name = server.displayName;

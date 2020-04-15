@@ -14,9 +14,9 @@ public class ServerProxy implements IServerProxy
         {
             return true;
         }
-
+        
         MineTogether.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
-
+        
         try
         {
             watchdogThread.interrupt();
@@ -26,7 +26,7 @@ public class ServerProxy implements IServerProxy
             return false;
         }
     }
-
+    
     @Override
     public void resuscitateWatchdog()
     {
@@ -40,7 +40,7 @@ public class ServerProxy implements IServerProxy
             MineTogether.logger.info("Performing CPR. Server Watchdog is alive again!");
         }
     }
-
+    
     @Override
     public boolean needsToBeKilled()
     {

@@ -14,7 +14,7 @@ public class CreeperHostServerSelectionList extends ServerList
 {
     private List<ServerData> ourList;
     private MultiplayerScreen ourParent;
-
+    
     public CreeperHostServerSelectionList(MultiplayerScreen ownerIn, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
     {
         super(mcIn);
@@ -27,7 +27,7 @@ public class CreeperHostServerSelectionList extends ServerList
 //        super.updateOnlineServers(p_148195_1_);
 //        ourList.add(new CreeperHostEntry(ourParent, new ServerData("", "127.0.0.1", false), true));
 //    }
-
+    
     public void replaceList(List list)
     {
         if (ourList == list)

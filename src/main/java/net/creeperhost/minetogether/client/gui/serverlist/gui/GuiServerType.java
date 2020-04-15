@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.client.gui.serverlist.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonLarge;
@@ -18,24 +17,24 @@ public class GuiServerType extends Screen
 {
     private GuiGDPR.IScreenGetter getter = null;
     private Screen parent = null;
-
+    
     public GuiServerType()
     {
         super(new StringTextComponent(""));
     }
-
+    
     public GuiServerType(Screen parent)
     {
         super(new StringTextComponent(""));
         this.parent = parent;
     }
-
+    
     public GuiServerType(Screen parent, GuiGDPR.IScreenGetter getterIn)
     {
         this(parent);
         getter = getterIn;
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
@@ -46,14 +45,14 @@ public class GuiServerType extends Screen
         RenderSystem.popMatrix();
         super.render(mouseX, mouseY, partialTicks);
     }
-
+    
     @Override
     public void init()
     {
         super.init();
-
+        
         buttons.clear();
-
+        
         addButton(new GuiButtonLarge((width / 2) - 180, (height / 8) + 20, 120, 165, "PUBLIC", I18n.format("minetogether.listing.public"), new ItemStack(Items.GUNPOWDER), p ->
         {
             Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen(), GuiMultiplayerPublic.ListType.PUBLIC, GuiMultiplayerPublic.SortOrder.NAME, true));
@@ -71,7 +70,7 @@ public class GuiServerType extends Screen
             Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen()));
         }));
     }
-
+    
     @FunctionalInterface
     public interface IScreenGetter
     {

@@ -8,12 +8,12 @@ import java.util.ArrayList;
 public class MineTogetherAPI
 {
     public static ArrayList<IServerHost> implementations = new ArrayList<IServerHost>();
-
+    
     public static void registerImplementation(IServerHost plugin)
     {
         implementations.add(plugin);
     }
-
+    
     public static ArrayList<IServerHost> getImplementations()
     {
         return implementations;

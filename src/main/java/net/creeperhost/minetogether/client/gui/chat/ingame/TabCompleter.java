@@ -16,7 +16,7 @@ public class TabCompleter
     
     public void complete()
     {
-        if(textField.getText().startsWith("@"))
+        if (textField.getText().startsWith("@"))
         {
             String text = textField.getText();
             String[] words = text.split(" ");

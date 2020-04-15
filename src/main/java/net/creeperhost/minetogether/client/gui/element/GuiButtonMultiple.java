@@ -9,13 +9,13 @@ public class GuiButtonMultiple extends Button
 {
     private static ResourceLocation buttonImg = new ResourceLocation("creeperhost", "textures/gui.png");
     private final int index;
-
+    
     public GuiButtonMultiple(int xPos, int yPos, int index, Button.IPressable onPress)
     {
         super(xPos, yPos, 20, 20, "", onPress);
         this.index = index;
     }
-
+    
     @Override
     public void renderButton(int mouseX, int mouseY, float partialTicks)
     {

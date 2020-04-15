@@ -22,8 +22,8 @@ public class GuiSettings extends Screen
     {
         super.init();
         buttons.clear();
-    
-        this.addButton(new Button(this.width / 2 -123, 40, 120, 20, I18n.format("Chat Enabled: " + Config.getInstance().isChatEnabled()), p ->
+        
+        this.addButton(new Button(this.width / 2 - 123, 40, 120, 20, I18n.format("Chat Enabled: " + Config.getInstance().isChatEnabled()), p ->
         {
             boolean enabled = Config.getInstance().isChatEnabled();
             Config.getInstance().setChatEnabled(!enabled);
@@ -35,7 +35,7 @@ public class GuiSettings extends Screen
             Config.getInstance().setEnableFriendOnlineToasts(!enabled);
             saveConfig();
         }));
-        this.addButton(new Button(this.width / 2 -123, 60, 120, 20, I18n.format("Mainmenu Buttons: " + Config.getInstance().isEnableMainMenuFriends()), p ->
+        this.addButton(new Button(this.width / 2 - 123, 60, 120, 20, I18n.format("Mainmenu Buttons: " + Config.getInstance().isEnableMainMenuFriends()), p ->
         {
             boolean enabled = Config.getInstance().isEnableMainMenuFriends();
             Config.getInstance().setEnableMainMenuFriends(!enabled);

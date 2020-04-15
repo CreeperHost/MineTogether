@@ -8,7 +8,6 @@ import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.gui.GuiGDPR;
 import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.client.gui.element.DropdownButton;
-import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
@@ -16,7 +15,6 @@ import net.creeperhost.minetogether.client.gui.serverlist.data.ServerSelectionLi
 import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
-import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
@@ -24,13 +22,10 @@ import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ServerSelectionList;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.network.LanServerDetector;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,14 +50,14 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         super(parentScreen);
         parent = parentScreen;
     }
-
+    
     public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order)
     {
         this(parentScreen);
         this.listType = listType;
         sortOrder = order;
     }
-
+    
     public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order, boolean selectedListType)
     {
         this(parentScreen);
@@ -70,7 +65,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         this.selectedListType = selectedListType;
         sortOrder = order;
     }
-
+    
     @Override
     public void init()
     {
@@ -88,22 +83,22 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             }
             mc.displayGuiScreen(new GuiServerType(this));
         }));
-
+        
         addButton(new GuiButtonMultiple(width - 105, 5, 1, p ->
         {
             mc.displayGuiScreen(new GuiMTChat(this));
         }));
-
+        
         mc.keyboardListener.enableRepeatEvents(true);
         
         super.init();
         
         CreeperHostEntry creeperHostEntry = new CreeperHostEntry(serverListSelectorOurs);
-
+        
         AtomicBoolean hasEntry = new AtomicBoolean(false);
         
         serverListSelector.serverListInternet.clear();
-
+        
         if (listType == null && !hasEntry.get())
         {
             serverListSelector.children().forEach(p ->
@@ -113,37 +108,40 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                     hasEntry.set(true);
                 }
             });
-
+            
             if (!hasEntry.get() && Config.getInstance().isMpMenuEnabled())
             {
                 serverListSelector.children().add(serverListSelector.children().lastIndexOf(serverListSelector.lanScanEntry), creeperHostEntry);
             }
         }
-
+        
         if (listType != null)
         {
             ServerListPublic serverListPublic = new ServerListPublic(mc, this);
             serverListPublic.loadServerList();
-
+            
+            ourSavedServerList = serverListPublic;
+            
             this.serverListSelectorOurs = new ServerSelectionListOurs(this, this.minecraft, this.width, this.height, 32, this.height - 64, 36);
             this.serverListSelectorOurs.updateOnlineServers(serverListPublic);
-
+            
             setServerList(serverListPublic);
+            
+            sort();
         }
-    
+        
         addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false, p ->
         {
-            if(sortOrder != sortOrderButton.getSelected())
+            if (sortOrder != sortOrderButton.getSelected())
             {
                 changeSort = true;
                 sortOrder = sortOrderButton.getSelected();
-                sortOrder = SortOrder.UPTIME;
                 sort();
                 minecraft.displayGuiScreen(new GuiMultiplayerPublic(parent, listType, sortOrder));
             }
         }));
     }
-
+    
     private void setServerList(ServerListPublic serverList)
     {
         serverListSelectorOurs.updateOnlineServers(serverList);
@@ -152,7 +150,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     @Override
     public void func_214287_a(ServerSelectionList.Entry p_214287_1_)
     {
-        if(listType != null)
+        if (listType != null)
         {
             this.serverListSelectorOurs.setSelected(p_214287_1_);
             this.func_214295_b();
@@ -170,39 +168,39 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                 Collections.shuffle(serverListSelectorOurs.serverListInternetOurs);
                 break;
             case PLAYER:
-                serverListSelectorOurs.serverListInternetOurs.sort(Server.PlayerComparator.INSTANCE);
+                Collections.sort(serverListSelectorOurs.serverListInternetOurs, Server.PlayerComparator.INSTANCE);
                 break;
             case UPTIME:
-                serverListSelectorOurs.serverListInternetOurs.sort(Server.UptimeComparator.INSTANCE);
+                Collections.sort(serverListSelectorOurs.serverListInternetOurs, Server.UptimeComparator.INSTANCE);
                 break;
             case NAME:
-                serverListSelectorOurs.serverListInternetOurs.sort(Server.NameComparator.INSTANCE);
+                Collections.sort(serverListSelectorOurs.serverListInternetOurs, Server.NameComparator.INSTANCE);
                 break;
             case LOCATION:
-                serverListSelectorOurs.serverListInternetOurs.sort(Server.LocationComparator.INSTANCE);
+                Collections.sort(serverListSelectorOurs.serverListInternetOurs, Server.LocationComparator.INSTANCE);
                 break;
             case PING:
-                serverListSelectorOurs.serverListInternet.sort(Server.PingComparator.INSTANCE);
+                Collections.sort(serverListSelectorOurs.serverListInternetOurs, Server.PingComparator.INSTANCE);
                 break;
         }
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         ourTooltip = null;
         this.renderBackground();
-        if(listType == null)
+        if (listType == null)
         {
             this.serverListSelector.render(mouseX, mouseY, partialTicks);
         }
-    
-        if(serverListSelectorOurs != null)
+        
+        if (serverListSelectorOurs != null)
         {
             this.serverListSelectorOurs.render(mouseX, mouseY, partialTicks);
         }
         this.drawCenteredString(this.font, this.title.getFormattedText(), this.width / 2, 20, 16777215);
-
+        
         if (listType != null)
         {
             drawCenteredString(font, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
@@ -212,11 +210,11 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             this.renderTooltip(Lists.newArrayList(Splitter.on("\n").split(ourTooltip)), mouseX, mouseY);
         }
         
-        if(listType != null)
+        if (listType != null)
         {
             buttons.forEach(c ->
             {
-                if(c.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")) || c.getMessage().equalsIgnoreCase(I18n.format("selectServer.edit")))
+                if (c.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")) || c.getMessage().equalsIgnoreCase(I18n.format("selectServer.edit")))
                 {
                     c.active = false;
                 }
@@ -237,7 +235,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
         boolean flag = super.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
-        if(serverListSelectorOurs != null && serverListSelectorOurs.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_))
+        if (serverListSelectorOurs != null && serverListSelectorOurs.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_))
         {
             return serverListSelectorOurs.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
         }
@@ -248,7 +246,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
     {
         boolean flag = super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
-        if(serverListSelectorOurs != null && serverListSelectorOurs.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_))
+        if (serverListSelectorOurs != null && serverListSelectorOurs.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_))
         {
             return serverListSelectorOurs.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
         }
@@ -263,62 +261,62 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         UPTIME("uptime"),
         LOCATION("location"),
         PING("ping", true);
-
+        
         public final boolean constant;
-
+        
         private static List<DropdownButton.IDropdownOption> enumCache;
-
+        
         public String translate;
-
+        
         SortOrder(String translate, boolean constant)
         {
             this.translate = translate;
             this.constant = constant;
         }
-
+        
         SortOrder(String translate)
         {
             this(translate, false);
         }
-
+        
         @Override
         public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
         {
             return "creeperhost.multiplayer.sort." + translate;
         }
-
+        
         @Override
         public List<DropdownButton.IDropdownOption> getPossibleVals()
         {
             if (enumCache == null)
                 enumCache = Arrays.asList(SortOrder.values());
-
+            
             return enumCache;
         }
     }
-
+    
     public enum ListType implements DropdownButton.IDropdownOption
     {
         PUBLIC, INVITE, APPLICATION;
-
+        
         private static List<DropdownButton.IDropdownOption> enumCache;
-
+        
         @Override
         public List<DropdownButton.IDropdownOption> getPossibleVals()
         {
             if (enumCache == null)
                 enumCache = Arrays.asList(ListType.values());
-
+            
             return enumCache;
         }
-
+        
         @Override
         public String getTranslate(DropdownButton.IDropdownOption currentDO, boolean dropdownOpen)
         {
             return "creeperhost.multiplayer.list." + this.name().toLowerCase();
         }
     }
-
+    
     public class CreeperHostEntry extends ServerSelectionList.LanScanEntry
     {
         private final Minecraft mc;
@@ -327,7 +325,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         private final String cross;
         private final int stringWidth;
         protected final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/hidebtn.png");
-
+        
         public CreeperHostEntry(ServerSelectionList list)
         {
             super();
@@ -336,13 +334,13 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             cross = new String(Character.toChars(10006));
             stringWidth = this.mc.fontRenderer.getStringWidth(cross);
         }
-
+        
         @Override
         public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float p_render_9_)
         {
             ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
         }
-
+        
         public void ourDrawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
         {
             if (isHovering)
@@ -354,7 +352,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                 if (transparency >= 0.5F)
                     transparency -= 0.04;
             }
-
+            
             this.mc.getTextureManager().bindTexture(serverIcon);
             RenderSystem.enableBlend();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
@@ -370,14 +368,14 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
             {
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-
+                
                 final int tooltipX = mouseX - 72;
                 final int tooltipY = mouseY + ((mc.getMainWindow().getScaledWidth() / 2 >= mouseY) ? 11 : -11);
                 final int tooltipTextWidth = 56;
                 final int tooltipHeight = 7;
-
+                
                 final int zLevel = 300;
-
+                
                 // re-purposed code from tooltip rendering
                 final int backgroundColor = 0xF0100010;
                 GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
@@ -391,31 +389,31 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                 GuiUtils.drawGradientRect(zLevel, tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
                 GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
                 GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
-
+                
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
                 mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
                 blit(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
             }
         }
-    
+        
         private int getHeaderHeight()
         {
-            return ((int)serverListSelector.getScrollAmount() - serverListSelector.getHeight()) - serverListSelector.getScrollBottom();
+            return ((int) serverListSelector.getScrollAmount() - serverListSelector.getHeight()) - serverListSelector.getScrollBottom();
         }
-    
+        
         private int getRowTop(int p_getRowTop_1_)
         {
-            return serverListSelector.getTop() + 4 - (int)serverListSelector.getScrollAmount() + p_getRowTop_1_ * 36 + getHeaderHeight();
+            return serverListSelector.getTop() + 4 - (int) serverListSelector.getScrollAmount() + p_getRowTop_1_ * 36 + getHeaderHeight();
         }
-
+        
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button)
         {
             int listWidth = ((serverListSelector.getWidth() - serverListSelector.getRowWidth()) / 2) + serverListSelector.getRowWidth();
-
+            
             int x = serverListSelector.getLeft();
             int y = getRowTop(serverListSelector.children().indexOf(this));
-
+            
             if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY - y >= 0 && mouseY - y <= 7)
             {
                 Config.getInstance().setMpMenuEnabled(false);

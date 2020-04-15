@@ -19,30 +19,30 @@ public class CommandPregen
     {
         return Commands.literal("pregen")
                 .requires(cs -> cs.hasPermissionLevel(4))
-                    .then(Commands.argument("dim", DimensionArgument.getDimension())
-                            .then(Commands.argument("chunkMinX", IntegerArgumentType.integer(1))
-                                    .then(Commands.argument("chunkMaxX", IntegerArgumentType.integer(1))
-                                            .then(Commands.argument("chunkMinZ", IntegerArgumentType.integer(1))
-                                                    .then(Commands.argument("chunkMaxZ", IntegerArgumentType.integer(1))
-                                                            .then(Commands.argument("chunksPerTick", IntegerArgumentType.integer(1))
-                                                                    .then(Commands.argument("preventJoin", BoolArgumentType.bool())
-                                                                            .executes(cs -> execute(cs, DimensionArgument.getDimensionArgument(cs, "dim"),
-                                                                                    IntegerArgumentType.getInteger(cs, "chunkMinX"),
-                                                                                        IntegerArgumentType.getInteger(cs, "chunkMaxX"),
-                                                                                            IntegerArgumentType.getInteger(cs, "chunkMinZ"),
-                                                                                                IntegerArgumentType.getInteger(cs, "chunkMaxZ"),
-                                                                                                    IntegerArgumentType.getInteger(cs, "chunksPerTick"),
-                                                                                                        BoolArgumentType.getBool(cs, "preventJoin"))))))))));
+                .then(Commands.argument("dim", DimensionArgument.getDimension())
+                        .then(Commands.argument("chunkMinX", IntegerArgumentType.integer(1))
+                                .then(Commands.argument("chunkMaxX", IntegerArgumentType.integer(1))
+                                        .then(Commands.argument("chunkMinZ", IntegerArgumentType.integer(1))
+                                                .then(Commands.argument("chunkMaxZ", IntegerArgumentType.integer(1))
+                                                        .then(Commands.argument("chunksPerTick", IntegerArgumentType.integer(1))
+                                                                .then(Commands.argument("preventJoin", BoolArgumentType.bool())
+                                                                        .executes(cs -> execute(cs, DimensionArgument.getDimensionArgument(cs, "dim"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunkMinX"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunkMaxX"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunkMinZ"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunkMaxZ"),
+                                                                                IntegerArgumentType.getInteger(cs, "chunksPerTick"),
+                                                                                BoolArgumentType.getBool(cs, "preventJoin"))))))))));
     }
-
+    
     public static int execute(CommandContext<CommandSource> ctx, DimensionType dimensionType, int chunkMinX, int chunkMaxX, int chunkMinZ, int chunkMaxZ, int chunksPerTick, boolean preventJoin) throws CommandException
     {
         PregenTask task = new PregenTask(dimensionType, chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick, preventJoin);
-
+        
         MineTogether.preGenHandler.createTask(task);
-
+        
         ctx.getSource().sendFeedback(new StringTextComponent("Starting pre-gen task for dimention " + task.dimension.toString()), true);
-
+        
         return 0;
 //        int xDiameterPos = -1;
 //        int yDiameterPos = -1;

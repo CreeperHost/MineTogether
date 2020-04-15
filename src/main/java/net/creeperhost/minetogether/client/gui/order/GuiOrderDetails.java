@@ -25,8 +25,8 @@ public class GuiOrderDetails extends GuiGetServer
     private String placedOrderError = "";
     private Button buttonInvoice;
     private boolean serverAdded;
-
-
+    
+    
     public GuiOrderDetails(int stepId, Order order)
     {
         super(stepId, order);
@@ -36,13 +36,13 @@ public class GuiOrderDetails extends GuiGetServer
             createdAccount = true;
         }
     }
-
+    
     @Override
     public String getStepName()
     {
         return Util.localize("gui.order");
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void init()
@@ -67,7 +67,7 @@ public class GuiOrderDetails extends GuiGetServer
         buttonNext.active = true;
         buttonInvoice.visible = false;
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void tick()
     {
@@ -88,7 +88,7 @@ public class GuiOrderDetails extends GuiGetServer
                 {
                     order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
                     order.clientID = resultSplit[2] != null ? resultSplit[2] : "0"; // random test account fallback
-
+                    
                 } else
                 {
                     createdAccountError = result;
@@ -149,7 +149,7 @@ public class GuiOrderDetails extends GuiGetServer
             buttonNext.active = true;
         }
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)

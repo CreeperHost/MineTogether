@@ -9,14 +9,14 @@ public class BlockData
     public ResourceLocation RESOURCE_LOCATION;
     public BlockState BLOCK_STATE;
     public Object[] PROPERTIES;
-
+    
     public BlockData(Block block)
     {
         this.RESOURCE_LOCATION = block.getRegistryName();
         this.BLOCK_STATE = block.getStateContainer().getBaseState();
         this.PROPERTIES = block.getStateContainer().getProperties().toArray();
     }
-
+    
     public BlockData(ResourceLocation resourceLocation, BlockState blockState, Object[] properties)
     {
         this.RESOURCE_LOCATION = resourceLocation;

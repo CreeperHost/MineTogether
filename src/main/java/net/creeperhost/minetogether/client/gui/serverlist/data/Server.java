@@ -15,7 +15,7 @@ public class Server
     public final EnumFlag flag;
     public final String subdivision;
     public final String applicationURL;
-
+    
     public Server(String displayName, String host, int uptime, int playerCount, EnumFlag flag, String subdivision, String applicationURL)
     {
         this.displayName = displayName;
@@ -26,19 +26,21 @@ public class Server
         this.subdivision = subdivision;
         this.applicationURL = applicationURL;
     }
-
+    
     @Override
     public String toString()
     {
         return "Server[" + displayName + ", " + host + ", " + uptime + ", " + playerCount + ", " + flag.name() + "]";
     }
-
+    
     public static class NameComparator implements Comparator<ServerSelectionListOurs.ServerListEntryPublic>
     {
         public static final NameComparator INSTANCE = new NameComparator();
-
-        private NameComparator() {}
-
+        
+        private NameComparator()
+        {
+        }
+        
         @Override
         public int compare(ServerSelectionListOurs.ServerListEntryPublic o1, ServerSelectionListOurs.ServerListEntryPublic o2)
         {
@@ -52,52 +54,59 @@ public class Server
             return res;
         }
     }
-
+    
     public static class PlayerComparator implements Comparator<ServerSelectionListOurs.ServerListEntryPublic>
     {
         public static final PlayerComparator INSTANCE = new PlayerComparator();
-
-        private PlayerComparator() {}
-
+        
+        private PlayerComparator()
+        {
+        }
+        
         @Override
         public int compare(ServerSelectionListOurs.ServerListEntryPublic o1, ServerSelectionListOurs.ServerListEntryPublic o2)
         {
             int o1Players = 0;
             int o2Players = 0;
             
-            if(o1.getServerData().playerList != null)
+            if (o1.getServerData().playerList != null)
             {
                 o1Players = o1.getServerData().playerList.length();
             }
-            if(o2.getServerData().playerList != null)
+            if (o2.getServerData().playerList != null)
             {
                 o2Players = o2.getServerData().playerList.length();
             }
             return Integer.compare(o2Players, o1Players);
         }
     }
-
+    
     public static class UptimeComparator implements Comparator<ServerSelectionListOurs.ServerListEntryPublic>
     {
         public static final UptimeComparator INSTANCE = new UptimeComparator();
-
+        
         private UptimeComparator()
         {
         }
-
+        
         @Override
         public int compare(ServerSelectionListOurs.ServerListEntryPublic o1, ServerSelectionListOurs.ServerListEntryPublic o2)
         {
-            return Integer.compare(o2.getServerData().server.uptime, o1.getServerData().server.uptime);
+            System.out.println(o1.getServerData().server.uptime + " " + o2.getServerData().server.uptime);
+            return o1.getServerData().server.uptime > o2.getServerData().server.uptime ? -1
+                    : o1.getServerData().server.uptime < o2.getServerData().server.uptime ? 1
+                    : 0;
         }
     }
-
+    
     public static class LocationComparator extends NameComparator
     {
         public static final LocationComparator INSTANCE = new LocationComparator();
-
-        private LocationComparator() {}
-
+        
+        private LocationComparator()
+        {
+        }
+        
         @Override
         public int compare(ServerSelectionListOurs.ServerListEntryPublic o1, ServerSelectionListOurs.ServerListEntryPublic o2)
         {
@@ -141,13 +150,15 @@ public class Server
             }
         }
     }
-
+    
     public static class PingComparator implements Comparator<ServerSelectionList.NormalEntry>
     {
         public static final PingComparator INSTANCE = new PingComparator();
-
-        private PingComparator() {}
-
+        
+        private PingComparator()
+        {
+        }
+        
         @Override
         public int compare(ServerSelectionList.NormalEntry o1, ServerSelectionList.NormalEntry o2)
         {

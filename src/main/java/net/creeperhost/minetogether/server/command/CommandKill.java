@@ -24,7 +24,7 @@ public class CommandKill
                 .then(Commands.argument("entity", EntityArgument.entity()).suggests(SuggestionProviders.SUMMONABLE_ENTITIES)
                         .executes(cs -> execute(cs, EntityArgument.getEntity(cs, "entity"))));
     }
-
+    
     public static int execute(CommandContext<CommandSource> ctx, Entity entity) throws CommandException
     {
         AtomicInteger i = new AtomicInteger();
@@ -38,7 +38,7 @@ public class CommandKill
                 world.removeEntity(index);
             }
         });
-
+        
         PlayerEntity playerEntity = (PlayerEntity) ctx.getSource().getEntity();
         if (playerEntity != null)
         {

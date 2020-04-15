@@ -9,22 +9,22 @@ import java.util.List;
 public interface IHost
 {
     String getNameForUser(String nick);
-
+    
     List<Friend> getFriends();
-
+    
     void friendEvent(String name, boolean isMessage);
-
+    
     Logger getLogger();
-
+    
     void messageReceived(String target, Message messagePair);
-
+    
     String getFriendCode();
-
+    
     void acceptFriend(String s, String trim);
-
+    
     void closeGroupChat();
-
+    
     void updateChatChannel();
-
+    
     void userBanned(String username);
 }

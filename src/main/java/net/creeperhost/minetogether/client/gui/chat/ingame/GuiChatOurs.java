@@ -36,26 +36,26 @@ public class GuiChatOurs extends ChatScreen
     private boolean disabledDueToBadwords;
     Minecraft mc = Minecraft.getInstance();
     private TabCompleter tabCompleter;
-
+    
     public GuiChatOurs(String presetString, boolean sleep)
     {
         super(presetString);
         this.presetString = presetString;
         this.sleep = sleep;
     }
-
+    
     public static boolean isBase()
     {
         NewChatGui chat = Minecraft.getInstance().ingameGUI.getChatGUI();
         return !MineTogether.instance.gdpr.hasAcceptedGDPR() || !(chat instanceof GuiNewChatOurs) || ((GuiNewChatOurs) chat).isBase();
     }
-
+    
     @Override
     protected void renderComponentHoverEffect(ITextComponent component, int mouseX, int mouseY)
     {
         super.renderComponentHoverEffect(component, mouseX, mouseY);
     }
-
+    
     public void processBadwords()
     {
         if (ChatHandler.badwordsFormat == null)
@@ -81,17 +81,17 @@ public class GuiChatOurs extends ChatScreen
                 }
             }
         }
-
+        
         if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase())
             veryNaughty = false;
-
+        
         if (veryNaughty)
         {
             ((GuiTextFieldLockable) inputField).setDisabled("Cannot send message as contains content which may not be suitable for all audiences");
             disabledDueToBadwords = true;
             return;
         }
-
+        
         if (disabledDueToBadwords)
         {
             ((GuiTextFieldLockable) inputField).setDisabled("");
@@ -99,7 +99,7 @@ public class GuiChatOurs extends ChatScreen
             inputField.setEnabled(true);
         }
     }
-
+    
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {
@@ -109,7 +109,7 @@ public class GuiChatOurs extends ChatScreen
 //        }
         return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
     }
-
+    
     @Override
     public boolean charTyped(char typedChar, int keyCode)
     {
@@ -117,25 +117,25 @@ public class GuiChatOurs extends ChatScreen
         {
             return super.charTyped(typedChar, keyCode);
         }
-
+        
         if (keyCode == 1 && sleep)
         {
             wakeFromSleep();
             return super.charTyped(typedChar, keyCode);
         }
-    
+        
         assert inputField instanceof GuiTextFieldLockable;
         boolean ourEnabled = inputField instanceof GuiTextFieldLockable && ((GuiTextFieldLockable) inputField).getOurEnabled();
-
+        
         if (!ourEnabled)
         {
             if ((keyCode == 28 || keyCode == 156) && ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()))
                 inputField.setEnabled(true);
             return ourEnabled;
         }
-
+        
         super.charTyped(typedChar, keyCode);
-
+        
         if (!ourEnabled)
         {
             inputField.setEnabled(false);
@@ -144,20 +144,20 @@ public class GuiChatOurs extends ChatScreen
         {
             processBadwords();
         }
-
+        
         return ourEnabled;
     }
-
+    
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
         boolean flag = super.mouseClicked(mouseX, mouseY, mouseButton);
-
+        
         if (isBase())
         {
             return flag;
         }
-
+        
         if (menuDropdownButton != null && menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
         {
             menuDropdownButton.x = menuDropdownButton.y = -10000;
@@ -166,7 +166,7 @@ public class GuiChatOurs extends ChatScreen
         }
         return false;
     }
-
+    
     @Override
     public void sendMessage(String msg, boolean addToChat)
     {
@@ -205,12 +205,12 @@ public class GuiChatOurs extends ChatScreen
             }
         }
     }
-
+    
     @Override
     public void init()
     {
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-
+        
         if (MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
             ourChat.setBase(Client.chatType == 0);
@@ -227,13 +227,16 @@ public class GuiChatOurs extends ChatScreen
                     ourChat.setBase(false);
                     ourChat.rebuildChat(ChatHandler.CHANNEL);
                 }
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
-
+        
         String defaultStr = "Default";
         defaultStr = I18n.format("minetogether.ingame.chat.local");
         addToggleButtons(defaultStr);
-
+        
         if (isBase())
         {
             super.init();
@@ -246,7 +249,7 @@ public class GuiChatOurs extends ChatScreen
             }
             return;
         }
-
+        
         if (!presetString.isEmpty())
         {
             if (Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
@@ -264,10 +267,10 @@ public class GuiChatOurs extends ChatScreen
         this.inputField.setCanLoseFocus(false);
         this.tabCompleter = new TabCompleter(inputField);
         List<String> strings = new ArrayList<>();
-
+        
         strings.add(I18n.format("minetogether.chat.button.mute"));
         strings.add(I18n.format("minetogether.chat.button.addfriend"));
-
+        
         try
         {
             if (mc.getCurrentServerData().isOnLAN() || (!mc.getCurrentServerData().serverIP.equals("127.0.0.1")))
@@ -277,7 +280,7 @@ public class GuiChatOurs extends ChatScreen
         } catch (NullPointerException ignored)
         {
         }//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
-
+        
         addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true, p ->
         {
             if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mute")))
@@ -296,11 +299,11 @@ public class GuiChatOurs extends ChatScreen
             addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, I18n.format("multiplayer.stopSleeping"), p -> wakeFromSleep()));
         }
     }
-
+    
     public void addToggleButtons(String defaultString)
     {
         int x = MathHelper.ceil(((float) mc.ingameGUI.getChatGUI().getChatWidth())) + 16 + 2;
-
+        
         if (ChatHandler.hasGroup)
         {
             addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, !MineTogether.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).isBase() ? 0 : ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).chatTarget.equals(ChatHandler.CHANNEL) ? 1 : 2, false, false, true, p ->
@@ -376,7 +379,7 @@ public class GuiChatOurs extends ChatScreen
             }, defaultString, I18n.format("minetogether.ingame.chat.global")));
         }
     }
-
+    
     @Override
     public void tick()
     {
@@ -386,27 +389,27 @@ public class GuiChatOurs extends ChatScreen
         }
         super.tick();
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         this.buttons.forEach(p -> p.render(mouseX, mouseY, partialTicks));
-
+        
         if (isBase())
         {
             super.render(mouseX, mouseY, partialTicks);
             return;
         }
-
+        
         this.setFocused(this.inputField);
         this.inputField.setFocused2(true);
         fill(2, this.height - 14, this.width - 2, this.height - 2, mc.gameSettings.getChatBackgroundColor(-2147483648));
         this.inputField.render(mouseX, mouseY, partialTicks);
         this.inputField.canWrite();
-
+        
         if (!(this.mc.ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
-
+        
         GuiNewChatOurs chatGui = (GuiNewChatOurs) mc.ingameGUI.getChatGUI();
         if ((!chatGui.isBase()) && (!chatGui.chatTarget.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase())) && (!chatGui.chatTarget.toLowerCase().contains(ChatHandler.CHANNEL.toLowerCase())) && (chatGui.chatTarget.length() > 0) && (!chatGui.chatTarget.toLowerCase().equals("#minetogether")))
         {
@@ -416,18 +419,18 @@ public class GuiChatOurs extends ChatScreen
             mc.fontRenderer.drawString(str, x, y, 0xFFFFFF);
         }
         
-        if(tabCompleter != null)
+        if (tabCompleter != null)
         {
             tabCompleter.render(mouseX, mouseY, partialTicks);
         }
     }
-
+    
     private void wakeFromSleep()
     {
         ClientPlayNetHandler nethandlerplayclient = this.mc.player.connection;
         nethandlerplayclient.sendPacket(new CEntityActionPacket(this.mc.player, CEntityActionPacket.Action.STOP_SLEEPING));
     }
-
+    
     @Override
     public boolean handleComponentClicked(ITextComponent component)
     {
@@ -435,7 +438,7 @@ public class GuiChatOurs extends ChatScreen
         {
             return super.handleComponentClicked(component);
         }
-
+        
         if (component == ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).closeComponent)
         {
             MineTogether.instance.closeGroupChat();
@@ -452,20 +455,20 @@ public class GuiChatOurs extends ChatScreen
                 String[] split = eventValue.split(":");
                 if (split.length < 3)
                     return false;
-
+                
                 String chatInternalName = split[1];
-
+                
                 String friendCode = split[2];
-
+                
                 StringBuilder builder = new StringBuilder();
-
+                
                 for (int i = 3; i < split.length; i++)
                     builder.append(split[i]).append(" ");
-
+                
                 String friendName = builder.toString().trim();
-
+                
                 Minecraft.getInstance().displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), chatInternalName, friendCode, friendName, true));
-
+                
                 return true;
             }
             menuDropdownButton.x = (int) mc.mouseHelper.getMouseX() * this.height / this.mc.getMainWindow().getWidth() + 28;

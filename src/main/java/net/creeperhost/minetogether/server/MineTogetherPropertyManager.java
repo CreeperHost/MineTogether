@@ -17,15 +17,15 @@ public class MineTogetherPropertyManager
     private final File serverPropertiesFile;
     String discoverability;
     String displayname;
-
+    
     public MineTogetherPropertyManager(File propertiesFile)
     {
         this.serverPropertiesFile = propertiesFile;
-
+        
         if (propertiesFile.exists())
         {
             FileInputStream fileinputstream = null;
-
+            
             try
             {
                 fileinputstream = new FileInputStream(propertiesFile);
@@ -52,7 +52,7 @@ public class MineTogetherPropertyManager
             this.generateNewProperties();
         }
     }
-
+    
     /**
      * Generates a new properties file.
      */
@@ -60,12 +60,12 @@ public class MineTogetherPropertyManager
     {
         this.saveProperties();
     }
-
+    
     @SuppressWarnings("Duplicates")
     public void saveProperties()
     {
         FileOutputStream fileoutputstream = null;
-
+        
         try
         {
             fileoutputstream = new FileOutputStream(this.serverPropertiesFile);
@@ -87,7 +87,7 @@ public class MineTogetherPropertyManager
             }
         }
     }
-
+    
     public String getStringProperty(String key, String defaultValue)
     {
         if (!this.serverProperties.containsKey(key))
@@ -96,7 +96,7 @@ public class MineTogetherPropertyManager
             this.saveProperties();
             this.saveProperties();
         }
-
+        
         return this.serverProperties.getProperty(key, defaultValue);
     }
 }

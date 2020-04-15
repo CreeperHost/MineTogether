@@ -11,7 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class ToastHandler
 {
     private final ResourceLocation newResouce = new ResourceLocation("textures/gui/toasts.png");
-
+    
     public static Runnable toastMethod;
     public static String toastText;
     public static long endTime;
@@ -19,7 +19,7 @@ public class ToastHandler
     Minecraft mc = Minecraft.getInstance();
     int u = 0;
     int v = 0;
-
+    
     public static void displayToast(String text, int duration, Runnable method)
     {
         toastText = text;
@@ -27,7 +27,7 @@ public class ToastHandler
         fadeTime = endTime + 500;
         toastMethod = method;
     }
-
+    
     public static void clearToast(boolean fade)
     {
         toastText = null;
@@ -35,12 +35,12 @@ public class ToastHandler
         toastMethod = null;
         fadeTime = endTime + (fade ? 500 : 0);
     }
-
+    
     public boolean isActiveToast()
     {
         return fadeTime >= System.currentTimeMillis();
     }
-
+    
     @SubscribeEvent
     public void guiRendered(TickEvent.RenderTickEvent evt)
     {
@@ -52,7 +52,7 @@ public class ToastHandler
                 long fadeDiff = ToastHandler.fadeTime - ToastHandler.endTime;
                 long curFade = Math.min(ToastHandler.fadeTime - curTime, fadeDiff);
                 float alpha = (float) curFade / (float) fadeDiff;
-
+                
                 RenderHelper.disableStandardItemLighting();
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
                 mc.getTextureManager().bindTexture(getToastResourceLocation());
@@ -66,7 +66,7 @@ public class ToastHandler
             }
         }
     }
-
+    
     private ResourceLocation getToastResourceLocation()
     {
         return newResouce;

@@ -12,13 +12,13 @@ import java.util.regex.Pattern;
 public class GuiTextFieldValidate extends TextFieldWidget
 {
     Pattern pattern;
-
+    
     public GuiTextFieldValidate(FontRenderer p_i1032_1_, int p_i1032_2_, int p_i1032_3_, int p_i1032_4_, int p_i1032_5_, String regexStr, String s)
     {
         super(p_i1032_1_, p_i1032_2_, p_i1032_3_, p_i1032_4_, p_i1032_5_, s);
         pattern = Pattern.compile(regexStr);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void writeText(String textWrite)
@@ -34,7 +34,7 @@ public class GuiTextFieldValidate extends TextFieldWidget
             this.setCursorPosition(prevPos);
         }
     }
-
+    
     @Override
     public void setText(String string)
     {

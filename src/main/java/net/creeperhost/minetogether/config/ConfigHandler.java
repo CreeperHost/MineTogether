@@ -20,7 +20,7 @@ public class ConfigHandler
             if (!CONFIG_LOCATION.exists())
             {
                 Config.instance = new Config();
-
+                
                 FileWriter tileWriter = new FileWriter(CONFIG_LOCATION);
                 tileWriter.write(Config.saveConfig());
                 tileWriter.close();
@@ -28,14 +28,18 @@ public class ConfigHandler
             {
                 Config.loadFromFile(CONFIG_LOCATION);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored)
+        {
+        }
     }
     
     public static void saveConfig()
     {
         try (FileOutputStream configOut = new FileOutputStream(CONFIG_LOCATION))
         {
-            IOUtils.write(Config.saveConfig(), configOut , Charset.defaultCharset());
-        } catch (Throwable ignored) {}
+            IOUtils.write(Config.saveConfig(), configOut, Charset.defaultCharset());
+        } catch (Throwable ignored)
+        {
+        }
     }
 }

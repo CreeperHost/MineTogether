@@ -26,43 +26,43 @@ public class GuiGeneralServerInfo extends GuiGetServer
     private String message = "Name can not be blank";
     private CheckboxButton pregen;
     private Button modpack;
-
+    
     public GuiGeneralServerInfo(int stepId, Order order)
     {
         super(stepId, order);
         lockIcon = new ResourceLocation("creeperhost", "textures/lock.png");
     }
-
+    
     @Override
     public void init()
     {
         super.init();
-
+        
         int halfWidth = this.width / 2;
         int halfHeight = this.height / 2;
-
+        
         this.nameField = new GuiTextFieldValidate(this.font, halfWidth - 100, halfHeight - 50, 200, 20, "([A-Za-z0-9]*)", "");
         this.nameField.setMaxStringLength(Constants.MAX_SERVER_NAME_LENGTH);
         this.nameField.setText(this.order.name.isEmpty() ? Util.getDefaultName() : this.order.name);
         this.order.name = this.nameField.getText().trim();
-
+        
         String checkboxString = Util.localize("info.pregen");
-
+        
         int checkboxWidth = this.font.getStringWidth(checkboxString) + 11 + 2;
-
+        
         pregen = new CheckboxButton(halfWidth - (checkboxWidth / 2), 10, 10, halfHeight - 8, checkboxString, order.pregen);
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void tick()
     {
         super.tick();
         this.nameField.tick();
-
+        
         final String nameToCheck = this.nameField.getText().trim();
         boolean isEmpty = nameToCheck.isEmpty();
-
+        
         if (lastKeyTyped + 400 < System.currentTimeMillis() && !nameChecked)
         {
             nameChecked = true;
@@ -78,14 +78,14 @@ public class GuiGeneralServerInfo extends GuiGetServer
                     isAcceptable = result.getSuccess();
                     message = result.getMessage();
                 };
-
+                
                 Thread thread = new Thread(task);
                 thread.start();
             }
         }
         this.buttonNext.active = !isEmpty && nameChecked && isAcceptable;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public boolean charTyped(char typedChar, int keyCode)
@@ -107,17 +107,17 @@ public class GuiGeneralServerInfo extends GuiGetServer
         }
         return false;
     }
-
+    
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
         super.render(mouseX, mouseY, partialTicks);
-
+        
         this.drawCenteredString(this.font, Util.localize("info.server_name"), this.width / 2, this.height / 2 - 65, -1);
-
+        
         int colour;
-
+        
         if (nameChecked && isAcceptable)
         {
             colour = 0x00FF00;
@@ -125,22 +125,22 @@ public class GuiGeneralServerInfo extends GuiGetServer
         {
             colour = 0xFF0000;
         }
-
+        
         this.minecraft.getTextureManager().bindTexture(lockIcon);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 //        Gui.drawModalRectWithCustomSizedTexture((this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
-
+        
         int strStart = 61;
-
+        
         this.drawCenteredString(font, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
         this.drawCenteredString(font, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);
         this.drawCenteredString(font, Util.localize("secure.line3"), this.width / 2, (this.height / 2) + strStart + 20, 0xFFFFFF);
-
+        
         this.nameField.render(mouseX, mouseY, partialTicks);
-
+        
         this.drawCenteredString(font, message, (this.width / 2), (this.height / 2) - 26, colour);
     }
-
+    
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
@@ -149,7 +149,7 @@ public class GuiGeneralServerInfo extends GuiGetServer
         order.pregen = pregen.isChecked();
         return true;
     }
-
+    
     @Override
     public String getStepName()
     {

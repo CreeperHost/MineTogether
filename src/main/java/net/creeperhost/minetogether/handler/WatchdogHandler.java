@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.handler;
 
 import net.creeperhost.minetogether.MineTogether;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerPropertiesProvider;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.ServerHangWatchdog;
@@ -16,7 +15,7 @@ public class WatchdogHandler
         //TODO config this
         killWatchdog();
     }
-
+    
     public boolean killWatchdog()
     {
         Thread watchdogThread = MineTogether.getThreadByName("Server Watchdog");
@@ -27,10 +26,10 @@ public class WatchdogHandler
         
         try
         {
-            if(isEnabled())
+            if (isEnabled())
             {
                 MineTogether.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
-    
+                
                 watchdogThread.interrupt();
                 return true;
             }
@@ -40,7 +39,7 @@ public class WatchdogHandler
             return false;
         }
     }
-
+    
     //One this we will bring it back maybe??
     private void resuscitateWatchdog()
     {
@@ -59,7 +58,7 @@ public class WatchdogHandler
     {
         Path path = Paths.get("server.properties");
         ServerPropertiesProvider serverpropertiesprovider = new ServerPropertiesProvider(path);
-        if(serverpropertiesprovider.getProperties().maxTickTime >= 0)
+        if (serverpropertiesprovider.getProperties().maxTickTime >= 0)
         {
             return false;
         }

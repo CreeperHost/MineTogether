@@ -11,7 +11,7 @@ import java.io.File;
 public class ServerListHandler
 {
     boolean serverOn;
-
+    
     public ServerListHandler()
     {
         if (!MineTogether.instance.active)
@@ -22,12 +22,12 @@ public class ServerListHandler
             File properties = new File("server.properties");
             MineTogetherPropertyManager manager = new MineTogetherPropertyManager(properties);
             DedicatedServer dediServer = (DedicatedServer) server;
-
+            
             String discoverModeString = manager.getStringProperty("discoverability", "unlisted");
             String displayNameTemp = manager.getStringProperty("displayname", "Fill this in if you have set the server to public!");
             String serverIP = manager.getStringProperty("server-ip", "");
             final String projectID = Config.getInstance().curseProjectID;
-
+            
             if (displayNameTemp.equals("Fill this in if you have set the server to public!") && discoverModeString.equals("unlisted"))
             {
                 File outProperties = new File("minetogether.properties");
@@ -43,9 +43,9 @@ public class ServerListHandler
                     discoverModeString = "unlisted";
                 }
             }
-
+            
             final String displayName = displayNameTemp;
-
+            
             serverOn = true;
             try
             {
@@ -53,7 +53,7 @@ public class ServerListHandler
             } catch (IllegalArgumentException ignored)
             {
             }
-
+            
             if (MineTogether.discoverMode != MineTogether.Discoverability.UNLISTED)
             {
                 Config defConfig = new Config();

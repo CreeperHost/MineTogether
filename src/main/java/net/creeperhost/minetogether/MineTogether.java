@@ -3,9 +3,9 @@ package net.creeperhost.minetogether;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.creeperhost.minetogether.api.MineTogetherAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
+import net.creeperhost.minetogether.api.MineTogetherAPI;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
@@ -86,18 +86,18 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static int updateID;
     static int tries = 0;
     public IPlayerKicker kicker;
-
+    
     public String ourNick;
     public File mutedUsersFile;
     public String ftbPackID = "";
     public String base64;
     public String requestedID;
-
+    
     public static MineTogether instance;
     public static MinecraftServer server;
     public static String secret;
     public static PreGenHandler preGenHandler;
-
+    
     public MineTogether()
     {
         instance = this;
@@ -108,10 +108,10 @@ public class MineTogether implements ICreeperHostMod, IHost
         eventBus.addListener(this::preInitClient);
         eventBus.addListener(this::serverStarting);
         eventBus.addListener(this::serverStarted);
-
+        
         MinecraftForge.EVENT_BUS.register(this);
     }
-
+    
     @SubscribeEvent
     public void preInit(FMLCommonSetupEvent event)
     {
@@ -121,52 +121,54 @@ public class MineTogether implements ICreeperHostMod, IHost
         proxy.registerKeys();
         PacketHandler.register();
     }
-
+    
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
         registerImplementation(new CreeperHostServerHost());
-
+        
         File gdprFile = new File("local/minetogether/gdpr.txt");
         gdpr = new GDPR(gdprFile);
-
+        
         HostHolder.host = this;
         File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
         ingameChat = new IngameChat(ingameChatFile);
         ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 15);
-
+        
         HashMap<String, String> jsonObj = new HashMap<>();
-
+        
         int packID;
-
+        
         try
         {
             packID = Integer.parseInt(Config.getInstance().curseProjectID);
         } catch (NumberFormatException e)
         {
-            if(!ftbPackID.isEmpty())
+            if (!ftbPackID.isEmpty())
             {
                 jsonObj.put("p", ftbPackID);
                 jsonObj.put("b", base64);
             }
             packID = -1;
         }
-
-        if(ftbPackID.isEmpty())
+        
+        if (ftbPackID.isEmpty())
         {
             jsonObj.put("p", String.valueOf(packID));
         }
-
+        
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         try
         {
             realName = gson.toJson(jsonObj);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored)
+        {
+        }
         
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
     }
-
+    
     @SubscribeEvent
     public void serverStarting(FMLServerStartingEvent event)
     {
@@ -174,11 +176,11 @@ public class MineTogether implements ICreeperHostMod, IHost
                 LiteralArgumentBuilder.<CommandSource>literal("mt")
                         .then(CommandKill.register())
                         .then(CommandPregen.register()));
-
+        
         server = event.getServer();
         preGenHandler = new PreGenHandler();
     }
-
+    
     @SubscribeEvent
     public void serverStarted(FMLServerStartedEvent event)
     {
@@ -186,7 +188,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         new WatchdogHandler();
         new ServerListHandler();
     }
-
+    
     @SubscribeEvent
     public void serverStopping(FMLServerStoppingEvent event)
     {
@@ -200,17 +202,17 @@ public class MineTogether implements ICreeperHostMod, IHost
     public void updateFtbPackID()
     {
         File versions = new File(FMLPaths.GAMEDIR.get().toFile() + File.separator + "version.json");
-        if(versions.exists())
+        if (versions.exists())
         {
             try (InputStream stream = new FileInputStream(versions))
             {
-               JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+                JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
                 if (json.isJsonObject())
                 {
                     JsonObject object = json.getAsJsonObject();
                     String versionID = object.getAsJsonPrimitive("id").getAsString();
                     String ftbPackID = object.getAsJsonPrimitive("parent").getAsString();
-    
+                    
                     base64 = Base64.getEncoder().encodeToString((ftbPackID + versionID).getBytes());
                     requestedID = Callbacks.getVersionFromApi(base64);
                     Config.getInstance().setVersion(requestedID);
@@ -223,7 +225,7 @@ public class MineTogether implements ICreeperHostMod, IHost
             }
         }
     }
-
+    
     public void updateCurse()
     {
         if (!Config.getInstance().curseProjectID.equals(lastCurse) && Config.getInstance().isCreeperhostEnabled())
@@ -232,7 +234,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         }
         lastCurse = Config.getInstance().curseProjectID;
     }
-
+    
     public void setRandomImplementation()
     {
         if (randomGenerator == null)
@@ -245,28 +247,28 @@ public class MineTogether implements ICreeperHostMod, IHost
         int random = randomGenerator.nextInt(MineTogetherAPI.getImplementations().size());
         currentImplementation = MineTogetherAPI.getImplementations().get(random);
     }
-
+    
     public IServerHost getImplementation()
     {
         return currentImplementation;
     }
-
+    
     @Override
     public void registerImplementation(IServerHost serverHost)
     {
         MineTogetherAPI.registerImplementation(serverHost);
     }
-
+    
     @Override
     public ArrayList<Friend> getFriends()
     {
         return Callbacks.getFriendsList(false);
     }
-
+    
     public final Object friendLock = new Object();
     public String friend = null;
     public boolean friendMessage = false;
-
+    
     @Override
     public void friendEvent(String name, boolean isMessage)
     {
@@ -276,21 +278,21 @@ public class MineTogether implements ICreeperHostMod, IHost
             friendMessage = isMessage;
         }
     }
-
+    
     @Override
     public Logger getLogger()
     {
         return logger;
     }
-
+    
     @Override
     public void messageReceived(String target, Message messagePair)
     {
         proxy.messageReceived(target, messagePair);
     }
-
+    
     private static boolean anonLoaded = false;
-
+    
     public String getNameForUser(String nick)
     {
         if (!anonLoaded)
@@ -309,7 +311,7 @@ public class MineTogether implements ICreeperHostMod, IHost
                     anonUsersFile.getParentFile().mkdirs();
                     configString = "{}";
                 }
-
+                
                 Gson gson = new Gson();
                 ChatHandler.anonUsers = gson.fromJson(configString, new TypeToken<HashMap<String, String>>()
                 {
@@ -329,14 +331,16 @@ public class MineTogether implements ICreeperHostMod, IHost
                     {
                         anonUsersStream.close();
                     }
-                } catch (Throwable ignored) {}
+                } catch (Throwable ignored)
+                {
+                }
             }
             anonLoaded = true;
         }
-
+        
         if (nick.length() < 16)
             return null;
-
+        
         nick = nick.substring(0, 17); // should fix where people join and get ` on their name for friends if connection issues etc
         if (ChatHandler.friends.containsKey(nick))
         {
@@ -362,7 +366,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         }
         return null;
     }
-
+    
     public void saveAnonFile()
     {
         Gson gson = new Gson();
@@ -370,9 +374,11 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers), Charset.defaultCharset());
-        } catch (IOException ignored) {}
+        } catch (IOException ignored)
+        {
+        }
     }
-
+    
     public void muteUser(String user)
     {
         mutedUsers.add(user);
@@ -380,9 +386,11 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers), Charset.defaultCharset());
-        } catch (IOException ignored) {}
+        } catch (IOException ignored)
+        {
+        }
     }
-
+    
     public void unmuteUser(String user)
     {
         String mtUser = ChatHandler.anonUsersReverse.get(user);
@@ -392,40 +400,42 @@ public class MineTogether implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers), Charset.defaultCharset());
-        } catch (IOException ignored) {}
+        } catch (IOException ignored)
+        {
+        }
     }
-
+    
     @Override
     public String getFriendCode()
     {
         return Callbacks.getFriendCode();
     }
-
+    
     @Override
     public void acceptFriend(String friendCode, String name)
     {
         new Thread(() -> Callbacks.addFriend(friendCode, name)).start();
     }
-
+    
     @Override
     public void closeGroupChat()
     {
         proxy.closeGroupChat();
     }
-
+    
     @Override
     public void updateChatChannel()
     {
         proxy.updateChatChannel();
     }
-
+    
     @Override
     public void userBanned(String username)
     {
         bannedUsers.add(username);
         proxy.refreshChat();
     }
-
+    
     public static Thread getThreadByName(String threadName)
     {
         for (Thread t : Thread.getAllStackTraces().keySet())
@@ -434,24 +444,24 @@ public class MineTogether implements ICreeperHostMod, IHost
         }
         return null;
     }
-
+    
     public enum Discoverability
     {
         UNLISTED,
         PUBLIC,
         INVITE
     }
-
+    
     public static class InviteClass
     {
         public int id = MineTogether.updateID;
         public ArrayList<String> hash;
     }
-
+    
     static Thread mtThread;
     public static boolean isActive;
     public static boolean failed;
-
+    
     @SuppressWarnings("Duplicates")
     public static void startMinetogetherThread(String serverIP, String displayName, String projectid, int port, Discoverability discoverMode)
     {
@@ -462,30 +472,30 @@ public class MineTogether implements ICreeperHostMod, IHost
             while (serverOn)
             {
                 Map send = new HashMap<String, String>();
-
+                
                 if (!serverIP.isEmpty())
                 {
                     send.put("ip", serverIP);
                 }
-
+                
                 if (MineTogether.secret != null)
                     send.put("secret", MineTogether.secret);
                 send.put("name", displayName);
                 send.put("projectid", projectid);
                 send.put("port", String.valueOf(port));
-
+                
                 send.put("invite-only", discoverMode == Discoverability.INVITE ? "1" : "0");
-
+                
                 send.put("version", 2);
-
+                
                 Gson gson = new Gson();
-
+                
                 String sendStr = gson.toJson(send);
-
+                
                 String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
-
+                
                 int sleepTime = 90000;
-
+                
                 try
                 {
                     JsonElement jElement = new JsonParser().parse(resp);
@@ -513,25 +523,29 @@ public class MineTogether implements ICreeperHostMod, IHost
                             }
                             failed = true;
                         }
-
+                        
                         if (first)
                         {
                             CommandInvite.reloadInvites(new String[0]);
                             first = false;
                         }
                     }
-                } catch (Exception ignored) {}
-
+                } catch (Exception ignored)
+                {
+                }
+                
                 try
                 {
                     Thread.sleep(sleepTime);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored)
+                {
+                }
             }
         });
         mtThread.setDaemon(true);
         mtThread.start();
     }
-
+    
     public void setupPlayerKicker()
     {
         if (kicker == null)
@@ -548,7 +562,7 @@ public class MineTogether implements ICreeperHostMod, IHost
             } catch (Throwable ignored)
             {
             }
-
+            
             try
             {
                 Class clazz = Class.forName(className);

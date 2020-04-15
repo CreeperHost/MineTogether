@@ -22,7 +22,7 @@ import java.util.*;
 public final class Callbacks
 {
     private static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
-
+    
     private static Util.CachedValue<List<Server>> serverListCache;
     private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
     private static String friendCode;
@@ -281,7 +281,7 @@ public final class Callbacks
         put("ZW", "Zimbabwe");
         put("UNKNOWN", "Unknown");
     }};
-
+    
     public static Invite getInvite()
     {
         String hash = getPlayerHash(MineTogether.proxy.getUUID());
@@ -300,7 +300,7 @@ public final class Callbacks
             if (obj.get("status").getAsString().equals("success"))
             {
                 JsonArray invites = obj.getAsJsonArray("invites");
-
+                
                 for (JsonElement inviteEl : invites)
                 {
                     JsonObject invite = inviteEl.getAsJsonObject();
@@ -330,12 +330,12 @@ public final class Callbacks
                             flag = EnumFlag.UNKNOWN;
                         }
                     }
-
+                    
                     int uptime = server.get("uptime").getAsInt();
                     int players = server.get("expected_players").getAsInt();
-
+                    
                     String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
-
+                    
                     Server serverEl = new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL);
                     return new Invite(serverEl, project, by);
                 }
@@ -343,7 +343,7 @@ public final class Callbacks
         }
         return null;
     }
-
+    
     public static boolean isBanned()
     {
         String hash = getPlayerHash(MineTogether.proxy.getUUID());
@@ -371,9 +371,9 @@ public final class Callbacks
         }
         return false;
     }
-
+    
     public static String banID = "";
-
+    
     public static String getBanMessage()
     {
         String hash = getPlayerHash(MineTogether.proxy.getUUID());
@@ -385,7 +385,7 @@ public final class Callbacks
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
-
+        
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
@@ -398,9 +398,9 @@ public final class Callbacks
                 JsonElement id = ban.getAsJsonObject().get("id");
                 JsonElement timestamp = ban.getAsJsonObject().get("timestamp");
                 JsonElement reason = ban.getAsJsonObject().get("reason");
-
+                
                 banID = id.getAsString();
-
+                
                 return reason.getAsString() + " " + timestamp.getAsString();
             } else
             {
@@ -409,7 +409,7 @@ public final class Callbacks
         }
         return "";
     }
-
+    
     public static boolean inviteFriend(Friend friend)
     {
         String hash = getPlayerHash(MineTogether.proxy.getUUID());
@@ -424,11 +424,11 @@ public final class Callbacks
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invitefriend", sendStr, true, false);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
-
+        
         if (element.isJsonObject())
         {
             JsonObject obj = element.getAsJsonObject();
-
+            
             if (obj.get("status").getAsString().equals("success"))
             {
                 return true;
@@ -438,12 +438,12 @@ public final class Callbacks
         MineTogether.logger.error(resp);
         return false;
     }
-
+    
     public static String getPlayerHash(UUID uuid)
     {
         if (hashCache.containsKey(uuid))
             return hashCache.get(uuid);
-
+        
         String playerHash;
         try
         {
@@ -458,12 +458,12 @@ public final class Callbacks
         hashCache.put(uuid, playerHash);
         return playerHash;
     }
-
+    
     public static String getFriendCode()
     {
         if (friendCode != null)
             return friendCode;
-
+        
         String hash = getPlayerHash(MineTogether.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
         {
@@ -489,7 +489,7 @@ public final class Callbacks
         }
         return friendCode;
     }
-
+    
     public static String addFriend(String code, String display)
     {
         String hash = getPlayerHash(MineTogether.proxy.getUUID());
@@ -517,7 +517,7 @@ public final class Callbacks
         }
         return null;
     }
-
+    
     public static boolean removeFriend(String friendHash)
     {
         String hash = getPlayerHash(MineTogether.proxy.getUUID());
@@ -544,22 +544,22 @@ public final class Callbacks
         }
         return true;
     }
-
+    
     public static ArrayList<Minigame> getMinigames(boolean isModded)
     {
-
+        
         Map<String, String> sendMap = new HashMap<>();
         {
             sendMap.put("mc", Util.getMinecraftVersion());
             sendMap.put("project", isModded ? Config.getInstance().curseProjectID : String.valueOf(0));
         }
-
+        
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/mgtemplates", new Gson().toJson(sendMap), true, false);
-
+        
         JsonParser parser = new JsonParser();
-
+        
         Gson gson = new Gson();
-
+        
         JsonElement parse = parser.parse(resp);
         if (parse.isJsonObject())
         {
@@ -571,12 +571,12 @@ public final class Callbacks
                 }.getType());
             }
         }
-
+        
         return null;
     }
-
+    
     static boolean friendsGetting;
-
+    
     public static ArrayList<Friend> getFriendsList(boolean force)
     {
         if (friendsList == null)
@@ -595,21 +595,21 @@ public final class Callbacks
                     {
                         sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
                     }
-
+                    
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
-
+                    
                     ArrayList<Friend> tempArr = new ArrayList<Friend>();
-
+                    
                     // no idea how this can return null, but apparently it can, so this will fix it.
                     if (resp.equals("error"))
                     {
                         return tempArr;
                     }
-
+                    
                     JsonElement el = new JsonParser().parse(resp);
                     if (el.isJsonObject())
                     {
-
+                        
                         JsonObject obj = el.getAsJsonObject();
                         if (obj.get("status").getAsString().equals("success"))
                         {
@@ -618,13 +618,13 @@ public final class Callbacks
                             {
                                 JsonObject friend = (JsonObject) friendEl;
                                 String name = "null";
-
+                                
                                 if (!friend.get("name").isJsonNull())
                                 {
                                     name = friend.get("name").getAsString();
                                 }
                                 String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
-
+                                
                                 boolean accepted = friend.get("accepted").getAsBoolean();
                                 tempArr.add(new Friend(name, code, accepted));
                             }
@@ -633,7 +633,7 @@ public final class Callbacks
                     friendsGetting = false;
                     return tempArr;
                 }
-
+                
                 @Override
                 public boolean needsRefresh(Object... args)
                 {
@@ -642,7 +642,7 @@ public final class Callbacks
             });
         return friendsList.get(force);
     }
-
+    
     public static List<Server> getServerList(Enum listType)
     {
         if (serverListCache == null)
@@ -651,7 +651,7 @@ public final class Callbacks
             {
                 private Enum lastRequest;
                 private String playerHash;
-
+                
                 @Override
                 public List<Server> get(Object... args)
                 {
@@ -660,14 +660,14 @@ public final class Callbacks
                     lastRequest = listType;
                     MineTogether.logger.info("Loading " + (listType.name().toLowerCase()) + " server list.");
                     List<Server> list = new ArrayList<Server>();
-
+                    
                     Config defaultConfig = new Config();
                     if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
                         list.add(new Server("No project ID! Please fix the MineTogether config or ensure a version.json exists.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
                         return list;
                     }
-
+                    
                     Map<String, String> jsonPass = new HashMap<String, String>();
                     jsonPass.put("projectid", MineTogether.instance.base64 == null ? Config.getInstance().curseProjectID : MineTogether.instance.base64);
                     if (enumOrdinal == 1)
@@ -676,19 +676,19 @@ public final class Callbacks
                         {
                             playerHash = getPlayerHash(MineTogether.proxy.getUUID());
                         }
-
+                        
                         jsonPass.put("hash", playerHash);
                     }
-
+                    
                     jsonPass.put("listType", listType.name().toLowerCase());
-
+                    
                     Gson gson = new Gson();
                     String jsonString = gson.toJson(jsonPass);
-
+                    
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
                     MineTogether.logger.info(jsonString);
                     MineTogether.logger.info(resp);
-
+                    
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
                     {
@@ -722,21 +722,21 @@ public final class Callbacks
                                         flag = EnumFlag.UNKNOWN;
                                     }
                                 }
-
+                                
                                 int uptime = server.get("uptime").getAsInt();
                                 int players = server.get("expected_players").getAsInt();
-
+                                
                                 String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
-
+                                
                                 //applicationURL = "https://www.google.com"; // MAKE SURE TO REMOVE
-
+                                
                                 list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL));
                             }
                         }
                     }
                     return list;
                 }
-
+                
                 @Override
                 public boolean needsRefresh(Object... args)
                 {
@@ -747,7 +747,7 @@ public final class Callbacks
         }
         return serverListCache.get(listType);
     }
-
+    
     public static Map<String, String> getAllServerLocations()
     {
         IServerHost implementation = MineTogether.instance.getImplementation();
@@ -755,28 +755,28 @@ public final class Callbacks
             locationCache.put(implementation, implementation.getAllServerLocations());
         return locationCache.get(implementation);
     }
-
+    
     public static Map<String, String> getCountries()
     {
         return countries;
     }
-
+    
     public static AvailableResult getNameAvailable(String name)
     {
         return MineTogether.instance.getImplementation().getNameAvailable(name);
     }
-
+    
     public static String getUserCountry()
     {
         if (userCountry == null)
             try
             {
                 String freeGeoIP = WebUtils.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
-
+                
                 JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
-
+                
                 jObject = jObject.getAsJsonObject("customer");
-
+                
                 userCountry = jObject.getAsJsonPrimitive("country").getAsString();
             } catch (Throwable t)
             {
@@ -785,32 +785,32 @@ public final class Callbacks
             }
         return userCountry;
     }
-
+    
     public static String getRecommendedLocation()
     {
         return MineTogether.instance.getImplementation().getRecommendedLocation();
     }
-
+    
     public static OrderSummary getSummary(Order order)
     {
         return MineTogether.instance.getImplementation().getSummary(order);
     }
-
+    
     public static boolean doesEmailExist(final String email)
     {
         return MineTogether.instance.getImplementation().doesEmailExist(email);
     }
-
+    
     public static String doLogin(final String email, final String password)
     {
         return MineTogether.instance.getImplementation().doLogin(email, password);
     }
-
+    
     public static String createAccount(final Order order)
     {
         return MineTogether.instance.getImplementation().createAccount(order);
     }
-
+    
     public static String createOrder(final Order order)
     {
         return MineTogether.instance.getImplementation().createOrder(order);
@@ -830,11 +830,13 @@ public final class Callbacks
             {
                 return "";
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored)
+        {
+        }
         
         return "";
     }
-
+    
     public static String getVersionFromCurse(String curse)
     {
         if (isInteger(curse))
@@ -851,11 +853,13 @@ public final class Callbacks
                 {
                     return "0";
                 }
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored)
+            {
+            }
         }
         return "0";
     }
-
+    
     public static boolean isInteger(String s)
     {
         try
@@ -867,27 +871,27 @@ public final class Callbacks
         }
         return true;
     }
-
+    
     public static List<ModPack> getModpackFromCurse(String modpack, int limit)
     {
         String url = "https://www.creeperhost.net/json/modpacks/mc/search/" + modpack;
-
+        
         //Return the recommended if nothing is searched
         if (modpack == null || modpack.isEmpty())
         {
             url = "https://www.creeperhost.net/json/modpacks/weekly/" + limit;
         }
-
+        
         String resp = WebUtils.getWebResponse(url);
         List<ModPack> modpackList = new ArrayList<>();
-
+        
         JsonElement jElement = new JsonParser().parse(resp);
-
+        
         if (jElement.isJsonObject())
         {
             JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
             JsonArray array = object.getAsJsonArray("mc");
-
+            
             if (array != null)
             {
                 for (JsonElement serverEl : array)
@@ -898,7 +902,7 @@ public final class Callbacks
                         String id = server.get("id").getAsString();
                         String name = server.get("displayName").getAsString();
                         String displayVersion = server.get("displayVersion").getAsString();
-
+                        
                         modpackList.add(new ModPack(id, name, displayVersion));
                     }
                 }

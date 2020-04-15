@@ -17,7 +17,7 @@ public abstract class GuiGetServer extends Screen
     protected Button buttonPrev;
     protected Button buttonNext;
     protected Button buttonCancel;
-
+    
     public GuiGetServer(int stepId, Order order)
     {
         super(new TranslationTextComponent(""));
@@ -25,7 +25,7 @@ public abstract class GuiGetServer extends Screen
         this.stepId = stepId;
         this.order = order;
     }
-
+    
     @SuppressWarnings("Duplicates")
     public static Screen getByStep(int step, Order order)
     {
@@ -44,25 +44,25 @@ public abstract class GuiGetServer extends Screen
                 return new GuiOrderDetails(4, order);
         }
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public void init()
     {
         super.init();
-
+        
         int y = this.height - 30;
-
+        
         this.buttonPrev = new Button(10, y, 80, 20, Util.localize("button.prev"), (button) ->
         {
             this.minecraft.displayGuiScreen(getByStep(this.stepId - 1, this.order));
         });
-
+        
         this.buttonPrev.active = this.stepId > 0;
         this.addButton(this.buttonPrev);
-
+        
         String nextStr = "";
-
+        
         if ((this.stepId + 1) == STEP_AMOUNT)
         {
             nextStr = Util.localize("button.done");
@@ -73,7 +73,7 @@ public abstract class GuiGetServer extends Screen
         {
             nextStr = Util.localize("button.next");
         }
-
+        
         this.buttonNext = new Button(this.width - 90, y, 80, 20, nextStr, (button) ->
         {
             if ((this.stepId + 1) == STEP_AMOUNT)
@@ -85,24 +85,24 @@ public abstract class GuiGetServer extends Screen
             }
         });
         this.addButton(buttonNext);
-
+        
         this.buttonCancel = new Button(this.width / 2 - 40, y, 80, 20, Util.localize("button.cancel"), (button) ->
         {
             this.minecraft.displayGuiScreen(null);
         });
         this.addButton(this.buttonCancel);
     }
-
+    
     @Override
     public void render(int p_render_1_, int p_render_2_, float p_render_3_)
     {
         this.drawCenteredString(minecraft.fontRenderer, Util.localize("gui.get_server"), this.width / 2, 10, -1);
-
+        
         this.drawCenteredString(minecraft.fontRenderer, Util.localize("info.step", this.stepId + 1, STEP_AMOUNT), this.width / 2, 20, -1);
         this.drawCenteredString(minecraft.fontRenderer, this.getStepName(), this.width / 2, 30, -1);
-
+        
         super.render(p_render_1_, p_render_2_, p_render_3_);
     }
-
+    
     public abstract String getStepName();
 }

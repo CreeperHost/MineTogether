@@ -6,7 +6,7 @@ public class ChunkData
 {
     int chunkX;
     int chunkZ;
-
+    
     public ChunkData(Chunk chunk)
     {
         this.chunkX = chunk.getPos().x;

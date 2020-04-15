@@ -19,42 +19,44 @@ public class WorldHandler
     private CompoundNBT chunkProviderSettingsJson = new CompoundNBT();
     private WorldType type = WorldType.WORLD_TYPES[0];
     private String saveDirName;
-
+    
     public void createWorld()
     {
-        this.minecraft.displayGuiScreen((Screen)null);
+        this.minecraft.displayGuiScreen((Screen) null);
         calcSaveDirName();
         long hash = 637265657;//Long.parseLong(seed);
-
+        
         WorldSettings worldsettings = new WorldSettings(hash, GameType.SURVIVAL, true, false, type);
         worldsettings.setGeneratorOptions(Dynamic.convert(NBTDynamicOps.INSTANCE, JsonOps.INSTANCE, this.chunkProviderSettingsJson));
         //TODO this is only here for testing
         worldsettings.enableCommands();
-
+        
         this.minecraft.launchIntegratedServer(this.saveDirName, worldName, worldsettings);
     }
-
+    
     private void calcSaveDirName()
     {
         this.saveDirName = worldName;
-
+        
         if (this.saveDirName.isEmpty())
         {
             this.saveDirName = "World";
         }
-
+        
         try
         {
             this.saveDirName = FileUtil.func_214992_a(this.minecraft.getSaveLoader().getSavesDir(), this.saveDirName, "");
-        }
-        catch (Exception var4)
+        } catch (Exception var4)
         {
             this.saveDirName = "World";
-
+            
             try
             {
                 this.saveDirName = FileUtil.func_214992_a(this.minecraft.getSaveLoader().getSavesDir(), this.saveDirName, "");
-            } catch (Exception exception) { throw new RuntimeException("Could not create save folder", exception); }
+            } catch (Exception exception)
+            {
+                throw new RuntimeException("Could not create save folder", exception);
+            }
         }
     }
 }
