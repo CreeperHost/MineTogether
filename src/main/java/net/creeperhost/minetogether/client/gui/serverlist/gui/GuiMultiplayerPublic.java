@@ -75,7 +75,14 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             return;
         }
         
-        addButton(new Button(width - 85, 5, 80, 20, I18n.format("minetogether.listing.title"), p ->
+        String name = "minetogether.listing.title";
+        
+        if(listType != null)
+        {
+            name = listType.name();
+        }
+        
+        addButton(new Button(width - 85, 5, 80, 20, I18n.format(name), p ->
         {
             if (changeSort)
             {
@@ -130,16 +137,19 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             sort();
         }
         
-        addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false, p ->
+        if(listType != null)
         {
-            if (sortOrder != sortOrderButton.getSelected())
+            addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false, p ->
             {
-                changeSort = true;
-                sortOrder = sortOrderButton.getSelected();
-                sort();
-                minecraft.displayGuiScreen(new GuiMultiplayerPublic(parent, listType, sortOrder));
-            }
-        }));
+                if (sortOrder != sortOrderButton.getSelected())
+                {
+                    changeSort = true;
+                    sortOrder = sortOrderButton.getSelected();
+                    sort();
+                    minecraft.displayGuiScreen(new GuiMultiplayerPublic(parent, listType, sortOrder));
+                }
+            }));
+        }
     }
     
     private void setServerList(ServerListPublic serverList)

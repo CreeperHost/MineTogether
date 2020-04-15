@@ -55,15 +55,15 @@ public class GuiServerType extends Screen
         
         addButton(new GuiButtonLarge((width / 2) - 180, (height / 8) + 20, 120, 165, "PUBLIC", I18n.format("minetogether.listing.public"), new ItemStack(Items.GUNPOWDER), p ->
         {
-            Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen(), GuiMultiplayerPublic.ListType.PUBLIC, GuiMultiplayerPublic.SortOrder.NAME, true));
+            Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen(), GuiMultiplayerPublic.ListType.PUBLIC, GuiMultiplayerPublic.SortOrder.RANDOM, true));
         }));
         addButton(new GuiButtonLarge((width / 2) - 60, (height / 8) + 20, 120, 165, "COMMUNITY", I18n.format("minetogether.listing.community"), new ItemStack(Items.FISHING_ROD), p ->
         {
-            Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen(), GuiMultiplayerPublic.ListType.APPLICATION, GuiMultiplayerPublic.SortOrder.NAME, true));
+            Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen(), GuiMultiplayerPublic.ListType.APPLICATION, GuiMultiplayerPublic.SortOrder.RANDOM, true));
         }));
         addButton(new GuiButtonLarge((width / 2) + 60, (height / 8) + 20, 120, 165, "CLOSED", I18n.format("minetogether.listing.closed"), new ItemStack(Items.CHAINMAIL_CHESTPLATE), p ->
         {
-            Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen(), GuiMultiplayerPublic.ListType.INVITE, GuiMultiplayerPublic.SortOrder.NAME, true));
+            Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen(), GuiMultiplayerPublic.ListType.INVITE, GuiMultiplayerPublic.SortOrder.RANDOM, true));
         }));
         addButton(new Button((width / 2) - 110, height - 22, 220, 20, I18n.format("gui.cancel"), p ->
         {
