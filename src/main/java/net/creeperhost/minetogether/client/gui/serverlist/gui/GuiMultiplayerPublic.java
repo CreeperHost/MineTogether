@@ -148,7 +148,19 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     {
         serverListSelectorOurs.updateOnlineServers(serverList);
     }
-
+    
+    @Override
+    public void func_214287_a(ServerSelectionList.Entry p_214287_1_)
+    {
+        if(listType != null)
+        {
+            this.serverListSelectorOurs.setSelected(p_214287_1_);
+            this.func_214295_b();
+            return;
+        }
+        super.func_214287_a(p_214287_1_);
+    }
+    
     public void sort()
     {
         switch (this.sortOrder)
@@ -179,7 +191,12 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     public void render(int mouseX, int mouseY, float partialTicks)
     {
         ourTooltip = null;
-        super.render(mouseX, mouseY, partialTicks);
+        this.renderBackground();
+        if(listType == null)
+        {
+            this.serverListSelector.render(mouseX, mouseY, partialTicks);
+        }
+    
         if(serverListSelectorOurs != null)
         {
             this.serverListSelectorOurs.render(mouseX, mouseY, partialTicks);
@@ -199,7 +216,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         {
             buttons.forEach(c ->
             {
-                if(c.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")))
+                if(c.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")) || c.getMessage().equalsIgnoreCase(I18n.format("selectServer.edit")))
                 {
                     c.active = false;
                 }
@@ -207,6 +224,13 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
         }
         
         this.buttons.forEach(button -> button.render(mouseX, mouseY, partialTicks));
+    }
+    
+    @Override
+    public void setHoveringText(String p_146793_1_)
+    {
+        super.setHoveringText(p_146793_1_);
+        this.ourTooltip = p_146793_1_;
     }
     
     @Override

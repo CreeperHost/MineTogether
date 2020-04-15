@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.client.gui;
 
-import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
 import net.minecraft.client.gui.screen.Screen;
