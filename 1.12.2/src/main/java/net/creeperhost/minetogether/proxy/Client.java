@@ -79,9 +79,7 @@ public class Client implements IProxy
         UUID uuid = Minecraft.getMinecraft().getSession().getProfile().getId();
 
         CreeperHost.instance.online = !uuid.equals(EntityPlayer.getOfflineUUID(session.getUsername()));
-
-        System.out.println("Online " + CreeperHost.instance.online);
-
+        
         cache = uuid;
 
         return uuid;
