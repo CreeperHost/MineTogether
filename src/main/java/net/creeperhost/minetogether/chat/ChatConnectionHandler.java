@@ -18,10 +18,10 @@ public class ChatConnectionHandler {
         ChatHandler.initedString = nickIn;
         ChatHandler.host = _host;
         ChatHandler.nick = nickIn;
+        ChatHandler.IRC_SERVER = ChatUtil.getIRCServerDetails();
         ChatHandler.CHANNEL = ChatHandler.online ? ChatHandler.IRC_SERVER.channel : "#SuperSpecialPirateClub";
         ChatHandler.host.updateChatChannel();
         ChatHandler.badwordsFormat = ChatUtil.getAllowedCharactersRegex();
-        ChatHandler.IRC_SERVER = ChatUtil.getIRCServerDetails();
         ChatHandler.badwords = ChatUtil.getBadWords();
         ChatHandler.tries = 0;
     }
