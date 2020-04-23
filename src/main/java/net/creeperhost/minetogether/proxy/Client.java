@@ -75,8 +75,6 @@ public class Client implements IProxy
 
         MineTogether.instance.online = !uuid.equals(PlayerEntity.getOfflineUUID(session.getUsername()));
 
-        System.out.println("Online " + MineTogether.instance.online);
-
         cache = uuid;
 
         return uuid;
