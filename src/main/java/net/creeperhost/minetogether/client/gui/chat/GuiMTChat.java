@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.client.gui.chat;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import jdk.nashorn.internal.codegen.CompilerConstants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
@@ -186,9 +187,9 @@ public class GuiMTChat extends Screen
         if (Callbacks.isBanned())
         {
             banMessage = Callbacks.getBanMessage();
-            addButton(banButton = new ButtonString(30, height - 26, 60, 20, "Ban Reason: " + banMessage, p ->
+            addButton(banButton = new ButtonString(20, height - 26, 240, 20, TextFormatting.RED + "Banned for: " + banMessage, p ->
             {
-                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(Callbacks.banID), null);
+                this.minecraft.keyboardListener.setClipboardString(Callbacks.banID);
             }));
         }
     }
@@ -261,7 +262,10 @@ public class GuiMTChat extends Screen
         drawCenteredString(font, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
         ITextComponent comp = new StringTextComponent("\u2022").setStyle(new Style().setColor(Objects.requireNonNull(TextFormatting.getValueByName(status.colour))));
         comp.appendSibling(new StringTextComponent(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
-        drawString(font, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
+        if(banButton == null)
+        {
+            drawString(font, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
+        }
         drawLogo(font, width - 20, height - 30, 20, 30, 0.75F);
         super.render(mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
@@ -657,12 +661,15 @@ public class GuiMTChat extends Screen
         {
             String realname = ChatHandler.curseSync.get(inputNick).trim();
             String[] splitString = realname.split(":");
-            
-            String name2 = splitString[1];
-            
-            if (name2.contains(Config.getInstance().curseProjectID) && !Config.getInstance().curseProjectID.isEmpty() || name2.contains(MineTogether.instance.ftbPackID) && !MineTogether.instance.ftbPackID.isEmpty())
+
+            if(splitString.length >= 2)
             {
-                userComp.getStyle().setColor(TextFormatting.DARK_PURPLE).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("User on same modpack")));
+                String name2 = splitString[1];
+
+                if (name2.contains(Config.getInstance().curseProjectID) && !Config.getInstance().curseProjectID.isEmpty() || name2.contains(MineTogether.instance.ftbPackID) && !MineTogether.instance.ftbPackID.isEmpty())
+                {
+                    userComp.getStyle().setColor(TextFormatting.DARK_PURPLE).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("User on same modpack")));
+                }
             }
         }
         

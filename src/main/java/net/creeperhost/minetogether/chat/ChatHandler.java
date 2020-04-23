@@ -67,8 +67,6 @@ public class ChatHandler
     
     private static void addMessageToChat(String target, String user, String message)
     {
-//        System.out.println(System.currentTimeMillis() + ": " + user + ": " + message);
-        
         LimitedSizeQueue<Message> tempQueue = messages.get(target);
         if (tempQueue == null)
         {

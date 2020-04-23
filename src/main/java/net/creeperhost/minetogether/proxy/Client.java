@@ -68,25 +68,17 @@ public class Client implements IProxy
     {
         if (cache != null)
             return cache;
-        Minecraft mc = Minecraft.getInstance();
-        Session session = mc.getSession();
-        boolean online = MineTogether.instance.online;
-        
-        UUID uuid;
-        
-        if (online)
-        {
-            YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(mc.getProxy(), UUID.randomUUID().toString());
-            GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
-            PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository, new File(mc.gameDir, MinecraftServer.USER_CACHE_FILE.getName()));
-            uuid = playerprofilecache.getGameProfileForUsername(Minecraft.getInstance().getSession().getUsername()).getId();
-        } else
-        {
-            uuid = PlayerEntity.getOfflineUUID(session.getUsername().toLowerCase());
-        }
+
+        Session session = Minecraft.getInstance().getSession();
+
+        UUID uuid = Minecraft.getInstance().getSession().getProfile().getId();
+
+        MineTogether.instance.online = !uuid.equals(PlayerEntity.getOfflineUUID(session.getUsername()));
+
+        System.out.println("Online " + MineTogether.instance.online);
+
         cache = uuid;
-        
-        MineTogether.instance.online = online;
+
         return uuid;
     }
     

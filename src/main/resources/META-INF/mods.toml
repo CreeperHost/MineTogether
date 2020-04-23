@@ -8,3 +8,9 @@ authors="Gigabit101, Cloudhunter, Creeperhost" #optional
     displayName="MineTogether" #mandatory
     description='''
 '''
+[[dependencies.minetogether]]
+    modId="minecraft"
+    mandatory=false
+    versionRange="[1.15.2]"
+    ordering="NONE"
+    side="BOTH"
