@@ -92,13 +92,14 @@ public class CreeperHostServerHost implements IServerHost
         try
         {
             String version = Config.getInstance().getVersion();
-            if (version.equals("0"))
+            if(!CreeperHost.instance.ftbPackID.isEmpty())
             {
-                //TODO
-//                return new OrderSummary("quote.curseerror");
+                Config.getInstance().setVersion(CreeperHost.instance.requestedID);
+            }
+            else
+            {
                 Minecraft mc = Minecraft.getMinecraft();
                 mc.displayGuiScreen(new GuiModPackList(mc.currentScreen));
-
             }
             String url = "https://www.creeperhost.net/json/order/mc/" + version + "/recommend/" + order.playerAmount;
             

@@ -849,6 +849,25 @@ public final class Callbacks
         }
         return true;
     }
+    
+    public static String getVersionFromApi(String packid)
+    {
+        String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
+        try
+        {
+            JsonElement jElement = new JsonParser().parse(resp);
+            JsonObject jObject = jElement.getAsJsonObject();
+            if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
+            {
+                return jObject.getAsJsonPrimitive("id").getAsString();
+            } else
+            {
+                return "";
+            }
+        } catch (Throwable ignored) {}
+        
+        return "";
+    }
 
     public static List<Modpack> getModpackFromCurse(String modpack, int limit)
     {

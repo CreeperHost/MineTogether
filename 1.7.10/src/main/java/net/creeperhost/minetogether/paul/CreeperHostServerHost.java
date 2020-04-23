@@ -94,7 +94,14 @@ public class CreeperHostServerHost implements IServerHost
             String version = Config.getInstance().getVersion();
             if (version.equals("0"))
             {
-                return new OrderSummary("quote.curseerror");
+                if(!CreeperHost.instance.requestedID.isEmpty())
+                {
+                    version = CreeperHost.instance.requestedID;
+                }
+                else
+                {
+                    return new OrderSummary("quote.curseerror");
+                }
             }
             String url = "https://www.creeperhost.net/json/order/mc/" + version + "/recommend/" + order.playerAmount;
 

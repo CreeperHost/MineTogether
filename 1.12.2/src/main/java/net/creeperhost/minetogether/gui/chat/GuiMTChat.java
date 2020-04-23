@@ -10,7 +10,6 @@ import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.ButtonString;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 
-import net.creeperhost.minetogether.oauth.ServerAuthTest;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -126,7 +125,7 @@ public class GuiMTChat extends GuiScreen
             banMessage = Callbacks.getBanMessage();
             buttonList.add(banButton = new ButtonString(8888, 30, height - 26, "Ban Reason: " + banMessage));
         }
-        buttonList.add(testButton = new GuiButton(-80089, 5 + 80, height - 5 - 25, 100, 20, "TARST")); // TODO: remove
+//        buttonList.add(testButton = new GuiButton(-80089, 5 + 80, height - 5 - 25, 100, 20, "TARST")); // TODO: remove
     }
 
     long tickCounter = 0;
@@ -135,7 +134,7 @@ public class GuiMTChat extends GuiScreen
     public void updateScreen()
     {
         super.updateScreen();
-        ServerAuthTest.processPackets();
+//        ServerAuthTest.processPackets();
         if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
             if(!ChatHandler.isInitting.get()) {
@@ -304,17 +303,17 @@ public class GuiMTChat extends GuiScreen
             {
                 Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(Callbacks.banID), null);
             }
-            else if (button == testButton) {
-                ServerAuthTest.auth((success, message) -> {
-                    if (success)
-                    {
-                        // Do code stuff here
-                    } else {
-                        // Handle error here
-                    }
-                    return null;
-                });
-            }
+//            else if (button == testButton) {
+//                ServerAuthTest.auth((success, message) -> {
+//                    if (success)
+//                    {
+//                        // Do code stuff here
+//                    } else {
+//                        // Handle error here
+//                    }
+//                    return null;
+//                });
+//            }
             chat.actionPerformed(button);
             super.actionPerformed(button);
         }
@@ -651,8 +650,7 @@ public class GuiMTChat extends GuiScreen
         ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
         if (CreeperHost.bannedUsers.contains(inputNick))
-            messageComp.getStyle().setColor(TextFormatting.DARK_GRAY).setItalic(true);
-//            messageComp = new TextComponentString("message deleted").setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Message deleted as user was banned"))).setColor(TextFormatting.DARK_GRAY).setItalic(true));
+            messageComp = new TextComponentString("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
 
         messageComp.getStyle().setColor(TextFormatting.WHITE);
 
@@ -661,12 +659,14 @@ public class GuiMTChat extends GuiScreen
             String realname = ChatHandler.curseSync.get(inputNick).trim();
             String[] splitString = realname.split(":");
 
-            String name2 = splitString[1];
-
-            if(name2.contains(Config.getInstance().curseProjectID))
+            if(splitString.length >= 1)
             {
-//                userComp.getStyle().setColor(TextFormatting.DARK_PURPLE).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("User on same modpack")));
-                userComp.getStyle().setColor(TextFormatting.DARK_PURPLE);
+                String name2 = splitString[1];
+
+                if (name2.contains(Config.getInstance().curseProjectID) || name2.contains(CreeperHost.instance.ftbPackID) && !CreeperHost.instance.ftbPackID.isEmpty())
+                {
+                    userComp.getStyle().setColor(TextFormatting.DARK_PURPLE);
+                }
             }
         }
 
@@ -678,7 +678,6 @@ public class GuiMTChat extends GuiScreen
         
         if (friend)
         {
-//            userComp.getStyle().setColor(TextFormatting.YELLOW).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Friend! MineTogether Friend!")));
             userComp.getStyle().setColor(TextFormatting.YELLOW);
         }
         else if (outputNick.equals("System"))
@@ -691,7 +690,6 @@ public class GuiMTChat extends GuiScreen
                 outputNick = outputNick.substring(0, outputNick.length() - 1);
                 messageComp = newChatWithLinksOurs(messageStr);
                 userComp = new TextComponentString("<" + outputNick + ">");
-//                userComp.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Moderator")));
             }
             userComp.getStyle().setColor(TextFormatting.AQUA);
         }
@@ -702,15 +700,8 @@ public class GuiMTChat extends GuiScreen
             messageComp.getStyle().setColor(TextFormatting.RED);
             base.getStyle().setColor(TextFormatting.RED);
         }
-
-//        if(Minecraft.getMinecraft().currentScreen instanceof GuiMTChat)
-//        {
-//            base.appendSibling(new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY)));
-//        }
-//        else
-//        {
-            base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
-//        }
+        
+        base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
 
         base.appendSibling(new TimestampComponentString("Test"));
         

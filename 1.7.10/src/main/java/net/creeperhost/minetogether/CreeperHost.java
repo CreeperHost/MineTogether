@@ -1,5 +1,8 @@
 package net.creeperhost.minetogether;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -20,13 +23,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Random;
 
 @Mod(
@@ -64,6 +66,9 @@ public class CreeperHost implements ICreeperHostMod
     private String lastCurse = "";
     private CreeperHostServerHost implement;
     private Random randomGenerator;
+    public String ftbPackID = "";
+    public String base64;
+    public String requestedID;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -188,6 +193,34 @@ public class CreeperHost implements ICreeperHostMod
             return;
         int random = randomGenerator.nextInt(implementations.size());
         currentImplementation = implementations.get(random);
+    }
+    
+    public void updateFtbPackID()
+    {
+        File versions = new File(configFile.getParentFile().getParentFile() + File.separator + "version.json");
+        if(versions.exists())
+        {
+            try (InputStream stream = new FileInputStream(versions))
+            {
+                JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+                if (json.isJsonObject())
+                {
+                    JsonObject object = json.getAsJsonObject();
+                    String versionID = object.getAsJsonPrimitive("id").getAsString();
+                    String ftbPackID = object.getAsJsonPrimitive("parent").getAsString();
+                    
+                    base64 = Base64.getEncoder().encodeToString((ftbPackID + versionID).getBytes());
+                    requestedID = Callbacks.getVersionFromApi(base64);
+                    
+                    Config.getInstance().setVersion(requestedID);
+                    
+                    this.ftbPackID = "m" + ftbPackID;
+                }
+            } catch (IOException ignored)
+            {
+                logger.info("versions.json not found returning to curse ID");
+            }
+        }
     }
 
     public IServerHost getImplementation()

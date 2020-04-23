@@ -8,6 +8,7 @@ import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.gui.serverlist.data.EnumFlag;
 import net.creeperhost.minetogether.gui.serverlist.data.Friend;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
@@ -671,6 +672,25 @@ public final class Callbacks
     public static String createOrder(final Order order)
     {
         return CreeperHost.instance.getImplementation().createOrder(order);
+    }
+    
+    public static String getVersionFromApi(String packid)
+    {
+        String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
+        try
+        {
+            JsonElement jElement = new JsonParser().parse(resp);
+            JsonObject jObject = jElement.getAsJsonObject();
+            if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
+            {
+                return jObject.getAsJsonPrimitive("id").getAsString();
+            } else
+            {
+                return "";
+            }
+        } catch (Throwable ignored) {}
+        
+        return "";
     }
 
     public static String getVersionFromCurse(String curse)

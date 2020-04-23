@@ -1,6 +1,9 @@
 package net.creeperhost.minetogether;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.api.CreeperHostAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
@@ -20,6 +23,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -29,14 +33,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.Sys;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @Mod(modid = CreeperHost.MOD_ID, name = CreeperHost.NAME, version = CreeperHost.VERSION, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2", guiFactory = "net.creeperhost.minetogether.gui.config.GuiCreeperConfigFactory")
 public class CreeperHost implements ICreeperHostMod, IHost
@@ -80,6 +83,9 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public String ourNick;
     public File mutedUsersFile;
     public Runnable toastMethod;
+    public String ftbPackID = "";
+    public String base64;
+    public String requestedID;
 
     public HoverEvent.Action TIMESTAMP = EnumHelper.addEnum(HoverEvent.Action.class, "TIMESTAMP", new Class[]{String.class, boolean.class}, "timestamp_hover", true);;
 
@@ -139,19 +145,29 @@ public class CreeperHost implements ICreeperHostMod, IHost
             ingameChat = new IngameChat(ingameChatFile);
             ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
             
+            updateFtbPackID();
+            
             HashMap<String, String> jsonObj = new HashMap<>();
-            
+    
             int packID;
-            
+    
             try
             {
                 packID = Integer.parseInt(Config.getInstance().curseProjectID);
             } catch (NumberFormatException e)
             {
+                if(!ftbPackID.isEmpty())
+                {
+                    jsonObj.put("p", ftbPackID);
+                    jsonObj.put("b", base64);
+                }
                 packID = -1;
             }
-            
-            jsonObj.put("p", String.valueOf(packID));
+    
+            if(ftbPackID.isEmpty())
+            {
+                jsonObj.put("p", String.valueOf(packID));
+            }
             
             Gson gson = new Gson();
             try //Temp fix until we cxan figure out why this fails
@@ -161,6 +177,34 @@ public class CreeperHost implements ICreeperHostMod, IHost
             
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();
+        }
+    }
+    
+    public void updateFtbPackID()
+    {
+        File versions = new File(configFile.getParentFile().getParentFile() + File.separator + "version.json");
+        if(versions.exists())
+        {
+            try (InputStream stream = new FileInputStream(versions))
+            {
+                JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+                if (json.isJsonObject())
+                {
+                    JsonObject object = json.getAsJsonObject();
+                    String versionID = object.getAsJsonPrimitive("id").getAsString();
+                    String ftbPackID = object.getAsJsonPrimitive("parent").getAsString();
+                    
+                    base64 = Base64.getEncoder().encodeToString((ftbPackID + versionID).getBytes());
+                    requestedID = Callbacks.getVersionFromApi(base64);
+    
+                    Config.getInstance().setVersion(requestedID);
+                    
+                    this.ftbPackID = "m" + ftbPackID;
+                }
+            } catch (IOException ignored)
+            {
+                logger.info("versions.json not found returning to curse ID");
+            }
         }
     }
     
