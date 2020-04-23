@@ -659,7 +659,7 @@ public class GuiMTChat extends GuiScreen
             String realname = ChatHandler.curseSync.get(inputNick).trim();
             String[] splitString = realname.split(":");
 
-            if(splitString.length >= 1)
+            if(splitString.length >= 2)
             {
                 String name2 = splitString[1];
 
