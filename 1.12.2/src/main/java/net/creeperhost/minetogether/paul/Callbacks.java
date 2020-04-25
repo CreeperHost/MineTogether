@@ -661,14 +661,14 @@ public final class Callbacks
                     List<Server> list = new ArrayList<Server>();
                     
                     Config defaultConfig = new Config();
-                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
+                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID) && CreeperHost.instance.base64 == null)
                     {
                         list.add(new Server("No project ID! Please fix the MineTogether config.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
                         return list;
                     }
                     
                     Map<String, String> jsonPass = new HashMap<String, String>();
-                    jsonPass.put("projectid", Config.getInstance().curseProjectID);
+                    jsonPass.put("projectid", CreeperHost.instance.base64 == null ? Config.getInstance().curseProjectID : CreeperHost.instance.base64);
                     if (enumOrdinal == 1)
                     {
                         if (playerHash == null)

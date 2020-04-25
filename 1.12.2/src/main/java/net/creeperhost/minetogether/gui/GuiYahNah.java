@@ -1,17 +1,15 @@
 package net.creeperhost.minetogether.gui;
 
 import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiOptionButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.resources.I18n;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /*
  * Our own version of GuiYesNo which handles \n

@@ -7,6 +7,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.relauncher.Side;
 import net.creeperhost.minetogether.api.CreeperHostAPI;
@@ -40,7 +41,6 @@ import java.util.Random;
 )
 public class CreeperHost implements ICreeperHostMod
 {
-
     public static final String MOD_ID = "minetogether";
     public static final String NAME = "MineTogether";
     public static final String VERSION = "@VERSION@";
@@ -69,11 +69,14 @@ public class CreeperHost implements ICreeperHostMod
     public String ftbPackID = "";
     public String base64;
     public String requestedID;
+    public File configFolder;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         configFile = event.getSuggestedConfigurationFile();
+        configFolder = event.getSuggestedConfigurationFile().getParentFile();
+
         InputStream configStream = null;
         try
         {
@@ -132,6 +135,12 @@ public class CreeperHost implements ICreeperHostMod
             proxy.registerKeys();
             PacketHandler.packetRegister();
         }
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event)
+    {
+        updateFtbPackID();
     }
 
     public void saveConfig()
@@ -197,7 +206,7 @@ public class CreeperHost implements ICreeperHostMod
     
     public void updateFtbPackID()
     {
-        File versions = new File(configFile.getParentFile().getParentFile() + File.separator + "version.json");
+        File versions = new File(configFolder.getParentFile() + File.separator + "version.json");
         if(versions.exists())
         {
             try (InputStream stream = new FileInputStream(versions))
@@ -210,11 +219,13 @@ public class CreeperHost implements ICreeperHostMod
                     String ftbPackID = object.getAsJsonPrimitive("parent").getAsString();
                     
                     base64 = Base64.getEncoder().encodeToString((ftbPackID + versionID).getBytes());
+                    System.out.println("BASE64 " + base64);
                     requestedID = Callbacks.getVersionFromApi(base64);
                     
                     Config.getInstance().setVersion(requestedID);
-                    
+
                     this.ftbPackID = "m" + ftbPackID;
+
                 }
             } catch (IOException ignored)
             {

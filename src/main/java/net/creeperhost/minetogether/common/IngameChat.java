@@ -3,9 +3,6 @@ package net.creeperhost.minetogether.common;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.security.MessageDigest;
 import java.util.Properties;
 
 import static net.creeperhost.minetogether.common.GDPR.identity;

@@ -112,10 +112,9 @@ public class CreeperHostServerHost implements IServerHost
             JsonObject jObject = jElement.getAsJsonObject();
             String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
 
-            String applyPromo = Util.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
-            if (applyPromo.equals("error"))
+            if(!Config.getInstance().getPromo().equalsIgnoreCase("Insert Promo Code here"))
             {
-                return new OrderSummary("quote.promoerror");
+                String applyPromo = Util.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
             }
 
             String summary = Util.getWebResponse("https://www.creeperhost.net/json/order/" + order.country + "/" + recommended + "/" + "summary");
@@ -126,7 +125,14 @@ public class CreeperHostServerHost implements IServerHost
             jObject = jObject.getAsJsonObject("0");
             double preDiscount = jObject.getAsJsonPrimitive("PreDiscount").getAsDouble();
             double subTotal = jObject.getAsJsonPrimitive("Subtotal").getAsDouble();
-            double discount = jObject.getAsJsonPrimitive("Discount").getAsDouble();
+            double discount;
+            try
+            {
+                discount = jObject.getAsJsonPrimitive("Discount").getAsDouble();
+            } catch (Exception e)
+            {
+                discount = 0;
+            }
             double tax = jObject.getAsJsonPrimitive("Tax").getAsDouble();
             if (tax <= 0)
             {

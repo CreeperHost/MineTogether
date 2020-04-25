@@ -14,7 +14,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
-import java.util.concurrent.FutureTask;
 
 public class GuiListEntryModpack extends GuiListEntry
 {

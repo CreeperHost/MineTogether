@@ -8,7 +8,6 @@ import net.creeperhost.minetogether.common.IOrderValidation;
 import net.creeperhost.minetogether.common.RegexValidator;
 import net.creeperhost.minetogether.gui.element.TextFieldDetails;
 import net.creeperhost.minetogether.paul.Callbacks;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;

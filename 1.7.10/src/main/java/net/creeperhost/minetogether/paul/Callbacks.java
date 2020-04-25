@@ -525,14 +525,14 @@ public final class Callbacks
                     List<Server> list = new ArrayList<Server>();
 
                     Config defaultConfig = new Config();
-                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
+                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID) && CreeperHost.instance.base64 == null)
                     {
                         list.add(new Server("No project ID! Please fix the MineTogether config.", "127.0.0.1:25565", 0, 0, null, "Unknown"));
                         return list;
                     }
 
                     Map<String, String> jsonPass = new HashMap<String, String>();
-                    jsonPass.put("projectid", Config.getInstance().curseProjectID);
+                    jsonPass.put("projectid", CreeperHost.instance.base64 == null ? Config.getInstance().curseProjectID : CreeperHost.instance.base64);
                     if (!isPublic)
                     {
                         if (playerHash == null)
@@ -695,25 +695,37 @@ public final class Callbacks
 
     public static String getVersionFromCurse(String curse)
     {
-        String resp = Util.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
+        if(isInteger(curse))
+        {
+            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
+            try
+            {
+                JsonElement jElement = new JsonParser().parse(resp);
+                JsonObject jObject = jElement.getAsJsonObject();
+                if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
+                {
+                    return jObject.getAsJsonPrimitive("id").getAsString();
+                } else
+                {
+                    return "0";
+                }
+            } catch (Throwable ignored)
+            {
+            }
+        }
+        return "0";
+    }
+
+    public static boolean isInteger(String s)
+    {
         try
         {
-            JsonElement jElement = new JsonParser().parse(resp);
-            JsonObject jObject = jElement.getAsJsonObject();
-            if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
-            {
-                return jObject.getAsJsonPrimitive("id").getAsString();
-            }
-            else
-            {
-                return "0";
-            }
+            Integer.parseInt(s);
         }
-        catch (Throwable t)
+        catch(NumberFormatException | NullPointerException e)
         {
-            t.printStackTrace();
+            return false;
         }
-
-        return "0";
+        return true;
     }
 }

@@ -5,7 +5,6 @@ import org.apache.commons.io.IOUtils;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.util.Properties;
 

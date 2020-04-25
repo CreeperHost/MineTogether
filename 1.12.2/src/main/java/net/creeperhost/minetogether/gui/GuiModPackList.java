@@ -3,22 +3,16 @@ package net.creeperhost.minetogether.gui;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.element.GuiButtonRefresh;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryModpack;
 import net.creeperhost.minetogether.paul.Callbacks;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.input.Keyboard;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 public class GuiModPackList extends GuiScreen
@@ -97,7 +91,10 @@ public class GuiModPackList extends GuiScreen
     {
         drawBackground(0);
 
-        this.list.drawScreen(mouseX, mouseY, partialTicks);
+        if(list != null)
+        {
+            this.list.drawScreen(mouseX, mouseY, partialTicks);
+        }
 
         if(displayEntry != null) this.displayEntry.drawTextBox();
 
@@ -155,14 +152,23 @@ public class GuiModPackList extends GuiScreen
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
-        this.list.handleMouseInput();
+        if(list != null)
+        {
+            this.list.handleMouseInput();
+        }
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
-        this.list.mouseClicked(mouseX, mouseY, mouseButton);
-        this.displayEntry.mouseClicked(mouseX, mouseY, mouseButton);
+        if(list != null)
+        {
+            this.list.mouseClicked(mouseX, mouseY, mouseButton);
+        }
+        if(displayEntry != null)
+        {
+            this.displayEntry.mouseClicked(mouseX, mouseY, mouseButton);
+        }
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 

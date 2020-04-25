@@ -19,7 +19,6 @@ import java.lang.reflect.Field;
 
 public class GuiMultiplayerPublic extends GuiMultiplayer
 {
-
     private static Field savedServerListField;
     private static Field lanServerDetectorField;
     private static Field lanServerListField;
