@@ -728,8 +728,6 @@ public final class Callbacks
                                 
                                 String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
                                 
-                                //applicationURL = "https://www.google.com"; // MAKE SURE TO REMOVE
-                                
                                 list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL));
                             }
                         }

@@ -85,7 +85,14 @@ public class GuiGeneralServerInfo extends GuiGetServer
         }
         this.buttonNext.active = !isEmpty && nameChecked && isAcceptable;
     }
-    
+
+    @Override
+    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
+    {
+        nameField.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+        return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+    }
+
     @SuppressWarnings("Duplicates")
     @Override
     public boolean charTyped(char typedChar, int keyCode)
