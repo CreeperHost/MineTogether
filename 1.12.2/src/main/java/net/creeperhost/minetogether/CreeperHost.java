@@ -35,6 +35,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -143,34 +144,35 @@ public class CreeperHost implements ICreeperHostMod, IHost
             ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
             
             updateFtbPackID();
-            
-            HashMap<String, String> jsonObj = new HashMap<>();
-    
+
             int packID;
-    
-            try
+
+            HashMap<String, String> jsonObj = new HashMap<>();
+            if(this.ftbPackID.length() < 1) // Even if we get "m", we can throw it away.
             {
-                packID = Integer.parseInt(Config.getInstance().curseProjectID);
-            } catch (NumberFormatException e)
-            {
-                if(!ftbPackID.isEmpty())
+                try
+                {
+                    packID = Integer.parseInt(Config.getInstance().curseProjectID);
+                }
+                catch (NumberFormatException e)
+                {
+                    packID = -1;
+                }
+                jsonObj.put("p", String.valueOf(packID));
+            }
+            else
                 {
                     jsonObj.put("p", ftbPackID);
                     jsonObj.put("b", base64);
                 }
-                packID = -1;
-            }
-    
-            if(ftbPackID.isEmpty())
-            {
-                jsonObj.put("p", String.valueOf(packID));
-            }
-            
             Gson gson = new Gson();
             try //Temp fix until we cxan figure out why this fails
             {
                 realName = gson.toJson(jsonObj);
-            } catch (Exception e) {}
+            } catch (Exception e)
+            {
+                realName = "{\"p\": \"-1\"}";
+            }
             
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();
@@ -184,23 +186,30 @@ public class CreeperHost implements ICreeperHostMod, IHost
         {
             try (InputStream stream = new FileInputStream(versions))
             {
-                JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
-                if (json.isJsonObject())
+                try
                 {
-                    JsonObject object = json.getAsJsonObject();
-                    String versionID = object.getAsJsonPrimitive("id").getAsString();
-                    String ftbPackID = object.getAsJsonPrimitive("parent").getAsString();
-                    
-                    base64 = Base64.getEncoder().encodeToString((ftbPackID + versionID).getBytes());
-                    requestedID = Callbacks.getVersionFromApi(base64);
-    
-                    Config.getInstance().setVersion(requestedID);
-                    
-                    this.ftbPackID = "m" + ftbPackID;
+                    JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+                    if (json.isJsonObject())
+                    {
+                        JsonObject object = json.getAsJsonObject();
+                        int versionID = object.getAsJsonPrimitive("id").getAsInt();
+                        int ftbPackID = object.getAsJsonPrimitive("parent").getAsInt();
+
+                        base64 = Base64.getEncoder().encodeToString((String.valueOf(ftbPackID) + String.valueOf(versionID)).getBytes());
+                        requestedID = Callbacks.getVersionFromApi(base64);
+                        if (requestedID.isEmpty()) return;
+
+                        Config.getInstance().setVersion(requestedID);
+
+                        this.ftbPackID = "m" + ftbPackID;
+                    }
+                } catch (Exception MalformedJsonException)
+                {
+                    logger.error("version.json is not valid returning to curse ID");
                 }
             } catch (IOException ignored)
             {
-                logger.info("versions.json not found returning to curse ID");
+                logger.info("version.json not found returning to curse ID");
             }
         }
     }
@@ -246,7 +255,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
         {
             Config.getInstance().setVersion(Callbacks.getVersionFromCurse(Config.getInstance().curseProjectID));
         }
-        
         lastCurse = Config.getInstance().curseProjectID;
     }
     
@@ -461,7 +469,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
         try
         {
             FileUtils.writeStringToFile(mutedUsersFile, gson.toJson(mutedUsers));
-            //mutedUsers.clear(); // why?
         } catch (IOException ignored) {}
     }
     

@@ -69,14 +69,11 @@ public class CreeperHost implements ICreeperHostMod
     public String ftbPackID = "";
     public String base64;
     public String requestedID;
-    public File configFolder;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         configFile = event.getSuggestedConfigurationFile();
-        configFolder = event.getSuggestedConfigurationFile().getParentFile();
-
         InputStream configStream = null;
         try
         {
@@ -89,7 +86,7 @@ public class CreeperHost implements ICreeperHostMod
             else
             {
                 File parent = configFile.getParentFile();
-                File tempConfigFile = new File(parent, "creeperhost.cfg");
+                File tempConfigFile = new File(parent, "minetogether.cfg");
                 if (tempConfigFile.exists())
                 {
                     configStream = new FileInputStream(tempConfigFile);
@@ -203,33 +200,38 @@ public class CreeperHost implements ICreeperHostMod
         int random = randomGenerator.nextInt(implementations.size());
         currentImplementation = implementations.get(random);
     }
-    
+
     public void updateFtbPackID()
     {
-        File versions = new File(configFolder.getParentFile() + File.separator + "version.json");
+        File versions = new File(configFile.getParentFile().getParentFile() + File.separator + "version.json");
         if(versions.exists())
         {
             try (InputStream stream = new FileInputStream(versions))
             {
-                JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
-                if (json.isJsonObject())
+                try
                 {
-                    JsonObject object = json.getAsJsonObject();
-                    String versionID = object.getAsJsonPrimitive("id").getAsString();
-                    String ftbPackID = object.getAsJsonPrimitive("parent").getAsString();
-                    
-                    base64 = Base64.getEncoder().encodeToString((ftbPackID + versionID).getBytes());
-                    System.out.println("BASE64 " + base64);
-                    requestedID = Callbacks.getVersionFromApi(base64);
-                    
-                    Config.getInstance().setVersion(requestedID);
+                    JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+                    if (json.isJsonObject())
+                    {
+                        JsonObject object = json.getAsJsonObject();
+                        int versionID = object.getAsJsonPrimitive("id").getAsInt();
+                        int ftbPackID = object.getAsJsonPrimitive("parent").getAsInt();
 
-                    this.ftbPackID = "m" + ftbPackID;
+                        base64 = Base64.getEncoder().encodeToString((String.valueOf(ftbPackID) + String.valueOf(versionID)).getBytes());
+                        requestedID = Callbacks.getVersionFromApi(base64);
+                        if (requestedID.isEmpty()) return;
 
+                        Config.getInstance().setVersion(requestedID);
+
+                        this.ftbPackID = "m" + ftbPackID;
+                    }
+                } catch (Exception MalformedJsonException)
+                {
+                    logger.error("version.json is not valid returning to curse ID");
                 }
             } catch (IOException ignored)
             {
-                logger.info("versions.json not found returning to curse ID");
+                logger.info("version.json not found returning to curse ID");
             }
         }
     }
