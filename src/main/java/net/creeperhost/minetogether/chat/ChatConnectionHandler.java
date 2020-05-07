@@ -33,7 +33,7 @@ public class ChatConnectionHandler
             return;
         
         ChatHandler.client = null;
-        ChatHandler.isInitting = true;
+        ChatHandler.isInitting.set(true);
         
         ChatHandler.messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         new Thread(() ->
@@ -52,7 +52,7 @@ public class ChatConnectionHandler
                 ChatHandler.client.getEventManager().registerEventListener(new ChatHandler.Listener());
                 ChatHandler.client.addChannel(ChatHandler.CHANNEL);
                 ChatHandler.inited = true;
-                ChatHandler.isInitting = false;
+                ChatHandler.isInitting.set(false);
             }
         }).start();
     }
@@ -66,7 +66,7 @@ public class ChatConnectionHandler
     
     public boolean canConnect()
     {
-        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited || ChatHandler.isInitting;
+        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited || ChatHandler.isInitting.get();
     }
     
     public void nextConnectAllow(int timeout)

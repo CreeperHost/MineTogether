@@ -22,6 +22,7 @@ import org.kitteh.irc.client.library.event.user.*;
 import org.kitteh.irc.client.library.util.Format;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class ChatHandler
@@ -37,7 +38,7 @@ public class ChatHandler
     static Client client = null;
     static IHost host;
     static boolean online = false;
-    public static boolean isInitting = false;
+    public static AtomicBoolean isInitting = new AtomicBoolean(false);
     public static int tries = 0;
     static boolean inited = false;
     public static List<String> badwords;
@@ -58,7 +59,7 @@ public class ChatHandler
     
     public static void reInit()
     {
-        if (!isInitting && host != null && initedString != null && realName != null)
+        if (!isInitting.get() && host != null && initedString != null && realName != null)
         {
             inited = false;
             init(initedString, realName, online, host);
@@ -266,7 +267,7 @@ public class ChatHandler
     public static class Listener
     {
         @Handler
-        public void onChannnelLeave(ChannelKickEvent event)
+        public void onChannelLeave(ChannelKickEvent event)
         {
             if (!event.getTarget().getNick().equals(client.getNick()))
                 return;
@@ -550,9 +551,12 @@ public class ChatHandler
         @Handler
         public void onNickRejected(NickRejectedEvent event)
         {
-            host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "Couldn't connect as your nick is in use. Waiting 5 minutes and trying again."));
-            ChatConnectionHandler.INSTANCE.nextConnectAllow(600);
-            ChatConnectionHandler.INSTANCE.disconnect();
+            host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "Couldn't connect as your nick is in use. Waiting 1 minute and trying again."));
+            if(!isInitting.get())
+            {
+                ChatConnectionHandler.INSTANCE.nextConnectAllow(600);
+                ChatConnectionHandler.INSTANCE.disconnect();
+            }
         }
         
         @Handler

@@ -203,7 +203,7 @@ public class GuiMTChat extends Screen
         
         if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
-            if (!ChatHandler.isInitting)
+            if (!ChatHandler.isInitting.get())
             {
                 ChatHandler.reInit();
             }
