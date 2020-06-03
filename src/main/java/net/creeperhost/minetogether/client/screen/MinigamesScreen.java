@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.screen;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -10,8 +10,8 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Minigame;
 import net.creeperhost.minetogether.aries.Aries;
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.client.gui.element.GuiActiveFake;
-import net.creeperhost.minetogether.client.gui.element.GuiTextFieldCompatCensor;
+import net.creeperhost.minetogether.client.screen.element.GuiActiveFake;
+import net.creeperhost.minetogether.client.screen.element.GuiTextFieldCompatCensor;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.paul.Callbacks;
@@ -49,9 +49,9 @@ import java.util.concurrent.Future;
 
 import static net.creeperhost.minetogether.paul.Callbacks.getPlayerHash;
 
-public class GuiMinigames extends Screen
+public class MinigamesScreen extends Screen
 {
-    private static GuiMinigames current;
+    private static MinigamesScreen current;
     private List<Minigame> minigames;
     private List<Minigame> vanillaMinigames;
     private GuiScrollingMinigames minigameScroll;
@@ -79,7 +79,7 @@ public class GuiMinigames extends Screen
     private Screen parent;
     private Button cancelButton;
     
-    public GuiMinigames(Screen parent)
+    public MinigamesScreen(Screen parent)
     {
         super(new StringTextComponent(""));
         this.parent = parent;
@@ -94,7 +94,7 @@ public class GuiMinigames extends Screen
     
     public boolean spinDown = false;
     
-    public GuiMinigames(Screen parent, boolean spinDown)
+    public MinigamesScreen(Screen parent, boolean spinDown)
     {
         this(parent);
         this.spinDown = spinDown;
@@ -192,7 +192,7 @@ public class GuiMinigames extends Screen
     {
         if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
-            minecraft.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMinigames(parent)));
+            minecraft.displayGuiScreen(new GDPRScreen(parent, () -> new MinigamesScreen(parent)));
             return;
         }
         super.init();
@@ -540,80 +540,80 @@ public class GuiMinigames extends Screen
         {
             if (current.settingsButton == null)
                 return;
-            GuiMinigames.current.settingsButton.active = true;
+            MinigamesScreen.current.settingsButton.active = true;
             switch (state)
             {
                 case LOGGING_IN:
-                    if (GuiMinigames.settings != null)
+                    if (MinigamesScreen.settings != null)
                     {
-                        GuiMinigames.settings.emailField.setEnabled(false);
-                        GuiMinigames.settings.passwordField.setEnabled(false);
-                        GuiMinigames.settings.oneCodeField.setEnabled(false);
-                        GuiMinigames.settings.loginButton.active = false;
+                        MinigamesScreen.settings.emailField.setEnabled(false);
+                        MinigamesScreen.settings.passwordField.setEnabled(false);
+                        MinigamesScreen.settings.oneCodeField.setEnabled(false);
+                        MinigamesScreen.settings.loginButton.active = false;
                     }
                     break;
                 case CREDENTIALS_OK:
-                    if (GuiMinigames.settings != null)
+                    if (MinigamesScreen.settings != null)
                     {
-                        GuiMinigames.settings.emailField.setVisible(false);
-                        GuiMinigames.settings.passwordField.setVisible(false);
-                        GuiMinigames.settings.oneCodeField.setVisible(false);
-                        GuiMinigames.settings.emailField.setEnabled(false);
-                        GuiMinigames.settings.passwordField.setEnabled(false);
-                        GuiMinigames.settings.oneCodeField.setEnabled(false);
+                        MinigamesScreen.settings.emailField.setVisible(false);
+                        MinigamesScreen.settings.passwordField.setVisible(false);
+                        MinigamesScreen.settings.oneCodeField.setVisible(false);
+                        MinigamesScreen.settings.emailField.setEnabled(false);
+                        MinigamesScreen.settings.passwordField.setEnabled(false);
+                        MinigamesScreen.settings.oneCodeField.setEnabled(false);
 //                        GuiMinigames.settings.emailLabel.visible = false;
 //                        GuiMinigames.settings.passwordLabel.visible = false;
 //                        GuiMinigames.settings.oneCodeLabel.visible = false;
-                        GuiMinigames.settings.loginButton.setMessage("Log in again");
-                        GuiMinigames.settings.loginButton.active = true;
-                        GuiMinigames.settings.loginButton.visible = true;
+                        MinigamesScreen.settings.loginButton.setMessage("Log in again");
+                        MinigamesScreen.settings.loginButton.active = true;
+                        MinigamesScreen.settings.loginButton.visible = true;
                     }
                     
-                    if (GuiMinigames.current.spinDown)
+                    if (MinigamesScreen.current.spinDown)
                     {
-                        GuiMinigames.current.doSpindown();
+                        MinigamesScreen.current.doSpindown();
                     }
                     break;
                 case CHECKING_CREDENTIALS:
-                    GuiMinigames.current.settingsButton.active = false;
+                    MinigamesScreen.current.settingsButton.active = false;
                     break;
                 case CREDENTIALS_INVALID:
                 case LOGIN_FAILURE:
-                    if (GuiMinigames.settings != null)
+                    if (MinigamesScreen.settings != null)
                     {
-                        GuiMinigames.settings.emailField.setEnabled(true);
-                        GuiMinigames.settings.passwordField.setEnabled(true);
-                        GuiMinigames.settings.oneCodeField.setEnabled(false);
-                        GuiMinigames.settings.emailField.setVisible(true);
-                        GuiMinigames.settings.passwordField.setVisible(true);
-                        GuiMinigames.settings.oneCodeField.setVisible(false);
+                        MinigamesScreen.settings.emailField.setEnabled(true);
+                        MinigamesScreen.settings.passwordField.setEnabled(true);
+                        MinigamesScreen.settings.oneCodeField.setEnabled(false);
+                        MinigamesScreen.settings.emailField.setVisible(true);
+                        MinigamesScreen.settings.passwordField.setVisible(true);
+                        MinigamesScreen.settings.oneCodeField.setVisible(false);
 //                        GuiMinigames.settings.emailLabel.visible = true;
 //                        GuiMinigames.settings.passwordLabel.visible = true;
 //                        GuiMinigames.settings.oneCodeLabel.visible = false;
-                        GuiMinigames.settings.loginButton.setMessage("Log in");
-                        GuiMinigames.settings.loginButton.active = true;
-                        GuiMinigames.settings.loginButton.visible = true;
+                        MinigamesScreen.settings.loginButton.setMessage("Log in");
+                        MinigamesScreen.settings.loginButton.active = true;
+                        MinigamesScreen.settings.loginButton.visible = true;
                     }
                     break;
                 case TWOFACTOR_NEEDED:
-                    if (GuiMinigames.settings != null)
+                    if (MinigamesScreen.settings != null)
                     {
-                        GuiMinigames.settings.emailField.setVisible(false);
-                        GuiMinigames.settings.passwordField.setVisible(false);
-                        GuiMinigames.settings.emailField.setEnabled(false);
-                        GuiMinigames.settings.passwordField.setEnabled(false);
-                        GuiMinigames.settings.oneCodeField.setVisible(true);
-                        GuiMinigames.settings.oneCodeField.setEnabled(true);
+                        MinigamesScreen.settings.emailField.setVisible(false);
+                        MinigamesScreen.settings.passwordField.setVisible(false);
+                        MinigamesScreen.settings.emailField.setEnabled(false);
+                        MinigamesScreen.settings.passwordField.setEnabled(false);
+                        MinigamesScreen.settings.oneCodeField.setVisible(true);
+                        MinigamesScreen.settings.oneCodeField.setEnabled(true);
 //                        GuiMinigames.settings.emailLabel.visible = false;
 //                        GuiMinigames.settings.passwordLabel.visible = false;
 //                        GuiMinigames.settings.oneCodeLabel.visible = true;
                     }
                     break;
                 case TWOFACTOR_FAILURE:
-                    if (GuiMinigames.settings != null)
+                    if (MinigamesScreen.settings != null)
                     {
-                        GuiMinigames.settings.oneCodeField.setEnabled(true);
-                        GuiMinigames.settings.oneCodeField.setVisible(true);
+                        MinigamesScreen.settings.oneCodeField.setEnabled(true);
+                        MinigamesScreen.settings.oneCodeField.setVisible(true);
 //                        GuiMinigames.settings.oneCodeLabel.visible = true;
                     }
                     break;
@@ -621,10 +621,10 @@ public class GuiMinigames extends Screen
             currentState = state;
             if (state == CREDENTIALS_OK)
             {
-                GuiMinigames.current.settingsButton.setMessage("Logged in");
+                MinigamesScreen.current.settingsButton.setMessage("Logged in");
             } else
             {
-                GuiMinigames.current.settingsButton.setMessage("Log in");
+                MinigamesScreen.current.settingsButton.setMessage("Log in");
             }
             
             Screen curScreen = Minecraft.getInstance().currentScreen;
@@ -649,19 +649,19 @@ public class GuiMinigames extends Screen
     {
         public GuiScrollingMinigames(int entryHeight)
         {
-            super(Minecraft.getInstance(), GuiMinigames.this.width - 20, GuiMinigames.this.height - 50, 50, GuiMinigames.this.height - 50, 10);
+            super(Minecraft.getInstance(), MinigamesScreen.this.width - 20, MinigamesScreen.this.height - 50, 50, MinigamesScreen.this.height - 50, 10);
         }
         
         @Override
         protected int getItemCount()
         {
-            List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
+            List<Minigame> minigames = isModded ? MinigamesScreen.this.minigames : MinigamesScreen.this.vanillaMinigames;
             return minigames == null ? 1 : minigames.size();
         }
         
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess)
         {
-            List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
+            List<Minigame> minigames = isModded ? MinigamesScreen.this.minigames : MinigamesScreen.this.vanillaMinigames;
             if (minigames == null)
             {
                 drawCenteredString(font, "Loading minigames...", width / 2, slotTop, 0xFFFFFFFF);
@@ -733,7 +733,7 @@ public class GuiMinigames extends Screen
         
         public Minigame getMinigame()
         {
-            List<Minigame> minigames = isModded ? GuiMinigames.this.minigames : GuiMinigames.this.vanillaMinigames;
+            List<Minigame> minigames = isModded ? MinigamesScreen.this.minigames : MinigamesScreen.this.vanillaMinigames;
             return null;//getSelected() >= 0 ? minigames.get(selectedIndex) : null;
         }
         
@@ -1019,7 +1019,7 @@ public class GuiMinigames extends Screen
                     MineTogether.instance.joinTime = System.currentTimeMillis();
 //                    FMLClientHandler.instance().connectToServerAtStartup(ip, port);
                 } else
-                    Minecraft.getInstance().displayGuiScreen(new GuiMinigames(parent));
+                    Minecraft.getInstance().displayGuiScreen(new MinigamesScreen(parent));
             }));
             joinServerButton.active = false;
             joinServerButton.visible = false;

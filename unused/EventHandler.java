@@ -1,11 +1,11 @@
 package net.creeperhost.minetogether;
 
 import net.creeperhost.minetogether.aries.Aries;
-import net.creeperhost.minetogether.client.gui.GuiProgressDisconnected;
-import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
-import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
-import net.creeperhost.minetogether.client.gui.mpreplacement.CreeperHostServerSelectionList;
-import net.creeperhost.minetogether.client.gui.serverlist.data.ServerListNoEdit;
+import net.creeperhost.minetogether.client.screen.GuiProgressDisconnected;
+import net.creeperhost.minetogether.client.screen.chat.ingame.GuiChatOurs;
+import net.creeperhost.minetogether.client.screen.element.GuiButtonCreeper;
+import net.creeperhost.minetogether.client.screen.mpreplacement.CreeperHostServerSelectionList;
+import net.creeperhost.minetogether.client.screen.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.minecraft.client.Minecraft;

@@ -3,10 +3,10 @@ package net.creeperhost.minetogether.events;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.PrivateChat;
-import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiInvited;
+import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
+import net.creeperhost.minetogether.client.screen.serverlist.data.Invite;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.FriendsListScreen;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.InvitedScreen;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.handler.ToastHandler;
@@ -58,7 +58,7 @@ public class ClientTickEvents
                             {
                                 ToastHandler.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
                                 {
-                                    mc.displayGuiScreen(new GuiMTChat(Minecraft.getInstance().currentScreen, true));
+                                    mc.displayGuiScreen(new MTChatScreen(Minecraft.getInstance().currentScreen, true));
                                 });
                             }
                         } catch (Exception ignored)
@@ -104,14 +104,14 @@ public class ClientTickEvents
                         break;
                     }
                 }
-                if (mc.currentScreen != null && mc.currentScreen instanceof GuiFriendsList)
+                if (mc.currentScreen != null && mc.currentScreen instanceof FriendsListScreen)
                 {
                     MineTogether.proxy.openFriendsGui();
                 } else
                 {
                     ToastHandler.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
                     {
-                        mc.displayGuiScreen(new GuiInvited(MineTogether.instance.handledInvite, mc.currentScreen));
+                        mc.displayGuiScreen(new InvitedScreen(MineTogether.instance.handledInvite, mc.currentScreen));
                         MineTogether.instance.handledInvite = null;
                     });
                 }
@@ -132,7 +132,7 @@ public class ClientTickEvents
             
             if (friend != null)
             {
-                if (friendMessage && Minecraft.getInstance().currentScreen instanceof GuiMTChat)
+                if (friendMessage && Minecraft.getInstance().currentScreen instanceof MTChatScreen)
                     return;
                 if (Config.getInstance().isFriendOnlineToastsEnabled())
                 {

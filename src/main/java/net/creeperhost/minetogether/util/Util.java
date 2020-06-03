@@ -1,9 +1,9 @@
 package net.creeperhost.minetogether.util;
 
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.client.gui.hacky.IBufferProxy;
-import net.creeperhost.minetogether.client.gui.hacky.IBufferProxyGetter;
-import net.creeperhost.minetogether.client.gui.hacky.IServerListEntryWrapper;
+import net.creeperhost.minetogether.client.screen.hacky.IBufferProxy;
+import net.creeperhost.minetogether.client.screen.hacky.IBufferProxyGetter;
+import net.creeperhost.minetogether.client.screen.hacky.IServerListEntryWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 

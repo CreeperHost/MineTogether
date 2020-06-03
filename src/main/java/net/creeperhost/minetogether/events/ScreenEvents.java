@@ -2,14 +2,14 @@ package net.creeperhost.minetogether.events;
 
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.client.gui.GuiMinigames;
-import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
-import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
-import net.creeperhost.minetogether.client.gui.element.GuiButtonCreeper;
-import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
-import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
+import net.creeperhost.minetogether.client.screen.MinigamesScreen;
+import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
+import net.creeperhost.minetogether.client.screen.chat.ingame.GuiChatOurs;
+import net.creeperhost.minetogether.client.screen.chat.ingame.GuiNewChatOurs;
+import net.creeperhost.minetogether.client.screen.element.GuiButtonCreeper;
+import net.creeperhost.minetogether.client.screen.element.GuiButtonMultiple;
+import net.creeperhost.minetogether.client.screen.order.GuiGetServer;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.MultiplayerPublicScreen;
 import net.creeperhost.minetogether.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.*;
@@ -78,7 +78,7 @@ public class ScreenEvents
             {
                 if (MineTogether.instance.gdpr.hasAcceptedGDPR())
                 {
-                    Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(event.getGui()));
+                    Minecraft.getInstance().displayGuiScreen(new MultiplayerPublicScreen(event.getGui()));
                 } else
                 {
                     Minecraft.getInstance().displayGuiScreen(new MultiplayerScreen(event.getGui()));
@@ -86,7 +86,7 @@ public class ScreenEvents
             }));
         }
         
-        if (event.getGui() instanceof MultiplayerScreen || event.getGui() instanceof GuiMultiplayerPublic)
+        if (event.getGui() instanceof MultiplayerScreen || event.getGui() instanceof MultiplayerPublicScreen)
         {
             event.getWidgetList().forEach(b ->
             {
@@ -122,12 +122,12 @@ public class ScreenEvents
             
             event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 133, event.getGui().height - 52, 2, p ->
             {
-                Minecraft.getInstance().displayGuiScreen(new GuiMultiplayerPublic(((GuiMultiplayerPublic) event.getGui()).parent, ((GuiMultiplayerPublic) event.getGui()).listType, ((GuiMultiplayerPublic) event.getGui()).sortOrder));
+                Minecraft.getInstance().displayGuiScreen(new MultiplayerPublicScreen(((MultiplayerPublicScreen) event.getGui()).parent, ((MultiplayerPublicScreen) event.getGui()).listType, ((MultiplayerPublicScreen) event.getGui()).sortOrder));
             }));
             
             event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 75, 20, "Minigames", p ->
             {
-                Minecraft.getInstance().displayGuiScreen(new GuiMinigames(event.getGui()));
+                Minecraft.getInstance().displayGuiScreen(new MinigamesScreen(event.getGui()));
             }));
         }
         
@@ -146,7 +146,7 @@ public class ScreenEvents
                 
                 event.addWidget(new GuiButtonMultiple(x, 5, 1, p ->
                 {
-                    Minecraft.getInstance().displayGuiScreen(new GuiMTChat(event.getGui()));
+                    Minecraft.getInstance().displayGuiScreen(new MTChatScreen(event.getGui()));
                 }));
             }
             
@@ -171,7 +171,7 @@ public class ScreenEvents
             
             event.addWidget(new GuiButtonMultiple(x, 5, 1, p ->
             {
-                Minecraft.getInstance().displayGuiScreen(new GuiMTChat(event.getGui()));
+                Minecraft.getInstance().displayGuiScreen(new MTChatScreen(event.getGui()));
             }));
         }
     }

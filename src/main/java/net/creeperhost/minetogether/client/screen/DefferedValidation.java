@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.screen;
 
 import net.creeperhost.minetogether.common.IOrderValidation;
 

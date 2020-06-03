@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.screen;
 
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
@@ -7,11 +7,11 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class GuiSettings extends Screen
+public class SettingsScreen extends Screen
 {
     private Screen parent;
     
-    public GuiSettings(Screen screen)
+    public SettingsScreen(Screen screen)
     {
         super(new TranslationTextComponent("Settings"));
         this.parent = screen;
@@ -61,6 +61,6 @@ public class GuiSettings extends Screen
     private void saveConfig()
     {
         ConfigHandler.saveConfig();
-        this.minecraft.displayGuiScreen(new GuiSettings(parent));
+        this.minecraft.displayGuiScreen(new SettingsScreen(parent));
     }
 }

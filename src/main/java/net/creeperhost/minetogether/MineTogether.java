@@ -8,7 +8,7 @@ import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.api.MineTogetherAPI;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
-import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.client.screen.serverlist.data.Invite;
 import net.creeperhost.minetogether.common.GDPR;
 import net.creeperhost.minetogether.common.HostHolder;
 import net.creeperhost.minetogether.common.IHost;

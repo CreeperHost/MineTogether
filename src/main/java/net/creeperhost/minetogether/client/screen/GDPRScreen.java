@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.screen;
 
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.util.ScreenUtils;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GuiGDPR extends Screen
+public class GDPRScreen extends Screen
 {
     private final String GDPRText = GDPRText0 + "\n" + GDPRText1 + "\n" + GDPRText2 + "\n" + GDPRText3 + "\n" + GDPRText4 + "\n" + GDPRText5 + "\n" + GDPRText6;
     
@@ -46,13 +46,13 @@ public class GuiGDPR extends Screen
     private List<ITextComponent> gdprlines;
     private boolean moreInfo = false;
     
-    public GuiGDPR(Screen parent)
+    public GDPRScreen(Screen parent)
     {
         super(new StringTextComponent(""));
         this.parent = parent;
     }
     
-    public GuiGDPR(Screen parent, IScreenGetter getterIn)
+    public GDPRScreen(Screen parent, IScreenGetter getterIn)
     {
         this(parent);
         getter = getterIn;

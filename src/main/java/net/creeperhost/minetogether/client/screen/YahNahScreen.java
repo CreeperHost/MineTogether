@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.screen;
 
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -14,7 +14,7 @@ import java.util.List;
 /*
  * Our own version of GuiYesNo which handles \n
  */
-public class GuiYahNah extends Screen
+public class YahNahScreen extends Screen
 {
     /**
      * A reference to the screen object that created this. Used for navigating between screens.
@@ -28,7 +28,7 @@ public class GuiYahNah extends Screen
     protected final BooleanConsumer booleanConsumer;
     
     @SuppressWarnings("all")
-    public GuiYahNah(BooleanConsumer booleanConsumer, ITextComponent messageLine1In, ITextComponent messageLine2In, String p_i51120_4_, String p_i51120_5_)
+    public YahNahScreen(BooleanConsumer booleanConsumer, ITextComponent messageLine1In, ITextComponent messageLine2In, String p_i51120_4_, String p_i51120_5_)
     {
         super(messageLine1In);
         this.booleanConsumer = booleanConsumer;

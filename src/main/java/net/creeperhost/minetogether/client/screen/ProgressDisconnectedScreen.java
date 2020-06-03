@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui;
+package net.creeperhost.minetogether.client.screen;
 
 import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GuiProgressDisconnected extends Screen
+public class ProgressDisconnectedScreen extends Screen
 {
     private final Screen parentScreen;
     double percent = 0;
@@ -29,7 +29,7 @@ public class GuiProgressDisconnected extends Screen
     private ConnectingScreen captiveConnecting;
     private String ip = "";
     
-    public GuiProgressDisconnected(ConnectingScreen screen, String reasonLocalizationKey, ITextComponent chatComp, NetworkManager lastNetworkManager)
+    public ProgressDisconnectedScreen(ConnectingScreen screen, String reasonLocalizationKey, ITextComponent chatComp, NetworkManager lastNetworkManager)
     {
         super(new StringTextComponent(""));
         this.parentScreen = screen;

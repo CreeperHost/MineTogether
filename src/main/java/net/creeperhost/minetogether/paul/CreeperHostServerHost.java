@@ -10,7 +10,7 @@ import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.IServerHost;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.api.OrderSummary;
-import net.creeperhost.minetogether.client.gui.order.GuiModPackList;
+import net.creeperhost.minetogether.client.screen.order.GuiModPackList;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.util.Util;

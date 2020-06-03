@@ -3,28 +3,25 @@ package net.creeperhost.minetogether.proxy;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
-import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.client.gui.chat.Target;
-import net.creeperhost.minetogether.client.gui.chat.ingame.GuiChatOurs;
-import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
-import net.creeperhost.minetogether.client.gui.element.DropdownButton;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiInvited;
+import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
+import net.creeperhost.minetogether.client.screen.chat.Target;
+import net.creeperhost.minetogether.client.screen.chat.ingame.GuiChatOurs;
+import net.creeperhost.minetogether.client.screen.chat.ingame.GuiNewChatOurs;
+import net.creeperhost.minetogether.client.screen.element.DropdownButton;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.FriendsListScreen;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.InvitedScreen;
 import net.creeperhost.minetogether.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.Session;
 import org.apache.commons.io.IOUtils;
 
@@ -55,10 +52,10 @@ public class Client implements IProxy
         Minecraft mc = Minecraft.getInstance();
         if (MineTogether.instance.handledInvite == null)
         {
-            mc.displayGuiScreen(new GuiFriendsList(mc.currentScreen));
+            mc.displayGuiScreen(new FriendsListScreen(mc.currentScreen));
         } else
         {
-            mc.displayGuiScreen(new GuiInvited(MineTogether.instance.handledInvite, mc.currentScreen));
+            mc.displayGuiScreen(new InvitedScreen(MineTogether.instance.handledInvite, mc.currentScreen));
             MineTogether.instance.handledInvite = null;
         }
     }
@@ -164,13 +161,13 @@ public class Client implements IProxy
         {
             if (currentScreen instanceof GuiChatOurs)
                 currentScreen.setSize(currentScreen.width, currentScreen.height);
-            if (currentScreen instanceof GuiMTChat)
+            if (currentScreen instanceof MTChatScreen)
             {
                 for (DropdownButton.IDropdownOption target : Target.getMainTarget().getPossibleVals())
                 {
                     if (((Target) target).getInternalTarget().equals(ChatHandler.CHANNEL))
                     {
-                        ((GuiMTChat) currentScreen).targetDropdownButton.setSelected((Target) target);
+                        ((MTChatScreen) currentScreen).targetDropdownButton.setSelected((Target) target);
                         Target.updateCache();
                     }
                 }
@@ -186,7 +183,7 @@ public class Client implements IProxy
             return;
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
         if (target.toLowerCase().equals(ourChat.chatTarget.toLowerCase()))
-            ourChat.setChatLine(Objects.requireNonNull(GuiMTChat.formatLine(messagePair)), 0, Minecraft.getInstance().ingameGUI.getTicks(), false);
+            ourChat.setChatLine(Objects.requireNonNull(MTChatScreen.formatLine(messagePair)), 0, Minecraft.getInstance().ingameGUI.getTicks(), false);
     }
     
     @Override
@@ -209,8 +206,8 @@ public class Client implements IProxy
             if (!chatGUI.isBase())
                 chatGUI.rebuildChat(chatGUI.chatTarget);
             Screen currentScreen = Minecraft.getInstance().currentScreen;
-            if (currentScreen != null && currentScreen instanceof GuiMTChat)
-                ((GuiMTChat) currentScreen).rebuildChat();
+            if (currentScreen != null && currentScreen instanceof MTChatScreen)
+                ((MTChatScreen) currentScreen).rebuildChat();
         }
     }
     
