@@ -1,7 +1,7 @@
-package net.creeperhost.minetogether.client.gui.list;
+package net.creeperhost.minetogether.client.screen.list;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.FriendsListScreen;
 import net.creeperhost.minetogether.data.Friend;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,10 +15,10 @@ public class GuiListEntryFriend extends GuiListEntry
     private final int stringWidth;
     private float transparency = 0.5F;
     private boolean wasHovering;
-    private final GuiFriendsList friendsList;
+    private final FriendsListScreen friendsList;
     ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/icon2.png");
     
-    public GuiListEntryFriend(GuiFriendsList friendsListIn, GuiList list, Friend friend)
+    public GuiListEntryFriend(FriendsListScreen friendsListIn, GuiList list, Friend friend)
     {
         super(list);
         friendsList = friendsListIn;

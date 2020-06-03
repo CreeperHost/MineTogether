@@ -1,10 +1,10 @@
-package net.creeperhost.minetogether.client.gui.mpreplacement;
+package net.creeperhost.minetogether.client.screen.mpreplacement;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
+import net.creeperhost.minetogether.client.screen.order.GuiGetServer;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.util.Util;

@@ -1,12 +1,12 @@
-package net.creeperhost.minetogether.client.gui.chat.ingame;
+package net.creeperhost.minetogether.client.screen.chat.ingame;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
-import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.client.gui.chat.TimestampComponentString;
+import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
+import net.creeperhost.minetogether.client.screen.chat.TimestampComponentString;
 import net.creeperhost.minetogether.proxy.Client;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.minecraft.client.Minecraft;
@@ -233,7 +233,7 @@ public class GuiNewChatOurs extends NewChatGui
                     }
                     
                     if (!isBase() && getChatOpen())
-                        GuiMTChat.drawLogo(mc.fontRenderer, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
+                        MTChatScreen.drawLogo(mc.fontRenderer, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
                     
                     for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
                     {
@@ -358,7 +358,7 @@ public class GuiNewChatOurs extends NewChatGui
             int size = messages.size();
             for (Message message : messages)
             {
-                ITextComponent component = GuiMTChat.formatLine(message);
+                ITextComponent component = MTChatScreen.formatLine(message);
                 if (component == null)
                     continue;
                 setChatLine(component, size--, 0, false);

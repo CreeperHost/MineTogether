@@ -1,8 +1,8 @@
-package net.creeperhost.minetogether.client.gui.element;
+package net.creeperhost.minetogether.client.screen.element;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.creeperhost.minetogether.client.gui.DefferedValidation;
-import net.creeperhost.minetogether.client.gui.order.GuiPersonalDetails;
+import net.creeperhost.minetogether.client.screen.DefferedValidation;
+import net.creeperhost.minetogether.client.screen.order.GuiPersonalDetails;
 import net.creeperhost.minetogether.common.IOrderValidation;
 import net.creeperhost.minetogether.util.Pair;
 import net.minecraft.client.gui.widget.TextFieldWidget;

@@ -1,12 +1,12 @@
-package net.creeperhost.minetogether.client.gui.serverlist.gui;
+package net.creeperhost.minetogether.client.screen.serverlist.gui;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.client.gui.GuiGDPR;
-import net.creeperhost.minetogether.client.gui.list.GuiList;
-import net.creeperhost.minetogether.client.gui.list.GuiListEntryFriend;
-import net.creeperhost.minetogether.client.gui.list.GuiListEntryMuted;
+import net.creeperhost.minetogether.client.screen.GDPRScreen;
+import net.creeperhost.minetogether.client.screen.list.GuiList;
+import net.creeperhost.minetogether.client.screen.list.GuiListEntryFriend;
+import net.creeperhost.minetogether.client.screen.list.GuiListEntryMuted;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
@@ -20,7 +20,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 
-public class GuiFriendsList extends Screen
+public class FriendsListScreen extends Screen
 {
     private final Screen parent;
     private GuiList<GuiListEntryFriend> list;
@@ -53,7 +53,7 @@ public class GuiFriendsList extends Screen
     private boolean channelInvite = false;
     private boolean isMuted;
     
-    public GuiFriendsList(Screen currentScreen)
+    public FriendsListScreen(Screen currentScreen)
     {
         super(new StringTextComponent(""));
         this.parent = currentScreen;
@@ -66,7 +66,7 @@ public class GuiFriendsList extends Screen
     {
         if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
-            minecraft.displayGuiScreen(new GuiGDPR(parent, () -> new GuiFriendsList(parent)));
+            minecraft.displayGuiScreen(new GDPRScreen(parent, () -> new FriendsListScreen(parent)));
             return;
         }
         super.init();
@@ -378,7 +378,7 @@ public class GuiFriendsList extends Screen
                 Callbacks.removeFriend(removeFriend.getCode());
                 refreshFriendsList(true);
             }
-            minecraft.displayGuiScreen(new GuiFriendsList(parent));
+            minecraft.displayGuiScreen(new FriendsListScreen(parent));
         }
     };
     
@@ -404,7 +404,7 @@ public class GuiFriendsList extends Screen
                     ChatHandler.sendChannelInvite(friendCode, MineTogether.instance.ourNick);
                 }
             }
-            minecraft.displayGuiScreen(new GuiFriendsList(parent));
+            minecraft.displayGuiScreen(new FriendsListScreen(parent));
         }
     };
     
@@ -424,7 +424,7 @@ public class GuiFriendsList extends Screen
                 MineTogether.instance.unmuteUser(unmutePlayer);
                 refreshMutedList(false);
             }
-            minecraft.displayGuiScreen(new GuiFriendsList(parent));
+            minecraft.displayGuiScreen(new FriendsListScreen(parent));
         }
     };
     

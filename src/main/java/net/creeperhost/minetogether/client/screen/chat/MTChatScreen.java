@@ -1,17 +1,16 @@
-package net.creeperhost.minetogether.client.gui.chat;
+package net.creeperhost.minetogether.client.screen.chat;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import jdk.nashorn.internal.codegen.CompilerConstants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
-import net.creeperhost.minetogether.client.gui.GuiGDPR;
-import net.creeperhost.minetogether.client.gui.GuiSettings;
-import net.creeperhost.minetogether.client.gui.element.ButtonString;
-import net.creeperhost.minetogether.client.gui.element.DropdownButton;
-import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
+import net.creeperhost.minetogether.client.screen.GDPRScreen;
+import net.creeperhost.minetogether.client.screen.SettingsScreen;
+import net.creeperhost.minetogether.client.screen.element.ButtonString;
+import net.creeperhost.minetogether.client.screen.element.DropdownButton;
+import net.creeperhost.minetogether.client.screen.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
@@ -38,8 +37,6 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
 import org.apache.commons.lang3.StringUtils;
 
-import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,11 +47,11 @@ import java.util.regex.Pattern;
 
 import static net.creeperhost.minetogether.chat.ChatHandler.ircLock;
 
-public class GuiMTChat extends Screen
+public class MTChatScreen extends Screen
 {
     private final Screen parent;
     private GuiScrollingChat chat;
-    private GuiTextFieldLockable send;
+    private ScreenTextFieldLockable send;
     public DropdownButton<Target> targetDropdownButton;
     private Button friendsButton;
     public static String playerName = Minecraft.getInstance().getSession().getUsername();
@@ -69,13 +66,13 @@ public class GuiMTChat extends Screen
     private String banMessage = "";
     private ButtonString banButton;
     
-    public GuiMTChat(Screen parent)
+    public MTChatScreen(Screen parent)
     {
         super(new StringTextComponent(""));
         this.parent = parent;
     }
     
-    public GuiMTChat(Screen parent, boolean invite)
+    public MTChatScreen(Screen parent, boolean invite)
     {
         super(new StringTextComponent(""));
         this.parent = parent;
@@ -102,13 +99,13 @@ public class GuiMTChat extends Screen
         minecraft.keyboardListener.enableRepeatEvents(true);
         if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
-            minecraft.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMTChat(parent)));
+            minecraft.displayGuiScreen(new GDPRScreen(parent, () -> new MTChatScreen(parent)));
             return;
         }
         
         chat = new GuiScrollingChat(10);
         chat.setLeftPos(10);
-        send = new GuiTextFieldLockable(minecraft.fontRenderer, 11, this.height - 48, width - 22, 20, "");
+        send = new ScreenTextFieldLockable(minecraft.fontRenderer, 11, this.height - 48, width - 22, 20, "");
         if (targetDropdownButton == null)
         {
             targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true, p ->
@@ -140,7 +137,7 @@ public class GuiMTChat extends Screen
                     chat.updateLines(currentTarget);
                 } else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
                 {
-                    minecraft.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                    minecraft.displayGuiScreen(new ChatFriendScreen(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
                 } else if (ChatHandler.privateChatInvite != null)
                 {
                     confirmInvite();
@@ -154,7 +151,7 @@ public class GuiMTChat extends Screen
         //Settings menu
         addButton(new GuiButtonMultiple(width - 124, 5, 3, p ->
         {
-            this.minecraft.displayGuiScreen(new GuiSettings(this));
+            this.minecraft.displayGuiScreen(new SettingsScreen(this));
         }));
         addButton(cancelButton = new Button(width - 100 - 5, height - 5 - 20, 100, 20, "Cancel", p ->
         {
@@ -164,7 +161,7 @@ public class GuiMTChat extends Screen
         {
             ChatHandler.reInit();
         }));
-        reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
+//        reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
         
         addButton(invited = new Button(5 + 70, height - 5 - 20, 60, 20, "Invites", p ->
         {
@@ -218,7 +215,7 @@ public class GuiMTChat extends Screen
         }
         synchronized (ircLock)
         {
-            reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
+            //reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
             if (changed || ChatHandler.hasNewMessages(currentTarget))
             {
                 chat.updateLines(currentTarget);
@@ -329,7 +326,7 @@ public class GuiMTChat extends Screen
                 ToastHandler.clearToast(false);
             }
         }
-        minecraft.displayGuiScreen(new GuiMTChat(new MainMenuScreen()));
+        minecraft.displayGuiScreen(new MTChatScreen(new MainMenuScreen()));
     };
     
     public void confirmInvite()
@@ -502,7 +499,7 @@ public class GuiMTChat extends Screen
                 
                 String friendName = builder.toString().trim();
                 
-                Minecraft.getInstance().displayGuiScreen(new GuiChatFriend(this, playerName, chatInternalName, friendCode, friendName, true));
+                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, playerName, chatInternalName, friendCode, friendName, true));
                 
                 return true;
             }
@@ -650,7 +647,7 @@ public class GuiMTChat extends Screen
         
         messageStr = String.join(" ", split);
         
-        ITextComponent messageComp = GuiMTChat.newChatWithLinksOurs(messageStr);
+        ITextComponent messageComp = MTChatScreen.newChatWithLinksOurs(messageStr);
         
         if (MineTogether.bannedUsers.contains(inputNick))
             messageComp = new StringTextComponent("message deleted").setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Message deleted as user was banned"))).setColor(TextFormatting.DARK_GRAY).setItalic(true));
@@ -716,7 +713,7 @@ public class GuiMTChat extends Screen
         
         GuiScrollingChat(int entryHeight)
         {
-            super(Minecraft.getInstance(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 50, 30, GuiMTChat.this.height - 50, 10);
+            super(Minecraft.getInstance(), MTChatScreen.this.width - 20, MTChatScreen.this.height - 50, 30, MTChatScreen.this.height - 50, 10);
             lines = new ArrayList<>();
             updateLines(currentTarget);
         }

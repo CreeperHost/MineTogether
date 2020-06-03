@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.chat;
+package net.creeperhost.minetogether.client.screen.chat;
 
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;

@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.element;
+package net.creeperhost.minetogether.client.screen.element;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.TextFieldWidget;

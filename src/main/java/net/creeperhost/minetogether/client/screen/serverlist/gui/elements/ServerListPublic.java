@@ -1,9 +1,9 @@
-package net.creeperhost.minetogether.client.gui.serverlist.gui.elements;
+package net.creeperhost.minetogether.client.screen.serverlist.gui.elements;
 
 import com.google.common.collect.Lists;
-import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
-import net.creeperhost.minetogether.client.gui.serverlist.data.ServerDataPublic;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
+import net.creeperhost.minetogether.client.screen.serverlist.data.Server;
+import net.creeperhost.minetogether.client.screen.serverlist.data.ServerDataPublic;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.MultiplayerPublicScreen;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
@@ -13,10 +13,10 @@ import java.util.List;
 
 public class ServerListPublic extends ServerList
 {
-    private final GuiMultiplayerPublic owner;
+    private final MultiplayerPublicScreen owner;
     public List<ServerDataPublic> servers;
     
-    public ServerListPublic(Minecraft mcIn, GuiMultiplayerPublic owner)
+    public ServerListPublic(Minecraft mcIn, MultiplayerPublicScreen owner)
     {
         super(mcIn);
         this.owner = owner;

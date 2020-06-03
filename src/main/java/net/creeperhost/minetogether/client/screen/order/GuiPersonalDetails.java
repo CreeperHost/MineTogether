@@ -1,10 +1,10 @@
-package net.creeperhost.minetogether.client.gui.order;
+package net.creeperhost.minetogether.client.screen.order;
 
 import com.google.common.base.Splitter;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.client.gui.DefferedValidation;
-import net.creeperhost.minetogether.client.gui.element.TextFieldDetails;
+import net.creeperhost.minetogether.client.screen.DefferedValidation;
+import net.creeperhost.minetogether.client.screen.element.TextFieldDetails;
 import net.creeperhost.minetogether.common.IOrderValidation;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.RegexValidator;

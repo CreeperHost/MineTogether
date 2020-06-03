@@ -1,8 +1,8 @@
-package net.creeperhost.minetogether.client.gui.element;
+package net.creeperhost.minetogether.client.screen.element;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.creeperhost.minetogether.client.gui.hacky.IBufferProxy;
+import net.creeperhost.minetogether.client.screen.hacky.IBufferProxy;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

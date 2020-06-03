@@ -1,7 +1,7 @@
-package net.creeperhost.minetogether.client.gui.chat;
+package net.creeperhost.minetogether.client.screen.chat;
 
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.client.gui.element.DropdownButton;
+import net.creeperhost.minetogether.client.screen.element.DropdownButton;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;

@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.mpreplacement;
+package net.creeperhost.minetogether.client.screen.mpreplacement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MultiplayerScreen;

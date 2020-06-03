@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.chat.ingame;
+package net.creeperhost.minetogether.client.screen.chat.ingame;
 
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;

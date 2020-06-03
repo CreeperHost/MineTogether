@@ -1,7 +1,7 @@
-package net.creeperhost.minetogether.client.gui.serverlist.gui;
+package net.creeperhost.minetogether.client.screen.serverlist.gui;
 
-import net.creeperhost.minetogether.client.gui.serverlist.data.Invite;
-import net.creeperhost.minetogether.client.gui.serverlist.data.ServerSelectionListOurs;
+import net.creeperhost.minetogether.client.screen.serverlist.data.Invite;
+import net.creeperhost.minetogether.client.screen.serverlist.data.ServerSelectionListOurs;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.screen.Screen;
@@ -11,7 +11,7 @@ import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
 
-public class GuiInvited extends Screen
+public class InvitedScreen extends Screen
 {
     private final Invite invite;
     private final ServerSelectionListOurs.ServerListEntryPublic server;
@@ -22,7 +22,7 @@ public class GuiInvited extends Screen
     private CheckboxButton checkBox;
     private boolean addToServerList = true;
     
-    public GuiInvited(Invite invite, Screen parent)
+    public InvitedScreen(Invite invite, Screen parent)
     {
         super(new StringTextComponent(""));
         this.invite = invite;

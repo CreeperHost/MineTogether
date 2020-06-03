@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.hacky;
+package net.creeperhost.minetogether.client.screen.hacky;
 
 import net.minecraft.client.renderer.vertex.VertexFormat;
 

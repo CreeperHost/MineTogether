@@ -1,8 +1,8 @@
-package net.creeperhost.minetogether.client.gui.serverlist.data;
+package net.creeperhost.minetogether.client.screen.serverlist.data;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiMultiplayerPublic;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.MultiplayerPublicScreen;
 import net.creeperhost.minetogether.data.EnumFlag;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
@@ -62,7 +62,7 @@ public class ServerSelectionListOurs extends ServerSelectionList
         
         for (int i = 0; i < p_148195_1_.countServers(); ++i)
         {
-            this.serverListInternetOurs.add(new ServerSelectionListOurs.ServerListEntryPublic((GuiMultiplayerPublic) this.multiplayerScreen, p_148195_1_.getServerData(i)));
+            this.serverListInternetOurs.add(new ServerSelectionListOurs.ServerListEntryPublic((MultiplayerPublicScreen) this.multiplayerScreen, p_148195_1_.getServerData(i)));
         }
         
         this.func_195094_h();
@@ -75,7 +75,7 @@ public class ServerSelectionListOurs extends ServerSelectionList
     
     public class ServerListEntryPublic extends ServerSelectionList.NormalEntry
     {
-        GuiMultiplayerPublic multiplayerScreen;
+        MultiplayerPublicScreen multiplayerScreen;
         ServerData wrappedEntry;
         Minecraft mc = Minecraft.getInstance();
         private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
@@ -85,7 +85,7 @@ public class ServerSelectionListOurs extends ServerSelectionList
         private DynamicTexture icon;
         private long lastClickTime;
         
-        public ServerListEntryPublic(GuiMultiplayerPublic multiplayerScreen, ServerData wrappedEntry)
+        public ServerListEntryPublic(MultiplayerPublicScreen multiplayerScreen, ServerData wrappedEntry)
         {
             super(multiplayerScreen, wrappedEntry);
             this.multiplayerScreen = multiplayerScreen;

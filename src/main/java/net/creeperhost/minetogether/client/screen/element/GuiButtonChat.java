@@ -1,8 +1,8 @@
-package net.creeperhost.minetogether.client.gui.element;
+package net.creeperhost.minetogether.client.screen.element;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.client.gui.chat.ingame.GuiNewChatOurs;
+import net.creeperhost.minetogether.client.screen.chat.ingame.GuiNewChatOurs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.button.Button;

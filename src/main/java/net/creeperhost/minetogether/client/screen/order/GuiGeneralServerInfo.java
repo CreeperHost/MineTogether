@@ -1,9 +1,9 @@
-package net.creeperhost.minetogether.client.gui.order;
+package net.creeperhost.minetogether.client.screen.order;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.client.gui.element.GuiTextFieldValidate;
+import net.creeperhost.minetogether.client.screen.element.GuiTextFieldValidate;
 import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;

@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.hacky;
+package net.creeperhost.minetogether.client.screen.hacky;
 
 /**
  * Created by Aaron on 12/06/2017.

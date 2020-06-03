@@ -1,13 +1,14 @@
-package net.creeperhost.minetogether.client.gui.chat.ingame;
+package net.creeperhost.minetogether.client.screen.chat.ingame;
 
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.client.gui.GuiGDPR;
-import net.creeperhost.minetogether.client.gui.chat.GuiChatFriend;
-import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.client.gui.chat.GuiTextFieldLockable;
-import net.creeperhost.minetogether.client.gui.element.DropdownButton;
-import net.creeperhost.minetogether.client.gui.element.GuiButtonPair;
+import net.creeperhost.minetogether.client.screen.GDPRScreen;
+import net.creeperhost.minetogether.client.screen.chat.ChatFriendScreen;
+import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
+import net.creeperhost.minetogether.client.screen.chat.ScreenTextFieldLockable;
+import net.creeperhost.minetogether.client.screen.element.DropdownButton;
+import net.creeperhost.minetogether.client.screen.element.GuiButtonPair;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
 import net.minecraft.client.Minecraft;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public class GuiChatOurs extends ChatScreen
 {
-    private DropdownButton<GuiMTChat.Menu> menuDropdownButton;
+    private DropdownButton<MTChatScreen.Menu> menuDropdownButton;
     private String activeDropdown;
     private GuiButtonPair switchButton;
     private String presetString;
@@ -87,14 +88,14 @@ public class GuiChatOurs extends ChatScreen
         
         if (veryNaughty)
         {
-            ((GuiTextFieldLockable) inputField).setDisabled("Cannot send message as contains content which may not be suitable for all audiences");
+            ((ScreenTextFieldLockable) inputField).setDisabled("Cannot send message as contains content which may not be suitable for all audiences");
             disabledDueToBadwords = true;
             return;
         }
         
         if (disabledDueToBadwords)
         {
-            ((GuiTextFieldLockable) inputField).setDisabled("");
+            ((ScreenTextFieldLockable) inputField).setDisabled("");
             disabledDueToBadwords = false;
             inputField.setEnabled(true);
         }
@@ -124,8 +125,8 @@ public class GuiChatOurs extends ChatScreen
             return super.charTyped(typedChar, keyCode);
         }
         
-        assert inputField instanceof GuiTextFieldLockable;
-        boolean ourEnabled = inputField instanceof GuiTextFieldLockable && ((GuiTextFieldLockable) inputField).getOurEnabled();
+        assert inputField instanceof ScreenTextFieldLockable;
+        boolean ourEnabled = inputField instanceof ScreenTextFieldLockable && ((ScreenTextFieldLockable) inputField).getOurEnabled();
         
         if (!ourEnabled)
         {
@@ -190,7 +191,7 @@ public class GuiChatOurs extends ChatScreen
             }
             if (ChatHandler.isOnline())
             {
-                String text = GuiMTChat.getStringForSending(msg);
+                String text = MTChatScreen.getStringForSending(msg);
                 String currentTarget = ChatHandler.CHANNEL;
                 switch (switchButton.activeButton)
                 {
@@ -240,6 +241,7 @@ public class GuiChatOurs extends ChatScreen
         if (isBase())
         {
             super.init();
+
             if (sleep)
             {
                 addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, I18n.format("multiplayer.stopSleeping"), p ->
@@ -259,7 +261,7 @@ public class GuiChatOurs extends ChatScreen
         }
         super.init();
         TextFieldWidget oldInputField = this.inputField;
-        this.inputField = new GuiTextFieldLockable(mc.fontRenderer, 4, this.height - 12, this.width - 4, 12, "");
+        this.inputField = new ScreenTextFieldLockable(mc.fontRenderer, 4, this.height - 12, this.width - 4, 12, "");
         this.inputField.setMaxStringLength(256);
         this.inputField.setEnableBackgroundDrawing(false);
         this.inputField.setFocused2(true);
@@ -281,7 +283,7 @@ public class GuiChatOurs extends ChatScreen
         {
         }//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
         
-        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true, p ->
+        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new MTChatScreen.Menu(strings), true, p ->
         {
             if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mute")))
             {
@@ -290,7 +292,7 @@ public class GuiChatOurs extends ChatScreen
                 ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setChatLine(new StringTextComponent(I18n.format("minetogether.chat.muted")), 0, 5, false);
             } else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
             {
-                mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
+                mc.displayGuiScreen(new ChatFriendScreen(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
             }
         }));
         menuDropdownButton.flipped = false;
@@ -324,7 +326,7 @@ public class GuiChatOurs extends ChatScreen
                 {
                     try
                     {
-                        Minecraft.getInstance().displayGuiScreen(new GuiGDPR(null, () ->
+                        Minecraft.getInstance().displayGuiScreen(new GDPRScreen(null, () ->
                         {
                             GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
                             if (switchButton.activeButton == 1)
@@ -360,7 +362,7 @@ public class GuiChatOurs extends ChatScreen
                 {
                     try
                     {
-                        Minecraft.getInstance().displayGuiScreen(new GuiGDPR(null, () ->
+                        Minecraft.getInstance().displayGuiScreen(new GDPRScreen(null, () ->
                         {
                             GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
                             if (switchButton.activeButton == 1)
@@ -379,7 +381,7 @@ public class GuiChatOurs extends ChatScreen
             }, defaultString, I18n.format("minetogether.ingame.chat.global")));
         }
     }
-    
+
     @Override
     public void tick()
     {
@@ -467,7 +469,7 @@ public class GuiChatOurs extends ChatScreen
                 
                 String friendName = builder.toString().trim();
                 
-                Minecraft.getInstance().displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), chatInternalName, friendCode, friendName, true));
+                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, mc.getSession().getUsername(), chatInternalName, friendCode, friendName, true));
                 
                 return true;
             }

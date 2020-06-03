@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.list;
+package net.creeperhost.minetogether.client.screen.list;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.list.ExtendedList;

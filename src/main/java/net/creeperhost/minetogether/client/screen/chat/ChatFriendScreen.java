@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.chat;
+package net.creeperhost.minetogether.client.screen.chat;
 
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
@@ -9,7 +9,7 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
 
-public class GuiChatFriend extends Screen
+public class ChatFriendScreen extends Screen
 {
     private final String playerName;
     private final String chatInternalName;
@@ -23,7 +23,7 @@ public class GuiChatFriend extends Screen
     private TextFieldWidget nameEntry;
     Minecraft mc = Minecraft.getInstance();
     
-    public GuiChatFriend(Screen parent, String playerName, String chatInternalName, String friendCode, String friendName, boolean accept)
+    public ChatFriendScreen(Screen parent, String playerName, String chatInternalName, String friendCode, String friendName, boolean accept)
     {
         super(new StringTextComponent(""));
         this.playerName = playerName;

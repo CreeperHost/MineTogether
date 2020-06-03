@@ -1,18 +1,18 @@
-package net.creeperhost.minetogether.client.gui.serverlist.gui;
+package net.creeperhost.minetogether.client.screen.serverlist.gui;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.client.gui.GuiGDPR;
-import net.creeperhost.minetogether.client.gui.chat.GuiMTChat;
-import net.creeperhost.minetogether.client.gui.element.DropdownButton;
-import net.creeperhost.minetogether.client.gui.element.GuiButtonMultiple;
-import net.creeperhost.minetogether.client.gui.order.GuiGetServer;
-import net.creeperhost.minetogether.client.gui.serverlist.data.Server;
-import net.creeperhost.minetogether.client.gui.serverlist.data.ServerSelectionListOurs;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.elements.ServerListPublic;
+import net.creeperhost.minetogether.client.screen.GDPRScreen;
+import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
+import net.creeperhost.minetogether.client.screen.element.DropdownButton;
+import net.creeperhost.minetogether.client.screen.element.GuiButtonMultiple;
+import net.creeperhost.minetogether.client.screen.order.GuiGetServer;
+import net.creeperhost.minetogether.client.screen.serverlist.data.Server;
+import net.creeperhost.minetogether.client.screen.serverlist.data.ServerSelectionListOurs;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.elements.ServerListPublic;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.util.Util;
@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class GuiMultiplayerPublic extends MultiplayerScreen
+public class MultiplayerPublicScreen extends MultiplayerScreen
 {
     public ListType listType = null;
     public SortOrder sortOrder = SortOrder.RANDOM;
@@ -45,20 +45,20 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     private boolean initialized;
     private ServerListPublic ourSavedServerList = null;
     
-    public GuiMultiplayerPublic(Screen parentScreen)
+    public MultiplayerPublicScreen(Screen parentScreen)
     {
         super(parentScreen);
         parent = parentScreen;
     }
     
-    public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order)
+    public MultiplayerPublicScreen(Screen parentScreen, ListType listType, SortOrder order)
     {
         this(parentScreen);
         this.listType = listType;
         sortOrder = order;
     }
     
-    public GuiMultiplayerPublic(Screen parentScreen, ListType listType, SortOrder order, boolean selectedListType)
+    public MultiplayerPublicScreen(Screen parentScreen, ListType listType, SortOrder order, boolean selectedListType)
     {
         this(parentScreen);
         this.listType = listType;
@@ -71,7 +71,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
     {
         if (!MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
-            mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMultiplayerPublic(parent, listType, sortOrder)));
+            mc.displayGuiScreen(new GDPRScreen(parent, () -> new MultiplayerPublicScreen(parent, listType, sortOrder)));
             return;
         }
         
@@ -88,12 +88,12 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             {
                 changeSort = false;
             }
-            mc.displayGuiScreen(new GuiServerType(this));
+            mc.displayGuiScreen(new ServerTypeScreen(this));
         }));
         
         addButton(new GuiButtonMultiple(width - 105, 5, 1, p ->
         {
-            mc.displayGuiScreen(new GuiMTChat(this));
+            mc.displayGuiScreen(new MTChatScreen(this));
         }));
         
         mc.keyboardListener.enableRepeatEvents(true);
@@ -146,7 +146,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
                     changeSort = true;
                     sortOrder = sortOrderButton.getSelected();
                     sort();
-                    minecraft.displayGuiScreen(new GuiMultiplayerPublic(parent, listType, sortOrder));
+                    minecraft.displayGuiScreen(new MultiplayerPublicScreen(parent, listType, sortOrder));
                 }
             }));
         }
@@ -428,7 +428,7 @@ public class GuiMultiplayerPublic extends MultiplayerScreen
             {
                 Config.getInstance().setMpMenuEnabled(false);
                 ConfigHandler.saveConfig();
-                this.mc.displayGuiScreen(new GuiMultiplayerPublic(new MainMenuScreen()));
+                this.mc.displayGuiScreen(new MultiplayerPublicScreen(new MainMenuScreen()));
                 return true;
             }
             Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));

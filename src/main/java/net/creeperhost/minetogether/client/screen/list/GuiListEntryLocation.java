@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.list;
+package net.creeperhost.minetogether.client.screen.list;
 
 public class GuiListEntryLocation extends GuiListEntry
 {

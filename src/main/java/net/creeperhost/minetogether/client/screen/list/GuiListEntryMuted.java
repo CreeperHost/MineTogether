@@ -1,7 +1,7 @@
-package net.creeperhost.minetogether.client.gui.list;
+package net.creeperhost.minetogether.client.screen.list;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.creeperhost.minetogether.client.gui.serverlist.gui.GuiFriendsList;
+import net.creeperhost.minetogether.client.screen.serverlist.gui.FriendsListScreen;
 
 public class GuiListEntryMuted extends GuiListEntry
 {
@@ -10,9 +10,9 @@ public class GuiListEntryMuted extends GuiListEntry
     private final int stringWidth;
     private float transparency = 0.5F;
     private boolean wasHovering;
-    private final GuiFriendsList friendsListgui;
+    private final FriendsListScreen friendsListgui;
     
-    public GuiListEntryMuted(GuiFriendsList friendsListIngui, GuiList list, String muted)
+    public GuiListEntryMuted(FriendsListScreen friendsListIngui, GuiList list, String muted)
     {
         super(list);
         friendsListgui = friendsListIngui;

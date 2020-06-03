@@ -1,9 +1,9 @@
-package net.creeperhost.minetogether.client.gui.order;
+package net.creeperhost.minetogether.client.screen.order;
 
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.client.gui.element.GuiButtonRefresh;
-import net.creeperhost.minetogether.client.gui.list.GuiList;
-import net.creeperhost.minetogether.client.gui.list.GuiListEntryModpack;
+import net.creeperhost.minetogether.client.screen.element.GuiButtonRefresh;
+import net.creeperhost.minetogether.client.screen.list.GuiList;
+import net.creeperhost.minetogether.client.screen.list.GuiListEntryModpack;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.ModPack;
 import net.creeperhost.minetogether.paul.Callbacks;

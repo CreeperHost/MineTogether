@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.client.gui.serverlist.data;
+package net.creeperhost.minetogether.client.screen.serverlist.data;
 
 import net.creeperhost.minetogether.data.EnumFlag;
 import net.creeperhost.minetogether.paul.Callbacks;
