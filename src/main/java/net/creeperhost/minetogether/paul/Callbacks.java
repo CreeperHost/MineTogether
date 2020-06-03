@@ -12,6 +12,7 @@ import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.data.ModPack;
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.util.WebUtils;
+import org.apache.commons.codec.binary.Hex;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.nio.charset.Charset;

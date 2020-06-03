@@ -313,9 +313,10 @@ public class ChatHandler
                     addMessageToChat(CHANNEL, "System", "Disconnected From chat Rejoining");
                     return;
                 }
-                addMessageToChat(CHANNEL, "System", "Disconnected From chat Rejoining");
+                if(tries == 0)
+                    addMessageToChat(CHANNEL, "System", "Disconnected From chat Rejoining 2");
                 MineTogether.instance.getLogger().error(Format.stripAll(cause));
-                event.setReconnectionDelay(10000);
+                event.setReconnectionDelay(1000);
                 event.setAttemptReconnect(true);
             }
         }
@@ -552,11 +553,10 @@ public class ChatHandler
         public void onNickRejected(NickRejectedEvent event)
         {
             host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "Couldn't connect as your nick is in use. Waiting 1 minute and trying again."));
-            if(!isInitting.get())
-            {
-                ChatConnectionHandler.INSTANCE.nextConnectAllow(600);
-                ChatConnectionHandler.INSTANCE.disconnect();
-            }
+            isInitting.set(true);
+            inited = false;
+            ChatConnectionHandler.INSTANCE.nextConnectAllow(1000);
+            ChatConnectionHandler.INSTANCE.disconnect();
         }
         
         @Handler

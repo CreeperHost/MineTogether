@@ -59,9 +59,12 @@ public class ChatConnectionHandler
     
     public synchronized void disconnect()
     {
-        ChatHandler.client.shutdown("Disconnecting.");
-        ChatHandler.client = null;
-        ChatHandler.connectionStatus = ChatHandler.ConnectionStatus.DISCONNECTED;
+        if(ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.DISCONNECTED)
+        {
+            ChatHandler.client.shutdown("Disconnecting.");
+            ChatHandler.client = null;
+            ChatHandler.connectionStatus = ChatHandler.ConnectionStatus.DISCONNECTED;
+        }
     }
     
     public boolean canConnect()

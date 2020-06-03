@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.client.screen.chat;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
@@ -161,7 +162,7 @@ public class MTChatScreen extends Screen
         {
             ChatHandler.reInit();
         }));
-//        reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
+        reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
         
         addButton(invited = new Button(5 + 70, height - 5 - 20, 60, 20, "Invites", p ->
         {
@@ -215,7 +216,7 @@ public class MTChatScreen extends Screen
         }
         synchronized (ircLock)
         {
-            //reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
+            reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
             if (changed || ChatHandler.hasNewMessages(currentTarget))
             {
                 chat.updateLines(currentTarget);
