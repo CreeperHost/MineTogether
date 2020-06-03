@@ -305,18 +305,18 @@ public final class Callbacks
                 {
                     JsonObject invite = inviteEl.getAsJsonObject();
                     JsonObject server = invite.getAsJsonObject("server");
-                    String host = server.get("ip").getAsString();
-                    int project = server.get("project").getAsInt();
-                    String by = invite.get("by").getAsString();
-                    String name = server.get("name").getAsString();
-                    String port = server.get("port").getAsString();
+                    String host = getSafe(server, "ip", "Unknown");//server.get("ip").getAsString();
+                    int project = getSafe(server, "project", 0);//server.get("project").getAsInt();
+                    String by = getSafe(server, "by", "Unknown");//invite.get("by").getAsString();
+                    String name = getSafe(server, "name", "Unknown");//server.get("name").getAsString();
+                    String port = getSafe(server, "port", "Unknown");//server.get("port").getAsString();
                     String country = "UNK";
                     String subdivision = "Unknown";
                     if (server.has("location"))
                     {
                         JsonObject el = server.getAsJsonObject("location");
-                        country = el.get("country_code").getAsString();
-                        subdivision = el.get("subdivision").getAsString();
+                        country = getSafe(server, "country_code", "UNK");//el.get("country_code").getAsString();
+                        subdivision = getSafe(server, "subdivision", "Unknown");//el.get("subdivision").getAsString();
                     }
                     country = country.toUpperCase();
                     EnumFlag flag = null;
@@ -331,8 +331,8 @@ public final class Callbacks
                         }
                     }
                     
-                    int uptime = server.get("uptime").getAsInt();
-                    int players = server.get("expected_players").getAsInt();
+                    int uptime = getSafe(server, "uptime", 0);//server.get("uptime").getAsInt();
+                    int players = getSafe(server, "expected_players", 0);//server.get("expected_players").getAsInt();
                     
                     String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
                     
@@ -353,7 +353,7 @@ public final class Callbacks
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, true);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
@@ -362,8 +362,14 @@ public final class Callbacks
             JsonElement status = obj.get("status");
             if (status.getAsString().equals("success"))
             {
-                JsonElement banned = obj.get("banned");
-                return banned.getAsBoolean();
+                try
+                {
+                    JsonElement banned = obj.get("banned");
+                    return banned.getAsBoolean();
+                } catch (Exception e)
+                {
+                    return false;
+                }
             } else
             {
                 MineTogether.logger.error(resp);
@@ -381,7 +387,6 @@ public final class Callbacks
         {
             sendMap.put("hash", hash);
         }
-        System.out.println(hash);
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
@@ -394,14 +399,17 @@ public final class Callbacks
             JsonElement status = obj.get("status");
             if (status.getAsString().equals("success"))
             {
-                JsonElement ban = obj.get("ban");
-                JsonElement id = ban.getAsJsonObject().get("id");
-                JsonElement timestamp = ban.getAsJsonObject().get("timestamp");
-                JsonElement reason = ban.getAsJsonObject().get("reason");
-                
-                banID = id.getAsString();
-                
-                return reason.getAsString() + " " + timestamp.getAsString();
+                if(obj.has("ban"))
+                {
+                    JsonElement ban = obj.get("ban");
+                    JsonElement id = ban.getAsJsonObject().get("id");
+                    JsonElement timestamp = ban.getAsJsonObject().get("timestamp");
+                    JsonElement reason = ban.getAsJsonObject().get("reason");
+
+                    banID = id.getAsString();
+
+                    return reason.getAsString() + " " + timestamp.getAsString();
+                }
             } else
             {
                 MineTogether.logger.error(resp);
@@ -699,16 +707,16 @@ public final class Callbacks
                             for (JsonElement serverEl : array)
                             {
                                 JsonObject server = (JsonObject) serverEl;
-                                String name = server.get("name").getAsString();
-                                String host = server.get("ip").getAsString();
-                                String port = server.get("port").getAsString();
+                                String name = getSafe(server, "name", "unknown");//server.get("name").getAsString();
+                                String host = getSafe(server, "ip", "unknown");//server.get("ip").getAsString();
+                                String port = getSafe(server, "port", "unknown");//server.get("port").getAsString();
                                 String country = "UNK";
                                 String subdivision = "Unknown";
                                 if (server.has("location"))
                                 {
                                     JsonObject el = server.getAsJsonObject("location");
-                                    country = el.get("country_code").getAsString();
-                                    subdivision = el.get("subdivision").getAsString();
+                                    country = getSafe(el, "country_code", "UNK");//el.get("country_code").getAsString();
+                                    subdivision = getSafe(el, "subdivision", "Unknown");//el.get("subdivision").getAsString();
                                 }
                                 country = country.toUpperCase();
                                 EnumFlag flag = null;
@@ -723,8 +731,8 @@ public final class Callbacks
                                     }
                                 }
                                 
-                                int uptime = server.get("uptime").getAsInt();
-                                int players = server.get("expected_players").getAsInt();
+                                int uptime = getSafe(server, "uptime", 0);//server.get("uptime").getAsInt();
+                                int players = getSafe(server, "expected_players", 0);//server.get("expected_players").getAsInt();
                                 
                                 String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
                                 
@@ -770,11 +778,11 @@ public final class Callbacks
             try
             {
                 String freeGeoIP = WebUtils.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
-                
+
                 JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
-                
+
                 jObject = jObject.getAsJsonObject("customer");
-                
+
                 userCountry = jObject.getAsJsonPrimitive("country").getAsString();
             } catch (Throwable t)
             {
@@ -816,9 +824,10 @@ public final class Callbacks
     
     public static String getVersionFromApi(String packid)
     {
-        String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
         try
         {
+            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
+
             JsonElement jElement = new JsonParser().parse(resp);
             JsonObject jObject = jElement.getAsJsonObject();
             if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
@@ -828,9 +837,7 @@ public final class Callbacks
             {
                 return "";
             }
-        } catch (Throwable ignored)
-        {
-        }
+        } catch (Throwable ignored) {}
         
         return "";
     }
@@ -839,9 +846,10 @@ public final class Callbacks
     {
         if (isInteger(curse))
         {
-            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
             try
             {
+                String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
+
                 JsonElement jElement = new JsonParser().parse(resp);
                 JsonObject jObject = jElement.getAsJsonObject();
                 if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
@@ -887,26 +895,62 @@ public final class Callbacks
         
         if (jElement.isJsonObject())
         {
-            JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
-            JsonArray array = object.getAsJsonArray("mc");
-            
-            if (array != null)
+            try
             {
-                for (JsonElement serverEl : array)
+                JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
+                JsonArray array = object.getAsJsonArray("mc");
+
+                if (array != null)
                 {
-                    if (modpackList.isEmpty() || modpackList.size() <= limit)
+                    for (JsonElement serverEl : array)
                     {
-                        JsonObject server = (JsonObject) serverEl;
-                        String id = server.get("id").getAsString();
-                        String name = server.get("displayName").getAsString();
-                        String displayVersion = server.get("displayVersion").getAsString();
-                        
-                        modpackList.add(new ModPack(id, name, displayVersion));
+                        if (modpackList.isEmpty() || modpackList.size() <= limit)
+                        {
+                            JsonObject server = (JsonObject) serverEl;
+                            String id = getSafe(server, "id", "failed to get id");//server.get("id").getAsString();
+                            String name = getSafe(server, "displayName", "failed to load displayName");//server.get("displayName").getAsString();
+                            String displayVersion = getSafe(server, "displayVersion", "failed to load displayVersion");//server.get("displayVersion").getAsString();
+
+                            modpackList.add(new ModPack(id, name, displayVersion));
+                        }
                     }
+                    return modpackList;
                 }
-                return modpackList;
+            } catch (Exception e)
+            {
+                return null;
             }
         }
         return null;
+    }
+
+    public static String getSafe(JsonObject jsonObject, String value, String defaultString)
+    {
+        if(jsonObject == null) return defaultString;
+
+        if(!jsonObject.has(value)) return defaultString;
+
+        try
+        {
+            return jsonObject.get(value).getAsString();
+        } catch (Exception e)
+        {
+            return defaultString;
+        }
+    }
+
+    public static int getSafe(JsonObject jsonObject, String value, int defaultInt)
+    {
+        if(jsonObject == null) return defaultInt;
+
+        if(!jsonObject.has(value)) return defaultInt;
+
+        try
+        {
+            return jsonObject.get(value).getAsInt();
+        } catch (Exception e)
+        {
+            return defaultInt;
+        }
     }
 }

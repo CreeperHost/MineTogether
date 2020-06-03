@@ -162,7 +162,7 @@ public class GuiFriendsList extends Screen
         buttonInvite.active = list.getSelected() != null;
         
         codeEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 - 50, 160, 20, "");
-        displayEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 + 0, 160, 20, "");
+        displayEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2, 160, 20, "");
         
         buttonRefresh = addButton(new Button(this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"), p ->
         {
@@ -272,7 +272,7 @@ public class GuiFriendsList extends Screen
         
         if (hoveringText != null)
         {
-            if (hoveringText != lastHoveringText)
+            if (!hoveringText.equals(lastHoveringText))
             {
                 hoverTextCache = new ArrayList<>();
                 hoverTextCache.add(hoveringText);
@@ -378,7 +378,7 @@ public class GuiFriendsList extends Screen
                 Callbacks.removeFriend(removeFriend.getCode());
                 refreshFriendsList(true);
             }
-            minecraft.displayGuiScreen(new GuiFriendsList(null));
+            minecraft.displayGuiScreen(new GuiFriendsList(parent));
         }
     };
     
@@ -404,7 +404,7 @@ public class GuiFriendsList extends Screen
                     ChatHandler.sendChannelInvite(friendCode, MineTogether.instance.ourNick);
                 }
             }
-            minecraft.displayGuiScreen(new GuiFriendsList(null));
+            minecraft.displayGuiScreen(new GuiFriendsList(parent));
         }
     };
     
@@ -424,7 +424,7 @@ public class GuiFriendsList extends Screen
                 MineTogether.instance.unmuteUser(unmutePlayer);
                 refreshMutedList(false);
             }
-            minecraft.displayGuiScreen(new GuiFriendsList(null));
+            minecraft.displayGuiScreen(new GuiFriendsList(parent));
         }
     };
     
