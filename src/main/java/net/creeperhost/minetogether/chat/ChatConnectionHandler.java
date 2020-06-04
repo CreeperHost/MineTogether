@@ -24,7 +24,7 @@ public class ChatConnectionHandler
         ChatHandler.host.updateChatChannel();
         ChatHandler.badwordsFormat = ChatUtil.getAllowedCharactersRegex();
         ChatHandler.badwords = ChatUtil.getBadWords();
-        ChatHandler.tries = 0;
+        ChatHandler.tries.set(0);
     }
     
     public synchronized void connect()

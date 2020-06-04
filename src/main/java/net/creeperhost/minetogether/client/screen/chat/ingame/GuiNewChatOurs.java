@@ -153,7 +153,9 @@ public class GuiNewChatOurs extends NewChatGui
     }
     
     private List<ChatLine> vanillaDrawnChatLines = null;
-    
+
+    private long tickCounter = 0;
+
     @Override
     public void render(int updateCounter)
     {
@@ -173,12 +175,16 @@ public class GuiNewChatOurs extends NewChatGui
                     ChatHandler.reInit();
                 }
             }
-            
+
             if (this.mc.gameSettings.chatVisibility != ChatVisibility.HIDDEN)
             {
                 int i = this.getLineCount();
                 int j = this.drawnChatLines.size();
                 double f = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
+
+                if(tickCounter % 20 == 0) rebuildChat(ChatHandler.CHANNEL);
+
+                tickCounter++;
                 
                 if (j > 0)
                 {
@@ -347,6 +353,7 @@ public class GuiNewChatOurs extends NewChatGui
     
     public void rebuildChat(String chatKey)
     {
+        int scroll = scrollPos;
         chatTarget = chatKey;
         chatLines.clear();
         drawnChatLines.clear();
@@ -363,6 +370,7 @@ public class GuiNewChatOurs extends NewChatGui
                     continue;
                 setChatLine(component, size--, 0, false);
             }
+            scrollPos = scroll;
         }
     }
     

@@ -23,6 +23,7 @@ import org.kitteh.irc.client.library.util.Format;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class ChatHandler
@@ -39,7 +40,7 @@ public class ChatHandler
     static IHost host;
     static boolean online = false;
     public static AtomicBoolean isInitting = new AtomicBoolean(false);
-    public static int tries = 0;
+    public static AtomicInteger tries = new AtomicInteger(0);
     static boolean inited = false;
     public static List<String> badwords;
     public static String badwordsFormat;
@@ -276,7 +277,7 @@ public class ChatHandler
             event.getChannel().join();
             synchronized (ircLock)
             {
-                if (tries >= 4)
+                if (tries.get() >= 4)
                 {
                     client.shutdown();
                     addMessageToChat(event.getChannel().getName(), "System", "Unable to rejoin chat. Disconnected from server");
@@ -290,7 +291,7 @@ public class ChatHandler
         @Handler
         public void onConnected(ClientNegotiationCompleteEvent event)
         {
-            tries = 0;
+            tries.set(0);
         }
         
         @Handler
@@ -302,18 +303,18 @@ public class ChatHandler
             else if ((event instanceof ClientConnectionClosedEvent) && ((ClientConnectionClosedEvent) event).getLastMessage().isPresent())
                 cause = ((ClientConnectionClosedEvent) event).getLastMessage().get();
             
-            tries++;
+            tries.getAndIncrement();
             
             synchronized (ircLock)
             {
                 connectionStatus = ConnectionStatus.DISCONNECTED;
-                if (tries >= 5)
+                if (tries.get() >= 5)
                 {
                     event.setAttemptReconnect(false);
                     addMessageToChat(CHANNEL, "System", "Disconnected From chat Rejoining");
                     return;
                 }
-                if(tries == 0)
+                if(tries.get() == 0)
                     addMessageToChat(CHANNEL, "System", "Disconnected From chat Rejoining 2");
                 MineTogether.instance.getLogger().error(Format.stripAll(cause));
                 event.setReconnectionDelay(1000);

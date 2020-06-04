@@ -162,7 +162,7 @@ public class MTChatScreen extends Screen
         {
             ChatHandler.reInit();
         }));
-        reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
+        reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries.get() < 5);
         
         addButton(invited = new Button(5 + 70, height - 5 - 20, 60, 20, "Invites", p ->
         {
@@ -198,7 +198,9 @@ public class MTChatScreen extends Screen
     public void tick()
     {
         super.tick();
-        
+
+        if(tickCounter % 10 == 0) rebuildChat();
+
         if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
             if (!ChatHandler.isInitting.get())
@@ -216,7 +218,7 @@ public class MTChatScreen extends Screen
         }
         synchronized (ircLock)
         {
-            reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries < 5);
+            reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries.get() < 5);
             if (changed || ChatHandler.hasNewMessages(currentTarget))
             {
                 chat.updateLines(currentTarget);
@@ -227,7 +229,9 @@ public class MTChatScreen extends Screen
     
     public void rebuildChat()
     {
+        double scroll = chat.getScrollAmount();
         chat.updateLines(currentTarget);
+        chat.setScrollAmount(scroll);
     }
     
     boolean disabledDueToConnection = false;
@@ -689,10 +693,16 @@ public class MTChatScreen extends Screen
                 messageStr = messageStr.substring(outputNick.length() + 1);
                 outputNick = outputNick.substring(0, outputNick.length() - 1);
                 messageComp = newChatWithLinksOurs(messageStr);
-                userComp = new StringTextComponent("<" + outputNick + ">");
+                if(outputNick.equalsIgnoreCase("jake_e"))
+                {
+                    userComp = new StringTextComponent("<" + rainbow(outputNick) + ">");
+                }
+                else {
+                    userComp = new StringTextComponent("<" + outputNick + ">");
+                }
                 userComp.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Moderator")));
+                userComp.getStyle().setColor(TextFormatting.AQUA);
             }
-            userComp.getStyle().setColor(TextFormatting.AQUA);
         }
         
         if (highlight)
@@ -706,6 +716,19 @@ public class MTChatScreen extends Screen
         base.appendSibling(new StringTextComponent(" ").setStyle(new Style().setColor(TextFormatting.WHITE)));
         
         return base.appendSibling(messageComp);
+    }
+
+    public static String rainbow(String s)
+    {
+        char[] strings = s.toCharArray();
+        StringBuilder out = new StringBuilder();
+
+        for (char sss : strings)
+        {
+            TextFormatting random = formattingList.get(Minecraft.getInstance().fontRenderer.random.nextInt(formattingList.size()));
+            out.append(random).append(sss);
+        }
+        return out.toString();
     }
     
     private class GuiScrollingChat extends ExtendedList
