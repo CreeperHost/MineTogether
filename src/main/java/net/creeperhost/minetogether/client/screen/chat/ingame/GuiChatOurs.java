@@ -22,10 +22,13 @@ import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static net.creeperhost.minetogether.chat.ChatHandler.addStatusMessage;
 
 public class GuiChatOurs extends ChatScreen
 {
@@ -37,7 +40,8 @@ public class GuiChatOurs extends ChatScreen
     private boolean disabledDueToBadwords;
     Minecraft mc = Minecraft.getInstance();
     private TabCompleter tabCompleter;
-    
+    private boolean first = true;
+
     public GuiChatOurs(String presetString, boolean sleep)
     {
         super(presetString);
@@ -272,7 +276,16 @@ public class GuiChatOurs extends ChatScreen
         
         strings.add(I18n.format("minetogether.chat.button.mute"));
         strings.add(I18n.format("minetogether.chat.button.addfriend"));
-        
+        if(MineTogether.instance.isBanned.get() && Client.first)
+        {
+            addStatusMessage(TextFormatting.RED + "You have been banned from Minetogether chat");
+            addStatusMessage(TextFormatting.RED + "Ban Reason: " + TextFormatting.WHITE + Callbacks.getBanMessage());
+            addStatusMessage(TextFormatting.RED + "Ban ID: " + TextFormatting.WHITE + Callbacks.banID);
+            addStatusMessage("If you feel like this was a mistake please open a ban appeal on our github with your ban ID " + "https://github.com/CreeperHost/CreeperHostGui/issues");
+            Client.first = false;
+            ChatConnectionHandler.INSTANCE.disconnect();
+        }
+
         try
         {
             if (mc.getCurrentServerData().isOnLAN() || (!mc.getCurrentServerData().serverIP.equals("127.0.0.1")))

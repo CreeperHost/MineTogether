@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.chat;
 
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.common.IHost;
 import org.kitteh.irc.client.library.Client;
 
@@ -25,6 +26,7 @@ public class ChatConnectionHandler
         ChatHandler.badwordsFormat = ChatUtil.getAllowedCharactersRegex();
         ChatHandler.badwords = ChatUtil.getBadWords();
         ChatHandler.tries.set(0);
+        banned = MineTogether.instance.isBanned.get();
     }
     
     public synchronized void connect()

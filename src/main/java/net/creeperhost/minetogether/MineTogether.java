@@ -55,6 +55,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Mod(value = Constants.MOD_ID)
 public class MineTogether implements ICreeperHostMod, IHost
@@ -97,6 +98,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static MinecraftServer server;
     public static String secret;
     public static PreGenHandler preGenHandler;
+    public AtomicBoolean isBanned = new AtomicBoolean(false);
     
     public MineTogether()
     {
@@ -120,6 +122,8 @@ public class MineTogether implements ICreeperHostMod, IHost
         proxy.checkOnline();
         proxy.registerKeys();
         PacketHandler.register();
+        //Lets check this early so we can decide if we need to start chat or not
+        isBanned.set(Callbacks.isBanned());
     }
     
     @SubscribeEvent

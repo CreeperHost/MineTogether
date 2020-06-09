@@ -46,6 +46,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.creeperhost.minetogether.chat.ChatHandler.addStatusMessage;
 import static net.creeperhost.minetogether.chat.ChatHandler.ircLock;
 
 public class MTChatScreen extends Screen
