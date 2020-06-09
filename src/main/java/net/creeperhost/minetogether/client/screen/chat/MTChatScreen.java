@@ -693,7 +693,7 @@ public class MTChatScreen extends Screen
                 messageStr = messageStr.substring(outputNick.length() + 1);
                 outputNick = outputNick.substring(0, outputNick.length() - 1);
                 messageComp = newChatWithLinksOurs(messageStr);
-                if(outputNick.equalsIgnoreCase("jake_e"))
+                if(outputNick.equalsIgnoreCase("jake_e") || outputNick.equalsIgnoreCase("stuart_p"))
                 {
                     userComp = new StringTextComponent("<" + rainbow(outputNick) + ">");
                 }
