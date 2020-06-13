@@ -109,7 +109,7 @@ public class GuiMTChat extends GuiScreen
         buttonList.add(friendsButton = new GuiButton(-80088, 5, 5, 100, 20, "Friends list"));
         buttonList.add(cancelButton = new GuiButton(-800885, width - 100 - 5, height - 5 - 20, 100, 20, "Cancel"));
         buttonList.add(reconnectionButton = new GuiButton(-80084, 5 + 80, height - 5 - 20, 100, 20, "Reconnect"));
-        reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
+        reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries.get() < 5);
 
         buttonList.add(invited = new GuiButton(777, 5 + 70, height - 5 - 20, 60, 20, "Invites"));
         invited.visible = ChatHandler.privateChatInvite != null;
@@ -153,7 +153,7 @@ public class GuiMTChat extends GuiScreen
         }
         synchronized (ircLock)
         {
-            reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries < 5);
+            reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries.get() < 5);
             if (changed || ChatHandler.hasNewMessages(currentTarget))
             {
                 chat.updateLines(currentTarget);

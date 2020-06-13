@@ -23,7 +23,7 @@ public class ChatConnectionHandler {
         ChatHandler.host.updateChatChannel();
         ChatHandler.badwordsFormat = ChatUtil.getAllowedCharactersRegex();
         ChatHandler.badwords = ChatUtil.getBadWords();
-        ChatHandler.tries = 0;
+        ChatHandler.tries.set(0);
     }
 
     public synchronized void connect()
@@ -60,9 +60,12 @@ public class ChatConnectionHandler {
 
     public synchronized void disconnect()
     {
-        ChatHandler.client.shutdown("Disconnecting.");
-        ChatHandler.client = null;
-        ChatHandler.connectionStatus = ChatHandler.ConnectionStatus.DISCONNECTED;
+        if(ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.DISCONNECTED)
+        {
+            ChatHandler.client.shutdown("Disconnecting.");
+            ChatHandler.client = null;
+            ChatHandler.connectionStatus = ChatHandler.ConnectionStatus.DISCONNECTED;
+        }
     }
 
     public boolean canConnect()

@@ -17,6 +17,8 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class Callbacks
 {
@@ -641,7 +643,7 @@ public final class Callbacks
             });
         return friendsList.get(force);
     }
-    
+
     public static List<Server> getServerList(Enum listType)
     {
         if (serverListCache == null)
@@ -650,7 +652,7 @@ public final class Callbacks
             {
                 private Enum lastRequest;
                 private String playerHash;
-                
+
                 @Override
                 public List<Server> get(Object... args)
                 {
@@ -659,14 +661,14 @@ public final class Callbacks
                     lastRequest = listType;
                     CreeperHost.logger.info("Loading " + (listType.name().toLowerCase()) + " server list.");
                     List<Server> list = new ArrayList<Server>();
-                    
+
                     Config defaultConfig = new Config();
-                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID) && CreeperHost.instance.base64 == null)
+                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
-                        list.add(new Server("No project ID! Please fix the MineTogether config.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
+                        list.add(new Server("No project ID! Please fix the MineTogether config or ensure a version.json exists.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
                         return list;
                     }
-                    
+
                     Map<String, String> jsonPass = new HashMap<String, String>();
                     jsonPass.put("projectid", CreeperHost.instance.base64 == null ? Config.getInstance().curseProjectID : CreeperHost.instance.base64);
                     if (enumOrdinal == 1)
@@ -675,17 +677,19 @@ public final class Callbacks
                         {
                             playerHash = getPlayerHash(CreeperHost.proxy.getUUID());
                         }
-                        
+
                         jsonPass.put("hash", playerHash);
                     }
-                    
+
                     jsonPass.put("listType", listType.name().toLowerCase());
-                    
+
                     Gson gson = new Gson();
                     String jsonString = gson.toJson(jsonPass);
-                    
+
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
-                    
+                    CreeperHost.logger.info(jsonString);
+                    CreeperHost.logger.info(resp);
+
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
                     {
@@ -696,16 +700,16 @@ public final class Callbacks
                             for (JsonElement serverEl : array)
                             {
                                 JsonObject server = (JsonObject) serverEl;
-                                String name = server.get("name").getAsString();
-                                String host = server.get("ip").getAsString();
-                                String port = server.get("port").getAsString();
+                                String name = getSafe(server, "name", "unknown");//server.get("name").getAsString();
+                                String host = getSafe(server, "ip", "unknown");//server.get("ip").getAsString();
+                                String port = getSafe(server, "port", "unknown");//server.get("port").getAsString();
                                 String country = "UNK";
                                 String subdivision = "Unknown";
                                 if (server.has("location"))
                                 {
                                     JsonObject el = server.getAsJsonObject("location");
-                                    country = el.get("country_code").getAsString();
-                                    subdivision = el.get("subdivision").getAsString();
+                                    country = getSafe(el, "country_code", "UNK");//el.get("country_code").getAsString();
+                                    subdivision = getSafe(el, "subdivision", "Unknown");//el.get("subdivision").getAsString();
                                 }
                                 country = country.toUpperCase();
                                 EnumFlag flag = null;
@@ -719,22 +723,19 @@ public final class Callbacks
                                         flag = EnumFlag.UNKNOWN;
                                     }
                                 }
-                                
-                                int uptime = server.get("uptime").getAsInt();
-                                int players = server.get("expected_players").getAsInt();
-                                
+
+                                int uptime = getSafe(server, "uptime", 0);//server.get("uptime").getAsInt();
+                                int players = getSafe(server, "expected_players", 0);//server.get("expected_players").getAsInt();
+
                                 String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
-                                
-                                applicationURL = "https://www.google.com"; // MAKE SURE TO REMOVE
-                                
+
                                 list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL));
                             }
                         }
                     }
-                    
                     return list;
                 }
-                
+
                 @Override
                 public boolean needsRefresh(Object... args)
                 {
@@ -893,7 +894,7 @@ public final class Callbacks
             {
                 for (JsonElement serverEl : array)
                 {
-                    if(modpack.isEmpty() || modpackList.size() <= limit)
+                    if(modpack != null && modpack.isEmpty() || modpackList.size() <= limit)
                     {
                         JsonObject server = (JsonObject) serverEl;
                         String id = server.get("id").getAsString();
@@ -908,6 +909,36 @@ public final class Callbacks
             }
         }
         return null;
+    }
+
+    public static String getSafe(JsonObject jsonObject, String value, String defaultString)
+    {
+        if(jsonObject == null) return defaultString;
+
+        if(!jsonObject.has(value)) return defaultString;
+
+        try
+        {
+            return jsonObject.get(value).getAsString();
+        } catch (Exception e)
+        {
+            return defaultString;
+        }
+    }
+
+    public static int getSafe(JsonObject jsonObject, String value, int defaultInt)
+    {
+        if(jsonObject == null) return defaultInt;
+
+        if(!jsonObject.has(value)) return defaultInt;
+
+        try
+        {
+            return jsonObject.get(value).getAsInt();
+        } catch (Exception e)
+        {
+            return defaultInt;
+        }
     }
 
     public static class Modpack
