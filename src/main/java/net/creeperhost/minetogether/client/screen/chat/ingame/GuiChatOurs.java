@@ -14,7 +14,6 @@ import net.creeperhost.minetogether.proxy.Client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.NewChatGui;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.client.resources.I18n;
@@ -39,7 +38,6 @@ public class GuiChatOurs extends ChatScreen
     private boolean sleep;
     private boolean disabledDueToBadwords;
     Minecraft mc = Minecraft.getInstance();
-    private TabCompleter tabCompleter;
     private boolean first = true;
 
     public GuiChatOurs(String presetString, boolean sleep)
@@ -263,15 +261,18 @@ public class GuiChatOurs extends ChatScreen
                 ourChat.setBase(true);
             }
         }
+        children.remove(inputField);
         super.init();
-        TextFieldWidget oldInputField = this.inputField;
         this.inputField = new ScreenTextFieldLockable(mc.fontRenderer, 4, this.height - 12, this.width - 4, 12, "");
         this.inputField.setMaxStringLength(256);
         this.inputField.setEnableBackgroundDrawing(false);
         this.inputField.setFocused2(true);
-        this.inputField.setText(oldInputField.getText());
         this.inputField.setCanLoseFocus(false);
-        this.tabCompleter = new TabCompleter(inputField);
+        this.inputField.setResponder(this::func_212997_a);
+        children.add(inputField);
+        this.commandSuggestionHelper = new CommandSuggestionHelperMT(this.minecraft, this, this.inputField, this.font, false, false, 1, 10, true, -805306368);
+        this.commandSuggestionHelper.init();
+        setFocusedDefault(inputField);
         List<String> strings = new ArrayList<>();
         
         strings.add(I18n.format("minetogether.chat.button.mute"));
@@ -421,6 +422,7 @@ public class GuiChatOurs extends ChatScreen
         fill(2, this.height - 14, this.width - 2, this.height - 2, mc.gameSettings.getChatBackgroundColor(-2147483648));
         this.inputField.render(mouseX, mouseY, partialTicks);
         this.inputField.canWrite();
+        this.commandSuggestionHelper.render(mouseX, mouseY);
         
         if (!(this.mc.ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
@@ -432,11 +434,6 @@ public class GuiChatOurs extends ChatScreen
             int x = mc.ingameGUI.getChatGUI().getChatWidth() - 2;
             int y = height - 40 - (mc.fontRenderer.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
             mc.fontRenderer.drawString(str, x, y, 0xFFFFFF);
-        }
-        
-        if (tabCompleter != null)
-        {
-            tabCompleter.render(mouseX, mouseY, partialTicks);
         }
     }
     
