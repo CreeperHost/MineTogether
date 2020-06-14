@@ -14,7 +14,6 @@ import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.util.WebUtils;
 import org.apache.commons.codec.binary.Hex;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -448,6 +447,21 @@ public final class Callbacks
         return false;
     }
     
+    /**
+     * Copied from {@linkplain javax.xml.bind.DatatypeConverterImpl#printHexBinary(byte[])} since it is not presented in newer Java versions
+     * This safely replaces {@linkplain javax.xml.bind.annotation.adapters.HexBinaryAdapter}.
+     * @param data bytes data
+     * @return a hex string
+     */
+    public String encodeHexString(byte[] data) {
+        StringBuilder r = new StringBuilder(data.length * 2);
+        for (byte b : data) {
+            r.append(hexCode[(b >> 4) & 0xF]);
+            r.append(hexCode[(b & 0xF)]);
+        }
+        return r.toString();
+    }
+    
     public static String getPlayerHash(UUID uuid)
     {
         if (hashCache.containsKey(uuid))
@@ -458,7 +472,7 @@ public final class Callbacks
         {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
-            playerHash = (new HexBinaryAdapter()).marshal(hash);
+            playerHash = encodeHexString(hash);
         } catch (NoSuchAlgorithmException e)
         {
             e.printStackTrace();
