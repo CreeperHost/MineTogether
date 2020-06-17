@@ -175,9 +175,9 @@ public class GuiButtonPair extends Button
         for (int buttonNum = 0; buttonNum < buttons.size(); buttonNum++)
         {
             GuiButtonChat button = buttons.get(buttonNum);
+            activeButton = buttonNum;
             if (button.mouseClicked(mouseX, mouseY, p_mouseClicked_5_))
             {
-                activeButton = buttonNum;
                 button.setActive(true);
                 onPress();
                 pressed = true;

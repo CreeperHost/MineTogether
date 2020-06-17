@@ -106,10 +106,6 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {
-//        if(tabCompleter != null)
-//        {
-//            tabCompleter.complete();
-//        }
         return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
     }
     
@@ -236,8 +232,12 @@ public class GuiChatOurs extends ChatScreen
             }
         }
         
-        String defaultStr = "Default";
-        defaultStr = I18n.format("minetogether.ingame.chat.local");
+        String defaultStr;
+        if (mc.getCurrentServerData() != null && (mc.getCurrentServerData().isOnLAN() || !mc.getCurrentServerData().serverIP.equals("127.0.0.1"))) {
+            defaultStr = I18n.format("minetogether.ingame.chat.server");
+        } else {
+            defaultStr = I18n.format("minetogether.ingame.chat.local");
+        }
         addToggleButtons(defaultStr);
         
         if (isBase())
@@ -261,8 +261,8 @@ public class GuiChatOurs extends ChatScreen
                 ourChat.setBase(true);
             }
         }
-        children.remove(inputField);
         super.init();
+        children.remove(inputField);
         this.inputField = new ScreenTextFieldLockable(mc.fontRenderer, 4, this.height - 12, this.width - 4, 12, "");
         this.inputField.setMaxStringLength(256);
         this.inputField.setEnableBackgroundDrawing(false);
@@ -286,16 +286,6 @@ public class GuiChatOurs extends ChatScreen
             Client.first = false;
             ChatConnectionHandler.INSTANCE.disconnect();
         }
-
-        try
-        {
-            if (mc.getCurrentServerData().isOnLAN() || (!mc.getCurrentServerData().serverIP.equals("127.0.0.1")))
-            {
-                defaultStr = I18n.format("minetogether.ingame.chat.server");
-            }
-        } catch (NullPointerException ignored)
-        {
-        }//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
         
         addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new MTChatScreen.Menu(strings), true, p ->
         {
@@ -334,7 +324,6 @@ public class GuiChatOurs extends ChatScreen
                         ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);
                         processBadwords();
                     }
-                    minecraft.displayGuiScreen(new GuiChatOurs(presetString, sleep));
                     switchButton.setMessage(ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat");
                 } else
                 {
@@ -356,7 +345,6 @@ public class GuiChatOurs extends ChatScreen
                         e.printStackTrace();
                     }
                 }
-                minecraft.displayGuiScreen(new GuiChatOurs(presetString, sleep));
             }, defaultString, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
         } else
         {
@@ -391,7 +379,6 @@ public class GuiChatOurs extends ChatScreen
                         e.printStackTrace();
                     }
                 }
-                minecraft.displayGuiScreen(new GuiChatOurs(presetString, sleep));
             }, defaultString, I18n.format("minetogether.ingame.chat.global")));
         }
     }
@@ -409,14 +396,14 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
-        this.buttons.forEach(p -> p.render(mouseX, mouseY, partialTicks));
-        
         if (isBase())
         {
             super.render(mouseX, mouseY, partialTicks);
             return;
         }
-        
+
+        this.buttons.forEach(p -> p.render(mouseX, mouseY, partialTicks));
+
         this.setFocused(this.inputField);
         this.inputField.setFocused2(true);
         fill(2, this.height - 14, this.width - 2, this.height - 2, mc.gameSettings.getChatBackgroundColor(-2147483648));
