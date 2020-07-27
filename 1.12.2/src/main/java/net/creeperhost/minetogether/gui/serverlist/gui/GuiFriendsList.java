@@ -430,7 +430,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 if (!invitedPlayer.isAccepted())
                     showAlert("Cannot invite pending friends", 0x00FF00, 5000);
                 else {
-                    String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
+                    String friendCode = "MT" + invitedPlayer.getCode().substring(0, 28);
                     showAlert("Sent invite to " + invitedPlayer.getName(), 0x00FF00, 5000);
                     ChatHandler.sendChannelInvite(friendCode, CreeperHost.instance.ourNick);
                 }

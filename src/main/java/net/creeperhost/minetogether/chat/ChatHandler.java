@@ -104,7 +104,7 @@ public class ChatHandler
         {
             if (friend.isAccepted()) // why did I never do this before?
             {
-                String friendCode = "MT" + friend.getCode().substring(0, 15);
+                String friendCode = "MT" + friend.getCode().substring(0, 28);
                 for (String user : users)
                 {
                     if (user.equals(friendCode))

@@ -140,7 +140,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
             gdpr = new GDPR(gdprFile);
             File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
             ingameChat = new IngameChat(ingameChatFile);
-            ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 15);
+            ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 28);
             
             updateFtbPackID();
 
@@ -413,7 +413,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         if (nick.length() < 16)
             return null;
         
-        nick = nick.substring(0, 17); // should fix where people join and get ` on their name for friends if connection issues etc
+        nick = nick.replace("`", ""); // should fix where people join and get ` on their name for friends if connection issues etc
         if (ChatHandler.friends.containsKey(nick))
         {
             return ChatHandler.friends.get(nick);
