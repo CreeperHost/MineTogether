@@ -194,13 +194,9 @@ public class CreeperHost implements ICreeperHostMod, IHost
                         JsonObject object = json.getAsJsonObject();
                         int versionID = object.getAsJsonPrimitive("id").getAsInt();
                         int ftbPackID = object.getAsJsonPrimitive("parent").getAsInt();
-                        logger.error(versionID);
-                        logger.error(ftbPackID);
-
 
                         base64 = Base64.getEncoder().encodeToString((String.valueOf(ftbPackID) + String.valueOf(versionID)).getBytes());
                         String ID = Callbacks.getVersionFromApi(base64);
-                        logger.error("PackID " + ID);
 
                         if (ID.isEmpty()) return;
 
