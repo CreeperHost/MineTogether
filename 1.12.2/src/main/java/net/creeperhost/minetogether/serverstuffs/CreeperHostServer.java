@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.PacketHandler;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.common.WebUtils;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.serverstuffs.command.CommandInvite;
 import net.creeperhost.minetogether.serverstuffs.command.CommandPregen;
 import net.creeperhost.minetogether.serverstuffs.hacky.IPlayerKicker;
@@ -33,10 +34,11 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.Sys;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -80,6 +82,9 @@ public class CreeperHostServer
     private boolean needsToBeKilled = true;
     private boolean watchdogKilled = false;
     private boolean watchdogChecked = false;
+    public String ftbPackID = "";
+    public String base64;
+    public String requestedID;
     
     public static Thread getThreadByName(String threadName)
     {
@@ -121,6 +126,63 @@ public class CreeperHostServer
         event.registerServerCommand(new CommandInvite());
         event.registerServerCommand(new CommandPregen());
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
+
+        updateFtbPackID();
+        int packID;
+
+        HashMap<String, String> jsonObj = new HashMap<>();
+        if(this.ftbPackID.length() < 1) // Even if we get "m", we can throw it away.
+        {
+            try
+            {
+                packID = Integer.parseInt(Config.getInstance().curseProjectID);
+            }
+            catch (NumberFormatException e)
+            {
+                packID = -1;
+            }
+            jsonObj.put("p", String.valueOf(packID));
+        }
+        else
+        {
+            jsonObj.put("p", ftbPackID);
+            jsonObj.put("b", base64);
+        }
+    }
+
+    public void updateFtbPackID()
+    {
+        File versions = new File("." + File.separator + "version.json");
+        if(versions.exists())
+        {
+            try (InputStream stream = new FileInputStream(versions))
+            {
+                try
+                {
+                    JsonElement json = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+                    if (json.isJsonObject())
+                    {
+                        JsonObject object = json.getAsJsonObject();
+                        int versionID = object.getAsJsonPrimitive("id").getAsInt();
+                        int ftbPackID = object.getAsJsonPrimitive("parent").getAsInt();
+
+                        base64 = Base64.getEncoder().encodeToString((String.valueOf(ftbPackID) + String.valueOf(versionID)).getBytes());
+                        requestedID = Callbacks.getVersionFromApi(base64);
+                        if (requestedID.isEmpty()) return;
+
+                        Config.getInstance().setVersion(requestedID);
+
+                        this.ftbPackID = "m" + ftbPackID;
+                    }
+                } catch (Exception MalformedJsonException)
+                {
+                    logger.error("version.json is not valid returning to curse ID");
+                }
+            } catch (IOException ignored)
+            {
+                logger.info("version.json not found returning to curse ID");
+            }
+        }
     }
     
     @Mod.EventHandler
@@ -136,7 +198,7 @@ public class CreeperHostServer
             String displayNameTemp = dediServer.getStringProperty("displayname", "Fill this in if you have set the server to public!");
             String serverIP = dediServer.getStringProperty("server-ip", "");
             final String projectid = Config.getInstance().curseProjectID;
-            
+
             if (displayNameTemp.equals("Fill this in if you have set the server to public!") && discoverModeString.equals("unlisted"))
             {
                 File outProperties = new File("minetogether.properties");
@@ -166,12 +228,12 @@ public class CreeperHostServer
             if (discoverMode != Discoverability.UNLISTED)
             {
                 Config defConfig = new Config();
-                if (projectid.isEmpty() || projectid.equals(defConfig.curseProjectID))
+                if ((projectid.isEmpty() || projectid.equals(defConfig.curseProjectID)) && base64 == null)
                 {
                     CreeperHostServer.logger.warn("Curse project ID in creeperhost.cfg not set correctly - please set this to utilize the server list feature.");
                     return;
                 }
-                startMinetogetherThread(serverIP, displayName, projectid, server.getServerPort(), discoverMode);
+                startMinetogetherThread(serverIP, displayName, base64 == null ? projectid : base64, server.getServerPort(), discoverMode);
             }
         }
     }
@@ -209,9 +271,11 @@ public class CreeperHostServer
                 Gson gson = new Gson();
                 
                 String sendStr = gson.toJson(send);
-                
+
+                System.out.println(sendStr);
+
                 String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
-                
+
                 int sleepTime = 90000;
                 
                 try

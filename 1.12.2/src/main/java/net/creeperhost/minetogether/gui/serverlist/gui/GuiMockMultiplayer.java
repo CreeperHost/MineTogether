@@ -5,12 +5,17 @@ import net.minecraft.client.gui.ServerListEntryNormal;
 
 public class GuiMockMultiplayer extends GuiMultiplayer
 {
-    
     public GuiMockMultiplayer()
     {
         super(null);
     }
-    
+
+    @Override
+    public void initGui()
+    {
+        super.initGui();
+    }
+
     @Override
     public boolean canMoveUp(ServerListEntryNormal p_175392_1_, int p_175392_2_)
     {

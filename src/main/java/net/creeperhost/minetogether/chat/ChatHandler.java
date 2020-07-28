@@ -4,6 +4,8 @@ import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.engio.mbassy.listener.Handler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.kitteh.irc.client.library.Client;
 import org.kitteh.irc.client.library.command.WhoisCommand;
 import org.kitteh.irc.client.library.element.Channel;
@@ -20,6 +22,7 @@ import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent
 import org.kitteh.irc.client.library.event.user.*;
 import org.kitteh.irc.client.library.util.Format;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,6 +54,7 @@ public class ChatHandler
     public static PrivateChat privateChatInvite = null;
     public static boolean hasGroup = false;
     public static AtomicBoolean isInChannel = new AtomicBoolean(false);
+    public static Logger logger = LogManager.getLogger();
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
@@ -60,7 +64,9 @@ public class ChatHandler
 
     public static void reInit()
     {
-        if(!isInitting.get() && host != null && initedString != null && realName != null) {
+        if(!isInitting.get() && host != null && initedString != null && realName != null)
+        {
+            if(isDebug()) logger.debug("ChatHandler attempting a reconnect");
             inited.set(false);
             init(initedString, realName, online, host);
         }
@@ -268,6 +274,7 @@ public class ChatHandler
                     addMessageToChat(event.getChannel().getName(), "System", "Unable to rejoin chat. Disconnected from server");
                 }
                 addMessageToChat(event.getChannel().getName(), "System", "Disconnected From chat Rejoining");
+                if(isDebug()) logger.debug(event.getMessage());
                 connectionStatus = ConnectionStatus.NOT_IN_CHANNEL;
             }
         }
@@ -299,6 +306,7 @@ public class ChatHandler
                     return;
                 }
                 addMessageToChat(CHANNEL, "System", Format.stripAll("Disconnected from chat Reconnecting"));
+                if(isDebug()) logger.debug(event.getCause().get().getMessage());
                 event.setReconnectionDelay(1000);
                 event.setAttemptReconnect(true);
             }
@@ -341,6 +349,7 @@ public class ChatHandler
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            if(isDebug()) logger.debug(event.getMessage());
         }
 
         @Handler
@@ -351,6 +360,7 @@ public class ChatHandler
             if (privateChatList != null && privateChatList.owner.equals(friendNick)) {
                 host.closeGroupChat();
             }
+            if(isDebug()) logger.debug(event.getMessage());
         }
 
         @Handler
@@ -395,6 +405,7 @@ public class ChatHandler
             if (whoisData.getRealName().isPresent())
                 curseSync.put(whoisData.getNick(), whoisData.getRealName().get());
 
+            if(isDebug()) logger.debug(event.getWhoisData());
         }
 
         @Handler
@@ -510,7 +521,6 @@ public class ChatHandler
 
                     host.acceptFriend(split[1], builder.toString().trim());
                     addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
-
                 }
             }
         }
@@ -531,6 +541,7 @@ public class ChatHandler
             inited.set(false);
             ChatConnectionHandler.INSTANCE.nextConnectAllow(1000);
             ChatConnectionHandler.INSTANCE.disconnect();
+            if(isDebug()) logger.debug(event.getAttemptedNick());
         }
 
         @Handler
@@ -548,6 +559,12 @@ public class ChatHandler
                 host.userBanned(nick);
             }));
         }
+    }
+
+    public static boolean isDebug()
+    {
+        File file = new File("." + File.separator + "local/minetogether/debug.txt");
+        return file.exists();
     }
 
     public static void createChannel(String name)

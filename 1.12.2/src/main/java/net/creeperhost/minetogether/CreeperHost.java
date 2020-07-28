@@ -92,6 +92,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     {
         proxy.checkOnline();
         configFile = event.getSuggestedConfigurationFile();
+
         InputStream configStream = null;
         try
         {
@@ -175,6 +176,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
             
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();
+            updateFtbPackID();
         }
     }
     
@@ -193,22 +195,30 @@ public class CreeperHost implements ICreeperHostMod, IHost
                         JsonObject object = json.getAsJsonObject();
                         int versionID = object.getAsJsonPrimitive("id").getAsInt();
                         int ftbPackID = object.getAsJsonPrimitive("parent").getAsInt();
+                        logger.error(versionID);
+                        logger.error(ftbPackID);
+
 
                         base64 = Base64.getEncoder().encodeToString((String.valueOf(ftbPackID) + String.valueOf(versionID)).getBytes());
-                        requestedID = Callbacks.getVersionFromApi(base64);
-                        if (requestedID.isEmpty()) return;
+                        String ID = Callbacks.getVersionFromApi(base64);
+                        logger.error("PackID " + ID);
+
+                        if (ID.isEmpty()) return;
+
+                        requestedID = ID;
 
                         Config.getInstance().setVersion(requestedID);
 
                         this.ftbPackID = "m" + ftbPackID;
                     }
-                } catch (Exception MalformedJsonException)
+                } catch (Exception ignored)
                 {
-                    logger.error("version.json is not valid returning to curse ID");
+                    logger.error("MalformedJsonException version.json is not valid returning to curse ID");
+                    ignored.printStackTrace();
                 }
             } catch (IOException ignored)
             {
-                logger.info("version.json not found returning to curse ID");
+                logger.info("IOException version.json not found returning to curse ID");
             }
         }
     }

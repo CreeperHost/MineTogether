@@ -166,12 +166,12 @@ public class GuiMultiplayerPublic extends GuiMultiplayer
             return;
         } else if (button.id == sortOrderButton.id)
         {
-            changeSort=true;
+            changeSort = true;
             sortOrder = sortOrderButton.getSelected();
             ourServerListSelector.sort();
             return;
         } else if(button.id == 0) {
-            mc.displayGuiScreen(new GuiMockMultiplayer());
+            mc.displayGuiScreen(new GuiMultiplayer(parent));
             return;
         }
         super.actionPerformed(button);
