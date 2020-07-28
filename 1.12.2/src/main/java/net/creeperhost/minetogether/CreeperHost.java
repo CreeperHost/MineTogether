@@ -136,14 +136,14 @@ public class CreeperHost implements ICreeperHostMod, IHost
         
         if (event.getSide() != Side.SERVER)
         {
+            updateFtbPackID();
+
             HostHolder.host = this;
             File gdprFile = new File("local/minetogether/gdpr.txt");
             gdpr = new GDPR(gdprFile);
             File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
             ingameChat = new IngameChat(ingameChatFile);
             ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 28);
-            
-            updateFtbPackID();
 
             int packID;
 
@@ -176,7 +176,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
             
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();
-            updateFtbPackID();
         }
     }
     
@@ -211,10 +210,10 @@ public class CreeperHost implements ICreeperHostMod, IHost
 
                         this.ftbPackID = "m" + ftbPackID;
                     }
-                } catch (Exception ignored)
+                } catch (Exception exception)
                 {
                     logger.error("MalformedJsonException version.json is not valid returning to curse ID");
-                    ignored.printStackTrace();
+                    exception.printStackTrace();
                 }
             } catch (IOException ignored)
             {
