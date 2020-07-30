@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether;
 
 import io.netty.buffer.ByteBuf;
+import net.creeperhost.minetogether.chat.ChatHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -23,6 +24,7 @@ public class PacketHandler implements IMessageHandler<PacketHandler.ServerIDMess
     public IMessage onMessage(ServerIDMessage message, MessageContext ctx)
     {
         CreeperHost.instance.curServerId = message.serverID;
+        ChatHandler.setServerId(message.serverID);
         return null;
     }
     

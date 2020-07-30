@@ -55,6 +55,7 @@ public class ChatHandler
     public static boolean hasGroup = false;
     public static AtomicBoolean isInChannel = new AtomicBoolean(false);
     public static Logger logger = LogManager.getLogger();
+    private static int serverId = -1;
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
@@ -70,6 +71,10 @@ public class ChatHandler
             inited.set(false);
             init(initedString, realName, online, host);
         }
+    }
+
+    public static void setServerId(int serverIdIn) {
+        serverId = serverIdIn;
     }
 
     private static void addMessageToChat(String target, String user, String message)
@@ -521,8 +526,14 @@ public class ChatHandler
 
                     host.acceptFriend(split[1], builder.toString().trim());
                     addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
+                } else if (split[0].equals("SERVERID")) {
+                    client.sendCtcpReply(event.getActor().getNick(), "SERVERID " + getServerId());
                 }
             }
+        }
+
+        private String getServerId() {
+            return String.valueOf(serverId);
         }
 
         @Handler
