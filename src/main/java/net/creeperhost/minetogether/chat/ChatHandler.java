@@ -563,7 +563,7 @@ public class ChatHandler
 
     public static boolean isDebug()
     {
-        File file = new File("." + File.separator + "local/minetogether/debug.txt");
+        File file = new File("." + File.separator + "local/minetogether/debug.txt"); // caching. CACHING.
         return file.exists();
     }
 
