@@ -24,6 +24,7 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,6 +38,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Mod(modid = CreeperHost.MOD_ID, name = CreeperHost.NAME, version = CreeperHost.VERSION, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2", guiFactory = "net.creeperhost.minetogether.gui.config.GuiCreeperConfigFactory")
 public class CreeperHost implements ICreeperHostMod, IHost
@@ -84,7 +87,10 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public String base64;
     public String requestedID;
 
-    public HoverEvent.Action TIMESTAMP = EnumHelper.addEnum(HoverEvent.Action.class, "TIMESTAMP", new Class[]{String.class, boolean.class}, "timestamp_hover", true);;
+    public HoverEvent.Action TIMESTAMP = EnumHelper.addEnum(HoverEvent.Action.class, "TIMESTAMP", new Class[]{String.class, boolean.class}, "timestamp_hover", true);
+    public static DebugHandler debugHandler = new DebugHandler();
+    public static AtomicReference<Profile> profile = new AtomicReference<Profile>();
+    public static AtomicReference<UUID> UUID = new AtomicReference<UUID>();
 
     @SuppressWarnings("Duplicates")
     @Mod.EventHandler
@@ -144,6 +150,12 @@ public class CreeperHost implements ICreeperHostMod, IHost
             File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
             ingameChat = new IngameChat(ingameChatFile);
             ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 28);
+            UUID.set(CreeperHost.proxy.getUUID());
+
+            if(debugHandler.isDebug())
+            {
+                logger.debug("Nick " + ourNick);
+            }
 
             int packID;
 
@@ -178,6 +190,21 @@ public class CreeperHost implements ICreeperHostMod, IHost
             proxy.registerKeys();
         }
     }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event)
+    {
+        CompletableFuture.runAsync(() -> {
+            try
+            {
+                profile.set(Callbacks.getProfile());
+
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        });
+    }
     
     public void updateFtbPackID()
     {
@@ -205,6 +232,12 @@ public class CreeperHost implements ICreeperHostMod, IHost
                         Config.getInstance().setVersion(requestedID);
 
                         this.ftbPackID = "m" + ftbPackID;
+
+                        if(debugHandler.isDebug())
+                        {
+                            logger.debug("Base64 " + base64);
+                            logger.debug("Requested FTB Pack ID " + requestedID);
+                        }
                     }
                 } catch (Exception exception)
                 {
@@ -391,16 +424,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
                     anonUsersFile.getParentFile().mkdirs();
                     configString = "{}";
                 }
-                
-                Gson gson = new Gson();
-                ChatHandler.anonUsers = gson.fromJson(configString, new TypeToken<HashMap<String, String>>()
-                {
-                }.getType());
-                ChatHandler.anonUsersReverse = new HashMap<>();
-                for (Map.Entry<String, String> entry : ChatHandler.anonUsers.entrySet())
-                {
-                    ChatHandler.anonUsersReverse.put(entry.getValue(), entry.getKey());
-                }
             } catch (Throwable ignored) {}
             finally
             {
@@ -425,32 +448,33 @@ public class CreeperHost implements ICreeperHostMod, IHost
         }
         if (nick.startsWith("MT"))
         {
-            if (ChatHandler.anonUsers.containsKey(nick))
+            if (ChatHandler.knownUsers.findByNick(nick) != null)
             {
-                return ChatHandler.anonUsers.get(nick);
+                return ChatHandler.knownUsers.findByNick(nick).getUserDisplay();
             } else
             {
                 String anonymousNick = "User" + ChatHandler.random.nextInt(10000);
-                while (ChatHandler.anonUsers.containsValue(anonymousNick))
+
+                Profile profile = ChatHandler.knownUsers.add(nick);
+                if(profile != null)
                 {
-                    anonymousNick = "User" + ChatHandler.random.nextInt(10000);
+                    anonymousNick = profile.getUserDisplay();
                 }
-                ChatHandler.anonUsers.put(nick, anonymousNick);
-                ChatHandler.anonUsersReverse.put(anonymousNick, nick);
-                saveAnonFile();
+//                saveAnonFile();
                 return anonymousNick;
             }
         }
         return null;
     }
-    
+
+    @Deprecated
     public void saveAnonFile()
     {
         Gson gson = new Gson();
         File anonUsersFile = new File("local/minetogether/anonusers.json");
         try
         {
-            FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers));
+            FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.knownUsers));
         } catch (IOException ignored) {}
     }
     
@@ -466,9 +490,9 @@ public class CreeperHost implements ICreeperHostMod, IHost
 
     public void unmuteUser(String user)
     {
-        String mtUser = ChatHandler.anonUsersReverse.get(user);
-        mutedUsers.remove(mtUser);
-        mutedUsers.remove(mtUser + "`");
+        Profile profile = ChatHandler.knownUsers.findByDisplay(user);
+        mutedUsers.remove(profile.getShortHash());
+        mutedUsers.remove(profile.getMediumHash());
         Gson gson = new Gson();
         try
         {

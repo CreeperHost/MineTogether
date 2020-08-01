@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.paul;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.*;
 import net.creeperhost.minetogether.common.Config;
@@ -17,6 +18,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -394,6 +396,42 @@ public final class Callbacks
         return playerHash;
     }
 
+    public static Profile getProfile()
+    {
+        String playerHash = getPlayerHash(CreeperHost.UUID.get());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("target", playerHash);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            JsonElement status = obj.get("status");
+            if (status.getAsString().equals("success"))
+            {
+                JsonObject profileData = obj.getAsJsonObject("profileData").getAsJsonObject(playerHash);
+                String mediumHash = profileData.getAsJsonObject("chat").getAsJsonObject("hash").get("medium").getAsString();
+                String shortHash = profileData.getAsJsonObject("chat").getAsJsonObject("hash").get("short").getAsString();
+                String longHash = profileData.getAsJsonObject("hash").get("long").getAsString();
+
+                String display = profileData.get("display").getAsString();
+                boolean premium = profileData.get("premium").getAsBoolean();
+                boolean isOnline = profileData.getAsJsonObject("chat").get("online").getAsBoolean();
+
+                return new Profile(longHash, shortHash, mediumHash, isOnline, display, premium);
+            } else
+            {
+                CreeperHost.logger.error(resp);
+            }
+        }
+        return null;
+    }
+
     public static boolean isBanned()
     {
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
@@ -403,7 +441,8 @@ public final class Callbacks
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/isbanned", sendStr, true, false);
+        System.out.println(resp);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())

@@ -1,5 +1,8 @@
 package net.creeperhost.minetogether.chat;
 
+import net.creeperhost.minetogether.DebugHandler;
+import net.creeperhost.minetogether.KnownUsers;
+import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.serverlist.data.Friend;
@@ -19,13 +22,14 @@ import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent
 import org.kitteh.irc.client.library.event.client.NickRejectedEvent;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionClosedEvent;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent;
+import org.kitteh.irc.client.library.event.connection.ClientConnectionFailedEvent;
 import org.kitteh.irc.client.library.event.user.*;
 import org.kitteh.irc.client.library.util.Format;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class ChatHandler
@@ -56,6 +60,7 @@ public class ChatHandler
     public static AtomicBoolean isInChannel = new AtomicBoolean(false);
     public static Logger logger = LogManager.getLogger();
     private static int serverId = -1;
+    public static DebugHandler debugHandler = new DebugHandler();
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
@@ -67,7 +72,7 @@ public class ChatHandler
     {
         if(!isInitting.get() && host != null && initedString != null && realName != null)
         {
-            if(isDebug()) logger.debug("ChatHandler attempting a reconnect");
+            if(debugHandler.isDebug) logger.debug("ChatHandler attempting a reconnect");
             inited.set(false);
             init(initedString, realName, online, host);
         }
@@ -96,8 +101,10 @@ public class ChatHandler
     }
 
     public static HashMap<String, String> friends = new HashMap<>();
-    public static HashMap<String, String> anonUsers = new HashMap<>();
-    public static HashMap<String, String> anonUsersReverse = new HashMap<>();
+//    public static HashMap<String, Profile> anonUsers = new HashMap<>();
+    public static final KnownUsers knownUsers = new KnownUsers();
+
+//    public static HashMap<String, Profile> anonUsersReverse = new HashMap<>();
     public static ArrayList<String> autocompleteNames = new ArrayList<>();
     public static Random random = new Random();
 
@@ -264,7 +271,7 @@ public class ChatHandler
     public static class Listener
     {
         @Handler
-        public void onChannnelLeave(ChannelKickEvent event)
+        public void onChannelLeave(ChannelKickEvent event)
         {
             if (!event.getTarget().getNick().equals(client.getNick()))
                 return;
@@ -279,7 +286,7 @@ public class ChatHandler
                     addMessageToChat(event.getChannel().getName(), "System", "Unable to rejoin chat. Disconnected from server");
                 }
                 addMessageToChat(event.getChannel().getName(), "System", "Disconnected From chat Rejoining");
-                if(isDebug()) logger.debug(event.getMessage());
+                if(debugHandler.isDebug()) logger.error(event.getMessage());
                 connectionStatus = ConnectionStatus.NOT_IN_CHANNEL;
             }
         }
@@ -289,6 +296,8 @@ public class ChatHandler
         {
             tries.set(0);
         }
+
+        AtomicBoolean forced = new AtomicBoolean(false);
 
         @Handler
         public void onQuit(ClientConnectionEndedEvent event)
@@ -306,12 +315,18 @@ public class ChatHandler
                 connectionStatus = ConnectionStatus.DISCONNECTED;
                 if (tries.get() >= 5)
                 {
-                    event.setAttemptReconnect(false);
-                    addMessageToChat(CHANNEL, "System", Format.stripAll("Disconnected from chat Too many tries, not reconnecting"));
-                    return;
+                    if(!forced.get()) {
+                        logger.error("Attmepting harsher measures");
+                        forced.set(true);
+                        reInit();
+                        return;
+//                        ChatConnectionHandler.INSTANCE.disconnect();
+//                        ChatConnectionHandler.INSTANCE.connect();
+                    }
+
                 }
                 addMessageToChat(CHANNEL, "System", Format.stripAll("Disconnected from chat Reconnecting"));
-                if(isDebug()) logger.debug(event.getCause().get().getMessage());
+                if(debugHandler.isDebug()) logger.error(event.getCause().get().getMessage());
                 event.setReconnectionDelay(1000);
                 event.setAttemptReconnect(true);
             }
@@ -337,6 +352,12 @@ public class ChatHandler
         }
 
         @Handler
+        public void onConnectionFailed(ClientConnectionFailedEvent event)
+        {
+            if(debugHandler.isDebug) logger.error(event.getCause().toString());
+        }
+
+        @Handler
         public void onChannelLeave(ChannelPartEvent event)
         {
             try {
@@ -354,7 +375,7 @@ public class ChatHandler
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if(isDebug()) logger.debug(event.getMessage());
+            if(debugHandler.isDebug()) logger.error(event.getMessage());
         }
 
         @Handler
@@ -365,7 +386,7 @@ public class ChatHandler
             if (privateChatList != null && privateChatList.owner.equals(friendNick)) {
                 host.closeGroupChat();
             }
-            if(isDebug()) logger.debug(event.getMessage());
+            if(debugHandler.isDebug()) logger.error(event.getMessage());
         }
 
         @Handler
@@ -410,7 +431,7 @@ public class ChatHandler
             if (whoisData.getRealName().isPresent())
                 curseSync.put(whoisData.getNick(), whoisData.getRealName().get());
 
-            if(isDebug()) logger.debug(event.getWhoisData());
+            if(debugHandler.isDebug()) logger.error(event.getWhoisData());
         }
 
         @Handler
@@ -547,12 +568,15 @@ public class ChatHandler
         @Handler
         public void onNickRejected(NickRejectedEvent event)
         {
-            host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "Couldn't connect as your nick is in use. Waiting 5 minutes and trying again."));
-            isInitting.set(true);
-            inited.set(false);
-            ChatConnectionHandler.INSTANCE.nextConnectAllow(1000);
-            ChatConnectionHandler.INSTANCE.disconnect();
-            if(isDebug()) logger.debug(event.getAttemptedNick());
+            if(!ChatHandler.isInitting.get())
+            {
+                host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "Couldn't connect as your nick is in use. Waiting 5 minutes and trying again."));
+                isInitting.set(true);
+                inited.set(false);
+                ChatConnectionHandler.INSTANCE.nextConnectAllow(1000);
+                ChatConnectionHandler.INSTANCE.disconnect();
+                if (debugHandler.isDebug()) logger.debug(event.getSource().toString());
+            }
         }
 
         @Handler
@@ -570,12 +594,6 @@ public class ChatHandler
                 host.userBanned(nick);
             }));
         }
-    }
-
-    public static boolean isDebug()
-    {
-        File file = new File("." + File.separator + "local/minetogether/debug.txt"); // caching. CACHING.
-        return file.exists();
     }
 
     public static void createChannel(String name)

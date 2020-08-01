@@ -1,6 +1,9 @@
 package net.creeperhost.minetogether.chat;
 
+import net.creeperhost.minetogether.DebugHandler;
 import net.creeperhost.minetogether.common.IHost;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.kitteh.irc.client.library.Client;
 
 import java.util.TreeMap;
@@ -11,6 +14,8 @@ public class ChatConnectionHandler {
     public long timeout = 0;
     public boolean banned;
     public String banReason = "";
+    public DebugHandler debugHandler = new DebugHandler();
+    public Logger logger = LogManager.getLogger();
 
     public synchronized void setup(String nickIn, String realNameIn, boolean onlineIn, IHost _host) {
         ChatHandler.online = onlineIn;
@@ -41,6 +46,7 @@ public class ChatConnectionHandler {
                 Client.Builder mineTogether = Client.builder().nick(ChatHandler.nick).realName(ChatHandler.realName).user("MineTogether");
                 mineTogether.server().host(ChatHandler.IRC_SERVER.address).port(ChatHandler.IRC_SERVER.port).secure(ChatHandler.IRC_SERVER.ssl);
                 mineTogether.listeners().exception(e -> {
+                    if(debugHandler.isDebug) e.printStackTrace();
                 }); // no-op
                 if (ChatHandler.client != null) return; // hopefully prevent multiples
                 ChatHandler.client = mineTogether.buildAndConnect();
@@ -65,6 +71,7 @@ public class ChatConnectionHandler {
             ChatHandler.client.shutdown("Disconnecting.");
             ChatHandler.client = null;
             ChatHandler.connectionStatus = ChatHandler.ConnectionStatus.DISCONNECTED;
+            if(debugHandler.isDebug) logger.error("Force disconnect was called");
         }
     }
 

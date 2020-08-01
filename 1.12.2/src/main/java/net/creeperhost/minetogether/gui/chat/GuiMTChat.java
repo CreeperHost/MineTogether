@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.gui.chat;
 
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
@@ -125,8 +126,9 @@ public class GuiMTChat extends GuiScreen
         if(Callbacks.isBanned())
         {
             banMessage = Callbacks.getBanMessage();
-            buttonList.add(banButton = new ButtonString(8888, 30, height - 26, "Ban Reason: " + banMessage));
+            buttonList.add(banButton = new ButtonString(8888, 46, height - 26, TextFormatting.RED + "Ban Reason: " + TextFormatting.WHITE + banMessage));
         }
+
 //        buttonList.add(testButton = new GuiButton(-80089, 5 + 80, height - 5 - 25, 100, 20, "TARST")); // TODO: remove
     }
 
@@ -454,7 +456,8 @@ public class GuiMTChat extends GuiScreen
             justNick = result.replaceAll("[^A-Za-z0-9]", "");
 
 
-            String tempWord = ChatHandler.anonUsersReverse.get(justNick);
+            Profile profile = ChatHandler.knownUsers.findByDisplay(justNick);
+            String tempWord = profile.getShortHash();
             if (tempWord != null)
                 split[i] = result.replaceAll(justNick, tempWord);
             else
@@ -474,7 +477,7 @@ public class GuiMTChat extends GuiScreen
         {
             field = GuiScrollingList.class.getDeclaredField("scrollDistance");
             field.setAccessible(true);
-        } catch (NoSuchFieldException e) {}
+        } catch (NoSuchFieldException ignored) {}
     }
     
     @Override
