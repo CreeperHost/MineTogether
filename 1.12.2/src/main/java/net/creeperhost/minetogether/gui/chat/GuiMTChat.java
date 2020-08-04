@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.gui.chat;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Profile;
+import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
@@ -141,6 +142,7 @@ public class GuiMTChat extends GuiScreen
 //        ServerAuthTest.processPackets();
         if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
+            rebuildChat();
             if(!ChatHandler.isInitting.get()) {
                 ChatHandler.reInit();
             }
@@ -294,6 +296,7 @@ public class GuiMTChat extends GuiScreen
             } else if (button == reconnectionButton)
             {
                 ChatHandler.reInit();
+//                ChatConnectionHandler.INSTANCE.connect();
             } else if (button == cancelButton)
             {
                 TimestampComponentString.clearActive();
@@ -399,10 +402,7 @@ public class GuiMTChat extends GuiScreen
             menuDropdownButton.wasJustClosed = false;
         }
     }
-    //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
-    final static Pattern patternA = Pattern.compile("((?:user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    final static Pattern patternB = Pattern.compile("((?:@)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    final static Pattern patternC = Pattern.compile("((?:@user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
     @SuppressWarnings("Duplicates")
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
@@ -431,9 +431,15 @@ public class GuiMTChat extends GuiScreen
         processBadwords();
     }
 
+    //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
+    final static Pattern patternA = Pattern.compile("((?:user)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternB = Pattern.compile("((?:@)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternC = Pattern.compile("((?:@user)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
     public static String getStringForSending(String text)
     {
         String[] split = text.split(" ");
+        boolean replaced = false;
         for (int i = 0; i < split.length; i++)
         {
             String word = split[i].toLowerCase();
@@ -453,18 +459,28 @@ public class GuiMTChat extends GuiScreen
             {
                 result = matcherc.replaceAll(subst);
             }
-            justNick = result.replaceAll("[^A-Za-z0-9]", "");
-
-
-            Profile profile = ChatHandler.knownUsers.findByDisplay(justNick);
-            String tempWord = profile.getShortHash();
-            if (tempWord != null)
-                split[i] = result.replaceAll(justNick, tempWord);
-            else
-            if (justNick.toLowerCase().equals(playerName.toLowerCase()))
-                split[i] = result.replaceAll(justNick, CreeperHost.instance.ourNick);
+            if(result.startsWith("User"))
+            {
+                justNick = result.replaceAll("[^A-Za-z0-9]", "");
+                Profile profile = ChatHandler.knownUsers.findByDisplay(justNick);
+                if(profile == null)
+                {
+                    continue;
+                }
+                String tempWord = profile.getShortHash();
+                if (tempWord != null) {
+                    split[i] = result.replaceAll(justNick, tempWord);
+                    replaced = true;
+                }
+                else if (justNick.toLowerCase().equals(playerName.toLowerCase())) {
+                    split[i] = result.replaceAll(justNick, CreeperHost.instance.ourNick);
+                    replaced = true;
+                }
+            }
         }
-        text = String.join(" ", split);
+        if(replaced) {
+            text = String.join(" ", split);
+        }
 
         return text;
     }
@@ -731,7 +747,7 @@ public class GuiMTChat extends GuiScreen
         protected int getContentHeight()
         {
             int viewHeight = this.bottom - this.top - 4;
-            return super.getContentHeight() < viewHeight ? viewHeight : super.getContentHeight();
+            return Math.max(super.getContentHeight(), viewHeight);
         }
         
         protected void updateLines(String key)
@@ -739,6 +755,8 @@ public class GuiMTChat extends GuiScreen
             LimitedSizeQueue<Message> tempMessages;
             synchronized (ircLock)
             {
+                if(ChatHandler.client == null)
+                    return;
                 if (ChatHandler.messages == null || ChatHandler.messages.size() == 0)
                     return;
                 tempMessages = ChatHandler.messages.get(key);

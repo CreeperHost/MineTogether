@@ -22,22 +22,15 @@ public class Profile
 
     public Profile(String serverNick)
     {
-        boolean valid = false;
         if(serverNick.length() == 30)
         {
             this.mediumHash = serverNick;
-            valid = true;
+            userDisplay = "User" + mediumHash.substring(2,7);
         }
         else if(serverNick.length() < 30)
         {
             this.shortHash = serverNick;
-            valid = true;
-        }
-        if(valid)
-        {
-//            CompletableFuture.runAsync(() -> {
-//               loadProfile();
-//            });
+            userDisplay = "User" + shortHash.substring(2,7);
         }
     }
 

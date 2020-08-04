@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class Client implements IProxy
 {
@@ -120,7 +121,7 @@ public class Client implements IProxy
                     }
                 } catch (Throwable ignored) {}
             }
-            new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
+            CompletableFuture.runAsync(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance)); // start in thread as can hold up the UI thread for some reason.
         }
     }
     

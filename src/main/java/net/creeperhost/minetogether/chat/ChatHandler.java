@@ -1,10 +1,15 @@
 package net.creeperhost.minetogether.chat;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.DebugHandler;
 import net.creeperhost.minetogether.KnownUsers;
 import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
+import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.engio.mbassy.listener.Handler;
 import org.apache.logging.log4j.LogManager;
@@ -19,8 +24,6 @@ import org.kitteh.irc.client.library.element.mode.ChannelUserMode;
 import org.kitteh.irc.client.library.element.mode.ModeStatus;
 import org.kitteh.irc.client.library.event.channel.*;
 import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent;
-import org.kitteh.irc.client.library.event.client.NickRejectedEvent;
-import org.kitteh.irc.client.library.event.connection.ClientConnectionClosedEvent;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionFailedEvent;
 import org.kitteh.irc.client.library.event.user.*;
@@ -29,7 +32,6 @@ import org.kitteh.irc.client.library.util.Format;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class ChatHandler
@@ -42,7 +44,7 @@ public class ChatHandler
     public static HashMap<String, String> curseSync = new HashMap<>();
 
     public static TreeMap<String, LimitedSizeQueue<Message>> messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    static Client client = null;
+    public static Client client = null;
     static IHost host;
     static boolean online = false;
     public static AtomicBoolean isInitting = new AtomicBoolean(false);
@@ -61,6 +63,7 @@ public class ChatHandler
     public static Logger logger = LogManager.getLogger();
     private static int serverId = -1;
     public static DebugHandler debugHandler = new DebugHandler();
+    public static AtomicInteger reconnectTimer = new AtomicInteger(10000);
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
@@ -74,7 +77,7 @@ public class ChatHandler
         {
             if(debugHandler.isDebug) logger.debug("ChatHandler attempting a reconnect");
             inited.set(false);
-            init(initedString, realName, online, host);
+            init(initedString, realName, false, host);
         }
     }
 
@@ -82,7 +85,7 @@ public class ChatHandler
         serverId = serverIdIn;
     }
 
-    private static void addMessageToChat(String target, String user, String message)
+    public static void addMessageToChat(String target, String user, String message)
     {
         LimitedSizeQueue<Message> tempQueue = messages.get(target);
         if (tempQueue == null) {
@@ -101,10 +104,8 @@ public class ChatHandler
     }
 
     public static HashMap<String, String> friends = new HashMap<>();
-//    public static HashMap<String, Profile> anonUsers = new HashMap<>();
     public static final KnownUsers knownUsers = new KnownUsers();
 
-//    public static HashMap<String, Profile> anonUsersReverse = new HashMap<>();
     public static ArrayList<String> autocompleteNames = new ArrayList<>();
     public static Random random = new Random();
 
@@ -212,7 +213,7 @@ public class ChatHandler
 
     public static boolean isOnline()
     {
-        return connectionStatus == ConnectionStatus.CONNECTED && client.getChannel(CHANNEL).isPresent();
+        return connectionStatus == ConnectionStatus.CONNECTED && client != null && client.getChannel(CHANNEL).isPresent();
     }
 
     public static boolean hasNewMessages(String target)
@@ -297,38 +298,25 @@ public class ChatHandler
             tries.set(0);
         }
 
-        AtomicBoolean forced = new AtomicBoolean(false);
-
         @Handler
         public void onQuit(ClientConnectionEndedEvent event)
         {
-            String cause = "Unknown";
-            if (event.getCause().isPresent())
-                cause = event.getCause().get().getMessage();
-            else if ((event instanceof ClientConnectionClosedEvent) && ((ClientConnectionClosedEvent)event).getLastMessage().isPresent())
-                cause = ((ClientConnectionClosedEvent)event).getLastMessage().get();
+            if(event.getClient() != ChatHandler.client)
+                return;
 
-            tries.getAndIncrement();
-
-            synchronized (ircLock)
-            {
-                connectionStatus = ConnectionStatus.DISCONNECTED;
-                if (tries.get() >= 5)
-                {
-                    if(!forced.get()) {
-                        logger.error("Attmepting harsher measures");
-                        forced.set(true);
-                        reInit();
-                        return;
-//                        ChatConnectionHandler.INSTANCE.disconnect();
-//                        ChatConnectionHandler.INSTANCE.connect();
-                    }
-
+                ChatHandler.client.shutdown();
+                boolean flag = false;
+            try {
+                flag = true;
+                ChatHandler.addStatusMessage("Chat disconnected, Reconnecting");
+                Thread.sleep(reconnectTimer.get());
+                logger.error("Reinit being called");
+                if(flag) {
+                    reInit();
+                    flag = false;
                 }
-                addMessageToChat(CHANNEL, "System", Format.stripAll("Disconnected from chat Reconnecting"));
-                if(debugHandler.isDebug()) logger.error(event.getCause().get().getMessage());
-                event.setReconnectionDelay(1000);
-                event.setAttemptReconnect(true);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
 
@@ -345,9 +333,9 @@ public class ChatHandler
                     {
                         channel.commands().mode().add(ModeStatus.Action.ADD, client.getServerInfo().getChannelMode('i').get()).execute();
                     }
-                    //addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Chat joined"));
                 }
             }
+            logger.error(event.getSource().getMessage());
             updateFriends(event.getChannel().getNicknames());
         }
 
@@ -566,20 +554,6 @@ public class ChatHandler
         }
 
         @Handler
-        public void onNickRejected(NickRejectedEvent event)
-        {
-            if(!ChatHandler.isInitting.get())
-            {
-                host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "Couldn't connect as your nick is in use. Waiting 5 minutes and trying again."));
-                isInitting.set(true);
-                inited.set(false);
-                ChatConnectionHandler.INSTANCE.nextConnectAllow(1000);
-                ChatConnectionHandler.INSTANCE.disconnect();
-                if (debugHandler.isDebug()) logger.debug(event.getSource().toString());
-            }
-        }
-
-        @Handler
         public void onUserBanned(ChannelModeEvent event)
         {
             List<ModeStatus<ChannelMode>> b = event.getStatusList().getByMode('b');
@@ -594,6 +568,41 @@ public class ChatHandler
                 host.userBanned(nick);
             }));
         }
+    }
+
+    public static Profile getProfile(String uuid)
+    {
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("target", uuid);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, false);
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(resp);
+        if (element.isJsonObject())
+        {
+            JsonObject obj = element.getAsJsonObject();
+            JsonElement status = obj.get("status");
+            if (status.getAsString().equals("success"))
+            {
+                JsonObject profileData = obj.getAsJsonObject("profileData").getAsJsonObject(uuid);
+                String mediumHash = profileData.getAsJsonObject("chat").getAsJsonObject("hash").get("medium").getAsString();
+                String shortHash = profileData.getAsJsonObject("chat").getAsJsonObject("hash").get("short").getAsString();
+                String longHash = profileData.getAsJsonObject("hash").get("long").getAsString();
+
+                String display = profileData.get("display").getAsString();
+                boolean premium = profileData.get("premium").getAsBoolean();
+                boolean isOnline = profileData.getAsJsonObject("chat").get("online").getAsBoolean();
+
+                return new Profile(longHash, shortHash, mediumHash, isOnline, display, premium);
+            } else
+            {
+                logger.error(resp);
+            }
+        }
+        return null;
     }
 
     public static void createChannel(String name)

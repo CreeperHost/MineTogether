@@ -714,7 +714,7 @@ public class EventHandler
     public void onClientTick(TickEvent.ClientTickEvent evt)
     {
         //CreeperHost.instance.curServerId = CreeperHostServer.updateID;
-        inviteTicks = (inviteTicks + 1) % 20;
+        inviteTicks = (inviteTicks + 1) % 300;
         if (inviteTicks != 0)
             return;
         

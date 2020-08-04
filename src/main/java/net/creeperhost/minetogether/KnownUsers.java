@@ -28,8 +28,6 @@ public class KnownUsers
                 profile.loadProfile();
             }).thenRun(() -> {
                 profiles.get().add(profile);
-                findByNick(hash);
-                //TODO update profiles list
             });
             return profile;
         }
@@ -40,7 +38,8 @@ public class KnownUsers
     {
         for(Profile profile : profiles.get())
         {
-            if(profile.getLongHash().equalsIgnoreCase(search)) return profile;
+            if(profile.getLongHash().equalsIgnoreCase(search))
+                return profile;
         }
         return null;
     }

@@ -155,6 +155,7 @@ public class GuiNewChatOurs extends GuiNewChat
         {
             if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && ChatHandler.isOnline() && updateCounter % 6000 == 0)
             {
+                rebuildChat(ChatHandler.CHANNEL);
                 if(!ChatHandler.isInitting.get())
                 {
                     ChatHandler.reInit();
