@@ -1,15 +1,9 @@
 package net.creeperhost.minetogether.chat;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.DebugHandler;
 import net.creeperhost.minetogether.KnownUsers;
-import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
-import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.engio.mbassy.listener.Handler;
 import org.apache.logging.log4j.LogManager;
@@ -568,41 +562,6 @@ public class ChatHandler
                 host.userBanned(nick);
             }));
         }
-    }
-
-    public static Profile getProfile(String uuid)
-    {
-        Map<String, String> sendMap = new HashMap<String, String>();
-        {
-            sendMap.put("target", uuid);
-        }
-        Gson gson = new Gson();
-        String sendStr = gson.toJson(sendMap);
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, false);
-        JsonParser parser = new JsonParser();
-        JsonElement element = parser.parse(resp);
-        if (element.isJsonObject())
-        {
-            JsonObject obj = element.getAsJsonObject();
-            JsonElement status = obj.get("status");
-            if (status.getAsString().equals("success"))
-            {
-                JsonObject profileData = obj.getAsJsonObject("profileData").getAsJsonObject(uuid);
-                String mediumHash = profileData.getAsJsonObject("chat").getAsJsonObject("hash").get("medium").getAsString();
-                String shortHash = profileData.getAsJsonObject("chat").getAsJsonObject("hash").get("short").getAsString();
-                String longHash = profileData.getAsJsonObject("hash").get("long").getAsString();
-
-                String display = profileData.get("display").getAsString();
-                boolean premium = profileData.get("premium").getAsBoolean();
-                boolean isOnline = profileData.getAsJsonObject("chat").get("online").getAsBoolean();
-
-                return new Profile(longHash, shortHash, mediumHash, isOnline, display, premium);
-            } else
-            {
-                logger.error(resp);
-            }
-        }
-        return null;
     }
 
     public static void createChannel(String name)

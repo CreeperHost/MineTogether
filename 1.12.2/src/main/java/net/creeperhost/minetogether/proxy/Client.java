@@ -215,7 +215,7 @@ public class Client implements IProxy
         String serverId = UUID.randomUUID().toString();
         try {
             sessionService.joinServer(profile, token, serverId);
-            GameProfile gameProfile = sessionService.hasJoinedServer(profile, token, null);
+            GameProfile gameProfile = sessionService.hasJoinedServer(profile, serverId, null);
             return gameProfile != null && gameProfile.isComplete();
         } catch (AuthenticationException ignored) {}
         return false;
