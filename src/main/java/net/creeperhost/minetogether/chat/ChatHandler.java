@@ -44,8 +44,6 @@ public class ChatHandler
     public static AtomicBoolean isInitting = new AtomicBoolean(false);
     public static AtomicInteger tries = new AtomicInteger(0);
     static AtomicBoolean inited = new AtomicBoolean(false);
-    public static List<String> badwords;
-    public static String badwordsFormat;
     public static String currentGroup = "";
     public static String initedString = null;
     public static String nick;
