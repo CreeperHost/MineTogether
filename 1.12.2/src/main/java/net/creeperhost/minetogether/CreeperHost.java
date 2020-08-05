@@ -78,6 +78,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     private CreeperHostServerHost implement;
     
     public String ourNick;
+    public String playerName;
     public File mutedUsersFile;
     public Runnable toastMethod;
     public String ftbPackID = "";
@@ -90,7 +91,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        proxy.checkOnline();
+        EventHandler.isOnline = proxy.checkOnline();
         configFile = event.getSuggestedConfigurationFile();
 
         InputStream configStream = null;
@@ -143,7 +144,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
             gdpr = new GDPR(gdprFile);
             File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
             ingameChat = new IngameChat(ingameChatFile);
-            ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 28);
 
             int packID;
 

@@ -1,12 +1,14 @@
 package net.creeperhost.minetogether.proxy;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.common.Config;
@@ -17,6 +19,7 @@ import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiScreen;
@@ -28,27 +31,32 @@ import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class Client implements IProxy
 {
+    private static final Logger logger = LogManager.getLogger();
+    private static final Gson gson = new GsonBuilder().create();
+    private static final Type strListToken = new TypeToken<List<String>>() {}.getType();
     public KeyBinding openGuiKey;
     private UUID cache;
-    
+
     @Override
     public void registerKeys()
     {
         openGuiKey = new KeyBinding("minetogether.key.friends", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_M, "minetogether.keys");
         ClientRegistry.registerKeyBinding(openGuiKey);
     }
-    
+
     @Override
     public void openFriendsGui()
     {
@@ -62,7 +70,7 @@ public class Client implements IProxy
             CreeperHost.instance.handledInvite = null;
         }
     }
-    
+
     @Override
     public UUID getUUID()
     {
@@ -71,59 +79,54 @@ public class Client implements IProxy
 
         Session session = Minecraft.getMinecraft().getSession();
 
-        UUID uuid = Minecraft.getMinecraft().getSession().getProfile().getId();
+        UUID uuid = session.getProfile().getId();
 
-        CreeperHost.instance.online = !uuid.equals(EntityPlayer.getOfflineUUID(session.getUsername()));
-        
+        CreeperHost.instance.online = uuid.version() == 4;//Version 3 uuids are offline ones, aka, name uuid.
+
         cache = uuid;
 
         return uuid;
     }
-    
+
+    @Override
+    public void reCacheUUID() {
+        cache = null;
+    }
+
     boolean isChatReplaced = false;
-    
+
     @Override
     public void startChat()
     {
         if (Config.getInstance().isChatEnabled())
         {
-            
+
             if (!CreeperHost.instance.ingameChat.hasDisabledIngameChat())
                 enableIngameChat();
-            
+
+            CreeperHost.instance.ourNick = "MT" + Callbacks.getPlayerHash(CreeperHost.proxy.getUUID()).substring(0, 28);
+            CreeperHost.instance.playerName = Minecraft.getMinecraft().getSession().getUsername();
             CreeperHost.instance.getNameForUser("");
             CreeperHost.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
-            InputStream mutedUsersStream = null;
-            try
-            {
-                String configString;
-                if (CreeperHost.instance.mutedUsersFile.exists())
-                {
-                    mutedUsersStream = new FileInputStream(CreeperHost.instance.mutedUsersFile);
-                    configString = IOUtils.toString(mutedUsersStream);
-                } else
-                {
-                    CreeperHost.instance.mutedUsersFile.getParentFile().mkdirs();
-                    configString = "[]";
-                }
-                
-                Gson gson = new Gson();
-                CreeperHost.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>() {}.getType());
-            } catch (Throwable ignored) {}
-            finally
-            {
-                try
-                {
-                    if (mutedUsersStream != null)
-                    {
-                        mutedUsersStream.close();
-                    }
-                } catch (Throwable ignored) {}
+
+            CreeperHost.mutedUsers = new ArrayList<>();
+            if (CreeperHost.instance.mutedUsersFile.exists()) {
+                try (FileInputStream fis = new FileInputStream(CreeperHost.instance.mutedUsersFile)) {
+                    CreeperHost.mutedUsers = gson.fromJson(new InputStreamReader(fis), strListToken);
+                } catch (IOException ignored) { }
             }
-            new Thread(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance)).start(); // start in thread as can hold up the UI thread for some reason.
+            new Thread(() ->//
+                    ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance)
+            ).start(); // start in thread as can hold up the UI thread for some reason.
         }
     }
-    
+
+    @Override
+    public void stopChat()
+    {
+        ChatConnectionHandler.INSTANCE.disconnect();
+    }
+
     @Override
     public void disableIngameChat()
     {
@@ -133,12 +136,12 @@ public class Client implements IProxy
             ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
         }
     }
-    
+
     @Override
     public void enableIngameChat()
     {
         CreeperHost.instance.ingameChat.setDisabledIngameChat(false);
-        
+
         if (!isChatReplaced)
         {
             isChatReplaced = true;
@@ -214,7 +217,7 @@ public class Client implements IProxy
         String serverId = UUID.randomUUID().toString();
         try {
             sessionService.joinServer(profile, token, serverId);
-            GameProfile gameProfile = sessionService.hasJoinedServer(profile, token, null);
+            GameProfile gameProfile = sessionService.hasJoinedServer(profile, serverId, null);
             return gameProfile != null && gameProfile.isComplete();
         } catch (AuthenticationException ignored) {}
         return false;

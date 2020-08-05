@@ -50,7 +50,6 @@ public class GuiMTChat extends GuiScreen
     private GuiTextFieldLockable send;
     public DropdownButton<Target> targetDropdownButton;
     private GuiButton friendsButton;
-    public static String playerName = Minecraft.getMinecraft().getSession().getUsername();
     private String currentTarget = ChatHandler.CHANNEL;
     private DropdownButton<Menu> menuDropdownButton;
     private String activeDropdown;
@@ -284,7 +283,7 @@ public class GuiMTChat extends GuiScreen
                     chat.updateLines(currentTarget);
                 } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
                 {
-                    mc.displayGuiScreen(new GuiChatFriend(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                    mc.displayGuiScreen(new GuiChatFriend(this, CreeperHost.instance.playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
                 }
             } else if (button == friendsButton)
             {
@@ -458,7 +457,7 @@ public class GuiMTChat extends GuiScreen
             if (tempWord != null)
                 split[i] = result.replaceAll(justNick, tempWord);
             else
-            if (justNick.toLowerCase().equals(playerName.toLowerCase()))
+            if (justNick.toLowerCase().equals(CreeperHost.instance.playerName.toLowerCase()))
                 split[i] = result.replaceAll(justNick, CreeperHost.instance.ourNick);
         }
         text = String.join(" ", split);
@@ -503,7 +502,7 @@ public class GuiMTChat extends GuiScreen
                 
                 String friendName = builder.toString().trim();
                 
-                Minecraft.getMinecraft().displayGuiScreen(new GuiChatFriend(this, playerName, chatInternalName, friendCode, friendName, true));
+                Minecraft.getMinecraft().displayGuiScreen(new GuiChatFriend(this, CreeperHost.instance.playerName, chatInternalName, friendCode, friendName, true));
                 
                 return true;
             }
@@ -582,7 +581,7 @@ public class GuiMTChat extends GuiScreen
         {
             if (inputNick.equals(CreeperHost.instance.ourNick) || inputNick.equals(CreeperHost.instance.ourNick + "`"))
             {
-                outputNick = playerName;
+                outputNick = CreeperHost.instance.playerName;
             } else {
                 if (CreeperHost.instance.mutedUsers.contains(inputNick))
                     return null;
@@ -632,7 +631,7 @@ public class GuiMTChat extends GuiScreen
             {
                 if (justNick.equals(ChatHandler.initedString))
                 {
-                    splitStr = splitStr.replaceAll(justNick, playerName);
+                    splitStr = splitStr.replaceAll(justNick, CreeperHost.instance.playerName);
                     split[i] = splitStr;
                     highlight = true;
                 } else

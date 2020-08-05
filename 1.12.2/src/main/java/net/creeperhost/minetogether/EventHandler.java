@@ -50,22 +50,28 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class EventHandler
 {
+    private static final Logger logger = LogManager.getLogger();
+
+    public static final ExecutorService executor = Executors.newSingleThreadExecutor();
+
     private static final int MAIN_BUTTON_ID = 30051988;
     private static final int MP_BUTTON_ID = 8008135;
     private static final int CHAT_BUTTON_ID = 800813;
     private static final int FRIEND_BUTTON_ID = 1337420;
     private static final int MINIGAMES_BUTTON_ID = 0xdeadbeef;
-    
+
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
     private static Field reasonField = null;
     private static Field messageField = null;
@@ -89,7 +95,16 @@ public class EventHandler
     private boolean hasJoinedWorld;
     private Thread inviteCheckThread;
     private int inviteTicks = -1;
-    
+
+    private int clientTicks = 0; //Tick counter client side.
+    private UUID lastUUID; //Last UUID we saw the client using.
+    public static boolean connectToChat = false; //If a connection is scheduled
+    public static boolean disconnectFromChat = false; //If a disconnection is scheduled
+    public static boolean chatDisconnected = false; //If we know we are disconnected.
+
+    public static boolean isOnline = false;
+    private static Future<?> onlineCheckFuture;
+
     public static NetworkManager getNetworkManager(GuiConnecting con)
     {
         long time = System.currentTimeMillis() + 5000;
@@ -100,7 +115,7 @@ public class EventHandler
                 networkManagerField = ReflectionHelper.findField(con.getClass(), "networkManager", "field_146373_h", "");
                 networkManagerField.setAccessible(true);
             }
-            
+
             NetworkManager manager = null;
             while (manager == null) // loop to wait until networkManager is set.
             {
@@ -108,26 +123,27 @@ public class EventHandler
                     break;
                 manager = (NetworkManager) networkManagerField.get(con);
             }
-            
+
             return manager;
         } catch (Exception e)
         {
             return null;
         }
     }
-    
+
     boolean first = true;
-    
+
     Field defaultInputFieldTextField = null;
 
     boolean firstOpen = true;
-    
+
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
     {
+        if (!isOnline) return;
         GuiScreen gui = event.getGui();
         GuiScreen curGui = Minecraft.getMinecraft().currentScreen;
-        
+
         if (gui instanceof GuiMainMenu && (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled()))
         {
             if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
@@ -139,15 +155,15 @@ public class EventHandler
                 if (first)
                 {
                     first = false;
-                    CreeperHost.proxy.startChat();
+                    //CreeperHost.proxy.startChat();
                 }
             }
         }
-        
+
         if (gui instanceof GuiDisconnected)
         {
             GuiDisconnected dc = (GuiDisconnected) gui;
-            
+
             if (CreeperHost.instance.activeMinigame != null && CreeperHost.instance.joinTime + 30000 < System.currentTimeMillis())
             {
                 Aries aries = new Aries("", "");
@@ -162,7 +178,7 @@ public class EventHandler
                 thread.setDaemon(false);
                 thread.start();
             }
-            
+
             try
             {
                 if (reasonField == null)
@@ -170,13 +186,13 @@ public class EventHandler
                     reasonField = ReflectionHelper.findField(gui.getClass(), "reason", "field_146306_a", "");
                     reasonField.setAccessible(true);
                 }
-                
+
                 if (messageField == null)
                 {
                     messageField = ReflectionHelper.findField(gui.getClass(), "message", "field_146304_f", "");
                     messageField.setAccessible(true);
                 }
-                
+
                 if (parentField == null)
                 {
                     parentField = ReflectionHelper.findField(gui.getClass(), "parentScreen", "field_146307_h", "");
@@ -184,7 +200,7 @@ public class EventHandler
                 }
                 String reason = (String) reasonField.get(dc);
                 ITextComponent message = (ITextComponent) messageField.get(dc);
-                
+
                 if (curGui instanceof GuiProgressDisconnected)
                 {
                     if (message.getUnformattedText().contains("Server is still pre-generating!"))
@@ -217,7 +233,7 @@ public class EventHandler
             {
                 sleep = true;
             }
-            
+
             if (defaultInputFieldTextField == null)
             {
                 try
@@ -241,15 +257,16 @@ public class EventHandler
             }catch (Exception ignored){}
         }
     }
-    
+
     private GuiButton ingameChatButton = null;
-    
+
     @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void onInitGui(InitGuiEvent.Post event)
     {
+        if (!isOnline) return;
         boolean buttonDrawn = false;
-        
+
         final GuiScreen gui = event.getGui();
         if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu)
         {
@@ -282,13 +299,13 @@ public class EventHandler
                         serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h", "");
                         serverListSelectorField.setAccessible(true);
                     }
-                    
+
                     if (serverListInternetField == null)
                     {
                         serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "serverListInternet", "field_148198_l", "");
                         serverListInternetField.setAccessible(true);
                     }
-                    
+
                     ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
                     List serverListInternet = (List) serverListInternetField.get(serverListSelector); // Get the list from inside it
                     CreeperHostServerSelectionList ourList = new CreeperHostServerSelectionList(mpGUI, Minecraft.getMinecraft(), mpGUI.width, mpGUI.height, 32, mpGUI.height - 64, 36);
@@ -310,27 +327,27 @@ public class EventHandler
                         serverListField = ReflectionHelper.findField(GuiMultiplayer.class, "savedServerList", "field_146804_i", "");
                         serverListField.setAccessible(true);
                     }
-                    
+
                     ourServerList = new ServerListNoEdit(Minecraft.getMinecraft());
                     serverListField.set(mpGUI, ourServerList);
                     ourServerList.loadServerList();
-                    
-                    
+
+
                     if (serverListSelectorField == null)
                     {
                         serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h", "");
                         serverListSelectorField.setAccessible(true);
                     }
-                    
+
                     ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
                     serverListSelector.updateOnlineServers(ourServerList);
-                    
-                    
+
+
                 } catch (IllegalAccessException ignored) {}
             }
             lastInitialized = mpGUI;
         }
-        
+
         if (Config.getInstance().isServerListEnabled())
         {
             if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
@@ -347,38 +364,38 @@ public class EventHandler
                         break;
                     }
                 }
-                
+
                 if (editButton != null)
                 {
                     event.getButtonList().remove(editButton);
                     ServerSelectionList list = null;
-                    
+
                     if (serverListSelectorField == null)
                     {
                         serverListSelectorField = ReflectionHelper.findField(GuiMultiplayer.class, "serverListSelector", "field_146803_h", "");
                         serverListSelectorField.setAccessible(true);
                     }
-                    
+
                     try
                     {
                         list = (ServerSelectionList) serverListSelectorField.get(gui);
                     } catch (IllegalAccessException ignored) {}
-                    
+
                     final ServerSelectionList finalList = list;
                     event.getButtonList().add(editButton = new GuiButton(7, gui.width / 2 - 154, gui.height - 28, 70, 20, I18n.format("selectServer.edit"))
                     {
-                        
+
                         public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_)
                         {
                             myDrawButton(p_191745_1_, p_191745_2_, p_191745_3_);
                         }
-                        
+
                         // < 1.12 compat
                         public void func_146112_a(Minecraft mc, int mouseX, int mouseY)
                         {
                             myDrawButton(mc, mouseX, mouseY);
                         }
-                        
+
                         public void myDrawButton(Minecraft p_146112_1_, int p_146112_2_, int p_146112_3_)
                         {
                             int placeInList = finalList.getSelected();
@@ -397,9 +414,9 @@ public class EventHandler
                                     enabled = true;
                                 }
                             }
-                            
+
                             // Below copied from GuiButton code to avoid having to use reflection logic to call the right function
-                            
+
                             if (this.visible)
                             {
                                 FontRenderer fontrenderer = p_146112_1_.fontRendererObj;
@@ -414,7 +431,7 @@ public class EventHandler
                                 this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
                                 this.mouseDragged(p_146112_1_, p_146112_2_, p_146112_3_);
                                 int j = 14737632;
-                                
+
                                 if (packedFGColour != 0)
                                 {
                                     j = packedFGColour;
@@ -425,14 +442,14 @@ public class EventHandler
                                 {
                                     j = 16777120;
                                 }
-                                
+
                                 this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, j);
                             }
                         }
                     });
-                    
+
                     editButton.enabled = false;
-                    
+
                     if (editButtonField == null)
                     {
                         editButtonField = ReflectionHelper.findField(GuiMultiplayer.class, "btnEditServer", "field_146810_r", "");
@@ -444,7 +461,7 @@ public class EventHandler
                     } catch (IllegalAccessException ignored) {}
                 }
             }
-            
+
             if (gui instanceof GuiIngameMenu)
             {
                 buttonDrawn = true;
@@ -453,7 +470,7 @@ public class EventHandler
 
             if (gui instanceof GuiMainMenu)
             {
-                
+
                 int yPosition = 0;
                 for (GuiButton butt : event.getButtonList())
                 {
@@ -463,10 +480,10 @@ public class EventHandler
                         butt.width = 98;
                     }
                 }
-                
+
                 event.getButtonList().add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 + 2, yPosition, 98, 20, "Minigames"));
             }
-            
+
             if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
             {
                 List<GuiButton> buttonList = event.getButtonList();
@@ -477,26 +494,26 @@ public class EventHandler
                         button.visible = false;
                         button.enabled = false;
                     }
-                    
+
                     if (button.id == 2)
                     {
                         button.xPosition -= 7;
                         button.width += 1;
                     }
-                    
+
                     if (button.id == 4)
                     {
                         button.xPosition = gui.width / 2 - 8;
                         button.yPosition = gui.height - 28;
                         button.width -= 14;
                     }
-                    
+
                     if (button.id == 3)
                     {
                         button.xPosition -= 25;
                     }
-                    
-                    
+
+
                     if (button.id == 0)
                     {
                         button.xPosition += 1;
@@ -507,7 +524,7 @@ public class EventHandler
                 buttonList.add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 - 50, gui.height - 52, 75, 20, "Minigames"));
             }
         }
-        
+
         if (Config.getInstance().isChatEnabled())
         {
             if (gui instanceof ScreenChatOptions)
@@ -523,7 +540,7 @@ public class EventHandler
                     x -= 99;
                 event.getButtonList().add(new GuiButtonMultiple(CHAT_BUTTON_ID, x, 5, 1));
             }
-            
+
             if (gui instanceof GuiIngameMenu)
             {
                 int x = gui.width - 20 - 5;
@@ -533,16 +550,18 @@ public class EventHandler
             }
         }
     }
-    
+
     @SubscribeEvent
     public void serverLoginEvent(FMLNetworkEvent.ClientConnectedToServerEvent event)
     {
+        if (!isOnline) return;
         hasJoinedWorld = false;
     }
-    
+
     @SubscribeEvent
     public void onEntityJoinedWorld(EntityJoinWorldEvent event)
     {
+        if (!isOnline) return;
         if (!Config.getInstance().isSivIntegration())
             return;
         if (event.getWorld().isRemote && !hasJoinedWorld && Minecraft.getMinecraft().player != null)
@@ -555,10 +574,11 @@ public class EventHandler
             }
         }
     }
-    
+
     @SubscribeEvent
     public void onActionPerformed(ActionPerformedEvent.Pre event)
     {
+        if (!isOnline) return;
         GuiScreen gui = event.getGui();
         GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu)
@@ -591,7 +611,7 @@ public class EventHandler
             {
                 CreeperHost.proxy.openFriendsGui();
             }
-            
+
             if (button != null && button.id == CHAT_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMTChat(gui));
@@ -605,14 +625,15 @@ public class EventHandler
                     CreeperHost.proxy.disableIngameChat();
                 else
                     CreeperHost.proxy.enableIngameChat();
-                
+
                 button.displayString = "MineTogether Chat: " + (chatEnabled ? "OFF" : "ON");
             }
         }
     }
-    
+
     @SubscribeEvent
     public void onRenderGameOverlay(RenderGameOverlayEvent event) {
+        if (!isOnline) return;
         if (!Config.getInstance().isSivIntegration())
         {
             return;
@@ -625,9 +646,9 @@ public class EventHandler
         {
             return;
         }
-        
+
         Minecraft mc = Minecraft.getMinecraft();
-        
+
         ScaledResolution resolution = new ScaledResolution(mc);
         guiServerInfo.setWorldAndResolution(mc, resolution.getScaledWidth(), resolution.getScaledHeight());
         if (guiServerInfo.renderServerInfo())
@@ -635,14 +656,15 @@ public class EventHandler
             event.setCanceled(true);
         }
     }
-    
+
     private boolean updateNeeded = false;
-    
+
     private Thread updateThread = null;
-    
+
     @SubscribeEvent
     public void tickEvent(TickEvent.ClientTickEvent event)
     {
+        if (!isOnline) return;
         if (!Config.getInstance().isSivIntegration())
             return;
         guiServerInfo.doTick();
@@ -650,7 +672,7 @@ public class EventHandler
         {
             return;
         }
-        
+
         if (updateThread == null)
         {
             updateThread = new Thread(() ->
@@ -671,24 +693,24 @@ public class EventHandler
                     } catch (InterruptedException ignored) {}
                 }
             });
-            
+
             updateThread.setDaemon(true);
             updateThread.setName("SIP Update Thread");
             updateThread.start();
         }
-        
+
         try
         {
             if (ticks == 0)
             {
                 ticks = 40;
                 updateNeeded = true;
-                
+
             }
             ticks--;
         } catch (Throwable ignored) {}
     }
-    
+
     @SubscribeEvent
     public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs)
     {
@@ -696,10 +718,10 @@ public class EventHandler
         {
             return;
         }
-        
+
         CreeperHost.instance.saveConfig(false);
     }
-    
+
     @SubscribeEvent
     public void clientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent evt)
     {
@@ -708,16 +730,58 @@ public class EventHandler
         CreeperHostServer.updateID = -1;
         CreeperHostServer.secret = null;
     }
-    
+
     @SuppressWarnings("Duplicates")
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
     {
+        if (evt.phase == TickEvent.Phase.START) {
+            if (clientTicks % (1 * 20) == 0 && CreeperHost.instance.gdpr.hasAcceptedGDPR()) {//Every second
+                CreeperHost.proxy.reCacheUUID(); //Careful with this, recomputes the GameProfile
+                UUID currentUUID = CreeperHost.proxy.getUUID();
+                if (lastUUID == null) {
+                    lastUUID = currentUUID;
+                }
+                if (!lastUUID.equals(currentUUID)) {
+                    if (onlineCheckFuture == null || onlineCheckFuture.isDone()) {
+                        onlineCheckFuture = executor.submit(() -> {
+                            isOnline = CreeperHost.proxy.checkOnline();
+                        });
+                    }
+                    if (currentUUID.version() != 4) {
+                        disconnectFromChat = true;
+                    }
+                } else {
+                    connectToChat = true;
+                }
+                lastUUID = currentUUID;
+            }
+
+            //Try and connect to chat if we have been told to.
+            if (connectToChat && !ChatHandler.connected) {
+                CreeperHost.proxy.startChat();
+                chatDisconnected = false;
+            }
+
+            //Try and disconnect if we have been told to.
+            if (disconnectFromChat && !chatDisconnected) {
+                CreeperHost.proxy.stopChat();
+                chatDisconnected = true;
+            }
+
+            connectToChat = false;
+            disconnectFromChat = false;
+        }
+        if (evt.phase == TickEvent.Phase.END) {
+            clientTicks++;
+        }
+        if (!isOnline) return;
+
         //CreeperHost.instance.curServerId = CreeperHostServer.updateID;
         inviteTicks = (inviteTicks + 1) % 20;
         if (inviteTicks != 0)
             return;
-        
+
         if (Config.getInstance().isServerListEnabled() && CreeperHost.instance.gdpr.hasAcceptedGDPR())
         {
             if (inviteCheckThread == null)
@@ -766,7 +830,7 @@ public class EventHandler
                 inviteCheckThread.setName("MineTogether invite check thread");
                 inviteCheckThread.start();
             }
-            
+
             boolean handled = false;
             synchronized (CreeperHost.instance.inviteLock)
             {
@@ -774,16 +838,16 @@ public class EventHandler
                 {
                     CreeperHost.instance.handledInvite = CreeperHost.instance.invite;
                     CreeperHost.instance.invite = null;
-                    
+
                     handled = true;
                 }
             }
-            
+
             if (handled)
             {
                 ArrayList<Friend> friendsList = Callbacks.getFriendsList(true);
                 String friendName = "Unknown";
-                
+
                 for (Friend friend : friendsList)
                 {
                     if (friend.getCode().equals(CreeperHost.instance.handledInvite.by))
@@ -806,19 +870,19 @@ public class EventHandler
                 }
             }
         }
-        
+
         if (Config.getInstance().isChatEnabled())
         {
             String friend;
             boolean friendMessage;
-            
+
             synchronized (CreeperHost.instance.friendLock)
             {
                 friend = CreeperHost.instance.friend;
                 friendMessage = CreeperHost.instance.friendMessage;
                 CreeperHost.instance.friend = null;
             }
-            
+
             if (friend != null)
             {
                 if (friendMessage && Minecraft.getMinecraft().currentScreen instanceof GuiMTChat)
@@ -830,7 +894,7 @@ public class EventHandler
             }
         }
     }
-    
+
     private ResourceLocation getToastResourceLocation()
     {
         if (mcVersion == null)
@@ -857,10 +921,11 @@ public class EventHandler
         }
         return newResouce;
     }
-    
+
     @SubscribeEvent
     public void guiRendered(TickEvent.RenderTickEvent evt)
     {
+        if (!isOnline) return;
         if (CreeperHost.instance.toastText != null)
         {
             long curTime = System.currentTimeMillis();
@@ -869,7 +934,7 @@ public class EventHandler
                 long fadeDiff = CreeperHost.instance.fadeTime - CreeperHost.instance.endTime;
                 long curFade = Math.min(CreeperHost.instance.fadeTime - curTime, fadeDiff);
                 float alpha = (float) curFade / (float) fadeDiff;
-                
+
                 RenderHelper.disableStandardItemLighting();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, alpha);
                 mc.renderEngine.bindTexture(getToastResourceLocation());
@@ -895,12 +960,14 @@ public class EventHandler
     @SubscribeEvent
     public void onKeyboardInputGui(GuiScreenEvent.KeyboardInputEvent.Pre event)
     {
+        if (!isOnline) return;
         onKeyInputGeneric();
     }
-    
+
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event)
     {
+        if (!isOnline) return;
         onKeyInputGeneric();
     }
 
@@ -923,6 +990,7 @@ public class EventHandler
     @SubscribeEvent
     public void onMouseInputEvent(GuiScreenEvent.MouseInputEvent.Pre event) // this fires on mouse clicked in any GUI, and allows us to cancel it
     {
+        if (!isOnline) return;
         MouseEvent mouseEvent = new MouseEvent(); // convenient shortcut to get everything we need
         event.setCanceled(onMouseInput(mouseEvent));
     }

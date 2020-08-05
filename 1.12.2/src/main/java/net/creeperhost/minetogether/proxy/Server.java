@@ -17,10 +17,16 @@ public class Server implements IProxy
     {
         return null;
     }
-    
+
+    @Override
+    public void reCacheUUID() {}
+
     @Override
     public void startChat() {}
     
+    @Override
+    public void stopChat() {}
+
     @Override
     public void disableIngameChat() {}
     
@@ -41,6 +47,6 @@ public class Server implements IProxy
 
     @Override
     public boolean checkOnline() {
-        return false;
+        return true;
     }
 }

@@ -56,6 +56,7 @@ public class ChatHandler
     public static AtomicBoolean isInChannel = new AtomicBoolean(false);
     public static Logger logger = LogManager.getLogger();
     private static int serverId = -1;
+    public static boolean connected;
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
@@ -287,12 +288,14 @@ public class ChatHandler
         @Handler
         public void onConnected(ClientNegotiationCompleteEvent event)
         {
+            connected = true;
             tries.set(0);
         }
 
         @Handler
         public void onQuit(ClientConnectionEndedEvent event)
         {
+            connected = false;
             String cause = "Unknown";
             if (event.getCause().isPresent())
                 cause = event.getCause().get().getMessage();

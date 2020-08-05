@@ -66,7 +66,7 @@ public class GuiGDPR extends GuiScreen
         if (button == acceptButton)
         {
             CreeperHost.instance.gdpr.setAcceptedGDPR();
-            CreeperHost.proxy.startChat();
+            //CreeperHost.proxy.startChat();
             Minecraft.getMinecraft().displayGuiScreen(getter == null ? parent : getter.method());
         }
         else if (button == declineButton)
