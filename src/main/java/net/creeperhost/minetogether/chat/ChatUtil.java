@@ -13,7 +13,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -21,37 +20,6 @@ public class ChatUtil
 {
     private static List<String> cookies;
     private static boolean logHide;
-
-    private static final List<String> FALLBACK_BADWORDS = Arrays.asList("fuck", "shit", "bitch", "cunt", "twat", "tits", "titties", "titty", "nigger", "nigga", "crap", "chink", "whore", "faggot", "fag", "dyke", "slut", "hitler", "tranny");
-
-    private static String allowedCharactersRegex;
-
-    public static List<String> getBadWords()
-    {
-        String resp = getWebResponse("https://api.creeper.host/serverlist/badwords");
-        if (resp.equals("error"))
-        {
-            allowedCharactersRegex = "[^A-Za-z0-9]";
-            return FALLBACK_BADWORDS;
-        }
-        Gson gson = new Gson();
-        JsonParser parser = new JsonParser();
-        JsonObject parse = parser.parse(resp).getAsJsonObject();
-        allowedCharactersRegex = parse.has("allowedCharacters") ? parse.get("allowedCharacters").getAsString() : "[^A-Za-z0-9]";
-        if (parse.get("status").getAsString().equals("success"))
-        {
-            return gson.fromJson(parse.get("badwords"), new TypeToken<List<String>>(){}.getType());
-        }
-        allowedCharactersRegex = "[^A-Za-z0-9]";
-        return FALLBACK_BADWORDS;
-    }
-
-    public static String getAllowedCharactersRegex()
-    {
-        if (allowedCharactersRegex == null)
-            getBadWords();
-        return allowedCharactersRegex;
-    }
 
     public static IRCServer getIRCServerDetails()
     {

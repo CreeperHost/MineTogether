@@ -24,7 +24,6 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.client.GuiScrollingList;
-import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -193,7 +192,6 @@ public class GuiMTChat extends GuiScreen
             Target.updateCache();
             if (!targetDropdownButton.getSelected().getPossibleVals().contains(targetDropdownButton.getSelected()))
                 targetDropdownButton.setSelected(Target.getMainTarget());
-            processBadwords();
         }
         drawCenteredString(fontRendererObj, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
         ITextComponent comp = new TextComponentString("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
@@ -341,41 +339,6 @@ public class GuiMTChat extends GuiScreen
         }
         super.confirmClicked(result, id);
     }
-
-    boolean disabledDueToBadwords = false;
-
-    public void processBadwords()
-    {
-        String text = send.getText().replaceAll(ChatHandler.badwordsFormat, "");
-        boolean veryNaughty = false;
-        if (ChatHandler.badwords != null)
-        {
-            for (String bad : ChatHandler.badwords)
-            {
-                if (bad.startsWith("(") && bad.endsWith(")"))
-                {
-                    if (text.matches(bad) || text.matches(bad.toLowerCase()))
-                    {
-                        veryNaughty = true;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        if (veryNaughty)
-        {
-            send.setDisabled("Cannot send message as contains content which may not be suitable for all audiences");
-            disabledDueToBadwords = true;
-            return;
-        }
-        
-        if (disabledDueToBadwords)
-        {
-            disabledDueToBadwords = false;
-            send.setEnabled(true);
-        }
-    }
     
     @Override
     public void handleMouseInput() throws IOException
@@ -426,7 +389,6 @@ public class GuiMTChat extends GuiScreen
         {
             send.setEnabled(false);
         }
-        processBadwords();
     }
 
     public static String getStringForSending(String text)
@@ -614,11 +576,6 @@ public class GuiMTChat extends GuiScreen
         }
         
         String messageStr = message.messageStr;
-        
-        for (String swear : ChatHandler.badwords)
-        {
-            messageStr = messageStr.replace(swear, StringUtils.repeat("*", swear.length()));
-        }
 
         String[] split = messageStr.split(" ");
         

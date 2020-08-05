@@ -21,8 +21,6 @@ public class ChatConnectionHandler {
         ChatHandler.IRC_SERVER = ChatUtil.getIRCServerDetails();
         ChatHandler.CHANNEL = ChatHandler.online ? ChatHandler.IRC_SERVER.channel : "#SuperSpecialPirateClub";
         ChatHandler.host.updateChatChannel();
-        ChatHandler.badwordsFormat = ChatUtil.getAllowedCharactersRegex();
-        ChatHandler.badwords = ChatUtil.getBadWords();
         ChatHandler.tries.set(0);
     }
 
