@@ -50,16 +50,22 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class EventHandler
 {
+    private static final Logger logger = LogManager.getLogger();
+
+    public static final ExecutorService executor = Executors.newSingleThreadExecutor();
+
     private static final int MAIN_BUTTON_ID = 30051988;
     private static final int MP_BUTTON_ID = 8008135;
     private static final int CHAT_BUTTON_ID = 800813;
@@ -89,6 +95,15 @@ public class EventHandler
     private boolean hasJoinedWorld;
     private Thread inviteCheckThread;
     private int inviteTicks = -1;
+
+    private int clientTicks = 0; //Tick counter client side.
+    private UUID lastUUID; //Last UUID we saw the client using.
+    public static boolean connectToChat = false; //If a connection is scheduled
+    public static boolean disconnectFromChat = false; //If a disconnection is scheduled
+    public static boolean chatDisconnected = false; //If we know we are disconnected.
+
+    public static boolean isOnline = false;
+    private static Future<?> onlineCheckFuture;
     
     public static NetworkManager getNetworkManager(GuiConnecting con)
     {
@@ -127,6 +142,8 @@ public class EventHandler
     {
         GuiScreen gui = event.getGui();
         GuiScreen curGui = Minecraft.getMinecraft().currentScreen;
+
+        if(!isOnline) return;
         
         if (gui instanceof GuiMainMenu && (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled()))
         {
@@ -139,7 +156,7 @@ public class EventHandler
                 if (first)
                 {
                     first = false;
-                    CreeperHost.proxy.startChat();
+//                    CreeperHost.proxy.startChat();
                 }
             }
         }
@@ -249,6 +266,8 @@ public class EventHandler
     public void onInitGui(InitGuiEvent.Post event)
     {
         boolean buttonDrawn = false;
+
+        if(!isOnline) return;
         
         final GuiScreen gui = event.getGui();
         if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu)
@@ -537,12 +556,14 @@ public class EventHandler
     @SubscribeEvent
     public void serverLoginEvent(FMLNetworkEvent.ClientConnectedToServerEvent event)
     {
+        if (!isOnline) return;
         hasJoinedWorld = false;
     }
     
     @SubscribeEvent
     public void onEntityJoinedWorld(EntityJoinWorldEvent event)
     {
+        if (!isOnline) return;
         if (!Config.getInstance().isSivIntegration())
             return;
         if (event.getWorld().isRemote && !hasJoinedWorld && Minecraft.getMinecraft().player != null)
@@ -559,6 +580,7 @@ public class EventHandler
     @SubscribeEvent
     public void onActionPerformed(ActionPerformedEvent.Pre event)
     {
+        if (!isOnline) return;
         GuiScreen gui = event.getGui();
         GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu)
@@ -613,6 +635,7 @@ public class EventHandler
     
     @SubscribeEvent
     public void onRenderGameOverlay(RenderGameOverlayEvent event) {
+        if (!isOnline) return;
         if (!Config.getInstance().isSivIntegration())
         {
             return;
@@ -643,6 +666,8 @@ public class EventHandler
     @SubscribeEvent
     public void tickEvent(TickEvent.ClientTickEvent event)
     {
+        if (!isOnline) return;
+
         if (!Config.getInstance().isSivIntegration())
             return;
         guiServerInfo.doTick();
@@ -713,6 +738,48 @@ public class EventHandler
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
     {
+        if (evt.phase == TickEvent.Phase.START) {
+            if (clientTicks % (10 * 20) == 0 && CreeperHost.instance.gdpr.hasAcceptedGDPR()) {//Every second
+                CreeperHost.proxy.reCacheUUID(); //Careful with this, recomputes the GameProfile
+                UUID currentUUID = CreeperHost.proxy.getUUID();
+                if (lastUUID == null) {
+                    lastUUID = currentUUID;
+                }
+                if (!lastUUID.equals(currentUUID)) {
+                    if (onlineCheckFuture == null || onlineCheckFuture.isDone()) {
+                        onlineCheckFuture = executor.submit(() -> {
+                            isOnline = CreeperHost.proxy.checkOnline();
+                        });
+                    }
+                    if (currentUUID.version() != 4) {
+                        disconnectFromChat = true;
+                    }
+                } else {
+                    connectToChat = true;
+                }
+                lastUUID = currentUUID;
+            }
+
+            //Try and connect to chat if we have been told to.
+            if (connectToChat && !ChatHandler.connected) {
+                CreeperHost.proxy.startChat();
+                chatDisconnected = false;
+            }
+
+            //Try and disconnect if we have been told to.
+            if (disconnectFromChat && !chatDisconnected) {
+                CreeperHost.proxy.stopChat();
+                chatDisconnected = true;
+            }
+
+            connectToChat = false;
+            disconnectFromChat = false;
+        }
+        if (evt.phase == TickEvent.Phase.END) {
+            clientTicks++;
+        }
+        if (!isOnline) return;
+
         //CreeperHost.instance.curServerId = CreeperHostServer.updateID;
         inviteTicks = (inviteTicks + 1) % 300;
         if (inviteTicks != 0)
@@ -861,6 +928,8 @@ public class EventHandler
     @SubscribeEvent
     public void guiRendered(TickEvent.RenderTickEvent evt)
     {
+        if (!isOnline) return;
+
         if (CreeperHost.instance.toastText != null)
         {
             long curTime = System.currentTimeMillis();
@@ -895,12 +964,14 @@ public class EventHandler
     @SubscribeEvent
     public void onKeyboardInputGui(GuiScreenEvent.KeyboardInputEvent.Pre event)
     {
+        if (!isOnline) return;
         onKeyInputGeneric();
     }
     
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event)
     {
+        if (!isOnline) return;
         onKeyInputGeneric();
     }
 
@@ -923,6 +994,7 @@ public class EventHandler
     @SubscribeEvent
     public void onMouseInputEvent(GuiScreenEvent.MouseInputEvent.Pre event) // this fires on mouse clicked in any GUI, and allows us to cancel it
     {
+        if (!isOnline) return;
         MouseEvent mouseEvent = new MouseEvent(); // convenient shortcut to get everything we need
         event.setCanceled(onMouseInput(mouseEvent));
     }

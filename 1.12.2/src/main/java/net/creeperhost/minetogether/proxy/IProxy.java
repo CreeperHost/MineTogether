@@ -11,9 +11,13 @@ public interface IProxy
     void openFriendsGui();
     
     UUID getUUID();
-    
+
+    void reCacheUUID();
+
     void startChat();
-    
+
+    void stopChat();
+
     void disableIngameChat();
     
     void enableIngameChat();

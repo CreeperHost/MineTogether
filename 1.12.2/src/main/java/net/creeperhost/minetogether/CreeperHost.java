@@ -81,6 +81,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     private CreeperHostServerHost implement;
     
     public String ourNick;
+    public String playerName;
     public File mutedUsersFile;
     public Runnable toastMethod;
     public String ftbPackID = "";
@@ -91,13 +92,17 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicReference<Profile> profile = new AtomicReference<Profile>();
     public static AtomicReference<UUID> UUID = new AtomicReference<UUID>();
-    public static boolean isOnline = true;
 
     @SuppressWarnings("Duplicates")
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        isOnline = true;// proxy.checkOnline();
+        EventHandler.isOnline = proxy.checkOnline();
+
+        if(!EventHandler.isOnline)
+        {
+            logger.error("Client is in offline mode");
+        }
 
         configFile = event.getSuggestedConfigurationFile();
 
@@ -188,12 +193,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 realName = "{\"p\": \"-1\"}";
             }
 
-            if(!isOnline)
-            {
-                logger.error("User is in offline mode, Disabling mod features");
-                return;
-            }
-
             MinecraftForge.EVENT_BUS.register(new EventHandler());
             proxy.registerKeys();
         }
@@ -202,8 +201,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
-        if(!isOnline) return;
-
         CompletableFuture.runAsync(() -> {
             try
             {

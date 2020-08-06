@@ -56,6 +56,7 @@ public class ChatHandler
     private static int serverId = -1;
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicInteger reconnectTimer = new AtomicInteger(10000);
+    public static boolean connected;
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
@@ -287,6 +288,10 @@ public class ChatHandler
         @Handler
         public void onConnected(ClientNegotiationCompleteEvent event)
         {
+            if(event.getClient() != ChatHandler.client)
+                return;
+
+            connected = true;
             tries.set(0);
         }
 
@@ -296,20 +301,8 @@ public class ChatHandler
             if(event.getClient() != ChatHandler.client)
                 return;
 
-                ChatHandler.client.shutdown();
-                boolean flag = false;
-            try {
-                flag = true;
-                ChatHandler.addStatusMessage("Chat disconnected, Reconnecting");
-                Thread.sleep(reconnectTimer.get());
-                logger.error("Reinit being called");
-                if(flag) {
-                    reInit();
-                    flag = false;
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            connected = false;
+            killChatConnection();
         }
 
         @Handler
@@ -559,6 +552,24 @@ public class ChatHandler
                 }
                 host.userBanned(nick);
             }));
+        }
+    }
+
+    public static void killChatConnection()
+    {
+        ChatHandler.client.shutdown();
+        boolean flag = false;
+        try {
+            flag = true;
+            ChatHandler.addStatusMessage("Chat disconnected, Reconnecting");
+            Thread.sleep(reconnectTimer.get());
+            logger.error("Reinit being called");
+            if(flag) {
+                reInit();
+                flag = false;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
