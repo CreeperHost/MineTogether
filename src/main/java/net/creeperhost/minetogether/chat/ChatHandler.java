@@ -288,10 +288,11 @@ public class ChatHandler
         @Handler
         public void onConnected(ClientNegotiationCompleteEvent event)
         {
+            connected = true;
+
             if(event.getClient() != ChatHandler.client)
                 return;
 
-            connected = true;
             tries.set(0);
         }
 

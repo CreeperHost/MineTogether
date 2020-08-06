@@ -738,23 +738,29 @@ public class EventHandler
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
     {
-        if (evt.phase == TickEvent.Phase.START) {
+        if (evt.phase == TickEvent.Phase.START)
+        {
             if (clientTicks % (10 * 20) == 0 && CreeperHost.instance.gdpr.hasAcceptedGDPR()) {//Every second
                 CreeperHost.proxy.reCacheUUID(); //Careful with this, recomputes the GameProfile
                 UUID currentUUID = CreeperHost.proxy.getUUID();
-                if (lastUUID == null) {
+                if (lastUUID == null)
+                {
                     lastUUID = currentUUID;
                 }
-                if (!lastUUID.equals(currentUUID)) {
-                    if (onlineCheckFuture == null || onlineCheckFuture.isDone()) {
+                if (!lastUUID.equals(currentUUID))
+                {
+                    if (onlineCheckFuture == null || onlineCheckFuture.isDone())
+                    {
                         onlineCheckFuture = executor.submit(() -> {
                             isOnline = CreeperHost.proxy.checkOnline();
                         });
                     }
-                    if (currentUUID.version() != 4) {
+                    if (currentUUID.version() != 4)
+                    {
                         disconnectFromChat = true;
                     }
-                } else {
+                } else
+                    {
                     connectToChat = true;
                 }
                 lastUUID = currentUUID;
@@ -762,12 +768,14 @@ public class EventHandler
 
             //Try and connect to chat if we have been told to.
             if (connectToChat && !ChatHandler.connected) {
+                System.out.println(connectToChat + " " + ChatHandler.connected);
                 CreeperHost.proxy.startChat();
                 chatDisconnected = false;
             }
 
             //Try and disconnect if we have been told to.
             if (disconnectFromChat && !chatDisconnected) {
+                System.out.println(disconnectFromChat + " " + chatDisconnected);
                 CreeperHost.proxy.stopChat();
                 chatDisconnected = true;
             }

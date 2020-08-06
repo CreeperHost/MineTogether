@@ -765,16 +765,22 @@ public class GuiMTChat extends GuiScreen
             lines = new ArrayList<>();
             if (tempMessages == null)
                 return;
-            for (Message message : tempMessages)
+            try
             {
-                ITextComponent display = formatLine(message);
-                if (display == null)
-                    continue;
-                List<ITextComponent> strings = GuiUtilRenderComponents.splitText(display, listWidth - 6, fontRendererObj, false, true);
-                for (ITextComponent string : strings)
+                for (Message message : tempMessages)
                 {
-                    lines.add(string);
+                    ITextComponent display = formatLine(message);
+                    if (display == null)
+                        continue;
+                    List<ITextComponent> strings = GuiUtilRenderComponents.splitText(display, listWidth - 6, fontRendererObj, false, true);
+                    for (ITextComponent string : strings)
+                    {
+                        lines.add(string);
+                    }
                 }
+            } catch (Exception e)
+            {
+                e.printStackTrace();
             }
             try
             {

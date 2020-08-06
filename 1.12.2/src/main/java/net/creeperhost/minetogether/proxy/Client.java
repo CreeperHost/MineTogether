@@ -126,7 +126,7 @@ public class Client implements IProxy
     @Override
     public void stopChat()
     {
-        ChatHandler.killChatConnection();
+        ChatConnectionHandler.INSTANCE.disconnect();
     }
     
     @Override
