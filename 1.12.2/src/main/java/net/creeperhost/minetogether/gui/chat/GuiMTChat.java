@@ -1,8 +1,8 @@
 package net.creeperhost.minetogether.gui.chat;
 
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.KnownUsers;
 import net.creeperhost.minetogether.Profile;
-import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
@@ -12,6 +12,7 @@ import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.element.ButtonString;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.serverlist.data.Friend;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,9 +141,10 @@ public class GuiMTChat extends GuiScreen
     {
         super.updateScreen();
 //        ServerAuthTest.processPackets();
+        if(tickCounter % 10 == 0) rebuildChat();
+
         if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
-            rebuildChat();
             if(!ChatHandler.isInitting.get()) {
                 ChatHandler.reInit();
             }
@@ -558,9 +561,17 @@ public class GuiMTChat extends GuiScreen
             }
         }
         
-        boolean friend = false;
+        AtomicBoolean friend = new AtomicBoolean(false);
+        AtomicBoolean premium = new AtomicBoolean(false);
+
+        Profile profile;
+
         if (inputNick.startsWith("MT"))
         {
+            profile = ChatHandler.knownUsers.findByNick(inputNick);
+            if(profile != null)
+                premium.set(profile.isPremium());
+
             if (inputNick.equals(CreeperHost.instance.ourNick) || inputNick.equals(CreeperHost.instance.ourNick + "`"))
             {
                 outputNick = playerName;
@@ -571,9 +582,28 @@ public class GuiMTChat extends GuiScreen
                 String newNick = ChatHandler.getNameForUser(inputNick);
                 if (newNick == null)
                     return null;
-                if (!inputNick.equals(newNick) && !newNick.startsWith("User"))
+
+                List<Friend> friendList = Callbacks.getFriendsList(false);
+                if(friendList != null)
                 {
-                    friend = true;
+                    for(Friend friend1 : friendList)
+                    {
+                        if (friend1 != null)
+                        {
+                            Profile profileFriend = friend1.getProfile();
+                            if(profileFriend != null)
+                            {
+                                if (!profileFriend.getShortHash().isEmpty() && profileFriend.getShortHash().equalsIgnoreCase(inputNick))
+                                {
+                                    friend.set(true);
+                                }
+                                else if (!profileFriend.getMediumHash().isEmpty() && profileFriend.getMediumHash().equalsIgnoreCase(inputNick))
+                                {
+                                    friend.set(true);
+                                }
+                            }
+                        }
+                    }
                 }
                 outputNick = newNick;
                 if (!ChatHandler.autocompleteNames.contains(outputNick))
@@ -654,9 +684,21 @@ public class GuiMTChat extends GuiScreen
             userComp.getStyle().setColor(TextFormatting.GRAY); // make sure re:set
         }
         
-        if (friend)
+        if (friend.get())
         {
             userComp.getStyle().setColor(TextFormatting.YELLOW);
+        }
+        if (premium.get())
+        {
+            if(!friend.get())
+            {
+                userComp.getStyle().setColor(TextFormatting.GREEN);
+            }
+            else
+                {
+                    String name = TextFormatting.YELLOW + userComp.getUnformattedText().replaceAll("<", "").replaceAll(">", "");
+                    userComp = new TextComponentString(TextFormatting.GREEN + "<" + name + TextFormatting.GREEN + ">");
+                }
         }
         else if (outputNick.equals("System"))
         {

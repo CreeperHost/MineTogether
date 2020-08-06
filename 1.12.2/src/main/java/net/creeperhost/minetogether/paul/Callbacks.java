@@ -3,15 +3,18 @@ package net.creeperhost.minetogether.paul;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.KnownUsers;
 import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.*;
+import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.serverlist.data.EnumFlag;
 import net.creeperhost.minetogether.serverlist.data.Friend;
+import net.creeperhost.minetogether.serverlist.data.FriendStatusResponse;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.nio.charset.Charset;
@@ -529,7 +532,7 @@ public final class Callbacks
         return friendCode;
     }
     
-    public static String addFriend(String code, String display)
+    public static FriendStatusResponse addFriend(String code, String display)
     {
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
         Map<String, String> sendMap = new HashMap<String, String>();
@@ -547,11 +550,16 @@ public final class Callbacks
         {
             JsonObject obj = element.getAsJsonObject();
             JsonElement status = obj.get("status");
+            JsonElement message = obj.get("message");
+
+            FriendStatusResponse friendStatusResponse = new FriendStatusResponse(status.getAsString().equalsIgnoreCase("success"), message.getAsString(), "");
             if (!status.getAsString().equals("success"))
             {
+                String friendHash = obj.get("hash").getAsString();
+                friendStatusResponse.setHash(friendHash);
                 CreeperHost.logger.error("Unable to add friend.");
                 CreeperHost.logger.error(resp);
-                return obj.get("message").getAsString();
+                return friendStatusResponse;
             }
         }
         return null;
@@ -663,9 +671,10 @@ public final class Callbacks
                                     name = friend.get("name").getAsString();
                                 }
                                 String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
-                                
+
                                 boolean accepted = friend.get("accepted").getAsBoolean();
-                                tempArr.add(new Friend(name, code, accepted));
+                                Profile profile = ChatHandler.knownUsers.findByHash(code);
+                                tempArr.add(new Friend(profile, name, code, accepted));
                             }
                         }
                     }

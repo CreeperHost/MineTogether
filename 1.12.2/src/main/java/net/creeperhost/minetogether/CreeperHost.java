@@ -97,7 +97,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        isOnline = proxy.checkOnline();
+        isOnline = true;// proxy.checkOnline();
 
         configFile = event.getSuggestedConfigurationFile();
 

@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.gui.serverlist.gui;
 
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.GuiGDPR;
@@ -11,6 +12,7 @@ import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
 import net.creeperhost.minetogether.gui.list.GuiListEntryMuted;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.serverlist.data.Friend;
+import net.creeperhost.minetogether.serverlist.data.FriendStatusResponse;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
@@ -163,6 +165,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         }
     }
 
+
     protected void refreshMutedList(boolean force)
     {
         ArrayList<String> mutedUsers = CreeperHost.mutedUsers;
@@ -218,12 +221,16 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 buttonInvite.visible = false;
             } else if (!codeEntry.getText().isEmpty())
             {
-                String result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
+                FriendStatusResponse result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
                 addFriend = false;
-                if (result == null)
-                    list.addEntry(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
+                if (result == null) {
+                    Profile profile = new Profile(result.getHash());
+                    if(profile != null) {
+                        list.addEntry(new GuiListEntryFriend(this, list, new Friend(profile, displayEntry.getText(), codeEntry.getText(), false)));
+                    }
+                }
                 buttonInvite.visible = true;
-                showAlert(result == null ? Util.localize("multiplayer.friendsent") : result, 0x00FF00, 5000);
+                showAlert(result.getMessage().isEmpty() ? Util.localize("multiplayer.friendsent") : result.getMessage(), 0x00FF00, 5000);
             }
             
         } else if (button == buttonInvite && button.enabled && button.visible)

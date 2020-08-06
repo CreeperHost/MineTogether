@@ -141,6 +141,8 @@ public class GuiNewChatOurs extends GuiNewChat
     
     private static Field drawnChatLinesField = null;
     private List<ChatLine> vanillaDrawnChatLines = null;
+    private long tickCounter = 0;
+
 
     @Override
     public void drawChat(int updateCounter)
@@ -153,6 +155,9 @@ public class GuiNewChatOurs extends GuiNewChat
             super.drawChat(updateCounter);
         else
         {
+            if(tickCounter % 20 == 0) rebuildChat(ChatHandler.CHANNEL);
+            tickCounter++;
+
             if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && ChatHandler.isOnline() && updateCounter % 6000 == 0)
             {
                 rebuildChat(ChatHandler.CHANNEL);

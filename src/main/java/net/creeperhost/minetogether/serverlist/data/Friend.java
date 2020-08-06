@@ -1,15 +1,19 @@
 package net.creeperhost.minetogether.serverlist.data;
 
+import net.creeperhost.minetogether.Profile;
+
 public class Friend
 {
-    private final String name;
+    private final Profile profile;
     private final String code;
+    private final String name;
     private final boolean accepted;
 
-    public Friend(String name, String code, boolean accepted)
+    public Friend(Profile profile, String name, String code, boolean accepted)
     {
-        this.name = name;
+        this.profile = profile;
         this.code = code;
+        this.name = name;
         this.accepted = accepted;
     }
 
@@ -26,5 +30,9 @@ public class Friend
     public boolean isAccepted()
     {
         return accepted;
+    }
+
+    public Profile getProfile() {
+        return profile;
     }
 }
