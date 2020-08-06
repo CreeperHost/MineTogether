@@ -56,7 +56,7 @@ public class ChatHandler
     private static int serverId = -1;
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicInteger reconnectTimer = new AtomicInteger(10000);
-    public static boolean connected;
+    public static AtomicBoolean connected = new AtomicBoolean();
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
@@ -288,7 +288,7 @@ public class ChatHandler
         @Handler
         public void onConnected(ClientNegotiationCompleteEvent event)
         {
-            connected = true;
+            connected.set(true);
 
             if(event.getClient() != ChatHandler.client)
                 return;
@@ -302,7 +302,7 @@ public class ChatHandler
             if(event.getClient() != ChatHandler.client)
                 return;
 
-            connected = false;
+            connected.set(false);
             killChatConnection();
         }
 

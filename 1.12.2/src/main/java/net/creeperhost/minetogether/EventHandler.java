@@ -767,7 +767,7 @@ public class EventHandler
             }
 
             //Try and connect to chat if we have been told to.
-            if (connectToChat && !ChatHandler.connected) {
+            if (connectToChat && !ChatHandler.connected.get()) {
                 System.out.println(connectToChat + " " + ChatHandler.connected);
                 CreeperHost.proxy.startChat();
                 chatDisconnected = false;
