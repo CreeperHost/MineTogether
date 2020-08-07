@@ -20,6 +20,8 @@ import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
+import net.creeperhost.minetogether.oauth.KeycloakOAuth;
+import net.creeperhost.minetogether.oauth.ServerAuthTest;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
 import net.creeperhost.minetogether.serverlist.data.Friend;
@@ -270,6 +272,10 @@ public class EventHandler
         if(!isOnline) return;
         
         final GuiScreen gui = event.getGui();
+        // TODO: remove test
+        if (gui instanceof GuiMainMenu) {
+            event.getButtonList().add(new GuiButton(-123, 0, 0, "test"));
+        }
         if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu)
         {
             CreeperHost.instance.setRandomImplementation();
@@ -585,6 +591,10 @@ public class EventHandler
         GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu)
         {
+            if (button != null && button.id == -123)
+            {
+                KeycloakOAuth.main(new String[]{});
+            }
             if (button != null && button.id == MAIN_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
@@ -667,7 +677,7 @@ public class EventHandler
     public void tickEvent(TickEvent.ClientTickEvent event)
     {
         if (!isOnline) return;
-
+        ServerAuthTest.processPackets();
         if (!Config.getInstance().isSivIntegration())
             return;
         guiServerInfo.doTick();
