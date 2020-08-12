@@ -452,7 +452,7 @@ public final class Callbacks
         
         String playerHash;
         //noinspection UnstableApiUsage
-        playerHash = Hashing.sha256().hashBytes(uuid.toString().getBytes(StandardCharsets.UTF_8)).toString();
+        playerHash = Hashing.sha256().hashBytes(uuid.toString().getBytes(StandardCharsets.UTF_8)).toString().toUpperCase();
         hashCache.put(uuid, playerHash);
         return playerHash;
     }

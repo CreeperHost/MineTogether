@@ -154,8 +154,6 @@ public class GuiNewChatOurs extends NewChatGui
     
     private List<ChatLine> vanillaDrawnChatLines = null;
 
-    private long tickCounter = 0;
-
     @Override
     public void render(int updateCounter)
     {
@@ -181,10 +179,6 @@ public class GuiNewChatOurs extends NewChatGui
                 int i = this.getLineCount();
                 int j = this.drawnChatLines.size();
                 double f = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
-
-                if(tickCounter % 20 == 0) rebuildChat(ChatHandler.CHANNEL);
-
-                tickCounter++;
                 
                 if (j > 0)
                 {
