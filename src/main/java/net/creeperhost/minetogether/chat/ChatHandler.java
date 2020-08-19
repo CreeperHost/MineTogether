@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.chat;
 
 import net.creeperhost.minetogether.DebugHandler;
 import net.creeperhost.minetogether.KnownUsers;
+import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.serverlist.data.Friend;
@@ -299,6 +300,8 @@ public class ChatHandler
         {
             if(event.getClient() != ChatHandler.client)
                 return;
+
+            if(!Config.getInstance().isChatEnabled()) return;
 
             requestReconnect();
         }

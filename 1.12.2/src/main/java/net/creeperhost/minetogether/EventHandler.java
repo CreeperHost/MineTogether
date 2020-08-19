@@ -5,10 +5,7 @@ import net.creeperhost.minetogether.aries.Aries;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.GuiGetServer;
-import net.creeperhost.minetogether.gui.GuiMinigames;
-import net.creeperhost.minetogether.gui.GuiProgressDisconnected;
-import net.creeperhost.minetogether.gui.GuiServerInfo;
+import net.creeperhost.minetogether.gui.*;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
@@ -273,9 +270,9 @@ public class EventHandler
         
         final GuiScreen gui = event.getGui();
         // TODO: remove test
-        if (gui instanceof GuiMainMenu) {
-            event.getButtonList().add(new GuiButton(-123, 0, 0, "test"));
-        }
+//        if (gui instanceof GuiMainMenu) {
+//            event.getButtonList().add(new GuiButton(-123, 0, 0, "test"));
+//        }
         if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu)
         {
             CreeperHost.instance.setRandomImplementation();
@@ -532,6 +529,17 @@ public class EventHandler
                 buttonList.add(new GuiButton(MINIGAMES_BUTTON_ID, gui.width / 2 - 50, gui.height - 52, 75, 20, "Minigames"));
             }
         }
+
+        if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
+        {
+            int x = gui.width - 20 - 5;
+            if (buttonDrawn)
+                x -= 99;
+
+            boolean chatEnabled = Config.getInstance().isChatEnabled();
+
+            event.getButtonList().add(new GuiButtonMultiple(CHAT_BUTTON_ID, x, 5, chatEnabled ? 1 : 3));
+        }
         
         if (Config.getInstance().isChatEnabled())
         {
@@ -539,14 +547,6 @@ public class EventHandler
             {
                 int i = 11;
                 event.getButtonList().add(ingameChatButton = new GuiButton(-20, gui.width / 2 - 155 + i % 2 * 160, gui.height / 6 + 24 * (i >> 1), 150, 20, "MineTogether Chat: " + (CreeperHost.instance.ingameChat.hasDisabledIngameChat() ? "OFF" : "ON")));
-            }
-
-            if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
-            {
-                int x = gui.width - 20 - 5;
-                if (buttonDrawn)
-                    x -= 99;
-                event.getButtonList().add(new GuiButtonMultiple(CHAT_BUTTON_ID, x, 5, 1));
             }
             
             if (gui instanceof GuiIngameMenu)
@@ -591,10 +591,10 @@ public class EventHandler
         GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu)
         {
-            if (button != null && button.id == -123)
-            {
-                KeycloakOAuth.main(new String[]{});
-            }
+//            if (button != null && button.id == -123)
+//            {
+//                KeycloakOAuth.main(new String[]{});
+//            }
             if (button != null && button.id == MAIN_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
@@ -611,7 +611,11 @@ public class EventHandler
             }
             if (button != null && button.id == CHAT_BUTTON_ID)
             {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiMTChat(gui));
+                if(Config.getInstance().isChatEnabled()) {
+                    Minecraft.getMinecraft().displayGuiScreen(new GuiMTChat(gui));
+                } else {
+                    Minecraft.getMinecraft().displayGuiScreen(new GuiSettings(gui));
+                }
             }
             if (button != null && button.id == MINIGAMES_BUTTON_ID)
             {
@@ -750,7 +754,7 @@ public class EventHandler
     {
         if (evt.phase == TickEvent.Phase.START)
         {
-            if (clientTicks % (10 * 20) == 0 && CreeperHost.instance.gdpr.hasAcceptedGDPR()) { //Every second is bad, Bad bad Covers
+            if (clientTicks % (10 * 20) == 0 && CreeperHost.instance.gdpr.hasAcceptedGDPR() && Config.getInstance().isChatEnabled()) { //Every second is bad, Bad bad Covers
                 CreeperHost.proxy.reCacheUUID(); //Careful with this, recomputes the GameProfile
                 UUID currentUUID = CreeperHost.proxy.getUUID();
                 if (lastUUID == null)

@@ -21,6 +21,7 @@ public class Config
     private boolean chatEnabled;
     private boolean autoMT;
     private boolean enableFriendOnlineToasts;
+    private boolean enableMainMenuFriends;
 
     private int pregenDiameter = 120;
 
@@ -131,6 +132,10 @@ public class Config
 
     public boolean isAutoMT() {
         return autoMT;
+    }
+
+    public void setEnableFriendOnlineToasts(boolean enableFriendOnlineToasts) {
+        this.enableFriendOnlineToasts = enableFriendOnlineToasts;
     }
 
     public static void makeConfig(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {

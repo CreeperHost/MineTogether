@@ -25,12 +25,12 @@ public class Profile
         if(serverNick.length() == 30)
         {
             this.mediumHash = serverNick;
-            userDisplay = "User" + mediumHash.substring(2,7);
+            userDisplay = "User#" + mediumHash.substring(2,7);
         }
         else if(serverNick.length() < 30)
         {
             this.shortHash = serverNick;
-            userDisplay = "User" + shortHash.substring(2,7);
+            userDisplay = "User#" + shortHash.substring(2,7);
         }
     }
 
@@ -43,7 +43,7 @@ public class Profile
         this.online = online;
         this.display = display;
         this.premium = premium;
-        this.userDisplay = "User"+longHash.substring(0,5);
+        this.userDisplay = "User#" + longHash.substring(0,5);
         if(premium && display.length() > 0)
         {
             this.userDisplay = display;
@@ -116,7 +116,7 @@ public class Profile
                 display = profileData.get("display").getAsString();
                 premium = profileData.get("premium").getAsBoolean();
                 online = profileData.getAsJsonObject("chat").get("online").getAsBoolean();
-                userDisplay = "User"+longHash.substring(0,5);
+                userDisplay = "User#" + longHash.substring(0,5);
                 if(premium && display.length() > 0)
                 {
                     userDisplay = display;

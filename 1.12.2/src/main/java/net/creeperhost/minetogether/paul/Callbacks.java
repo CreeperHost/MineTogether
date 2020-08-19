@@ -2,10 +2,7 @@ package net.creeperhost.minetogether.paul;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.KnownUsers;
-import net.creeperhost.minetogether.Profile;
-import net.creeperhost.minetogether.Util;
+import net.creeperhost.minetogether.*;
 import net.creeperhost.minetogether.api.*;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
@@ -409,6 +406,7 @@ public final class Callbacks
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, false);
+        System.out.println("RESP " + resp);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
