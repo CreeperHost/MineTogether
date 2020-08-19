@@ -35,7 +35,7 @@ public class OAuthWebServer extends NanoHTTPD {
         if ((tempCode = parms.get("code")) != null)
         {
             codeHandler.accept(tempCode, parms.get("state"));
-            location = "https://minetogether.io/clientloggedin";
+            location = "https://minetogether.io/modloggedin";
         }
         Response response = newFixedLengthResponse("msg");
         response.addHeader("Location", location);

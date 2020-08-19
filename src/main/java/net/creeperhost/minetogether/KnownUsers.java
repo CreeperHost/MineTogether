@@ -24,10 +24,19 @@ public class KnownUsers
         Profile profile = new Profile(hash);
         if(findByNick(hash) == null)
         {
+//            profiles.get().add(profile);
+//            profiles.getAndSet(profiles.get());
+            profiles.updateAndGet(profiles1 ->
+            {
+                profiles1.add(profile);
+               return profiles1;
+            });
+//            profile = findByHash(hash);
             CompletableFuture.runAsync(() -> {
-                profile.loadProfile();
+                Profile profileFuture = findByNick(hash);
+                profileFuture.loadProfile();
             }).thenRun(() -> {
-                profiles.get().add(profile);
+//                profiles.get().add(profile);
             });
             return profile;
         }

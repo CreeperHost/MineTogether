@@ -56,7 +56,6 @@ public class ChatHandler
     private static int serverId = -1;
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicInteger reconnectTimer = new AtomicInteger(10000);
-    public static AtomicBoolean connected = new AtomicBoolean();
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
@@ -70,6 +69,7 @@ public class ChatHandler
         {
             if(debugHandler.isDebug) logger.debug("ChatHandler attempting a reconnect");
             inited.set(false);
+            connectionStatus = ConnectionStatus.CONNECTING;
             init(initedString, realName, false, host);
         }
     }
@@ -288,8 +288,6 @@ public class ChatHandler
         @Handler
         public void onConnected(ClientNegotiationCompleteEvent event)
         {
-            connected.set(true);
-
             if(event.getClient() != ChatHandler.client)
                 return;
 
@@ -302,8 +300,7 @@ public class ChatHandler
             if(event.getClient() != ChatHandler.client)
                 return;
 
-            connected.set(false);
-            killChatConnection();
+            requestReconnect();
         }
 
         @Handler
@@ -556,6 +553,12 @@ public class ChatHandler
         }
     }
 
+    public static void requestReconnect()
+    {
+        logger.warn("Attempting to reconnect chat");
+        killChatConnection();
+    }
+
     public static void killChatConnection()
     {
         ChatHandler.client.shutdown();
@@ -563,6 +566,7 @@ public class ChatHandler
         try {
             flag = true;
             ChatHandler.addStatusMessage("Chat disconnected, Reconnecting");
+            ChatHandler.connectionStatus = ConnectionStatus.DISCONNECTED;
             Thread.sleep(reconnectTimer.get());
             logger.error("Reinit being called");
             if(flag) {

@@ -158,7 +158,7 @@ public class EventHandler
                 if (first)
                 {
                     first = false;
-//                    CreeperHost.proxy.startChat();
+                    CreeperHost.proxy.startChat();
                 }
             }
         }
@@ -750,7 +750,7 @@ public class EventHandler
     {
         if (evt.phase == TickEvent.Phase.START)
         {
-            if (clientTicks % (10 * 20) == 0 && CreeperHost.instance.gdpr.hasAcceptedGDPR()) {//Every second
+            if (clientTicks % (10 * 20) == 0 && CreeperHost.instance.gdpr.hasAcceptedGDPR()) { //Every second is bad, Bad bad Covers
                 CreeperHost.proxy.reCacheUUID(); //Careful with this, recomputes the GameProfile
                 UUID currentUUID = CreeperHost.proxy.getUUID();
                 if (lastUUID == null)
@@ -776,20 +776,11 @@ public class EventHandler
                 lastUUID = currentUUID;
             }
 
-            //Try and connect to chat if we have been told to.
-            if (connectToChat && !ChatHandler.connected.get()) {
-                System.out.println(connectToChat + " " + ChatHandler.connected);
-                CreeperHost.proxy.startChat();
-                chatDisconnected = false;
-            }
-
             //Try and disconnect if we have been told to.
-            if (disconnectFromChat && !chatDisconnected) {
-                System.out.println(disconnectFromChat + " " + chatDisconnected);
-                CreeperHost.proxy.stopChat();
+            if (disconnectFromChat && ChatHandler.connectionStatus == ChatHandler.ConnectionStatus.DISCONNECTED) {
+                ChatHandler.requestReconnect();
                 chatDisconnected = true;
             }
-
             connectToChat = false;
             disconnectFromChat = false;
         }
