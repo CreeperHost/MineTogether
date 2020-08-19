@@ -23,8 +23,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 
 import javax.annotation.Nullable;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class GuiNewChatOurs extends NewChatGui
 {
@@ -126,6 +125,9 @@ public class GuiNewChatOurs extends NewChatGui
     private final Minecraft mc;
     
     private final List<ChatLine> chatLines = Lists.<ChatLine>newArrayList();
+    //Last lines added to chatLines and their associated Message,
+    // Used as a lookup to remember what update times each line has had.
+    private Map<Message, ChatLine> lineLookup = new HashMap<>();
     /**
      * List of the ChatLines currently drawn
      */
@@ -154,6 +156,8 @@ public class GuiNewChatOurs extends NewChatGui
     
     private List<ChatLine> vanillaDrawnChatLines = null;
 
+    private long tickCounter = 0;
+
     @Override
     public void render(int updateCounter)
     {
@@ -179,6 +183,10 @@ public class GuiNewChatOurs extends NewChatGui
                 int i = this.getLineCount();
                 int j = this.drawnChatLines.size();
                 double f = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
+
+                if(tickCounter % 20 == 0) rebuildChat(ChatHandler.CHANNEL);
+
+                tickCounter++;
                 
                 if (j > 0)
                 {
@@ -356,19 +364,23 @@ public class GuiNewChatOurs extends NewChatGui
             return;
         synchronized (ChatHandler.ircLock)
         {
-            int size = messages.size();
+            Map<Message, ChatLine> oldLookup = lineLookup;
+            lineLookup = new HashMap<>();
             for (Message message : messages)
             {
+                ChatLine existing = oldLookup.get(message);
+                int counter = existing != null ? existing.getUpdatedCounter() : 0;
+                int lineId = existing != null ? existing.getChatLineID() : 0;
                 ITextComponent component = MTChatScreen.formatLine(message);
                 if (component == null)
                     continue;
-                setChatLine(component, size--, 0, false);
+                setChatLine(message, component, lineId, counter, false);
             }
             scrollPos = scroll;
         }
     }
-    
-    public void setChatLine(ITextComponent chatComponent, int chatLineId, int updateCounter, boolean displayOnly)
+
+    public void setChatLine(Message message, ITextComponent chatComponent, int chatLineId, int updateCounter, boolean displayOnly)
     {
         if (isBase())
         {
@@ -401,11 +413,14 @@ public class GuiNewChatOurs extends NewChatGui
         
         if (!displayOnly)
         {
-            this.chatLines.add(0, new ChatLine(updateCounter, chatComponent, chatLineId));
-            
-            while (this.chatLines.size() > 100)
-            {
-                this.chatLines.remove(this.chatLines.size() - 1);
+            ChatLine line = new ChatLine(updateCounter, chatComponent, chatLineId);
+            if (message != null) {
+                lineLookup.put(message, line);
+            }
+            this.chatLines.add(0, line);
+            List<ChatLine> removed = trimTo(chatLines, 100);
+            if (!removed.isEmpty()) {
+                lineLookup.values().removeAll(removed);
             }
         }
     }
@@ -625,5 +640,13 @@ public class GuiNewChatOurs extends NewChatGui
             vanillaDrawnChatLines = drawnChatLines;
         }
         return vanillaDrawnChatLines;
+    }
+
+    private static <T> List<T> trimTo(List<T> list, int size) {
+        List<T> removed = new ArrayList<>();
+        while (list.size() > size) {
+            removed.add(list.remove(list.size() - 1));
+        }
+        return removed;
     }
 }

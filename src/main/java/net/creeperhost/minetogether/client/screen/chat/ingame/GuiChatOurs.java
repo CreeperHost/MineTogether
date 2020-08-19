@@ -293,7 +293,7 @@ public class GuiChatOurs extends ChatScreen
             {
                 MineTogether.instance.muteUser(activeDropdown);
                 ourChat.rebuildChat(ourChat.chatTarget);
-                ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setChatLine(new StringTextComponent(I18n.format("minetogether.chat.muted")), 0, 5, false);
+                ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setChatLine(null, new StringTextComponent(I18n.format("minetogether.chat.muted")), 0, 5, false);
             } else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
             {
                 mc.displayGuiScreen(new ChatFriendScreen(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
