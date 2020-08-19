@@ -26,12 +26,17 @@ shadowJar {
 	// Only shadow fluent-hc
 	dependencies {
 		include(dependency('org.kitteh.irc:client-lib:7.1.0'))
-	}
+        include(dependency('com.github.scribejava:scribejava-apis:6.9.0'))
+        include(dependency('com.github.scribejava:scribejava-core:6.9.0'))
+        include(dependency('org.nanohttpd:nanohttpd:2.3.1'))
+    }
 
 	// Relocate fluent-hc to prevent conflicts with other mods that include it
 	relocate 'org.kitteh.irc', 'net.creeperhost.minetogether.org.kitteh.irc'
+    relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
+    relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
 
-	classifier '' // Replace the default JAR
+    classifier '' // Replace the default JAR
 }
 
 reobf {

@@ -321,7 +321,6 @@ public class ChatHandler
                     }
                 }
             }
-            logger.error(event.getSource().getMessage());
             updateFriends(event.getChannel().getNicknames());
         }
 

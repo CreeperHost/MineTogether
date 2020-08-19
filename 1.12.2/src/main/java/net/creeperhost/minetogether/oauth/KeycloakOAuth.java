@@ -92,7 +92,7 @@ public class KeycloakOAuth {
                 accessToken = service.getAccessToken(AccessTokenRequestParams.create(code)
                         .pkceCodeVerifier(authorizationUrlBuilder.getPkce().getCodeVerifier()));
                 System.out.println("Got the Access Token!");
-                System.out.println("(The raw response looks like this: " + accessToken.getRawResponse() + "')");
+//                System.out.println("(The raw response looks like this: " + accessToken.getRawResponse() + "')");
 
                 System.out.println();
 

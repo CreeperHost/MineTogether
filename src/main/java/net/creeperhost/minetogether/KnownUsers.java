@@ -5,13 +5,13 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class KnownUsers
 {
     private AtomicReference<List<Profile>> profiles = new AtomicReference<List<Profile>>();
-
+    private static Executor profileExecutor = new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     Logger logger = LogManager.getLogger(KnownUsers.class.getName());
 
     public KnownUsers()
@@ -24,20 +24,17 @@ public class KnownUsers
         Profile profile = new Profile(hash);
         if(findByNick(hash) == null)
         {
-//            profiles.get().add(profile);
-//            profiles.getAndSet(profiles.get());
             profiles.updateAndGet(profiles1 ->
             {
                 profiles1.add(profile);
-               return profiles1;
+                return profiles1;
             });
-//            profile = findByHash(hash);
             CompletableFuture.runAsync(() -> {
+                logger.error("Loading profile for "+hash+"...");
                 Profile profileFuture = findByNick(hash);
                 profileFuture.loadProfile();
-            }).thenRun(() -> {
-//                profiles.get().add(profile);
-            });
+                logger.error("Loaded profile for "+hash+"...");
+            }, profileExecutor);
             return profile;
         }
         return null;

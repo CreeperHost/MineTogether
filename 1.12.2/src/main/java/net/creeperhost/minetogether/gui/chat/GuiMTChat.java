@@ -89,7 +89,7 @@ public class GuiMTChat extends GuiScreen
             chat.updateLines(currentTarget);
         } catch (Exception ignored) {}
 
-        TimestampComponentString.clearActive();
+//        TimestampComponentString.clearActive();
     }
 
     @Override
@@ -307,7 +307,7 @@ public class GuiMTChat extends GuiScreen
 //                ChatConnectionHandler.INSTANCE.connect();
             } else if (button == cancelButton)
             {
-                TimestampComponentString.clearActive();
+//                TimestampComponentString.clearActive();
                 chat.updateLines(currentTarget);
                 this.mc.displayGuiScreen(parent);
             } else if (button == invited && ChatHandler.privateChatInvite != null)
@@ -403,8 +403,8 @@ public class GuiMTChat extends GuiScreen
     final static Pattern patternC = Pattern.compile("((?:@user)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     final static Pattern patternD = Pattern.compile("((?:@user)#([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     final static Pattern patternE = Pattern.compile("((?:user)#([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    final static Pattern patternF = Pattern.compile("((?:[a-zA-Z0-9])#([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    final static Pattern patternG = Pattern.compile("((?:@[a-zA-Z0-9])#([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternF = Pattern.compile("([a-zA-Z0-9]+)#([a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternG = Pattern.compile("(@[a-zA-Z0-9]+)#([a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
     public static String getStringForSending(String text)
     {
@@ -416,7 +416,7 @@ public class GuiMTChat extends GuiScreen
             final String subst = "User#$2";
             final String substr2 = "$1#$2";
 
-            final Matcher matcher = patternA.matcher(word);
+            final Matcher matcher  = patternA.matcher(word);
             final Matcher matcherb = patternB.matcher(word);
             final Matcher matcherc = patternC.matcher(word);
             final Matcher matcherd = patternD.matcher(word);
@@ -536,7 +536,7 @@ public class GuiMTChat extends GuiScreen
 
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
 
-    static SimpleDateFormat timestampFormat = new SimpleDateFormat("[HH:mm:ss] ");
+//    static SimpleDateFormat timestampFormat = new SimpleDateFormat("[HH:mm:ss] ");
     
     public static ITextComponent formatLine(Message message)
     {
@@ -611,6 +611,7 @@ public class GuiMTChat extends GuiScreen
             }
             else
                 {
+                    //Should probably check mutedUsers against their shortHash...
                 if (CreeperHost.instance.mutedUsers.contains(inputNick))
                     return null;
                 
@@ -675,18 +676,21 @@ public class GuiMTChat extends GuiScreen
             String justNick = splitStr.replaceAll("[^A-Za-z0-9#]", "");
             if (justNick.startsWith("MT"))
             {
-                if(profile != null) {
-                    if (justNick.equals(CreeperHost.profile.get().getShortHash()) || justNick.equals(CreeperHost.profile.get().getMediumHash())) {
-                        splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + CreeperHost.instance.playerName + messageColour);
-                        split[i] = splitStr;
-                        highlight = true;
-                    } else {
-                        String userName = ChatHandler.getNameForUser(justNick);
-                        if (userName != null) {
-                            splitStr = splitStr.replaceAll(justNick, userName);
-                            split[i] = splitStr;
-                        }
+                if ((CreeperHost.profile.get() != null && (justNick.equals(CreeperHost.profile.get().getShortHash()) || justNick.equals(CreeperHost.profile.get().getMediumHash()))) || justNick.equals(CreeperHost.instance.ourNick)) {
+                    splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + CreeperHost.instance.playerName + messageColour);
+                    split[i] = splitStr;
+                    highlight = true;
+                } else {
+                    String userName = "User#" + justNick.substring(2,5);
+                    Profile mentionProfile = ChatHandler.knownUsers.findByNick(justNick);
+                    if(mentionProfile != null)
+                    {
+                        userName = mentionProfile.getDisplay();
                     }
+                    if (userName != null) {
+                        splitStr = splitStr.replaceAll(justNick, userName);
+                        split[i] = splitStr;
+                    } 
                 }
             }
         }
@@ -730,7 +734,6 @@ public class GuiMTChat extends GuiScreen
         if (friend.get())
         {
             nickColour = TextFormatting.YELLOW;
-//            userComp.getStyle().setColor(TextFormatting.YELLOW);
         }
         if (premium.get())
         {
@@ -758,7 +761,7 @@ public class GuiMTChat extends GuiScreen
 //            base.getStyle().setColor(TextFormatting.RED);
 //        }
         
-        base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
+//        base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
 
         base.appendSibling(new TimestampComponentString("Test"));
         

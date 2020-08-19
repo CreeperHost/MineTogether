@@ -99,7 +99,6 @@ public class Profile
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, false);
-        System.out.println(resp);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
@@ -122,9 +121,6 @@ public class Profile
                     userDisplay = display;
                 }
                 return true;
-            } else
-            {
-                //logger.error(resp);
             }
         }
         return false;
