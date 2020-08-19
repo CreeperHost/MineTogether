@@ -21,8 +21,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class GuiNewChatOurs extends GuiNewChat
 {
@@ -113,6 +112,9 @@ public class GuiNewChatOurs extends GuiNewChat
     private final Minecraft mc;
     
     private final List<ChatLine> chatLines = Lists.<ChatLine>newArrayList();
+    //Last lines added to chatLines and their associated Message,
+    // Used as a lookup to remember what update times each line has had.
+    private Map<Message, ChatLine> lineLookup = new HashMap<>();
     /**
      * List of the ChatLines currently drawn
      */
@@ -354,18 +356,22 @@ public class GuiNewChatOurs extends GuiNewChat
         LimitedSizeQueue<Message> messages = ChatHandler.messages.get(chatKey);
         if (messages == null)
             return;
+        Map<Message, ChatLine> oldLookup = lineLookup;
+        lineLookup = new HashMap<>();
         synchronized (ChatHandler.ircLock) {
-            int size = messages.size();
             for (Message message : messages) {
+                ChatLine existing = oldLookup.get(message);
+                int counter = existing != null ? existing.getUpdatedCounter() : 0;
+                int lineId = existing != null ? existing.getChatLineID() : 0;
                 ITextComponent component = GuiMTChat.formatLine(message);
                 if (component == null)
                     continue;
-                setChatLine(component, size--, 0, false);
+                setChatLine(message, component, lineId, counter, false);
             }
         }
     }
     
-    public void setChatLine(ITextComponent chatComponent, int chatLineId, int updateCounter, boolean displayOnly)
+    public void setChatLine(Message message, ITextComponent chatComponent, int chatLineId, int updateCounter, boolean displayOnly)
     {
         if (isBase())
         {
@@ -398,11 +404,14 @@ public class GuiNewChatOurs extends GuiNewChat
         
         if (!displayOnly)
         {
-            this.chatLines.add(0, new ChatLine(updateCounter, chatComponent, chatLineId));
-            
-            while (this.chatLines.size() > 100)
-            {
-                this.chatLines.remove(this.chatLines.size() - 1);
+            ChatLine line = new ChatLine(updateCounter, chatComponent, chatLineId);
+            if (message != null) {
+                lineLookup.put(message, line);
+            }
+            this.chatLines.add(0, line);
+            List<ChatLine> removed = trimTo(chatLines, 100);
+            if (!removed.isEmpty()) {
+                lineLookup.values().removeAll(removed);
             }
         }
     }
@@ -684,5 +693,13 @@ public class GuiNewChatOurs extends GuiNewChat
             } catch (IllegalAccessException ignored) {}
         }
         return vanillaDrawnChatLines;
+    }
+
+    private static <T> List<T> trimTo(List<T> list, int size) {
+        List<T> removed = new ArrayList<>();
+        while (list.size() > size) {
+            removed.add(list.remove(list.size() - 1));
+        }
+        return removed;
     }
 }

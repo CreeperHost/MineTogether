@@ -238,7 +238,7 @@ public class GuiChatOurs extends GuiChat
                 CreeperHost.instance.muteUser(activeDropdown);
                 GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
                 ourChat.rebuildChat(ourChat.chatTarget);
-                ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setChatLine(new TextComponentString(I18n.format("minetogether.chat.muted")), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+                ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setChatLine(null, new TextComponentString(I18n.format("minetogether.chat.muted")), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
             }
             else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
             {

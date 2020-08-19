@@ -189,7 +189,7 @@ public class Client implements IProxy
             return;
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
         if (target.toLowerCase().equals(ourChat.chatTarget.toLowerCase()))
-            ourChat.setChatLine(GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
+            ourChat.setChatLine(messagePair, GuiMTChat.formatLine(messagePair), 0, Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), false);
     }
 
     @Override
