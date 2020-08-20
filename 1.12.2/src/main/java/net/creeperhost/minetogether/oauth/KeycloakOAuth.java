@@ -85,22 +85,13 @@ public class KeycloakOAuth {
                     return;
                 }
 
-                System.out.println();
-
-                System.out.println("Trading the Authorization Code for an Access Token...");
                 final OAuth2AccessToken accessToken;
                 accessToken = service.getAccessToken(AccessTokenRequestParams.create(code)
                         .pkceCodeVerifier(authorizationUrlBuilder.getPkce().getCodeVerifier()));
-                System.out.println("Got the Access Token!");
-//                System.out.println("(The raw response looks like this: " + accessToken.getRawResponse() + "')");
 
-                System.out.println();
-
-                System.out.println("Now we're going to access a protected resource...");
                 final OAuthRequest request = new OAuthRequest(Verb.GET, protectedResourceUrl);
                 service.signRequest(accessToken, request);
                 com.github.scribejava.core.model.Response response = service.execute(request);
-                System.out.println(response.getCode());
                 if (response.getCode() != 200) {
                     // errorrrrrr
                     return;
@@ -124,7 +115,7 @@ public class KeycloakOAuth {
                                 if (identity.isJsonObject() && identity.getAsJsonObject().has("identityProvider") && identity.getAsJsonObject().getAsJsonPrimitive("identityProvider").getAsString().equals("mcauth")) {
                                     // already have existing
                                     if (identity.getAsJsonObject().get("userId").getAsString().equals(Minecraft.getMinecraft().player.getCachedUniqueIdString())) {
-                                        //doAuth = false;
+                                        doAuth = false;
                                     }
                                 }
                             }
@@ -136,12 +127,10 @@ public class KeycloakOAuth {
                     if (doAuth) {
                         ServerAuthTest.auth((authed, mcauthcode) -> {
                             if (authed) {
-                                //if ()
                                 OAuthRequest request2 = new OAuthRequest(Verb.POST, "https://auth.minetogether.io/auth/realms/MineTogether/linksearch/linkmc/" + mcauthcode);
                                 service.signRequest(accessToken, request2);
                                 try {
                                     com.github.scribejava.core.model.Response response2 = service.execute(request2);
-                                    System.out.println(response2.getBody());
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 } catch (ExecutionException e) {
