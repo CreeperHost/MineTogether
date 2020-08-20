@@ -124,7 +124,7 @@ public class KeycloakOAuth {
                                 if (identity.isJsonObject() && identity.getAsJsonObject().has("identityProvider") && identity.getAsJsonObject().getAsJsonPrimitive("identityProvider").getAsString().equals("mcauth")) {
                                     // already have existing
                                     if (identity.getAsJsonObject().get("userId").getAsString().equals(Minecraft.getMinecraft().player.getCachedUniqueIdString())) {
-                                        //doAuth = false;
+                                        doAuth = false;
                                     }
                                 }
                             }
@@ -136,7 +136,6 @@ public class KeycloakOAuth {
                     if (doAuth) {
                         ServerAuthTest.auth((authed, mcauthcode) -> {
                             if (authed) {
-                                //if ()
                                 OAuthRequest request2 = new OAuthRequest(Verb.POST, "https://auth.minetogether.io/auth/realms/MineTogether/linksearch/linkmc/" + mcauthcode);
                                 service.signRequest(accessToken, request2);
                                 try {
