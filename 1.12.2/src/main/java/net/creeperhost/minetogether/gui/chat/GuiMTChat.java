@@ -524,12 +524,29 @@ public class GuiMTChat extends GuiScreen
                 
                 return true;
             }
-            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
-            menuDropdownButton.xPosition = mouseX;
-            menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-            menuDropdownButton.dropdownOpen = true;
-            activeDropdown = event.getValue();
-            return true;
+            boolean friends = false;
+
+            for(Friend f : Callbacks.getFriendsList(false))
+            {
+                if(f.getProfile() != null)
+                {
+                    if (eventValue.startsWith(f.getProfile().getShortHash()))
+                    {
+                        friends = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!friends)
+            {
+                int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
+                menuDropdownButton.xPosition = mouseX;
+                menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+                menuDropdownButton.dropdownOpen = true;
+                activeDropdown = event.getValue();
+                return true;
+            }
         }
         return super.handleComponentClick(component);
     }
@@ -537,7 +554,7 @@ public class GuiMTChat extends GuiScreen
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
 
 //    static SimpleDateFormat timestampFormat = new SimpleDateFormat("[HH:mm:ss] ");
-    
+
     public static ITextComponent formatLine(Message message)
     {
         String inputNick = message.sender;
@@ -554,8 +571,8 @@ public class GuiMTChat extends GuiScreen
                         return null;
                     String nick = split[1];
                     String nickDisplay = ChatHandler.getNameForUser(nick);
-                    if (!nickDisplay.startsWith("User"))
-                        return null;
+                    Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                    AtomicBoolean isFriend = new AtomicBoolean(false);
                     
                     String cmdStr = message.messageStr;
                     String[] cmdSplit = cmdStr.split(" ");
@@ -659,10 +676,7 @@ public class GuiMTChat extends GuiScreen
         ITextComponent userComp = new TextComponentString(outputNick);
         userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
         
-        if (!inputNick.equals(CreeperHost.instance.ourNick) && !inputNick.equals(CreeperHost.instance.ourNick + "`") && inputNick.startsWith("MT"))
-        {
-            userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
-        }
+
         
         String messageStr = message.messageStr;
 
@@ -763,14 +777,20 @@ public class GuiMTChat extends GuiScreen
         
 //        base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
 
-        base.appendSibling(new TimestampComponentString("Test"));
-        
-        base.appendSibling(new TextComponentString(arrowColour + "<" + nickColour + userComp.getUnformattedText() + arrowColour + ">"));
+//        base.appendSibling(new TimestampComponentString("Test"));
 
-        base.appendSibling(new TextComponentString(" ").setStyle(new Style().setColor(TextFormatting.WHITE)));
+        userComp = new TextComponentString(arrowColour + "<" + nickColour + userComp.getFormattedText() + arrowColour + "> ");
 
+        if (!inputNick.equals(CreeperHost.instance.ourNick) && !inputNick.equals(CreeperHost.instance.ourNick + "`") && inputNick.startsWith("MT"))
+        {
+            userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
+        }
         
-        return base.appendSibling(new TextComponentString(messageColour + messageComp.getFormattedText()));
+        base.appendSibling(userComp);
+
+//        base.appendSibling(new TextComponentString(" ").setStyle(new Style().setColor(TextFormatting.WHITE)));
+
+        return base.appendSibling(messageComp.setStyle(new Style().setColor(messageColour)));
     }
 
     private class GuiScrollingChat extends GuiScrollingList
