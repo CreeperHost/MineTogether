@@ -73,6 +73,8 @@ public class GuiOrderDetails extends GuiGetServer
                 Class<?> oclass = Class.forName("java.awt.Desktop");
                 Object object = oclass.getMethod("getDesktop", new Class[0]).invoke((Object) null, new Object[0]);
                 oclass.getMethod("browse", new Class[]{URI.class}).invoke(object, new Object[]{new URI(CreeperHost.instance.getImplementation().getPaymentLink(invoiceID))});
+                this.buttonNext.visible = true;
+                this.buttonNext.enabled = true;
             } catch (Throwable throwable)
             {
                 CreeperHost.logger.error("Couldn\'t open link", throwable);
