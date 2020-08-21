@@ -1,13 +1,11 @@
 package net.creeperhost.minetogether.gui;
 
 import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 

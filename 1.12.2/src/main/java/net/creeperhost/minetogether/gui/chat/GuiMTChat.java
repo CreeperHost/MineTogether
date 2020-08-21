@@ -674,7 +674,7 @@ public class GuiMTChat extends GuiScreen
         TextFormatting messageColour = TextFormatting.WHITE;
         
         ITextComponent userComp = new TextComponentString(outputNick);
-        userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
+        //userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
         
 
         
