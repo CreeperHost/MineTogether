@@ -81,7 +81,7 @@ public class GuiSettings extends GuiScreen
         }
         if(button == linkAccount)
         {
-            mc.displayGuiScreen(new GuiYesNo(this, I18n.format("Link your Minecraft account to your Minetogether account."), I18n.format("This will open a web-browser for you to sign in securely."), 0));
+            mc.displayGuiScreen(new GuiYahNah(this, I18n.format("Link your Minecraft account to your MineTogether account."), I18n.format("Linking your accounts will unlock abilities link being able to set your own nickname.\\n\\nThis will open a web-browser for you to sign in securely."), 0));
         }
     }
 
