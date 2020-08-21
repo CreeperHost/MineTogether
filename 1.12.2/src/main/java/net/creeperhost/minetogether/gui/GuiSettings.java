@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 
@@ -80,8 +81,21 @@ public class GuiSettings extends GuiScreen
         }
         if(button == linkAccount)
         {
-            KeycloakOAuth.main(new String[]{});
+            mc.displayGuiScreen(new GuiYesNo(this, I18n.format("Link your Minecraft account to your Minetogether account."), I18n.format("This will open a web-browser for you to sign in securely."), 0));
         }
+    }
+
+    @Override
+    public void confirmClicked(boolean result, int id)
+    {
+        if(result)
+        {
+            if(id == 0)
+            {
+                KeycloakOAuth.main(new String[]{});
+            }
+        }
+        mc.displayGuiScreen(this);
     }
 
     public String format(boolean value)

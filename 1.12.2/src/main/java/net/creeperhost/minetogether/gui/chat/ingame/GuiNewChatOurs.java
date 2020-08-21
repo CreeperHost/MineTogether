@@ -350,6 +350,8 @@ public class GuiNewChatOurs extends GuiNewChat
 
     public void rebuildChat(String chatKey)
     {
+        int scroll = scrollPos;
+
         chatTarget = chatKey;
         chatLines.clear();
         drawnChatLines.clear();
@@ -368,6 +370,7 @@ public class GuiNewChatOurs extends GuiNewChat
                     continue;
                 setChatLine(message, component, lineId, counter, false);
             }
+            scrollPos = scroll;
         }
     }
     

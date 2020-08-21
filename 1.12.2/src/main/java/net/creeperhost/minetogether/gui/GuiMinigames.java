@@ -157,7 +157,6 @@ public class GuiMinigames extends GuiScreen
                     }
                 });
             }
-            
         }
         lastMinigame = minigame;
     }
