@@ -135,6 +135,8 @@ public class EventHandler
     Field defaultInputFieldTextField = null;
 
     boolean firstOpen = true;
+
+    boolean firstConnect = true;
     
     @SubscribeEvent
     public void guiOpen(GuiOpenEvent event)
@@ -266,9 +268,28 @@ public class EventHandler
     {
         boolean buttonDrawn = false;
 
+        final GuiScreen gui = event.getGui();
+
+        if (firstConnect && gui instanceof GuiMainMenu)
+        {
+            firstConnect = false;
+            String server = System.getProperty("mt.server");
+            String port = System.getProperty("mt.port", "25565");
+            int realPort = -1;
+            if (server != null)
+            {
+                try {
+                    realPort = Integer.parseInt(port);
+                } catch (Throwable t) {
+                    logger.error("Unable to auto connect to server as unable to parse port " + port, t);
+                }
+
+                if (realPort != -1) net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(server, realPort);
+            }
+        }
+
         if(!isOnline) return;
         
-        final GuiScreen gui = event.getGui();
         // TODO: remove test
 //        if (gui instanceof GuiMainMenu) {
 //            event.getButtonList().add(new GuiButton(-123, 0, 0, "test"));
