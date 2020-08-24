@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.events;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.screen.MinigamesScreen;
+import net.creeperhost.minetogether.client.screen.SettingsScreen;
 import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
 import net.creeperhost.minetogether.client.screen.chat.ingame.GuiChatOurs;
 import net.creeperhost.minetogether.client.screen.chat.ingame.GuiNewChatOurs;
@@ -19,16 +20,22 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScreenEvents
 {
+    private static final Logger logger = LogManager.getLogger();
     boolean first = true;
-    
+
+    private boolean firstConnect = true;
+
     @SubscribeEvent
     public void openScreen(GuiScreenEvent.InitGuiEvent.Post event)
     {
+        if(!MineTogether.isOnline) return;
         boolean buttonDrawn = false;
         
         if (event.getGui() instanceof MainMenuScreen)
@@ -37,6 +44,19 @@ public class ScreenEvents
             {
                 first = false;
                 MineTogether.proxy.startChat();
+                String server = System.getProperty("mt.server");
+                String port = System.getProperty("mt.port", "25565");
+                int realPort = -1;
+                if (server != null)
+                {
+                    try {
+                        realPort = Integer.parseInt(port);
+                    } catch (Throwable t) {
+                        logger.error("Unable to auto connect to server as unable to parse port " + port, t);
+                    }
+
+                    if (realPort != -1) Minecraft.getInstance().displayGuiScreen(new ConnectingScreen(event.getGui(), Minecraft.getInstance(), server, realPort));
+                }
             }
             if (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())
             {
@@ -146,7 +166,11 @@ public class ScreenEvents
                 
                 event.addWidget(new GuiButtonMultiple(x, 5, 1, p ->
                 {
-                    Minecraft.getInstance().displayGuiScreen(new MTChatScreen(event.getGui()));
+                    if (Config.getInstance().isChatEnabled()) {
+                        Minecraft.getInstance().displayGuiScreen(new MTChatScreen(event.getGui()));
+                    } else {
+                        Minecraft.getInstance().displayGuiScreen(new SettingsScreen(event.getGui()));
+                    }
                 }));
             }
             
@@ -181,6 +205,7 @@ public class ScreenEvents
     @SubscribeEvent
     public void openScreen(GuiOpenEvent event)
     {
+        if(!MineTogether.isOnline) return;
         Screen screen = event.getGui();
         
         if (screen instanceof ChatScreen && Config.getInstance().isChatEnabled() && !MineTogether.instance.ingameChat.hasDisabledIngameChat() && MineTogether.instance.gdpr.hasAcceptedGDPR())

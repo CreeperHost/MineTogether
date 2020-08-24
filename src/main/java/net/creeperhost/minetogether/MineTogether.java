@@ -55,7 +55,9 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Mod(value = Constants.MOD_ID)
 public class MineTogether implements ICreeperHostMod, IHost
@@ -89,6 +91,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     public IPlayerKicker kicker;
     
     public String ourNick;
+    public String playerName;
     public File mutedUsersFile;
     public String ftbPackID = "";
     public String base64;
@@ -99,7 +102,12 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static String secret;
     public static PreGenHandler preGenHandler;
     public AtomicBoolean isBanned = new AtomicBoolean(false);
-    
+
+    public static boolean isOnline = false;
+    public static DebugHandler debugHandler = new DebugHandler();
+    public static AtomicReference<Profile> profile = new AtomicReference<>();
+    public static AtomicReference<UUID> UUID = new AtomicReference<>();
+
     public MineTogether()
     {
         instance = this;
@@ -129,6 +137,10 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
+        isOnline = proxy.checkOnline();
+        if (!isOnline) {
+            logger.error("Client is in offline mode");
+        }
         registerImplementation(new CreeperHostServerHost());
         
         File gdprFile = new File("local/minetogether/gdpr.txt");
@@ -137,7 +149,12 @@ public class MineTogether implements ICreeperHostMod, IHost
         HostHolder.host = this;
         File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
         ingameChat = new IngameChat(ingameChatFile);
-        ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 15);
+        ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 28);
+        UUID.set(proxy.getUUID());
+
+        if (debugHandler.isDebug()) {
+            logger.debug("Nick " + ourNick);
+        }
 
         int packID;
 
@@ -170,6 +187,16 @@ public class MineTogether implements ICreeperHostMod, IHost
         
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
+        CompletableFuture.runAsync(() -> {
+            try
+            {
+                profile.set(Callbacks.getProfile());
+
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        });
     }
     
     @SubscribeEvent
@@ -322,16 +349,6 @@ public class MineTogether implements ICreeperHostMod, IHost
                     anonUsersFile.getParentFile().mkdirs();
                     configString = "{}";
                 }
-                
-                Gson gson = new Gson();
-                ChatHandler.anonUsers = gson.fromJson(configString, new TypeToken<HashMap<String, String>>()
-                {
-                }.getType());
-                ChatHandler.anonUsersReverse = new HashMap<>();
-                for (Map.Entry<String, String> entry : ChatHandler.anonUsers.entrySet())
-                {
-                    ChatHandler.anonUsersReverse.put(entry.getValue(), entry.getKey());
-                }
             } catch (Throwable ignored)
             {
             } finally
@@ -352,42 +369,29 @@ public class MineTogether implements ICreeperHostMod, IHost
         if (nick.length() < 16)
             return null;
         
-        nick = nick.substring(0, 17); // should fix where people join and get ` on their name for friends if connection issues etc
+        nick = nick.replace("`", ""); // should fix where people join and get ` on their name for friends if connection issues etc
         if (ChatHandler.friends.containsKey(nick))
         {
             return ChatHandler.friends.get(nick);
         }
         if (nick.startsWith("MT"))
         {
-            if (ChatHandler.anonUsers.containsKey(nick))
+            if (ChatHandler.knownUsers.findByNick(nick) != null)
             {
-                return ChatHandler.anonUsers.get(nick);
+                return ChatHandler.knownUsers.findByNick(nick).getUserDisplay();
             } else
             {
                 String anonymousNick = "User" + ChatHandler.random.nextInt(10000);
-                while (ChatHandler.anonUsers.containsValue(anonymousNick))
-                {
-                    anonymousNick = "User" + ChatHandler.random.nextInt(10000);
+
+                Profile profile = ChatHandler.knownUsers.add(nick);
+                if (profile != null) {
+                    anonymousNick = profile.getUserDisplay();
                 }
-                ChatHandler.anonUsers.put(nick, anonymousNick);
-                ChatHandler.anonUsersReverse.put(anonymousNick, nick);
-                saveAnonFile();
+                //saveAnonFile();
                 return anonymousNick;
             }
         }
         return null;
-    }
-    
-    public void saveAnonFile()
-    {
-        Gson gson = new Gson();
-        File anonUsersFile = new File("local/minetogether/anonusers.json");
-        try
-        {
-            FileUtils.writeStringToFile(anonUsersFile, gson.toJson(ChatHandler.anonUsers), Charset.defaultCharset());
-        } catch (IOException ignored)
-        {
-        }
     }
     
     public void muteUser(String user)
@@ -404,9 +408,9 @@ public class MineTogether implements ICreeperHostMod, IHost
     
     public void unmuteUser(String user)
     {
-        String mtUser = ChatHandler.anonUsersReverse.get(user);
-        mutedUsers.remove(mtUser);
-        mutedUsers.remove(mtUser + "`");
+        Profile profile = ChatHandler.knownUsers.findByDisplay(user);
+        mutedUsers.remove(profile.getShortHash());
+        mutedUsers.remove(profile.getMediumHash());
         Gson gson = new Gson();
         try
         {

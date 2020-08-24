@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.client.screen.chat;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
@@ -13,6 +14,7 @@ import net.creeperhost.minetogether.client.screen.element.ButtonString;
 import net.creeperhost.minetogether.client.screen.element.DropdownButton;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
@@ -37,12 +39,14 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
 import org.apache.commons.lang3.StringUtils;
+import org.lwjgl.glfw.GLFW;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,7 +60,6 @@ public class MTChatScreen extends Screen
     private ScreenTextFieldLockable send;
     public DropdownButton<Target> targetDropdownButton;
     private Button friendsButton;
-    public static String playerName = Minecraft.getInstance().getSession().getUsername();
     private String currentTarget = ChatHandler.CHANNEL;
     private DropdownButton<Menu> menuDropdownButton;
     private String activeDropdown;
@@ -85,6 +88,9 @@ public class MTChatScreen extends Screen
     public void onClose()
     {
         this.minecraft.keyboardListener.enableRepeatEvents(false);
+        try {
+            chat.updateLines(currentTarget);
+        } catch (Exception ignored) {}
     }
     
     @Override
@@ -139,7 +145,7 @@ public class MTChatScreen extends Screen
                     chat.updateLines(currentTarget);
                 } else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
                 {
-                    minecraft.displayGuiScreen(new ChatFriendScreen(this, playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                    minecraft.displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
                 } else if (ChatHandler.privateChatInvite != null)
                 {
                     confirmInvite();
@@ -260,12 +266,14 @@ public class MTChatScreen extends Screen
             Target.updateCache();
             if (!targetDropdownButton.getSelected().getPossibleVals().contains(targetDropdownButton.getSelected()))
                 targetDropdownButton.setSelected(Target.getMainTarget());
-            processBadwords();
         }
         drawCenteredString(font, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
         ITextComponent comp = new StringTextComponent("\u2022").setStyle(new Style().setColor(Objects.requireNonNull(TextFormatting.getValueByName(status.colour))));
         comp.appendSibling(new StringTextComponent(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
-        if(banButton == null)
+        if (ChatHandler.isInChannel.get()) {
+            drawString(font, "Please Contact Support at with your nick " + ChatHandler.nick + " " + new StringTextComponent("here").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:creeperhost.net/contact"))), 10, height - 20, 0xFFFFFF);
+        }
+        else if(banMessage.isEmpty())
         {
             drawString(font, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
         }
@@ -274,6 +282,10 @@ public class MTChatScreen extends Screen
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
         {
             renderTooltip(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
+        }
+
+        if (banButton != null && banButton.isHovered()) {
+            renderTooltip(Arrays.asList("Click here copy Ban-ID to clipboard"), mouseX, mouseY);
         }
     }
     
@@ -341,41 +353,6 @@ public class MTChatScreen extends Screen
                 new StringTextComponent("Do you wish to accept this invite?" + (ChatHandler.hasGroup ? " You are already in a group chat - if you continue, you will swap groups - or disband the group if you are the host." : ""))));
     }
     
-    boolean disabledDueToBadwords = false;
-    
-    public void processBadwords()
-    {
-        String text = send.getText().replaceAll(ChatHandler.badwordsFormat, "");
-        boolean veryNaughty = false;
-        if (ChatHandler.badwords != null)
-        {
-            for (String bad : ChatHandler.badwords)
-            {
-                if (bad.startsWith("(") && bad.endsWith(")"))
-                {
-                    if (text.matches(bad) || text.matches(bad.toLowerCase()))
-                    {
-                        veryNaughty = true;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        if (veryNaughty)
-        {
-            send.setDisabled("Cannot send message as contains content which may not be suitable for all audiences");
-            disabledDueToBadwords = true;
-            return;
-        }
-        
-        if (disabledDueToBadwords)
-        {
-            disabledDueToBadwords = false;
-            send.setEnabled(true);
-        }
-    }
-    
     @Override
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
@@ -398,18 +375,13 @@ public class MTChatScreen extends Screen
         return false;
     }
     
-    //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
-    final static Pattern patternA = Pattern.compile("((?:user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    final static Pattern patternB = Pattern.compile("((?:@)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    final static Pattern patternC = Pattern.compile("((?:@user)(\\d+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    
     @SuppressWarnings("Duplicates")
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {
         super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
         
-        if ((p_keyPressed_2_ == 28 || p_keyPressed_2_ == 156) && send.getOurEnabled() && !send.getText().trim().isEmpty())
+        if ((p_keyPressed_1_ == GLFW.GLFW_KEY_ENTER || p_keyPressed_1_ == GLFW.GLFW_KEY_KP_ENTER) && send.getOurEnabled() && !send.getText().trim().isEmpty())
         {
             ChatHandler.sendMessage(currentTarget, getStringForSending(send.getText()));
             send.setText("");
@@ -428,7 +400,6 @@ public class MTChatScreen extends Screen
         {
             send.setEnabled(false);
         }
-        processBadwords();
         
         return false;
     }
@@ -439,40 +410,89 @@ public class MTChatScreen extends Screen
         send.charTyped(p_charTyped_1_, p_charTyped_2_);
         return false;
     }
-    
+
+    //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
+    final static Pattern patternA = Pattern.compile("((?:user)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternB = Pattern.compile("((?:@)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternC = Pattern.compile("((?:@user)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternD = Pattern.compile("((?:@user)#([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternE = Pattern.compile("((?:user)#([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternF = Pattern.compile("([a-zA-Z0-9]+)#([a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    final static Pattern patternG = Pattern.compile("(@[a-zA-Z0-9]+)#([a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
     public static String getStringForSending(String text)
     {
         String[] split = text.split(" ");
+        boolean replaced = false;
         for (int i = 0; i < split.length; i++)
         {
             String word = split[i].toLowerCase();
-            final String subst = "User$2";
-            
-            final Matcher matcher = patternA.matcher(word);
+            final String subst = "User#$2";
+            final String substr2 = "$1#$2";
+
+            final Matcher matcher  = patternA.matcher(word);
             final Matcher matcherb = patternB.matcher(word);
             final Matcher matcherc = patternC.matcher(word);
+            final Matcher matcherd = patternD.matcher(word);
+            final Matcher matchere = patternE.matcher(word);
+            final Matcher matcherf = patternF.matcher(word);
+            final Matcher matcherg = patternG.matcher(word);
+
             String justNick = word;
             String result = word;
-            if (matcher.matches())
+            String result2 = "";
+            if(matcher.matches())
             {
                 result = matcher.replaceAll(subst);
-            } else if (matcherb.matches())
+            } else if(matcherb.matches())
             {
                 result = matcherb.replaceAll(subst);
-            } else if (matcherc.matches())
+            } else if(matcherc.matches())
             {
                 result = matcherc.replaceAll(subst);
             }
-            justNick = result.replaceAll("[^A-Za-z0-9]", "");
-            
-            
-            String tempWord = ChatHandler.anonUsersReverse.get(justNick);
-            if (tempWord != null)
-                split[i] = result.replaceAll(justNick, tempWord);
-            else if (justNick.toLowerCase().equals(playerName.toLowerCase()))
-                split[i] = result.replaceAll(justNick, MineTogether.instance.ourNick);
+            else if(matcherd.matches())
+            {
+                result = matcherd.replaceAll(subst);
+            }
+            else if(matchere.matches())
+            {
+                result = matchere.replaceAll(subst);
+            }
+            else if(matcherg.matches())
+            {
+                result2 = matcherg.replaceAll(substr2);
+            } else if(matcherf.matches())
+            {
+                result2 = matcherf.replaceAll(substr2);
+            }
+            if(result.startsWith("User") || result2.length() > 0)
+            {
+                if(result2.length() > 0)
+                {
+                    justNick = result2.replaceAll("[^A-Za-z0-9#]", "");
+                } else {
+                    justNick = result.replaceAll("[^A-Za-z0-9#]", "");
+                }
+                Profile profile = ChatHandler.knownUsers.findByDisplay(justNick);
+                if(profile == null)
+                {
+                    continue;
+                }
+                String tempWord = profile.getShortHash();
+                if (tempWord != null) {
+                    split[i] = result.replaceAll(justNick, tempWord);
+                    replaced = true;
+                }
+                else if (justNick.toLowerCase().equals(MineTogether.instance.playerName.toLowerCase())) {
+                    split[i] = result.replaceAll(justNick, MineTogether.instance.ourNick);
+                    replaced = true;
+                }
+            }
         }
-        text = String.join(" ", split);
+        if(replaced) {
+            text = String.join(" ", split);
+        }
         
         return text;
     }
@@ -505,15 +525,32 @@ public class MTChatScreen extends Screen
                 
                 String friendName = builder.toString().trim();
                 
-                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, playerName, chatInternalName, friendCode, friendName, true));
+                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, chatInternalName, friendCode, friendName, true));
                 
                 return true;
             }
-            menuDropdownButton.x = (int) mouseX;
-            menuDropdownButton.y = (int) mouseY;
-            menuDropdownButton.dropdownOpen = true;
-            activeDropdown = event.getValue();
-            return true;
+            boolean friends = false;
+
+            for(Friend f : Callbacks.getFriendsList(false))
+            {
+                if(f.getProfile() != null)
+                {
+                    if (eventValue.startsWith(f.getProfile().getShortHash()))
+                    {
+                        friends = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!friends)
+            {
+                menuDropdownButton.x = (int) mouseX;
+                menuDropdownButton.y = (int) mouseY;
+                menuDropdownButton.dropdownOpen = true;
+                activeDropdown = event.getValue();
+                return true;
+            }
         }
         if (event.getAction() == ClickEvent.Action.OPEN_URL)
         {
@@ -523,8 +560,6 @@ public class MTChatScreen extends Screen
     }
     
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
-    
-    static SimpleDateFormat timestampFormat = new SimpleDateFormat("[HH:mm:ss] ");
     
     public static ITextComponent formatLine(Message message)
     {
@@ -542,9 +577,9 @@ public class MTChatScreen extends Screen
                         return null;
                     String nick = split[1];
                     String nickDisplay = ChatHandler.getNameForUser(nick);
-                    if (!nickDisplay.startsWith("User"))
-                        return null;
-                    
+                    Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                    AtomicBoolean isFriend = new AtomicBoolean(false);
+
                     String cmdStr = message.messageStr;
                     String[] cmdSplit = cmdStr.split(" ");
                     
@@ -579,25 +614,52 @@ public class MTChatScreen extends Screen
                     return new StringTextComponent(friendName + " (" + nickDisplay + ") accepted your friend request.");
             }
         }
-        
-        boolean friend = false;
+
+        AtomicBoolean friend = new AtomicBoolean(false);
+        AtomicBoolean premium = new AtomicBoolean(false);
+
+        Profile profile = null;
+
         if (inputNick.startsWith("MT"))
         {
-            if (inputNick.equals(MineTogether.instance.ourNick) || inputNick.equals(MineTogether.instance.ourNick + "`"))
+            profile = ChatHandler.knownUsers.findByNick(inputNick);
+            if (profile != null)
+                premium.set(profile.isPremium());
+            if (inputNick.equals(MineTogether.profile.get().getShortHash()) || inputNick.equals(MineTogether.profile.get().getMediumHash()))
             {
-                outputNick = playerName;
+                outputNick = MineTogether.instance.playerName;
             } else
-            {
-                if (MineTogether.mutedUsers.contains(inputNick))
-                    return null;
-                
-                String newNick = ChatHandler.getNameForUser(inputNick);
-                if (newNick == null)
-                    return null;
-                if (!inputNick.equals(newNick) && !newNick.startsWith("User"))
                 {
-                    friend = true;
-                }
+                    //Should probably check mutedUsers against their shortHash...
+                    if (MineTogether.mutedUsers.contains(inputNick))
+                        return null;
+
+                    String newNick = ChatHandler.getNameForUser(inputNick);
+                    if (newNick == null)
+                        return null;
+
+                    List<Friend> friendList = Callbacks.getFriendsList(false);
+                    if(friendList != null)
+                    {
+                        for(Friend friend1 : friendList)
+                        {
+                            if (friend1 != null)
+                            {
+                                Profile profileFriend = friend1.getProfile();
+                                if(profileFriend != null)
+                                {
+                                    if (!profileFriend.getShortHash().isEmpty() && profileFriend.getShortHash().equalsIgnoreCase(inputNick))
+                                    {
+                                        friend.set(true);
+                                    }
+                                    else if (!profileFriend.getMediumHash().isEmpty() && profileFriend.getMediumHash().equalsIgnoreCase(inputNick))
+                                    {
+                                        friend.set(true);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 outputNick = newNick;
                 if (!ChatHandler.autocompleteNames.contains(outputNick))
                     ChatHandler.autocompleteNames.add(outputNick);
@@ -606,23 +668,17 @@ public class MTChatScreen extends Screen
         {
             return null;
         }
-        
+
         ITextComponent base = new StringTextComponent("");
-        
-        ITextComponent userComp = new StringTextComponent("<" + outputNick + ">");
-        userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
-        
-        if (!inputNick.equals(MineTogether.instance.ourNick) && !inputNick.equals(MineTogether.instance.ourNick + "`") && inputNick.startsWith("MT"))
-        {
-            userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
-        }
+
+        TextFormatting nickColour = TextFormatting.WHITE;
+        TextFormatting arrowColour = TextFormatting.WHITE;
+        TextFormatting messageColour = TextFormatting.WHITE;
+
+        ITextComponent userComp = new StringTextComponent(outputNick);
+        //userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
         
         String messageStr = message.messageStr;
-        
-        for (String swear : ChatHandler.badwords)
-        {
-            messageStr = messageStr.replace(swear, StringUtils.repeat("*", swear.length()));
-        }
         
         String[] split = messageStr.split(" ");
         
@@ -631,19 +687,21 @@ public class MTChatScreen extends Screen
         for (int i = 0; i < split.length; i++)
         {
             String splitStr = split[i];
-            String justNick = splitStr.replaceAll("[^A-Za-z0-9]", "");
+            String justNick = splitStr.replaceAll("[^A-Za-z0-9#]", "");
             if (justNick.startsWith("MT"))
             {
-                if (justNick.equals(ChatHandler.initedString))
-                {
-                    splitStr = splitStr.replaceAll(justNick, playerName);
+                if ((MineTogether.profile.get() != null && (justNick.equals(MineTogether.profile.get().getShortHash()) || justNick.equals(MineTogether.profile.get().getMediumHash()))) || justNick.equals(MineTogether.instance.ourNick)) {
+                    splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + MineTogether.instance.playerName + messageColour);
                     split[i] = splitStr;
                     highlight = true;
-                } else
-                {
-                    String userName = ChatHandler.getNameForUser(justNick);
-                    if (userName != null)
+                } else {
+                    String userName = "User#" + justNick.substring(2,5);
+                    Profile mentionProfile = ChatHandler.knownUsers.findByNick(justNick);
+                    if(mentionProfile != null)
                     {
+                        userName = mentionProfile.getDisplay();
+                    }
+                    if (userName != null) {
                         splitStr = splitStr.replaceAll(justNick, userName);
                         split[i] = splitStr;
                     }
@@ -654,9 +712,9 @@ public class MTChatScreen extends Screen
         messageStr = String.join(" ", split);
         
         ITextComponent messageComp = MTChatScreen.newChatWithLinksOurs(messageStr);
-        
+
         if (MineTogether.bannedUsers.contains(inputNick))
-            messageComp = new StringTextComponent("message deleted").setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Message deleted as user was banned"))).setColor(TextFormatting.DARK_GRAY).setItalic(true));
+            messageComp = new StringTextComponent("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
         
         messageComp.getStyle().setColor(TextFormatting.WHITE);
         
@@ -669,23 +727,32 @@ public class MTChatScreen extends Screen
             {
                 String name2 = splitString[1];
 
-                if (name2.contains(Config.getInstance().curseProjectID) && !Config.getInstance().curseProjectID.isEmpty() || name2.contains(MineTogether.instance.ftbPackID) && !MineTogether.instance.ftbPackID.isEmpty())
+                if (name2.contains(Config.getInstance().curseProjectID) || name2.contains(MineTogether.instance.ftbPackID) && !MineTogether.instance.ftbPackID.isEmpty())
                 {
-                    userComp.getStyle().setColor(TextFormatting.DARK_PURPLE).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("User on same modpack")));
+                    nickColour = TextFormatting.DARK_PURPLE;
+                    //                    userComp.getStyle().setColor(TextFormatting.DARK_PURPLE);
                 }
             }
         }
         
         if (inputNick.equals(MineTogether.instance.ourNick) || inputNick.equals(MineTogether.instance.ourNick + "`"))
         {
+            nickColour = TextFormatting.GRAY;
+            arrowColour = premium.get() ? TextFormatting.GREEN : TextFormatting.GRAY;
+            messageColour = TextFormatting.GRAY;
+
             messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
-            userComp.getStyle().setColor(TextFormatting.GRAY); // make sure re:set
         }
         
-        if (friend)
+        if (friend.get())
         {
-            userComp.getStyle().setColor(TextFormatting.YELLOW).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Friend! MineTogether Friend!")));
-        } else if (outputNick.equals("System"))
+            nickColour = TextFormatting.YELLOW;
+        }
+        if (premium.get())
+        {
+            arrowColour = TextFormatting.GREEN;
+        }
+        else if (outputNick.equals("System"))
         {
             Matcher matcher = nameRegex.matcher(messageStr);
             if (matcher.find())
@@ -696,27 +763,33 @@ public class MTChatScreen extends Screen
                 messageComp = newChatWithLinksOurs(messageStr);
                 if(outputNick.equalsIgnoreCase("jake_e") || outputNick.equalsIgnoreCase("stuart_p"))
                 {
-                    userComp = new StringTextComponent("<" + rainbow(outputNick) + ">");
+                    outputNick = rainbow(outputNick);
                 }
-                else {
-                    userComp = new StringTextComponent("<" + outputNick + ">");
-                }
-                userComp.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Moderator")));
-                userComp.getStyle().setColor(TextFormatting.AQUA);
+                userComp = new StringTextComponent(outputNick);
             }
+            nickColour = TextFormatting.AQUA;
+            userComp.getStyle().setColor(TextFormatting.AQUA);
         }
         
-        if (highlight)
+//        if (highlight)
+//        {
+//            userComp.getStyle().setColor(TextFormatting.RED);
+//            messageComp.getStyle().setColor(TextFormatting.RED);
+//            base.getStyle().setColor(TextFormatting.RED);
+//        }
+
+        userComp = new StringTextComponent(arrowColour + "<" + nickColour + userComp.getFormattedText() + arrowColour + "> ");
+
+        if (!inputNick.equals(MineTogether.instance.ourNick) && !inputNick.equals(MineTogether.instance.ourNick + "`") && inputNick.startsWith("MT"))
         {
-            userComp.getStyle().setColor(TextFormatting.RED);
-            messageComp.getStyle().setColor(TextFormatting.RED);
-            base.getStyle().setColor(TextFormatting.RED);
+            userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
         }
-        
+
         base.appendSibling(userComp);
-        base.appendSibling(new StringTextComponent(" ").setStyle(new Style().setColor(TextFormatting.WHITE)));
+
+//        base.appendSibling(new StringTextComponent(" ").setStyle(new Style().setColor(TextFormatting.WHITE)));
         
-        return base.appendSibling(messageComp);
+        return base.appendSibling(messageComp.setStyle(new Style().setColor(messageColour)));
     }
 
     public static String rainbow(String s)
@@ -755,6 +828,8 @@ public class MTChatScreen extends Screen
             LimitedSizeQueue<Message> tempMessages;
             synchronized (ircLock)
             {
+                if (ChatHandler.client == null)
+                    return;
                 if (ChatHandler.messages == null || ChatHandler.messages.size() == 0)
                     return;
                 tempMessages = ChatHandler.messages.get(key);
@@ -765,17 +840,19 @@ public class MTChatScreen extends Screen
             lines = new ArrayList<>();
             if (tempMessages == null)
                 return;
-            for (Message message : tempMessages)
+            try
             {
-                ITextComponent display = formatLine(message);
-                if (display == null)
-                    continue;
-                List<ITextComponent> strings = ScreenUtils.splitText(display, getWidth() - 6, font, false, true);
-                for (ITextComponent string : strings)
+                for (Message message : tempMessages)
                 {
-                    lines.add(string);
+                    ITextComponent display = formatLine(message);
+                    if (display == null)
+                        continue;
+                    List<ITextComponent> strings = ScreenUtils.splitText(display, getWidth() - 6, font, false, true);
+                    for (ITextComponent string : strings) {
+                        lines.add(string);
+                    }
                 }
-            }
+            } catch (Exception ignored) { }
             setScrollAmount(Integer.MAX_VALUE);
         }
         

@@ -2,12 +2,14 @@ package net.creeperhost.minetogether.client.screen.serverlist.gui;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.client.screen.GDPRScreen;
 import net.creeperhost.minetogether.client.screen.list.GuiList;
 import net.creeperhost.minetogether.client.screen.list.GuiListEntryFriend;
 import net.creeperhost.minetogether.client.screen.list.GuiListEntryMuted;
 import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.data.FriendStatusResponse;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
@@ -51,7 +53,7 @@ public class FriendsListScreen extends Screen
     private String unmutePlayer;
     private Friend invitedPlayer;
     private boolean channelInvite = false;
-    private boolean isMuted;
+    private boolean isMuted = false;
     
     public FriendsListScreen(Screen currentScreen)
     {
@@ -128,12 +130,14 @@ public class FriendsListScreen extends Screen
                 buttonInvite.visible = false;
             } else if (!codeEntry.getText().isEmpty())
             {
-                String result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
+                FriendStatusResponse result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
                 addFriend = false;
-                if (result == null)
-                    list.add(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
+                if (result == null) {
+                    Profile profile = new Profile(result.getHash());
+                    list.add(new GuiListEntryFriend(this, list, new Friend(profile, displayEntry.getText(), codeEntry.getText(), false)));
+                }
                 buttonInvite.visible = true;
-                showAlert(result == null ? Util.localize("multiplayer.friendsent") : result, 0x00FF00, 5000);
+                showAlert(result == null || result.getMessage().isEmpty() ? Util.localize("multiplayer.friendsent") : result.getMessage(), 0x00FF00, 5000);
             }
             
         }));
@@ -399,7 +403,7 @@ public class FriendsListScreen extends Screen
                     showAlert("Cannot invite pending friends", 0x00FF00, 5000);
                 else
                 {
-                    String friendCode = "MT" + invitedPlayer.getCode().substring(0, 15);
+                    String friendCode = "MT" + invitedPlayer.getCode().substring(0, 28);
                     showAlert("Sent invite to " + invitedPlayer.getName(), 0x00FF00, 5000);
                     ChatHandler.sendChannelInvite(friendCode, MineTogether.instance.ourNick);
                 }

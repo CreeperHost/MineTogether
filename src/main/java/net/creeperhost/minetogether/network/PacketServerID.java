@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.network;
 
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.chat.ChatHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -30,6 +31,7 @@ public class PacketServerID
         public static void handle(final PacketServerID message, Supplier<NetworkEvent.Context> ctx)
         {
             MineTogether.instance.curServerId = message.serverID;
+            ChatHandler.setServerId(message.serverID);
         }
     }
 }

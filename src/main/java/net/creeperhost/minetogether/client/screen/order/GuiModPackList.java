@@ -13,6 +13,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -28,8 +30,7 @@ public class GuiModPackList extends Screen
         super(new StringTextComponent(""));
         this.parent = currentScreen;
     }
-    
-    @SuppressWarnings("unchecked")
+
     @Override
     public void init()
     {
@@ -37,10 +38,10 @@ public class GuiModPackList extends Screen
         this.minecraft.keyboardListener.enableRepeatEvents(true);
         if (list == null)
         {
-            list = new GuiList(this, minecraft, width, height, 32, this.height - 64, 36);
+            list = new GuiList<>(this, minecraft, width, height, 40, this.height - 40, 36);
         }
         {
-            list.updateSize(width, height, 32, this.height - 64);
+            list.updateSize(width + 11, height, 32, this.height - 40);
         }
         
         this.children.add(list);
@@ -51,17 +52,14 @@ public class GuiModPackList extends Screen
             refreshList();
         }
         
-        int y = this.height - 60;
-        
-        int margin = 10;
+        int y = this.height - 32;
+
         int buttonWidth = 80;
         
-        int buttonX = margin;
-        
-        displayEntry = new TextFieldWidget(this.font, this.width / 2 - 90, y, 160, 20, "");
+        displayEntry = new TextFieldWidget(this.font, this.width / 2 - 80, y, 160, 20, "");
         displayEntry.setVisible(true);
         
-        this.addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("button.cancel"), (button) -> minecraft.displayGuiScreen(new MainMenuScreen())));
+        this.addButton(new Button(10, y, buttonWidth, 20, Util.localize("button.cancel"), (button) -> minecraft.displayGuiScreen(new MainMenuScreen())));
         
         this.addButton(new Button(this.width - 90, y, buttonWidth, 20, "Select", (button) ->
         {
@@ -73,46 +71,77 @@ public class GuiModPackList extends Screen
                 minecraft.displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
             }
         }));
-        
-        this.addButton(new GuiButtonRefresh(this.width / 2 + 72, y, (button) -> refreshList()));
     }
-    
+
+    public static List<ModPack> modpacks;
+
     private void refreshList()
     {
-        String s = "";
-        if (displayEntry != null)
+        try
         {
-            s = displayEntry.getText();
-        }
-        
-        List<ModPack> modpacks = Callbacks.getModpackFromCurse(s, 10);
-        list.clearList();
-        if (modpacks != null)
-        {
-            for (ModPack mp : modpacks)
+            String s = "";
+            if (displayEntry != null)
             {
-                GuiListEntryModpack entry = new GuiListEntryModpack(this, list, mp);
-                list.add(entry);
+                s = displayEntry.getText();
             }
-        }
+            list.clearList();
+
+            modpacks = Callbacks.getModpackFromCurse(s, 10);
+            if (modpacks != null && !modpacks.isEmpty())
+            {
+                modpacks.forEach(mp ->
+                {
+                    GuiListEntryModpack entry = new GuiListEntryModpack(this, list, mp);
+                    list.add(entry);
+                });
+            }
+        } catch (Exception ignored) {}
     }
     
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
-        if (list != null) this.list.render(mouseX, mouseY, partialTicks);
+        if (list != null)
+        {
+            this.list.render(mouseX, mouseY, partialTicks);
+        }
         
         if (displayEntry != null) this.displayEntry.render(mouseX, mouseX, partialTicks);
+
+        if(displayEntry != null && displayEntry.getText().trim().isEmpty() && !displayEntry.isFocused())
+        {
+            font.drawStringWithShadow(TextFormatting.ITALIC + "Search", displayEntry.x + 3, displayEntry.y + 5, 14737632);
+        }
         
-        this.drawCenteredString(this.font, Util.localize("gui.modpack.selector"), this.width / 2, 10, -1);
+        this.drawCenteredString(this.font, "Minecraft Modpack Selector", this.width / 2, 10, -1);
         
         super.render(mouseX, mouseY, partialTicks);
     }
-    
+
+    int delay = 10;
+    int i;
+    boolean hasChanged;
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if(displayEntry != null && displayEntry.isFocused() && hasChanged)
+        {
+            i++;
+            if(i >= delay)
+            {
+                refreshList();
+                i = 0;
+                hasChanged = false;
+            }
+        }
+    }
+
     @Override
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
-        this.list.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
+        if(list != null) this.list.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
         super.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
         return true;
     }
@@ -120,8 +149,8 @@ public class GuiModPackList extends Screen
     @Override
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
     {
-        this.list.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
-        this.displayEntry.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+        if(list != null) this.list.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+        if(displayEntry != null) this.displayEntry.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
         super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
         return true;
     }
@@ -132,6 +161,12 @@ public class GuiModPackList extends Screen
         if (displayEntry != null && displayEntry.isFocused())
         {
             displayEntry.charTyped(p_charTyped_1_, p_charTyped_2_);
+            i = 0;
+            hasChanged = true;
+            if (p_charTyped_1_ == GLFW.GLFW_KEY_ENTER || p_charTyped_1_ == GLFW.GLFW_KEY_KP_ENTER) {
+                refreshList();
+                displayEntry.changeFocus(false);
+            }
         }
         return super.charTyped(p_charTyped_1_, p_charTyped_2_);
     }

@@ -2,9 +2,12 @@ package net.creeperhost.minetogether.client.screen;
 
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
+import net.creeperhost.minetogether.oauth.KeycloakOAuth;
+import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class SettingsScreen extends Screen
@@ -41,7 +44,14 @@ public class SettingsScreen extends Screen
             Config.getInstance().setEnableMainMenuFriends(!enabled);
             saveConfig();
         }));
-        
+        addButton(new Button(this.width / 2 - 100, this.height - 47, 200, 20, I18n.format("Link Account"), p -> {
+            minecraft.displayGuiScreen(new ConfirmScreen(e -> {
+                if (e) {
+                    KeycloakOAuth.main(new String[]{});
+                }
+                minecraft.displayGuiScreen(this);
+            }, new StringTextComponent(I18n.format("Link your Minecraft account to your MineTogether account.")), new StringTextComponent(I18n.format("Linking your accounts will unlock abilities link being able to set your own nickname.\n\nThis will open a web-browser for you to sign in securely."))));
+        }));
         
         //Done button
         this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, I18n.format("gui.done"), p ->

@@ -30,7 +30,7 @@ public class CommandSuggestionHelperMT extends CommandSuggestionHelper {
         String toCursor = text.substring(0, pos);
         int end = func_228121_a_(toCursor);
         List<String> users = ChatHandler.getOnlineUsers().stream()//
-                .filter(name -> ChatHandler.anonUsers.containsKey(name) || ChatHandler.friends.containsKey(name))//
+                .filter(name -> ChatHandler.knownUsers.findByDisplay(name) != null || ChatHandler.friends.containsKey(name))//
                 .map(MineTogether.instance::getNameForUser).collect(Collectors.toList());
         SuggestionsBuilder builder = new SuggestionsBuilder(toCursor, end);
         field_228107_p_ = ISuggestionProvider.suggest(users, builder);

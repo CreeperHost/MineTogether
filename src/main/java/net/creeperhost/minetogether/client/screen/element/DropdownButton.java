@@ -193,7 +193,11 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
         }
         return clickedElement;
     }
-    
+
+    public List<E> getPossibleVals() {
+        return possibleVals;
+    }
+
     public interface IDropdownOption
     {
         List<IDropdownOption> getPossibleVals();

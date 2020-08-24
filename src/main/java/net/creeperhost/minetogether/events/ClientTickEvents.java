@@ -10,25 +10,86 @@ import net.creeperhost.minetogether.client.screen.serverlist.gui.InvitedScreen;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.oauth.ServerAuthTest;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class ClientTickEvents
 {
+    private static final Logger logger = LogManager.getLogger();
+
+    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+
     Minecraft mc = Minecraft.getInstance();
     private Thread inviteCheckThread;
     private int inviteTicks = -1;
+
+    private int clientTicks = 0; //Tick counter client side.
+    private UUID lastUUID; //Last UUID we saw the client using.
+    public static boolean connectToChat = false; //If a connection is scheduled
+    public static boolean disconnectFromChat = false; //If a disconnection is scheduled
+    public static boolean chatDisconnected = false; //If we know we are disconnected.
+
+    private static Future<?> onlineCheckFuture;
     
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt)
     {
-        inviteTicks = (inviteTicks + 1) % 20;
+        if (evt.phase == TickEvent.Phase.START)
+        {
+            if (clientTicks % (10 * 20) == 0 && MineTogether.instance.gdpr.hasAcceptedGDPR() && Config.getInstance().isChatEnabled()) { //Every second is bad, Bad bad Covers
+                MineTogether.proxy.reCacheUUID(); //Careful with this, recomputes the GameProfile
+                UUID currentUUID = MineTogether.proxy.getUUID();
+                if (lastUUID == null)
+                {
+                    lastUUID = currentUUID;
+                }
+                if (!lastUUID.equals(currentUUID))
+                {
+                    if (onlineCheckFuture == null || onlineCheckFuture.isDone())
+                    {
+                        onlineCheckFuture = executor.submit(() -> {
+                            MineTogether.isOnline = MineTogether.proxy.checkOnline();
+                        });
+                    }
+                    if (currentUUID.version() != 4)
+                    {
+                        disconnectFromChat = true;
+                    }
+                } else
+                {
+                    connectToChat = true;
+                }
+                lastUUID = currentUUID;
+            }
+
+            //Try and disconnect if we have been told to.
+            if (disconnectFromChat && ChatHandler.connectionStatus == ChatHandler.ConnectionStatus.DISCONNECTED) {
+                ChatHandler.requestReconnect();
+                chatDisconnected = true;
+            }
+            connectToChat = false;
+            disconnectFromChat = false;
+        }
+        if (evt.phase == TickEvent.Phase.END) {
+            clientTicks++;
+        }
+        if (!MineTogether.isOnline) return;
+        ServerAuthTest.processPackets();
+
+        inviteTicks = (inviteTicks + 1) % 300;
         if (inviteTicks != 0)
             return;
         
@@ -45,21 +106,21 @@ public class ClientTickEvents
                         
                         try
                         {
-                            tempInvite = Callbacks.getInvite();
-                            temp = ChatHandler.privateChatInvite;
-                            
-                            synchronized (MineTogether.instance.inviteLock)
+                            if(ChatHandler.isOnline()) //No point in trying this without a connection
                             {
-                                if (tempInvite != null)
-                                    MineTogether.instance.invite = tempInvite;
-                            }
-                            
-                            if (temp != null)
-                            {
-                                ToastHandler.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
-                                {
-                                    mc.displayGuiScreen(new MTChatScreen(Minecraft.getInstance().currentScreen, true));
-                                });
+                                tempInvite = Callbacks.getInvite();
+                                temp = ChatHandler.privateChatInvite;
+
+                                synchronized (MineTogether.instance.inviteLock) {
+                                    if (tempInvite != null)
+                                        MineTogether.instance.invite = tempInvite;
+                                }
+
+                                if (temp != null) {
+                                    ToastHandler.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () -> {
+                                        mc.displayGuiScreen(new MTChatScreen(Minecraft.getInstance().currentScreen, true));
+                                    });
+                                }
                             }
                         } catch (Exception ignored)
                         {

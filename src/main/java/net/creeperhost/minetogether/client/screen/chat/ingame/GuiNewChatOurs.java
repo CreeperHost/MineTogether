@@ -170,9 +170,10 @@ public class GuiNewChatOurs extends NewChatGui
             super.render(updateCounter);
         else
         {
-            if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && updateCounter % 6000 == 0)
+            if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && ChatHandler.isOnline() && updateCounter % 6000 == 0)
             {
-                if (!ChatHandler.isInitting.get())
+                rebuildChat(ChatHandler.CHANNEL);
+                if(!ChatHandler.isInitting.get())
                 {
                     ChatHandler.reInit();
                 }

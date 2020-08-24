@@ -23,8 +23,6 @@ public class ChatConnectionHandler
         ChatHandler.IRC_SERVER = ChatUtil.getIRCServerDetails();
         ChatHandler.CHANNEL = ChatHandler.online ? ChatHandler.IRC_SERVER.channel : "#SuperSpecialPirateClub";
         ChatHandler.host.updateChatChannel();
-        ChatHandler.badwordsFormat = ChatUtil.getAllowedCharactersRegex();
-        ChatHandler.badwords = ChatUtil.getBadWords();
         ChatHandler.tries.set(0);
         banned = MineTogether.instance.isBanned.get();
     }
@@ -53,7 +51,11 @@ public class ChatConnectionHandler
                 ((Client.WithManagement) ChatHandler.client).getActorTracker().setQueryChannelInformation(true);
                 ChatHandler.client.getEventManager().registerEventListener(new ChatHandler.Listener());
                 ChatHandler.client.addChannel(ChatHandler.CHANNEL);
-                ChatHandler.inited = true;
+                if (ChatHandler.client.getChannel(ChatHandler.CHANNEL).isPresent())
+                {
+                    ChatHandler.isInChannel.set(true);
+                }
+                ChatHandler.inited.set(true);
                 ChatHandler.isInitting.set(false);
             }
         }).start();
@@ -71,7 +73,7 @@ public class ChatConnectionHandler
     
     public boolean canConnect()
     {
-        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited || ChatHandler.isInitting.get();
+        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited.get() || ChatHandler.isInitting.get();
     }
     
     public void nextConnectAllow(int timeout)

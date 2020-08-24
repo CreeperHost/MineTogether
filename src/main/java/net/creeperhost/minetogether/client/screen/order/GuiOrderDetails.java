@@ -60,7 +60,7 @@ public class GuiOrderDetails extends GuiGetServer
                 net.minecraft.util.Util.getOSType().openURI(new URI(MineTogether.instance.getImplementation().getPaymentLink(invoiceID)));
             } catch (Throwable throwable)
             {
-                MineTogether.logger.error("Couldn\'t open link", throwable);
+                MineTogether.logger.error("Couldn't open link", throwable);
             }
         }));
         buttonNext.visible = true;

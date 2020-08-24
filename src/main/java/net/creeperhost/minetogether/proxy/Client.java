@@ -1,12 +1,14 @@
 package net.creeperhost.minetogether.proxy;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
@@ -17,23 +19,32 @@ import net.creeperhost.minetogether.client.screen.element.DropdownButton;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.FriendsListScreen;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.InvitedScreen;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Session;
+import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.settings.KeyModifier;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.apache.commons.io.IOUtils;
+import org.lwjgl.glfw.GLFW;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class Client implements IProxy
 {
+    private static final Gson gson = new GsonBuilder().create();
+    private static final Type strListToken = new TypeToken<List<String>>() {}.getType();
     public KeyBinding openGuiKey;
     private UUID cache;
     public static int chatType = 0;
@@ -43,8 +54,8 @@ public class Client implements IProxy
     public void registerKeys()
     {
         //TODO
-//        openGuiKey = new KeyBinding("minetogether.key.friends", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_M, "minetogether.keys");
-//        ClientRegistry.registerKeyBinding(openGuiKey);
+        openGuiKey = new KeyBinding("minetogether.key.friends", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, InputMappings.Type.KEYSYM, GLFW.GLFW_KEY_M, "minetogether.keys");
+        ClientRegistry.registerKeyBinding(openGuiKey);
     }
     
     @Override
@@ -77,54 +88,45 @@ public class Client implements IProxy
 
         return uuid;
     }
+
+    @Override
+    public void reCacheUUID()
+    {
+        cache = null;
+    }
     
     boolean isChatReplaced = false;
     
     @Override
     public void startChat()
     {
+        if(!MineTogether.isOnline) return;
+
         if (Config.getInstance().isChatEnabled())
         {
-            
             if (!MineTogether.instance.ingameChat.hasDisabledIngameChat())
                 enableIngameChat();
-            
+
+            MineTogether.instance.ourNick = "MT" + Callbacks.getPlayerHash(MineTogether.proxy.getUUID()).substring(0, 28);
+            MineTogether.instance.playerName = Minecraft.getInstance().getSession().getUsername();
             MineTogether.instance.getNameForUser("");
             MineTogether.instance.mutedUsersFile = new File("local/minetogether/mutedusers.json");
-            InputStream mutedUsersStream = null;
-            try
-            {
-                String configString;
-                if (MineTogether.instance.mutedUsersFile.exists())
-                {
-                    mutedUsersStream = new FileInputStream(MineTogether.instance.mutedUsersFile);
-                    configString = IOUtils.toString(mutedUsersStream);
-                } else
-                {
-                    MineTogether.instance.mutedUsersFile.getParentFile().mkdirs();
-                    configString = "[]";
-                }
-                
-                Gson gson = new Gson();
-                MineTogether.instance.mutedUsers = gson.fromJson(configString, new TypeToken<List<String>>()
-                {
-                }.getType());
-            } catch (Throwable ignored)
-            {
-            } finally
-            {
-                try
-                {
-                    if (mutedUsersStream != null)
-                    {
-                        mutedUsersStream.close();
-                    }
-                } catch (Throwable ignored)
-                {
-                }
+
+            MineTogether.mutedUsers = new ArrayList<>();
+            if (MineTogether.instance.mutedUsersFile.exists()) {
+                try (FileInputStream fis = new FileInputStream(MineTogether.instance.mutedUsersFile)) {
+                    MineTogether.mutedUsers = gson.fromJson(new InputStreamReader(fis), strListToken);
+                } catch (IOException ignored) { }
             }
-            new Thread(() -> ChatHandler.init(MineTogether.instance.ourNick, MineTogether.instance.realName, MineTogether.instance.online, MineTogether.instance)).start(); // start in thread as can hold up the UI thread for some reason.
+            CompletableFuture.runAsync(() -> ChatHandler.init(MineTogether.instance.ourNick, MineTogether.instance.realName, MineTogether.instance.online, MineTogether.instance)); // start in thread as can hold up the UI thread for some reason.
         }
+    }
+
+    @Override
+    public void stopChat()
+    {
+        ChatConnectionHandler.INSTANCE.disconnect();
+        ChatHandler.killChatConnection();
     }
     
     @Override
@@ -224,7 +226,7 @@ public class Client implements IProxy
         try
         {
             sessionService.joinServer(profile, token, serverId);
-            GameProfile gameProfile = sessionService.hasJoinedServer(profile, token, null);
+            GameProfile gameProfile = sessionService.hasJoinedServer(profile, serverId, null);
             return gameProfile != null && gameProfile.isComplete();
         } catch (AuthenticationException ignored)
         {

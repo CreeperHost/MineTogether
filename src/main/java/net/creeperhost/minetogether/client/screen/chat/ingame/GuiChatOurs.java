@@ -59,50 +59,6 @@ public class GuiChatOurs extends ChatScreen
         super.renderComponentHoverEffect(component, mouseX, mouseY);
     }
     
-    public void processBadwords()
-    {
-        if (ChatHandler.badwordsFormat == null)
-            return;
-        String text = inputField.getText().replaceAll(ChatHandler.badwordsFormat, "");
-        boolean veryNaughty = false;
-        if (ChatHandler.badwords != null)
-        {
-            for (String bad : ChatHandler.badwords)
-            {
-                if (bad.startsWith("(") && bad.endsWith(")"))
-                {
-                    if (text.matches(bad))
-                    {
-                        veryNaughty = true;
-                        break;
-                    }
-                }
-                if (text.toLowerCase().contains(bad.toLowerCase()))
-                {
-                    veryNaughty = true;
-                    break;
-                }
-            }
-        }
-        
-        if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs) && ((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase())
-            veryNaughty = false;
-        
-        if (veryNaughty)
-        {
-            ((ScreenTextFieldLockable) inputField).setDisabled("Cannot send message as contains content which may not be suitable for all audiences");
-            disabledDueToBadwords = true;
-            return;
-        }
-        
-        if (disabledDueToBadwords)
-        {
-            ((ScreenTextFieldLockable) inputField).setDisabled("");
-            disabledDueToBadwords = false;
-            inputField.setEnabled(true);
-        }
-    }
-    
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {
@@ -138,10 +94,6 @@ public class GuiChatOurs extends ChatScreen
         if (!ourEnabled)
         {
             inputField.setEnabled(false);
-        }
-        if ((Minecraft.getInstance().ingameGUI.getChatGUI() instanceof GuiNewChatOurs && !((GuiNewChatOurs) mc.ingameGUI.getChatGUI()).isBase()))
-        {
-            processBadwords();
         }
         
         return ourEnabled;
@@ -322,7 +274,6 @@ public class GuiChatOurs extends ChatScreen
                     {
                         Client.chatType = 0;
                         ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);
-                        processBadwords();
                     }
                     switchButton.setMessage(ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat");
                 } else
@@ -357,7 +308,6 @@ public class GuiChatOurs extends ChatScreen
                     if (!ourChat.isBase())
                     {
                         ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);
-                        processBadwords();
                     }
                     switchButton.setMessage(ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat");
                 } else
