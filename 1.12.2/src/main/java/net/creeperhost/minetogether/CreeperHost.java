@@ -208,8 +208,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
             try
             {
                 profile.set(Callbacks.getProfile());
-
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }

@@ -557,216 +557,190 @@ public class GuiMTChat extends GuiScreen
 
     public static ITextComponent formatLine(Message message)
     {
-        String inputNick = message.sender;
-        String outputNick = inputNick;
-        
-        if (inputNick.contains(":"))
-        {
-            String[] split = inputNick.split(":");
-            switch (split[0])
-            {
-                case "FR":
-                { // new scope because Java is stupid
-                    if (split.length < 2)
-                        return null;
-                    String nick = split[1];
-                    String nickDisplay = ChatHandler.getNameForUser(nick);
-                    Profile profile = ChatHandler.knownUsers.findByNick(nick);
-                    AtomicBoolean isFriend = new AtomicBoolean(false);
-                    
-                    String cmdStr = message.messageStr;
-                    String[] cmdSplit = cmdStr.split(" ");
-                    
-                    if (cmdSplit.length < 2)
-                        return null;
-                    
-                    String friendCode = cmdSplit[0];
-                    
-                    StringBuilder nameBuilder = new StringBuilder();
-                    
-                    for (int i = 1; i < cmdSplit.length; i++)
-                        nameBuilder.append(cmdSplit[i]);
-                    
-                    String friendName = nameBuilder.toString();
-                    
-                    ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") would like to add you as a friend. Click to ");
-                    
-                    ITextComponent accept = new TextComponentString("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
-                    
-                    userComp.appendSibling(accept);
-                    
-                    return userComp;
+        try {
+
+            String inputNick = message.sender;
+            String outputNick = inputNick;
+
+            if (inputNick.contains(":")) {
+                String[] split = inputNick.split(":");
+                switch (split[0]) {
+                    case "FR": { // new scope because Java is stupid
+                        if (split.length < 2)
+                            return null;
+                        String nick = split[1];
+                        String nickDisplay = ChatHandler.getNameForUser(nick);
+                        Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                        AtomicBoolean isFriend = new AtomicBoolean(false);
+
+                        String cmdStr = message.messageStr;
+                        String[] cmdSplit = cmdStr.split(" ");
+
+                        if (cmdSplit.length < 2)
+                            return null;
+
+                        String friendCode = cmdSplit[0];
+
+                        StringBuilder nameBuilder = new StringBuilder();
+
+                        for (int i = 1; i < cmdSplit.length; i++)
+                            nameBuilder.append(cmdSplit[i]);
+
+                        String friendName = nameBuilder.toString();
+
+                        ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") would like to add you as a friend. Click to ");
+
+                        ITextComponent accept = new TextComponentString("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
+
+                        userComp.appendSibling(accept);
+
+                        return userComp;
+                    }
+                    case "FA":
+                        if (split.length < 2)
+                            return null;
+                        String nick = split[1];
+                        String nickDisplay = ChatHandler.getNameForUser(nick);
+
+                        String friendName = message.messageStr;
+
+                        ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") accepted your friend request.");
+
+                        return userComp;
                 }
-                case "FA":
-                    if (split.length < 2)
-                        return null;
-                    String nick = split[1];
-                    String nickDisplay = ChatHandler.getNameForUser(nick);
-                    
-                    String friendName = message.messageStr;
-                    
-                    ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") accepted your friend request.");
-                    
-                    return userComp;
             }
-        }
-        
-        AtomicBoolean friend = new AtomicBoolean(false);
-        AtomicBoolean premium = new AtomicBoolean(false);
 
-        Profile profile = null;
+            AtomicBoolean friend = new AtomicBoolean(false);
+            AtomicBoolean premium = new AtomicBoolean(false);
 
-        if (inputNick.startsWith("MT"))
-        {
-            profile = ChatHandler.knownUsers.findByNick(inputNick);
-            if(profile != null)
-                premium.set(profile.isPremium());
+            Profile profile = null;
 
-            if (inputNick.equals(CreeperHost.profile.get().getShortHash()) || inputNick.equals(CreeperHost.profile.get().getMediumHash()))
-            {
-                outputNick = CreeperHost.instance.playerName;
-            }
-            else
-                {
+            if (inputNick.startsWith("MT")) {
+                profile = ChatHandler.knownUsers.findByNick(inputNick);
+                if (profile != null)
+                    premium.set(profile.isPremium());
+
+                if (inputNick.equals(CreeperHost.profile.get().getShortHash()) || inputNick.equals(CreeperHost.profile.get().getMediumHash())) {
+                    outputNick = CreeperHost.instance.playerName;
+                } else {
                     //Should probably check mutedUsers against their shortHash...
-                if (CreeperHost.instance.mutedUsers.contains(inputNick))
-                    return null;
-                
-                String newNick = ChatHandler.getNameForUser(inputNick);
-                if (newNick == null)
-                    return null;
+                    if (CreeperHost.instance.mutedUsers.contains(inputNick))
+                        return null;
 
-                List<Friend> friendList = Callbacks.getFriendsList(false);
-                if(friendList != null)
-                {
-                    for(Friend friend1 : friendList)
-                    {
-                        if (friend1 != null)
-                        {
-                            Profile profileFriend = friend1.getProfile();
-                            if(profileFriend != null)
-                            {
-                                if (!profileFriend.getShortHash().isEmpty() && profileFriend.getShortHash().equalsIgnoreCase(inputNick))
-                                {
-                                    friend.set(true);
-                                }
-                                else if (!profileFriend.getMediumHash().isEmpty() && profileFriend.getMediumHash().equalsIgnoreCase(inputNick))
-                                {
-                                    friend.set(true);
+                    String newNick = ChatHandler.getNameForUser(inputNick);
+                    if (newNick == null)
+                        return null;
+
+                    List<Friend> friendList = Callbacks.getFriendsList(false);
+                    if (friendList != null) {
+                        for (Friend friend1 : friendList) {
+                            if (friend1 != null) {
+                                Profile profileFriend = friend1.getProfile();
+                                if (profileFriend != null) {
+                                    if (!profileFriend.getShortHash().isEmpty() && profileFriend.getShortHash().equalsIgnoreCase(inputNick)) {
+                                        friend.set(true);
+                                    } else if (!profileFriend.getMediumHash().isEmpty() && profileFriend.getMediumHash().equalsIgnoreCase(inputNick)) {
+                                        friend.set(true);
+                                    }
                                 }
                             }
                         }
                     }
+                    outputNick = newNick;
+                    if (!ChatHandler.autocompleteNames.contains(outputNick))
+                        ChatHandler.autocompleteNames.add(outputNick);
                 }
-                outputNick = newNick;
-                if (!ChatHandler.autocompleteNames.contains(outputNick))
-                    ChatHandler.autocompleteNames.add(outputNick);
+            } else if (!inputNick.equals("System")) {
+                return null;
             }
-        } else if (!inputNick.equals("System"))
-        {
-            return null;
-        }
-        
-        ITextComponent base = new TextComponentString("");
 
-        TextFormatting nickColour = TextFormatting.WHITE;
-        TextFormatting arrowColour = TextFormatting.WHITE;
-        TextFormatting messageColour = TextFormatting.WHITE;
-        
-        ITextComponent userComp = new TextComponentString(outputNick);
-        //userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
-        
+            ITextComponent base = new TextComponentString("");
 
-        
-        String messageStr = message.messageStr;
+            TextFormatting nickColour = TextFormatting.WHITE;
+            TextFormatting arrowColour = TextFormatting.WHITE;
+            TextFormatting messageColour = TextFormatting.WHITE;
 
-        String[] split = messageStr.split(" ");
-        
-        boolean highlight = false;
-        
-        for (int i = 0; i < split.length; i++)
-        {
-            String splitStr = split[i];
-            String justNick = splitStr.replaceAll("[^A-Za-z0-9#]", "");
-            if (justNick.startsWith("MT"))
-            {
-                if ((CreeperHost.profile.get() != null && (justNick.equals(CreeperHost.profile.get().getShortHash()) || justNick.equals(CreeperHost.profile.get().getMediumHash()))) || justNick.equals(CreeperHost.instance.ourNick)) {
-                    splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + CreeperHost.instance.playerName + messageColour);
-                    split[i] = splitStr;
-                    highlight = true;
-                } else {
-                    String userName = "User#" + justNick.substring(2,5);
-                    Profile mentionProfile = ChatHandler.knownUsers.findByNick(justNick);
-                    if(mentionProfile != null)
-                    {
-                        userName = mentionProfile.getDisplay();
-                    }
-                    if (userName != null) {
-                        splitStr = splitStr.replaceAll(justNick, userName);
+            ITextComponent userComp = new TextComponentString(outputNick);
+            //userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
+
+
+            String messageStr = message.messageStr;
+
+            String[] split = messageStr.split(" ");
+
+            boolean highlight = false;
+
+            for (int i = 0; i < split.length; i++) {
+                String splitStr = split[i];
+                String justNick = splitStr.replaceAll("[^A-Za-z0-9#]", "");
+                if (justNick.startsWith("MT")) {
+                    if ((CreeperHost.profile.get() != null && (justNick.equals(CreeperHost.profile.get().getShortHash()) || justNick.equals(CreeperHost.profile.get().getMediumHash()))) || justNick.equals(CreeperHost.instance.ourNick)) {
+                        splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + CreeperHost.instance.playerName + messageColour);
                         split[i] = splitStr;
-                    } 
+                        highlight = true;
+                    } else {
+                        String userName = "User#" + justNick.substring(2, 5);
+                        Profile mentionProfile = ChatHandler.knownUsers.findByNick(justNick);
+                        if (mentionProfile != null) {
+                            userName = mentionProfile.getDisplay();
+                        }
+                        if (userName != null) {
+                            splitStr = splitStr.replaceAll(justNick, userName);
+                            split[i] = splitStr;
+                        }
+                    }
                 }
             }
-        }
-        
-        messageStr = String.join(" ", split);
 
-        ITextComponent messageComp = newChatWithLinksOurs(messageStr);
+            messageStr = String.join(" ", split);
+
+            ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
 
-        if (CreeperHost.bannedUsers.contains(inputNick))
-            messageComp = new TextComponentString("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
+            if (CreeperHost.bannedUsers.contains(inputNick))
+                messageComp = new TextComponentString("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
 
-        messageComp.getStyle().setColor(TextFormatting.WHITE);
+            messageComp.getStyle().setColor(TextFormatting.WHITE);
 
-        if(ChatHandler.curseSync.containsKey(inputNick))
-        {
-            String realname = ChatHandler.curseSync.get(inputNick).trim();
-            String[] splitString = realname.split(":");
+            if (ChatHandler.curseSync.containsKey(inputNick)) {
+                String realname = ChatHandler.curseSync.get(inputNick).trim();
+                String[] splitString = realname.split(":");
 
-            if(splitString.length >= 2)
-            {
-                String name2 = splitString[1];
+                if (splitString.length >= 2) {
+                    String name2 = splitString[1];
 
-                if (name2.contains(Config.getInstance().curseProjectID) || name2.contains(CreeperHost.instance.ftbPackID) && !CreeperHost.instance.ftbPackID.isEmpty())
-                {
-                    nickColour = TextFormatting.DARK_PURPLE;
+                    if (name2.contains(Config.getInstance().curseProjectID) || name2.contains(CreeperHost.instance.ftbPackID) && !CreeperHost.instance.ftbPackID.isEmpty()) {
+                        nickColour = TextFormatting.DARK_PURPLE;
 //                    userComp.getStyle().setColor(TextFormatting.DARK_PURPLE);
+                    }
                 }
             }
-        }
 
-        if(inputNick.equals(CreeperHost.instance.ourNick) || inputNick.equals(CreeperHost.instance.ourNick + "`"))
-        {
-            nickColour = TextFormatting.GRAY;
-            arrowColour = premium.get() ? TextFormatting.GREEN : TextFormatting.GRAY;
-            messageColour = TextFormatting.GRAY;
+            if (inputNick.equals(CreeperHost.instance.ourNick) || inputNick.equals(CreeperHost.instance.ourNick + "`")) {
+                nickColour = TextFormatting.GRAY;
+                arrowColour = premium.get() ? TextFormatting.GREEN : TextFormatting.GRAY;
+                messageColour = TextFormatting.GRAY;
 
-            messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
-        }
-        
-        if (friend.get())
-        {
-            nickColour = TextFormatting.YELLOW;
-        }
-        if (premium.get())
-        {
-            arrowColour = TextFormatting.GREEN;
-        }
-        else if (outputNick.equals("System"))
-        {
-            Matcher matcher = nameRegex.matcher(messageStr);
-            if (matcher.find())
-            {
-                outputNick = matcher.group();
-                messageStr = messageStr.substring(outputNick.length() + 1);
-                outputNick = outputNick.substring(0, outputNick.length() - 1);
-                messageComp = newChatWithLinksOurs(messageStr);
-                userComp = new TextComponentString(outputNick);
+                messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             }
-            nickColour = TextFormatting.AQUA;
-            userComp.getStyle().setColor(TextFormatting.AQUA);
-        }
+
+            if (friend.get()) {
+                nickColour = TextFormatting.YELLOW;
+            }
+            if (premium.get()) {
+                arrowColour = TextFormatting.GREEN;
+            } else if (outputNick.equals("System")) {
+                Matcher matcher = nameRegex.matcher(messageStr);
+                if (matcher.find()) {
+                    outputNick = matcher.group();
+                    messageStr = messageStr.substring(outputNick.length() + 1);
+                    outputNick = outputNick.substring(0, outputNick.length() - 1);
+                    messageComp = newChatWithLinksOurs(messageStr);
+                    userComp = new TextComponentString(outputNick);
+                }
+                nickColour = TextFormatting.AQUA;
+                userComp.getStyle().setColor(TextFormatting.AQUA);
+            }
 
 //        if (highlight)
 //        {
@@ -774,23 +748,27 @@ public class GuiMTChat extends GuiScreen
 //            messageComp.getStyle().setColor(TextFormatting.RED);
 //            base.getStyle().setColor(TextFormatting.RED);
 //        }
-        
+
 //        base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
 
 //        base.appendSibling(new TimestampComponentString("Test"));
 
-        userComp = new TextComponentString(arrowColour + "<" + nickColour + userComp.getFormattedText() + arrowColour + "> ");
+            userComp = new TextComponentString(arrowColour + "<" + nickColour + userComp.getFormattedText() + arrowColour + "> ");
 
-        if (!inputNick.equals(CreeperHost.instance.ourNick) && !inputNick.equals(CreeperHost.instance.ourNick + "`") && inputNick.startsWith("MT"))
-        {
-            userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
-        }
-        
-        base.appendSibling(userComp);
+            if (!inputNick.equals(CreeperHost.instance.ourNick) && !inputNick.equals(CreeperHost.instance.ourNick + "`") && inputNick.startsWith("MT")) {
+                userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
+            }
+
+            base.appendSibling(userComp);
 
 //        base.appendSibling(new TextComponentString(" ").setStyle(new Style().setColor(TextFormatting.WHITE)));
 
-        return base.appendSibling(messageComp.setStyle(new Style().setColor(messageColour)));
+            return base.appendSibling(messageComp.setStyle(new Style().setColor(messageColour)));
+        } catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
+        return new TextComponentString("Error formatting line, Please report this to the issue tracker");
     }
 
     private class GuiScrollingChat extends GuiScrollingList
