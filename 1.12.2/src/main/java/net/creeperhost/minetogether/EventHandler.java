@@ -13,6 +13,7 @@ import net.creeperhost.minetogether.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
+import net.creeperhost.minetogether.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
@@ -274,17 +275,32 @@ public class EventHandler
         {
             firstConnect = false;
             String server = System.getProperty("mt.server");
-            String port = System.getProperty("mt.port", "25565");
-            int realPort = -1;
+            int serverId = -1;
             if (server != null)
             {
                 try {
-                    realPort = Integer.parseInt(port);
+                    serverId = Integer.parseInt(server);
                 } catch (Throwable t) {
-                    logger.error("Unable to auto connect to server as unable to parse port " + port, t);
+                    logger.error("Unable to auto connect to server as unable to parse server ID");
                 }
 
-                if (realPort != -1) net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(server, realPort);
+                Server serverObj = Callbacks.getServer(serverId);
+
+
+
+                if (serverObj != null)
+                {
+                    String[] serverSplit = serverObj.host.split(":");
+
+                    int realPort = -1;
+                    try {
+                         realPort = Integer.parseInt(serverSplit[1]);
+                    } catch (Throwable t) {
+                        logger.error("Unable to auto connect to server as unable to parse server port for ID " + serverId);
+                    }
+
+                    if(realPort != -1) net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(serverSplit[0], realPort);
+                }
             }
         }
 

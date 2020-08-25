@@ -787,6 +787,34 @@ public final class Callbacks
         }
         return serverListCache.get(listType);
     }
+
+
+    public static Server getServer(int id) {
+        Map<String, String> jsonPass = new HashMap<String, String>();
+        jsonPass.put("serverid", String.valueOf(id));
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(jsonPass);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/server", jsonString, true, false);
+        JsonElement jElement = new JsonParser().parse(resp);
+        if (jElement.isJsonObject())
+        {
+            JsonObject object = jElement.getAsJsonObject();
+            if(object.has("status") && object.get("status").getAsString().equals("success"))
+            {
+                JsonObject server = object.get("server").getAsJsonObject();
+                String host = server.get("ip").getAsString();
+                String name = server.get("name").getAsString();
+                String port = server.get("port").getAsString();
+                int uptime = server.get("uptime").getAsInt();
+                int players = server.get("expected_players").getAsInt();
+                EnumFlag flag = EnumFlag.UNKNOWN;
+
+                return new Server(name, host + ":" + port, uptime, players, flag, "", "");
+            }
+
+        }
+        return null;
+    }
     
     public static Map<String, String> getAllServerLocations()
     {
