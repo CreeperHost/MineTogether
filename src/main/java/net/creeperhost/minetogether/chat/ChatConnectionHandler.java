@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.chat;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.DebugHandler;
 import net.creeperhost.minetogether.common.IHost;
 import org.apache.logging.log4j.LogManager;
@@ -79,7 +80,7 @@ public class ChatConnectionHandler {
                 ChatHandler.inited.set(true);
                 ChatHandler.isInitting.set(false);
             }
-        }));
+        }, CreeperHost.instance.profileExecutor));
     }
 
     public synchronized void disconnect()

@@ -1,11 +1,11 @@
 package net.creeperhost.minetogether.chat;
 
 import net.creeperhost.minetogether.DebugHandler;
-import net.creeperhost.minetogether.KnownUsers;
+import net.creeperhost.minetogether.data.KnownUsers;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
-import net.creeperhost.minetogether.serverlist.data.Friend;
+import net.creeperhost.minetogether.data.Friend;
 import net.engio.mbassy.listener.Handler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
