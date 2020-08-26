@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -134,11 +135,11 @@ public class GuiMTChat extends GuiScreen
 
         if(Callbacks.isBanned())
         {
-            banMessage = Callbacks.getBanMessage();
-            buttonList.add(banButton = new ButtonString(8888, 46, height - 26, TextFormatting.RED + "Ban Reason: " + TextFormatting.WHITE + banMessage));
+            banMessage = "";
+            CompletableFuture.runAsync(Callbacks::getBanMessage);
+            if(!banMessage.isEmpty())
+                buttonList.add(banButton = new ButtonString(8888, 46, height - 26, TextFormatting.RED + "Ban Reason: " + TextFormatting.WHITE + banMessage));
         }
-
-//        buttonList.add(testButton = new GuiButton(-80089, 5 + 80, height - 5 - 25, 100, 20, "TARST")); // TODO: remove
     }
 
     long tickCounter = 0;
@@ -147,7 +148,6 @@ public class GuiMTChat extends GuiScreen
     public void updateScreen()
     {
         super.updateScreen();
-//        ServerAuthTest.processPackets();
         if(tickCounter % 10 == 0) rebuildChat();
 
         if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
@@ -570,8 +570,6 @@ public class GuiMTChat extends GuiScreen
                             return null;
                         String nick = split[1];
                         String nickDisplay = ChatHandler.getNameForUser(nick);
-                        Profile profile = ChatHandler.knownUsers.findByNick(nick);
-                        AtomicBoolean isFriend = new AtomicBoolean(false);
 
                         String cmdStr = message.messageStr;
                         String[] cmdSplit = cmdStr.split(" ");
@@ -661,8 +659,6 @@ public class GuiMTChat extends GuiScreen
             TextFormatting messageColour = TextFormatting.WHITE;
 
             ITextComponent userComp = new TextComponentString(outputNick);
-            //userComp.setStyle(new Style().setColor(TextFormatting.GRAY)); // Default colour for people on different modpacks
-
 
             String messageStr = message.messageStr;
 

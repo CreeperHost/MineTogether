@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class KnownUsers
 {
     private AtomicReference<List<Profile>> profiles = new AtomicReference<List<Profile>>();
-    private static Executor profileExecutor = new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    private static Executor profileExecutor = Executors.newWorkStealingPool(); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     Logger logger = LogManager.getLogger(KnownUsers.class.getName());
 
     public KnownUsers()
@@ -30,10 +30,10 @@ public class KnownUsers
                 return profiles1;
             });
             CompletableFuture.runAsync(() -> {
-                logger.error("Loading profile for "+hash+"...");
+                logger.error("Loading profile for " + hash + "...");
                 Profile profileFuture = findByNick(hash);
                 profileFuture.loadProfile();
-                logger.error("Loaded profile for "+hash+"...");
+                logger.error("Loaded profile for " + hash + "...");
             }, profileExecutor);
             return profile;
         }
