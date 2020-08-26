@@ -204,16 +204,11 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
-        CompletableFuture.runAsync(() -> {
-            try
-            {
-                profile.set(Callbacks.getProfile());
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        });
+        if(profile.get() == null)
+        {
+            profile.set(new Profile(ourNick));
+            CompletableFuture.runAsync(() -> profile.get().loadProfile());
+        }
     }
     
     public void updateFtbPackID()
