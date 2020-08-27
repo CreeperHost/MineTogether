@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.element;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
@@ -7,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiButtonMultiple extends GuiButton
 {
-    private static ResourceLocation buttonImg = new ResourceLocation("creeperhost", "textures/gui.png");
+    private static ResourceLocation buttonImg = new ResourceLocation(CreeperHost.MOD_ID, "textures/gui.png");
     private final int index;
     
     public GuiButtonMultiple(int buttonID, int xPos, int yPos, int index)

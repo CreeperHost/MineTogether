@@ -236,8 +236,8 @@ public class GuiMTChat extends GuiScreen
         int height = (int) (containerHeight * adjust);
         int x = (int) (containerX * adjust);
         int y = (int) (containerY * adjust);
-        ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/creeperhost_logo_1-25.png");
-        ResourceLocation resourceLocationMineTogetherLogo = new ResourceLocation("creeperhost", "textures/minetogether25.png");
+        ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(CreeperHost.MOD_ID, "textures/creeperhost_logo_1-25.png");
+        ResourceLocation resourceLocationMineTogetherLogo = new ResourceLocation(CreeperHost.MOD_ID, "textures/minetogether25.png");
         
         GL11.glPushMatrix();
         GlStateManager.scale(scale, scale, scale);

@@ -345,8 +345,8 @@ public class GuiChatOurs extends GuiChat
     @Deprecated
     public void drawLogo()
     {
-        ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/creeperhost25.png");
-        ResourceLocation resourceLocationMinetogetherLogo = new ResourceLocation("creeperhost", "textures/minetogether25.png");
+        ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(CreeperHost.MOD_ID, "textures/creeperhost25.png");
+        ResourceLocation resourceLocationMinetogetherLogo = new ResourceLocation(CreeperHost.MOD_ID, "textures/minetogether25.png");
         
         GL11.glPushMatrix();
         Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);

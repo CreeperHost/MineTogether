@@ -31,10 +31,9 @@ public class KnownUsers
                 return profiles1;
             });
             CompletableFuture.runAsync(() -> {
-                logger.error("Loading profile for " + hash + "...");
+//                logger.error("Loading profile for " + hash + "...");
                 Profile profileFuture = findByNick(hash);
                 profileFuture.loadProfile();
-                logger.error("Loaded profile for " + hash + "...");
             }, CreeperHost.instance.profileExecutor);
             return profile;
         }

@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.Order;
@@ -37,7 +38,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     public GuiGeneralServerInfo(int stepId, Order order)
     {
         super(stepId, order);
-        lockIcon = new ResourceLocation("creeperhost", "textures/lock.png");
+        lockIcon = new ResourceLocation(CreeperHost.MOD_ID, "textures/lock.png");
     }
     
     @Override

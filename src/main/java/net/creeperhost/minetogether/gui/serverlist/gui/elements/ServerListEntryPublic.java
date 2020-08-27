@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.serverlist.gui.elements;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.gui.serverlist.data.ServerDataPublic;
@@ -15,8 +16,8 @@ public class ServerListEntryPublic extends ServerListEntryNormal
 {
     public final ServerListEntryNormal wrapped;
     public final GuiMultiplayer owner;
-    private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
-    private ResourceLocation applicationGui = new ResourceLocation("creeperhost", "textures/gui.png");
+    private ResourceLocation flags = new ResourceLocation(CreeperHost.MOD_ID, "textures/flags/flags.png");
+    private ResourceLocation applicationGui = new ResourceLocation(CreeperHost.MOD_ID, "textures/gui.png");
     
     public ServerListEntryPublic(GuiMultiplayer mp, ServerListEntryNormal wrapped)
     {

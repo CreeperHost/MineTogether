@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.element;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
@@ -7,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiButtonRefresh extends GuiButton
 {
-    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/gui.png");
+    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation(CreeperHost.MOD_ID, "textures/gui.png");
     private final int index;
 
     public GuiButtonRefresh(int buttonID, int xPos, int yPos, int index)

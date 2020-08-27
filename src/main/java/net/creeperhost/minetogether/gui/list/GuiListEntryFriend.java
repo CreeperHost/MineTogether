@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.list;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.data.Friend;
 import net.minecraft.client.Minecraft;
@@ -16,7 +17,7 @@ public class GuiListEntryFriend extends GuiListEntry
     private float transparency = 0.5F;
     private boolean wasHovering;
     private final GuiFriendsList friendsList;
-    ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/icon2.png");
+    ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(CreeperHost.MOD_ID, "textures/icon2.png");
 
     public GuiListEntryFriend(GuiFriendsList friendsListIn, GuiList list, Friend friend)
     {

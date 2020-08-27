@@ -31,8 +31,8 @@ public class CreeperHostServerHost implements IServerHost
 {
     public static Map<String, String> locations = new HashMap<String, String>();
     
-    private ResourceLocation buttonIcon = new ResourceLocation("creeperhost", "textures/gui.png");
-    private ResourceLocation menuIcon = new ResourceLocation("creeperhost", "textures/creeperhost.png");
+    private ResourceLocation buttonIcon = new ResourceLocation(CreeperHost.MOD_ID, "textures/gui.png");
+    private ResourceLocation menuIcon = new ResourceLocation(CreeperHost.MOD_ID, "textures/creeperhost.png");
     
     @Override
     public ResourceLocation getButtonIcon()
