@@ -875,37 +875,39 @@ public class GuiMTChat extends GuiScreen
         
         @Override
         protected void drawBackground() {}
+
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess)
         {
-            ITextComponent component = lines.get(slotIdx);
-            int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
-            mouseX -= this.left;
-            int totalWidth = 5;
-            for (ITextComponent sibling : component.getSiblings())
+            try
             {
-                int oldTotal = totalWidth;
-                totalWidth += fontRendererObj.getStringWidth(sibling.getFormattedText());
-                boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > slotTop && mouseY < slotTop + slotHeight;
-                if (sibling.getStyle().getClickEvent() != null)
-                {
-                    if (hovering)
-                    {
-                        mc.fontRendererObj.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), left + oldTotal, slotTop, 0xFF000000);
-                        GlStateManager.enableBlend();
-                        GlStateManager.color(1, 1, 1, 0.90F);
-                        mc.fontRendererObj.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xBBFFFFFF);
-                        GlStateManager.color(1, 1, 1, 1);
-                        
-                    } else
-                    {
-                        mc.fontRendererObj.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xFFFFFFFF);
+                ITextComponent component = lines.get(slotIdx);
+                int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
+                mouseX -= this.left;
+                int totalWidth = 5;
+                for (ITextComponent sibling : component.getSiblings()) {
+                    int oldTotal = totalWidth;
+                    totalWidth += fontRendererObj.getStringWidth(sibling.getFormattedText());
+                    boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > slotTop && mouseY < slotTop + slotHeight;
+                    if (sibling.getStyle().getClickEvent() != null) {
+                        if (hovering) {
+                            mc.fontRendererObj.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), left + oldTotal, slotTop, 0xFF000000);
+                            GlStateManager.enableBlend();
+                            GlStateManager.color(1, 1, 1, 0.90F);
+                            mc.fontRendererObj.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xBBFFFFFF);
+                            GlStateManager.color(1, 1, 1, 1);
+
+                        } else {
+                            mc.fontRendererObj.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xFFFFFFFF);
+                        }
+
+                    } else {
+                        mc.fontRendererObj.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xFFFFFF);
                     }
-                    
-                } else
-                {
-                    mc.fontRendererObj.drawString(sibling.getFormattedText(), left + oldTotal, slotTop, 0xFFFFFF);
                 }
+            } catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }
     }
