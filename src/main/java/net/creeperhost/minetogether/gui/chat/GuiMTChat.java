@@ -718,6 +718,7 @@ public class GuiMTChat extends GuiScreen
 
             if (friend.get()) {
                 nickColour = TextFormatting.YELLOW;
+                inputNick = outputNick;
             }
             if (premium.get()) {
                 arrowColour = TextFormatting.GREEN;
@@ -734,17 +735,6 @@ public class GuiMTChat extends GuiScreen
                 userComp.getStyle().setColor(TextFormatting.AQUA);
             }
 
-//        if (highlight)
-//        {
-//            userComp.getStyle().setColor(TextFormatting.RED);
-//            messageComp.getStyle().setColor(TextFormatting.RED);
-//            base.getStyle().setColor(TextFormatting.RED);
-//        }
-
-//        base.getStyle().setHoverEvent(new HoverEvent(CreeperHost.instance.TIMESTAMP, new TextComponentString(timestampFormat.format(new Date(message.timeReceived))).setStyle(new Style().setColor(TextFormatting.DARK_GRAY))));
-
-//        base.appendSibling(new TimestampComponentString("Test"));
-
             userComp = new TextComponentString(arrowColour + "<" + nickColour + userComp.getFormattedText() + arrowColour + "> ");
 
             if (!inputNick.equals(CreeperHost.instance.ourNick) && !inputNick.equals(CreeperHost.instance.ourNick + "`") && inputNick.startsWith("MT")) {
@@ -752,8 +742,6 @@ public class GuiMTChat extends GuiScreen
             }
 
             base.appendSibling(userComp);
-
-//        base.appendSibling(new TextComponentString(" ").setStyle(new Style().setColor(TextFormatting.WHITE)));
 
             return base.appendSibling(messageComp.setStyle(new Style().setColor(messageColour)));
         } catch (Throwable e)

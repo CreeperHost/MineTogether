@@ -46,26 +46,19 @@ public class GuiSettings extends GuiScreen
         super.actionPerformed(button);
         if(button == buttonEnableChat)
         {
-            boolean enabled = Config.getInstance().isChatEnabled();
-            Config.getInstance().setChatEnabled(!enabled);
+            if(Config.getInstance().isChatEnabled())
+            {
+                CreeperHost.instance.getLogger().info("Disabling in-game chat");
+                Config.getInstance().setChatEnabled(false);
+                CreeperHost.proxy.disableIngameChat();
+            }
+            else
+            {
+                CreeperHost.instance.getLogger().info("Enabling in-game chat");
+                Config.getInstance().setChatEnabled(true);
+                CreeperHost.proxy.enableIngameChat();
+            }
             saveConfig();
-            if(!enabled)
-            {
-                if(ChatHandler.connectionStatus == ChatHandler.ConnectionStatus.CONNECTED)
-                {
-                    CreeperHost.instance.getLogger().error("Disconnecting chat");
-                    ChatHandler.connectionStatus = ChatHandler.ConnectionStatus.DISCONNECTED;
-                    ChatHandler.client.shutdown();
-                }
-            }
-            if(enabled)
-            {
-                if(ChatHandler.connectionStatus == ChatHandler.ConnectionStatus.DISCONNECTED)
-                {
-                    CreeperHost.instance.getLogger().error("connecting chat");
-                    CreeperHost.proxy.startChat();
-                }
-            }
         }
         if(button == buttonEnableFriendToasts)
         {

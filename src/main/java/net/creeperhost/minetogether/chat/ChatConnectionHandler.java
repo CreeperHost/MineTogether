@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.chat;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.DebugHandler;
+import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.IHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -96,7 +97,7 @@ public class ChatConnectionHandler {
 
     public boolean canConnect()
     {
-        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited.get() || ChatHandler.isInitting.get();
+        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited.get() || ChatHandler.isInitting.get() || Config.getInstance().isChatEnabled();
     }
 
     public void nextConnectAllow(int timeout) {

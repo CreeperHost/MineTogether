@@ -304,11 +304,7 @@ public class EventHandler
         }
 
         if(!isOnline) return;
-        
-        // TODO: remove test
-//        if (gui instanceof GuiMainMenu) {
-//            event.getButtonList().add(new GuiButton(-123, 0, 0, "test"));
-//        }
+
         if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu)
         {
             CreeperHost.instance.setRandomImplementation();
@@ -627,10 +623,6 @@ public class EventHandler
         GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu)
         {
-//            if (button != null && button.id == -123)
-//            {
-//                KeycloakOAuth.main(new String[]{});
-//            }
             if (button != null && button.id == MAIN_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));

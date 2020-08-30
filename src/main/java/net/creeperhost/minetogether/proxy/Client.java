@@ -136,6 +136,7 @@ public class Client implements IProxy
         CreeperHost.instance.ingameChat.setDisabledIngameChat(true);
         if (isChatReplaced)
         {
+            isChatReplaced = false;
             ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
         }
     }
