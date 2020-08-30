@@ -50,6 +50,7 @@ public class GuiSettings extends GuiScreen
             {
                 CreeperHost.instance.getLogger().info("Disabling in-game chat");
                 Config.getInstance().setChatEnabled(false);
+                CreeperHost.proxy.stopChat();
                 CreeperHost.proxy.disableIngameChat();
             }
             else
