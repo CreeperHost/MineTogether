@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 public class GuiButtonChat extends GuiButton
 {
     private boolean active;
-    
+
     public GuiButtonChat(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText)
     {
         super(buttonId, x, y, widthIn, heightIn, buttonText);
@@ -52,9 +52,8 @@ public class GuiButtonChat extends GuiButton
             }
             
             drawRect(xPosition, yPosition, xPosition + width, yPosition + height, l1 / 2 << 24);
-            
+
             this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, j);
-            
         }
     }
     

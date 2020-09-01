@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.gui.chat.ingame;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.chat.GuiChatFriend;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
@@ -216,9 +217,9 @@ public class GuiChatOurs extends GuiChat
         } catch(NullPointerException err){}//Who actually cares? If getCurrentServerData() is a NPE then we've got our answer anyway.
         if(ChatHandler.hasGroup) {
         //if(true) {
-            buttonList.add(switchButton = new GuiButtonPair(808, x, height - 215, 234, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).isBase() ? 0 : ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).chatTarget.equals(ChatHandler.CHANNEL) ? 1 : 2, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
+            buttonList.add(switchButton = new GuiButtonPair(808, Config.getInstance().isLeft() ? x : 12, height - 215, 234, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).isBase() ? 0 : ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).chatTarget.equals(ChatHandler.CHANNEL) ? 1 : 2, false, false, true, !Config.getInstance().isLeft(), defaultStr, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
         } else {
-            buttonList.add(switchButton = new GuiButtonPair(808, x, height - 156, 156, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).isBase() ? 0 : 1, false, false, true, defaultStr, I18n.format("minetogether.ingame.chat.global")));
+            buttonList.add(switchButton = new GuiButtonPair(808, Config.getInstance().isLeft() ? x : 12, height - 156, 156, 16, !CreeperHost.instance.gdpr.hasAcceptedGDPR() || ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).isBase() ? 0 : 1, false, false, true, !Config.getInstance().isLeft(), defaultStr, I18n.format("minetogether.ingame.chat.global")));
         }
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new GuiMTChat.Menu(strings), true));
         menuDropdownButton.flipped = true;

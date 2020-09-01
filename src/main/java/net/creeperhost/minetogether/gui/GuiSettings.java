@@ -17,6 +17,7 @@ public class GuiSettings extends GuiScreen
     private GuiButton buttonEnableChat;
     private GuiButton buttonEnableFriendToasts;
     private GuiButton linkAccount;
+    private GuiButton chatPos;
 
     private GuiButton buttonDone;
 
@@ -34,6 +35,7 @@ public class GuiSettings extends GuiScreen
         buttonEnableChat = this.addButton(new GuiButton(0, this.width / 2 - 123, 40, 120, 20, I18n.format("Public Chat : " + format(Config.getInstance().isChatEnabled()))));
         buttonEnableFriendToasts = this.addButton(new GuiButton(1, this.width / 2 + 3, 40, 120, 20, I18n.format("Toasts : " + format(Config.getInstance().isFriendOnlineToastsEnabled()))));
 
+//        chatPos = this.addButton(new GuiButton(3, this.width / 2 - 123, 60, 120, 20, I18n.format("Chat Location : " + formatLR(Config.getInstance().isLeft()))));
 
         linkAccount = this.addButton(new GuiButton(69, this.width / 2 - 100, this.height - 47, 200, 20, I18n.format("Link Account")));
 
@@ -75,6 +77,20 @@ public class GuiSettings extends GuiScreen
         {
             mc.displayGuiScreen(new GuiYahNah(this, I18n.format("Link your Minecraft account to your MineTogether account."), I18n.format("Linking your accounts will unlock abilities link being able to set your own nickname.\\n\\nThis will open a web-browser for you to sign in securely."), 0));
         }
+//        if(button == chatPos)
+//        {
+//            if(Config.getInstance().isLeft())
+//            {
+//                CreeperHost.instance.getLogger().info("Disabling in-game chat");
+//                Config.getInstance().setLeft(false);
+//            }
+//            else
+//            {
+//                CreeperHost.instance.getLogger().info("Enabling in-game chat");
+//                Config.getInstance().setLeft(true);
+//            }
+//            saveConfig();
+//        }
     }
 
     @Override
@@ -95,6 +111,13 @@ public class GuiSettings extends GuiScreen
         if(value) return TextFormatting.GREEN + "Enabled";
 
         return TextFormatting.RED + "Disabled";
+    }
+
+    public String formatLR(boolean value)
+    {
+        if(value) return TextFormatting.GREEN + "Left";
+
+        return TextFormatting.RED + "Right";
     }
 
     @Override

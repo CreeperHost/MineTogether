@@ -116,7 +116,7 @@ public class Profile
                 premium = profileData.get("premium").getAsBoolean();
                 online = profileData.getAsJsonObject("chat").get("online").getAsBoolean();
                 userDisplay = "User#" + longHash.substring(0,5);
-                if(premium && display.length() > 0)
+                if(display.length() > 8)
                 {
                     userDisplay = display;
                 }

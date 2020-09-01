@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
+import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.TimestampComponentString;
@@ -125,6 +126,7 @@ public class GuiNewChatOurs extends GuiNewChat
     private final List<String> sentMessages = Lists.<String>newArrayList();
 
     public final ITextComponent closeComponent;
+    int xLocation;
     
     public GuiNewChatOurs(Minecraft mcIn)
     {
@@ -149,12 +151,16 @@ public class GuiNewChatOurs extends GuiNewChat
     @Override
     public void drawChat(int updateCounter)
     {
+        xLocation = Config.getInstance().isLeft() ? 2 : 14;
+
         List<ChatLine> tempDrawnChatLines = drawnChatLines;
         int minLines = isBase() ? (14 + ((ChatHandler.hasGroup) ? 6 : 0)) : 20;
         int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
 
         if (isBase())
+        {
             super.drawChat(updateCounter);
+        }
         else
         {
             if(tickCounter % 20 == 0) rebuildChat(ChatHandler.CHANNEL);
@@ -187,7 +193,7 @@ public class GuiNewChatOurs extends GuiNewChat
                     float f1 = this.getChatScale();
                     int k = MathHelper.ceil((float) this.getChatWidth() / f1);
                     GlStateManager.pushMatrix();
-                    GlStateManager.translate(2.0F, 8.0F, 0.0F);
+                    GlStateManager.translate((float) xLocation, 8.0F, 0.0F);
                     GlStateManager.scale(f1, f1, 1.0F);
                     int l = 0;
 
@@ -282,8 +288,8 @@ public class GuiNewChatOurs extends GuiNewChat
                         {
                             int k3 = j3 > 0 ? 170 : 96;
                             int l3 = this.isScrolled ? 13382451 : 3355562;
-                            drawRect(0, -j3, 2, -j3 - k1, l3 + (k3 << 24));
-                            drawRect(2, -j3, 1, -j3 - k1, 13421772 + (k3 << 24));
+//                            drawRect(0, -j3, 2, -j3 - k1, l3 + (k3 << 24));
+//                            drawRect(2, -j3, 1, -j3 - k1, 13421772 + (k3 << 24));
                         }
                     }
                     
@@ -301,7 +307,7 @@ public class GuiNewChatOurs extends GuiNewChat
         {
             float f1 = this.getChatScale();
             GlStateManager.pushMatrix();
-            GlStateManager.translate(2.0F, 8.0F, 0.0F);
+            GlStateManager.translate((float) xLocation, 8.0F, 0.0F);
             GlStateManager.scale(f1, f1, 1.0F);
 
             int k = MathHelper.ceil((float) this.getChatWidth() / f1);
@@ -313,14 +319,6 @@ public class GuiNewChatOurs extends GuiNewChat
                 drawRect(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
             }
 
-
-            //lines = lines - minLines;
-            //lines = 1;
-
-            //if (!isBase() && getChatOpen())
-                //GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
-
-            
             GlStateManager.popMatrix();
         }
     }
@@ -482,15 +480,15 @@ public class GuiNewChatOurs extends GuiNewChat
 
                 int top = this.mc.fontRendererObj.FONT_HEIGHT * l + 1;
 
-                if (
-                        !chatTarget.equals(ChatHandler.CHANNEL) &&
+                if (!chatTarget.equals(ChatHandler.CHANNEL) &&
                         j <= width && j >= width - mc.fontRendererObj.getStringWidth(closeComponent.getFormattedText()) &&
                         k <= top && k >= top - (this.mc.fontRendererObj.FONT_HEIGHT))
                     return closeComponent;
+
+                if(!Config.getInstance().isLeft() && mouseX < 40) return null;
                 
                 if (j >= 0 && k >= 0)
                 {
-
                     if (j <= MathHelper.floor((float) this.getChatWidth() / this.getChatScale()) && k < this.mc.fontRendererObj.FONT_HEIGHT * l + l)
                     {
                         int i1 = k / this.mc.fontRendererObj.FONT_HEIGHT + this.scrollPos;

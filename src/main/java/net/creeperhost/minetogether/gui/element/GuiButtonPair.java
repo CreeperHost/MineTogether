@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.element;
 
+import net.creeperhost.minetogether.common.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,14 +20,16 @@ public class GuiButtonPair extends GuiButton
     private final boolean stack;
     private final boolean swapOnClick;
     private final boolean vertical;
+    private final boolean rotated;
 
-    public GuiButtonPair(int buttonId, int x, int y, int widthIn, int heightIn, int state, boolean stack, boolean swapOnClick, boolean vertical, String ... buttonTexts)
+    public GuiButtonPair(int buttonId, int x, int y, int widthIn, int heightIn, int state, boolean stack, boolean swapOnClick, boolean vertical, boolean rotated, String ... buttonTexts)
     {
         super(buttonId, x, y, widthIn, heightIn, buttonTexts[0]);
         activeButton = state;
         this.swapOnClick = swapOnClick;
         this.stack = stack;
         this.vertical = vertical;
+        this.rotated = rotated;
 
         int fakeButtonId = 1;
 
@@ -72,8 +75,6 @@ public class GuiButtonPair extends GuiButton
                 button.xPosition = baseX + (visibleNum * buttWidth);
                 button.yPosition = baseY;
             }
-
-            //System.out.println(button);
         }
     }
     
@@ -140,14 +141,29 @@ public class GuiButtonPair extends GuiButton
             tempTranslateY -= scale;
 
             GlStateManager.translate(tempTranslateX, tempTranslateY, 0);
-            
-            GlStateManager.rotate(90, 0, 0, 1);
+//
+//            if (rotated)
+//            {
+////                GlStateManager.pushMatrix();
+//                GlStateManager.rotate(-180, 0, 0,-1);
+////                GlStateManager.popMatrix();
+//
+//                for(int buttNum = 0; buttNum < buttonCount; buttNum++)
+//                {
+//                    GuiButtonChat button = buttons.get(buttNum);
+//                    button.xPosition = cachedX[buttNum];
+//                    button.yPosition = cachedY[buttNum];
+//                }
+//            }
+            GlStateManager.rotate(-90, 0, 0, -1);
         }
 
         for(GuiButtonChat button: buttons)
         {
             button.func_191745_a(p_191745_1_, (int) mouseX, (int) mouseY, p_191745_4_);
         }
+
+
 
         if (vertical)
         {
@@ -156,14 +172,13 @@ public class GuiButtonPair extends GuiButton
             
             GlStateManager.scale(1.0F / scale, 1.0F / scale, 1.0F / scale);
 
-            for(int buttNum = 0; buttNum < buttonCount; buttNum++) {
+            for(int buttNum = 0; buttNum < buttonCount; buttNum++)
+            {
                 GuiButtonChat button = buttons.get(buttNum);
                 button.xPosition = cachedX[buttNum];
                 button.yPosition = cachedY[buttNum];
             }
-
         }
-        
     }
 
     @Override
@@ -195,31 +210,6 @@ public class GuiButtonPair extends GuiButton
                 button.setActive(false);
             }
         }
-
         return pressed;
-
-        /*if (activeButton == 0)
-        {
-            if (button2.mousePressed(mc, (int) mouseX, (int) mouseY))
-            {
-                activeButton = 1;
-                button1.setActive(false);
-                button2.setActive(true);
-                setButtonDetails();
-                return true;
-            }
-        } else
-        {
-            if (button1.mousePressed(mc, (int) mouseX, (int) mouseY))
-            {
-                activeButton = 0;
-                button2.setActive(false);
-                button1.setActive(true);
-                setButtonDetails();
-                return true;
-            }
-        }*/
-
-        //return false;
     }
 }
