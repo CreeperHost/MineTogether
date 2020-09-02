@@ -43,7 +43,7 @@ public class Profile
         this.display = display;
         this.premium = premium;
         this.userDisplay = "User#" + longHash.substring(0,5);
-        if(premium && display.length() > 0)
+        if(display.length() > 0)
         {
             this.userDisplay = display;
         }

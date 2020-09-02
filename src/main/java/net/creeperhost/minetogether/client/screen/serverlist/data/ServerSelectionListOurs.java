@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.MultiplayerPublicScreen;
 import net.creeperhost.minetogether.data.EnumFlag;
+import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -78,8 +79,8 @@ public class ServerSelectionListOurs extends ServerSelectionList
         MultiplayerPublicScreen multiplayerScreen;
         ServerData wrappedEntry;
         Minecraft mc = Minecraft.getInstance();
-        private ResourceLocation flags = new ResourceLocation("creeperhost", "textures/flags/flags.png");
-        private ResourceLocation applicationGui = new ResourceLocation("creeperhost", "textures/gui.png");
+        private ResourceLocation flags = new ResourceLocation(Constants.MOD_ID, "textures/flags/flags.png");
+        private ResourceLocation applicationGui = new ResourceLocation(Constants.MOD_ID, "textures/gui.png");
         private String lastIconB64;
         private ResourceLocation serverIcon;
         private DynamicTexture icon;

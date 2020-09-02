@@ -8,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiButtonCreeper extends Button
 {
-    private static ResourceLocation buttonImg = new ResourceLocation("creeperhost", "textures/nobrand.png");
+    private static ResourceLocation buttonImg = new ResourceLocation(Constants.MOD_ID, "textures/nobrand.png");
     private final int index;
     
     public GuiButtonCreeper(int xPos, int yPos, int index, Button.IPressable onPress)

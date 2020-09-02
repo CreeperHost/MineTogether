@@ -56,6 +56,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -104,6 +106,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     public AtomicBoolean isBanned = new AtomicBoolean(false);
 
     public static boolean isOnline = false;
+    public static Executor profileExecutor = Executors.newCachedThreadPool(); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicReference<Profile> profile = new AtomicReference<>();
     public static AtomicReference<UUID> UUID = new AtomicReference<>();
@@ -187,16 +190,10 @@ public class MineTogether implements ICreeperHostMod, IHost
         
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
-        CompletableFuture.runAsync(() -> {
-            try
-            {
-                profile.set(Callbacks.getProfile());
-
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        });
+        if (profile.get() == null) {
+            profile.set(new Profile(ourNick));
+            CompletableFuture.runAsync(() -> profile.get().loadProfile(), profileExecutor);
+        }
     }
     
     @SubscribeEvent

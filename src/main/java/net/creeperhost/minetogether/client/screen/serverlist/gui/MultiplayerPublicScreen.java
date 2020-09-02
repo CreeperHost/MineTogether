@@ -15,6 +15,7 @@ import net.creeperhost.minetogether.client.screen.serverlist.data.ServerSelectio
 import net.creeperhost.minetogether.client.screen.serverlist.gui.elements.ServerListPublic;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
+import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
@@ -334,13 +335,13 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
         private float transparency = 0.5F;
         private final String cross;
         private final int stringWidth;
-        protected final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/hidebtn.png");
+        protected final ResourceLocation BUTTON_TEXTURES = new ResourceLocation(Constants.MOD_ID, "textures/hidebtn.png");
         
         public CreeperHostEntry(ServerSelectionList list)
         {
             super();
             mc = Minecraft.getInstance();
-            serverIcon = new ResourceLocation("creeperhost", "textures/creeperhost.png");
+            serverIcon = new ResourceLocation(Constants.MOD_ID, "textures/creeperhost.png");
             cross = new String(Character.toChars(10006));
             stringWidth = this.mc.fontRenderer.getStringWidth(cross);
         }

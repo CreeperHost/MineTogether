@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
 import net.creeperhost.minetogether.client.screen.chat.TimestampComponentString;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.proxy.Client;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.minecraft.client.Minecraft;
@@ -296,8 +297,8 @@ public class GuiNewChatOurs extends NewChatGui
                         {
                             int k3 = j3 > 0 ? 170 : 96;
                             int l3 = this.isScrolled ? 13382451 : 3355562;
-                            fill(0, -j3, 2, -j3 - k1, l3 + (k3 << 24));
-                            fill(2, -j3, 1, -j3 - k1, 13421772 + (k3 << 24));
+                            //fill(0, -j3, 2, -j3 - k1, l3 + (k3 << 24));
+                            //fill(2, -j3, 1, -j3 - k1, 13421772 + (k3 << 24));
                         }
                     }
                     

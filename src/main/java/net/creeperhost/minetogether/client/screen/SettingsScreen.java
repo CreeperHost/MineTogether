@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen;
 
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
@@ -29,6 +30,16 @@ public class SettingsScreen extends Screen
         this.addButton(new Button(this.width / 2 - 123, 40, 120, 20, I18n.format("Chat Enabled: " + Config.getInstance().isChatEnabled()), p ->
         {
             boolean enabled = Config.getInstance().isChatEnabled();
+
+            if (enabled) {
+                MineTogether.instance.getLogger().info("Disabling in-game chat");
+                MineTogether.proxy.stopChat();
+                MineTogether.proxy.disableIngameChat();
+            } else {
+                MineTogether.instance.getLogger().info("Enabling in-game chat");
+                MineTogether.proxy.enableIngameChat();
+            }
+
             Config.getInstance().setChatEnabled(!enabled);
             saveConfig();
         }));

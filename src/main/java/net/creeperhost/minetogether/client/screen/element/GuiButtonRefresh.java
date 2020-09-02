@@ -1,13 +1,14 @@
 package net.creeperhost.minetogether.client.screen.element;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.creeperhost.minetogether.lib.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiButtonRefresh extends Button
 {
-    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/gui.png");
+    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation(Constants.MOD_ID, "textures/gui.png");
     private final int index;
     
     public GuiButtonRefresh(int xPos, int yPos, int index, Button.IPressable onPress)

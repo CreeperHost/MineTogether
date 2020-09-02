@@ -153,7 +153,6 @@
   "creeperhost.multiplayer.addlist":"Add to your server list? Applies for both Cancel and Connect.",
   "creeperhost.multiplayer.cancel":"Cancel",
   "creeperhost.multiplayer.connect":"Connect",
-  "creeperhost.multiplayer.list.public ":" Public",
 
   "minetogether.keys":"MineTogether",
   "minetogether.key.friends":"Open Friends List",
@@ -279,5 +278,6 @@
   "minetogether.groupinvite.sure1":"Are you sure you wish to invite this person to a group chat?,",
   "minetogether.groupinvite.sure2":"Once this has been done, it cannot be undone and you will need to create a new group to remove them.\n\nIf you are already in someone else's group chat, you will leave it.",
   "minetogether.unmute.sure1":"Are you sure you wish to unmute this person?",
-  "minetogether.unmute.sure2":""
+  "minetogether.unmute.sure2":"",
+  "minetogether.friend.addname": "Please enter the name you want your friend to know you as"
 }

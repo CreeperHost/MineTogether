@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.client.screen.list;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.FriendsListScreen;
 import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.lib.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.ResourceLocation;
@@ -16,7 +17,7 @@ public class GuiListEntryFriend extends GuiListEntry
     private float transparency = 0.5F;
     private boolean wasHovering;
     private final FriendsListScreen friendsList;
-    ResourceLocation resourceLocationCreeperLogo = new ResourceLocation("creeperhost", "textures/icon2.png");
+    ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(Constants.MOD_ID, "textures/icon2.png");
     
     public GuiListEntryFriend(FriendsListScreen friendsListIn, GuiList list, Friend friend)
     {

@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.screen.order;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.AvailableResult;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.screen.element.GuiTextFieldValidate;
@@ -30,7 +31,7 @@ public class GuiGeneralServerInfo extends GuiGetServer
     public GuiGeneralServerInfo(int stepId, Order order)
     {
         super(stepId, order);
-        lockIcon = new ResourceLocation("creeperhost", "textures/lock.png");
+        lockIcon = new ResourceLocation(Constants.MOD_ID, "textures/lock.png");
     }
     
     @Override

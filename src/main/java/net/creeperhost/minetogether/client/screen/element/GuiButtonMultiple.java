@@ -1,13 +1,14 @@
 package net.creeperhost.minetogether.client.screen.element;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.creeperhost.minetogether.lib.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiButtonMultiple extends Button
 {
-    private static ResourceLocation buttonImg = new ResourceLocation("creeperhost", "textures/gui.png");
+    private static ResourceLocation buttonImg = new ResourceLocation(Constants.MOD_ID, "textures/gui.png");
     private final int index;
     
     public GuiButtonMultiple(int xPos, int yPos, int index, Button.IPressable onPress)

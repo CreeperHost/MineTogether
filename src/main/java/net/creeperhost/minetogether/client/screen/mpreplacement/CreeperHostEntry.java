@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.screen.order.GuiGetServer;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
+import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MultiplayerScreen;
@@ -19,8 +20,8 @@ import net.minecraftforge.fml.client.gui.GuiUtils;
 @OnlyIn(Dist.CLIENT)
 public class CreeperHostEntry extends ServerData
 {
-    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("creeperhost", "textures/hidebtn.png");
-    protected static final ResourceLocation MPPARTNER_TEXTURES = new ResourceLocation("creeperhost", "textures/mppartner.png");
+    protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation(Constants.MOD_ID, "textures/hidebtn.png");
+    protected static final ResourceLocation MPPARTNER_TEXTURES = new ResourceLocation(Constants.MOD_ID, "textures/mppartner.png");
     private final Minecraft mc = Minecraft.getInstance();
     private final String cross;
     private final int stringWidth;
@@ -36,7 +37,7 @@ public class CreeperHostEntry extends ServerData
     {
         super(name, ip, isLan);
 //        ourMP = p_i45048_1_;
-        serverIcon = Config.getInstance().isServerHostMenuImage() ? MineTogether.instance.getImplementation().getMenuIcon() : new ResourceLocation("creeperhost", "textures/nobrandmp.png");
+        serverIcon = Config.getInstance().isServerHostMenuImage() ? MineTogether.instance.getImplementation().getMenuIcon() : new ResourceLocation(Constants.MOD_ID, "textures/nobrandmp.png");
         cross = new String(Character.toChars(10006));
         stringWidth = this.mc.fontRenderer.getStringWidth(cross);
     }

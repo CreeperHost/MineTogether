@@ -10,8 +10,10 @@ import net.creeperhost.minetogether.client.screen.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.client.screen.order.GuiGetServer;
+import net.creeperhost.minetogether.client.screen.serverlist.data.Server;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.MultiplayerPublicScreen;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
@@ -45,17 +47,30 @@ public class ScreenEvents
                 first = false;
                 MineTogether.proxy.startChat();
                 String server = System.getProperty("mt.server");
-                String port = System.getProperty("mt.port", "25565");
-                int realPort = -1;
+                int serverId = -1;
                 if (server != null)
                 {
                     try {
-                        realPort = Integer.parseInt(port);
+                        serverId = Integer.parseInt(server);
                     } catch (Throwable t) {
-                        logger.error("Unable to auto connect to server as unable to parse port " + port, t);
+                        logger.error("Unable to auto connect to server as unable to parse server ID");
                     }
 
-                    if (realPort != -1) Minecraft.getInstance().displayGuiScreen(new ConnectingScreen(event.getGui(), Minecraft.getInstance(), server, realPort));
+                    Server serverObj = Callbacks.getServer(serverId);
+
+                    if (serverObj != null)
+                    {
+                        String[] serverSplit = serverObj.host.split(":");
+
+                        int realPort = -1;
+                        try {
+                            realPort = Integer.parseInt(serverSplit[1]);
+                        } catch (Throwable t) {
+                            logger.error("Unable to auto connect to server as unable to parse server port for ID " + serverId);
+                        }
+
+                        if (realPort != -1) Minecraft.getInstance().displayGuiScreen(new ConnectingScreen(event.getGui(), Minecraft.getInstance(), server, realPort));
+                    }
                 }
             }
             if (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())

@@ -118,7 +118,7 @@ public class Client implements IProxy
                     MineTogether.mutedUsers = gson.fromJson(new InputStreamReader(fis), strListToken);
                 } catch (IOException ignored) { }
             }
-            CompletableFuture.runAsync(() -> ChatHandler.init(MineTogether.instance.ourNick, MineTogether.instance.realName, MineTogether.instance.online, MineTogether.instance)); // start in thread as can hold up the UI thread for some reason.
+            CompletableFuture.runAsync(() -> ChatHandler.init(MineTogether.instance.ourNick, MineTogether.instance.realName, MineTogether.instance.online, MineTogether.instance), MineTogether.profileExecutor); // start in thread as can hold up the UI thread for some reason.
         }
     }
 
