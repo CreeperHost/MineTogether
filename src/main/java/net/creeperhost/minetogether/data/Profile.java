@@ -24,6 +24,7 @@ public class Profile
     private boolean friend = false;
     private long lastCheck = 0;
     public String friendName = "";
+    public String friendCode = "";
 
     public Profile(String serverNick)
     {
@@ -89,6 +90,10 @@ public class Profile
         return userDisplay;
     }
 
+    public String getFriendCode() {
+        return friendCode;
+    }
+
     public boolean isFriend()
     {
         long currentTime = System.currentTimeMillis() / 1000;
@@ -133,6 +138,7 @@ public class Profile
                 display = profileData.get("display").getAsString();
                 premium = profileData.get("premium").getAsBoolean();
                 online = profileData.getAsJsonObject("chat").get("online").getAsBoolean();
+                friendCode = profileData.get("friendCode").getAsString();
                 userDisplay = "User#" + longHash.substring(0,5);
                 if(display.length() > 8)
                 {

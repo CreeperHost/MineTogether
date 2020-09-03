@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.GuiYahNah;
+import net.creeperhost.minetogether.gui.element.ButtonString;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryFriend;
@@ -125,10 +126,9 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         codeEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 - 50, 160, 20);
         displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 + 0, 160, 20);
         
-//        friendDisplayString = Util.localize("multiplayer.friendcode", friendCode);
-//        int friendWidth = fontRendererObj.getStringWidth(friendDisplayString);
-//        buttonCopy = new GuiButton(4, 10 + friendWidth + 3, this.height - 26, 80, 20, Util.localize("multiplayer.button.copy"));
-//        buttonList.add(buttonCopy);
+        friendDisplayString = CreeperHost.profile.get().getFriendCode();
+        buttonCopy = new ButtonString(4, 10 + 5, this.height - 26, friendDisplayString);
+        buttonList.add(buttonCopy);
 
         buttonRefresh = new GuiButton(1337, this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"));
         buttonList.add(buttonRefresh);
@@ -152,7 +152,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 if(searchEntry != null && !searchEntry.getText().isEmpty())
                 {
                     String s = searchEntry.getText();
-                    if(s.toLowerCase().contains(friend.getName().toLowerCase()))
+                    if(friend.getName().toLowerCase().contains(s.toLowerCase()))
                     {
                         list.addEntry(friendEntry);
                     }
@@ -253,7 +253,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             }
         } else if (button == buttonCopy)
         {
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(friendCode), null);
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(CreeperHost.profile.get().getFriendCode()), null);
             showAlert("Copied to clipboard.", 0x00FF00, 5000);
         } else if (button == buttonRefresh)
         {
@@ -285,6 +285,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             if (!addFriend)
             {
                 this.list.drawScreen(mouseX, mouseY, partialTicks);
+                this.searchEntry.setVisible(false);
             }
             else
             {
@@ -299,9 +300,10 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         {
             this.listMuted.drawScreen(mouseX, mouseY, partialTicks);
             this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
+            this.searchEntry.setVisible(false);
         }
-        
-//        this.drawString(this.fontRendererObj, friendDisplayString, 10, this.height - 20, -1);
+
+        this.drawString(this.fontRendererObj, I18n.format("creeperhost.multiplayer.friendcode"), 10, this.height - 20, -1);
         
         super.drawScreen(mouseX, mouseY, partialTicks);
         

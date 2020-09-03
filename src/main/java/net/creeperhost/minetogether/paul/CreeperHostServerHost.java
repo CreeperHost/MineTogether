@@ -99,7 +99,10 @@ public class CreeperHostServerHost implements IServerHost
             String resp = WebUtils.getWebResponse(url);
 
 
-            String applyPromo = WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
+            if(!Config.getInstance().getPromo().isEmpty() && !Config.getInstance().getPromo().equalsIgnoreCase("Insert Promo Code here"))
+            {
+                WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
+            }
 //            if (applyPromo.equals("error"))
 //            {
 //                return new OrderSummary("quote.promoerror");

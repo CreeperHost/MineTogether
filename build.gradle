@@ -9,11 +9,13 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.0"
     }
 }
+
+plugins {
+    id "com.github.johnrengelman.shadow" version "4.0.4"
+}
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: "com.github.johnrengelman.shadow"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -42,12 +44,17 @@ minecraft {
     replace "@VERSION@", project.version.toString()
 }
 
+configurations {
+    shadow
+    compile.extendsFrom shadow
+}
+
 dependencies {
-    compile 'org.kitteh.irc:client-lib:7.1.0'
-    compile 'net.engio:mbassador:1.3.1'
-    compile 'org.nanohttpd:nanohttpd:2.3.1'
-    compile 'com.github.scribejava:scribejava-apis:6.9.0'
-    compile 'com.github.scribejava:scribejava-core:6.9.0'
+    shadow 'org.kitteh.irc:client-lib:7.1.0'
+    shadow 'net.engio:mbassador:1.3.1'
+    shadow 'org.nanohttpd:nanohttpd:2.3.1'
+    shadow 'com.github.scribejava:scribejava-apis:6.9.0'
+    shadow 'com.github.scribejava:scribejava-core:6.9.0'
 }
 
 processResources {
@@ -69,14 +76,16 @@ processResources {
     }
 }
 
+jar {
+    classifier 'base'
+}
+
 shadowJar {
-    // Only shadow fluent-hc
+    configurations = [project.configurations.shadow]
+
+    // Don't shadow netty, we already have it.
     dependencies {
-        include(dependency('org.kitteh.irc:client-lib:7.1.0'))
-        include(dependency('net.engio:mbassador:1.3.1'))
-        include(dependency('com.github.scribejava:scribejava-apis:6.9.0'))
-        include(dependency('com.github.scribejava:scribejava-core:6.9.0'))
-        include(dependency('org.nanohttpd:nanohttpd:2.3.1'))
+        exclude(dependency("io.netty::"))
     }
 
     // Relocate fluent-hc to prevent conflicts with other mods that include it
@@ -84,8 +93,9 @@ shadowJar {
     relocate 'net.engio.mbassy', 'net.creeperhost.minetogether.net.engio.mbassy'
     relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
     relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
+    relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
 
-    classifier '' // Replace the default JAR
+    classifier ''
 }
 
 task deobfJar(type: Jar) {

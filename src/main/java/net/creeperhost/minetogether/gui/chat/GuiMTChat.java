@@ -545,6 +545,9 @@ public class GuiMTChat extends GuiScreen
             {
                 int mouseX = Mouse.getX() * GuiMTChat.this.width / GuiMTChat.this.mc.displayWidth;
                 menuDropdownButton.xPosition = mouseX;
+
+                menuDropdownButton.flipped = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1 > 150;
+
                 menuDropdownButton.yPosition = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
                 menuDropdownButton.dropdownOpen = true;
                 activeDropdown = event.getValue();
