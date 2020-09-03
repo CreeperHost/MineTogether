@@ -617,7 +617,7 @@ public class GuiMTChat extends GuiScreen
 
             Profile profile = null;
 
-            if (inputNick.startsWith("MT")) {
+            if (inputNick.startsWith("MT") && inputNick.length() >= 16) {
                 profile = ChatHandler.knownUsers.findByNick(inputNick);
                 if (profile != null) {
                     premium.set(profile.isPremium());
@@ -711,6 +711,7 @@ public class GuiMTChat extends GuiScreen
                 nickColour = TextFormatting.GRAY;
                 arrowColour = premium.get() ? TextFormatting.GREEN : TextFormatting.GRAY;
                 messageColour = TextFormatting.GRAY;
+                outputNick = Minecraft.getMinecraft().getSession().getUsername();
 
                 messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             }
