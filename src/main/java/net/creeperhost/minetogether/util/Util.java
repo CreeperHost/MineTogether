@@ -1,8 +1,6 @@
 package net.creeperhost.minetogether.util;
 
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.client.screen.hacky.IBufferProxy;
-import net.creeperhost.minetogether.client.screen.hacky.IBufferProxyGetter;
 import net.creeperhost.minetogether.client.screen.hacky.IServerListEntryWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -13,7 +11,6 @@ import java.util.Random;
 public final class Util
 {
     private static Random random = new Random();
-    private static IBufferProxyGetter proxyGetter;
     private static IServerListEntryWrapper wrapper;
     
     public static String localize(String key, Object... format)
@@ -53,23 +50,6 @@ public final class Util
             }
         }
         return null;
-    }
-    
-    public static IBufferProxy getBufferProxy()
-    {
-        if (proxyGetter == null)
-        {
-            String className = "net.creeperhost.minetogether.client.gui.hacky.BufferProxyGetterNew";
-            try
-            {
-                Class clazz = Class.forName(className);
-                proxyGetter = (IBufferProxyGetter) clazz.newInstance();
-            } catch (Throwable t)
-            {
-                t.printStackTrace();
-            }
-        }
-        return proxyGetter.get();
     }
     
     public static IServerListEntryWrapper getWrapper()

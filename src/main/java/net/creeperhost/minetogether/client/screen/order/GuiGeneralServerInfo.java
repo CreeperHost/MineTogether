@@ -8,6 +8,7 @@ import net.creeperhost.minetogether.client.screen.element.GuiTextFieldValidate;
 import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.widget.button.CheckboxButton;
@@ -20,8 +21,6 @@ public class GuiGeneralServerInfo extends GuiGetServer
     private TextFieldWidget nameField;
     private Slider slotSlider;
     private long lastKeyTyped;
-    private String acceptString = new String(Character.toChars(10004));
-    private String denyString = new String(Character.toChars(10006));
     private boolean isAcceptable = false;
     private boolean nameChecked = false;
     private String message = "Name can not be blank";
@@ -51,7 +50,11 @@ public class GuiGeneralServerInfo extends GuiGetServer
         
         int checkboxWidth = this.font.getStringWidth(checkboxString) + 11 + 2;
         
-        pregen = new CheckboxButton(halfWidth - (checkboxWidth / 2), 10, 10, halfHeight - 8, checkboxString, order.pregen);
+        pregen = addButton(new CheckboxButton(halfWidth - (checkboxWidth / 2), halfHeight - 8, 20, 20, checkboxString, order.pregen));
+
+        modpack = addButton(new Button(width - 90, 10, 86, 20, "Change Modpack", b -> {
+            Minecraft.getInstance().displayGuiScreen(new GuiModPackList(this));
+        }));
     }
     
     @SuppressWarnings("Duplicates")
@@ -136,7 +139,7 @@ public class GuiGeneralServerInfo extends GuiGetServer
         
         this.minecraft.getTextureManager().bindTexture(lockIcon);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-//        Gui.drawModalRectWithCustomSizedTexture((this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16.0F, 16.0F);
+        blit((this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16, 16);
         
         int strStart = 61;
         

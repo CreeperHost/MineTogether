@@ -2,11 +2,11 @@ package net.creeperhost.minetogether.client.screen.element;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.creeperhost.minetogether.client.screen.hacky.IBufferProxy;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
@@ -45,15 +45,15 @@ public class GuiWell
         RenderSystem.disableFog();
         Tessellator tessellator = Tessellator.getInstance();
         
-        IBufferProxy buffer = Util.getBufferProxy();
+        BufferBuilder buffer = tessellator.getBuffer();
         this.mc.getTextureManager().bindTexture(Screen.BACKGROUND_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float f = 32.0F;
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex((double) ((float) this.left / f), (double) ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
-        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex((double) ((float) this.right / f), (double) ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
-        buffer.pos((double) this.right, (double) this.top, 0.0D).tex((double) ((float) this.right / f), (double) ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
-        buffer.pos((double) this.left, (double) this.top, 0.0D).tex((double) ((float) this.left / f), (double) ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex( ((float) this.left / f), ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex( ((float) this.right / f), ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double) this.right, (double) this.top, 0.0D).tex(((float) this.right / f), ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
+        buffer.pos((double) this.left, (double) this.top, 0.0D).tex(((float) this.left / f), ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
         tessellator.draw();
         
         RenderSystem.disableDepthTest();
@@ -63,16 +63,16 @@ public class GuiWell
         RenderSystem.shadeModel(7425);
         RenderSystem.disableTexture();
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        buffer.pos((double) this.left, (double) (this.top + 4), 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 0).endVertex();
-        buffer.pos((double) this.right, (double) (this.top + 4), 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 0).endVertex();
-        buffer.pos((double) this.right, (double) this.top, 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 255).endVertex();
-        buffer.pos((double) this.left, (double) this.top, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 255).endVertex();
+        buffer.pos((double) this.left, (double) (this.top + 4), 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+        buffer.pos((double) this.right, (double) (this.top + 4), 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+        buffer.pos((double) this.right, (double) this.top, 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+        buffer.pos((double) this.left, (double) this.top, 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
         tessellator.draw();
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 255).endVertex();
-        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 255).endVertex();
-        buffer.pos((double) this.right, (double) (this.bottom - 4), 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 0).endVertex();
-        buffer.pos((double) this.left, (double) (this.bottom - 4), 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 0).endVertex();
+        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+        buffer.pos((double) this.right, (double) (this.bottom - 4), 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+        buffer.pos((double) this.left, (double) (this.bottom - 4), 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
         tessellator.draw();
         
         RenderSystem.enableTexture();

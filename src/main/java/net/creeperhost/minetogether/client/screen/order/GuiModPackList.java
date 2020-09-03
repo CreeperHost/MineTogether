@@ -67,8 +67,7 @@ public class GuiModPackList extends Screen
             {
                 String ID = ((GuiListEntryModpack) list.getSelected()).getModpack().getId();
                 Config.getInstance().setVersion(ID);
-                //Restart the order with the stored modpack version
-                minecraft.displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+                minecraft.displayGuiScreen(parent);
             }
         }));
     }
