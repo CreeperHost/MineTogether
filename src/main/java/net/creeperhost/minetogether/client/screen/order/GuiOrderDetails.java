@@ -127,6 +127,7 @@ public class GuiOrderDetails extends GuiGetServer
             };
             Thread thread = new Thread(runnable);
             thread.start();
+            buttonCancel.active = false;
         } else if (placingOrder)
         {
             return;
@@ -142,7 +143,7 @@ public class GuiOrderDetails extends GuiGetServer
             }
             buttonInvoice.visible = true;
             buttonNext.visible = true;
-            buttonCancel.active = true;
+            buttonCancel.active = false;
             buttonNext.active = true;
         } else
         {

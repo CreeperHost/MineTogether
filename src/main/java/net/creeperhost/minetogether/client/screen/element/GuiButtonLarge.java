@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.client.screen.element;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.item.ItemStack;
@@ -56,7 +57,7 @@ public class GuiButtonLarge extends Button
                 color = 16777120;
             }
             
-            List<ITextComponent> newstring = ScreenUtils.splitText(new StringTextComponent(description), width - 10, mc.fontRenderer, false, true);
+            List<ITextComponent> newstring = RenderComponentsUtil.splitText(new StringTextComponent(description), width - 10, mc.fontRenderer, false, true);
             //Start needs to move based on GUI scale and screen size I guess, plz help @cloudhunter, @gigabit101, you're our only hope. (ihavenoideawhatimdoingdog.jpg)
             int start = y + 50;
             

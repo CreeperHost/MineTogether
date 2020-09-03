@@ -281,36 +281,7 @@ public class GuiPersonalDetails extends GuiGetServer
         if (focusedField == null)
             return false;
         
-        if (keyCode == 15)
-        {
-            int adjustAm = 1;
-            
-            int fieldsSize = fields.size();
-            
-            field.setFocused(false);
-            
-            int newField = (field.getId() + adjustAm) % fieldsSize;
-            if (newField == -1)
-                newField = fieldsSize - 1;
-            
-            TextFieldDetails newF = null;
-            while (newF == null)
-            {
-                TextFieldDetails tempField = fields.get(newField);
-                if (tempField.canBeFocused())
-                {
-                    newF = tempField;
-                } else
-                {
-                    newField = (newField + adjustAm) % fieldsSize;
-                    if (newField == -1)
-                        newField = fieldsSize - 1;
-                }
-            }
-            
-            newF.setFocused(true);
-            
-        } else if (field.charTyped(typedChar, keyCode))
+        if (field.charTyped(typedChar, keyCode))
         {
             int id = field.getId();
             String text = field.getText().trim();
@@ -395,7 +366,37 @@ public class GuiPersonalDetails extends GuiGetServer
                         this.order.phone = text;
                         break;
                 }
+                return true;
+            } else if (p_keyPressed_1_ == 258) {
+                TextFieldDetails field = this.focusedField;
+                int adjustAm = 1;
+
+                int fieldsSize = fields.size();
+
+                field.setFocused(false);
+
+                int newField = (field.getId() + adjustAm) % fieldsSize;
+                if (newField == -1)
+                    newField = fieldsSize - 1;
+
+                TextFieldDetails newF = null;
+                while (newF == null)
+                {
+                    TextFieldDetails tempField = fields.get(newField);
+                    if (tempField.canBeFocused())
+                    {
+                        newF = tempField;
+                    } else
+                    {
+                        newField = (newField + adjustAm) % fieldsSize;
+                        if (newField == -1)
+                            newField = fieldsSize - 1;
+                    }
+                }
+
+                newF.setFocused(true);
             }
+            return true;
         }
         return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
     }

@@ -4,6 +4,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.util.ScreenUtils;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
@@ -152,7 +153,7 @@ public class GDPRScreen extends Screen
         
         component.appendSibling(new StringTextComponent(currentText.substring(lastEnd)));
         
-        gdprlines = ScreenUtils.splitText(component, width - 10, minecraft.fontRenderer, false, true);
+        gdprlines = RenderComponentsUtil.splitText(component, width - 10, minecraft.fontRenderer, false, true);
         this.addButton(moreInfoButton = new Button((width / 2) - 40, (gdprlines.size() * 10) + 50, 80, 20, (moreInfo ? "Less" : "More") + " Info", b ->
         {
             moreInfoButton.visible = moreInfoButton.active = false;

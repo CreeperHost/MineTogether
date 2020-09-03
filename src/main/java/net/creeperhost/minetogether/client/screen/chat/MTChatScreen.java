@@ -22,6 +22,7 @@ import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -360,16 +361,24 @@ public class MTChatScreen extends Screen
     @Override
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
-        chat.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
-        return true;
+        if (chat.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_)) {
+            return true;
+        }
+        return super.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-        send.mouseClicked(mouseX, mouseY, mouseButton);
-        chat.mouseClicked(mouseX, mouseY, mouseButton);
+        if (super.mouseClicked(mouseX, mouseY, mouseButton)) {
+            return true;
+        }
+        if (send.mouseClicked(mouseX, mouseY, mouseButton)) {
+            return true;
+        }
+        if (chat.mouseClicked(mouseX, mouseY, mouseButton)) {
+            return true;
+        }
         if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
         {
             menuDropdownButton.x = menuDropdownButton.y = -10000;
@@ -844,13 +853,9 @@ public class MTChatScreen extends Screen
                     ITextComponent display = formatLine(message);
                     if (display == null)
                         continue;
-                    List<ITextComponent> strings = ScreenUtils.splitText(display, getWidth() - 6, font, false, true);
-                    for (ITextComponent string : strings) {
-                        lines.add(string);
-                    }
+                    lines.addAll(RenderComponentsUtil.splitText(display, getWidth() - 10, font, false, true));
                 }
             } catch (Exception ignored) { }
-            setScrollAmount(Integer.MAX_VALUE);
         }
 
         @Override

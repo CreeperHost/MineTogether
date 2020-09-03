@@ -305,30 +305,30 @@ public class GuiNewChatOurs extends NewChatGui
                     RenderSystem.popMatrix();
                 }
             }
-        }
         
-        if (isBase())
-        {
-            tempDrawnChatLines = getVanillaDrawnChatLines();
-        }
-        
-        if (getChatOpen() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
-        {
-            double f1 = this.getScale();
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(2.0F, 8.0F, 0.0F);
-            RenderSystem.scaled(f1, f1, 1.0F);
-            
-            int k = MathHelper.ceil((float) this.getChatWidth() / f1);
-            
-            for (int line = tempDrawnChatLines.size(); line < minLines; line++)
+            if (isBase())
             {
-                int l1 = 255;
-                int j2 = -line * 9;
-                fill(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
+                tempDrawnChatLines = getVanillaDrawnChatLines();
             }
-            
-            RenderSystem.popMatrix();
+
+            if (getChatOpen() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
+            {
+                double f1 = this.getScale();
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(2.0F, 8.0F, 0.0F);
+                RenderSystem.scaled(f1, f1, 1.0F);
+
+                int k = MathHelper.ceil((float) this.getChatWidth() / f1);
+
+                for (int line = tempDrawnChatLines.size(); line < minLines; line++)
+                {
+                    int l1 = 255;
+                    int j2 = -line * 9;
+                    fill(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
+                }
+
+                RenderSystem.popMatrix();
+            }
         }
     }
     
