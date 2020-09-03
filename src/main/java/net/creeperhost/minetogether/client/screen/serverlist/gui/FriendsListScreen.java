@@ -294,9 +294,28 @@ public class FriendsListScreen extends Screen
     }
     
     @Override
+    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
+    {
+        if (codeEntry.isFocused())
+        {
+            codeEntry.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+            return true;
+        } else if (displayEntry.isFocused())
+        {
+            displayEntry.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+            return true;
+        } else if (searchEntry.isFocused())
+        {
+            searchEntry.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+            refreshFriendsList(false);
+            return true;
+        }
+        return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+    }
+
+    @Override
     public boolean charTyped(char typedChar, int keyCode)
     {
-        super.charTyped(typedChar, keyCode);
         if (codeEntry.isFocused())
         {
             codeEntry.charTyped(typedChar, keyCode);
@@ -311,7 +330,7 @@ public class FriendsListScreen extends Screen
             refreshFriendsList(false);
             return true;
         }
-        return false;
+        return super.charTyped(typedChar, keyCode);
     }
     
     @Override
