@@ -206,7 +206,8 @@ public class GuiChatOurs extends GuiChat
 
         strings.add(I18n.format("minetogether.chat.button.mute"));
         strings.add(I18n.format("minetogether.chat.button.addfriend"));
-        
+        strings.add(I18n.format("minetogether.chat.button.mention"));
+
         int x = MathHelper.ceil(((float) mc.ingameGUI.getChatGUI().getChatWidth())) + 16 + 2;
         String defaultStr = "Default";
         defaultStr = I18n.format("minetogether.ingame.chat.local");
@@ -244,6 +245,11 @@ public class GuiChatOurs extends GuiChat
             else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
             {
                 mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
+            }
+            else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mention")))
+            {
+                inputField.setFocused(true);
+                inputField.setText(inputField.getText() + " " + activeDropdown + " ");
             }
             return;
         }

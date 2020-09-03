@@ -5,7 +5,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.common.WebUtils;
+import net.creeperhost.minetogether.paul.Callbacks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +21,9 @@ public class Profile
     public String display = "";
     public boolean premium = false;
     public String userDisplay = "";
+    private boolean friend = false;
+    private long lastCheck = 0;
+    public String friendName = "";
 
     public Profile(String serverNick)
     {
@@ -76,16 +81,29 @@ public class Profile
         return online;
     }
 
-    public String getDisplay() {
-        return display;
-    }
-
     public boolean isPremium() {
         return premium;
     }
 
     public String getUserDisplay() {
         return userDisplay;
+    }
+
+    public boolean isFriend()
+    {
+        long currentTime = System.currentTimeMillis() / 1000;
+        if(currentTime > (lastCheck + 30)) {
+            ArrayList<Friend> friendsList = Callbacks.getFriendsList(false);
+            for (Friend friend : friendsList) {
+                if (!getShortHash().isEmpty() && friend.getCode().startsWith(getShortHash().substring(2))) {
+                    this.friend = true;
+                    this.lastCheck = System.currentTimeMillis() / 1000;
+                    this.friendName = friend.getName();
+                    break;
+                }
+            }
+        }
+        return this.friend;
     }
 
     public boolean loadProfile()

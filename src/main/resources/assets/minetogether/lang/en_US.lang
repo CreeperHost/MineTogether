@@ -185,6 +185,7 @@ minetogether.ingame.chat.server=Server
 minetogether.chat.muted=The requested user has been muted. Messages from this user will no longer be displayed.
 minetogether.chat.button.addfriend=Befriend
 minetogether.chat.button.mute=Mute
+minetogether.chat.button.mention=Mention
 
 minetogether.gdprtext=Welcome new player!
 minetogether.gdprtext1=Our name is CreeperHost, and we created MineTogether to fill in some of the community features we felt modded Minecraft was missing.

@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 
 import static net.creeperhost.minetogether.chat.ChatHandler.ircLock;
+import static net.creeperhost.minetogether.chat.ChatHandler.knownUsers;
 
 public class GuiMTChat extends GuiScreen
 {
@@ -109,6 +110,7 @@ public class GuiMTChat extends GuiScreen
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         strings.add("Add friend");
+        strings.add("Mention");
         buttonList.add(menuDropdownButton = new DropdownButton<>(-1337, -1000, -1000, 100, 20, "Menu", new Menu(strings), true));
         buttonList.add(friendsButton = new GuiButton(-80088, 5, 5, 100, 20, "Friends list"));
         buttonList.add(cancelButton = new GuiButton(-800885, width - 100 - 5, height - 5 - 20, 100, 20, "Cancel"));
@@ -293,6 +295,11 @@ public class GuiMTChat extends GuiScreen
                 } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
                 {
                     mc.displayGuiScreen(new GuiChatFriend(this, CreeperHost.instance.playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                }
+                else if(menuDropdownButton.getSelected().option.equals("Mention"))
+                {
+                    this.send.setFocused(true);
+                    this.send.setText(this.send.getText() + " " + activeDropdown + " ");
                 }
             } else if (button == friendsButton)
             {
@@ -603,46 +610,27 @@ public class GuiMTChat extends GuiScreen
                         return userComp;
                 }
             }
-
-            AtomicBoolean friend = new AtomicBoolean(false);
             AtomicBoolean premium = new AtomicBoolean(false);
 
             Profile profile = null;
 
             if (inputNick.startsWith("MT")) {
                 profile = ChatHandler.knownUsers.findByNick(inputNick);
-                if (profile != null)
+                if (profile != null) {
                     premium.set(profile.isPremium());
-
+                    outputNick = profile.getUserDisplay();
+                }
+                else
+                    {
+                        Profile profile1 = knownUsers.add(inputNick);
+                        outputNick = profile1.getUserDisplay();
+                    }
                 if (inputNick.equals(CreeperHost.profile.get().getShortHash()) || inputNick.equals(CreeperHost.profile.get().getMediumHash())) {
                     outputNick = CreeperHost.instance.playerName;
                 } else {
                     //Should probably check mutedUsers against their shortHash...
                     if (CreeperHost.instance.mutedUsers.contains(inputNick))
                         return null;
-
-                    String newNick = ChatHandler.getNameForUser(inputNick);
-                    if (newNick == null)
-                        return null;
-
-                    List<Friend> friendList = Callbacks.getFriendsList(false);
-                    if (friendList != null) {
-                        for (Friend friend1 : friendList) {
-                            if (friend1 != null) {
-                                Profile profileFriend = friend1.getProfile();
-                                if (profileFriend != null) {
-                                    if (!profileFriend.getShortHash().isEmpty() && profileFriend.getShortHash().equalsIgnoreCase(inputNick)) {
-                                        friend.set(true);
-                                    } else if (!profileFriend.getMediumHash().isEmpty() && profileFriend.getMediumHash().equalsIgnoreCase(inputNick)) {
-                                        friend.set(true);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    outputNick = newNick;
-                    if (!ChatHandler.autocompleteNames.contains(outputNick))
-                        ChatHandler.autocompleteNames.add(outputNick);
                 }
             } else if (!inputNick.equals("System")) {
                 return null;
@@ -653,6 +641,14 @@ public class GuiMTChat extends GuiScreen
             TextFormatting nickColour = TextFormatting.WHITE;
             TextFormatting arrowColour = TextFormatting.WHITE;
             TextFormatting messageColour = TextFormatting.WHITE;
+
+            if (profile != null && profile.isFriend()) {
+                nickColour = TextFormatting.YELLOW;
+                outputNick = profile.friendName;
+                if (!ChatHandler.autocompleteNames.contains(outputNick)) {
+                    ChatHandler.autocompleteNames.add(outputNick);
+                }
+            }
 
             ITextComponent userComp = new TextComponentString(outputNick);
 
@@ -674,7 +670,7 @@ public class GuiMTChat extends GuiScreen
                         String userName = "User#" + justNick.substring(2, 5);
                         Profile mentionProfile = ChatHandler.knownUsers.findByNick(justNick);
                         if (mentionProfile != null) {
-                            userName = mentionProfile.getDisplay();
+                            userName = mentionProfile.getUserDisplay();
                         }
                         if (userName != null) {
                             splitStr = splitStr.replaceAll(justNick, userName);
@@ -716,10 +712,8 @@ public class GuiMTChat extends GuiScreen
                 messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             }
 
-            if (friend.get()) {
-                nickColour = TextFormatting.YELLOW;
-                inputNick = outputNick;
-            }
+
+
             if (premium.get()) {
                 arrowColour = TextFormatting.GREEN;
             } else if (outputNick.equals("System")) {
@@ -738,7 +732,7 @@ public class GuiMTChat extends GuiScreen
             userComp = new TextComponentString(arrowColour + "<" + nickColour + userComp.getFormattedText() + arrowColour + "> ");
 
             if (!inputNick.equals(CreeperHost.instance.ourNick) && !inputNick.equals(CreeperHost.instance.ourNick + "`") && inputNick.startsWith("MT")) {
-                userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, inputNick)));
+                userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, outputNick)));
             }
 
             base.appendSibling(userComp);
