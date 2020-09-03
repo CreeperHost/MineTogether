@@ -207,6 +207,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
+        if(event.getSide().isServer()) return;
+
         if(profile.get() == null)
         {
             profile.set(new Profile(ourNick));
