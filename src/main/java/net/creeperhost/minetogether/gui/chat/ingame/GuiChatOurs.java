@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.gui.chat.ingame;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.data.Profile;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.chat.GuiChatFriend;
 import net.creeperhost.minetogether.gui.chat.GuiMTChat;
@@ -244,7 +245,8 @@ public class GuiChatOurs extends GuiChat
             }
             else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
             {
-                mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
+                Profile p = ChatHandler.knownUsers.findByDisplay(activeDropdown);
+                mc.displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), p, Callbacks.getFriendCode(), "", false));
             }
             else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mention")))
             {
@@ -408,8 +410,11 @@ public class GuiChatOurs extends GuiChat
                     builder.append(split[i]).append(" ");
                 
                 String friendName = builder.toString().trim();
+
+                Profile targetProfile = ChatHandler.knownUsers.findByNick(chatInternalName);
+                if(targetProfile == null) targetProfile = ChatHandler.knownUsers.add(chatInternalName);
                 
-                Minecraft.getMinecraft().displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), chatInternalName, friendCode, friendName, true));
+                Minecraft.getMinecraft().displayGuiScreen(new GuiChatFriend(this, mc.getSession().getUsername(), targetProfile, friendCode, friendName, true));
                 
                 return true;
             }

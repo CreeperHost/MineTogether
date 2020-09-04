@@ -294,7 +294,7 @@ public class GuiMTChat extends GuiScreen
                     chat.updateLines(currentTarget);
                 } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
                 {
-                    mc.displayGuiScreen(new GuiChatFriend(this, CreeperHost.instance.playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                    mc.displayGuiScreen(new GuiChatFriend(this, CreeperHost.instance.playerName, knownUsers.findByDisplay(activeDropdown), Callbacks.getFriendCode(), "", false));
                 }
                 else if(menuDropdownButton.getSelected().option.equals("Mention"))
                 {
@@ -522,8 +522,11 @@ public class GuiMTChat extends GuiScreen
                     builder.append(split[i]).append(" ");
                 
                 String friendName = builder.toString().trim();
+
+                Profile targetProfile = knownUsers.findByNick(chatInternalName);
+                if(targetProfile == null) targetProfile = knownUsers.add(chatInternalName);
                 
-                Minecraft.getMinecraft().displayGuiScreen(new GuiChatFriend(this, CreeperHost.instance.playerName, chatInternalName, friendCode, friendName, true));
+                Minecraft.getMinecraft().displayGuiScreen(new GuiChatFriend(this, CreeperHost.instance.playerName, targetProfile, friendCode, friendName, true));
                 
                 return true;
             }
@@ -619,15 +622,11 @@ public class GuiMTChat extends GuiScreen
 
             if (inputNick.startsWith("MT") && inputNick.length() >= 16) {
                 profile = ChatHandler.knownUsers.findByNick(inputNick);
+                if (profile == null) profile = knownUsers.add(inputNick);
                 if (profile != null) {
                     premium.set(profile.isPremium());
                     outputNick = profile.getUserDisplay();
                 }
-                else
-                    {
-                        Profile profile1 = knownUsers.add(inputNick);
-                        outputNick = profile1.getUserDisplay();
-                    }
                 if (inputNick.equals(CreeperHost.profile.get().getShortHash()) || inputNick.equals(CreeperHost.profile.get().getMediumHash())) {
                     outputNick = CreeperHost.instance.playerName;
                 } else {
@@ -712,7 +711,7 @@ public class GuiMTChat extends GuiScreen
                 arrowColour = premium.get() ? TextFormatting.GREEN : TextFormatting.GRAY;
                 messageColour = TextFormatting.GRAY;
                 outputNick = Minecraft.getMinecraft().getSession().getUsername();
-
+                userComp = new TextComponentString(outputNick);
                 messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             }
 

@@ -14,7 +14,7 @@ public class OAuthWebServer extends NanoHTTPD {
     public OAuthWebServer(boolean daemon, int port) throws IOException {
         super(port);
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, daemon);
-        System.out.println("\nRunning! Point your browsers to http://localhost:" + port + "/ \n");
+//        System.out.println("\nRunning! Point your browsers to http://localhost:" + port + "/ \n");
     }
 
     public void setCodeHandler(BiConsumer<String, String> handler) {

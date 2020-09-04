@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.gui.chat;
 
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.data.Profile;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
@@ -23,10 +24,10 @@ public class GuiChatFriend extends GuiScreen
     private GuiButton cancelBtn;
     private GuiTextField nameEntry;
     
-    public GuiChatFriend(GuiScreen parent, String playerName, String chatInternalName, String friendCode, String friendName, boolean accept)
+    public GuiChatFriend(GuiScreen parent, String playerName, Profile friendTarget, String friendCode, String friendName, boolean accept)
     {
         this.playerName = playerName;
-        this.chatInternalName = chatInternalName;
+        this.chatInternalName = friendTarget == null ? "" : friendTarget.getCurrentIRCNick();
         this.friendCode = friendCode;
         this.accept = accept;
         this.parent = parent;
