@@ -17,11 +17,16 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.loading.FMLClientLaunchProvider;
+import net.minecraftforge.fml.loading.FMLCommonLaunchHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -216,10 +221,46 @@ public class ScreenEvents
     }
     
     boolean firstOpen = true;
-    
+
     @SubscribeEvent
     public void openScreen(GuiOpenEvent event)
     {
+        final Screen gui = event.getGui();
+
+        if (firstConnect && gui instanceof MainMenuScreen)
+        {
+            firstConnect = false;
+            String server = System.getProperty("mt.server");
+            int serverId = -1;
+            if (server != null)
+            {
+                try {
+                    serverId = Integer.parseInt(server);
+                } catch (Throwable t) {
+                    logger.error("Unable to auto connect to server as unable to parse server ID");
+                }
+
+                Server serverObj = Callbacks.getServer(serverId);
+
+
+                if (serverObj != null)
+                {
+                    String[] serverSplit = serverObj.host.split(":");
+
+                    int realPort = -1;
+                    try {
+                        realPort = Integer.parseInt(serverSplit[1]);
+                    } catch (Throwable t) {
+                        logger.error("Unable to auto connect to server as unable to parse server port for ID " + serverId);
+                    }
+                    ServerData serverData = new ServerData(serverObj.displayName, serverObj.host, false);
+
+                    if(realPort != -1)
+                        Minecraft.getInstance().displayGuiScreen(new ConnectingScreen(gui, Minecraft.getInstance(), serverData));
+                }
+            }
+        }
+
         if(!MineTogether.isOnline) return;
         Screen screen = event.getGui();
         
