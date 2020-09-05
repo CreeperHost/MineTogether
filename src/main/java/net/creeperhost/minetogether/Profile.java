@@ -4,10 +4,16 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.WebUtils;
+import org.kitteh.irc.client.library.element.User;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class Profile
 {
@@ -18,6 +24,10 @@ public class Profile
     public String display = "";
     public boolean premium = false;
     public String userDisplay = "";
+    private boolean friend = false;
+    private long lastCheck = 0;
+    public String friendName = "";
+    public String friendCode = "";
 
     public Profile(String serverNick)
     {
@@ -43,7 +53,7 @@ public class Profile
         this.display = display;
         this.premium = premium;
         this.userDisplay = "User#" + longHash.substring(0,5);
-        if(display.length() > 0)
+        if(premium && display.length() > 0)
         {
             this.userDisplay = display;
         }
@@ -75,8 +85,10 @@ public class Profile
         return online;
     }
 
-    public String getDisplay() {
-        return display;
+    public String getCurrentIRCNick() {
+        Optional<User> userOpt = ChatHandler.client.getChannel(ChatHandler.CHANNEL).get().getUser(this.getShortHash());
+        if(userOpt.isPresent()) return this.getShortHash();
+        return this.getMediumHash();
     }
 
     public boolean isPremium() {
@@ -85,6 +97,27 @@ public class Profile
 
     public String getUserDisplay() {
         return userDisplay;
+    }
+
+    public String getFriendCode() {
+        return friendCode;
+    }
+
+    public boolean isFriend()
+    {
+        long currentTime = System.currentTimeMillis() / 1000;
+        if(currentTime > (lastCheck + 30)) {
+            ArrayList<Friend> friendsList = Callbacks.getFriendsList(false);
+            for (Friend friend : friendsList) {
+                if (!getShortHash().isEmpty() && friend.getCode().startsWith(getShortHash().substring(2))) {
+                    this.friend = true;
+                    this.lastCheck = System.currentTimeMillis() / 1000;
+                    this.friendName = friend.getName();
+                    break;
+                }
+            }
+        }
+        return this.friend;
     }
 
     public boolean loadProfile()
@@ -114,8 +147,9 @@ public class Profile
                 display = profileData.get("display").getAsString();
                 premium = profileData.get("premium").getAsBoolean();
                 online = profileData.getAsJsonObject("chat").get("online").getAsBoolean();
+                friendCode = profileData.get("friendCode").getAsString();
                 userDisplay = "User#" + longHash.substring(0,5);
-                if(premium && display.length() > 0)
+                if(display.length() > 8)
                 {
                     userDisplay = display;
                 }
