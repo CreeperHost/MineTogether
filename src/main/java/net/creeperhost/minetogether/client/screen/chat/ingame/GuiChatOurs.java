@@ -229,6 +229,7 @@ public class GuiChatOurs extends ChatScreen
         
         strings.add(I18n.format("minetogether.chat.button.mute"));
         strings.add(I18n.format("minetogether.chat.button.addfriend"));
+        strings.add(I18n.format("minetogether.chat.button.mention"));
         if(MineTogether.instance.isBanned.get() && Client.first)
         {
             addStatusMessage(TextFormatting.RED + "You have been banned from Minetogether chat");
@@ -246,9 +247,15 @@ public class GuiChatOurs extends ChatScreen
                 MineTogether.instance.muteUser(activeDropdown);
                 ourChat.rebuildChat(ourChat.chatTarget);
                 ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setChatLine(null, new StringTextComponent(I18n.format("minetogether.chat.muted")), 0, 5, false);
-            } else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
+            }
+            else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
             {
                 mc.displayGuiScreen(new ChatFriendScreen(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
+            }
+            else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mention")))
+            {
+                inputField.setFocused2(true);
+                inputField.setText(inputField.getText() + " " + activeDropdown + " ");
             }
         }));
         menuDropdownButton.flipped = false;

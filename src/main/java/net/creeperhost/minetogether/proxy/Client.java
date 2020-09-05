@@ -134,6 +134,7 @@ public class Client implements IProxy
         MineTogether.instance.ingameChat.setDisabledIngameChat(true);
         if (isChatReplaced)
         {
+            isChatReplaced = false;
             ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setBase(true); // don't actually remove
         }
     }

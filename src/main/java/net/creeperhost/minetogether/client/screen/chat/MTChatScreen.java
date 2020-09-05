@@ -136,6 +136,7 @@ public class MTChatScreen extends Screen
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         strings.add("Add friend");
+        strings.add("Mention");
         if (menuDropdownButton == null)
         {
             addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
@@ -145,10 +146,17 @@ public class MTChatScreen extends Screen
                 {
                     MineTogether.instance.muteUser(activeDropdown);
                     chat.updateLines(currentTarget);
-                } else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
+                }
+                else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
                 {
                     minecraft.displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
-                } else if (ChatHandler.privateChatInvite != null)
+                }
+                else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mention"))
+                {
+                    this.send.setFocused2(true);
+                    this.send.setText(this.send.getText() + " " + activeDropdown + " ");
+                }
+                else if (ChatHandler.privateChatInvite != null)
                 {
                     confirmInvite();
                 }
