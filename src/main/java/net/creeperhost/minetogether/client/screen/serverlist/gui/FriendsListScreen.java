@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.client.screen.GDPRScreen;
+import net.creeperhost.minetogether.client.screen.element.ButtonString;
 import net.creeperhost.minetogether.client.screen.list.GuiList;
 import net.creeperhost.minetogether.client.screen.list.GuiListEntryFriend;
 import net.creeperhost.minetogether.client.screen.list.GuiListEntryMuted;
@@ -19,7 +20,10 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
 
 public class FriendsListScreen extends Screen
@@ -173,14 +177,19 @@ public class FriendsListScreen extends Screen
             refreshFriendsList(false);
             refreshMutedList(false);
         }));
-        
-        
+
+        addButton(buttonCopy = new ButtonString( 65, this.height - 26, 60, 20, MineTogether.profile.get().getFriendCode(), p ->
+        {
+            this.minecraft.keyboardListener.setClipboardString(MineTogether.profile.get().getFriendCode());
+        }));
+
         toggle = addButton(new Button(width - 60, 6, 60, 20, isMuted ? "Friends" : "Muted", p ->
         {
             if (toggle.getMessage().contains("Muted"))
             {
                 toggle.setMessage("Friends");
                 isMuted = true;
+                showAlert("Copied to clipboard.", 0x00FF00, 5000);
             } else if (toggle.getMessage().contains("Friends"))
             {
                 toggle.setMessage("Muted");
@@ -287,6 +296,8 @@ public class FriendsListScreen extends Screen
             renderTooltip(hoverTextCache, mouseX, mouseY);
         }
         if (searchEntry != null) this.searchEntry.render(mouseX, mouseY, partialTicks);
+
+        this.minecraft.fontRenderer.drawStringWithShadow(I18n.format("creeperhost.multiplayer.friendcode"), 10, this.height - 20, -1);
     }
     
     @Override
