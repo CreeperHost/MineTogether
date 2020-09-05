@@ -1,14 +1,21 @@
 package net.creeperhost.minetogether.client.screen;
 
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class SettingsScreen extends Screen
@@ -27,29 +34,30 @@ public class SettingsScreen extends Screen
         super.init();
         buttons.clear();
         
-        this.addButton(new Button(this.width / 2 - 123, 40, 120, 20, I18n.format("Chat Enabled: " + Config.getInstance().isChatEnabled()), p ->
+        this.addButton(new Button(this.width / 2 - 123, 40, 120, 20, I18n.format("Chat Enabled: " + format(Config.getInstance().isChatEnabled())), p ->
         {
-            boolean enabled = Config.getInstance().isChatEnabled();
-
-            if (enabled) {
+            if(Config.getInstance().isChatEnabled())
+            {
                 MineTogether.instance.getLogger().info("Disabling in-game chat");
+                Config.getInstance().setChatEnabled(false);
                 MineTogether.proxy.stopChat();
                 MineTogether.proxy.disableIngameChat();
-            } else {
+            }
+            else
+            {
                 MineTogether.instance.getLogger().info("Enabling in-game chat");
+                Config.getInstance().setChatEnabled(true);
                 MineTogether.proxy.enableIngameChat();
             }
-
-            Config.getInstance().setChatEnabled(!enabled);
             saveConfig();
         }));
-        this.addButton(new Button(this.width / 2 + 3, 40, 120, 20, I18n.format("Friend Toasts: " + Config.getInstance().isFriendOnlineToastsEnabled()), p ->
+        this.addButton(new Button(this.width / 2 + 3, 40, 120, 20, I18n.format("Friend Toasts: " + format(Config.getInstance().isFriendOnlineToastsEnabled())), p ->
         {
             boolean enabled = Config.getInstance().isFriendOnlineToastsEnabled();
             Config.getInstance().setEnableFriendOnlineToasts(!enabled);
             saveConfig();
         }));
-        this.addButton(new Button(this.width / 2 - 123, 60, 120, 20, I18n.format("Mainmenu Buttons: " + Config.getInstance().isEnableMainMenuFriends()), p ->
+        this.addButton(new Button(this.width / 2 - 123, 60, 120, 20, I18n.format("Menu Buttons: " + format(Config.getInstance().isEnableMainMenuFriends())), p ->
         {
             boolean enabled = Config.getInstance().isEnableMainMenuFriends();
             Config.getInstance().setEnableMainMenuFriends(!enabled);
@@ -77,6 +85,13 @@ public class SettingsScreen extends Screen
         renderDirtBackground(1);
         super.render(p_render_1_, p_render_2_, p_render_3_);
         drawCenteredString(font, "MineTogether Settings", width / 2, 5, 0xFFFFFF);
+    }
+
+    public String format(boolean value)
+    {
+        if(value) return TextFormatting.GREEN + "Enabled";
+
+        return TextFormatting.RED + "Disabled";
     }
     
     private void saveConfig()
