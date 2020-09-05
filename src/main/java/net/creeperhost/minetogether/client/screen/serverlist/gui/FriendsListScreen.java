@@ -189,7 +189,6 @@ public class FriendsListScreen extends Screen
         }));
         
         searchEntry = new TextFieldWidget(this.font, this.width / 2 - 80, y + 28, 160, 20, "");
-        searchEntry.setVisible(true);
     }
     
     protected void refreshFriendsList(boolean force)
@@ -204,7 +203,7 @@ public class FriendsListScreen extends Screen
                 if (searchEntry != null && !searchEntry.getText().isEmpty())
                 {
                     String s = searchEntry.getText();
-                    if (s.toLowerCase().contains(friend.getName().toLowerCase()))
+                    if(friend.getName().toLowerCase().contains(s.toLowerCase()))
                     {
                         list.add(friendEntry);
                     }
@@ -255,6 +254,8 @@ public class FriendsListScreen extends Screen
         renderDirtBackground(0);
         if (!isMuted)
         {
+            this.searchEntry.setVisible(true);
+
             if (!addFriend)
             {
                 this.list.render(mouseX, mouseY, partialTicks);
@@ -264,6 +265,7 @@ public class FriendsListScreen extends Screen
                 this.drawCenteredString(this.font, Util.localize("multiplayer.displayname"), this.width / 2, this.height / 2 - 10, 0xFFFFFF);
                 this.codeEntry.render(mouseX, mouseY, partialTicks);
                 this.displayEntry.render(mouseX, mouseY, partialTicks);
+                this.searchEntry.setVisible(false);
             }
             this.drawCenteredString(this.font, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         } else
