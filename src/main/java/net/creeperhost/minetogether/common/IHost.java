@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.common;
 
 import net.creeperhost.minetogether.chat.Message;
-import net.creeperhost.minetogether.serverlist.data.Friend;
+import net.creeperhost.minetogether.data.Friend;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;

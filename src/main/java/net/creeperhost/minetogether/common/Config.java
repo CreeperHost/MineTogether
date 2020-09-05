@@ -21,6 +21,8 @@ public class Config
     private boolean chatEnabled;
     private boolean autoMT;
     private boolean enableFriendOnlineToasts;
+    private boolean enableMainMenuFriends;
+    private boolean isLeft;
 
     private int pregenDiameter = 120;
 
@@ -40,6 +42,7 @@ public class Config
         chatEnabled = true;
         autoMT = true;
         enableFriendOnlineToasts = true;
+        isLeft = true;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
@@ -131,6 +134,18 @@ public class Config
 
     public boolean isAutoMT() {
         return autoMT;
+    }
+
+    public boolean isLeft() {
+        return isLeft;
+    }
+
+    public void setLeft(boolean left) {
+        isLeft = left;
+    }
+
+    public void setEnableFriendOnlineToasts(boolean enableFriendOnlineToasts) {
+        this.enableFriendOnlineToasts = enableFriendOnlineToasts;
     }
 
     public static void makeConfig(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
