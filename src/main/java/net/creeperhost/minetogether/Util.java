@@ -177,6 +177,12 @@ public final class Util
             invalidTime = validTime + System.currentTimeMillis();
             return cachedValue;
         }
+
+        public void set(T newCachedValue)
+        {
+            invalidTime = validTime + System.currentTimeMillis();
+            cachedValue = newCachedValue;
+        }
         
         public T getCachedValue(Object... args)
         {

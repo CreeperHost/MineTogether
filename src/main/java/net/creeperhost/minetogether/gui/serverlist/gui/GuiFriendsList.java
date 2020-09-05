@@ -127,7 +127,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         displayEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, this.height / 2 + 0, 160, 20);
         
         friendDisplayString = CreeperHost.profile.get().getFriendCode();
-        buttonCopy = new ButtonString(4, 10 + 5, this.height - 26, friendDisplayString);
+        buttonCopy = new ButtonString(4, 6, this.height - 26, friendDisplayString);
         buttonList.add(buttonCopy);
 
         buttonRefresh = new GuiButton(1337, this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"));
@@ -303,7 +303,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             this.searchEntry.setVisible(false);
         }
 
-        this.drawString(this.fontRendererObj, I18n.format("creeperhost.multiplayer.friendcode"), 10, this.height - 20, -1);
+        this.drawString(this.fontRendererObj, Util.localize("multiplayer.friendcode"), 10, this.height - 20, -1);
         
         super.drawScreen(mouseX, mouseY, partialTicks);
         
