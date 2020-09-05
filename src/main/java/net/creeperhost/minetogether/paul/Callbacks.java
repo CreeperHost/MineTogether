@@ -19,6 +19,7 @@ import net.creeperhost.minetogether.util.WebUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public final class Callbacks
 {
@@ -617,68 +618,61 @@ public final class Callbacks
     }
     
     static boolean friendsGetting;
-    
+
     public static ArrayList<Friend> getFriendsList(boolean force)
     {
         if (friendsList == null)
-            friendsList = new Util.CachedValue<ArrayList<Friend>>(60000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>()
-            {
+            friendsList = new Util.CachedValue<>(60000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>() {
                 @Override
-                public ArrayList<Friend> get(Object... args)
-                {
-                    if (friendsGetting)
-                    {
+                public ArrayList<Friend> get(Object... args) {
+                    if (friendsGetting) {
                         if (friendsList.getCachedValue(args) != null)
                             return friendsList.getCachedValue(args); // prevent NPE if it is called twice the first time somehow, would rather just make two calls
                     }
                     friendsGetting = true;
-                    Map<String, String> sendMap = new HashMap<String, String>();
-                    {
-                        sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
-                    }
-                    
-                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
-                    
-                    ArrayList<Friend> tempArr = new ArrayList<Friend>();
-                    
-                    // no idea how this can return null, but apparently it can, so this will fix it.
-                    if (resp.equals("error"))
-                    {
-                        return tempArr;
-                    }
-                    
-                    JsonElement el = new JsonParser().parse(resp);
-                    if (el.isJsonObject())
-                    {
-                        
-                        JsonObject obj = el.getAsJsonObject();
-                        if (obj.get("status").getAsString().equals("success"))
+                    CompletableFuture.runAsync(() -> {
+                        Map<String, String> sendMap = new HashMap<String, String>();
                         {
-                            JsonArray array = obj.getAsJsonArray("friends");
-                            for (JsonElement friendEl : array)
-                            {
-                                JsonObject friend = (JsonObject) friendEl;
-                                String name = "null";
-                                
-                                if (!friend.get("name").isJsonNull())
-                                {
-                                    name = friend.get("name").getAsString();
+                            sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
+                        }
+
+                        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
+
+                        ArrayList<Friend> tempArr = new ArrayList<Friend>();
+
+                        // no idea how this can return null, but apparently it can, so this will fix it.
+                        if (resp.equals("error")) {
+                            friendsList.set(tempArr);
+                        }
+
+                        JsonElement el = new JsonParser().parse(resp);
+                        if (el.isJsonObject()) {
+
+                            JsonObject obj = el.getAsJsonObject();
+                            if (obj.get("status").getAsString().equals("success")) {
+                                JsonArray array = obj.getAsJsonArray("friends");
+                                for (JsonElement friendEl : array) {
+                                    JsonObject friend = (JsonObject) friendEl;
+                                    String name = "null";
+
+                                    if (!friend.get("name").isJsonNull()) {
+                                        name = friend.get("name").getAsString();
+                                    }
+                                    String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
+                                    boolean accepted = friend.get("accepted").getAsBoolean();
+                                    Profile profile = ChatHandler.knownUsers.findByHash(code);
+                                    tempArr.add(new Friend(profile, name, code, accepted));
                                 }
-                                String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
-                                
-                                boolean accepted = friend.get("accepted").getAsBoolean();
-                                Profile profile = ChatHandler.knownUsers.findByHash(code);
-                                tempArr.add(new Friend(profile, name, code, accepted));
                             }
                         }
-                    }
-                    friendsGetting = false;
-                    return tempArr;
+                        friendsList.set(tempArr);
+                        friendsGetting = false;
+                    }, MineTogether.profileExecutor);
+                    return friendsList.getCachedValue(args);
                 }
-                
+
                 @Override
-                public boolean needsRefresh(Object... args)
-                {
+                public boolean needsRefresh(Object... args) {
                     return args.length > 0 && args[0].equals(true);
                 }
             });
