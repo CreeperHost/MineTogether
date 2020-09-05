@@ -109,9 +109,9 @@ public class CreeperHostServerHost implements IServerHost
             JsonObject jObject = jElement.getAsJsonObject();
             String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
 
-            if(!Config.getInstance().getPromo().equalsIgnoreCase("Insert Promo Code here"))
+            if(!Config.getInstance().getPromo().isEmpty() && !Config.getInstance().getPromo().equalsIgnoreCase("Insert Promo Code here"))
             {
-                String applyPromo = WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
+                WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
             }
             
             String summary = WebUtils.getWebResponse("https://www.creeperhost.net/json/order/" + order.country + "/" + recommended + "/" + "summary");
