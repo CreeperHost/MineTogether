@@ -23,6 +23,7 @@ public class GuiChatFriend extends GuiScreen
     private GuiButton acceptBtn;
     private GuiButton cancelBtn;
     private GuiTextField nameEntry;
+    private Profile friendProfile;
     
     public GuiChatFriend(GuiScreen parent, String playerName, Profile friendTarget, String friendCode, String friendName, boolean accept)
     {
@@ -32,6 +33,7 @@ public class GuiChatFriend extends GuiScreen
         this.accept = accept;
         this.parent = parent;
         this.friendName = friendName;
+        this.friendProfile = friendTarget;
     }
     
     @Override
@@ -56,7 +58,9 @@ public class GuiChatFriend extends GuiScreen
         
         nameEntry = new GuiTextFieldCompat(0, fontRendererObj, width / 2 - 100, height / 2 - 10, 200, 20);
         if (first)
-            nameEntry.setText(playerName); // default to player name
+        {
+            if(friendProfile != null && !friendProfile.getUserDisplay().isEmpty()) nameEntry.setText(friendProfile.getUserDisplay()); // default to player name
+        }
         first = false;
         
         acceptBtn.enabled = nameEntry.getText().trim().length() >= 3;
@@ -82,8 +86,8 @@ public class GuiChatFriend extends GuiScreen
         {
             if (accept)
             {
-                ChatHandler.acceptFriendRequest(chatInternalName, nameEntry.getText().trim());
-                new Thread(() -> Callbacks.addFriend(friendCode, friendName)).start();
+                ChatHandler.acceptFriendRequest(chatInternalName, friendName);
+                new Thread(() -> Callbacks.addFriend(friendCode, nameEntry.getText().trim())).start();
             }
             else
             {

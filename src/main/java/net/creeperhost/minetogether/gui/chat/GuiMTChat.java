@@ -27,6 +27,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.client.GuiScrollingList;
+import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -595,7 +596,7 @@ public class GuiMTChat extends GuiScreen
 
                         String friendName = nameBuilder.toString();
 
-                        ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") would like to add you as a friend. Click to ");
+                        ITextComponent userComp = new TextComponentString("(" + nickDisplay + ") would like to add you as a friend. Click to ");
 
                         ITextComponent accept = new TextComponentString("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
 
@@ -611,7 +612,7 @@ public class GuiMTChat extends GuiScreen
 
                         String friendName = message.messageStr;
 
-                        ITextComponent userComp = new TextComponentString(friendName + " (" + nickDisplay + ") accepted your friend request.");
+                        ITextComponent userComp = new TextComponentString(" (" + nickDisplay + ") accepted your friend request.");
 
                         return userComp;
                 }
