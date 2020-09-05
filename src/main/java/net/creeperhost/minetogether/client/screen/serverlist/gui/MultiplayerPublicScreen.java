@@ -76,14 +76,14 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             return;
         }
         
-        String name = "minetogether.listing.title";
+        String name = "creeperhost.config.serverlistenabled";
         
         if(listType != null)
         {
             name = listType.name();
         }
         
-        addButton(new Button(width - 85, 5, 80, 20, I18n.format(name), p ->
+        addButton(new Button(width - 105, 5, 100, 20, I18n.format(name), p ->
         {
             if (changeSort)
             {
@@ -92,7 +92,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             mc.displayGuiScreen(new ServerTypeScreen(this));
         }));
         
-        addButton(new GuiButtonMultiple(width - 105, 5, 1, p ->
+        addButton(new GuiButtonMultiple(width - 125, 5, 1, p ->
         {
             mc.displayGuiScreen(new MTChatScreen(this));
         }));
