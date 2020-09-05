@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.lib.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 

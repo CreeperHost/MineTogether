@@ -64,7 +64,7 @@ public class FriendsListScreen extends Screen
         super(new StringTextComponent(""));
         this.parent = currentScreen;
         friendCode = Callbacks.getFriendCode();
-        ToastHandler.clearToast(false);
+        MineTogether.instance.toastHandler.clearToast(false);
     }
     
     @Override
@@ -181,6 +181,7 @@ public class FriendsListScreen extends Screen
         addButton(buttonCopy = new ButtonString( 65, this.height - 26, 60, 20, MineTogether.profile.get().getFriendCode(), p ->
         {
             this.minecraft.keyboardListener.setClipboardString(MineTogether.profile.get().getFriendCode());
+            showAlert("Copied to clipboard.", 0x00FF00, 5000);
         }));
 
         toggle = addButton(new Button(width - 60, 6, 60, 20, isMuted ? "Friends" : "Muted", p ->
@@ -253,7 +254,7 @@ public class FriendsListScreen extends Screen
     @Override
     public void onClose()
     {
-        ToastHandler.clearToast(false);
+        MineTogether.instance.toastHandler.clearToast(false);
     }
     
     @SuppressWarnings("Duplicates")
@@ -396,7 +397,7 @@ public class FriendsListScreen extends Screen
     
     private void showAlert(String text, int colour, int time)
     {
-        ToastHandler.displayToast(text, time, null);
+        MineTogether.instance.toastHandler.displayToast(text, time, null);
     }
     
     public void setHoveringText(String hoveringText)

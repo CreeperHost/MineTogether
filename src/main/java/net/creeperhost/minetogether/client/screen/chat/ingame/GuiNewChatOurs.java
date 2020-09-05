@@ -167,8 +167,9 @@ public class GuiNewChatOurs extends NewChatGui
         int minLines = isBase() ? (14 + ((ChatHandler.hasGroup) ? 6 : 0)) : 20;
         int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
         
-        if (isBase())
+        if (isBase()) {
             super.render(updateCounter);
+        }
         else
         {
             if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && ChatHandler.isOnline() && updateCounter % 6000 == 0)

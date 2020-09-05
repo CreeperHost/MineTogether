@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.screen.chat.ingame;
 
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.client.screen.GDPRScreen;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static net.creeperhost.minetogether.chat.ChatHandler.addStatusMessage;
+import static net.creeperhost.minetogether.chat.ChatHandler.knownUsers;
 
 public class GuiChatOurs extends ChatScreen
 {
@@ -250,7 +252,8 @@ public class GuiChatOurs extends ChatScreen
             }
             else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.addfriend")))
             {
-                mc.displayGuiScreen(new ChatFriendScreen(this, mc.getSession().getUsername(), activeDropdown, Callbacks.getFriendCode(), "", false));
+                Profile profile = ChatHandler.knownUsers.findByDisplay(activeDropdown);
+                mc.displayGuiScreen(new ChatFriendScreen(this, mc.getSession().getUsername(), profile, Callbacks.getFriendCode(), "", false));
             }
             else if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mention")))
             {
@@ -422,8 +425,11 @@ public class GuiChatOurs extends ChatScreen
                     builder.append(split[i]).append(" ");
                 
                 String friendName = builder.toString().trim();
+
+                Profile targetProfile = ChatHandler.knownUsers.findByNick(chatInternalName);
+                if(targetProfile == null) targetProfile = ChatHandler.knownUsers.add(chatInternalName);
                 
-                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, mc.getSession().getUsername(), chatInternalName, friendCode, friendName, true));
+                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, mc.getSession().getUsername(), targetProfile, friendCode, friendName, true));
                 
                 return true;
             }

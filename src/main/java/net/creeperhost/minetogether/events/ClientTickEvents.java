@@ -117,7 +117,7 @@ public class ClientTickEvents
                                 }
 
                                 if (temp != null) {
-                                    ToastHandler.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () -> {
+                                    MineTogether.instance.toastHandler.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () -> {
                                         mc.displayGuiScreen(new MTChatScreen(Minecraft.getInstance().currentScreen, true));
                                     });
                                 }
@@ -170,7 +170,7 @@ public class ClientTickEvents
                     MineTogether.proxy.openFriendsGui();
                 } else
                 {
-                    ToastHandler.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
+                    MineTogether.instance.toastHandler.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
                     {
                         mc.displayGuiScreen(new InvitedScreen(MineTogether.instance.handledInvite, mc.currentScreen));
                         MineTogether.instance.handledInvite = null;
@@ -197,7 +197,7 @@ public class ClientTickEvents
                     return;
                 if (Config.getInstance().isFriendOnlineToastsEnabled())
                 {
-                    ToastHandler.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000, null);
+                    MineTogether.instance.toastHandler.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000, null);
                 }
             }
         }

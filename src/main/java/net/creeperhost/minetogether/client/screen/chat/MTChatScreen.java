@@ -149,7 +149,7 @@ public class MTChatScreen extends Screen
                 }
                 else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
                 {
-                    minecraft.displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, activeDropdown, Callbacks.getFriendCode(), "", false));
+                    minecraft.displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, knownUsers.findByDisplay(activeDropdown), Callbacks.getFriendCode(), "", false));
                 }
                 else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mention"))
                 {
@@ -353,7 +353,7 @@ public class MTChatScreen extends Screen
             if (ChatHandler.privateChatInvite != null)
             {
                 ChatHandler.acceptPrivateChatInvite(ChatHandler.privateChatInvite);
-                ToastHandler.clearToast(false);
+                MineTogether.instance.toastHandler.clearToast(false);
             }
         }
         minecraft.displayGuiScreen(new MTChatScreen(new MainMenuScreen()));
@@ -545,7 +545,10 @@ public class MTChatScreen extends Screen
 
                 String friendName = builder.toString().trim();
 
-                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, chatInternalName, friendCode, friendName, true));
+                Profile targetProfile = knownUsers.findByNick(chatInternalName);
+                if(targetProfile == null) targetProfile = knownUsers.add(chatInternalName);
+
+                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, targetProfile, friendCode, friendName, true));
 
                 return true;
             }

@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.events;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.screen.MinigamesScreen;
@@ -18,12 +19,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.loading.FMLClientLaunchProvider;
 import net.minecraftforge.fml.loading.FMLCommonLaunchHandler;
@@ -36,6 +40,9 @@ public class ScreenEvents
 {
     private static final Logger logger = LogManager.getLogger();
     boolean first = true;
+    Screen fakeGui = new Screen(new StringTextComponent("")) {};
+    int u = 0;
+    int v = 0;
 
     private boolean firstConnect = true;
 
@@ -289,5 +296,40 @@ public class ScreenEvents
             {
             }
         }
+    }
+
+    @SubscribeEvent
+    public void guiRendered(TickEvent.RenderTickEvent evt)
+    {
+        if (!MineTogether.isOnline) return;
+
+        if (MineTogether.instance.toastHandler.toastText != null)
+        {
+            long curTime = System.currentTimeMillis();
+            if (MineTogether.instance.toastHandler.fadeTime > curTime)
+            {
+                long fadeDiff = MineTogether.instance.toastHandler.fadeTime - MineTogether.instance.toastHandler.endTime;
+                long curFade = Math.min(MineTogether.instance.toastHandler.fadeTime - curTime, fadeDiff);
+                float alpha = (float) curFade / (float) fadeDiff;
+
+                RenderHelper.disableStandardItemLighting();
+                GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
+                Minecraft.getInstance().getRenderManager().textureManager.bindTexture(MineTogether.instance.toastHandler.TEXTURE_TOASTS);
+
+
+                drawTexturedModalRect(Minecraft.getInstance().getMainWindow().getScaledWidth() - 160, 0, u, v, 160, 32);
+                GlStateManager.enableBlend();
+                int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
+                Minecraft.getInstance().fontRenderer.drawSplitString(MineTogether.instance.toastHandler.toastText, Minecraft.getInstance().getMainWindow().getScaledWidth() - 160 + 5, 3, 160, textColour);
+            } else
+            {
+                MineTogether.instance.toastHandler.clearToast(false);
+            }
+        }
+    }
+
+    private void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
+    {
+        fakeGui.blit(x, y, textureX, textureY, width, height);
     }
 }

@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.chat;
 
+import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
@@ -17,21 +18,23 @@ public class ChatFriendScreen extends Screen
     private final boolean accept;
     private final String friendName;
     private final Screen parent;
+    private Profile profile;
     private Button acceptBtn;
     private Button cancelBtn;
     boolean first = true;
     private TextFieldWidget nameEntry;
     Minecraft mc = Minecraft.getInstance();
-    
-    public ChatFriendScreen(Screen parent, String playerName, String chatInternalName, String friendCode, String friendName, boolean accept)
+
+    public ChatFriendScreen(Screen parent, String playerName, Profile friendTarget, String friendCode, String friendName, boolean accept)
     {
         super(new StringTextComponent(""));
         this.playerName = playerName;
-        this.chatInternalName = chatInternalName;
+        this.chatInternalName = friendTarget == null ? "" : friendTarget.getCurrentIRCNick();
         this.friendCode = friendCode;
         this.accept = accept;
         this.parent = parent;
         this.friendName = friendName;
+        this.profile = friendTarget;
     }
     
     @Override
@@ -50,8 +53,8 @@ public class ChatFriendScreen extends Screen
         {
             if (accept)
             {
-                ChatHandler.acceptFriendRequest(chatInternalName, nameEntry.getText().trim());
-                new Thread(() -> Callbacks.addFriend(friendCode, friendName)).start();
+                ChatHandler.acceptFriendRequest(chatInternalName, friendName);
+                new Thread(() -> Callbacks.addFriend(friendCode, nameEntry.getText().trim())).start();
             } else
             {
                 ChatHandler.sendFriendRequest(chatInternalName, nameEntry.getText().trim());

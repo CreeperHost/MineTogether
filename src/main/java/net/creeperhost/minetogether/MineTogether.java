@@ -20,6 +20,7 @@ import net.creeperhost.minetogether.events.ClientTickEvents;
 import net.creeperhost.minetogether.events.ScreenEvents;
 import net.creeperhost.minetogether.handler.PreGenHandler;
 import net.creeperhost.minetogether.handler.ServerListHandler;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.handler.WatchdogHandler;
 import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.network.PacketHandler;
@@ -110,6 +111,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicReference<Profile> profile = new AtomicReference<>();
     public static AtomicReference<UUID> UUID = new AtomicReference<>();
+    public ToastHandler toastHandler;
 
     public MineTogether()
     {
@@ -144,6 +146,7 @@ public class MineTogether implements ICreeperHostMod, IHost
         if (!isOnline) {
             logger.error("Client is in offline mode");
         }
+        toastHandler = new ToastHandler();
         registerImplementation(new CreeperHostServerHost());
         
         File gdprFile = new File("local/minetogether/gdpr.txt");

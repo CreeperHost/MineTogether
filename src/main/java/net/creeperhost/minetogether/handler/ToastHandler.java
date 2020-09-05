@@ -10,17 +10,18 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ToastHandler
 {
-    private final ResourceLocation newResouce = new ResourceLocation("textures/gui/toasts.png");
+    public ResourceLocation TEXTURE_TOASTS = new ResourceLocation("textures/gui/toasts.png");
     
-    public static Runnable toastMethod;
-    public static String toastText;
-    public static long endTime;
-    public static long fadeTime;
+    public Runnable toastMethod;
+    public String toastText;
+    public long endTime;
+    public long fadeTime;
     Minecraft mc = Minecraft.getInstance();
+
     int u = 0;
     int v = 0;
     
-    public static void displayToast(String text, int duration, Runnable method)
+    public void displayToast(String text, int duration, Runnable method)
     {
         toastText = text;
         endTime = System.currentTimeMillis() + duration;
@@ -28,7 +29,7 @@ public class ToastHandler
         toastMethod = method;
     }
     
-    public static void clearToast(boolean fade)
+    public void clearToast(boolean fade)
     {
         toastText = null;
         endTime = System.currentTimeMillis();
@@ -41,34 +42,8 @@ public class ToastHandler
         return fadeTime >= System.currentTimeMillis();
     }
     
-    @SubscribeEvent
-    public void guiRendered(TickEvent.RenderTickEvent evt)
-    {
-        if (ToastHandler.toastText != null)
-        {
-            long curTime = System.currentTimeMillis();
-            if (ToastHandler.fadeTime > curTime)
-            {
-                long fadeDiff = ToastHandler.fadeTime - ToastHandler.endTime;
-                long curFade = Math.min(ToastHandler.fadeTime - curTime, fadeDiff);
-                float alpha = (float) curFade / (float) fadeDiff;
-                
-                RenderHelper.disableStandardItemLighting();
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-                mc.getTextureManager().bindTexture(getToastResourceLocation());
-                AbstractGui.blit(160, 0, u, v, 160, 32, 10, 10);
-                RenderSystem.enableBlend();
-                int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
-                mc.fontRenderer.drawSplitString(ToastHandler.toastText, 160 + 5, 3, 160, textColour);
-            } else
-            {
-                ToastHandler.clearToast(false);
-            }
-        }
-    }
-    
     private ResourceLocation getToastResourceLocation()
     {
-        return newResouce;
+        return TEXTURE_TOASTS;
     }
 }
