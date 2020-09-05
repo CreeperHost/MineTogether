@@ -567,6 +567,7 @@ public class MTChatScreen extends Screen
             {
                 menuDropdownButton.x = (int) mouseX;
                 menuDropdownButton.y = (int) mouseY;
+                menuDropdownButton.flipped = mouseY > 150;
                 menuDropdownButton.dropdownOpen = true;
                 activeDropdown = event.getValue();
                 return true;
