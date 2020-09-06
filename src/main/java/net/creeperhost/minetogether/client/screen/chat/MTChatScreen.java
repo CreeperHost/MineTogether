@@ -689,7 +689,8 @@ public class MTChatScreen extends Screen
                         splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + MineTogether.instance.playerName + messageColour);
                         split[i] = splitStr;
                         highlight = true;
-                    } else {
+                    } else if(justNick.length() >= 16)
+                    {
                         String userName = "User#" + justNick.substring(2, 5);
                         Profile mentionProfile = ChatHandler.knownUsers.findByNick(justNick);
                         if (mentionProfile != null) {
