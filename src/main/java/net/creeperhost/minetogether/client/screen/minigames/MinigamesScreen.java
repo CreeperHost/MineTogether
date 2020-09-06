@@ -1,5 +1,6 @@
-package net.creeperhost.minetogether.client.screen;
+package net.creeperhost.minetogether.client.screen.minigames;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,21 +11,21 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Minigame;
 import net.creeperhost.minetogether.aries.Aries;
 import net.creeperhost.minetogether.chat.ChatHandler;
-import net.creeperhost.minetogether.client.screen.element.GuiActiveFake;
+import net.creeperhost.minetogether.client.screen.GDPRScreen;
 import net.creeperhost.minetogether.client.screen.element.GuiTextFieldCompatCensor;
+import net.creeperhost.minetogether.client.screen.list.GuiList;
+import net.creeperhost.minetogether.client.screen.list.GuiListEntryMinigame;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Pair;
+import net.creeperhost.minetogether.util.RenderUtils;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.list.ExtendedList;
 import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -32,29 +33,23 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import org.apache.commons.io.FileUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 import static net.creeperhost.minetogether.paul.Callbacks.getPlayerHash;
 
 public class MinigamesScreen extends Screen
 {
     private static MinigamesScreen current;
-    private List<Minigame> minigames;
-    private List<Minigame> vanillaMinigames;
-    private GuiScrollingMinigames minigameScroll;
+    private List<Minigame> moddedList = new ArrayList<>();
+    private List<Minigame> vanillaList = new ArrayList<>();
+    private GuiList<GuiListEntryMinigame> minigameList;
     private static HashMap<Integer, ResourceLocation> minigameTexturesCache = new HashMap<>();
     private static HashMap<Integer, Pair<Integer, Integer>> minigameTexturesSize = new HashMap<>();
     private Button settingsButton;
@@ -73,12 +68,13 @@ public class MinigamesScreen extends Screen
     private String curPrefix = "";
     private String curSuffix = "";
     
-    private boolean isModded = true;
-    private GuiActiveFake moddedButton;
-    private GuiActiveFake vanillaButton;
+    private Button moddedButton;
+    private Button vanillaButton;
     private Screen parent;
     private Button cancelButton;
-    
+    private boolean isModded;
+    private int ticks;
+
     public MinigamesScreen(Screen parent)
     {
         super(new StringTextComponent(""));
@@ -89,9 +85,7 @@ public class MinigamesScreen extends Screen
         refreshMinigames();
         isModded = true;
     }
-    
-    Minigame lastMinigame = null;
-    
+
     public boolean spinDown = false;
     
     public MinigamesScreen(Screen parent, boolean spinDown)
@@ -99,92 +93,24 @@ public class MinigamesScreen extends Screen
         this(parent);
         this.spinDown = spinDown;
     }
-    
+
     private void refreshMinigames()
     {
-        executor.submit(() ->
+        CompletableFuture.runAsync(() ->
         {
             List<Minigame> minigameTemp = Callbacks.getMinigames(true);
-            List<Minigame> tempVanilla = new ArrayList<>();
-            List<Minigame> tempModded = new ArrayList<>();
+            if(minigameTemp == null) return;
+
+            //Clear out the cached list;
+            moddedList.clear();
+            vanillaList.clear();
+
             for (Minigame minigame : minigameTemp)
             {
-                if (minigame.project == 0)
-                    tempVanilla.add(minigame);
-                else
-                    tempModded.add(minigame);
+                if (minigame.project == 0) vanillaList.add(minigame);
+                    else moddedList.add(minigame);
             }
-            minigames = tempModded;
-            vanillaMinigames = tempVanilla;
         });
-    }
-    
-    @Override
-    public void tick()
-    {
-        ticks++;
-        Minigame minigame = minigameScroll.getMinigame();
-        if (lastMinigame != minigame)
-        {
-            if (minigame == null)
-            {
-                quote = -1;
-            } else
-            {
-                executor.submit(() ->
-                {
-                    try
-                    {
-                        Map<String, String> sendMap = new HashMap<>();
-                        
-                        sendMap.put("id", String.valueOf(minigame.id));
-                        sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
-                        sendMap.put("key2", key);
-                        sendMap.put("secret2", secret);
-                        
-                        Aries aries = new Aries(key, secret);
-                        
-                        Map map = aries.doApiCall("minetogether", "minigamequote", sendMap);
-                        
-                        if (map.get("status").equals("success"))
-                        {
-                            quote = Float.valueOf(String.valueOf(map.get("quote")));
-                        } else
-                        {
-                            quote = -1;
-                        }
-                    } catch (Throwable t)
-                    {
-                        t.printStackTrace();
-                    }
-                });
-            }
-            
-        }
-        lastMinigame = minigame;
-    }
-    
-    private int ticks = 0;
-    private ItemStack stack = new ItemStack(Items.BEEF, 1);
-    
-    private void loadingSpin(float partialTicks)
-    {
-        int rotateTickMax = 30;
-        int throbTickMax = 20;
-        int rotateTicks = ticks % rotateTickMax;
-        int throbTicks = ticks % throbTickMax;
-        RenderSystem.translated(width / 2, height / 2 + 20 + 10, 0);
-        RenderSystem.pushMatrix();
-        float scale = 1F + ((throbTicks >= (throbTickMax / 2) ? (throbTickMax - (throbTicks + partialTicks)) : (throbTicks + partialTicks)) * (2F / throbTickMax));
-        RenderSystem.scalef(scale, scale, scale);
-        RenderSystem.rotatef((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
-        RenderSystem.pushMatrix();
-        
-        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-        itemRenderer.renderItemAndEffectIntoGUI(stack, -8, -8);
-        
-        RenderSystem.popMatrix();
-        RenderSystem.popMatrix();
     }
     
     @Override
@@ -196,60 +122,81 @@ public class MinigamesScreen extends Screen
             return;
         }
         super.init();
-        GuiScrollingMinigames tempMinigameScroll = new GuiScrollingMinigames(34);
-        tempMinigameScroll.tick(minigameScroll);
-        minigameScroll = tempMinigameScroll;
+        this.minecraft.keyboardListener.enableRepeatEvents(true);
+
+        refreshMinigames();
+
+        if (minigameList == null) minigameList = new GuiList<>(this, minecraft, width, height, 50, this.height - 40, 36);
+            else minigameList.updateSize(width + 11, height, 50, this.height - 40);
+
+        this.children.add(minigameList);
+
         addButton(settingsButton = new Button(width - 10 - 100, 5, 100, 20, "Login", p ->
         {
             Minecraft.getInstance().displayGuiScreen(settings = new Settings());
         }));
         addButton(spinupButton = new Button(width - 10 - 100, height - 5 - 20, 100, 20, "Start minigame", p ->
         {
-            if ((State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null)
+            if ((State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameList.getCurrSelected() != null)
             {
-                Minecraft.getInstance().displayGuiScreen(new StartMinigame(minigameScroll.getMinigame()));
+                Minecraft.getInstance().displayGuiScreen(new StartMinigame(minigameList.getCurrSelected().getMiniGame()));
             }
         }));
-        addButton(moddedButton = new GuiActiveFake(10, 30, (width / 2) - 5, 20, "Modded", p ->
+        addButton(moddedButton = new Button(10, 30, (width / 2) - 5, 20, "Modded", p ->
         {
+            moddedButton.active = false;
+            vanillaButton.active = true;
+            minigameList.clearList();
             isModded = true;
-            minigameScroll.setSelected(null);
-            moddedButton.setActive(true);
-            vanillaButton.setActive(false);
+
+            if(moddedList != null && !moddedList.isEmpty())
+            {
+                for (Minigame minigame : moddedList)
+                {
+                    minigameList.add(new GuiListEntryMinigame(this, minigameList, minigame));
+                }
+            }
         }));
-        addButton(vanillaButton = new GuiActiveFake(width - 10 - ((width / 2) - 10), 30, (width / 2) - 5, 20, "Vanilla", p ->
+        addButton(vanillaButton = new Button(width - 10 - ((width / 2) - 10), 30, (width / 2) - 5, 20, "Vanilla", p ->
         {
+            moddedButton.active = true;
+            vanillaButton.active = false;
+            minigameList.clearList();
             isModded = false;
-            minigameScroll.setSelected(null);
-            vanillaButton.setActive(true);
-            moddedButton.setActive(false);
+
+            if(vanillaList != null && !vanillaList.isEmpty())
+            {
+                for (Minigame minigame : vanillaList)
+                {
+                    minigameList.add(new GuiListEntryMinigame(this, minigameList, minigame));
+                }
+            }
         }));
         addButton(cancelButton = new Button(10, height - 5 - 20, 100, 20, "Cancel", p ->
         {
-            Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
+            Minecraft.getInstance().displayGuiScreen(parent);
         }));
-        moddedButton.setActive(isModded);
-        vanillaButton.setActive(!isModded);
         State.refreshState();
+        moddedButton.active = !isModded;
+        vanillaButton.active = isModded;
     }
     
     @Override
     public void render(int mouseX, int mouseY, float partialTicks)
     {
-        renderDirtBackground(1);
         if (Config.getInstance().isChatEnabled() && !ChatHandler.isOnline())
         {
-            spinupButton.visible = spinupButton.active = vanillaButton.visible = vanillaButton.active =
-                    moddedButton.visible = moddedButton.active = settingsButton.visible = settingsButton.active = false;
+            spinupButton.visible = spinupButton.active = vanillaButton.visible = vanillaButton.active = moddedButton.visible = moddedButton.active = settingsButton.visible = settingsButton.active = false;
             drawCenteredString(minecraft.fontRenderer, I18n.format("minetogether.minigames.notavailable"), width / 2, height / 2, 0xFFFFFFFF);
             super.render(mouseX, mouseY, partialTicks);
             return;
         }
+
         if (!spinDown)
         {
-            spinupButton.active = minigameScroll != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameScroll.getMinigame() != null && credit >= quote;
-            minigameScroll.tick(minigameScroll);
-            super.render(mouseX, mouseY, partialTicks);
+            spinupButton.active = minigameList.getCurrSelected() != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameList.getCurrSelected().getMiniGame() != null && credit >= quote;
+            this.minigameList.render(mouseX, mouseY, partialTicks);
+
             String creditStr;
             switch (creditType)
             {
@@ -307,12 +254,14 @@ public class MinigamesScreen extends Screen
         } else
         {
             drawCenteredSplitString("Spinning down minigame", width / 2, height / 2, width, 0xFFFFFFFF);
-            loadingSpin(partialTicks);
+            RenderUtils.loadingSpin(partialTicks, ticks++,  width / 2, height / 2 + 20 + 10, new ItemStack(Items.BEEF));
             if (doSpindown)
             {
                 Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
             }
         }
+
+        super.render(mouseX, mouseY, partialTicks);
     }
     
     public static double round(double value, int places)
@@ -323,7 +272,8 @@ public class MinigamesScreen extends Screen
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
-    
+
+    @Deprecated
     protected void drawTextureAt(int p_178012_1_, int p_178012_2_, int texturew, int textureh, int width, int height, ResourceLocation p_178012_3_)
     {
         this.minecraft.getTextureManager().bindTexture(p_178012_3_);
@@ -379,8 +329,6 @@ public class MinigamesScreen extends Screen
                 {
                     e.printStackTrace();
                 }
-                
-                
             } catch (Exception e)
             {
                 e.printStackTrace();
@@ -529,7 +477,35 @@ public class MinigamesScreen extends Screen
             y += font.FONT_HEIGHT;
         }
     }
-    
+
+    @Override
+    public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
+    {
+        if(minigameList != null)
+            minigameList.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+
+        super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+        return true;
+    }
+
+    @Override
+    public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_) {
+        if(minigameList != null)
+            minigameList.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
+
+        super.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
+        return true;
+    }
+
+    @Override
+    public boolean mouseDragged(double p_mouseDragged_1_, double p_mouseDragged_3_, int p_mouseDragged_5_, double p_mouseDragged_6_, double p_mouseDragged_8_) {
+        if(minigameList != null)
+            minigameList.mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, p_mouseDragged_5_, p_mouseDragged_6_, p_mouseDragged_8_);
+
+        super.mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, p_mouseDragged_5_, p_mouseDragged_6_, p_mouseDragged_8_);
+        return false;
+    }
+
     private enum State
     {
         LOGGING_IN, CHECKING_CREDENTIALS, CREDENTIALS_OK, CREDENTIALS_INVALID, LOGIN_FAILURE, TWOFACTOR_NEEDED, STARTING_MINIGAME, LOGIN_SUCCESS, TWOFACTOR_FAILURE, MINIGAME_ACTIVE, MINIGAME_FAILED, NOT_ENOUGH_CREDIT, UNKNOWN_ERROR, READY_TO_JOIN;
@@ -561,9 +537,9 @@ public class MinigamesScreen extends Screen
                         MinigamesScreen.settings.emailField.setEnabled(false);
                         MinigamesScreen.settings.passwordField.setEnabled(false);
                         MinigamesScreen.settings.oneCodeField.setEnabled(false);
-//                        GuiMinigames.settings.emailLabel.visible = false;
-//                        GuiMinigames.settings.passwordLabel.visible = false;
-//                        GuiMinigames.settings.oneCodeLabel.visible = false;
+                        MinigamesScreen.settings.emailLabel.visible = false;
+                        MinigamesScreen.settings.passwordLabel.visible = false;
+                        MinigamesScreen.settings.oneCodeLabel.visible = false;
                         MinigamesScreen.settings.loginButton.setMessage("Log in again");
                         MinigamesScreen.settings.loginButton.active = true;
                         MinigamesScreen.settings.loginButton.visible = true;
@@ -587,9 +563,9 @@ public class MinigamesScreen extends Screen
                         MinigamesScreen.settings.emailField.setVisible(true);
                         MinigamesScreen.settings.passwordField.setVisible(true);
                         MinigamesScreen.settings.oneCodeField.setVisible(false);
-//                        GuiMinigames.settings.emailLabel.visible = true;
-//                        GuiMinigames.settings.passwordLabel.visible = true;
-//                        GuiMinigames.settings.oneCodeLabel.visible = false;
+                        MinigamesScreen.settings.emailLabel.visible = true;
+                        MinigamesScreen.settings.passwordLabel.visible = true;
+                        MinigamesScreen.settings.oneCodeLabel.visible = false;
                         MinigamesScreen.settings.loginButton.setMessage("Log in");
                         MinigamesScreen.settings.loginButton.active = true;
                         MinigamesScreen.settings.loginButton.visible = true;
@@ -604,9 +580,9 @@ public class MinigamesScreen extends Screen
                         MinigamesScreen.settings.passwordField.setEnabled(false);
                         MinigamesScreen.settings.oneCodeField.setVisible(true);
                         MinigamesScreen.settings.oneCodeField.setEnabled(true);
-//                        GuiMinigames.settings.emailLabel.visible = false;
-//                        GuiMinigames.settings.passwordLabel.visible = false;
-//                        GuiMinigames.settings.oneCodeLabel.visible = true;
+                        MinigamesScreen.settings.emailLabel.visible = false;
+                        MinigamesScreen.settings.passwordLabel.visible = false;
+                        MinigamesScreen.settings.oneCodeLabel.visible = true;
                     }
                     break;
                 case TWOFACTOR_FAILURE:
@@ -614,7 +590,7 @@ public class MinigamesScreen extends Screen
                     {
                         MinigamesScreen.settings.oneCodeField.setEnabled(true);
                         MinigamesScreen.settings.oneCodeField.setVisible(true);
-//                        GuiMinigames.settings.oneCodeLabel.visible = true;
+                        MinigamesScreen.settings.oneCodeLabel.visible = true;
                     }
                     break;
             }
@@ -645,118 +621,19 @@ public class MinigamesScreen extends Screen
         }
     }
     
-    private class GuiScrollingMinigames extends ExtendedList
-    {
-        public GuiScrollingMinigames(int entryHeight)
-        {
-            super(Minecraft.getInstance(), MinigamesScreen.this.width - 20, MinigamesScreen.this.height - 50, 50, MinigamesScreen.this.height - 50, 10);
-        }
-        
-        @Override
-        protected int getItemCount()
-        {
-            List<Minigame> minigames = isModded ? MinigamesScreen.this.minigames : MinigamesScreen.this.vanillaMinigames;
-            return minigames == null ? 1 : minigames.size();
-        }
-        
-        protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess)
-        {
-            List<Minigame> minigames = isModded ? MinigamesScreen.this.minigames : MinigamesScreen.this.vanillaMinigames;
-            if (minigames == null)
-            {
-                drawCenteredString(font, "Loading minigames...", width / 2, slotTop, 0xFFFFFFFF);
-            } else
-            {
-                Minigame game = minigames.get(slotIdx);
-                
-                if (!minigameTexturesCache.containsKey(game.id))
-                {
-                    ResourceLocation resourceLocation = new ResourceLocation(Constants.MOD_ID, "minigame/" + game.id);
-                    BufferedImage imageData = null;
-                    try
-                    {
-                        imageData = ImageIO.read(new URL(game.displayIcon));
-                    } catch (IOException ignored)
-                    {
-                    }
-                    
-                    if (imageData != null)
-                    {
-//                        DynamicTexture texture = new DynamicTexture(imageData);
-//                        minecraft.getTextureManager().loadTexture(resourceLocation, texture);
-//                        texture.updateDynamicTexture();
-                        minigameTexturesCache.put(game.id, resourceLocation);
-                        minigameTexturesSize.put(game.id, new Pair<>(imageData.getWidth(), imageData.getHeight()));
-                    } else
-                    {
-                        minigameTexturesCache.put(game.id, new ResourceLocation("minecraft", "textures/misc/unknown_server.png"));
-                        minigameTexturesSize.put(game.id, new Pair(32, 32));
-                    }
-                }
-                
-                ResourceLocation resourceLocation = minigameTexturesCache.get(game.id);
-                
-                Pair<Integer, Integer> wh = minigameTexturesSize.get(game.id);
-                
-                drawTextureAt(13, slotTop + 1, 28, 28, 28, 28, resourceLocation);
-                
-                RenderSystem.pushMatrix();
-                float scale = 1.5f;
-                RenderSystem.scalef(scale, scale, scale);
-                int x = width / 2;
-                int y = slotTop;
-                x = (int) (x / scale);
-                y = (int) (y / scale);
-                
-                int gameWidth = (int) (font.getStringWidth(minigames.get(slotIdx).displayName) * scale);
-                int newX = (width / 2) + (gameWidth / 2);
-                
-                drawCenteredString(font, minigames.get(slotIdx).displayName, x, y, 0xFFFFFFFF);
-                
-                RenderSystem.popMatrix();
-                
-                drawString(font, " by " + minigames.get(slotIdx).author, newX, slotTop + 2, 0xFFAAAAAA);
-                
-                String displayDescription = minigames.get(slotIdx).displayDescription;
-                if (font.getStringWidth(displayDescription) > (width - 96) * 2)
-                {
-                    while (font.getStringWidth(displayDescription + "...") > (width - 96) * 2)
-                    {
-                        displayDescription = displayDescription.substring(0, displayDescription.lastIndexOf(" "));
-                    }
-                    displayDescription += "...";
-                }
-                
-                drawCenteredSplitString(displayDescription, width / 2, slotTop + 12, width - 84, 0xFFAAAAAA);
-            }
-        }
-        
-        public Minigame getMinigame()
-        {
-            List<Minigame> minigames = isModded ? MinigamesScreen.this.minigames : MinigamesScreen.this.vanillaMinigames;
-            return null;//getSelected() >= 0 ? minigames.get(selectedIndex) : null;
-        }
-        
-        public void tick(GuiScrollingMinigames previous)
-        {
-            if (previous == null)
-                return;
-            setSelected(previous.getSelected());
-        }
-    }
-    
     public class Settings extends Screen
     {
         public TextFieldWidget emailField;
-        //        public GuiLabel emailLabel;
+        public GuiLabel emailLabel;
         public TextFieldWidget passwordField;
-        //        public GuiLabel passwordLabel;
+        public GuiLabel passwordLabel;
         public TextFieldWidget oneCodeField;
-        //        public GuiLabel oneCodeLabel;
+        public GuiLabel oneCodeLabel;
         public Button cancelButton;
         public Button loginButton;
         private boolean previous2fa;
-        
+        protected List<GuiLabel> labelList = Lists.<GuiLabel>newArrayList();
+
         protected Settings()
         {
             super(new StringTextComponent(""));
@@ -766,19 +643,19 @@ public class MinigamesScreen extends Screen
         public void init()
         {
             super.init();
-//            labelList.clear();
+            labelList.clear();
             
             emailField = new TextFieldWidget(font, width / 2 - 100, height / 2 - 20, 200, 20, "");
-//            labelList.add(emailLabel = new GuiLabel(fontRendererObj, 80856, emailField.xPosition, emailField.yPosition - 10, 200, 20, 0xFFFFFFFF));
-//            emailLabel.addLine("Email");
+            labelList.add(emailLabel = new GuiLabel(font, 80856, emailField.x, emailField.y - 10, 200, 20, 0xFFFFFFFF));
+            emailLabel.addLine("Email");
             
             oneCodeField = new TextFieldWidget(font, width / 2 - 100, emailField.y - 10, 200, 20, "");
-//            labelList.add(oneCodeLabel = new GuiLabel(fontRendererObj, 80856, oneCodeField.xPosition, oneCodeField.yPosition - 10, 200, 20, 0xFFFFFFFF));
-//            oneCodeLabel.addLine("One-time code");
+            labelList.add(oneCodeLabel = new GuiLabel(font, 80856, oneCodeField.x, oneCodeField.y - 10, 200, 20, 0xFFFFFFFF));
+            oneCodeLabel.addLine("One-time code");
             
             passwordField = new GuiTextFieldCompatCensor(font, width / 2 - 100, height / 2 + 10, 200, 20, "Password");
-//            labelList.add(passwordLabel = new GuiLabel(fontRendererObj, 80856, passwordField.xPosition, passwordField.yPosition - 10, 200, 20, 0xFFFFFFFF));
-//            passwordLabel.addLine("Password");
+            labelList.add(passwordLabel = new GuiLabel(font, 80856, passwordField.x, passwordField.y - 10, 200, 20, 0xFFFFFFFF));
+            passwordLabel.addLine("Password");
             
             addButton(cancelButton = new Button(width - 10 - 100, height - 5 - 20, 100, 20, "Go back", p ->
             {
@@ -899,6 +776,11 @@ public class MinigamesScreen extends Screen
             emailField.render(mouseX, mouseY, partialTicks);
             passwordField.render(mouseX, mouseY, partialTicks);
             oneCodeField.render(mouseX, mouseY, partialTicks);
+            for (int j = 0; j < this.labelList.size(); ++j)
+            {
+                ((GuiLabel)this.labelList.get(j)).drawLabel(this.minecraft, mouseX, mouseY);
+            }
+
             super.render(mouseX, mouseY, partialTicks);
             if (State.getCurrentState() == State.CREDENTIALS_OK)
             {
@@ -911,7 +793,7 @@ public class MinigamesScreen extends Screen
             drawStatusString(width / 2, height - 40);
         }
     }
-    
+
     public class StartMinigame extends Screen implements IStateHandler
     {
         private final Minigame minigame;
@@ -919,39 +801,39 @@ public class MinigamesScreen extends Screen
         private int port;
         private String ip;
         private Button joinServerButton;
-        
+
         public StartMinigame(Minigame minigame)
         {
             super(new StringTextComponent(""));
             this.minigame = minigame;
-            
+
             State.pushState(State.STARTING_MINIGAME);
-            
+
             executor.submit(() ->
             {
                 try
                 {
                     String url = minigame.template;
                     int ram = minigame.ram;
-                    
+
                     Aries aries = new Aries(key, secret);
-                    
+
                     Map creditResp = aries.doApiCall("minetogether", "minigamecredit");
-                    
+
                     if (creditResp.get("status").equals("success"))
                     {
                         String credit = creditResp.get("credit").toString();
                         if (true) // credit check here
                         {
                             Map<String, String> sendMap = new HashMap<>();
-                            
+
                             sendMap.put("id", String.valueOf(minigame.id));
                             sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
                             sendMap.put("key2", key);
                             sendMap.put("secret2", secret);
-                            
+
                             Map map = aries.doApiCall("minetogether", "startminigame", sendMap);
-                            
+
                             if (map.get("status").equals("success"))
                             {
                                 try
@@ -1001,13 +883,13 @@ public class MinigamesScreen extends Screen
                 }
             });
         }
-        
+
         @Override
         public void tick()
         {
             ticks++;
         }
-        
+
         @Override
         public void init()
         {
@@ -1025,23 +907,23 @@ public class MinigamesScreen extends Screen
             joinServerButton.visible = false;
             State.refreshState();
         }
-        
+
         @Override
         public void render(int mouseX, int mouseY, float partialTicks)
         {
             renderDirtBackground(0);
             if (State.getCurrentState() == State.MINIGAME_FAILED)
             {
-                drawCenteredSplitString("Minigame failed. Reason: " + failedReason, width / 2, height / 2, width, 0xFFFF0000);
+                drawCenteredSplitString("Minigame failed. Reason: " + failedReason, width / 2, (height / 2) - 10, width, 0xFFFF0000);
             } else
             {
                 drawStatusString(width / 2, height / 2);
             }
             super.render(mouseX, mouseY, partialTicks);
             if (State.getCurrentState() != State.READY_TO_JOIN && State.getCurrentState() != State.MINIGAME_FAILED)
-                loadingSpin(partialTicks);
+                RenderUtils.loadingSpin(partialTicks, ticks++,  width / 2, height / 2 + 20 + 10, new ItemStack(Items.BEEF));
         }
-        
+
         @Override
         public void handleStatePush(State state)
         {
