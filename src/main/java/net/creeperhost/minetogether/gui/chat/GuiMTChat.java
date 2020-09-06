@@ -669,7 +669,8 @@ public class GuiMTChat extends GuiScreen
                         splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + CreeperHost.instance.playerName + messageColour);
                         split[i] = splitStr;
                         highlight = true;
-                    } else {
+                    } else if(justNick.length() >= 16)
+                    {
                         String userName = "User#" + justNick.substring(2, 5);
                         Profile mentionProfile = ChatHandler.knownUsers.findByNick(justNick);
                         if (mentionProfile != null) {
@@ -715,8 +716,6 @@ public class GuiMTChat extends GuiScreen
                 userComp = new TextComponentString(outputNick);
                 messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             }
-
-
 
             if (premium.get()) {
                 arrowColour = TextFormatting.GREEN;

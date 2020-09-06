@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.chat;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.DebugHandler;
 import net.creeperhost.minetogether.data.KnownUsers;
 import net.creeperhost.minetogether.common.Config;
@@ -370,14 +371,25 @@ public class ChatHandler
             try {
                 if (!curseSync.containsKey(user.getNick())) {
                     if (user.getRealName().isPresent())
-                        curseSync.put(
-                            user.getNick(),
-                            user.getRealName().get());
+                        curseSync.put(user.getNick(), user.getRealName().get());
                     else
                         doWhois(user);
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
+            }
+
+            //Remove them from our ban list if they speak again.
+            if(CreeperHost.bannedUsers.contains(user.getNick()))
+            {
+                for (int i = 0; i < CreeperHost.bannedUsers.size(); i++)
+                {
+                    if(CreeperHost.bannedUsers.get(i).equalsIgnoreCase(user.getNick()))
+                    {
+                        CreeperHost.bannedUsers.remove(i);
+                        break;
+                    }
+                }
             }
 
             synchronized (ircLock)

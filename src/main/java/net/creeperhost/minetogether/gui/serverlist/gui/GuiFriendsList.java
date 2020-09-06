@@ -285,7 +285,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             if (!addFriend)
             {
                 this.list.drawScreen(mouseX, mouseY, partialTicks);
-                this.searchEntry.setVisible(false);
+                this.searchEntry.setVisible(true);
             }
             else
             {
@@ -293,6 +293,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.displayname"), this.width / 2, this.height / 2 - 10, 0xFFFFFF);
                 this.codeEntry.drawTextBox();
                 this.displayEntry.drawTextBox();
+                this.searchEntry.setVisible(false);
             }
             this.drawCenteredString(this.fontRendererObj, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         }
