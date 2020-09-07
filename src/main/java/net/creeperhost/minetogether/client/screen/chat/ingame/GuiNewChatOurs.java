@@ -119,7 +119,7 @@ public class GuiNewChatOurs extends NewChatGui
         if (!isBase())
         {
             unread = true;
-            getVanillaDrawnChatLines().clear(); // instantly clear so that no surprises happen whilst we're in our chat (I'm looking at you, Quark!)
+            super.drawnChatLines.clear(); // instantly clear so that no surprises happen whilst we're in our chat (I'm looking at you, Quark!)
         }
     }
     
@@ -154,8 +154,6 @@ public class GuiNewChatOurs extends NewChatGui
     {
         return (int) (super.getChatWidth() - (16 * 0.75));
     }
-    
-    private List<ChatLine> vanillaDrawnChatLines = null;
 
     private long tickCounter = 0;
 
@@ -306,30 +304,30 @@ public class GuiNewChatOurs extends NewChatGui
                     RenderSystem.popMatrix();
                 }
             }
+        }
         
-            if (isBase())
+        if (isBase())
+        {
+            tempDrawnChatLines = super.drawnChatLines;
+        }
+
+        if (getChatOpen() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
+        {
+            double f1 = this.getScale();
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(2.0F, 8.0F, 0.0F);
+            RenderSystem.scaled(f1, f1, 1.0F);
+
+            int k = MathHelper.ceil((float) this.getChatWidth() / f1);
+
+            for (int line = tempDrawnChatLines.size(); line < minLines; line++)
             {
-                tempDrawnChatLines = getVanillaDrawnChatLines();
+                int l1 = 255;
+                int j2 = -line * 9;
+                fill(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
             }
 
-            if (getChatOpen() && !MineTogether.instance.ingameChat.hasDisabledIngameChat())
-            {
-                double f1 = this.getScale();
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(2.0F, 8.0F, 0.0F);
-                RenderSystem.scaled(f1, f1, 1.0F);
-
-                int k = MathHelper.ceil((float) this.getChatWidth() / f1);
-
-                for (int line = tempDrawnChatLines.size(); line < minLines; line++)
-                {
-                    int l1 = 255;
-                    int j2 = -line * 9;
-                    fill(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
-                }
-
-                RenderSystem.popMatrix();
-            }
+            RenderSystem.popMatrix();
         }
     }
     
@@ -631,18 +629,9 @@ public class GuiNewChatOurs extends NewChatGui
             Client.chatType = 0;
         } else
         {
-            getVanillaDrawnChatLines().clear();
+            super.drawnChatLines.clear();
             Client.chatType = 1;
         }
-    }
-    
-    public List<ChatLine> getVanillaDrawnChatLines()
-    {
-        if (vanillaDrawnChatLines == null)
-        {
-            vanillaDrawnChatLines = drawnChatLines;
-        }
-        return vanillaDrawnChatLines;
     }
 
     private static <T> List<T> trimTo(List<T> list, int size) {
