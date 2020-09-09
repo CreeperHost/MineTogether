@@ -100,7 +100,7 @@ public class ChatConnectionHandler
     
     public boolean canConnect()
     {
-        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited.get() || ChatHandler.isInitting.get()|| Config.getInstance().isChatEnabled();
+        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited.get() || ChatHandler.isInitting.get() || Config.getInstance().isChatEnabled();
     }
     
     public void nextConnectAllow(int timeout)

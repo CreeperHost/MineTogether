@@ -35,7 +35,7 @@ if (hasProperty('appendBuildNumber')) {
 }
 
 group = 'net.creeperhost'
-archivesBaseName = 'minetogether'
+archivesBaseName = 'MineTogether'
 
 minecraft {
     mappings channel: 'snapshot', version: '20200514-1.15.1'

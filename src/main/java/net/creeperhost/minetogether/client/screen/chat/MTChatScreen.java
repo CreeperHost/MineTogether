@@ -17,6 +17,7 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.Constants;
+import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.util.ScreenUtils;
@@ -43,6 +44,8 @@ import net.minecraftforge.common.ForgeHooks;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.glfw.GLFW;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +75,7 @@ public class MTChatScreen extends Screen
     public static List<TextFormatting> formattingList = new ArrayList<>();
     private String banMessage = "";
     private ButtonString banButton;
+    private ButtonString connectionStatus;
 
     public MTChatScreen(Screen parent)
     {
@@ -98,6 +102,9 @@ public class MTChatScreen extends Screen
     @Override
     public void init()
     {
+        //Get this data early
+        CompletableFuture.runAsync(Callbacks::getBanMessage, MineTogether.profileExecutor);
+
         formattingList.add(TextFormatting.RED);
         formattingList.add(TextFormatting.GREEN);
         formattingList.add(TextFormatting.BLUE);
@@ -199,16 +206,24 @@ public class MTChatScreen extends Screen
             inviteTemp = false;
         }
 
-        if (Callbacks.isBanned())
+        addButton(connectionStatus = new ButtonString(5, height - 26, 70, 20, "", p ->
         {
-            banMessage = "";
-            CompletableFuture.runAsync(() -> Callbacks.getBanMessage(), MineTogether.instance.profileExecutor);
-            if (!banMessage.isEmpty())
-                addButton(banButton = new ButtonString(20, height - 26, 240, 20, TextFormatting.RED + "Banned for: " + banMessage, p ->
+            if(ChatHandler.connectionStatus == ConnectionStatus.BANNED)
+            {
+                minecraft.displayGuiScreen(new ConfirmScreen(e ->
                 {
-                   this.minecraft.keyboardListener.setClipboardString(Callbacks.banID);
-                }));
-        }
+                    if(e)
+                    {
+                        try {
+                            KeycloakOAuth.openURL(new URL("https://minetogether.io/profile/standing"));
+                        } catch (MalformedURLException malformedURLException) { malformedURLException.printStackTrace(); }
+                    }
+                    this.minecraft.displayGuiScreen(this);
+
+                }, new StringTextComponent(I18n.format("You have been banned from MineTogether chat for " + Callbacks.banMessage)),
+                        new StringTextComponent(I18n.format("You can appeal your ban via your account on MineTogether.io\n\nDo you wish to appeal this ban?"))));
+            }
+        }));
     }
 
     private long tickCounter = 0;
@@ -235,6 +250,7 @@ public class MTChatScreen extends Screen
             changed = true;
             currentTarget = buttonTarget;
         }
+
         synchronized (ircLock)
         {
             reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries.get() < 5);
@@ -285,10 +301,9 @@ public class MTChatScreen extends Screen
         if (ChatHandler.isInChannel.get()) {
             drawString(font, "Please Contact Support at with your nick " + ChatHandler.nick + " " + new StringTextComponent("here").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:creeperhost.net/contact"))), 10, height - 20, 0xFFFFFF);
         }
-        else if(banMessage.isEmpty())
-        {
-            drawString(font, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
-        }
+
+        connectionStatus.setMessage(comp.getFormattedText());
+
         drawLogo(font, width - 20, height - 30, 20, 30, 0.75F);
         super.render(mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
@@ -296,8 +311,9 @@ public class MTChatScreen extends Screen
             renderTooltip(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
         }
 
-        if (banButton != null && banButton.isHovered()) {
-            renderTooltip(Arrays.asList("Click here copy Ban-ID to clipboard"), mouseX, mouseY);
+        if (connectionStatus != null && connectionStatus.isHovered() && ChatHandler.connectionStatus == ConnectionStatus.BANNED)
+        {
+            renderTooltip("Click here to appeal your ban", mouseX, mouseY);
         }
     }
 
@@ -368,10 +384,15 @@ public class MTChatScreen extends Screen
     @Override
     public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_)
     {
-        if (chat.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_)) {
-            return true;
-        }
+        if(chat != null) chat.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
         return super.mouseScrolled(p_mouseScrolled_1_, p_mouseScrolled_3_, p_mouseScrolled_5_);
+    }
+
+    @Override
+    public boolean mouseDragged(double p_mouseDragged_1_, double p_mouseDragged_3_, int p_mouseDragged_5_, double p_mouseDragged_6_, double p_mouseDragged_8_)
+    {
+        if(chat != null) chat.mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, p_mouseDragged_5_, p_mouseDragged_6_, p_mouseDragged_8_);
+        return super.mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, p_mouseDragged_5_, p_mouseDragged_6_, p_mouseDragged_8_);
     }
 
     @Override
@@ -585,6 +606,8 @@ public class MTChatScreen extends Screen
 
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
 
+
+
     public static ITextComponent formatLine(Message message)
     {
         try {
@@ -723,7 +746,6 @@ public class MTChatScreen extends Screen
 
                     if (name2.contains(Config.getInstance().curseProjectID) || name2.contains(MineTogether.instance.ftbPackID) && !MineTogether.instance.ftbPackID.isEmpty()) {
                         nickColour = TextFormatting.DARK_PURPLE;
-//                    userComp.getStyle().setColor(TextFormatting.DARK_PURPLE);
                     }
                 }
             }
@@ -825,7 +847,12 @@ public class MTChatScreen extends Screen
                         continue;
                     lines.addAll(RenderComponentsUtil.splitText(display, getWidth() - 10, font, false, true));
                 }
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) {}
+            if (lines.size() > oldLines.size() && ((float) this.getHeight() == listHeight) || listHeight < 0)
+            {
+                listHeight = this.height - (this.getScrollBottom() - this.getTop() - 4);
+                this.setScrollAmount(listHeight);
+            }
         }
 
         @Override
@@ -895,7 +922,7 @@ public class MTChatScreen extends Screen
                 }
             } catch (Exception e)
             {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
 

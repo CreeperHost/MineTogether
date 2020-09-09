@@ -309,7 +309,7 @@ public class GuiChatOurs extends ChatScreen
             }, defaultString, I18n.format("minetogether.ingame.chat.global"), I18n.format("minetogether.ingame.chat.group")));
         } else
         {
-            addButton(switchButton = new GuiButtonPair(x, height - 156, 156, 16, 0, false, false, true, p ->
+            addButton(switchButton = new GuiButtonPair(x, height - 156, 156, 16, Client.chatType, false, false, true, p ->
             {
                 if (MineTogether.instance.gdpr.hasAcceptedGDPR())
                 {
@@ -436,6 +436,7 @@ public class GuiChatOurs extends ChatScreen
             menuDropdownButton.x = (int) mc.mouseHelper.getMouseX() * this.height / this.mc.getMainWindow().getWidth() + 28;
             menuDropdownButton.y = (int) mc.mouseHelper.getMouseY() * this.height / this.mc.getMainWindow().getHeight() - 1;
             menuDropdownButton.dropdownOpen = true;
+            menuDropdownButton.flipped = true;
             activeDropdown = event.getValue();
             return true;
         }

@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.KnownUsers;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.engio.mbassy.listener.Handler;
 import org.apache.logging.log4j.LogManager;
@@ -313,10 +314,11 @@ public class ChatHandler
         @Handler
         public void onQuit(ClientConnectionEndedEvent event)
         {
-            if(event.getClient() != ChatHandler.client)
-                return;
+            if(event.getClient() != ChatHandler.client) return;
 
             if(!Config.getInstance().isChatEnabled()) return;
+
+            if(ChatHandler.connectionStatus == ConnectionStatus.BANNED) return;
 
             requestReconnect();
         }
@@ -576,6 +578,8 @@ public class ChatHandler
                     // it be us
                     ChatConnectionHandler.INSTANCE.disconnect();
                     ChatConnectionHandler.INSTANCE.banned = true;
+                    ChatHandler.connectionStatus = ConnectionStatus.BANNED;
+                    Callbacks.getBanMessage();
                     host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
                 }
                 host.userBanned(nick);
@@ -618,8 +622,9 @@ public class ChatHandler
         CONNECTED("Connected", "GREEN"),
         CONNECTING("Connecting", "GOLD"),
         DISCONNECTED("Disconnected", "RED"),
-        NOT_IN_CHANNEL("Not in channel", "RED");
-        
+        NOT_IN_CHANNEL("Not in channel", "RED"),
+        BANNED("Banned", "BLACK");
+
         public final String display;
         public final String colour;
         

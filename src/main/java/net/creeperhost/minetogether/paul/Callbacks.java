@@ -381,41 +381,45 @@ public final class Callbacks
     }
     
     public static String banID = "";
+    public static String banMessage = "";
     
     public static String getBanMessage()
     {
-        String hash = getPlayerHash(MineTogether.proxy.getUUID());
-        Map<String, String> sendMap = new HashMap<String, String>();
+        try
         {
-            sendMap.put("hash", hash);
-        }
-        Gson gson = new Gson();
-        String sendStr = gson.toJson(sendMap);
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
-        
-        JsonParser parser = new JsonParser();
-        JsonElement element = parser.parse(resp);
-        if (element.isJsonObject())
-        {
-            JsonObject obj = element.getAsJsonObject();
-            JsonElement status = obj.get("status");
-            if (status.getAsString().equals("success"))
+            String hash = getPlayerHash(MineTogether.proxy.getUUID());
+            Map<String, String> sendMap = new HashMap<String, String>();
             {
-                if(obj.has("ban"))
-                {
-                    JsonElement ban = obj.get("ban");
-                    JsonElement id = ban.getAsJsonObject().get("id");
-                    JsonElement timestamp = ban.getAsJsonObject().get("timestamp");
-                    JsonElement reason = ban.getAsJsonObject().get("reason");
-
-                    banID = id.getAsString();
-
-                    return reason.getAsString() + " " + timestamp.getAsString();
-                }
-            } else
-            {
-                MineTogether.logger.error(resp);
+                sendMap.put("hash", hash);
             }
+            Gson gson = new Gson();
+            String sendStr = gson.toJson(sendMap);
+            String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
+
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(resp);
+            if (element.isJsonObject()) {
+                JsonObject obj = element.getAsJsonObject();
+                JsonElement status = obj.get("status");
+                if (status.getAsString().equals("success")) {
+                    if (obj.has("ban")) {
+                        JsonElement ban = obj.get("ban");
+                        JsonElement id = ban.getAsJsonObject().get("id");
+                        JsonElement timestamp = ban.getAsJsonObject().get("timestamp");
+                        JsonElement reason = ban.getAsJsonObject().get("reason");
+
+                        banID = id.getAsString();
+                        banMessage = reason.getAsString();
+
+                        return reason.getAsString() + " " + timestamp.getAsString();
+                    }
+                } else {
+                    MineTogether.logger.error(resp);
+                }
+            }
+        } catch (Exception e)
+        {
+            return "";
         }
         return "";
     }

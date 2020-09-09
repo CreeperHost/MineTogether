@@ -9,7 +9,7 @@ public class ButtonString extends Button
     {
         super(xPos, yPos, width, height, displayString, handler);
     }
-    
+
     @Override
     public void renderButton(int mouseX, int mouseY, float partial)
     {
@@ -17,6 +17,7 @@ public class ButtonString extends Button
         {
             Minecraft mc = Minecraft.getInstance();
             this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+
             this.renderBg(mc, mouseX, mouseY);
             int color = 14737632;
             
