@@ -21,10 +21,12 @@ import net.creeperhost.minetogether.util.Pair;
 import net.creeperhost.minetogether.util.RenderUtils;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -899,7 +901,8 @@ public class MinigamesScreen extends Screen
                 if (State.getCurrentState() == State.READY_TO_JOIN)
                 {
                     MineTogether.instance.joinTime = System.currentTimeMillis();
-//                    FMLClientHandler.instance().connectToServerAtStartup(ip, port);
+                    ServerData serverData = new ServerData("", ip + ":" + port, false);
+                    Minecraft.getInstance().currentScreen = new ConnectingScreen(this, Minecraft.getInstance(), serverData);
                 } else
                     Minecraft.getInstance().displayGuiScreen(new MinigamesScreen(parent));
             }));

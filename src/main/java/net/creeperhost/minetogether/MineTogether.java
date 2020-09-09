@@ -193,9 +193,20 @@ public class MineTogether implements ICreeperHostMod, IHost
         
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
+
         if (profile.get() == null) {
             profile.set(new Profile(ourNick));
-            CompletableFuture.runAsync(() -> profile.get().loadProfile(), profileExecutor);
+            CompletableFuture.runAsync(() ->
+            {
+                while (profile.get().getLongHash().isEmpty()) {
+                    profile.get().loadProfile();
+                    try {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, profileExecutor);
         }
     }
     
