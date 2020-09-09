@@ -207,12 +207,21 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
-        if(event.getSide().isServer()) return;
+        if (event.getSide().isServer()) return;
 
-        if(profile.get() == null)
-        {
+        if (profile.get() == null) {
             profile.set(new Profile(ourNick));
-            CompletableFuture.runAsync(() -> profile.get().loadProfile(), profileExecutor);
+            CompletableFuture.runAsync(() ->
+            {
+                while (profile.get().getLongHash().isEmpty())
+                {
+                    profile.get().loadProfile();
+                    try
+                    {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) { e.printStackTrace(); }
+                }
+            }, profileExecutor);
         }
     }
     
