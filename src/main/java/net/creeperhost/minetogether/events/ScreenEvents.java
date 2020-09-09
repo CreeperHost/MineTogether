@@ -298,6 +298,7 @@ public class ScreenEvents
     public void guiRendered(TickEvent.RenderTickEvent evt)
     {
         if (!MineTogether.isOnline) return;
+        if (!Config.getInstance().isFriendOnlineToastsEnabled()) return;
 
         if (MineTogether.instance.toastHandler.toastText != null)
         {
