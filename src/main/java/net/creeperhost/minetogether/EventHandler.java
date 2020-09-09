@@ -970,6 +970,7 @@ public class EventHandler
     public void guiRendered(TickEvent.RenderTickEvent evt)
     {
         if (!isOnline) return;
+        if (!Config.getInstance().isFriendOnlineToastsEnabled()) return;
 
         if (CreeperHost.instance.toastText != null)
         {
