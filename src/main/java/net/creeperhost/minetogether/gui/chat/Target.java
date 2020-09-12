@@ -137,8 +137,8 @@ public class Target implements DropdownButton.IDropdownOption
 
         if(ChatHandler.privateChatList == null)
         {
-            //Target t = new Target("new channel", ChatHandler.CHANNEL, false);
-            //tempSet.add(t);
+//            Target t = new Target("new channel", ChatHandler.CHANNEL, false);
+//            tempSet.add(t);
         }
         else
         {

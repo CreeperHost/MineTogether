@@ -1,6 +1,8 @@
 package net.creeperhost.minetogether.gui.list;
 
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.data.Profile;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.data.Friend;
 import net.minecraft.client.Minecraft;
@@ -8,6 +10,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 
 public class GuiListEntryFriend extends GuiListEntry
 {
@@ -18,6 +21,7 @@ public class GuiListEntryFriend extends GuiListEntry
     private boolean wasHovering;
     private final GuiFriendsList friendsList;
     ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(CreeperHost.MOD_ID, "textures/icon2.png");
+    private Profile profile = null;
 
     public GuiListEntryFriend(GuiFriendsList friendsListIn, GuiList list, Friend friend)
     {
@@ -26,8 +30,9 @@ public class GuiListEntryFriend extends GuiListEntry
         this.friend = friend;
         cross = new String(Character.toChars(10006));
         stringWidth = this.mc.fontRendererObj.getStringWidth(cross);
+        this.profile = friend.getProfile();
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
@@ -43,7 +48,7 @@ public class GuiListEntryFriend extends GuiListEntry
         }
         
         this.mc.fontRendererObj.drawString(friend.getName(), x + 5, y + 5, 16777215);
-        this.mc.fontRendererObj.drawString(new TextComponentString(friend.isAccepted() ? "Accepted" : "Pending").getText(), x + 5, y + 5 + 10, 16777215);
+        this.mc.fontRendererObj.drawString(new TextComponentString(TextFormatting.GRAY + (friend.isAccepted() ? (profile != null && profile.isOnline() ? "Online" : "Offline") : "Pending")).getText(), x + 5, y + 5 + 10, 16777215);
         
         int transparentString = (int) (transparency * 254) << 24;
         
@@ -53,8 +58,12 @@ public class GuiListEntryFriend extends GuiListEntry
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);
 
-        GlStateManager.color(0, 1, 0, 1);
-        Gui.drawModalRectWithCustomSizedTexture(listWidth + x - 14,  y + 20, 0.0F, 0.0F, 10, 10, 10F, 10F);
+        if((profile != null && profile.isOnline()))
+        {
+            GlStateManager.color(0, 1, 0, 1);
+            Gui.drawModalRectWithCustomSizedTexture(listWidth + x - 14, y + 20, 0.0F, 0.0F, 10, 10, 10F, 10F);
+            GlStateManager.resetColor();
+        }
 
         GlStateManager.disableAlpha();
         GlStateManager.disableBlend();
@@ -64,7 +73,7 @@ public class GuiListEntryFriend extends GuiListEntry
             wasHovering = true;
             friendsList.setHoveringText("Click here to remove friend");
         }
-        else if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 2 + x && mouseY >= y && mouseY <= y + 27) {
+        else if ((profile != null && profile.isOnline()) && (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 2 + x && mouseY >= y && mouseY <= y + 27)) {
             wasHovering = true;
             friendsList.setHoveringText("Click here to invite friend to private channel");
         }
@@ -91,7 +100,7 @@ public class GuiListEntryFriend extends GuiListEntry
             friendsList.setHoveringText(null);
             return false;
         }
-        else if (x >= listWidth - stringWidth - 4 && x <= listWidth - 2 && y >= 0 && y <= 27)
+        else if ((profile != null && profile.isOnline()) && (x >= listWidth - stringWidth - 4 && x <= listWidth - 2 && y >= 0 && y <= 27))
         {
             friendsList.inviteGroupChat(friend);
             wasHovering = false;

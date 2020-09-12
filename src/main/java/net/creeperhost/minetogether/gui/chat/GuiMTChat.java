@@ -194,10 +194,14 @@ public class GuiMTChat extends GuiScreen
         {
             send.setDisabled("Cannot send messages as not connected");
             disabledDueToConnection = true;
-        } else if (!targetDropdownButton.getSelected().isChannel() && !ChatHandler.friends.containsKey(currentTarget))
+        } else if (!targetDropdownButton.getSelected().isChannel())
         {
-            send.setDisabled("Cannot send messages as friend is not online");
-            disabledDueToConnection = true;
+            Profile profile = knownUsers.findByNick(currentTarget);
+            if(profile == null || !profile.isOnline())
+            {
+                send.setDisabled("Cannot send messages as friend is not online");
+                disabledDueToConnection = true;
+            }
         } else if (disabledDueToConnection)
         {
             disabledDueToConnection = false;
@@ -689,8 +693,7 @@ public class GuiMTChat extends GuiScreen
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
 
-            if (CreeperHost.bannedUsers.contains(inputNick))
-                messageComp = new TextComponentString("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
+            if(profile != null && profile.isBanned()) messageComp = new TextComponentString("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
 
             messageComp.getStyle().setColor(TextFormatting.WHITE);
 

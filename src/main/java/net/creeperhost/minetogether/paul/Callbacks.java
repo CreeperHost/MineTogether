@@ -450,6 +450,11 @@ public final class Callbacks
             if (status.getAsString().equals("success"))
             {
                 JsonElement banned = obj.get("banned");
+                CreeperHost.profile.getAndUpdate(profile ->
+                {
+                    profile.setBanned(banned.getAsBoolean());
+                    return profile;
+                });
                 return banned.getAsBoolean();
             } else
             {
@@ -661,7 +666,8 @@ public final class Callbacks
                                     String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
                                     boolean accepted = friend.get("accepted").getAsBoolean();
                                     Profile profile = ChatHandler.knownUsers.findByHash(code);
-                                    tempArr.add(new Friend(profile, name, code, accepted));
+                                    if(profile == null) ChatHandler.knownUsers.add(code);
+                                    tempArr.add(new Friend(name, code, accepted));
                                 }
                             }
                         }

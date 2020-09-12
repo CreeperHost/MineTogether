@@ -16,7 +16,6 @@ public class ChatConnectionHandler {
 
     public static final ChatConnectionHandler INSTANCE = new ChatConnectionHandler();
     public long timeout = 0;
-    public boolean banned;
     public String banReason = "";
     public DebugHandler debugHandler = new DebugHandler();
     public Logger logger = LogManager.getLogger();
@@ -65,8 +64,7 @@ public class ChatConnectionHandler {
                 });
                 mineTogether.listeners().output(s ->
                 {
-                    if(debugHandler.isDebug)
-                        logger.error("OUTPUT " + s);
+                    if(debugHandler.isDebug) logger.error("OUTPUT " + s);
                 });
                 if (ChatHandler.client != null) return; // hopefully prevent multiples
                 ChatHandler.client = mineTogether.buildAndConnect();
@@ -97,7 +95,12 @@ public class ChatConnectionHandler {
 
     public boolean canConnect()
     {
-        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited.get() || ChatHandler.isInitting.get() || Config.getInstance().isChatEnabled();
+        if(CreeperHost.profile.get().isBanned()) return false;
+        if(timeout > System.currentTimeMillis()) return false;
+        if(!ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED)) return false;
+        if(!Config.getInstance().isChatEnabled()) return false;
+
+        return true;
     }
 
     public void nextConnectAllow(int timeout) {

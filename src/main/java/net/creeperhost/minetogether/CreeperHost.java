@@ -51,8 +51,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public static final String VERSION = "@VERSION@";
     public static final Logger logger = LogManager.getLogger("minetogether");
     public static ArrayList<String> mutedUsers = new ArrayList<>();
-    public static ArrayList<String> bannedUsers = new ArrayList<>();
-    
     @Mod.Instance(value = "minetogether", owner = "minetogether")
     public static CreeperHost instance;
     
@@ -208,6 +206,19 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public void init(FMLInitializationEvent event)
     {
         if (event.getSide().isServer()) return;
+
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+                synchronized (ChatHandler.ircLock)
+                {
+                    if (ChatHandler.client != null)
+                        ChatHandler.killChatConnection(false);
+                }
+            }
+        });
 
         if (profile.get() == null) {
             profile.set(new Profile(ourNick));
@@ -543,7 +554,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
 
     @Override
     public void userBanned(String username) {
-        bannedUsers.add(username);
         proxy.refreshChat();
     }
 

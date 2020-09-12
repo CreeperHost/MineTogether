@@ -223,11 +223,11 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
             {
                 FriendStatusResponse result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
                 addFriend = false;
-                if (result == null) {
-                    Profile profile = new Profile(result.getHash());
-                    if(profile != null) {
-                        list.addEntry(new GuiListEntryFriend(this, list, new Friend(profile, displayEntry.getText(), codeEntry.getText(), false)));
-                    }
+                if (result == null)
+                {
+                    Profile profile = ChatHandler.knownUsers.findByHash(result.getHash());
+                    if(profile == null) ChatHandler.knownUsers.add(result.getHash());
+                    if(profile != null) list.addEntry(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
                 }
                 buttonInvite.visible = true;
                 showAlert(result.getMessage().isEmpty() ? Util.localize("multiplayer.friendsent") : result.getMessage(), 0x00FF00, 5000);
