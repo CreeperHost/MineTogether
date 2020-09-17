@@ -139,6 +139,15 @@ public class ScreenEvents
             {
                 if (b instanceof Button)
                 {
+                    if(b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.select")))
+                    {
+                        b.x +=1;
+                    }
+                    if(b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.edit")))
+                    {
+                        b.setWidth(b.getWidth() -9);
+                        b.x +=1;
+                    }
                     if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.refresh")))
                     {
                         b.active = false;
@@ -146,18 +155,18 @@ public class ScreenEvents
                     }
                     if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.delete")))
                     {
-                        b.x -= 7;
-                        b.setWidth(b.getWidth() + 1);
+                        b.x -= 16;
+                        b.setWidth(b.getWidth() - 6);
                     }
                     if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.direct")))
                     {
-                        b.x = event.getGui().width / 2 - 8;
+                        b.x = event.getGui().width / 2 - 23;
                         b.y = event.getGui().height - 28;
-                        b.setWidth(b.getWidth() - 14);
+                        b.setWidth(b.getWidth());
                     }
                     if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.add")))
                     {
-                        b.x -= 25;
+                        b.x -= 23;
                     }
                     if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.cancel")))
                     {
@@ -167,12 +176,12 @@ public class ScreenEvents
                 }
             });
             
-            event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 133, event.getGui().height - 52, 2, p ->
+            event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 134, event.getGui().height - 52, 2, p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new MultiplayerPublicScreen(((MultiplayerPublicScreen) event.getGui()).parent, ((MultiplayerPublicScreen) event.getGui()).listType, ((MultiplayerPublicScreen) event.getGui()).sortOrder));
             }));
             
-            event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 75, 20, new StringTextComponent("Minigames"), p ->
+            event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 78, 20, new StringTextComponent("Minigames"), p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new MinigamesScreen(event.getGui()));
             }));
@@ -200,13 +209,6 @@ public class ScreenEvents
                     }
                 }));
             }
-            
-            //TEST
-//            event.addWidget(new Button(event.getGui().width / 2 - 50, 5, 100, 20, I18n.format("Universe 7"), p ->
-//            {
-//                WorldHandler worldHandler = new WorldHandler();
-//                worldHandler.createWorld();
-//            }));
         }
         
         if (event.getGui() instanceof IngameMenuScreen)
