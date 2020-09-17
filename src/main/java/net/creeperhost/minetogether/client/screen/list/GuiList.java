@@ -4,6 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.list.ExtendedList;
 
+import java.util.List;
+
 public class GuiList<T extends GuiListEntry> extends ExtendedList
 {
     public final Screen gui;
@@ -31,6 +33,7 @@ public class GuiList<T extends GuiListEntry> extends ExtendedList
     
     public int getRowTop(T entry)
     {
-        return getRowTop(this.children().indexOf(entry));
+        return getRowTop(this.children.indexOf(entry));
     }
+
 }

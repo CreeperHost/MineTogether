@@ -1,11 +1,15 @@
 package net.creeperhost.minetogether.client.screen.order;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
+import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerList;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.net.URI;
 import java.util.List;
@@ -49,11 +53,11 @@ public class GuiOrderDetails extends GuiGetServer
     {
         super.init();
         this.buttonNext.visible = false;
-        buttonCancel.setMessage(Util.localize("order.ordercancel"));
+        buttonCancel.setMessage(new StringTextComponent(Util.localize("order.ordercancel")));
         buttonCancel.active = false;
         buttonPrev.active = false;
         buttonPrev.visible = false;
-        buttonInvoice = addButton(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, Util.localize("button.invoice"), p ->
+        buttonInvoice = addButton(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, new StringTextComponent(Util.localize("button.invoice")), p ->
         {
             try
             {
@@ -153,42 +157,42 @@ public class GuiOrderDetails extends GuiGetServer
     
     @SuppressWarnings("Duplicates")
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
         if (creatingAccount)
         {
-            drawCenteredString(font, Util.localize("order.accountcreating"), this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, Util.localize("order.accountcreating"), this.width / 2, this.height / 2, 0xFFFFFF);
         } else if (!createdAccountError.isEmpty())
         {
-            drawCenteredString(font, Util.localize("order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
-            List<String> list = font.listFormattedStringToWidth(createdAccountError, width - 30);
+            drawCenteredString(matrixStack, font, Util.localize("order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
+            List<ITextProperties> list = RenderComponentsUtil.func_238505_a_(new StringTextComponent(createdAccountError), width - 30, font);
             int offset = 10;
-            for (String str : list)
+            for (ITextProperties str : list)
             {
-                drawCenteredString(font, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
+                drawCenteredString(matrixStack, font, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
                 offset += 10;
             }
-            drawCenteredString(font, Util.localize("order.accounterrorgoback"), this.width / 2, this.height / 2 + offset, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, Util.localize("order.accounterrorgoback"), this.width / 2, this.height / 2 + offset, 0xFFFFFF);
         } else if (placingOrder)
         {
-            drawCenteredString(font, Util.localize("order.orderplacing"), this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, Util.localize("order.orderplacing"), this.width / 2, this.height / 2, 0xFFFFFF);
         } else if (!placedOrderError.isEmpty())
         {
-            drawCenteredString(font, Util.localize("order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
-            List<String> list = font.listFormattedStringToWidth(placedOrderError, width - 30);
+            drawCenteredString(matrixStack, font, Util.localize("order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
+            List<ITextProperties> list = RenderComponentsUtil.func_238505_a_(new StringTextComponent(placedOrderError), width - 30, font);
             int offset = 10;
-            for (String str : list)
+            for (ITextProperties str : list)
             {
-                drawCenteredString(font, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
+                drawCenteredString(matrixStack, font, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
                 offset += 10;
             }
-            drawCenteredString(font, Util.localize("order.ordererrorsupport"), this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, Util.localize("order.ordererrorsupport"), this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
         } else
         {
-            drawCenteredString(font, Util.localize("order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
-            drawCenteredString(font, Util.localize("order.ordermodpack"), (this.width / 2) + 10, (this.height / 2) + 10, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, Util.localize("order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, Util.localize("order.ordermodpack"), (this.width / 2) + 10, (this.height / 2) + 10, 0xFFFFFF);
         }
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 }

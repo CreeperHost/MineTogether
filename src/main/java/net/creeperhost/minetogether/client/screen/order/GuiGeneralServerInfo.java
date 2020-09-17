@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.order;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.AvailableResult;
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.widget.button.CheckboxButton;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.client.gui.widget.Slider;
 
 public class GuiGeneralServerInfo extends GuiGetServer
@@ -50,9 +52,9 @@ public class GuiGeneralServerInfo extends GuiGetServer
         
         int checkboxWidth = this.font.getStringWidth(checkboxString) + 11 + 2;
         
-        pregen = addButton(new CheckboxButton(halfWidth - (checkboxWidth / 2), halfHeight - 8, 20, 20, checkboxString, order.pregen));
+        pregen = addButton(new CheckboxButton(halfWidth - (checkboxWidth / 2), halfHeight - 8, 20, 20, new StringTextComponent(checkboxString), order.pregen));
 
-        modpack = addButton(new Button(width - 90, 10, 86, 20, "Change Modpack", b -> {
+        modpack = addButton(new Button(width - 90, 10, 86, 20, new StringTextComponent("Change Modpack"), b -> {
             Minecraft.getInstance().displayGuiScreen(new GuiModPackList(this));
         }));
     }
@@ -120,12 +122,12 @@ public class GuiGeneralServerInfo extends GuiGetServer
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
         
-        this.drawCenteredString(this.font, Util.localize("info.server_name"), this.width / 2, this.height / 2 - 65, -1);
+        this.drawCenteredString(matrixStack, this.font, Util.localize("info.server_name"), this.width / 2, this.height / 2 - 65, -1);
         
         int colour;
         
@@ -139,17 +141,17 @@ public class GuiGeneralServerInfo extends GuiGetServer
         
         this.minecraft.getTextureManager().bindTexture(lockIcon);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        blit((this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16, 16);
+        blit(matrixStack, (this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16, 16);
         
         int strStart = 61;
         
-        this.drawCenteredString(font, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
-        this.drawCenteredString(font, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);
-        this.drawCenteredString(font, Util.localize("secure.line3"), this.width / 2, (this.height / 2) + strStart + 20, 0xFFFFFF);
+        this.drawCenteredString(matrixStack, font, Util.localize("secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
+        this.drawCenteredString(matrixStack, font, Util.localize("secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);
+        this.drawCenteredString(matrixStack, font, Util.localize("secure.line3"), this.width / 2, (this.height / 2) + strStart + 20, 0xFFFFFF);
         
-        this.nameField.render(mouseX, mouseY, partialTicks);
+        this.nameField.render(matrixStack, mouseX, mouseY, partialTicks);
         
-        this.drawCenteredString(font, message, (this.width / 2), (this.height / 2) - 26, colour);
+        this.drawCenteredString(matrixStack, font, message, (this.width / 2), (this.height / 2) - 26, colour);
     }
     
     @Override

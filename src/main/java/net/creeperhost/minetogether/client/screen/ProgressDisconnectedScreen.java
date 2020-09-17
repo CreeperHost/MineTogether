@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -45,17 +46,17 @@ public class ProgressDisconnectedScreen extends Screen
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
-        this.drawCenteredString(this.font, this.ourReason, this.width / 2, this.height / 2 - this.textHeight / 2 - this.font.FONT_HEIGHT * 2, 11184810);
+        this.drawCenteredString(matrixStack, this.font, this.ourReason, this.width / 2, this.height / 2 - this.textHeight / 2 - this.font.FONT_HEIGHT * 2, 11184810);
         int x = this.height / 2 - this.textHeight / 2;
         
         if (this.multilineMessage != null)
         {
             for (String s : this.multilineMessage)
             {
-                this.drawCenteredString(this.font, s, this.width / 2, x, 16777215);
+                this.drawCenteredString(matrixStack, this.font, s, this.width / 2, x, 16777215);
                 x += this.font.FONT_HEIGHT;
             }
         }
@@ -84,7 +85,7 @@ public class ProgressDisconnectedScreen extends Screen
 //            lastNetworkManager = EventHandler.getNetworkManager(captiveConnecting);
 //        }
         
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
         
         //drawCenteredString(fontRendererObj, I18n.format("creeperhost.pregen.refresh"), this.width / 2, Math.min(this.height / 2 + 60, this.height - 30), 0xFFFFFFFF);
     }
@@ -102,7 +103,7 @@ public class ProgressDisconnectedScreen extends Screen
     {
         update(ourReason, ourMessage);
         this.textHeight = this.multilineMessage.size() * this.font.FONT_HEIGHT;
-        addButton(new Button(this.width / 2 - 100, Math.min(this.height / 2 + 80, this.height - 30), 20, 20, I18n.format("gui.toMenu"), p ->
+        addButton(new Button(this.width / 2 - 100, Math.min(this.height / 2 + 80, this.height - 30), 20, 20, new StringTextComponent(I18n.format("gui.toMenu")), p ->
         {
             if (captiveConnecting != null)
             {
@@ -133,19 +134,19 @@ public class ProgressDisconnectedScreen extends Screen
         ourMessage = message;
         ourReason = reason;
         captiveConnecting = null;
-        this.multilineMessage = this.font.listFormattedStringToWidth(ourMessage.getFormattedText(), this.width - 50);
-        for (String aMultilineMessage : multilineMessage)
-        {
-            Matcher matcher = pattern.matcher(aMultilineMessage);
-            if (matcher.matches())
-            {
-                String match = matcher.group(1);
-                String[] split = match.split("/");
-                int done = Integer.parseInt(split[0]);
-                int total = Integer.parseInt(split[1]);
-                percent = ((double) done / (double) total) * (double) 100;
-                break;
-            }
-        }
+//        this.multilineMessage = this.font.listFormattedStringToWidth(ourMessage.getFormattedText(), this.width - 50);
+//        for (String aMultilineMessage : multilineMessage)
+//        {
+//            Matcher matcher = pattern.matcher(aMultilineMessage);
+//            if (matcher.matches())
+//            {
+//                String match = matcher.group(1);
+//                String[] split = match.split("/");
+//                int done = Integer.parseInt(split[0]);
+//                int total = Integer.parseInt(split[1]);
+//                percent = ((double) done / (double) total) * (double) 100;
+//                break;
+//            }
+//        }
     }
 }

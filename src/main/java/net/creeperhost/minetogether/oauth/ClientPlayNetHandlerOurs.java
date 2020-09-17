@@ -35,7 +35,6 @@ public class ClientPlayNetHandlerOurs implements IClientPlayNetHandler {
     //@formatter:off
     @Override public void handleSpawnObject(SSpawnObjectPacket packetIn) { }
     @Override public void handleSpawnExperienceOrb(SSpawnExperienceOrbPacket packetIn) { }
-    @Override public void handleSpawnGlobalEntity(SSpawnGlobalEntityPacket packetIn) { }
     @Override public void handleSpawnMob(SSpawnMobPacket packetIn) { }
     @Override public void handleScoreboardObjective(SScoreboardObjectivePacket packetIn) { }
     @Override public void handleSpawnPainting(SSpawnPaintingPacket packetIn) { }
@@ -86,7 +85,8 @@ public class ClientPlayNetHandlerOurs implements IClientPlayNetHandler {
     @Override public void handleUpdateHealth(SUpdateHealthPacket packetIn) { }
     @Override public void handleTeams(STeamsPacket packetIn) { }
     @Override public void handleUpdateScore(SUpdateScorePacket packetIn) { }
-    @Override public void handleSpawnPosition(SSpawnPositionPacket packetIn) { }
+    @Override public void func_230488_a_(SWorldSpawnChangedPacket p_230488_1_) { }
+
     @Override public void handleTimeUpdate(SUpdateTimePacket packetIn) { }
     @Override public void handleSoundEffect(SPlaySoundEffectPacket packetIn) { }
     @Override public void handleSpawnMovingSoundEffect(SSpawnMovingSoundEffectPacket packetIn) { }

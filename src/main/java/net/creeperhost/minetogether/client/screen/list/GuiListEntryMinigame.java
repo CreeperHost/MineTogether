@@ -1,14 +1,18 @@
 package net.creeperhost.minetogether.client.screen.list;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.api.Minigame;
 import net.creeperhost.minetogether.client.screen.minigames.MinigamesScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 
 import java.io.IOException;
@@ -36,7 +40,7 @@ public class GuiListEntryMinigame extends GuiListEntry
     }
     
     @Override
-    public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
+    public void render(MatrixStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
     {
         if (isSelected)
         {
@@ -50,7 +54,7 @@ public class GuiListEntryMinigame extends GuiListEntry
 
         FontRenderer font = mc.fontRenderer;
 
-        drawCenteredString(TextFormatting.BOLD + minigame.displayName + TextFormatting.RESET + " by " + minigame.author, x + 110, slotHeight + 26, 0xFFAAAAAA);
+        drawCenteredString(matrixStack, TextFormatting.BOLD + minigame.displayName + TextFormatting.RESET + " by " + minigame.author, x + 110, slotHeight + 26, 0xFFAAAAAA);
 
         String displayDescription = minigame.displayDescription;
         if (font.getStringWidth(displayDescription) > (listWidth - 96) * 2)
@@ -62,28 +66,28 @@ public class GuiListEntryMinigame extends GuiListEntry
             displayDescription += "...";
         }
 
-        drawCenteredSplitString(displayDescription, x + listWidth / 2, y + 12, listWidth, 0xFFAAAAAA);
+        drawCenteredSplitString(matrixStack, displayDescription, x + listWidth / 2, y + 12, listWidth, 0xFFAAAAAA);
 
         if(resourceLocation == null)
         {
             createDynamicTexture(minigame);
         }
-        renderImage(resourceLocation, x - 36, y);
+        renderImage(matrixStack, resourceLocation, x - 36, y);
     }
 
-    private void drawCenteredSplitString(String drawText, int x, int y, int width, int drawColour)
+    private void drawCenteredSplitString(MatrixStack matrixStack, String drawText, int x, int y, int width, int drawColour)
     {
-        List<String> strings = mc.fontRenderer.listFormattedStringToWidth(drawText, width);
-        for (String str : strings)
+        List<ITextProperties> iTextPropertiesList = RenderComponentsUtil.func_238505_a_(new StringTextComponent(drawText), width, mc.fontRenderer);
+        for (ITextProperties str : iTextPropertiesList)
         {
-            drawCenteredString(str, x, y, drawColour);
+            drawCenteredString(matrixStack, str.getString(), x, y, drawColour);
             y += mc.fontRenderer.FONT_HEIGHT;
         }
     }
 
-    public void drawCenteredString(String text, int x, int y, int color)
+    public void drawCenteredString(MatrixStack matrixStack, String text, int x, int y, int color)
     {
-        Minecraft.getInstance().fontRenderer.drawStringWithShadow(text, (float)(x - Minecraft.getInstance().fontRenderer.getStringWidth(text) / 2), (float)y, color);
+        Minecraft.getInstance().fontRenderer.drawStringWithShadow(matrixStack, text, (float)(x - Minecraft.getInstance().fontRenderer.getStringWidth(text) / 2), (float)y, color);
     }
 
     public void createDynamicTexture(Minigame minigame)
@@ -104,7 +108,7 @@ public class GuiListEntryMinigame extends GuiListEntry
         }
     }
 
-    public void renderImage(ResourceLocation location, int x, int y)
+    public void renderImage(MatrixStack matrixStack, ResourceLocation location, int x, int y)
     {
         ResourceLocation unknown = new ResourceLocation("minecraft", "textures/misc/unknown_server.png");
 
@@ -117,7 +121,7 @@ public class GuiListEntryMinigame extends GuiListEntry
             this.mc.getTextureManager().bindTexture(unknown);
         }
         RenderSystem.enableBlend();
-        AbstractGui.blit(x, y, 0.0F, 0.0F, 32, 32, 32, 32);
+        AbstractGui.blit(matrixStack, x, y, 0.0F, 0.0F, 32, 32, 32, 32);
         RenderSystem.disableBlend();
     }
 

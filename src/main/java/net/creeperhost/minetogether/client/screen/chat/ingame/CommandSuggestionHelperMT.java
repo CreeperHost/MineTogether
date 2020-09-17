@@ -33,6 +33,6 @@ public class CommandSuggestionHelperMT extends CommandSuggestionHelper {
                 .filter(name -> ChatHandler.knownUsers.findByDisplay(name) != null || ChatHandler.friends.containsKey(name))//
                 .map(MineTogether.instance::getNameForUser).collect(Collectors.toList());
         SuggestionsBuilder builder = new SuggestionsBuilder(toCursor, end);
-        field_228107_p_ = ISuggestionProvider.suggest(users, builder);
+        suggestionsFuture = ISuggestionProvider.suggest(users, builder);
     }
 }

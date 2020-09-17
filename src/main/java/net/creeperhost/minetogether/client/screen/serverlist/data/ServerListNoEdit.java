@@ -86,7 +86,7 @@ public class ServerListNoEdit extends ServerList
         {
             CompoundNBT nbttagcompound = new CompoundNBT();
             nbttagcompound.putByteArray("servers", serverBytes);
-            CompressedStreamTools.safeWrite(nbttagcompound, new File(this.mc.gameDir, "mtservers.dat"));
+            CompressedStreamTools.write(nbttagcompound, new File(this.mc.gameDir, "mtservers.dat"));
         } catch (Exception exception)
         {
             //logger.error("Couldn\'t save server list", exception);

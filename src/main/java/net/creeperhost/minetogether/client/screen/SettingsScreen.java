@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
@@ -34,7 +35,7 @@ public class SettingsScreen extends Screen
         super.init();
         buttons.clear();
         
-        this.addButton(new Button(this.width / 2 - 123, 40, 120, 20, I18n.format("Chat Enabled: " + format(Config.getInstance().isChatEnabled())), p ->
+        this.addButton(new Button(this.width / 2 - 123, 40, 120, 20, new StringTextComponent(I18n.format("Chat Enabled: " + format(Config.getInstance().isChatEnabled()))), p ->
         {
             if(Config.getInstance().isChatEnabled())
             {
@@ -51,19 +52,19 @@ public class SettingsScreen extends Screen
             }
             saveConfig();
         }));
-        this.addButton(new Button(this.width / 2 + 3, 40, 120, 20, I18n.format("Friend Toasts: " + format(Config.getInstance().isFriendOnlineToastsEnabled())), p ->
+        this.addButton(new Button(this.width / 2 + 3, 40, 120, 20, new StringTextComponent(I18n.format("Friend Toasts: " + format(Config.getInstance().isFriendOnlineToastsEnabled()))), p ->
         {
             boolean enabled = Config.getInstance().isFriendOnlineToastsEnabled();
             Config.getInstance().setEnableFriendOnlineToasts(!enabled);
             saveConfig();
         }));
-        this.addButton(new Button(this.width / 2 - 123, 60, 120, 20, I18n.format("Menu Buttons: " + format(Config.getInstance().isEnableMainMenuFriends())), p ->
+        this.addButton(new Button(this.width / 2 - 123, 60, 120, 20, new StringTextComponent(I18n.format("Menu Buttons: " + format(Config.getInstance().isEnableMainMenuFriends()))), p ->
         {
             boolean enabled = Config.getInstance().isEnableMainMenuFriends();
             Config.getInstance().setEnableMainMenuFriends(!enabled);
             saveConfig();
         }));
-        addButton(new Button(this.width / 2 - 100, this.height - 47, 200, 20, I18n.format("Link Account"), p -> {
+        addButton(new Button(this.width / 2 - 100, this.height - 47, 200, 20, new StringTextComponent(I18n.format("Link Account")), p -> {
             minecraft.displayGuiScreen(new ConfirmScreen(e -> {
                 if (e) {
                     KeycloakOAuth.main(new String[]{});
@@ -73,18 +74,18 @@ public class SettingsScreen extends Screen
         }));
         
         //Done button
-        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, I18n.format("gui.done"), p ->
+        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new StringTextComponent(I18n.format("gui.done")), p ->
         {
             this.minecraft.displayGuiScreen(parent);
         }));
     }
     
     @Override
-    public void render(int p_render_1_, int p_render_2_, float p_render_3_)
+    public void render(MatrixStack matrixStack, int p_render_1_, int p_render_2_, float p_render_3_)
     {
         renderDirtBackground(1);
-        super.render(p_render_1_, p_render_2_, p_render_3_);
-        drawCenteredString(font, "MineTogether Settings", width / 2, 5, 0xFFFFFF);
+        super.render(matrixStack, p_render_1_, p_render_2_, p_render_3_);
+        drawCenteredString(matrixStack, font, "MineTogether Settings", width / 2, 5, 0xFFFFFF);
     }
 
     public String format(boolean value)

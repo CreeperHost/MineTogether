@@ -1,11 +1,13 @@
 package net.creeperhost.minetogether.client.screen.element;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.client.screen.chat.ingame.GuiNewChatOurs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.text.StringTextComponent;
 
 public class GuiButtonChat extends Button
 {
@@ -14,7 +16,7 @@ public class GuiButtonChat extends Button
     
     public GuiButtonChat(int x, int y, int widthIn, int heightIn, String buttonText, Button.IPressable onPress)
     {
-        super(x, y, widthIn, heightIn, buttonText, onPress);
+        super(x, y, widthIn, heightIn, new StringTextComponent(buttonText), onPress);
         this.buttonText = buttonText;
     }
     
@@ -24,7 +26,7 @@ public class GuiButtonChat extends Button
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float p_191745_4_)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float p_191745_4_)
     {
         if (active)
         {
@@ -53,9 +55,9 @@ public class GuiButtonChat extends Button
                 l1 = 256;
             }
             
-            fill(x, y, x + width, y + height, l1 / 2 << 24);
+            fill(matrixStack, x, y, x + width, y + height, l1 / 2 << 24);
             
-            this.drawCenteredString(fontrenderer, this.buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
+            this.drawCenteredString(matrixStack, fontrenderer, this.buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
             
         }
     }

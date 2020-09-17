@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.util.ScreenUtils;
 import net.creeperhost.minetogether.util.Util;
@@ -8,10 +9,7 @@ import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 
@@ -44,7 +42,7 @@ public class GDPRScreen extends Screen
     private Button declineButton;
     private Button moreInfoButton;
     
-    private List<ITextComponent> gdprlines;
+    private List<ITextProperties> gdprlines;
     private boolean moreInfo = false;
     
     public GDPRScreen(Screen parent)
@@ -60,18 +58,18 @@ public class GDPRScreen extends Screen
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         renderDirtBackground(1);
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
         
-        drawCenteredString(minecraft.fontRenderer, "MineTogether GDPR", width / 2, 10, -1);
+        drawCenteredString(matrixStack, minecraft.fontRenderer, "MineTogether GDPR", width / 2, 10, -1);
         int start = 30;
         
-        for (ITextComponent gdprline : gdprlines)
+        for (ITextProperties gdprline : gdprlines)
         {
-            int left = (width - minecraft.fontRenderer.getStringWidth(gdprline.getFormattedText())) / 2;
-            minecraft.fontRenderer.drawString(gdprline.getFormattedText(), left, start += 10, -1);
+            int left = (width - minecraft.fontRenderer.getStringWidth(gdprline.getString())) / 2;
+            minecraft.fontRenderer.drawString(matrixStack, gdprline.getString(), left, start += 10, -1);
         }
     }
     
@@ -87,13 +85,13 @@ public class GDPRScreen extends Screen
         
         if (line >= 0 && line < gdprlines.size())
         {
-            ITextComponent gdprline = gdprlines.get(line);
-            int left = (width - minecraft.fontRenderer.getStringWidth(gdprline.getFormattedText())) / 2;
+            ITextComponent gdprline = (ITextComponent) gdprlines.get(line);
+            int left = (width - minecraft.fontRenderer.getStringWidth(gdprline.getString())) / 2;
             int offset = left;
             for (ITextComponent sibling : gdprline.getSiblings())
             {
                 int oldOffset = offset;
-                offset += minecraft.fontRenderer.getStringWidth(sibling.getFormattedText());
+                offset += minecraft.fontRenderer.getStringWidth(sibling.getString());
                 if (mouseX >= oldOffset && mouseX <= offset)
                 {
                     return sibling;
@@ -131,30 +129,31 @@ public class GDPRScreen extends Screen
                 if (component == null)
                     component = new StringTextComponent(part);
                 else
-                    component.appendText(part);
+                    component = component.deepCopy().append(new StringTextComponent(part));
             }
             
             lastEnd = end;
             ITextComponent link = new StringTextComponent(matcher.group(1));
             Style style = link.getStyle();
             style.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, matcher.group(2)));
-            style.setColor(TextFormatting.BLUE);
+            style.setColor(Color.func_240744_a_(TextFormatting.BLUE));
             style.setUnderlined(true);
             style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(Util.localize("order.url"))));
             
             if (component == null)
                 component = link;
             else
-                component.appendSibling(link);
+            component = component.deepCopy().append(link);
         }
         
         if (component == null)
             component = new StringTextComponent("");
+
+        component = component.deepCopy().append(new StringTextComponent(currentText.substring(lastEnd)));
+        component.getSiblings().add(new StringTextComponent(currentText.substring(lastEnd)));
         
-        component.appendSibling(new StringTextComponent(currentText.substring(lastEnd)));
-        
-        gdprlines = RenderComponentsUtil.splitText(component, width - 10, minecraft.fontRenderer, false, true);
-        this.addButton(moreInfoButton = new Button((width / 2) - 40, (gdprlines.size() * 10) + 50, 80, 20, (moreInfo ? "Less" : "More") + " Info", b ->
+        gdprlines = RenderComponentsUtil.func_238505_a_(component, width - 10, minecraft.fontRenderer);
+        this.addButton(moreInfoButton = new Button((width / 2) - 40, (gdprlines.size() * 10) + 50, 80, 20, (moreInfo ? new StringTextComponent("Less Info") : new StringTextComponent("More Info")), b ->
         {
             moreInfoButton.visible = moreInfoButton.active = false;
             moreInfo = !moreInfo;
@@ -162,11 +161,11 @@ public class GDPRScreen extends Screen
             init();
         }));
         
-        this.addButton(declineButton = new Button(50, (gdprlines.size() * 10) + 50, 80, 20, "Decline", b ->
+        this.addButton(declineButton = new Button(50, (gdprlines.size() * 10) + 50, 80, 20, new StringTextComponent("Decline"), b ->
         {
             Minecraft.getInstance().displayGuiScreen(parent);
         }));
-        this.addButton(acceptButton = new Button(width - 80 - 50, (gdprlines.size() * 10) + 50, 80, 20, "Accept", b ->
+        this.addButton(acceptButton = new Button(width - 80 - 50, (gdprlines.size() * 10) + 50, 80, 20, new StringTextComponent("Accept"), b ->
         {
             MineTogether.instance.gdpr.setAcceptedGDPR();
             MineTogether.proxy.startChat();

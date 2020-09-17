@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.element;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.util.Util;
@@ -83,7 +84,8 @@ public class GuiWell
         FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
         
         int titleWidth = fontRenderer.getStringWidth(title);
-        fontRenderer.drawStringWithShadow(title, this.left + ((this.right - this.left) / 2) - (titleWidth / 2), this.top + 2, 0xFFFFFF);
+        MatrixStack matrixStack = new MatrixStack();
+        fontRenderer.drawStringWithShadow(matrixStack, title, this.left + ((this.right - this.left) / 2) - (titleWidth / 2), this.top + 2, 0xFFFFFF);
         
         int topStart = this.top + 15;
         
@@ -92,10 +94,10 @@ public class GuiWell
             if (centeredF)
             {
                 int stringWidth = fontRenderer.getStringWidth(line);
-                fontRenderer.drawStringWithShadow(line, this.left + ((this.right - this.left) / 2) - (stringWidth / 2), topStart, 0xFFFFFF);
+                fontRenderer.drawStringWithShadow(matrixStack, line, this.left + ((this.right - this.left) / 2) - (stringWidth / 2), topStart, 0xFFFFFF);
             } else
             {
-                fontRenderer.drawStringWithShadow(line, this.left, topStart, 0xFFFFFF);
+                fontRenderer.drawStringWithShadow(matrixStack, line, this.left, topStart, 0xFFFFFF);
             }
             topStart += 10;
         }

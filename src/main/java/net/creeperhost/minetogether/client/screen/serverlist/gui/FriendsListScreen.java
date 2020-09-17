@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.serverlist.gui;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.Profile;
@@ -19,6 +20,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 
@@ -52,7 +55,7 @@ public class FriendsListScreen extends Screen
     private String errorText = null;
     private String hoveringText = null;
     private String lastHoveringText = null;
-    private ArrayList<String> hoverTextCache = null;
+    private ArrayList<ITextComponent> hoverTextCache = null;
     private Friend removeFriend;
     private String unmutePlayer;
     private Friend invitedPlayer;
@@ -113,7 +116,7 @@ public class FriendsListScreen extends Screen
         
         int buttonX = margin;
         
-        buttonCancel = addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("button.cancel"), p ->
+        buttonCancel = addButton(new Button(buttonX, y, buttonWidth, 20, new StringTextComponent(Util.localize("button.cancel")), p ->
         {
             if (!addFriend)
                 minecraft.displayGuiScreen(parent);
@@ -126,7 +129,7 @@ public class FriendsListScreen extends Screen
         }));
         buttonX += spaceInbetween;
         
-        buttonAdd = addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.addfriend"), p ->
+        buttonAdd = addButton(new Button(buttonX, y, buttonWidth, 20, new StringTextComponent(Util.localize("multiplayer.button.addfriend")), p ->
         {
             if (!addFriend)
             {
@@ -137,21 +140,23 @@ public class FriendsListScreen extends Screen
                 FriendStatusResponse result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
                 addFriend = false;
                 if (result == null) {
-                    Profile profile = new Profile(result.getHash());
-                    list.add(new GuiListEntryFriend(this, list, new Friend(profile, displayEntry.getText(), codeEntry.getText(), false)));
+                    Profile profile = ChatHandler.knownUsers.findByHash(result.getHash());
+                    if (profile == null) ChatHandler.knownUsers.add(result.getHash());
+                    if (profile != null)
+                        list.add(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
                 }
                 buttonInvite.visible = true;
-                showAlert(result == null || result.getMessage().isEmpty() ? Util.localize("multiplayer.friendsent") : result.getMessage(), 0x00FF00, 5000);
+                showAlert(result == null || result.getMessage().isEmpty() ? new StringTextComponent(Util.localize("multiplayer.friendsent")) : new StringTextComponent(result.getMessage()), 0x00FF00, 5000);
             }
             
         }));
         buttonX += spaceInbetween;
         
-        buttonInvite = addButton(new Button(buttonX, y, buttonWidth, 20, Util.localize("multiplayer.button.invite"), p ->
+        buttonInvite = addButton(new Button(buttonX, y, buttonWidth, 20, new StringTextComponent(Util.localize("multiplayer.button.invite")), p ->
         {
             if (MineTogether.instance.curServerId == -1)
             {
-                showAlert(Util.localize("multiplayer.notinvite"), 0xFF0000, 5000);
+                showAlert(new StringTextComponent(Util.localize("multiplayer.notinvite")), 0xFF0000, 5000);
                 return;
             } else
             {
@@ -159,20 +164,20 @@ public class FriendsListScreen extends Screen
                 if (ret)
                 {
                     Callbacks.inviteFriend(list.getCurrSelected().getFriend());
-                    showAlert(Util.localize("multiplayer.invitesent"), 0x00FF00, 5000);
+                    showAlert(new StringTextComponent(Util.localize("multiplayer.invitesent")), 0x00FF00, 5000);
                 } else
                 {
-                    showAlert(Util.localize("multiplayer.couldnotinvite"), 0xFF0000, 5000);
+                    showAlert(new StringTextComponent(Util.localize("multiplayer.couldnotinvite")), 0xFF0000, 5000);
                 }
             }
         }));
         
         buttonInvite.active = list.getSelected() != null;
         
-        codeEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 - 50, 160, 20, "");
-        displayEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2, 160, 20, "");
+        codeEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2 - 50, 160, 20, new StringTextComponent(""));
+        displayEntry = new TextFieldWidget(font, this.width / 2 - 80, this.height / 2, 160, 20, new StringTextComponent(""));
         
-        buttonRefresh = addButton(new Button(this.width - 90, this.height - 26, 80, 20, Util.localize("multiplayer.button.refresh"), p ->
+        buttonRefresh = addButton(new Button(this.width - 90, this.height - 26, 80, 20, new StringTextComponent(Util.localize("multiplayer.button.refresh")), p ->
         {
             refreshFriendsList(false);
             refreshMutedList(false);
@@ -181,24 +186,24 @@ public class FriendsListScreen extends Screen
         addButton(buttonCopy = new ButtonString( 65, this.height - 26, 60, 20, MineTogether.profile.get().getFriendCode(), p ->
         {
             this.minecraft.keyboardListener.setClipboardString(MineTogether.profile.get().getFriendCode());
-            showAlert("Copied to clipboard.", 0x00FF00, 5000);
+            showAlert(new StringTextComponent("Copied to clipboard."), 0x00FF00, 5000);
         }));
 
-        toggle = addButton(new Button(width - 60, 6, 60, 20, isMuted ? "Friends" : "Muted", p ->
+        toggle = addButton(new Button(width - 60, 6, 60, 20, isMuted ? new StringTextComponent("Friends") : new StringTextComponent("Muted"), p ->
         {
-            if (toggle.getMessage().contains("Muted"))
+            if (toggle.getMessage().getString().contains("Muted"))
             {
-                toggle.setMessage("Friends");
+                toggle.setMessage(new StringTextComponent("Friends"));
                 isMuted = true;
-                showAlert("Copied to clipboard.", 0x00FF00, 5000);
-            } else if (toggle.getMessage().contains("Friends"))
+                showAlert(new StringTextComponent("Copied to clipboard."), 0x00FF00, 5000);
+            } else if (toggle.getMessage().getString().contains("Friends"))
             {
-                toggle.setMessage("Muted");
+                toggle.setMessage(new StringTextComponent("Muted"));
                 isMuted = false;
             }
         }));
         
-        searchEntry = new TextFieldWidget(this.font, this.width / 2 - 80, y + 28, 160, 20, "");
+        searchEntry = new TextFieldWidget(this.font, this.width / 2 - 80, y + 28, 160, 20, new StringTextComponent(""));
     }
     
     protected void refreshFriendsList(boolean force)
@@ -259,7 +264,7 @@ public class FriendsListScreen extends Screen
     
     @SuppressWarnings("Duplicates")
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         renderDirtBackground(0);
         if (!isMuted)
@@ -268,37 +273,37 @@ public class FriendsListScreen extends Screen
 
             if (!addFriend)
             {
-                this.list.render(mouseX, mouseY, partialTicks);
+                this.list.render(matrixStack, mouseX, mouseY, partialTicks);
             } else
             {
-                this.drawCenteredString(this.font, Util.localize("multiplayer.othercode"), this.width / 2, this.height / 2 - 60, 0xFFFFFF);
-                this.drawCenteredString(this.font, Util.localize("multiplayer.displayname"), this.width / 2, this.height / 2 - 10, 0xFFFFFF);
-                this.codeEntry.render(mouseX, mouseY, partialTicks);
-                this.displayEntry.render(mouseX, mouseY, partialTicks);
+                this.drawCenteredString(matrixStack, this.font, Util.localize("multiplayer.othercode"), this.width / 2, this.height / 2 - 60, 0xFFFFFF);
+                this.drawCenteredString(matrixStack, this.font, Util.localize("multiplayer.displayname"), this.width / 2, this.height / 2 - 10, 0xFFFFFF);
+                this.codeEntry.render(matrixStack, mouseX, mouseY, partialTicks);
+                this.displayEntry.render(matrixStack, mouseX, mouseY, partialTicks);
                 this.searchEntry.setVisible(false);
             }
-            this.drawCenteredString(this.font, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
+            this.drawCenteredString(matrixStack, this.font, Util.localize("multiplayer.friends"), this.width / 2, 10, -1);
         } else
         {
-            this.listMuted.render(mouseX, mouseY, partialTicks);
-            this.drawCenteredString(this.font, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
+            this.listMuted.render(matrixStack, mouseX, mouseY, partialTicks);
+            this.drawCenteredString(matrixStack, this.font, Util.localize("multiplayer.muted"), this.width / 2, 10, -1);
         }
         
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
         
         if (hoveringText != null)
         {
             if (!hoveringText.equals(lastHoveringText))
             {
                 hoverTextCache = new ArrayList<>();
-                hoverTextCache.add(hoveringText);
+                hoverTextCache.add(new StringTextComponent(hoveringText));
                 lastHoveringText = hoveringText;
             }
-            renderTooltip(hoverTextCache, mouseX, mouseY);
+            renderTooltip(matrixStack, hoverTextCache, mouseX, mouseY);
         }
-        if (searchEntry != null) this.searchEntry.render(mouseX, mouseY, partialTicks);
+        if (searchEntry != null) this.searchEntry.render(matrixStack, mouseX, mouseY, partialTicks);
 
-        this.minecraft.fontRenderer.drawStringWithShadow(I18n.format("creeperhost.multiplayer.friendcode"), 10, this.height - 20, -1);
+        this.minecraft.fontRenderer.drawStringWithShadow(matrixStack, I18n.format("creeperhost.multiplayer.friendcode"), 10, this.height - 20, -1);
     }
     
     @Override
@@ -395,7 +400,7 @@ public class FriendsListScreen extends Screen
         return true;
     }
     
-    private void showAlert(String text, int colour, int time)
+    private void showAlert(ITextComponent text, int colour, int time)
     {
         MineTogether.instance.toastHandler.displayToast(text, time, null);
     }
@@ -433,11 +438,11 @@ public class FriendsListScreen extends Screen
             if (t)
             {
                 if (!invitedPlayer.isAccepted())
-                    showAlert("Cannot invite pending friends", 0x00FF00, 5000);
+                    showAlert(new StringTextComponent("Cannot invite pending friends"), 0x00FF00, 5000);
                 else
                 {
                     String friendCode = "MT" + invitedPlayer.getCode().substring(0, 28);
-                    showAlert("Sent invite to " + invitedPlayer.getName(), 0x00FF00, 5000);
+                    showAlert(new StringTextComponent("Sent invite to " + invitedPlayer.getName()), 0x00FF00, 5000);
                     ChatHandler.sendChannelInvite(friendCode, MineTogether.instance.ourNick);
                 }
             }

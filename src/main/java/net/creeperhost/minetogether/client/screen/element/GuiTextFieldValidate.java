@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.client.screen.element;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,7 +16,7 @@ public class GuiTextFieldValidate extends TextFieldWidget
     
     public GuiTextFieldValidate(FontRenderer p_i1032_1_, int p_i1032_2_, int p_i1032_3_, int p_i1032_4_, int p_i1032_5_, String regexStr, String s)
     {
-        super(p_i1032_1_, p_i1032_2_, p_i1032_3_, p_i1032_4_, p_i1032_5_, s);
+        super(p_i1032_1_, p_i1032_2_, p_i1032_3_, p_i1032_4_, p_i1032_5_, new StringTextComponent(s));
         pattern = Pattern.compile(regexStr);
     }
     

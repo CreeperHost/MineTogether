@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.client.screen.serverlist.gui;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
@@ -25,8 +26,12 @@ import net.minecraft.client.gui.screen.ServerSelectionList;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +43,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
     public SortOrder sortOrder = SortOrder.RANDOM;
     public Screen parent;
     private boolean changeSort;
-    private String ourTooltip;
+    private List<ITextComponent> ourTooltip;
     public boolean selectedListType = false;
     private DropdownButton<SortOrder> sortOrderButton;
     private Minecraft mc = Minecraft.getInstance();
@@ -83,7 +88,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             name = listType.name();
         }
         
-        addButton(new Button(width - 105, 5, 100, 20, I18n.format(name), p ->
+        addButton(new Button(width - 105, 5, 100, 20, new StringTextComponent(I18n.format(name)), p ->
         {
             if (changeSort)
             {
@@ -106,20 +111,20 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
         AtomicBoolean hasEntry = new AtomicBoolean(false);
         
         serverListSelector.serverListInternet.clear();
-        
+
         if (listType == null && !hasEntry.get())
         {
-            serverListSelector.children().forEach(p ->
+            serverListSelector.children.forEach(p ->
             {
                 if (p instanceof CreeperHostEntry)
                 {
                     hasEntry.set(true);
                 }
             });
-            
+
             if (!hasEntry.get() && Config.getInstance().isMpMenuEnabled())
             {
-                serverListSelector.children().add(serverListSelector.children().lastIndexOf(serverListSelector.lanScanEntry), creeperHostEntry);
+                serverListSelector.children.add(serverListSelector.children.lastIndexOf(serverListSelector.lanScanEntry), creeperHostEntry);
             }
         }
         
@@ -140,7 +145,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
         
         if(listType != null)
         {
-            addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, "creeperhost.multiplayer.sort", sortOrder, false, p ->
+            addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, new StringTextComponent("creeperhost.multiplayer.sort"), sortOrder, false, p ->
             {
                 if (sortOrder != sortOrderButton.getSelected())
                 {
@@ -197,49 +202,49 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         ourTooltip = null;
-        this.renderBackground();
+        this.renderBackground(matrixStack);
         if (listType == null)
         {
-            this.serverListSelector.render(mouseX, mouseY, partialTicks);
+            this.serverListSelector.render(matrixStack, mouseX, mouseY, partialTicks);
         }
         
         if (serverListSelectorOurs != null)
         {
-            this.serverListSelectorOurs.render(mouseX, mouseY, partialTicks);
+            this.serverListSelectorOurs.render(matrixStack, mouseX, mouseY, partialTicks);
         }
-        this.drawCenteredString(this.font, this.title.getFormattedText(), this.width / 2, 20, 16777215);
+        this.drawCenteredString(matrixStack, this.font, this.title.getString(), this.width / 2, 20, 16777215);
         
         if (listType != null)
         {
-            drawCenteredString(font, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, I18n.format("creeperhost.multiplayer.public.random"), this.width / 2, this.height - 62, 0xFFFFFF);
         }
         if (this.ourTooltip != null)
         {
-            this.renderTooltip(Lists.newArrayList(Splitter.on("\n").split(ourTooltip)), mouseX, mouseY);
+            this.renderTooltip(matrixStack, ourTooltip, mouseX, mouseY);
         }
-        
         if (listType != null)
         {
             buttons.forEach(c ->
             {
-                if (c.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")) || c.getMessage().equalsIgnoreCase(I18n.format("selectServer.edit")))
+                if (c.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.delete")) || c.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.edit")))
                 {
                     c.active = false;
                 }
             });
         }
         
-        this.buttons.forEach(button -> button.render(mouseX, mouseY, partialTicks));
+        this.buttons.forEach(button -> button.render(matrixStack, mouseX, mouseY, partialTicks));
     }
-    
+
+    //setHoveringText
     @Override
-    public void setHoveringText(String p_146793_1_)
+    public void func_238854_b_(List<ITextComponent> components)
     {
-        super.setHoveringText(p_146793_1_);
-        this.ourTooltip = p_146793_1_;
+        super.func_238854_b_(components);
+        this.ourTooltip = components;
     }
     
     @Override
@@ -347,12 +352,12 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
         }
         
         @Override
-        public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float p_render_9_)
+        public void render(MatrixStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float p_render_9_)
         {
-            ourDrawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
+            ourDrawEntry(matrixStack, slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering);
         }
         
-        public void ourDrawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
+        public void ourDrawEntry(MatrixStack matrixStack, int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering)
         {
             if (isHovering)
             {
@@ -367,15 +372,15 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             this.mc.getTextureManager().bindTexture(serverIcon);
             RenderSystem.enableBlend();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
-            blit(x, y, 0.0F, 0.0F, 32, 32, 32, 32);
+            blit(matrixStack, x, y, 0.0F, 0.0F, 32, 32, 32, 32);
             int transparentString = (int) (transparency * 254) << 24;
-            this.mc.fontRenderer.drawString(Util.localize("mp.partner"), x + 35, y, 16777215 + transparentString);
-            GuiUtils.drawGradientRect(300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
+            this.mc.fontRenderer.drawString(matrixStack, Util.localize("mp.partner"), x + 35, y, 16777215 + transparentString);
+//            GuiUtils.drawGradientRect(matrixStack, 300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
             RenderSystem.enableBlend();
-            this.mc.fontRenderer.drawString(Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 1, 16777215 + transparentString);
+            this.mc.fontRenderer.drawString(matrixStack, Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 1, 16777215 + transparentString);
             String s = Util.localize("mp.clickherebrand");
-            this.mc.fontRenderer.drawString(s, x + 32 + 3, y + (this.mc.fontRenderer.FONT_HEIGHT * 2) + 3, 8421504 + transparentString);
-            this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
+            this.mc.fontRenderer.drawString(matrixStack, s, x + 32 + 3, y + (this.mc.fontRenderer.FONT_HEIGHT * 2) + 3, 8421504 + transparentString);
+            this.mc.fontRenderer.drawStringWithShadow(matrixStack, cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
             if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
             {
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -389,27 +394,27 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
                 
                 // re-purposed code from tooltip rendering
                 final int backgroundColor = 0xF0100010;
-                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
-                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
-                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
-                GuiUtils.drawGradientRect(zLevel, tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
-                GuiUtils.drawGradientRect(zLevel, tooltipX + tooltipTextWidth + 3, tooltipY - 3, tooltipX + tooltipTextWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+//                GuiUtils.drawGradientRect(matrixStack, zLevel, tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
+//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
+//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+//                GuiUtils.drawGradientRect(zLevel, tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+//                GuiUtils.drawGradientRect(zLevel, tooltipX + tooltipTextWidth + 3, tooltipY - 3, tooltipX + tooltipTextWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
                 final int borderColorStart = 0x505000FF;
                 final int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
-                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
-                GuiUtils.drawGradientRect(zLevel, tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
-                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
-                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
+//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+//                GuiUtils.drawGradientRect(zLevel, tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
+//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
                 
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
                 mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-                blit(mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
+                blit(matrixStack, mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
             }
         }
         
         private int getHeaderHeight()
         {
-            return ((int) serverListSelector.getScrollAmount() - serverListSelector.getHeight()) - serverListSelector.getScrollBottom();
+            return ((int) serverListSelector.getScrollAmount() - serverListSelector.getHeight()) - serverListSelector.getBottom();
         }
         
         private int getRowTop(int p_getRowTop_1_)
@@ -423,8 +428,8 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             int listWidth = ((serverListSelector.getWidth() - serverListSelector.getRowWidth()) / 2) + serverListSelector.getRowWidth();
             
             int x = serverListSelector.getLeft();
-            int y = getRowTop(serverListSelector.children().indexOf(this));
-            
+            int y = getRowTop(serverListSelector.children.indexOf(this));
+
             if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY - y >= 0 && mouseY - y <= 7)
             {
                 Config.getInstance().setMpMenuEnabled(false);

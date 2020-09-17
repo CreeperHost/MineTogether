@@ -1,5 +1,12 @@
 package net.creeperhost.minetogether.client.screen.list;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.gui.RenderComponentsUtil;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.StringTextComponent;
+
+import java.util.List;
+
 public class GuiListEntryLocation extends GuiListEntry
 {
     public final String locationName;
@@ -13,8 +20,13 @@ public class GuiListEntryLocation extends GuiListEntry
     }
     
     @Override
-    public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
+    public void render(MatrixStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
     {
-        this.mc.fontRenderer.drawSplitString(this.locationDisplay, x + 5, y + 5, listWidth, 16777215);
+        List<ITextProperties> s = RenderComponentsUtil.func_238505_a_(new StringTextComponent(this.locationDisplay), listWidth, this.mc.fontRenderer);
+        int start = y + 5;
+        for(ITextProperties iTextProperties : s)
+        {
+            this.mc.fontRenderer.drawString(matrixStack, iTextProperties.getString(), x + 5, start+=5, 16777215);
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.MineTogether;
@@ -21,6 +22,7 @@ import net.creeperhost.minetogether.util.Pair;
 import net.creeperhost.minetogether.util.RenderUtils;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -32,6 +34,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 import org.apache.commons.io.FileUtils;
 
@@ -133,18 +136,18 @@ public class MinigamesScreen extends Screen
 
         this.children.add(minigameList);
 
-        addButton(settingsButton = new Button(width - 10 - 100, 5, 100, 20, "Login", p ->
+        addButton(settingsButton = new Button(width - 10 - 100, 5, 100, 20, new StringTextComponent("Login"), p ->
         {
             Minecraft.getInstance().displayGuiScreen(settings = new Settings());
         }));
-        addButton(spinupButton = new Button(width - 10 - 100, height - 5 - 20, 100, 20, "Start minigame", p ->
+        addButton(spinupButton = new Button(width - 10 - 100, height - 5 - 20, 100, 20, new StringTextComponent("Start minigame"), p ->
         {
             if ((State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameList.getCurrSelected() != null)
             {
                 Minecraft.getInstance().displayGuiScreen(new StartMinigame(minigameList.getCurrSelected().getMiniGame()));
             }
         }));
-        addButton(moddedButton = new Button(10, 30, (width / 2) - 5, 20, "Modded", p ->
+        addButton(moddedButton = new Button(10, 30, (width / 2) - 5, 20, new StringTextComponent("Modded"), p ->
         {
             moddedButton.active = false;
             vanillaButton.active = true;
@@ -159,7 +162,7 @@ public class MinigamesScreen extends Screen
                 }
             }
         }));
-        addButton(vanillaButton = new Button(width - 10 - ((width / 2) - 10), 30, (width / 2) - 5, 20, "Vanilla", p ->
+        addButton(vanillaButton = new Button(width - 10 - ((width / 2) - 10), 30, (width / 2) - 5, 20, new StringTextComponent("Vanilla"), p ->
         {
             moddedButton.active = true;
             vanillaButton.active = false;
@@ -174,7 +177,7 @@ public class MinigamesScreen extends Screen
                 }
             }
         }));
-        addButton(cancelButton = new Button(10, height - 5 - 20, 100, 20, "Cancel", p ->
+        addButton(cancelButton = new Button(10, height - 5 - 20, 100, 20, new StringTextComponent("Cancel"), p ->
         {
             Minecraft.getInstance().displayGuiScreen(parent);
         }));
@@ -184,20 +187,20 @@ public class MinigamesScreen extends Screen
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         if (Config.getInstance().isChatEnabled() && !ChatHandler.isOnline())
         {
             spinupButton.visible = spinupButton.active = vanillaButton.visible = vanillaButton.active = moddedButton.visible = moddedButton.active = settingsButton.visible = settingsButton.active = false;
-            drawCenteredString(minecraft.fontRenderer, I18n.format("minetogether.minigames.notavailable"), width / 2, height / 2, 0xFFFFFFFF);
-            super.render(mouseX, mouseY, partialTicks);
+            drawCenteredString(matrixStack, minecraft.fontRenderer, I18n.format("minetogether.minigames.notavailable"), width / 2, height / 2, 0xFFFFFFFF);
+            super.render(matrixStack, mouseX, mouseY, partialTicks);
             return;
         }
 
         if (!spinDown)
         {
             spinupButton.active = minigameList.getCurrSelected() != null && (State.getCurrentState() == State.CREDENTIALS_OK || State.getCurrentState() == State.CREDENTIALS_INVALID) && minigameList.getCurrSelected().getMiniGame() != null && credit >= quote;
-            this.minigameList.render(mouseX, mouseY, partialTicks);
+            this.minigameList.render(matrixStack, mouseX, mouseY, partialTicks);
 
             String creditStr;
             switch (creditType)
@@ -214,10 +217,10 @@ public class MinigamesScreen extends Screen
                     creditStr = "CreeperHost credit: " + curPrefix + formattedCredit + curSuffix;
             }
             
-            drawCenteredString(minecraft.fontRenderer, "MineTogether Minigames", width / 2, 5, 0xFFFFFFFF);
+            drawCenteredString(matrixStack, minecraft.fontRenderer, "MineTogether Minigames", width / 2, 5, 0xFFFFFFFF);
             
-            drawString(minecraft.fontRenderer, creditStr, 5, 5, 0xFFFFFFFF);
-            drawStatusString(width / 2, height - 40);
+            drawString(matrixStack, minecraft.fontRenderer, creditStr, 5, 5, 0xFFFFFFFF);
+            drawStatusString(matrixStack, width / 2, height - 40);
             
             String currencyFormat = String.valueOf((int) quote);
             
@@ -240,22 +243,22 @@ public class MinigamesScreen extends Screen
                 }
                 
                 String formattedQuote = first + curPrefix + currencyFormat + curSuffix;
-                drawString(minecraft.fontRenderer, formattedQuote, 5, height - 40, 0xFFFFFFFF);
+                drawString(matrixStack, minecraft.fontRenderer, formattedQuote, 5, height - 40, 0xFFFFFFFF);
                 int stringLen = minecraft.fontRenderer.getStringWidth(formattedQuote);
                 if (!creditType.equals("credit") && !curPrefix.equals("£") && mouseX >= 5 && mouseX <= 5 + stringLen && mouseY >= height - 40 && mouseY <= height - 30)
                 {
-                    renderTooltip(Arrays.asList("Figure provided based on exchange rate of " + exchangeRate), mouseX, mouseY);
+                    renderTooltip(matrixStack, new StringTextComponent("Figure provided based on exchange rate of " + exchangeRate), mouseX, mouseY);
                 } else
                 {
                     if (spinupButton.isHovered() && credit < quote)
                     {
-                        renderTooltip(Arrays.asList("Cannot start minigame as you do not have enough credit"), mouseX, mouseY);
+                        renderTooltip(matrixStack, new StringTextComponent("Cannot start minigame as you do not have enough credit"), mouseX, mouseY);
                     }
                 }
             }
         } else
         {
-            drawCenteredSplitString("Spinning down minigame", width / 2, height / 2, width, 0xFFFFFFFF);
+            drawCenteredSplitString(matrixStack, "Spinning down minigame", width / 2, height / 2, width, 0xFFFFFFFF);
             RenderUtils.loadingSpin(partialTicks, ticks++,  width / 2, height / 2 + 20 + 10, new ItemStack(Items.BEEF));
             if (doSpindown)
             {
@@ -263,7 +266,7 @@ public class MinigamesScreen extends Screen
             }
         }
 
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
     
     public static double round(double value, int places)
@@ -273,15 +276,6 @@ public class MinigamesScreen extends Screen
         BigDecimal bd = new BigDecimal(value);
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
-    }
-
-    @Deprecated
-    protected void drawTextureAt(int p_178012_1_, int p_178012_2_, int texturew, int textureh, int width, int height, ResourceLocation p_178012_3_)
-    {
-        this.minecraft.getTextureManager().bindTexture(p_178012_3_);
-        GlStateManager.enableBlend();
-        blit(p_178012_1_, p_178012_2_, 0.0F, 0.0F, width, height, texturew, textureh);
-        GlStateManager.disableBlend();
     }
     
     private boolean areCredentialsValid()
@@ -380,7 +374,7 @@ public class MinigamesScreen extends Screen
         }
     }
     
-    private void drawStatusString(int x, int y)
+    private void drawStatusString(MatrixStack matrixStack, int x, int y)
     {
         String drawText;
         int drawColour;
@@ -433,7 +427,7 @@ public class MinigamesScreen extends Screen
                 drawColour = 0xFFFFFFFF;
         }
         
-        drawCenteredSplitString(drawText, x, y, width, drawColour);
+        drawCenteredSplitString(matrixStack, drawText, x, y, width, drawColour);
     }
     
     private boolean doSpindown = false;
@@ -470,12 +464,12 @@ public class MinigamesScreen extends Screen
         doSpindown = true;
     }
     
-    private void drawCenteredSplitString(String drawText, int x, int y, int width, int drawColour)
+    private void drawCenteredSplitString(MatrixStack matrixStack, String drawText, int x, int y, int width, int drawColour)
     {
-        List<String> strings = font.listFormattedStringToWidth(drawText, width);
-        for (String str : strings)
+        List<ITextProperties> strings = RenderComponentsUtil.func_238505_a_(new StringTextComponent(drawText), width, font);
+        for (ITextProperties str : strings)
         {
-            drawCenteredString(font, str, x, y, drawColour);
+            drawCenteredString(matrixStack, font, str.getString(), x, y, drawColour);
             y += font.FONT_HEIGHT;
         }
     }
@@ -542,7 +536,7 @@ public class MinigamesScreen extends Screen
                         MinigamesScreen.settings.emailLabel.visible = false;
                         MinigamesScreen.settings.passwordLabel.visible = false;
                         MinigamesScreen.settings.oneCodeLabel.visible = false;
-                        MinigamesScreen.settings.loginButton.setMessage("Log in again");
+                        MinigamesScreen.settings.loginButton.setMessage(new StringTextComponent("Log in again"));
                         MinigamesScreen.settings.loginButton.active = true;
                         MinigamesScreen.settings.loginButton.visible = true;
                     }
@@ -568,7 +562,7 @@ public class MinigamesScreen extends Screen
                         MinigamesScreen.settings.emailLabel.visible = true;
                         MinigamesScreen.settings.passwordLabel.visible = true;
                         MinigamesScreen.settings.oneCodeLabel.visible = false;
-                        MinigamesScreen.settings.loginButton.setMessage("Log in");
+                        MinigamesScreen.settings.loginButton.setMessage(new StringTextComponent("Log in"));
                         MinigamesScreen.settings.loginButton.active = true;
                         MinigamesScreen.settings.loginButton.visible = true;
                     }
@@ -599,10 +593,10 @@ public class MinigamesScreen extends Screen
             currentState = state;
             if (state == CREDENTIALS_OK)
             {
-                MinigamesScreen.current.settingsButton.setMessage("Logged in");
+                MinigamesScreen.current.settingsButton.setMessage(new StringTextComponent("Logged in"));
             } else
             {
-                MinigamesScreen.current.settingsButton.setMessage("Log in");
+                MinigamesScreen.current.settingsButton.setMessage(new StringTextComponent("Log in"));
             }
             
             Screen curScreen = Minecraft.getInstance().currentScreen;
@@ -647,11 +641,11 @@ public class MinigamesScreen extends Screen
             super.init();
             labelList.clear();
             
-            emailField = new TextFieldWidget(font, width / 2 - 100, height / 2 - 20, 200, 20, "");
+            emailField = new TextFieldWidget(font, width / 2 - 100, height / 2 - 20, 200, 20, new StringTextComponent(""));
             labelList.add(emailLabel = new GuiLabel(font, 80856, emailField.x, emailField.y - 10, 200, 20, 0xFFFFFFFF));
             emailLabel.addLine("Email");
             
-            oneCodeField = new TextFieldWidget(font, width / 2 - 100, emailField.y - 10, 200, 20, "");
+            oneCodeField = new TextFieldWidget(font, width / 2 - 100, emailField.y - 10, 200, 20, new StringTextComponent(""));
             labelList.add(oneCodeLabel = new GuiLabel(font, 80856, oneCodeField.x, oneCodeField.y - 10, 200, 20, 0xFFFFFFFF));
             oneCodeLabel.addLine("One-time code");
             
@@ -659,11 +653,11 @@ public class MinigamesScreen extends Screen
             labelList.add(passwordLabel = new GuiLabel(font, 80856, passwordField.x, passwordField.y - 10, 200, 20, 0xFFFFFFFF));
             passwordLabel.addLine("Password");
             
-            addButton(cancelButton = new Button(width - 10 - 100, height - 5 - 20, 100, 20, "Go back", p ->
+            addButton(cancelButton = new Button(width - 10 - 100, height - 5 - 20, 100, 20, new StringTextComponent("Go back"), p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
             }));
-            addButton(loginButton = new Button(width / 2 - 50, height / 2 + 40, 100, 20, "Save", p ->
+            addButton(loginButton = new Button(width / 2 - 50, height / 2 + 40, 100, 20, new StringTextComponent("Save"), p ->
             {
                 if (State.getCurrentState() == State.CREDENTIALS_OK)
                 {
@@ -772,27 +766,27 @@ public class MinigamesScreen extends Screen
         }
         
         @Override
-        public void render(int mouseX, int mouseY, float partialTicks)
+        public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
         {
             renderDirtBackground(0);
-            emailField.render(mouseX, mouseY, partialTicks);
-            passwordField.render(mouseX, mouseY, partialTicks);
-            oneCodeField.render(mouseX, mouseY, partialTicks);
+            emailField.render(matrixStack, mouseX, mouseY, partialTicks);
+            passwordField.render(matrixStack, mouseX, mouseY, partialTicks);
+            oneCodeField.render(matrixStack, mouseX, mouseY, partialTicks);
             for (int j = 0; j < this.labelList.size(); ++j)
             {
-                ((GuiLabel)this.labelList.get(j)).drawLabel(this.minecraft, mouseX, mouseY);
+                ((GuiLabel)this.labelList.get(j)).drawLabel(matrixStack, this.minecraft, mouseX, mouseY);
             }
 
-            super.render(mouseX, mouseY, partialTicks);
+            super.render(matrixStack, mouseX, mouseY, partialTicks);
             if (State.getCurrentState() == State.CREDENTIALS_OK)
             {
-                drawCenteredSplitString("You have valid credentials. If you wish to change your credentials, please log in again.", width / 2, height / 2 - 30, width, 0xFFFFFFFF);
+                drawCenteredSplitString(matrixStack, "You have valid credentials. If you wish to change your credentials, please log in again.", width / 2, height / 2 - 30, width, 0xFFFFFFFF);
             } else
             {
-                drawCenteredSplitString("If you would like to use your CreeperHost credit balance instead of the free minigame credits, please login with your CreeperHost username and password here.", width / 2, height / 2 - 60, width, 0xFFFFFFFF);
+                drawCenteredSplitString(matrixStack, "If you would like to use your CreeperHost credit balance instead of the free minigame credits, please login with your CreeperHost username and password here.", width / 2, height / 2 - 60, width, 0xFFFFFFFF);
             }
             
-            drawStatusString(width / 2, height - 40);
+            drawStatusString(matrixStack, width / 2, height - 40);
         }
     }
 
@@ -896,7 +890,7 @@ public class MinigamesScreen extends Screen
         public void init()
         {
             super.init();
-            addButton(joinServerButton = new Button(width / 2 - 50, height / 2 + 20, 100, 20, "Join server", p ->
+            addButton(joinServerButton = new Button(width / 2 - 50, height / 2 + 20, 100, 20, new StringTextComponent("Join server"), p ->
             {
                 if (State.getCurrentState() == State.READY_TO_JOIN)
                 {
@@ -912,17 +906,17 @@ public class MinigamesScreen extends Screen
         }
 
         @Override
-        public void render(int mouseX, int mouseY, float partialTicks)
+        public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
         {
             renderDirtBackground(0);
             if (State.getCurrentState() == State.MINIGAME_FAILED)
             {
-                drawCenteredSplitString("Minigame failed. Reason: " + failedReason, width / 2, (height / 2) - 10, width, 0xFFFF0000);
+                drawCenteredSplitString(matrixStack, "Minigame failed. Reason: " + failedReason, width / 2, (height / 2) - 10, width, 0xFFFF0000);
             } else
             {
-                drawStatusString(width / 2, height / 2);
+                drawStatusString(matrixStack, width / 2, height / 2);
             }
-            super.render(mouseX, mouseY, partialTicks);
+            super.render(matrixStack, mouseX, mouseY, partialTicks);
             if (State.getCurrentState() != State.READY_TO_JOIN && State.getCurrentState() != State.MINIGAME_FAILED)
                 RenderUtils.loadingSpin(partialTicks, ticks++,  width / 2, height / 2 + 20 + 10, new ItemStack(Items.BEEF));
         }
@@ -938,7 +932,7 @@ public class MinigamesScreen extends Screen
             {
                 joinServerButton.active = true;
                 joinServerButton.visible = true;
-                joinServerButton.setMessage("Go back");
+                joinServerButton.setMessage(new StringTextComponent("Go back"));
             }
         }
     }

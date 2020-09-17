@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.list;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.FriendsListScreen;
 
@@ -23,7 +24,7 @@ public class GuiListEntryMuted extends GuiListEntry
     
     @SuppressWarnings("Duplicates")
     @Override
-    public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
+    public void render(MatrixStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
     {
         if (isSelected)
         {
@@ -35,13 +36,13 @@ public class GuiListEntryMuted extends GuiListEntry
                 transparency -= 0.04;
         }
         
-        this.mc.fontRenderer.drawString(muted, x + 5, y + 5, 16777215);
+        this.mc.fontRenderer.drawString(matrixStack, muted, x + 5, y + 5, 16777215);
         
         int transparentString = (int) (transparency * 254) << 24;
         
         RenderSystem.enableAlphaTest();
         RenderSystem.enableBlend();
-        this.mc.fontRenderer.drawStringWithShadow(cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
+        this.mc.fontRenderer.drawStringWithShadow(matrixStack, cross, listWidth + x - stringWidth - 4, y, 0xFF0000 + transparentString);
         RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
         

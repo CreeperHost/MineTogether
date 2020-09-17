@@ -12,7 +12,6 @@ public class WatchdogHandler
 {
     public WatchdogHandler()
     {
-        //TODO config this
         killWatchdog();
     }
     

@@ -42,7 +42,7 @@ public class CommandKill
         PlayerEntity playerEntity = (PlayerEntity) ctx.getSource().getEntity();
         if (playerEntity != null)
         {
-            playerEntity.sendMessage(new TranslationTextComponent("Removed " + i + " entities from the world"));
+            playerEntity.sendMessage(new TranslationTextComponent("Removed " + i + " entities from the world"), null);
         }
         return i.get();
     }

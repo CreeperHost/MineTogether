@@ -53,7 +53,6 @@ public class Client implements IProxy
     @Override
     public void registerKeys()
     {
-        //TODO
         openGuiKey = new KeyBinding("minetogether.key.friends", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, InputMappings.Type.KEYSYM, GLFW.GLFW_KEY_M, "minetogether.keys");
         ClientRegistry.registerKeyBinding(openGuiKey);
     }
@@ -163,7 +162,7 @@ public class Client implements IProxy
         if (currentScreen != null)
         {
             if (currentScreen instanceof GuiChatOurs)
-                currentScreen.setSize(currentScreen.width, currentScreen.height);
+                currentScreen.resize(Minecraft.getInstance(), currentScreen.width, currentScreen.height);
             if (currentScreen instanceof MTChatScreen)
             {
                 for (DropdownButton.IDropdownOption target : Target.getMainTarget().getPossibleVals())
@@ -174,7 +173,7 @@ public class Client implements IProxy
                         Target.updateCache();
                     }
                 }
-                currentScreen.setSize(currentScreen.width, currentScreen.height);
+                currentScreen.resize(Minecraft.getInstance(), currentScreen.width, currentScreen.height);
             }
         }
     }

@@ -1,11 +1,14 @@
 package net.creeperhost.minetogether.client.screen.element;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.List;
 
@@ -14,22 +17,22 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
     public boolean dropdownOpen;
     private E selected;
     private List<E> possibleVals;
-    private String baseButtonText;
+    private ITextComponent baseButtonText;
     private final boolean dynamic;
     public boolean wasJustClosed = false;
     Minecraft minecraft = Minecraft.getInstance();
     
-    public DropdownButton(int x, int y, int widthIn, int heightIn, String buttonText, E def, boolean dynamic, Button.IPressable onPress)
+    public DropdownButton(int x, int y, int widthIn, int heightIn, ITextComponent buttonText, E def, boolean dynamic, Button.IPressable onPress)
     {
         super(x, y, widthIn, heightIn, buttonText, onPress);
         this.selected = def;
         possibleVals = (List<E>) def.getPossibleVals();
         baseButtonText = buttonText;
-        this.baseButtonText = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected, false)));
+        this.baseButtonText = new StringTextComponent(I18n.format(I18n.format(selected.getTranslate(selected, false)), baseButtonText));
         this.dynamic = dynamic;
     }
     
-    public DropdownButton(int x, int y, String buttonText, E def, boolean dynamic, Button.IPressable onPress)
+    public DropdownButton(int x, int y, ITextComponent buttonText, E def, boolean dynamic, Button.IPressable onPress)
     {
         this(x, y, 200, 20, buttonText, def, dynamic, onPress);
     }
@@ -38,7 +41,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
     
     @SuppressWarnings("Duplicates")
     @Override
-    public void renderButton(int mouseX, int mouseY, float partialTicks)
+    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         if (this.visible)
         {
@@ -51,8 +54,8 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            this.blit(this.x, drawY, 0, 46 + i * 20, this.width / 2, this.height);
-            this.blit(this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+            this.blit(matrixStack, this.x, drawY, 0, 46 + i * 20, this.width / 2, this.height);
+            this.blit(matrixStack, this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
             int j = 14737632;
             
             if (getFGColor() != 0)
@@ -66,7 +69,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                 j = 16777120;
             }
             
-            this.drawCenteredString(fontrenderer, this.baseButtonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
+            this.drawCenteredString(matrixStack, fontrenderer, this.baseButtonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
             
             if (dropdownOpen)
             {
@@ -86,8 +89,8 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                     
                     minecraft.getTextureManager().bindTexture(WIDGETS_LOCATION);
                     RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                    this.blit(this.x, drawY, 0, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
-                    this.blit(this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
+                    this.blit(matrixStack, this.x, drawY, 0, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
+                    this.blit(matrixStack, this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
                     
                     String name = I18n.format(e.getTranslate(selected, true));
                     int textColour = 14737632;
@@ -99,7 +102,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                     {
                         textColour = 16777120;
                     }
-                    this.drawCenteredString(fontrenderer, name, this.x + this.width / 2, drawY + (this.height - 10) / 2, textColour);
+                    this.drawCenteredString(matrixStack, fontrenderer, name, this.x + this.width / 2, drawY + (this.height - 10) / 2, textColour);
                 }
             }
         }
@@ -168,7 +171,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
     
     public void updateDisplayString()
     {
-        baseButtonText = I18n.format(baseButtonText, I18n.format(selected.getTranslate(selected, false)));
+        baseButtonText = new StringTextComponent(I18n.format(I18n.format(selected.getTranslate(selected, false)), baseButtonText));
     }
     
     private E getClickedElement(double mouseX, double mouseY)

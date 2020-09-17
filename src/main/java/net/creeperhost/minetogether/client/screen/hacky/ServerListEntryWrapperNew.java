@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.hacky;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.ServerSelectionList;
 
 public class ServerListEntryWrapperNew implements IServerListEntryWrapper
@@ -11,7 +12,8 @@ public class ServerListEntryWrapperNew implements IServerListEntryWrapper
         {
             if (entry != null)
             {
-                entry.render(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering, 0);
+                MatrixStack matrixStack = new MatrixStack();
+                entry.render(matrixStack, slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isHovering, 0);
             }
         } catch (Exception e)
         {

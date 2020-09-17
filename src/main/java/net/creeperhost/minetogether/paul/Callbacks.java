@@ -367,6 +367,11 @@ public final class Callbacks
                 try
                 {
                     JsonElement banned = obj.get("banned");
+                    MineTogether.profile.getAndUpdate(profile ->
+                    {
+                        profile.setBanned(banned.getAsBoolean());
+                        return profile;
+                    });
                     return banned.getAsBoolean();
                 } catch (Exception e)
                 {
@@ -665,7 +670,8 @@ public final class Callbacks
                                     String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
                                     boolean accepted = friend.get("accepted").getAsBoolean();
                                     Profile profile = ChatHandler.knownUsers.findByHash(code);
-                                    tempArr.add(new Friend(profile, name, code, accepted));
+                                    if(profile == null) ChatHandler.knownUsers.add(code);
+                                    tempArr.add(new Friend(name, code, accepted));
                                 }
                             }
                         }
@@ -702,7 +708,7 @@ public final class Callbacks
                     List<Server> list = new ArrayList<Server>();
                     
                     Config defaultConfig = new Config();
-                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
+                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID) && MineTogether.instance.base64 == null)
                     {
                         list.add(new Server("No project ID! Please fix the MineTogether config or ensure a version.json exists.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
                         return list;
@@ -726,9 +732,7 @@ public final class Callbacks
                     String jsonString = gson.toJson(jsonPass);
                     
                     String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
-                    MineTogether.logger.info(jsonString);
-                    MineTogether.logger.info(resp);
-                    
+
                     JsonElement jElement = new JsonParser().parse(resp);
                     if (jElement.isJsonObject())
                     {

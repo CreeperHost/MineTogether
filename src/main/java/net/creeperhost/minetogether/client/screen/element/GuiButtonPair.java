@@ -1,7 +1,9 @@
 package net.creeperhost.minetogether.client.screen.element;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 
@@ -21,7 +23,7 @@ public class GuiButtonPair extends Button
     
     public GuiButtonPair(int x, int y, int widthIn, int heightIn, int state, boolean stack, boolean swapOnClick, boolean vertical, Button.IPressable onPress, String... buttonTexts)
     {
-        super(x, y, widthIn, heightIn, buttonTexts[0], onPress);
+        super(x, y, widthIn, heightIn, new StringTextComponent(buttonTexts[0]), onPress);
         activeButton = state;
         this.swapOnClick = swapOnClick;
         this.stack = stack;
@@ -74,7 +76,7 @@ public class GuiButtonPair extends Button
     }
     
     @Override
-    public void render(int p_191745_2_, int p_191745_3_, float p_191745_4_)
+    public void render(MatrixStack matrixStack, int p_191745_2_, int p_191745_3_, float p_191745_4_)
     {
         double mouseX = p_191745_2_;
         double mouseY = p_191745_3_;
@@ -137,7 +139,7 @@ public class GuiButtonPair extends Button
         
         for (GuiButtonChat button : buttons)
         {
-            button.render((int) mouseX, (int) mouseY, p_191745_4_);
+            button.render(matrixStack, (int) mouseX, (int) mouseY, p_191745_4_);
         }
         
         if (vertical)

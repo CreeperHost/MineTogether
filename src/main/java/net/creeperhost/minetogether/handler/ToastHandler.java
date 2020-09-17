@@ -1,19 +1,15 @@
 package net.creeperhost.minetogether.handler;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.util.text.ITextComponent;
 
 public class ToastHandler
 {
     public ResourceLocation TEXTURE_TOASTS = new ResourceLocation("textures/gui/toasts.png");
     
     public Runnable toastMethod;
-    public String toastText;
+    public ITextComponent toastText;
     public long endTime;
     public long fadeTime;
     Minecraft mc = Minecraft.getInstance();
@@ -21,7 +17,7 @@ public class ToastHandler
     int u = 0;
     int v = 0;
     
-    public void displayToast(String text, int duration, Runnable method)
+    public void displayToast(ITextComponent text, int duration, Runnable method)
     {
         toastText = text;
         endTime = System.currentTimeMillis() + duration;

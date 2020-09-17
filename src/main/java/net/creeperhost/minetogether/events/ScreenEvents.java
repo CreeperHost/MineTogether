@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.events;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
@@ -16,12 +17,14 @@ import net.creeperhost.minetogether.client.screen.serverlist.gui.MultiplayerPubl
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -30,6 +33,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScreenEvents
@@ -104,7 +108,7 @@ public class ScreenEvents
                     //Get the translated name so we can make sure to remove the correct button
                     String name = I18n.format("menu.multiplayer");
                     
-                    if (button.getMessage().equalsIgnoreCase(name))
+                    if (button.getMessage().getString().equalsIgnoreCase(name))
                     {
                         width.set(button.getWidth());
                         height.set(button.getHeight());
@@ -117,7 +121,7 @@ public class ScreenEvents
                 }
             });
             
-            event.addWidget(new Button(x.get(), y.get(), width.get(), height.get(), I18n.format("menu.multiplayer"), p ->
+            event.addWidget(new Button(x.get(), y.get(), width.get(), height.get(), new StringTextComponent(I18n.format("menu.multiplayer")), p ->
             {
                 if (MineTogether.instance.gdpr.hasAcceptedGDPR())
                 {
@@ -135,27 +139,27 @@ public class ScreenEvents
             {
                 if (b instanceof Button)
                 {
-                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.refresh")))
+                    if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.refresh")))
                     {
                         b.active = false;
                         b.visible = false;
                     }
-                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.delete")))
+                    if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.delete")))
                     {
                         b.x -= 7;
                         b.setWidth(b.getWidth() + 1);
                     }
-                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.direct")))
+                    if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.direct")))
                     {
                         b.x = event.getGui().width / 2 - 8;
                         b.y = event.getGui().height - 28;
                         b.setWidth(b.getWidth() - 14);
                     }
-                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.add")))
+                    if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.add")))
                     {
                         b.x -= 25;
                     }
-                    if (b.getMessage().equalsIgnoreCase(I18n.format("selectServer.cancel")))
+                    if (b.getMessage().getString().equalsIgnoreCase(I18n.format("selectServer.cancel")))
                     {
                         b.x += 1;
                         b.setWidth(b.getWidth() - 2);
@@ -168,7 +172,7 @@ public class ScreenEvents
                 Minecraft.getInstance().displayGuiScreen(new MultiplayerPublicScreen(((MultiplayerPublicScreen) event.getGui()).parent, ((MultiplayerPublicScreen) event.getGui()).listType, ((MultiplayerPublicScreen) event.getGui()).sortOrder));
             }));
             
-            event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 75, 20, "Minigames", p ->
+            event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 75, 20, new StringTextComponent("Minigames"), p ->
             {
                 Minecraft.getInstance().displayGuiScreen(new MinigamesScreen(event.getGui()));
             }));
@@ -179,7 +183,7 @@ public class ScreenEvents
             if (Config.getInstance().isEnableMainMenuFriends())
             {
                 buttonDrawn = true;
-                event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends"), p ->
+                event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, new StringTextComponent(I18n.format("creeperhost.multiplayer.friends")), p ->
                 {
                     MineTogether.proxy.openFriendsGui();
                 }));
@@ -208,7 +212,7 @@ public class ScreenEvents
         if (event.getGui() instanceof IngameMenuScreen)
         {
             buttonDrawn = true;
-            event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends"), p ->
+            event.addWidget(new Button(event.getGui().width - 100 - 5, 5, 100, 20, new StringTextComponent(I18n.format("creeperhost.multiplayer.friends")), p ->
             {
                 MineTogether.proxy.openFriendsGui();
             }));
@@ -313,11 +317,18 @@ public class ScreenEvents
                 GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
                 Minecraft.getInstance().getRenderManager().textureManager.bindTexture(MineTogether.instance.toastHandler.TEXTURE_TOASTS);
 
+                MatrixStack matrixStack = new MatrixStack();
 
-                drawTexturedModalRect(Minecraft.getInstance().getMainWindow().getScaledWidth() - 160, 0, u, v, 160, 32);
+                drawTexturedModalRect(matrixStack, Minecraft.getInstance().getMainWindow().getScaledWidth() - 160, 0, u, v, 160, 32);
                 GlStateManager.enableBlend();
                 int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
-                Minecraft.getInstance().fontRenderer.drawSplitString(MineTogether.instance.toastHandler.toastText, Minecraft.getInstance().getMainWindow().getScaledWidth() - 160 + 5, 3, 160, textColour);
+                List<ITextProperties> s = RenderComponentsUtil.func_238505_a_(MineTogether.instance.toastHandler.toastText, 140, Minecraft.getInstance().fontRenderer);
+                int start = 2;
+                for(ITextProperties properties : s)
+                {
+                    Minecraft.getInstance().fontRenderer.drawString(matrixStack, properties.getString(), Minecraft.getInstance().getMainWindow().getScaledWidth() - 155, start +=8, textColour);
+                }
+
             } else
             {
                 MineTogether.instance.toastHandler.clearToast(false);
@@ -325,8 +336,8 @@ public class ScreenEvents
         }
     }
 
-    private void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
+    private void drawTexturedModalRect(MatrixStack matrixStack, int x, int y, int textureX, int textureY, int width, int height)
     {
-        fakeGui.blit(x, y, textureX, textureY, width, height);
+        fakeGui.blit(matrixStack, x, y, textureX, textureY, width, height);
     }
 }

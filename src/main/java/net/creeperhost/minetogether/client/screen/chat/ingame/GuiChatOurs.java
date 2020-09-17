@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.chat.ingame;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.chat.ChatConnectionHandler;
@@ -22,6 +23,7 @@ import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 
@@ -29,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static net.creeperhost.minetogether.chat.ChatHandler.addStatusMessage;
-import static net.creeperhost.minetogether.chat.ChatHandler.knownUsers;
 
 public class GuiChatOurs extends ChatScreen
 {
@@ -54,11 +55,11 @@ public class GuiChatOurs extends ChatScreen
         NewChatGui chat = Minecraft.getInstance().ingameGUI.getChatGUI();
         return !MineTogether.instance.gdpr.hasAcceptedGDPR() || !(chat instanceof GuiNewChatOurs) || ((GuiNewChatOurs) chat).isBase();
     }
-    
+
     @Override
-    protected void renderComponentHoverEffect(ITextComponent component, int mouseX, int mouseY)
+    protected void renderComponentHoverEffect(MatrixStack matrixStack, Style style, int mouseX, int mouseY)
     {
-        super.renderComponentHoverEffect(component, mouseX, mouseY);
+        super.renderComponentHoverEffect(matrixStack, style, mouseX, mouseY);
     }
     
     @Override
@@ -200,7 +201,7 @@ public class GuiChatOurs extends ChatScreen
 
             if (sleep)
             {
-                addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, I18n.format("multiplayer.stopSleeping"), p ->
+                addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, new StringTextComponent(I18n.format("multiplayer.stopSleeping")), p ->
                 {
                     wakeFromSleep();
                 }));
@@ -242,7 +243,7 @@ public class GuiChatOurs extends ChatScreen
             ChatConnectionHandler.INSTANCE.disconnect();
         }
         
-        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new MTChatScreen.Menu(strings), true, p ->
+        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new StringTextComponent("Menu"), new MTChatScreen.Menu(strings), true, p ->
         {
             if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mute")))
             {
@@ -264,7 +265,7 @@ public class GuiChatOurs extends ChatScreen
         menuDropdownButton.flipped = false;
         if (sleep)
         {
-            addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, I18n.format("multiplayer.stopSleeping"), p -> wakeFromSleep()));
+            addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, new StringTextComponent(I18n.format("multiplayer.stopSleeping")), p -> wakeFromSleep()));
         }
     }
     
@@ -285,7 +286,7 @@ public class GuiChatOurs extends ChatScreen
                         Client.chatType = 0;
                         ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);
                     }
-                    switchButton.setMessage(ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat");
+                    switchButton.setMessage(ourChat.isBase() ? new StringTextComponent("MineTogether Chat") : new StringTextComponent("Minecraft Chat"));
                 } else
                 {
                     try
@@ -319,7 +320,7 @@ public class GuiChatOurs extends ChatScreen
                     {
                         ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);
                     }
-                    switchButton.setMessage(ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat");
+                    switchButton.setMessage(ourChat.isBase() ? new StringTextComponent("MineTogether Chat") : new StringTextComponent("Minecraft Chat"));
                 } else
                 {
                     try
@@ -354,22 +355,23 @@ public class GuiChatOurs extends ChatScreen
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         if (isBase())
         {
-            super.render(mouseX, mouseY, partialTicks);
+            super.render(matrixStack, mouseX, mouseY, partialTicks);
             return;
         }
 
-        this.buttons.forEach(p -> p.render(mouseX, mouseY, partialTicks));
+        this.buttons.forEach(p -> p.render(matrixStack, mouseX, mouseY, partialTicks));
+        this.setFocusedDefault(this.inputField);
 
-        this.setFocused(this.inputField);
         this.inputField.setFocused2(true);
-        fill(2, this.height - 14, this.width - 2, this.height - 2, mc.gameSettings.getChatBackgroundColor(-2147483648));
-        this.inputField.render(mouseX, mouseY, partialTicks);
+        fill(matrixStack, 2, this.height - 14, this.width - 2, this.height - 2, mc.gameSettings.getChatBackgroundColor(-2147483648));
+        this.inputField.render(matrixStack, mouseX, mouseY, partialTicks);
         this.inputField.canWrite();
-        this.commandSuggestionHelper.render(mouseX, mouseY);
+        //render
+        this.commandSuggestionHelper.func_238500_a_(matrixStack, mouseX, mouseY);
         
         if (!(this.mc.ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;
@@ -377,10 +379,10 @@ public class GuiChatOurs extends ChatScreen
         GuiNewChatOurs chatGui = (GuiNewChatOurs) mc.ingameGUI.getChatGUI();
         if ((!chatGui.isBase()) && (!chatGui.chatTarget.toLowerCase().equals(ChatHandler.CHANNEL.toLowerCase())) && (!chatGui.chatTarget.toLowerCase().contains(ChatHandler.CHANNEL.toLowerCase())) && (chatGui.chatTarget.length() > 0) && (!chatGui.chatTarget.toLowerCase().equals("#minetogether")))
         {
-            String str = chatGui.closeComponent.getFormattedText();
+            String str = chatGui.closeComponent.getString();
             int x = mc.ingameGUI.getChatGUI().getChatWidth() - 2;
             int y = height - 40 - (mc.fontRenderer.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
-            mc.fontRenderer.drawString(str, x, y, 0xFFFFFF);
+            mc.fontRenderer.drawString(matrixStack, str, x, y, 0xFFFFFF);
         }
     }
     
@@ -389,21 +391,21 @@ public class GuiChatOurs extends ChatScreen
         ClientPlayNetHandler nethandlerplayclient = this.mc.player.connection;
         nethandlerplayclient.sendPacket(new CEntityActionPacket(this.mc.player, CEntityActionPacket.Action.STOP_SLEEPING));
     }
-    
+
     @Override
-    public boolean handleComponentClicked(ITextComponent component)
+    public boolean handleComponentClicked(Style style)
     {
         if (isBase())
         {
-            return super.handleComponentClicked(component);
+            return super.handleComponentClicked(style);
         }
         
-        if (component == ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).closeComponent)
+        if (style == ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).closeComponent)
         {
             MineTogether.instance.closeGroupChat();
             return true;
         }
-        ClickEvent event = component.getStyle().getClickEvent();
+        ClickEvent event = style.getClickEvent();
         if (event == null)
             return false;
         if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
@@ -433,13 +435,14 @@ public class GuiChatOurs extends ChatScreen
                 
                 return true;
             }
+
             menuDropdownButton.x = (int) mc.mouseHelper.getMouseX() * this.height / this.mc.getMainWindow().getWidth() + 28;
-            menuDropdownButton.y = (int) mc.mouseHelper.getMouseY() * this.height / this.mc.getMainWindow().getHeight() - 1;
+            menuDropdownButton.y = (int) mc.mouseHelper.getMouseY() * this.height / this.mc.getMainWindow().getHeight();
             menuDropdownButton.dropdownOpen = true;
             menuDropdownButton.flipped = true;
             activeDropdown = event.getValue();
             return true;
         }
-        return super.handleComponentClicked(component);
+        return super.handleComponentClicked(style);
     }
 }

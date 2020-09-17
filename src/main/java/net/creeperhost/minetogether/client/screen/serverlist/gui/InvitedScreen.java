@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.serverlist.gui;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.creeperhost.minetogether.client.screen.serverlist.data.Invite;
 import net.creeperhost.minetogether.client.screen.serverlist.data.ServerSelectionListOurs;
 import net.creeperhost.minetogether.config.Config;
@@ -36,7 +37,7 @@ public class InvitedScreen extends Screen
     public void init()
     {
         int yBase = this.height / 2 - (106 / 2);
-        addButton(connectButton = new Button(width / 2 - 40, this.height - 30, 80, 20, I18n.format("creeperhost.multiplayer.connect"), p ->
+        addButton(connectButton = new Button(width / 2 - 40, this.height - 30, 80, 20, new StringTextComponent(I18n.format("creeperhost.multiplayer.connect")), p ->
         {
             if (addToServerList)
             {
@@ -55,7 +56,7 @@ public class InvitedScreen extends Screen
         
         connectButton.active = canConnect;
         
-        addButton(cancelButton = new Button(width - 100, this.height - 30, 80, 20, I18n.format("creeperhost.multiplayer.cancel"), p ->
+        addButton(cancelButton = new Button(width - 100, this.height - 30, 80, 20, new StringTextComponent(I18n.format("creeperhost.multiplayer.cancel")), p ->
         {
             ServerList savedServerList = new ServerList(this.minecraft);
             savedServerList.loadServerList();
@@ -66,21 +67,21 @@ public class InvitedScreen extends Screen
         
         String checkText = I18n.format("creeperhost.multiplayer.addlist");
         int checkWidth = 11 + 2 + font.getStringWidth(checkText);
-        addButton(checkBox = new CheckboxButton((width / 2) - (checkWidth / 2), 10, 10, yBase + 36 + 30 + 30, checkText, addToServerList));
+        addButton(checkBox = new CheckboxButton((width / 2) - (checkWidth / 2), 10, 10, yBase + 36 + 30 + 30, new StringTextComponent(checkText), addToServerList));
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         renderDirtBackground(0);
         int yBase = this.height / 2 - (106 / 2);
         
-        this.drawCenteredString(this.font, I18n.format("creeperhost.multiplayer.invite"), this.width / 2, 10, -1);
+        this.drawCenteredString(matrixStack, this.font, I18n.format("creeperhost.multiplayer.invite"), this.width / 2, 10, -1);
         
-        this.drawCenteredString(this.font, I18n.format("creeperhost.multiplayer.invited", invite.by), this.width / 2, yBase, -1);
-        server.render(0, (this.width / 2) - 125, yBase + 20, 250, 36, Integer.MAX_VALUE, Integer.MAX_VALUE, false, 0);
-        this.drawCenteredString(this.font, Util.localize(canConnect ? "multiplayer.join" : "multiplayer.cantjoin", invite.by), this.width / 2, yBase + 36 + 30, -1);
+        this.drawCenteredString(matrixStack, this.font, I18n.format("creeperhost.multiplayer.invited", invite.by), this.width / 2, yBase, -1);
+        server.render(matrixStack, 0, (this.width / 2) - 125, yBase + 20, 250, 36, Integer.MAX_VALUE, Integer.MAX_VALUE, false, 0);
+        this.drawCenteredString(matrixStack, this.font, Util.localize(canConnect ? "multiplayer.join" : "multiplayer.cantjoin", invite.by), this.width / 2, yBase + 36 + 30, -1);
         
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 }

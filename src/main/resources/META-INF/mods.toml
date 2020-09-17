@@ -11,6 +11,6 @@ authors="Gigabit101, Cloudhunter, Creeperhost" #optional
 [[dependencies.minetogether]]
     modId="minecraft"
     mandatory=false
-    versionRange="[1.15.2]"
+    versionRange="[1.16.1]"
     ordering="NONE"
     side="BOTH"

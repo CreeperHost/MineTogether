@@ -1,11 +1,13 @@
 package net.creeperhost.minetogether.client.screen.element;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.screen.DefferedValidation;
 import net.creeperhost.minetogether.client.screen.order.GuiPersonalDetails;
 import net.creeperhost.minetogether.common.IOrderValidation;
 import net.creeperhost.minetogether.util.Pair;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ public class TextFieldDetails extends TextFieldWidget
     
     public TextFieldDetails(GuiPersonalDetails gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators, boolean canBeFocused)
     {
-        super(gui.getMinecraft().fontRenderer, x, y, width, height, "");
+        super(gui.getMinecraft().fontRenderer, x, y, width, height, new StringTextComponent(""));
         
         this.ourID = id;
         
@@ -77,7 +79,7 @@ public class TextFieldDetails extends TextFieldWidget
     
     @SuppressWarnings("Duplicates")
     @Override
-    public void render(int p_render_1_, int p_render_2_, float p_render_3_)
+    public void render(MatrixStack matrixStack, int p_render_1_, int p_render_2_, float p_render_3_)
     {
         if (!this.censorText.isEmpty())
         {
@@ -95,13 +97,13 @@ public class TextFieldDetails extends TextFieldWidget
             boolean oldNotValidate = doNotValidate;
             doNotValidate = true;
             this.setText(obscure);
-            super.render(p_render_1_, p_render_2_, p_render_3_);
+            super.render(matrixStack, p_render_1_, p_render_2_, p_render_3_);
             
             this.setText(text);
             doNotValidate = oldNotValidate;
         } else
         {
-            super.render(p_render_1_, p_render_2_, p_render_3_);
+            super.render(matrixStack, p_render_1_, p_render_2_, p_render_3_);
         }
         
         int startX = (this.x + this.width + 3) / 2;
@@ -111,10 +113,10 @@ public class TextFieldDetails extends TextFieldWidget
         
         if (isValidated)
         {
-            this.drawString(this.gui.getMinecraft().fontRenderer, acceptString, startX, startY, 0x00FF00);
+            this.drawString(matrixStack, this.gui.getMinecraft().fontRenderer, acceptString, startX, startY, 0x00FF00);
         } else
         {
-            this.drawString(this.gui.getMinecraft().fontRenderer, denyString, startX, startY, 0xFF0000);
+            this.drawString(matrixStack, this.gui.getMinecraft().fontRenderer, denyString, startX, startY, 0xFF0000);
         }
         
         GL11.glScalef(0.5F, 0.5F, 0.5F);
@@ -124,7 +126,7 @@ public class TextFieldDetails extends TextFieldWidget
             int x = this.x + 4;
             int y = this.y + (this.height - 8) / 2;
             
-            this.gui.getMinecraft().fontRenderer.drawStringWithShadow("\u00A7o" + this.displayString, x, y, 14737632);
+            this.gui.getMinecraft().fontRenderer.drawStringWithShadow(matrixStack, "\u00A7o" + this.displayString, x, y, 14737632);
         }
     }
     

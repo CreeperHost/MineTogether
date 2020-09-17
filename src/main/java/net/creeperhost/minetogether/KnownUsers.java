@@ -11,8 +11,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class KnownUsers
 {
     private AtomicReference<List<Profile>> profiles = new AtomicReference<List<Profile>>();
-//    private static Executor profileExecutor = new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
-    Logger logger = LogManager.getLogger(KnownUsers.class.getName());
 
     public KnownUsers()
     {
@@ -30,7 +28,6 @@ public class KnownUsers
                 return profiles1;
             });
             CompletableFuture.runAsync(() -> {
-                //logger.error("Loading profile for "+hash+"...");
                 Profile profileFuture = findByNick(hash);
                 profileFuture.loadProfile();
             }, MineTogether.profileExecutor);
@@ -67,5 +64,25 @@ public class KnownUsers
                 return profile;
         }
         return null;
+    }
+
+    public void removeByHash(String hash, boolean ignoreFriend)
+    {
+        profiles.updateAndGet(profiles1 ->
+        {
+            Profile profileTarget = findByHash(hash);
+            if(profileTarget != null && ((!profileTarget.isFriend() || ignoreFriend) || !profileTarget.isBanned())) profiles1.remove(profileTarget);
+            return profiles1;
+        });
+    }
+
+    public void removeByNick(String nick, boolean ignoreFriend)
+    {
+        profiles.updateAndGet(profiles1 ->
+        {
+            Profile profileTarget = findByNick(nick);
+            if(profileTarget != null && ((!profileTarget.isFriend() || ignoreFriend) || !profileTarget.isBanned())) profiles1.remove(profileTarget);
+            return profiles1;
+        });
     }
 }

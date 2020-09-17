@@ -34,7 +34,9 @@ import net.creeperhost.minetogether.server.hacky.IPlayerKicker;
 import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -121,9 +123,9 @@ public class MineTogether implements ICreeperHostMod, IHost
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         eventBus.addListener(this::preInit);
         eventBus.addListener(this::preInitClient);
-        eventBus.addListener(this::serverStarting);
-        eventBus.addListener(this::serverStarted);
-        
+        MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
+        MinecraftForge.EVENT_BUS.addListener(this::serverStarted);
+        MinecraftForge.EVENT_BUS.addListener(this::serverStopping);
         MinecraftForge.EVENT_BUS.register(this);
     }
     
@@ -136,7 +138,6 @@ public class MineTogether implements ICreeperHostMod, IHost
         proxy.registerKeys();
         PacketHandler.register();
         //Lets check this early so we can decide if we need to start chat or not
-        isBanned.set(Callbacks.isBanned());
     }
     
     @SubscribeEvent
@@ -208,33 +209,43 @@ public class MineTogether implements ICreeperHostMod, IHost
                 }
             }, profileExecutor);
         }
+        isBanned.set(Callbacks.isBanned());
+
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+                synchronized (ChatHandler.ircLock)
+                {
+                    if (ChatHandler.client != null)
+                        ChatHandler.killChatConnection(false);
+                }
+            }
+        });
     }
-    
-    @SubscribeEvent
-    public void serverStarting(FMLServerStartingEvent event)
+
+    public void registerCommands(RegisterCommandsEvent event)
     {
-        event.getCommandDispatcher().register(
+        event.getDispatcher().register(
                 LiteralArgumentBuilder.<CommandSource>literal("mt")
                         .then(CommandKill.register())
                         .then(CommandPregen.register()));
         
-        server = event.getServer();
-        preGenHandler = new PreGenHandler();
     }
     
-    @SubscribeEvent
     public void serverStarted(FMLServerStartedEvent event)
     {
         MineTogether.serverOn = true;
+        server = event.getServer();
         new WatchdogHandler();
         new ServerListHandler();
+        preGenHandler = new PreGenHandler();
     }
     
-    @SubscribeEvent
     public void serverStopping(FMLServerStoppingEvent event)
     {
-        if (!MineTogether.instance.active)
-            return;
+        if (!MineTogether.instance.active) return;
         serverOn = false;
         preGenHandler.serializePreload();
         preGenHandler.clear();

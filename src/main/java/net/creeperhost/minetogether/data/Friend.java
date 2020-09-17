@@ -1,17 +1,16 @@
 package net.creeperhost.minetogether.data;
 
 import net.creeperhost.minetogether.Profile;
+import net.creeperhost.minetogether.chat.ChatHandler;
 
 public class Friend
 {
-    private final Profile profile;
     private final String name;
     private final String code;
     private final boolean accepted;
     
-    public Friend(Profile profile, String name, String code, boolean accepted)
+    public Friend(String name, String code, boolean accepted)
     {
-        this.profile = profile;
         this.name = name;
         this.code = code;
         this.accepted = accepted;
@@ -32,7 +31,8 @@ public class Friend
         return accepted;
     }
 
-    public Profile getProfile() {
-        return profile;
+    public Profile getProfile()
+    {
+        return ChatHandler.knownUsers.findByHash(code);
     }
 }

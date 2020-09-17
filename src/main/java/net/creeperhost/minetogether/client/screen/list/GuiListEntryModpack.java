@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.list;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.screen.order.GuiModPackList;
 import net.creeperhost.minetogether.data.ModPack;
@@ -35,7 +36,7 @@ public class GuiListEntryModpack extends GuiListEntry
     }
     
     @Override
-    public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
+    public void render(MatrixStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
     {
         if (isSelected)
         {
@@ -49,19 +50,19 @@ public class GuiListEntryModpack extends GuiListEntry
 
         int maxLength = 35;
 
-        drawCenteredString(mc.fontRenderer, modpack.getName().substring(0, Math.min(modpack.getName().length(), maxLength)), x + (listWidth / 2), y + 5, 16777215);
-        drawCenteredString(mc.fontRenderer, TextFormatting.GRAY + modpack.getDisplayVersion().substring(0, Math.min(modpack.getDisplayVersion().length(), maxLength)), x + (listWidth / 2), y + 20, 16777215);
+        drawCenteredString(matrixStack, mc.fontRenderer, modpack.getName().substring(0, Math.min(modpack.getName().length(), maxLength)), x + (listWidth / 2), y + 5, 16777215);
+        drawCenteredString(matrixStack, mc.fontRenderer, TextFormatting.GRAY + modpack.getDisplayVersion().substring(0, Math.min(modpack.getDisplayVersion().length(), maxLength)), x + (listWidth / 2), y + 20, 16777215);
 
         if(resourceLocation == null)
         {
             createDynamicTexture(modpack);
         }
-        renderImage(resourceLocation, x - 36, y);
+        renderImage(matrixStack, resourceLocation, x - 36, y);
     }
 
-    public void drawCenteredString(FontRenderer fontRendererIn, String text, int x, int y, int color)
+    public void drawCenteredString(MatrixStack matrixStack, FontRenderer fontRendererIn, String text, int x, int y, int color)
     {
-        fontRendererIn.drawStringWithShadow(text, (float)(x - fontRendererIn.getStringWidth(text) / 2), (float)y, color);
+        fontRendererIn.drawStringWithShadow(matrixStack, text, (float)(x - fontRendererIn.getStringWidth(text) / 2), (float)y, color);
     }
 
     public void createDynamicTexture(ModPack modpack)
@@ -82,13 +83,13 @@ public class GuiListEntryModpack extends GuiListEntry
         }
     }
 
-    public void renderImage(ResourceLocation location, int x, int y)
+    public void renderImage(MatrixStack matrixStack, ResourceLocation location, int x, int y)
     {
         if(location != null)
         {
             this.mc.getTextureManager().bindTexture(location);
             RenderSystem.enableBlend();
-            AbstractGui.blit(x, y, 0.0F, 0.0F, 32, 32, 32, 32);
+            AbstractGui.blit(matrixStack, x, y, 0.0F, 0.0F, 32, 32, 32, 32);
             RenderSystem.disableBlend();
         }
     }

@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.chat;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
@@ -44,12 +45,12 @@ public class ChatFriendScreen extends Screen
         buttons.clear();
         mc.keyboardListener.enableRepeatEvents(true);
         
-        this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, "Cancel", (button) ->
+        this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, new StringTextComponent("Cancel"), (button) ->
         {
             Minecraft.getInstance().displayGuiScreen(parent);
         }));
         
-        this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? "Accept" : "Send request", (buttons) ->
+        this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? new StringTextComponent("Accept") : new StringTextComponent("Send request"), (buttons) ->
         {
             if (accept)
             {
@@ -62,7 +63,7 @@ public class ChatFriendScreen extends Screen
             Minecraft.getInstance().displayGuiScreen(parent);
         }));
         
-        nameEntry = new TextFieldWidget(mc.fontRenderer, width / 2 - 100, height / 2 - 10, 200, 20, "");
+        nameEntry = new TextFieldWidget(mc.fontRenderer, width / 2 - 100, height / 2 - 10, 200, 20, new StringTextComponent(""));
         if (first)
             nameEntry.setText(playerName); // default to player name
         first = false;
@@ -73,14 +74,14 @@ public class ChatFriendScreen extends Screen
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         renderDirtBackground(1);
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
         nameEntry.setEnableBackgroundDrawing(true);
-        nameEntry.render(mouseX, mouseY, partialTicks);
-        drawCenteredString(mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptgui") : I18n.format("minetogether.friend.addgui"), width / 2, 5, 0xFFFFFFFF);
-        drawCenteredString(mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptname") : I18n.format("minetogether.friend.addname"), width / 2, height / 2 - 30, 0xFFFFFFFF);
+        nameEntry.render(matrixStack, mouseX, mouseY, partialTicks);
+        drawCenteredString(matrixStack, mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptgui") : I18n.format("minetogether.friend.addgui"), width / 2, 5, 0xFFFFFFFF);
+        drawCenteredString(matrixStack, mc.fontRenderer, accept ? I18n.format("minetogether.friend.acceptname") : I18n.format("minetogether.friend.addname"), width / 2, height / 2 - 30, 0xFFFFFFFF);
     }
     
     @Override

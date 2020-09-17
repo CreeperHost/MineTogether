@@ -31,21 +31,21 @@ public class TimestampComponentString extends StringTextComponent
         return getText();
     }
     
-    @Override
-    public StringTextComponent deepCopy()
-    {
-        TimestampComponentString textcomponentstring = new TimestampComponentString(text);
-        if (isActive())
-            textcomponentstring.pretendActive = true;
-        textcomponentstring.setStyle(this.getStyle().createShallowCopy());
-        
-        for (ITextComponent itextcomponent : this.getSiblings())
-        {
-            textcomponentstring.appendSibling(itextcomponent.deepCopy());
-        }
-        
-        return textcomponentstring;
-    }
+//    @Override
+//    public StringTextComponent deepCopy()
+//    {
+//        TimestampComponentString textcomponentstring = new TimestampComponentString(text);
+//        if (isActive())
+//            textcomponentstring.pretendActive = true;
+//        textcomponentstring.setStyle(this.getStyle().createShallowCopy());
+//
+//        for (ITextComponent itextcomponent : this.getSiblings())
+//        {
+//            textcomponentstring.appendSibling(itextcomponent.deepCopy());
+//        }
+//
+//        return textcomponentstring;
+//    }
     
     public boolean isActive()
     {

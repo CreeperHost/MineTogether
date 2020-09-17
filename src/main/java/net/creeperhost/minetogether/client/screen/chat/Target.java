@@ -2,9 +2,7 @@ package net.creeperhost.minetogether.client.screen.chat;
 
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.client.screen.element.DropdownButton;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -60,8 +58,8 @@ public class Target implements DropdownButton.IDropdownOption
         if (newMessages)
         {
             StringTextComponent str = new StringTextComponent(targetName);
-            str.appendSibling(new StringTextComponent(" \u2022").setStyle(new Style().setColor(TextFormatting.RED)));
-            return str.getFormattedText();
+            str.deepCopy().append(new StringTextComponent(" \u2022")).getStyle().setColor(Color.func_240744_a_(TextFormatting.RED));
+            return str.getString();
         }
         
         return targetName;

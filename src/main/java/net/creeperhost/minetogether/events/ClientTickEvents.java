@@ -15,6 +15,7 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
@@ -117,7 +118,7 @@ public class ClientTickEvents
                                 }
 
                                 if (temp != null) {
-                                    MineTogether.instance.toastHandler.displayToast(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () -> {
+                                    MineTogether.instance.toastHandler.displayToast(new StringTextComponent(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey())), 10000, () -> {
                                         mc.displayGuiScreen(new MTChatScreen(Minecraft.getInstance().currentScreen, true));
                                     });
                                 }
@@ -170,7 +171,7 @@ public class ClientTickEvents
                     MineTogether.proxy.openFriendsGui();
                 } else
                 {
-                    MineTogether.instance.toastHandler.displayToast(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) MineTogether.proxy).openGuiKey.getTranslationKey()), 10000, () ->
+                    MineTogether.instance.toastHandler.displayToast(new StringTextComponent(I18n.format("creeperhost.multiplayer.invitetoast", ((Client) MineTogether.proxy).openGuiKey.getTranslationKey())), 10000, () ->
                     {
                         mc.displayGuiScreen(new InvitedScreen(MineTogether.instance.handledInvite, mc.currentScreen));
                         MineTogether.instance.handledInvite = null;
@@ -197,7 +198,7 @@ public class ClientTickEvents
                     return;
                 if (Config.getInstance().isFriendOnlineToastsEnabled())
                 {
-                    MineTogether.instance.toastHandler.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000, null);
+                    MineTogether.instance.toastHandler.displayToast(new StringTextComponent(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend)), 4000, null);
                 }
             }
         }

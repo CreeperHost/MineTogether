@@ -71,11 +71,11 @@ public class Server
             
             if (o1.getServerData().playerList != null)
             {
-                o1Players = o1.getServerData().playerList.length();
+                o1Players = o1.getServerData().playerList.size();
             }
             if (o2.getServerData().playerList != null)
             {
-                o2Players = o2.getServerData().playerList.length();
+                o2Players = o2.getServerData().playerList.size();
             }
             return Integer.compare(o2Players, o1Players);
         }

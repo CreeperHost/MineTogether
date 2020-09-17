@@ -25,7 +25,6 @@ public class ServerAuthTest {
 
     public static void auth(BiFunction<Boolean, String, Void> callbackIn) {
         callback = callbackIn;
-        //TODO: Callback based?
         Minecraft mc = Minecraft.getInstance();
         final String address = "mc.auth.minetogether.io";
         final int port = 25565;

@@ -1,10 +1,10 @@
 package net.creeperhost.minetogether.client.screen.chat;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.Profile;
-import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
@@ -15,12 +15,10 @@ import net.creeperhost.minetogether.client.screen.element.DropdownButton;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
-import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
-import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.RenderComponentsUtil;
@@ -34,23 +32,14 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
-import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.glfw.GLFW;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -125,9 +114,9 @@ public class MTChatScreen extends Screen
         send = new ScreenTextFieldLockable(minecraft.fontRenderer, 11, this.height - 48, width - 22, 20, "");
         if (targetDropdownButton == null)
         {
-            targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, "Chat: %s", Target.getMainTarget(), true, p ->
+            targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, new StringTextComponent("Chat: %s"), Target.getMainTarget(), true, p ->
             {
-                if (targetDropdownButton.getMessage().contains("new channel"))
+                if (targetDropdownButton.getMessage().getString().contains("new channel"))
                 {
                     PrivateChat privateChat = new PrivateChat("#" + MineTogether.instance.ourNick, MineTogether.instance.ourNick);
                     ChatHandler.privateChatList = privateChat;
@@ -146,9 +135,8 @@ public class MTChatScreen extends Screen
         strings.add("Mention");
         if (menuDropdownButton == null)
         {
-            addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
+            addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new StringTextComponent("Menu"), new Menu(strings), true, p ->
             {
-
                 if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
                 {
                     MineTogether.instance.muteUser(activeDropdown);
@@ -167,9 +155,11 @@ public class MTChatScreen extends Screen
                 {
                     confirmInvite();
                 }
+                menuDropdownButton.x = menuDropdownButton.y = -10000;
+                menuDropdownButton.wasJustClosed = false;
             }));
         }
-        addButton(friendsButton = new Button(5, 5, 100, 20, "Friends list", p ->
+        addButton(friendsButton = new Button(5, 5, 100, 20, new StringTextComponent("Friends list"), p ->
         {
             MineTogether.proxy.openFriendsGui();
         }));
@@ -178,17 +168,17 @@ public class MTChatScreen extends Screen
         {
             this.minecraft.displayGuiScreen(new SettingsScreen(this));
         }));
-        addButton(cancelButton = new Button(width - 100 - 5, height - 5 - 20, 100, 20, "Cancel", p ->
+        addButton(cancelButton = new Button(width - 100 - 5, height - 5 - 20, 100, 20, new StringTextComponent("Cancel"), p ->
         {
             this.minecraft.displayGuiScreen(parent);
         }));
-        addButton(reconnectionButton = new Button(5 + 80, height - 5 - 20, 100, 20, "Reconnect", p ->
+        addButton(reconnectionButton = new Button(5 + 80, height - 5 - 20, 100, 20, new StringTextComponent("Reconnect"), p ->
         {
             ChatHandler.reInit();
         }));
         reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries.get() < 5);
 
-        addButton(invited = new Button(5 + 70, height - 5 - 20, 60, 20, "Invites", p ->
+        addButton(invited = new Button(5 + 70, height - 5 - 20, 60, 20, new StringTextComponent("Invites"), p ->
         {
             if (ChatHandler.privateChatInvite != null)
             {
@@ -224,6 +214,11 @@ public class MTChatScreen extends Screen
                         new StringTextComponent(I18n.format("You can appeal your ban via your account on MineTogether.io\n\nDo you wish to appeal this ban?"))));
             }
         }));
+    }
+
+    public void refresh()
+    {
+        Minecraft.getInstance().displayGuiScreen(new MTChatScreen(parent));
     }
 
     private long tickCounter = 0;
@@ -272,22 +267,25 @@ public class MTChatScreen extends Screen
     boolean disabledDueToConnection = false;
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         ChatHandler.ConnectionStatus status = ChatHandler.connectionStatus;
         renderDirtBackground(1);
         targetDropdownButton.updateDisplayString();
-        chat.render(mouseX, mouseY, partialTicks);
-        send.render(mouseX, mouseY, partialTicks);
+        chat.render(matrixStack, mouseX, mouseY, partialTicks);
+        send.render(matrixStack, mouseX, mouseY, partialTicks);
         if (!ChatHandler.isOnline())
         {
             send.setDisabled("Cannot send messages as not connected");
             disabledDueToConnection = true;
-        } else if (!targetDropdownButton.getSelected().isChannel() && !ChatHandler.friends.containsKey(currentTarget))
-        {
-            send.setDisabled("Cannot send messages as friend is not online");
-            disabledDueToConnection = true;
-        } else if (disabledDueToConnection)
+        } else if (!targetDropdownButton.getSelected().isChannel()) {
+            Profile profile = knownUsers.findByNick(currentTarget);
+            if (profile == null || !profile.isOnline()) {
+                send.setDisabled("Cannot send messages as friend is not online");
+                disabledDueToConnection = true;
+            }
+        }
+        else if (disabledDueToConnection)
         {
             disabledDueToConnection = false;
             send.setEnabled(true);
@@ -295,29 +293,29 @@ public class MTChatScreen extends Screen
             if (!targetDropdownButton.getSelected().getPossibleVals().contains(targetDropdownButton.getSelected()))
                 targetDropdownButton.setSelected(Target.getMainTarget());
         }
-        drawCenteredString(font, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
-        ITextComponent comp = new StringTextComponent("\u2022").setStyle(new Style().setColor(Objects.requireNonNull(TextFormatting.getValueByName(status.colour))));
-        comp.appendSibling(new StringTextComponent(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
+        drawCenteredString(matrixStack, font, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
+        ITextComponent comp = new StringTextComponent(TextFormatting.getValueByName(status.colour) + "\u2022" + " " + TextFormatting.WHITE + status.display);
+
         if (ChatHandler.isInChannel.get()) {
-            drawString(font, "Please Contact Support at with your nick " + ChatHandler.nick + " " + new StringTextComponent("here").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:creeperhost.net/contact"))), 10, height - 20, 0xFFFFFF);
+            drawString(matrixStack, font, "Please Contact Support at with your nick " + ChatHandler.nick + " " + new StringTextComponent("here").setStyle(Style.EMPTY.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:creeperhost.net/contact"))), 10, height - 20, 0xFFFFFF);
         }
 
-        connectionStatus.setMessage(comp.getFormattedText());
+        connectionStatus.setMessage(comp);
 
-        drawLogo(font, width - 20, height - 30, 20, 30, 0.75F);
-        super.render(mouseX, mouseY, partialTicks);
+        drawLogo(matrixStack, font, width - 20, height - 30, 20, 30, 0.75F);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
         {
-            renderTooltip(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
+            renderTooltip(matrixStack, new StringTextComponent(send.getDisabledMessage()), mouseX, mouseY);
         }
 
         if (connectionStatus != null && connectionStatus.isHovered() && ChatHandler.connectionStatus == ConnectionStatus.BANNED)
         {
-            renderTooltip("Click here to appeal your ban", mouseX, mouseY);
+            renderTooltip(matrixStack, new StringTextComponent("Click here to appeal your ban"), mouseX, mouseY);
         }
     }
 
-    public static void drawLogo(FontRenderer fontRendererObj, int containerWidth, int containerHeight, int containerX, int containerY, float scale)
+    public static void drawLogo(MatrixStack matrixStack, FontRenderer fontRendererObj, int containerWidth, int containerHeight, int containerX, int containerY, float scale)
     {
         RenderSystem.color4f(1F, 1F, 1F, 1F); // reset alpha
         float adjust = (1 / scale);
@@ -345,18 +343,18 @@ public class MTChatScreen extends Screen
 
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationMineTogetherLogo);
         RenderSystem.enableBlend();
-        blit(x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
+        blit(matrixStack, x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
 
         String created = "Created by";
         int stringWidth = fontRendererObj.getStringWidth(created);
 
         int creeperTotalWidth = creeperWidth + stringWidth;
-        fontRendererObj.drawStringWithShadow(created, x + (width / 2 - (creeperTotalWidth / 2)), y + (height / 2 - (totalHeight / 2) + mtHeight + 7), 0x40FFFFFF);
+        fontRendererObj.drawStringWithShadow(matrixStack, created, x + (width / 2 - (creeperTotalWidth / 2)), y + (height / 2 - (totalHeight / 2) + mtHeight + 7), 0x40FFFFFF);
         RenderSystem.color4f(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
 
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocationCreeperLogo);
         RenderSystem.enableBlend();
-        blit(x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
+        blit(matrixStack, x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
 
         RenderSystem.disableBlend();
         RenderSystem.popMatrix();
@@ -404,13 +402,13 @@ public class MTChatScreen extends Screen
         if (send.mouseClicked(mouseX, mouseY, mouseButton)) {
             return true;
         }
-        if (chat.mouseClicked(mouseX, mouseY, mouseButton)) {
-            return true;
-        }
         if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
         {
             menuDropdownButton.x = menuDropdownButton.y = -10000;
             menuDropdownButton.wasJustClosed = false;
+            return true;
+        }
+        if (chat.mouseClicked(mouseX, mouseY, mouseButton)) {
             return true;
         }
         return false;
@@ -538,9 +536,9 @@ public class MTChatScreen extends Screen
         return text;
     }
 
-    public boolean handleComponentClick(ITextComponent component, double mouseX, double mouseY)
+    public boolean handleComponentClick(Style style, double mouseX, double mouseY)
     {
-        ClickEvent event = component.getStyle().getClickEvent();
+        ClickEvent event = style.getClickEvent();
         if (event == null)
         {
             return false;
@@ -599,14 +597,12 @@ public class MTChatScreen extends Screen
         }
         if (event.getAction() == ClickEvent.Action.OPEN_URL)
         {
-            this.handleComponentClicked(component);
+            this.handleComponentClicked(style);
         }
         return false;
     }
 
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
-
-
 
     public static ITextComponent formatLine(Message message)
     {
@@ -641,9 +637,9 @@ public class MTChatScreen extends Screen
 
                         ITextComponent userComp = new StringTextComponent("(" + nickDisplay + ") would like to add you as a friend. Click to ");
 
-                        ITextComponent accept = new StringTextComponent("<Accept>").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(TextFormatting.GREEN));
-
-                        userComp.appendSibling(accept);
+                        ITextComponent accept = new StringTextComponent("<Accept>");
+                        accept.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(Color.func_240744_a_(TextFormatting.GREEN));
+                        userComp.getSiblings().add(accept);
 
                         return userComp;
                     }
@@ -731,11 +727,10 @@ public class MTChatScreen extends Screen
 
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
+            if(profile != null && profile.isBanned())
+                messageComp = new StringTextComponent("message deleted").setStyle(Style.EMPTY.setColor(Color.func_240744_a_(TextFormatting.DARK_GRAY)).setItalic(true));
 
-            if (MineTogether.bannedUsers.contains(inputNick))
-                messageComp = new StringTextComponent("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
-
-            messageComp.getStyle().setColor(TextFormatting.WHITE);
+            messageComp.getStyle().setColor(Color.func_240744_a_(TextFormatting.WHITE));
 
             if (ChatHandler.curseSync.containsKey(inputNick)) {
                 String realname = ChatHandler.curseSync.get(inputNick).trim();
@@ -756,7 +751,6 @@ public class MTChatScreen extends Screen
                 messageColour = TextFormatting.GRAY;
                 outputNick = Minecraft.getInstance().getSession().getUsername();
                 userComp = new StringTextComponent(outputNick);
-                messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             }
 
             if (premium.get()) {
@@ -771,18 +765,24 @@ public class MTChatScreen extends Screen
                     userComp = new StringTextComponent(outputNick);
                 }
                 nickColour = TextFormatting.AQUA;
-                userComp.getStyle().setColor(TextFormatting.AQUA);
             }
 
-            userComp = new StringTextComponent(arrowColour + "<" + nickColour + userComp.getFormattedText() + arrowColour + "> ");
+            //Resetting the colour back to default as this causes an issue for the message
+            userComp = new StringTextComponent(arrowColour + "<" + nickColour + userComp.getString() + arrowColour + "> " + TextFormatting.WHITE);
 
             if (!inputNick.equals(MineTogether.instance.ourNick) && !inputNick.equals(MineTogether.instance.ourNick + "`") && inputNick.startsWith("MT")) {
-                userComp.setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, outputNick)));
+                String finalOutputNick = outputNick;
+                userComp = userComp.deepCopy().modifyStyle(style -> style.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, finalOutputNick)));
             }
 
-            base.appendSibling(userComp);
+            TextFormatting finalMessageColour = messageColour;
+            messageComp = messageComp.deepCopy().modifyStyle(style -> style.setColor(Color.func_240744_a_(finalMessageColour)));
 
-            return base.appendSibling(messageComp.setStyle(new Style().setColor(messageColour)));
+            base.getSiblings().add(userComp);
+            base.getSiblings().add(messageComp);
+
+            return base;
+
         } catch (Throwable e)
         {
             e.printStackTrace();
@@ -805,7 +805,7 @@ public class MTChatScreen extends Screen
 
     private class GuiScrollingChat extends ExtendedList
     {
-        private ArrayList<ITextComponent> lines;
+        private ArrayList<ITextProperties> lines;
 
         GuiScrollingChat(int entryHeight)
         {
@@ -824,6 +824,7 @@ public class MTChatScreen extends Screen
         protected void updateLines(String key)
         {
             LimitedSizeQueue<Message> tempMessages;
+            int oldMaxScroll = this.getMaxScroll();
             synchronized (ircLock)
             {
                 if (ChatHandler.client == null)
@@ -833,7 +834,7 @@ public class MTChatScreen extends Screen
                 tempMessages = ChatHandler.messages.get(key);
             }
 
-            ArrayList<ITextComponent> oldLines = lines;
+            ArrayList<ITextProperties> oldLines = lines;
             int listHeight = this.getHeight() - (this.getBottom() - this.getTop() - 4);
             lines = new ArrayList<>();
             if (tempMessages == null)
@@ -845,13 +846,13 @@ public class MTChatScreen extends Screen
                     ITextComponent display = formatLine(message);
                     if (display == null)
                         continue;
-                    lines.addAll(RenderComponentsUtil.splitText(display, getWidth() - 10, font, false, true));
+                    lines.addAll(RenderComponentsUtil.func_238505_a_(display, getWidth() - 10, font));
                 }
             } catch (Exception ignored) {}
-            if (lines.size() > oldLines.size() && ((float) this.getHeight() == listHeight) || listHeight < 0)
+            System.out.println(this.getScrollAmount() + " " + this.getMaxScroll());
+            if (lines.size() > oldLines.size() && this.getScrollAmount() == oldMaxScroll);
             {
-                listHeight = this.height - (this.getScrollBottom() - this.getTop() - 4);
-                this.setScrollAmount(listHeight);
+                this.setScrollAmount(this.getMaxScroll());
             }
         }
 
@@ -866,18 +867,17 @@ public class MTChatScreen extends Screen
         {
             for (int i = 0; i < lines.size(); i++)
             {
-                ITextComponent component = lines.get(i);
+                ITextProperties component = lines.get(i);
                 int totalWidth = 5;
-                for (ITextComponent sibling : component.getSiblings())
+                int oldTotal = totalWidth;
+                totalWidth += minecraft.fontRenderer.getStringWidth(component.getString());
+                boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(i) && mouseY < getRowTop(i) + itemHeight;
+
+                if (hovering)
                 {
-                    int oldTotal = totalWidth;
-                    totalWidth += minecraft.fontRenderer.getStringWidth(sibling.getFormattedText());
-                    boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(i) && mouseY < getRowTop(i) + itemHeight;
-                    if (hovering && sibling.getStyle().getClickEvent() != null)
-                    {
-                        handleComponentClick(sibling, mouseX, mouseY);
-                        return true;
-                    }
+                    Style style = minecraft.fontRenderer.func_238420_b_().func_238357_a_(component, (int) mouseX);
+                    handleComponentClick(style, mouseX, mouseY);
+                    return true;
                 }
             }
             return false;
@@ -889,36 +889,29 @@ public class MTChatScreen extends Screen
             return false;
         }
 
-        public void renderEntry(int index, int mouseX, int mouseY, float p_renderList_5_)
+        public void renderEntry(MatrixStack matrixStack, int index, int mouseX, int mouseY, float p_renderList_5_)
         {
             try
             {
-                ITextComponent component = lines.get(index);
+                ITextProperties component = lines.get(index);
                 int totalWidth = 5;
-                for (ITextComponent sibling : component.getSiblings())
+
+                int oldTotal = totalWidth;
+                totalWidth += minecraft.fontRenderer.getStringWidth(component.getString());
+
+                boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(index) && mouseY < getRowTop(index) + itemHeight;
+
+                if(hovering)
                 {
-                    int oldTotal = totalWidth;
-                    totalWidth += minecraft.fontRenderer.getStringWidth(sibling.getFormattedText());
-                    boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(index) && mouseY < getRowTop(index) + itemHeight;
-                    if (sibling.getStyle().getClickEvent() != null)
-                    {
-                        if (hovering)
-                        {
-                            minecraft.fontRenderer.drawString(TextFormatting.getTextWithoutFormattingCodes(sibling.getUnformattedComponentText()), 10 + oldTotal, getRowTop(index), 0xFF000000);
-                            RenderSystem.enableBlend();
-                            RenderSystem.color4f(1, 1, 1, 0.90F);
-                            minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
-                            RenderSystem.color4f(1, 1, 1, 1);
-
-                        } else
-                        {
-                            minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xFFFFFFFF);
-                        }
-
-                    } else
-                    {
-                        minecraft.fontRenderer.drawString(sibling.getFormattedText(), 10 + oldTotal, getRowTop(index), 0xFFFFFF);
-                    }
+                    minecraft.fontRenderer.drawString(matrixStack, TextFormatting.getTextWithoutFormattingCodes(component.getString()), 10 + oldTotal, getRowTop(index), 0xFF000000);
+                    RenderSystem.enableBlend();
+                    RenderSystem.color4f(1, 1, 1, 0.90F);
+                    minecraft.fontRenderer.drawString(matrixStack, component.getString(), 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
+                    RenderSystem.color4f(1, 1, 1, 1);
+                }
+                else
+                {
+                    minecraft.fontRenderer.drawString(matrixStack, component.getString(), 10 + oldTotal, getRowTop(index), 0xFFFFFF);
                 }
             } catch (Exception e)
             {
@@ -937,8 +930,9 @@ public class MTChatScreen extends Screen
             return width + 4;
         }
 
+
         @Override
-        protected void renderList(int p_renderList_1_, int p_renderList_2_, int mouseX, int mouseY, float p_renderList_5_)
+        protected void renderList(MatrixStack matrixStack, int p_renderList_1_, int p_renderList_2_, int mouseX, int mouseY, float p_renderList_5_)
         {
             int i = lines.size();
             Tessellator tessellator = Tessellator.getInstance();
@@ -953,7 +947,8 @@ public class MTChatScreen extends Screen
                     int i1 = p_renderList_2_ + j * this.itemHeight + this.headerHeight;
                     int j1 = this.itemHeight - 4;
                     int k1 = this.getRowWidth();
-                    if (this.renderSelection && this.isSelectedItem(j))
+                    //this.renderSelection &&
+                    if (this.isSelectedItem(j))
                     {
                         int l1 = this.x0 + this.width / 2 - k1 / 2;
                         int i2 = this.x0 + this.width / 2 + k1 / 2;
@@ -975,7 +970,7 @@ public class MTChatScreen extends Screen
                         tessellator.draw();
                         RenderSystem.enableTexture();
                     }
-                    renderEntry(j, mouseX, mouseY, p_renderList_5_);
+                    renderEntry(matrixStack, j, mouseX, mouseY, p_renderList_5_);
                 }
             }
         }
@@ -1017,13 +1012,6 @@ public class MTChatScreen extends Screen
         }
     }
 
-    final Pattern URL_PATTERN = Pattern.compile(
-            //         schema                          ipv4            OR        namespace                 port     path         ends
-            //   |-----------------|        |-------------------------|  |-------------------------|    |---------| |--|   |---------------|
-            "((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))",
-            Pattern.CASE_INSENSITIVE);
-
-
     public static ITextComponent newChatWithLinksOurs(String string)
     {
         ITextComponent component = ForgeHooks.newChatWithLinks(string);
@@ -1032,10 +1020,10 @@ public class MTChatScreen extends Screen
             ITextComponent oldcomponent = component;
             List<ITextComponent> siblings = oldcomponent.getSiblings();
             component = new StringTextComponent("");
-            component.appendSibling(oldcomponent);
+            component.getSiblings().add(oldcomponent);
             for (ITextComponent sibling : siblings)
             {
-                component.appendSibling(sibling);
+                component.getSiblings().add(sibling);
             }
             siblings.clear();
         }

@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.screen.serverlist.data;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.MultiplayerPublicScreen;
 import net.creeperhost.minetogether.data.EnumFlag;
@@ -22,11 +23,15 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.Util;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nullable;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ServerSelectionListOurs extends ServerSelectionList
 {
@@ -40,7 +45,7 @@ public class ServerSelectionListOurs extends ServerSelectionList
     }
     
     @Override
-    public void func_195094_h()
+    public void setList()
     {
         this.clearEntries();
         this.serverListInternetOurs.forEach(this::addEntry);
@@ -56,9 +61,7 @@ public class ServerSelectionListOurs extends ServerSelectionList
     public void updateOnlineServers(ServerList p_148195_1_)
     {
         this.serverListInternet.clear();
-        ;
         this.serverListLan.clear();
-        
         this.serverListInternetOurs.clear();
         
         for (int i = 0; i < p_148195_1_.countServers(); ++i)
@@ -66,13 +69,11 @@ public class ServerSelectionListOurs extends ServerSelectionList
             this.serverListInternetOurs.add(new ServerSelectionListOurs.ServerListEntryPublic((MultiplayerPublicScreen) this.multiplayerScreen, p_148195_1_.getServerData(i)));
         }
         
-        this.func_195094_h();
+        this.setList();
     }
     
     @Override
-    public void updateNetworkServers(List<LanServerInfo> p_148194_1_)
-    {
-    }
+    public void updateNetworkServers(List<LanServerInfo> p_148194_1_) {}
     
     public class ServerListEntryPublic extends ServerSelectionList.NormalEntry
     {
@@ -94,9 +95,9 @@ public class ServerSelectionListOurs extends ServerSelectionList
         }
         
         @Override
-        public void render(int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float p_render_9_)
+        public void render(MatrixStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float p_render_9_)
         {
-            vanilaRender(slotIndex, y, x, listWidth, slotHeight, mouseX, mouseY, isHovering, p_render_9_);
+            super.render(matrixStack, slotIndex, y, x, listWidth, slotHeight, mouseX, mouseY, isHovering, p_render_9_);
             
             Server server = getServerData().server;
             EnumFlag flag = server.flag;
@@ -117,7 +118,7 @@ public class ServerSelectionListOurs extends ServerSelectionList
                     {
                         countryName = flag.name();
                     }
-                    multiplayerScreen.setHoveringText(countryName + (server.subdivision.equals("Unknown") ? "" : "\n" + server.subdivision));
+//                    multiplayerScreen.func_238854_b_(countryName + (server.subdivision.equals("Unknown") ? "" : "\n" + server.subdivision));
                 }
             }
             if (applicationURL != null)
@@ -125,187 +126,183 @@ public class ServerSelectionListOurs extends ServerSelectionList
                 Minecraft.getInstance().getTextureManager().bindTexture(applicationGui);
                 int flagWidth = 16;
                 int flagHeight = flag.height / (flag.width / flagWidth);
-                blit(x, y + slotHeight - 10 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
+                blit(matrixStack, x, y + slotHeight - 10 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
                 if (mouseX >= x
                         && mouseX <= x + flagWidth
                         && mouseY >= y + slotHeight - flagHeight
                         && mouseY <= y + slotHeight - flagHeight + flagHeight)
                 {
-                    multiplayerScreen.setHoveringText("Click here to open the application link in a browser window!");
+                    List<ITextComponent> tooltipList = new ArrayList<>();
+                    tooltipList.add(new StringTextComponent("Click here to open the application link in a browser window!"));
+                    multiplayerScreen.func_238854_b_(tooltipList);
                 }
             }
         }
-        
-        private void prepareServerIcon()
-        {
-            String s = this.wrappedEntry.getBase64EncodedIconData();
-            if (s == null)
-            {
-                this.mc.getTextureManager().deleteTexture(this.serverIcon);
-                if (this.icon != null && this.icon.getTextureData() != null)
-                {
-                    this.icon.getTextureData().close();
-                }
-                
-                this.icon = null;
-            } else
-            {
-                try
-                {
-                    NativeImage nativeimage = NativeImage.readBase64(s);
-                    Validate.validState(nativeimage.getWidth() == 64, "Must be 64 pixels wide");
-                    Validate.validState(nativeimage.getHeight() == 64, "Must be 64 pixels high");
-                    if (this.icon == null)
-                    {
-                        this.icon = new DynamicTexture(nativeimage);
-                    } else
-                    {
-                        this.icon.setTextureData(nativeimage);
-                        this.icon.updateDynamicTexture();
-                    }
-                    
-                    this.mc.getTextureManager().loadTexture(this.serverIcon, this.icon);
-                } catch (Throwable throwable)
-                {
-                    this.wrappedEntry.setBase64EncodedIconData((String) null);
-                }
-            }
-        }
-        
-        public void vanilaRender(int p_render_1_, int p_render_2_, int p_render_3_, int p_render_4_, int p_render_5_, int p_render_6_, int p_render_7_, boolean p_render_8_, float p_render_9_)
-        {
-            if (!this.wrappedEntry.pinged)
-            {
-                this.wrappedEntry.pinged = true;
-                this.wrappedEntry.pingToServer = -2L;
-                this.wrappedEntry.serverMOTD = "";
-                this.wrappedEntry.populationInfo = "";
-                ServerSelectionList.field_214358_b.submit(() ->
-                {
-                    try
-                    {
-                        this.multiplayerScreen.getOldServerPinger().ping(this.wrappedEntry);
-                    } catch (UnknownHostException var2)
-                    {
-                        this.wrappedEntry.pingToServer = -1L;
-                        this.wrappedEntry.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_resolve");
-                    } catch (Exception var3)
-                    {
-                        this.wrappedEntry.pingToServer = -1L;
-                        this.wrappedEntry.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_connect");
-                    }
-                });
-            }
-            
-            boolean flag = this.wrappedEntry.version > SharedConstants.getVersion().getProtocolVersion();
-            boolean flag1 = this.wrappedEntry.version < SharedConstants.getVersion().getProtocolVersion();
-            boolean flag2 = flag || flag1;
-            this.mc.fontRenderer.drawString(this.wrappedEntry.serverName, (float) (p_render_3_ + 32 + 3), (float) (p_render_2_ + 1), 16777215);
-            List<String> list = this.mc.fontRenderer.listFormattedStringToWidth(this.wrappedEntry.serverMOTD, p_render_4_ - 32 - 2);
-            
-            for (int i = 0; i < Math.min(list.size(), 2); ++i)
-            {
-                this.mc.fontRenderer.drawString(list.get(i), (float) (p_render_3_ + 32 + 3), (float) (p_render_2_ + 12 + 9 * i), 8421504);
-            }
-            
-            String s2 = flag2 ? TextFormatting.DARK_RED + this.wrappedEntry.gameVersion : this.wrappedEntry.populationInfo;
-            int j = this.mc.fontRenderer.getStringWidth(s2);
-            this.mc.fontRenderer.drawString(s2, (float) (p_render_3_ + p_render_4_ - j - 15 - 2), (float) (p_render_2_ + 1), 8421504);
-            int k = 0;
-            String s = null;
-            int l;
-            String s1;
-            if (flag2)
-            {
-                l = 5;
-                s1 = I18n.format(flag ? "multiplayer.status.client_out_of_date" : "multiplayer.status.server_out_of_date");
-                s = this.wrappedEntry.playerList;
-            } else if (this.wrappedEntry.pinged && this.wrappedEntry.pingToServer != -2L)
-            {
-                if (this.wrappedEntry.pingToServer < 0L)
-                {
-                    l = 5;
-                } else if (this.wrappedEntry.pingToServer < 150L)
-                {
-                    l = 0;
-                } else if (this.wrappedEntry.pingToServer < 300L)
-                {
-                    l = 1;
-                } else if (this.wrappedEntry.pingToServer < 600L)
-                {
-                    l = 2;
-                } else if (this.wrappedEntry.pingToServer < 1000L)
-                {
-                    l = 3;
-                } else
-                {
-                    l = 4;
-                }
-                
-                if (this.wrappedEntry.pingToServer < 0L)
-                {
-                    s1 = I18n.format("multiplayer.status.no_connection");
-                } else
-                {
-                    s1 = this.wrappedEntry.pingToServer + "ms";
-                    s = this.wrappedEntry.playerList;
-                }
-            } else
-            {
-                k = 1;
-                l = (int) (Util.milliTime() / 100L + (long) (p_render_1_ * 2) & 7L);
-                if (l > 4)
-                {
-                    l = 8 - l;
-                }
-                
-                s1 = I18n.format("multiplayer.status.pinging");
-            }
-            
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.mc.getTextureManager().bindTexture(AbstractGui.GUI_ICONS_LOCATION);
-            AbstractGui.blit(p_render_3_ + p_render_4_ - 15, p_render_2_, (float) (k * 10), (float) (176 + l * 8), 10, 8, 256, 256);
-            if (this.wrappedEntry.getBase64EncodedIconData() != null && !this.wrappedEntry.getBase64EncodedIconData().equals(this.lastIconB64))
-            {
-                this.lastIconB64 = this.wrappedEntry.getBase64EncodedIconData();
-                this.prepareServerIcon();
-                this.multiplayerScreen.getServerList().saveServerList();
-            }
-            
-            if (this.icon != null)
-            {
-                this.drawTextureAt(p_render_3_, p_render_2_, this.serverIcon);
-            } else
-            {
-                this.drawTextureAt(p_render_3_, p_render_2_, ServerSelectionList.field_214359_c);
-            }
-            
-            int i1 = p_render_6_ - p_render_3_;
-            int j1 = p_render_7_ - p_render_2_;
-            if (i1 >= p_render_4_ - 15 && i1 <= p_render_4_ - 5 && j1 >= 0 && j1 <= 8)
-            {
-                this.multiplayerScreen.setHoveringText(s1);
-            } else if (i1 >= p_render_4_ - j - 15 - 2 && i1 <= p_render_4_ - 15 - 2 && j1 >= 0 && j1 <= 8)
-            {
-                this.multiplayerScreen.setHoveringText(s);
-            }
-            
-            if (this.mc.gameSettings.touchscreen || p_render_8_)
-            {
-                this.mc.getTextureManager().bindTexture(ServerSelectionList.field_214360_d);
-                AbstractGui.fill(p_render_3_, p_render_2_, p_render_3_ + 32, p_render_2_ + 32, -1601138544);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                int k1 = p_render_6_ - p_render_3_;
-                int l1 = p_render_7_ - p_render_2_;
-                if (this.canJoin())
-                {
-                    if (k1 < 32 && k1 > 16)
-                    {
-                        AbstractGui.blit(p_render_3_, p_render_2_, 0.0F, 32.0F, 32, 32, 256, 256);
-                    }
-                }
-            }
-        }
+
+//        public void renderVanilla(MatrixStack p_230432_1_, int p_230432_2_, int p_230432_3_, int p_230432_4_, int p_230432_5_, int p_230432_6_, int p_230432_7_, int p_230432_8_, boolean p_230432_9_, float p_230432_10_) {
+//            if (!this.server.pinged) {
+//                this.server.pinged = true;
+//                this.server.pingToServer = -2L;
+//                this.server.serverMOTD = StringTextComponent.EMPTY;
+//                this.server.populationInfo = StringTextComponent.EMPTY;
+//                ServerSelectionList.field_214358_b.submit(() -> {
+//                    try {
+//                        this.owner.getOldServerPinger().ping(this.server, () -> {
+//                            this.mc.execute(this::func_241613_a_);
+//                        });
+//                    } catch (UnknownHostException unknownhostexception) {
+//                        this.server.pingToServer = -1L;
+//                        this.server.serverMOTD = (new TranslationTextComponent("multiplayer.status.cannot_resolve")).mergeStyle(TextFormatting.DARK_RED);
+//                    } catch (Exception exception) {
+//                        this.server.pingToServer = -1L;
+//                        this.server.serverMOTD = (new TranslationTextComponent("multiplayer.status.cannot_connect")).mergeStyle(TextFormatting.DARK_RED);
+//                    }
+//
+//                });
+//            }
+//
+//            boolean flag = this.server.version > SharedConstants.getVersion().getProtocolVersion();
+//            boolean flag1 = this.server.version < SharedConstants.getVersion().getProtocolVersion();
+//            boolean flag2 = flag || flag1;
+//            this.mc.fontRenderer.drawString(p_230432_1_, this.server.serverName, (float)(p_230432_4_ + 32 + 3), (float)(p_230432_3_ + 1), 16777215);
+//            List<ITextProperties> list = this.mc.fontRenderer.func_238425_b_(this.server.serverMOTD, p_230432_5_ - 32 - 2);
+//
+//            for(int i = 0; i < Math.min(list.size(), 2); ++i) {
+//                this.mc.fontRenderer.func_238422_b_(p_230432_1_, list.get(i), (float)(p_230432_4_ + 32 + 3), (float)(p_230432_3_ + 12 + 9 * i), 8421504);
+//            }
+//
+//            ITextComponent itextcomponent1 = (ITextComponent)(flag2 ? this.server.gameVersion.deepCopy().mergeStyle(TextFormatting.DARK_RED) : this.server.populationInfo);
+//            int j = this.mc.fontRenderer.func_238414_a_(itextcomponent1);
+//            this.mc.fontRenderer.func_238422_b_(p_230432_1_, itextcomponent1, (float)(p_230432_4_ + p_230432_5_ - j - 15 - 2), (float)(p_230432_3_ + 1), 8421504);
+//            int k = 0;
+//            int l;
+//            List<ITextComponent> list1;
+//            ITextComponent itextcomponent;
+//            if (flag2) {
+//                l = 5;
+//                itextcomponent = new TranslationTextComponent(flag ? "multiplayer.status.client_out_of_date" : "multiplayer.status.server_out_of_date");
+//                list1 = this.server.playerList;
+//            } else if (this.server.pinged && this.server.pingToServer != -2L) {
+//                if (this.server.pingToServer < 0L) {
+//                    l = 5;
+//                } else if (this.server.pingToServer < 150L) {
+//                    l = 0;
+//                } else if (this.server.pingToServer < 300L) {
+//                    l = 1;
+//                } else if (this.server.pingToServer < 600L) {
+//                    l = 2;
+//                } else if (this.server.pingToServer < 1000L) {
+//                    l = 3;
+//                } else {
+//                    l = 4;
+//                }
+//
+//                if (this.server.pingToServer < 0L) {
+//                    itextcomponent = new TranslationTextComponent("multiplayer.status.no_connection");
+//                    list1 = Collections.emptyList();
+//                } else {
+//                    itextcomponent = new TranslationTextComponent("multiplayer.status.ping", this.server.pingToServer);
+//                    list1 = this.server.playerList;
+//                }
+//            } else {
+//                k = 1;
+//                l = (int)(Util.milliTime() / 100L + (long)(p_230432_2_ * 2) & 7L);
+//                if (l > 4) {
+//                    l = 8 - l;
+//                }
+//
+//                itextcomponent = new TranslationTextComponent("multiplayer.status.pinging");
+//                list1 = Collections.emptyList();
+//            }
+//
+//            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+//            this.mc.getTextureManager().bindTexture(AbstractGui.GUI_ICONS_LOCATION);
+//            AbstractGui.blit(p_230432_1_, p_230432_4_ + p_230432_5_ - 15, p_230432_3_, (float)(k * 10), (float)(176 + l * 8), 10, 8, 256, 256);
+//            String s = this.server.getBase64EncodedIconData();
+//            if (!Objects.equals(s, this.lastIconB64)) {
+//                if (this.func_241614_a_(s)) {
+//                    this.lastIconB64 = s;
+//                } else {
+//                    this.server.setBase64EncodedIconData((String)null);
+//                    this.func_241613_a_();
+//                }
+//            }
+//
+//            if (this.icon != null) {
+//                this.func_238859_a_(p_230432_1_, p_230432_4_, p_230432_3_, this.serverIcon);
+//            } else {
+//                this.func_238859_a_(p_230432_1_, p_230432_4_, p_230432_3_, ServerSelectionList.field_214359_c);
+//            }
+//
+//            int i1 = p_230432_7_ - p_230432_4_;
+//            int j1 = p_230432_8_ - p_230432_3_;
+//            if (i1 >= p_230432_5_ - 15 && i1 <= p_230432_5_ - 5 && j1 >= 0 && j1 <= 8) {
+//                this.owner.func_238854_b_(Collections.singletonList(itextcomponent));
+//            } else if (i1 >= p_230432_5_ - j - 15 - 2 && i1 <= p_230432_5_ - 15 - 2 && j1 >= 0 && j1 <= 8) {
+//                this.owner.func_238854_b_(list1);
+//            }
+//
+//            if (this.mc.gameSettings.touchscreen || p_230432_9_) {
+//                this.mc.getTextureManager().bindTexture(ServerSelectionList.field_214360_d);
+//                AbstractGui.fill(p_230432_1_, p_230432_4_, p_230432_3_, p_230432_4_ + 32, p_230432_3_ + 32, -1601138544);
+//                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+//                int k1 = p_230432_7_ - p_230432_4_;
+//                int l1 = p_230432_8_ - p_230432_3_;
+//                if (this.canJoin()) {
+//                    if (k1 < 32 && k1 > 16) {
+//                        AbstractGui.blit(p_230432_1_, p_230432_4_, p_230432_3_, 0.0F, 32.0F, 32, 32, 256, 256);
+//                    } else {
+//                        AbstractGui.blit(p_230432_1_, p_230432_4_, p_230432_3_, 0.0F, 0.0F, 32, 32, 256, 256);
+//                    }
+//                }
+//
+//                if (p_230432_2_ > 0) {
+//                    if (k1 < 16 && l1 < 16) {
+//                        AbstractGui.blit(p_230432_1_, p_230432_4_, p_230432_3_, 96.0F, 32.0F, 32, 32, 256, 256);
+//                    } else {
+//                        AbstractGui.blit(p_230432_1_, p_230432_4_, p_230432_3_, 96.0F, 0.0F, 32, 32, 256, 256);
+//                    }
+//                }
+//
+//                if (p_230432_2_ < this.owner.getServerList().countServers() - 1) {
+//                    if (k1 < 16 && l1 > 16) {
+//                        AbstractGui.blit(p_230432_1_, p_230432_4_, p_230432_3_, 64.0F, 32.0F, 32, 32, 256, 256);
+//                    } else {
+//                        AbstractGui.blit(p_230432_1_, p_230432_4_, p_230432_3_, 64.0F, 0.0F, 32, 32, 256, 256);
+//                    }
+//                }
+//            }
+//        }
+//
+//        private boolean func_241614_a_(@Nullable String p_241614_1_) {
+//            if (p_241614_1_ == null) {
+//                this.mc.getTextureManager().deleteTexture(this.serverIcon);
+//                if (this.icon != null && this.icon.getTextureData() != null) {
+//                    this.icon.getTextureData().close();
+//                }
+//
+//                this.icon = null;
+//            } else {
+//                try {
+//                    NativeImage nativeimage = NativeImage.readBase64(p_241614_1_);
+//                    Validate.validState(nativeimage.getWidth() == 64, "Must be 64 pixels wide");
+//                    Validate.validState(nativeimage.getHeight() == 64, "Must be 64 pixels high");
+//                    if (this.icon == null) {
+//                        this.icon = new DynamicTexture(nativeimage);
+//                    } else {
+//                        this.icon.setTextureData(nativeimage);
+//                        this.icon.updateDynamicTexture();
+//                    }
+//
+//                    this.mc.getTextureManager().loadTexture(this.serverIcon, this.icon);
+//                } catch (Throwable throwable) {
+//                    ServerSelectionList.LOGGER.error("Invalid icon for server {} ({})", this.server.serverName, this.server.serverIP, throwable);
+//                    return false;
+//                }
+//            }
+//
+//            return true;
+//        }
         
         private boolean canJoin()
         {
@@ -316,7 +313,7 @@ public class ServerSelectionListOurs extends ServerSelectionList
         public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
         {
             double d0 = p_mouseClicked_1_ - (double) ServerSelectionListOurs.this.getRowLeft();
-            double d1 = p_mouseClicked_3_ - (double) ServerSelectionListOurs.this.getRowTop(ServerSelectionListOurs.this.children().indexOf(this));
+            double d1 = p_mouseClicked_3_ - (double) ServerSelectionListOurs.this.getRowTop(ServerSelectionListOurs.this.children.indexOf(this));
             if (d0 <= 32.0D)
             {
                 if (d0 < 32.0D && d0 > 16.0D && this.canJoin())

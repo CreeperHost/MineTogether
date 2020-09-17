@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.order;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonRefresh;
 import net.creeperhost.minetogether.client.screen.list.GuiList;
@@ -56,12 +57,12 @@ public class GuiModPackList extends Screen
 
         int buttonWidth = 80;
         
-        displayEntry = new TextFieldWidget(this.font, this.width / 2 - 80, y, 160, 20, "");
+        displayEntry = new TextFieldWidget(this.font, this.width / 2 - 80, y, 160, 20, new StringTextComponent(""));
         displayEntry.setVisible(true);
         
-        this.addButton(new Button(10, y, buttonWidth, 20, Util.localize("button.cancel"), (button) -> minecraft.displayGuiScreen(new MainMenuScreen())));
+        this.addButton(new Button(10, y, buttonWidth, 20, new StringTextComponent(Util.localize("button.cancel")), (button) -> minecraft.displayGuiScreen(new MainMenuScreen())));
         
-        this.addButton(new Button(this.width - 90, y, buttonWidth, 20, "Select", (button) ->
+        this.addButton(new Button(this.width - 90, y, buttonWidth, 20, new StringTextComponent("Select"), (button) ->
         {
             if (list.getSelected() != null)
             {
@@ -98,23 +99,23 @@ public class GuiModPackList extends Screen
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         if (list != null)
         {
-            this.list.render(mouseX, mouseY, partialTicks);
+            this.list.render(matrixStack, mouseX, mouseY, partialTicks);
         }
         
-        if (displayEntry != null) this.displayEntry.render(mouseX, mouseX, partialTicks);
+        if (displayEntry != null) this.displayEntry.render(matrixStack, mouseX, mouseX, partialTicks);
 
         if(displayEntry != null && displayEntry.getText().trim().isEmpty() && !displayEntry.isFocused())
         {
-            font.drawStringWithShadow(TextFormatting.ITALIC + "Search", displayEntry.x + 3, displayEntry.y + 5, 14737632);
+            font.drawStringWithShadow(matrixStack, TextFormatting.ITALIC + "Search", displayEntry.x + 3, displayEntry.y + 5, 14737632);
         }
         
-        this.drawCenteredString(this.font, "Minecraft Modpack Selector", this.width / 2, 10, -1);
+        this.drawCenteredString(matrixStack, this.font, "Minecraft Modpack Selector", this.width / 2, 10, -1);
         
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     int delay = 10;

@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.client.screen.serverlist.gui;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.client.screen.GDPRScreen;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonLarge;
@@ -36,14 +37,14 @@ public class ServerTypeScreen extends Screen
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks)
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         renderDirtBackground(1);
         RenderSystem.pushMatrix();
         RenderSystem.scalef(1.5f, 1.5f, 1.5f);
-        drawCenteredString(font, TextFormatting.BOLD + I18n.format("minetogether.listing.title"), (width / 3), 12, -1);
+        drawCenteredString(matrixStack, font, TextFormatting.BOLD + I18n.format("minetogether.listing.title"), (width / 3), 12, -1);
         RenderSystem.popMatrix();
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
     
     @Override
@@ -65,7 +66,7 @@ public class ServerTypeScreen extends Screen
         {
             Minecraft.getInstance().displayGuiScreen(new MultiplayerPublicScreen(new MainMenuScreen(), MultiplayerPublicScreen.ListType.INVITE, MultiplayerPublicScreen.SortOrder.RANDOM, true));
         }));
-        addButton(new Button((width / 2) - 110, height - 22, 220, 20, I18n.format("gui.cancel"), p ->
+        addButton(new Button((width / 2) - 110, height - 22, 220, 20, new StringTextComponent(I18n.format("gui.cancel")), p ->
         {
             Minecraft.getInstance().displayGuiScreen(new MultiplayerPublicScreen(new MainMenuScreen()));
         }));
