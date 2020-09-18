@@ -9,6 +9,7 @@ import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
@@ -42,7 +43,7 @@ public class GDPRScreen extends Screen
     private Button declineButton;
     private Button moreInfoButton;
     
-    private List<ITextProperties> gdprlines;
+    private List<IReorderingProcessor> gdprlines;
     private boolean moreInfo = false;
     
     public GDPRScreen(Screen parent)
@@ -66,10 +67,10 @@ public class GDPRScreen extends Screen
         drawCenteredString(matrixStack, minecraft.fontRenderer, "MineTogether GDPR", width / 2, 10, -1);
         int start = 30;
         
-        for (ITextProperties gdprline : gdprlines)
+        for (IReorderingProcessor gdprline : gdprlines)
         {
-            int left = (width - minecraft.fontRenderer.getStringWidth(gdprline.getString())) / 2;
-            minecraft.fontRenderer.drawString(matrixStack, gdprline.getString(), left, start += 10, -1);
+            int left = (width - minecraft.fontRenderer.func_243245_a(gdprline)) / 2;
+            minecraft.fontRenderer.func_238407_a_(matrixStack, gdprline, left, start += 10, -1);
         }
     }
     

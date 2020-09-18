@@ -17,7 +17,9 @@ import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.NewChatGui;
 import net.minecraft.client.gui.RenderComponentsUtil;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.entity.player.ChatVisibility;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
@@ -37,7 +39,7 @@ public class GuiNewChatOurs extends NewChatGui
     {
         if (!isBase())
         {
-            Iterator<ChatLine> iterator = this.drawnChatLines.iterator();
+            Iterator<ChatLine<IReorderingProcessor>> iterator = this.drawnChatLines.iterator();
             
             while (iterator.hasNext())
             {
@@ -82,10 +84,10 @@ public class GuiNewChatOurs extends NewChatGui
             }
             
             int i = MathHelper.floor((float) this.getChatWidth() / mc.getMainWindow().getScaledHeight());
-            List<ITextProperties> list = RenderComponentsUtil.func_238505_a_(chatComponent, i, this.mc.fontRenderer);
+            List<IReorderingProcessor> list = RenderComponentsUtil.func_238505_a_(chatComponent, i, this.mc.fontRenderer);
             boolean flag = this.getChatOpen();
             
-            for (ITextProperties itextcomponent : list)
+            for (IReorderingProcessor itextcomponent : list)
             {
                 if (flag && this.scrollPos > 0)
                 {
@@ -121,17 +123,21 @@ public class GuiNewChatOurs extends NewChatGui
             super.drawnChatLines.clear(); // instantly clear so that no surprises happen whilst we're in our chat (I'm looking at you, Quark!)
         }
     }
-    
+
+//    private boolean getChatOpen() {
+//        return this.mc.currentScreen instanceof ChatScreen;
+//    }
+
     private final Minecraft mc;
     
-    private final List<ChatLine> chatLines = Lists.<ChatLine>newArrayList();
+    private final List<ChatLine<IReorderingProcessor>> chatLines = Lists.newArrayList();
     //Last lines added to chatLines and their associated Message,
     // Used as a lookup to remember what update times each line has had.
     private Map<Message, ChatLine> lineLookup = new HashMap<>();
     /**
      * List of the ChatLines currently drawn
      */
-    public final List<ChatLine> drawnChatLines = Lists.<ChatLine>newArrayList();
+    public final List<ChatLine<IReorderingProcessor>> drawnChatLines = Lists.newArrayList();
     private int scrollPos;
     private boolean isScrolled;
     
@@ -160,7 +166,7 @@ public class GuiNewChatOurs extends NewChatGui
     public void func_238492_a_(MatrixStack matrixStack, int updateCounter)
     {
         this.updateCounter = updateCounter;
-        List<ChatLine> tempDrawnChatLines = drawnChatLines;
+        List<ChatLine<IReorderingProcessor>> tempDrawnChatLines = drawnChatLines;
         int minLines = isBase() ? (14 + ((ChatHandler.hasGroup) ? 6 : 0)) : 20;
         int lines = Math.max(minLines, Math.min(tempDrawnChatLines.size(), getLineCount()));
         
@@ -272,9 +278,9 @@ public class GuiNewChatOurs extends NewChatGui
                                 {
                                     int i2 = 0;
                                     int j2 = -i1 * 9;
-                                    String s = chatline.func_238169_a_().getString();
+                                    IReorderingProcessor s = (IReorderingProcessor) chatline.func_238169_a_();
                                     RenderSystem.enableBlend();
-                                    this.mc.fontRenderer.drawString(matrixStack, s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
+                                    this.mc.fontRenderer.func_238407_a_(matrixStack, s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
                                     RenderSystem.disableAlphaTest();
                                     RenderSystem.disableBlend();
                                 }
@@ -392,10 +398,10 @@ public class GuiNewChatOurs extends NewChatGui
         }
         
         int i = MathHelper.floor((float) this.getChatWidth() / this.getScale());
-        List<ITextProperties> list = RenderComponentsUtil.func_238505_a_(chatComponent, i, mc.fontRenderer);// splitText(chatComponent, i, this.mc.fontRenderer, false, false);
+        List<IReorderingProcessor> list = RenderComponentsUtil.func_238505_a_(chatComponent, i, mc.fontRenderer);// splitText(chatComponent, i, this.mc.fontRenderer, false, false);
         boolean flag = this.getChatOpen();
         
-        for (ITextProperties itextcomponent : list)
+        for (IReorderingProcessor itextcomponent : list)
         {
             if (flag && this.scrollPos > 0)
             {
@@ -418,7 +424,7 @@ public class GuiNewChatOurs extends NewChatGui
                 lineLookup.put(message, line);
             }
             this.chatLines.add(0, line);
-            List<ChatLine> removed = trimTo(chatLines, 100);
+            List<ChatLine<IReorderingProcessor>> removed = trimTo(chatLines, 100);
             if (!removed.isEmpty()) {
                 lineLookup.values().removeAll(removed);
             }
@@ -483,7 +489,8 @@ public class GuiNewChatOurs extends NewChatGui
                     if (j >= 0 && j < this.drawnChatLines.size())
                     {
                         ChatLine chatline = this.drawnChatLines.get(j);
-                        return this.mc.fontRenderer.func_238420_b_().func_238357_a_(chatline.func_238169_a_(), (int)d0);
+                        return this.mc.fontRenderer.func_238420_b_().func_243239_a((IReorderingProcessor)chatline.func_238169_a_(), (int)d0);
+
                     }
                 }
 
@@ -495,65 +502,6 @@ public class GuiNewChatOurs extends NewChatGui
             return null;
         }
     }
-    
-//    @Nullable
-//    public ITextComponent getTextComponent(double mouseX, double mouseY)
-//    {
-//        if (isBase())
-//            return super.func_238494_b_(mouseX, mouseY);
-//        else
-//        {
-//            if (!this.getChatOpen())
-//            {
-//                return null;
-//            } else
-//            {
-//                double lvt_5_1_ = this.getScale();
-//                double lvt_7_1_ = mouseX - 2.0D;
-//                double lvt_9_1_ = (double) this.mc.getMainWindow().getScaledHeight() - mouseY - 40.0D;
-//                lvt_7_1_ = (double) MathHelper.floor(lvt_7_1_ / lvt_5_1_);
-//                lvt_9_1_ = (double) MathHelper.floor(lvt_9_1_ / lvt_5_1_);
-//                if (lvt_7_1_ >= 0.0D && lvt_9_1_ >= 0.0D)
-//                {
-//                    int lvt_11_1_ = Math.min(this.getLineCount(), this.drawnChatLines.size());
-//                    if (lvt_7_1_ <= (double) MathHelper.floor((double) this.getChatWidth() / this.getScale()))
-//                    {
-//                        this.mc.fontRenderer.getClass();
-//                        if (lvt_9_1_ < (double) (9 * lvt_11_1_ + lvt_11_1_))
-//                        {
-//                            this.mc.fontRenderer.getClass();
-//                            int lvt_12_1_ = (int) (lvt_9_1_ / 9.0D + (double) this.scrollPos);
-//                            if (lvt_12_1_ >= 0 && lvt_12_1_ < this.drawnChatLines.size())
-//                            {
-//                                ChatLine lvt_13_1_ = (ChatLine) this.drawnChatLines.get(lvt_12_1_);
-//                                int lvt_14_1_ = 0;
-//                                Iterator var15 = lvt_13_1_.getChatComponent().iterator();
-//
-//                                while (var15.hasNext())
-//                                {
-//                                    ITextComponent lvt_16_1_ = (ITextComponent) var15.next();
-//                                    if (lvt_16_1_ instanceof StringTextComponent)
-//                                    {
-//                                        lvt_14_1_ += this.mc.fontRenderer.getStringWidth(ScreenUtils.removeTextColorsIfConfigured(((StringTextComponent) lvt_16_1_).getText(), false));
-//                                        if ((double) lvt_14_1_ > lvt_7_1_)
-//                                        {
-//                                            return lvt_16_1_;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            return null;
-//                        }
-//                    }
-//                    return null;
-//                } else
-//                {
-//                    return null;
-//                }
-//            }
-//        }
-//    }
-
     
     public boolean isBase()
     {

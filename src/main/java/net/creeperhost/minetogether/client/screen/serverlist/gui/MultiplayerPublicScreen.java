@@ -25,6 +25,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ServerSelectionList;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.ITextProperties;
@@ -223,7 +224,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
         }
         if (this.ourTooltip != null)
         {
-            this.renderTooltip(matrixStack, ourTooltip, mouseX, mouseY);
+            this.func_243308_b(matrixStack, ourTooltip, mouseX, mouseY);
         }
         if (listType != null)
         {

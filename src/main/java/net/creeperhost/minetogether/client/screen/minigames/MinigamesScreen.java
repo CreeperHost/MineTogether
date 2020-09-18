@@ -33,6 +33,7 @@ import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
@@ -466,12 +467,17 @@ public class MinigamesScreen extends Screen
     
     private void drawCenteredSplitString(MatrixStack matrixStack, String drawText, int x, int y, int width, int drawColour)
     {
-        List<ITextProperties> strings = RenderComponentsUtil.func_238505_a_(new StringTextComponent(drawText), width, font);
-        for (ITextProperties str : strings)
+        List<IReorderingProcessor> strings = RenderComponentsUtil.func_238505_a_(new StringTextComponent(drawText), width, font);
+        for (IReorderingProcessor str : strings)
         {
-            drawCenteredString(matrixStack, font, str.getString(), x, y, drawColour);
+            drawCenteredString(matrixStack, str, x, y, drawColour);
             y += font.FONT_HEIGHT;
         }
+    }
+
+    public void drawCenteredString(MatrixStack matrixStack, IReorderingProcessor text, int x, int y, int color)
+    {
+        Minecraft.getInstance().fontRenderer.func_238407_a_(matrixStack, text, (float)(x - Minecraft.getInstance().fontRenderer.func_243245_a(text) / 2), (float)y, color);
     }
 
     @Override

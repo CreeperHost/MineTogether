@@ -5,9 +5,11 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerList;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 
@@ -166,11 +168,11 @@ public class GuiOrderDetails extends GuiGetServer
         } else if (!createdAccountError.isEmpty())
         {
             drawCenteredString(matrixStack, font, Util.localize("order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
-            List<ITextProperties> list = RenderComponentsUtil.func_238505_a_(new StringTextComponent(createdAccountError), width - 30, font);
+            List<IReorderingProcessor> list = RenderComponentsUtil.func_238505_a_(new StringTextComponent(createdAccountError), width - 30, font);
             int offset = 10;
-            for (ITextProperties str : list)
+            for (IReorderingProcessor str : list)
             {
-                drawCenteredString(matrixStack, font, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
+                drawCenteredString(matrixStack, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
                 offset += 10;
             }
             drawCenteredString(matrixStack, font, Util.localize("order.accounterrorgoback"), this.width / 2, this.height / 2 + offset, 0xFFFFFF);
@@ -180,11 +182,11 @@ public class GuiOrderDetails extends GuiGetServer
         } else if (!placedOrderError.isEmpty())
         {
             drawCenteredString(matrixStack, font, Util.localize("order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
-            List<ITextProperties> list = RenderComponentsUtil.func_238505_a_(new StringTextComponent(placedOrderError), width - 30, font);
+            List<IReorderingProcessor> list = RenderComponentsUtil.func_238505_a_(new StringTextComponent(placedOrderError), width - 30, font);
             int offset = 10;
-            for (ITextProperties str : list)
+            for (IReorderingProcessor str : list)
             {
-                drawCenteredString(matrixStack, font, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
+                drawCenteredString(matrixStack, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
                 offset += 10;
             }
             drawCenteredString(matrixStack, font, Util.localize("order.ordererrorsupport"), this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
@@ -194,5 +196,10 @@ public class GuiOrderDetails extends GuiGetServer
             drawCenteredString(matrixStack, font, Util.localize("order.ordermodpack"), (this.width / 2) + 10, (this.height / 2) + 10, 0xFFFFFF);
         }
         super.render(matrixStack, mouseX, mouseY, partialTicks);
+    }
+
+    public void drawCenteredString(MatrixStack matrixStack, IReorderingProcessor text, int x, int y, int color)
+    {
+        Minecraft.getInstance().fontRenderer.func_238407_a_(matrixStack, text, (float)(x - Minecraft.getInstance().fontRenderer.func_243245_a(text) / 2), (float)y, color);
     }
 }

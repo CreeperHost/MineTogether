@@ -281,5 +281,7 @@
   "minetogether.unmute.sure2":"",
   "minetogether.chat.button.mention":"Mention",
   "minetogether.linkaccount1":"Link your Minecraft account to your MineTogether account.",
-  "minetogether.linkaccount2":"Linking your accounts will unlock abilities like being able to set your own nickname.\n\nThis will open a web-browser for you to sign in securely."
+  "minetogether.linkaccount2":"Linking your accounts will unlock abilities like being able to set your own nickname.\n\nThis will open a web-browser for you to sign in securely.,",
+  "minetogether.banned1":"You have been banned from MineTogether chat for ",
+  "minetogether.banned2":"You can appeal your ban via your account on MineTogether.io\n\nDo you wish to appeal this ban?"
 }

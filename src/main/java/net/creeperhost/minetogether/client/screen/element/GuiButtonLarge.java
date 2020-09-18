@@ -8,6 +8,7 @@ import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
@@ -59,15 +60,14 @@ public class GuiButtonLarge extends Button
                 color = 16777120;
             }
             
-            List<ITextProperties> newstring = RenderComponentsUtil.func_238505_a_(new StringTextComponent(description), width - 10, mc.fontRenderer);
+            List<IReorderingProcessor> newstring = RenderComponentsUtil.func_238505_a_(new StringTextComponent(description), width -12, mc.fontRenderer);
             //Start needs to move based on GUI scale and screen size I guess, plz help @cloudhunter, @gigabit101, you're our only hope. (ihavenoideawhatimdoingdog.jpg)
-            int start = y + 50;
-            
-            
-            for (ITextProperties s : newstring)
+            int start = y + 40;
+
+            for (IReorderingProcessor s : newstring)
             {
                 int left = ((this.x + 4));
-                mc.fontRenderer.drawStringWithShadow(matrixStack, padLeft(s.getString(), 20), left, start += 8, -1);
+                mc.fontRenderer.func_238407_a_(matrixStack, s, left, start += 10, -1);
             }
             
             ITextComponent buttonText = this.getMessage();

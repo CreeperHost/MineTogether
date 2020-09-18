@@ -56,7 +56,8 @@ public class WatchdogHandler
     private boolean isEnabled()
     {
         Path path = Paths.get("server.properties");
-        ServerPropertiesProvider serverpropertiesprovider = new ServerPropertiesProvider(path);
+        //TODO, Null might work?
+        ServerPropertiesProvider serverpropertiesprovider = new ServerPropertiesProvider(null, path);
         if (serverpropertiesprovider.getProperties().maxTickTime >= 0)
         {
             return false;

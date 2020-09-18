@@ -10,6 +10,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
@@ -77,17 +78,22 @@ public class GuiListEntryMinigame extends GuiListEntry
 
     private void drawCenteredSplitString(MatrixStack matrixStack, String drawText, int x, int y, int width, int drawColour)
     {
-        List<ITextProperties> iTextPropertiesList = RenderComponentsUtil.func_238505_a_(new StringTextComponent(drawText), width, mc.fontRenderer);
-        for (ITextProperties str : iTextPropertiesList)
+        List<IReorderingProcessor> iTextPropertiesList = RenderComponentsUtil.func_238505_a_(new StringTextComponent(drawText), width, mc.fontRenderer);
+        for (IReorderingProcessor str : iTextPropertiesList)
         {
-            drawCenteredString(matrixStack, str.getString(), x, y, drawColour);
+            drawCenteredString(matrixStack, str, x, y, drawColour);
             y += mc.fontRenderer.FONT_HEIGHT;
         }
     }
 
     public void drawCenteredString(MatrixStack matrixStack, String text, int x, int y, int color)
     {
-        Minecraft.getInstance().fontRenderer.drawStringWithShadow(matrixStack, text, (float)(x - Minecraft.getInstance().fontRenderer.getStringWidth(text) / 2), (float)y, color);
+        Minecraft.getInstance().fontRenderer.drawString(matrixStack, text, (float)(x - Minecraft.getInstance().fontRenderer.getStringWidth(text) / 2), (float)y, color);
+    }
+
+    public void drawCenteredString(MatrixStack matrixStack, IReorderingProcessor text, int x, int y, int color)
+    {
+        Minecraft.getInstance().fontRenderer.func_238407_a_(matrixStack, text, (float)(x - Minecraft.getInstance().fontRenderer.func_243245_a(text) / 2), (float)y, color);
     }
 
     public void createDynamicTexture(Minigame minigame)

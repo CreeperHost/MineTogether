@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.client.screen.list;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.RenderComponentsUtil;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 
@@ -22,11 +23,11 @@ public class GuiListEntryLocation extends GuiListEntry
     @Override
     public void render(MatrixStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
     {
-        List<ITextProperties> s = RenderComponentsUtil.func_238505_a_(new StringTextComponent(this.locationDisplay), listWidth, this.mc.fontRenderer);
+        List<IReorderingProcessor> s = RenderComponentsUtil.func_238505_a_(new StringTextComponent(this.locationDisplay), listWidth, this.mc.fontRenderer);
         int start = y + 5;
-        for(ITextProperties iTextProperties : s)
+        for(IReorderingProcessor iTextProperties : s)
         {
-            this.mc.fontRenderer.drawString(matrixStack, iTextProperties.getString(), x + 5, start+=5, 16777215);
+            this.mc.fontRenderer.func_238407_a_(matrixStack, iTextProperties, x + 5, start+=5, 16777215);
         }
     }
 }

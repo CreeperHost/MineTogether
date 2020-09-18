@@ -20,6 +20,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
@@ -55,7 +56,7 @@ public class FriendsListScreen extends Screen
     private String errorText = null;
     private String hoveringText = null;
     private String lastHoveringText = null;
-    private ArrayList<ITextComponent> hoverTextCache = null;
+    private ArrayList<IReorderingProcessor> hoverTextCache = null;
     private Friend removeFriend;
     private String unmutePlayer;
     private Friend invitedPlayer;
@@ -296,7 +297,7 @@ public class FriendsListScreen extends Screen
             if (!hoveringText.equals(lastHoveringText))
             {
                 hoverTextCache = new ArrayList<>();
-                hoverTextCache.add(new StringTextComponent(hoveringText));
+                hoverTextCache.add(new StringTextComponent(hoveringText).func_241878_f());
                 lastHoveringText = hoveringText;
             }
             renderTooltip(matrixStack, hoverTextCache, mouseX, mouseY);

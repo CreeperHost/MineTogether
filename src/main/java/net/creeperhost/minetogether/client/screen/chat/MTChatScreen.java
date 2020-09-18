@@ -31,6 +31,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
@@ -210,8 +211,8 @@ public class MTChatScreen extends Screen
                     }
                     this.minecraft.displayGuiScreen(this);
 
-                }, new StringTextComponent(I18n.format("You have been banned from MineTogether chat for " + Callbacks.banMessage)),
-                        new StringTextComponent(I18n.format("You can appeal your ban via your account on MineTogether.io\n\nDo you wish to appeal this ban?"))));
+                }, new StringTextComponent(I18n.format("minetogether.banned1" + Callbacks.banMessage)),
+                        new StringTextComponent(I18n.format("minetogether.banned2"))));
             }
         }));
     }
@@ -805,7 +806,7 @@ public class MTChatScreen extends Screen
 
     private class GuiScrollingChat extends ExtendedList
     {
-        private ArrayList<ITextProperties> lines;
+        private ArrayList<IReorderingProcessor> lines;
 
         GuiScrollingChat(int entryHeight)
         {
@@ -834,7 +835,7 @@ public class MTChatScreen extends Screen
                 tempMessages = ChatHandler.messages.get(key);
             }
 
-            ArrayList<ITextProperties> oldLines = lines;
+            ArrayList<IReorderingProcessor> oldLines = lines;
             int listHeight = this.getHeight() - (this.getBottom() - this.getTop() - 4);
             lines = new ArrayList<>();
             if (tempMessages == null)
@@ -849,7 +850,6 @@ public class MTChatScreen extends Screen
                     lines.addAll(RenderComponentsUtil.func_238505_a_(display, getWidth() - 10, font));
                 }
             } catch (Exception ignored) {}
-            System.out.println(this.getScrollAmount() + " " + this.getMaxScroll());
             if (lines.size() > oldLines.size() && this.getScrollAmount() == oldMaxScroll);
             {
                 this.setScrollAmount(this.getMaxScroll());
@@ -867,15 +867,15 @@ public class MTChatScreen extends Screen
         {
             for (int i = 0; i < lines.size(); i++)
             {
-                ITextProperties component = lines.get(i);
+                IReorderingProcessor component = lines.get(i);
                 int totalWidth = 5;
                 int oldTotal = totalWidth;
-                totalWidth += minecraft.fontRenderer.getStringWidth(component.getString());
+                totalWidth += minecraft.fontRenderer.func_243245_a(component);
                 boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(i) && mouseY < getRowTop(i) + itemHeight;
 
                 if (hovering)
                 {
-                    Style style = minecraft.fontRenderer.func_238420_b_().func_238357_a_(component, (int) mouseX);
+                    Style style = minecraft.fontRenderer.func_238420_b_().func_243239_a(component, (int) mouseX);
                     handleComponentClick(style, mouseX, mouseY);
                     return true;
                 }
@@ -893,25 +893,24 @@ public class MTChatScreen extends Screen
         {
             try
             {
-                ITextProperties component = lines.get(index);
+                IReorderingProcessor component = lines.get(index);
                 int totalWidth = 5;
 
                 int oldTotal = totalWidth;
-                totalWidth += minecraft.fontRenderer.getStringWidth(component.getString());
+                totalWidth += minecraft.fontRenderer.func_243245_a(component);
 
                 boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(index) && mouseY < getRowTop(index) + itemHeight;
 
                 if(hovering)
                 {
-                    minecraft.fontRenderer.drawString(matrixStack, TextFormatting.getTextWithoutFormattingCodes(component.getString()), 10 + oldTotal, getRowTop(index), 0xFF000000);
                     RenderSystem.enableBlend();
                     RenderSystem.color4f(1, 1, 1, 0.90F);
-                    minecraft.fontRenderer.drawString(matrixStack, component.getString(), 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
+                    minecraft.fontRenderer.func_238407_a_(matrixStack, component, 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
                     RenderSystem.color4f(1, 1, 1, 1);
                 }
                 else
                 {
-                    minecraft.fontRenderer.drawString(matrixStack, component.getString(), 10 + oldTotal, getRowTop(index), 0xFFFFFF);
+                    minecraft.fontRenderer.func_238407_a_(matrixStack, component, 10 + oldTotal, getRowTop(index), 0xFFFFFF);
                 }
             } catch (Exception e)
             {

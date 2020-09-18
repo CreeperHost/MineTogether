@@ -24,6 +24,7 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -111,7 +112,7 @@ public class ScreenEvents
                     if (button.getMessage().getString().equalsIgnoreCase(name))
                     {
                         width.set(button.getWidth());
-                        height.set(button.getHeight());
+                        height.set(button.getWidth_CLASH());
                         x.set(button.x);
                         y.set(button.y);
                         
@@ -324,11 +325,11 @@ public class ScreenEvents
                 drawTexturedModalRect(matrixStack, Minecraft.getInstance().getMainWindow().getScaledWidth() - 160, 0, u, v, 160, 32);
                 GlStateManager.enableBlend();
                 int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
-                List<ITextProperties> s = RenderComponentsUtil.func_238505_a_(MineTogether.instance.toastHandler.toastText, 140, Minecraft.getInstance().fontRenderer);
+                List<IReorderingProcessor> s = RenderComponentsUtil.func_238505_a_(MineTogether.instance.toastHandler.toastText, 140, Minecraft.getInstance().fontRenderer);
                 int start = 2;
-                for(ITextProperties properties : s)
+                for(IReorderingProcessor properties : s)
                 {
-                    Minecraft.getInstance().fontRenderer.drawString(matrixStack, properties.getString(), Minecraft.getInstance().getMainWindow().getScaledWidth() - 155, start +=8, textColour);
+                    Minecraft.getInstance().fontRenderer.func_238407_a_(matrixStack, properties, Minecraft.getInstance().getMainWindow().getScaledWidth() - 155, start +=8, textColour);
                 }
 
             } else
