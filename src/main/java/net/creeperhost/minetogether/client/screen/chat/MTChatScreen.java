@@ -283,11 +283,14 @@ public class MTChatScreen extends Screen
         {
             send.setDisabled("Cannot send messages as not connected");
             disabledDueToConnection = true;
-        } else if (!targetDropdownButton.getSelected().isChannel() && !ChatHandler.friends.containsKey(currentTarget))
-        {
-            send.setDisabled("Cannot send messages as friend is not online");
-            disabledDueToConnection = true;
-        } else if (disabledDueToConnection)
+        } else if (!targetDropdownButton.getSelected().isChannel()) {
+            Profile profile = knownUsers.findByNick(currentTarget);
+            if (profile == null || !profile.isOnline()) {
+                send.setDisabled("Cannot send messages as friend is not online");
+                disabledDueToConnection = true;
+            }
+        }
+        else if (disabledDueToConnection)
         {
             disabledDueToConnection = false;
             send.setEnabled(true);
@@ -731,9 +734,7 @@ public class MTChatScreen extends Screen
 
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
-
-            if (MineTogether.bannedUsers.contains(inputNick))
-                messageComp = new StringTextComponent("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
+            if(profile != null && profile.isBanned()) messageComp = new StringTextComponent("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
 
             messageComp.getStyle().setColor(TextFormatting.WHITE);
 

@@ -2,6 +2,8 @@ package net.creeperhost.minetogether.chat;
 
 import net.creeperhost.minetogether.DebugHandler;
 import net.creeperhost.minetogether.KnownUsers;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
@@ -26,6 +28,7 @@ import org.kitteh.irc.client.library.event.user.*;
 import org.kitteh.irc.client.library.util.Format;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -132,6 +135,13 @@ public class ChatHandler
         {
             if (!oldFriends.containsKey(friend.getKey()))
             {
+                CompletableFuture.runAsync(() ->
+                {
+                    Profile profile = knownUsers.findByNick(friend.getKey());
+                    if(profile == null) knownUsers.add(friend.getKey());
+                    if(profile != null) profile.isOnline();
+                }, MineTogether.profileExecutor);
+
                 host.friendEvent(friend.getKey(), false);
             }
         }
@@ -156,13 +166,16 @@ public class ChatHandler
                 {
                     e.printStackTrace();
                 }
-            } else if (client.getChannel(CHANNEL).get().getUser(currentTarget).isPresent())
-            {
-                client.getChannel(CHANNEL).get().getUser(currentTarget).get().sendMessage(text);
             } else
             {
-                updateFriends(client.getChannel(CHANNEL).get().getNicknames());
-                return;
+                Profile profile = knownUsers.findByNick(currentTarget);
+                if(profile != null && profile.isOnline())
+                {
+                    client.sendMessage(currentTarget, text);
+                } else {
+                    updateFriends(client.getChannel(CHANNEL).get().getNicknames());
+                    return;
+                }
             }
         } else
         {
@@ -285,7 +298,10 @@ public class ChatHandler
         public void onChannelLeave(ChannelKickEvent event)
         {
             if (!event.getTarget().getNick().equals(client.getNick()))
+            {
+                knownUsers.removeByNick(event.getTarget().getNick(), false);
                 return;
+            }
             
             String reason = "Kicked - " + event.getMessage();
             event.getChannel().join();
@@ -314,11 +330,18 @@ public class ChatHandler
         @Handler
         public void onQuit(ClientConnectionEndedEvent event)
         {
+            if (!event.getClient().getNick().equals(client.getNick()))
+            {
+                knownUsers.removeByNick(event.getClient().getNick(), false);
+            }
+
             if(event.getClient() != ChatHandler.client) return;
 
             if(!Config.getInstance().isChatEnabled()) return;
 
             if(ChatHandler.connectionStatus == ConnectionStatus.BANNED) return;
+
+            if(MineTogether.profile.get().isBanned()) return;
 
             requestReconnect();
         }
@@ -339,6 +362,14 @@ public class ChatHandler
                     addMessageToChat(event.getChannel().getName(), "System", Format.stripAll("Chat joined"));
                 }
             }
+            if(event.getAffectedChannel().get().getName().equalsIgnoreCase(CHANNEL))
+            {
+                Profile profile = knownUsers.findByNick(nick);
+                if(profile != null)
+                {
+                    CompletableFuture.runAsync(() -> profile.loadProfile(), MineTogether.profileExecutor).thenRun(() -> profile.setBanned(false));
+                }
+            }
             updateFriends(event.getChannel().getNicknames());
         }
 
@@ -351,6 +382,11 @@ public class ChatHandler
         @Handler
         public void onChannelLeave(ChannelPartEvent event)
         {
+            if (!event.getUser().getNick().equals(client.getNick()))
+            {
+                knownUsers.removeByNick(event.getUser().getNick(), false);
+            }
+
             try
             {
                 String channelName = event.getAffectedChannel().get().getName();
@@ -378,6 +414,11 @@ public class ChatHandler
         @Handler
         public void onUserQuit(UserQuitEvent event)
         {
+            if (!event.getUser().getNick().equals(client.getNick()))
+            {
+                knownUsers.removeByNick(event.getUser().getNick(), false);
+            }
+
             String friendNick = event.getUser().getNick();
             friends.remove(friendNick);
             if (privateChatList != null && privateChatList.owner.equals(friendNick))
@@ -410,7 +451,7 @@ public class ChatHandler
             {
                 addMessageToChat(event.getChannel().getName(), user.getNick(), Format.stripAll(message));
             }
-            
+
             updateFriends(client.getChannel(CHANNEL).get().getNicknames());
         }
         
@@ -428,8 +469,16 @@ public class ChatHandler
         public void onWhoisReturn(WhoisEvent event)
         {
             WhoisData whoisData = event.getWhoisData();
-            if (whoisData.getRealName().isPresent())
-                curseSync.put(whoisData.getNick(), whoisData.getRealName().get());
+            Profile profile = knownUsers.findByNick(whoisData.getNick());
+            if(profile != null)
+            {
+                if(whoisData.getNick().equalsIgnoreCase(profile.getShortHash())) profile.setOnlineShort(whoisData.getRealName().isPresent());
+                else profile.setOnlineMedium(whoisData.getRealName().isPresent());
+
+                if (whoisData.getRealName().isPresent()) profile.setPackID(whoisData.getRealName().get());
+            }
+
+            if (whoisData.getRealName().isPresent()) curseSync.put(whoisData.getNick(), whoisData.getRealName().get());
 
             if(debugHandler.isDebug()) logger.error(event.getWhoisData());
         }
@@ -501,8 +550,12 @@ public class ChatHandler
         {
             String message = Format.stripAll(event.getMessage());
             String user = event.getActor().getNick();
-            if (friends.containsKey(user))
+            Profile profile = knownUsers.findByNick(user);
+            if(profile == null) profile = knownUsers.add(user);
+
+            if(profile != null && profile.isFriend())
             {
+                profile.isOnline();
                 synchronized (ircLock)
                 {
                     LimitedSizeQueue messageQueue = messages.get(user);
@@ -512,6 +565,13 @@ public class ChatHandler
                     }
                     addMessageToChat(user, user, message);
                     host.friendEvent(user, true);
+                }
+            }
+            else
+            {
+                if(!client.getChannel(CHANNEL).get().getUser(user).isPresent())
+                {
+                    knownUsers.removeByNick(user, false);
                 }
             }
         }
@@ -573,12 +633,28 @@ public class ChatHandler
             b.forEach(mode -> mode.getParameter().ifPresent(param ->
             {
                 String nick = param.split("!")[0];
+                Profile profile = knownUsers.findByNick(nick);
+                if(profile != null) profile.setBanned(true);
+
                 if (nick.toLowerCase().equals(ChatHandler.nick.toLowerCase()))
                 {
                     // it be us
                     ChatConnectionHandler.INSTANCE.disconnect();
-                    ChatConnectionHandler.INSTANCE.banned = true;
-                    ChatHandler.connectionStatus = ConnectionStatus.BANNED;
+                    MineTogether.profile.getAndUpdate(profile1 ->
+                    {
+                        profile1.setBanned(true);
+                        CompletableFuture.runAsync(() ->
+                        {
+                            while (MineTogether.profile.get().isBanned())
+                            {
+                                Callbacks.isBanned();
+                                try {
+                                    Thread.sleep(60000);
+                                } catch (InterruptedException e) { e.printStackTrace(); }
+                            }
+                        });
+                        return profile1;
+                    });                    ChatHandler.connectionStatus = ConnectionStatus.BANNED;
                     Callbacks.getBanMessage();
                     host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
                 }
@@ -590,22 +666,19 @@ public class ChatHandler
     public static void requestReconnect()
     {
         logger.warn("Attempting to reconnect chat");
-        killChatConnection();
+        killChatConnection(true);
     }
 
-    public static void killChatConnection()
+    public static void killChatConnection(boolean reconnect)
     {
         ChatHandler.client.shutdown();
-        boolean flag = false;
         try {
-            flag = true;
             ChatHandler.addStatusMessage("Chat disconnected, Reconnecting");
             ChatHandler.connectionStatus = ConnectionStatus.DISCONNECTED;
             Thread.sleep(reconnectTimer.get());
             logger.error("Reinit being called");
-            if(flag) {
+            if(reconnect) {
                 reInit();
-                flag = false;
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

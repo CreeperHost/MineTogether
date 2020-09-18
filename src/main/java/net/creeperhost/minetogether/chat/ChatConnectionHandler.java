@@ -16,7 +16,6 @@ public class ChatConnectionHandler
 {
     public static final ChatConnectionHandler INSTANCE = new ChatConnectionHandler();
     public long timeout = 0;
-    public boolean banned;
     public String banReason = "";
     public DebugHandler debugHandler = new DebugHandler();
     public Logger logger = LogManager.getLogger();
@@ -33,7 +32,6 @@ public class ChatConnectionHandler
         ChatHandler.CHANNEL = ChatHandler.online ? ChatHandler.IRC_SERVER.channel : "#SuperSpecialPirateClub";
         ChatHandler.host.updateChatChannel();
         ChatHandler.tries.set(0);
-        banned = MineTogether.instance.isBanned.get();
     }
     
     public synchronized void connect()
@@ -100,7 +98,12 @@ public class ChatConnectionHandler
     
     public boolean canConnect()
     {
-        return !banned && timeout < System.currentTimeMillis() || !ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED) || ChatHandler.inited.get() || ChatHandler.isInitting.get() || Config.getInstance().isChatEnabled();
+        if(MineTogether.profile.get().isBanned()) return false;
+        if(timeout > System.currentTimeMillis()) return false;
+        if(!ChatHandler.connectionStatus.equals(ChatHandler.ConnectionStatus.DISCONNECTED)) return false;
+        if(!Config.getInstance().isChatEnabled()) return false;
+
+        return true;
     }
     
     public void nextConnectAllow(int timeout)

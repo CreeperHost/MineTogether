@@ -5,9 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.client.screen.chat.Target;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.WebUtils;
+import org.kitteh.irc.client.library.command.WhoisCommand;
 import org.kitteh.irc.client.library.element.User;
 
 import java.util.ArrayList;
@@ -20,14 +22,19 @@ public class Profile
     public String longHash = "";
     public String shortHash = "";
     public String mediumHash = "";
-    public boolean online = false;
+    private boolean online = false;
     public String display = "";
     public boolean premium = false;
     public String userDisplay = "";
     private boolean friend = false;
-    private long lastCheck = 0;
+    private long lastCheckFriend = 0;
     public String friendName = "";
     public String friendCode = "";
+    private boolean banned = false;
+    private String packID = "";
+    private long lastOnlineCheck = 0;
+    private boolean onlineShort = false;
+    private boolean onlineMedium = false;
 
     public Profile(String serverNick)
     {
@@ -81,9 +88,43 @@ public class Profile
         return mediumHash;
     }
 
-    public boolean isOnline() {
-        return online;
+    private WhoisCommand whoisCommand = null;
+
+    public boolean isOnline()
+    {
+        if(ChatHandler.client == null) return false;
+
+        long currentTime = System.currentTimeMillis() / 1000;
+        if(currentTime > (lastOnlineCheck + 10))
+        {
+            if (whoisCommand == null || whoisCommand.getClient() != ChatHandler.client)
+                whoisCommand = new WhoisCommand(ChatHandler.client);
+
+            this.lastOnlineCheck = System.currentTimeMillis() / 1000;
+            whoisCommand.target(getShortHash()).execute();
+            whoisCommand.target(getMediumHash()).execute();
+        }
+        boolean flag =  (onlineShort || onlineMedium);
+        if(flag && !ChatHandler.friends.containsKey(mediumHash))
+        {
+            ChatHandler.friends.put(mediumHash, friendName);
+            Target.updateCache();
+        }
+        else if(!flag && ChatHandler.friends.containsKey(mediumHash))
+        {
+            ChatHandler.friends.remove(mediumHash);
+        }
+        return flag;
     }
+
+    public void setOnlineShort(boolean onlineShort)
+    {
+        this.onlineShort = onlineShort;
+    }
+
+    public void setOnlineMedium(boolean onlineMedium)
+    {
+        this.onlineMedium = onlineMedium;    }
 
     public String getCurrentIRCNick() {
         Optional<User> userOpt = ChatHandler.client.getChannel(ChatHandler.CHANNEL).get().getUser(this.getShortHash());
@@ -106,18 +147,38 @@ public class Profile
     public boolean isFriend()
     {
         long currentTime = System.currentTimeMillis() / 1000;
-        if(currentTime > (lastCheck + 30)) {
+        if(currentTime > (lastCheckFriend + 30)) {
             ArrayList<Friend> friendsList = Callbacks.getFriendsList(false);
             for (Friend friend : friendsList) {
-                if (!getShortHash().isEmpty() && friend.getCode().startsWith(getShortHash().substring(2))) {
+                String hash = getShortHash();
+                if(getShortHash().isEmpty()) hash = getMediumHash();
+                if (!hash.isEmpty() && friend.getCode().startsWith(hash.substring(2))) {
                     this.friend = true;
-                    this.lastCheck = System.currentTimeMillis() / 1000;
+                    this.lastCheckFriend = System.currentTimeMillis() / 1000;
                     this.friendName = friend.getName();
                     break;
                 }
             }
         }
         return this.friend;
+    }
+
+    public boolean isBanned()
+    {
+        return banned;
+    }
+
+    public void setBanned(boolean banned)
+    {
+        this.banned = banned;
+    }
+
+    public void setPackID(String packID) {
+        this.packID = packID;
+    }
+
+    public String getPackID() {
+        return packID;
     }
 
     public boolean loadProfile()
@@ -137,7 +198,7 @@ public class Profile
         {
             JsonObject obj = element.getAsJsonObject();
             JsonElement status = obj.get("status");
-            if (status.getAsString().equals("success"))
+            if (status != null && status.getAsString().equals("success"))
             {
                 JsonObject profileData = obj.getAsJsonObject("profileData").getAsJsonObject(playerHash);
                 mediumHash = profileData.getAsJsonObject("chat").getAsJsonObject("hash").get("medium").getAsString();

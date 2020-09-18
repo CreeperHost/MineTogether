@@ -136,9 +136,11 @@ public class FriendsListScreen extends Screen
             {
                 FriendStatusResponse result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
                 addFriend = false;
-                if (result == null) {
-                    Profile profile = new Profile(result.getHash());
-                    list.add(new GuiListEntryFriend(this, list, new Friend(profile, displayEntry.getText(), codeEntry.getText(), false)));
+                if (result == null)
+                {
+                    Profile profile = ChatHandler.knownUsers.findByHash(result.getHash());
+                    if(profile == null) ChatHandler.knownUsers.add(result.getHash());
+                    if(profile != null) list.add(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
                 }
                 buttonInvite.visible = true;
                 showAlert(result == null || result.getMessage().isEmpty() ? Util.localize("multiplayer.friendsent") : result.getMessage(), 0x00FF00, 5000);

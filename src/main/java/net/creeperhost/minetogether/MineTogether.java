@@ -67,7 +67,6 @@ public class MineTogether implements ICreeperHostMod, IHost
 {
     public static final Logger logger = LogManager.getLogger("minetogether");
     public static ArrayList<String> mutedUsers = new ArrayList<>();
-    public static ArrayList<String> bannedUsers = new ArrayList<>();
     public static IProxy proxy;
     public static IServerProxy serverProxy;
     public final Object inviteLock = new Object();
@@ -208,6 +207,18 @@ public class MineTogether implements ICreeperHostMod, IHost
                 }
             }, profileExecutor);
         }
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+                synchronized (ChatHandler.ircLock)
+                {
+                    if (ChatHandler.client != null)
+                        ChatHandler.killChatConnection(false);
+                }
+            }
+        });
     }
     
     @SubscribeEvent
@@ -458,7 +469,6 @@ public class MineTogether implements ICreeperHostMod, IHost
     @Override
     public void userBanned(String username)
     {
-        bannedUsers.add(username);
         proxy.refreshChat();
     }
     
