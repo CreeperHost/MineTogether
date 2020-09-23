@@ -668,7 +668,7 @@ public class GuiMTChat extends GuiScreen
             for (int i = 0; i < split.length; i++) {
                 String splitStr = split[i];
                 String justNick = splitStr.replaceAll("[^A-Za-z0-9#]", "");
-                if (justNick.startsWith("MT")) {
+                if (justNick.startsWith("MT") && inputNick.length() >= 16) {
                     if ((CreeperHost.profile.get() != null && (justNick.equals(CreeperHost.profile.get().getShortHash()) || justNick.equals(CreeperHost.profile.get().getMediumHash()))) || justNick.equals(CreeperHost.instance.ourNick)) {
                         splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + CreeperHost.instance.playerName + messageColour);
                         split[i] = splitStr;
