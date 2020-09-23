@@ -703,7 +703,7 @@ public class MTChatScreen extends Screen
             for (int i = 0; i < split.length; i++) {
                 String splitStr = split[i];
                 String justNick = splitStr.replaceAll("[^A-Za-z0-9#]", "");
-                if (justNick.startsWith("MT")) {
+                if (justNick.startsWith("MT") && justNick.length() >= 16) {
                     if ((MineTogether.profile.get() != null && (justNick.equals(MineTogether.profile.get().getShortHash()) || justNick.equals(MineTogether.profile.get().getMediumHash()))) || justNick.equals(MineTogether.instance.ourNick)) {
                         splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + MineTogether.instance.playerName + messageColour);
                         split[i] = splitStr;
