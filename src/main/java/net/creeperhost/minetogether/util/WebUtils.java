@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.util;
 
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.common.HostHolder;
 
 import java.io.BufferedReader;
@@ -37,6 +38,7 @@ public class WebUtils
                 }
             }
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56");
+            conn.setRequestProperty("Fingerprint", MineTogether.getSignature());
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             StringBuilder respData = new StringBuilder();
