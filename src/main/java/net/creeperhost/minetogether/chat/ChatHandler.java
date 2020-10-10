@@ -591,8 +591,9 @@ public class ChatHandler
                         client.sendCtcpReply(event.getActor().getNick(), "SERVERID " + getServerId());
                         break;
                     case "VERIFY":
-                        client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + CreeperHost.getSignature() + ":" + CreeperHost.proxy.getUUID());
-                        break;
+                        if(!event.getActor().getNick().startsWith("MT")) {
+                            client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + CreeperHost.getSignature() + ":" + CreeperHost.proxy.getUUID());
+                        }
                 }
             }
         }
