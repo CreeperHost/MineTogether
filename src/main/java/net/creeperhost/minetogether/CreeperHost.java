@@ -24,6 +24,7 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -36,12 +37,21 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.security.CodeSigner;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertPath;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 @Mod(modid = CreeperHost.MOD_ID, name = CreeperHost.NAME, version = CreeperHost.VERSION, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2", guiFactory = "net.creeperhost.minetogether.gui.config.GuiCreeperConfig")
 public class CreeperHost implements ICreeperHostMod, IHost
@@ -93,11 +103,20 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicReference<Profile> profile = new AtomicReference<Profile>();
     public static AtomicReference<UUID> UUID = new AtomicReference<UUID>();
+    protected static String signature = null;
+
+    public static String getSignature()
+    {
+        return signature;
+    }
 
     @SuppressWarnings("Duplicates")
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        signature = verifySignature();
+        if(event.getSide() != Side.SERVER && signature == null) return;
+
         if (event.getSide() != Side.SERVER)
         {
             EventHandler.isOnline = proxy.checkOnline();
@@ -206,6 +225,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public void init(FMLInitializationEvent event)
     {
         if (event.getSide().isServer()) return;
+        if(signature == null) return;
 
         Runtime.getRuntime().addShutdownHook(new Thread()
         {
@@ -234,6 +254,49 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 }
             }, profileExecutor);
         }
+    }
+
+    @Mod.EventHandler
+    public void onFingerprintViolation(FMLFingerprintViolationEvent event)
+    {
+        logger.warn("Invalid fingerprint detected! The file " + event.getSource().getName() + " may have been tampered with. This version will NOT be supported by the author!");
+    }
+
+    private String verifySignature()
+    {
+        if(CreeperHost.class.getProtectionDomain().getCodeSource().getCodeSigners() == null) return null;
+
+        StringBuilder rawSig = new StringBuilder();
+        for (CodeSigner codeSigner : CreeperHost.class.getProtectionDomain().getCodeSource().getCodeSigners()) {
+            CertPath certPath = codeSigner.getSignerCertPath();
+            List<? extends Certificate> certificates = certPath.getCertificates();
+            for(Certificate certificate : certificates)
+            {
+                try
+                {
+                    rawSig.append(Base64.getEncoder().encodeToString(certificate.getEncoded()));
+                } catch (CertificateEncodingException e) { e.printStackTrace(); }
+            }
+        }
+        byte[] messageDigest = new byte[0];
+        try
+        {
+            messageDigest = MessageDigest.getInstance("SHA-256").digest(rawSig.toString().getBytes());
+        } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+        String out = bytesToHex(messageDigest);
+        return out;
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
     
     public void updateFtbPackID()

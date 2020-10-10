@@ -560,31 +560,39 @@ public class ChatHandler
                 String message = event.getMessage();
 
                 String[] split = message.split(" ");
-                if (split.length < 3)
+                if (split.length < 1)
                     return;
 
-                if (split[0].equals("FRIENDREQ"))
-                {
-                    StringBuilder builder = new StringBuilder();
-                    for (int i = 1; i < split.length; i++)
-                    {
-                        builder.append(split[i]).append(" ");
+                switch (split[0].trim()) {
+                    case "FRIENDREQ": {
+                        if (split.length < 3)
+                            return;
+                        StringBuilder builder = new StringBuilder();
+                        for (int i = 1; i < split.length; i++) {
+                            builder.append(split[i]).append(" ");
+                        }
+                        String chatMessage = builder.toString().trim();
+                        addMessageToChat(CHANNEL, "FR:" + event.getActor().getNick(), chatMessage);
+                        break;
                     }
+                    case "FRIENDACC": {
+                        if (split.length < 3)
+                            return;
+                        StringBuilder builder = new StringBuilder();
+                        for (int i = 2; i < split.length; i++) {
+                            builder.append(split[i]).append(" ");
+                        }
 
-                    String chatMessage = builder.toString().trim();
-
-                    addMessageToChat(CHANNEL, "FR:" + event.getActor().getNick(), chatMessage);
-                } else if (split[0].equals("FRIENDACC")) {
-                    StringBuilder builder = new StringBuilder();
-                    for (int i = 2; i < split.length; i++)
-                    {
-                        builder.append(split[i]).append(" ");
+                        host.acceptFriend(split[1], builder.toString().trim());
+                        addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
+                        break;
                     }
-
-                    host.acceptFriend(split[1], builder.toString().trim());
-                    addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
-                } else if (split[0].equals("SERVERID")) {
-                    client.sendCtcpReply(event.getActor().getNick(), "SERVERID " + getServerId());
+                    case "SERVERID":
+                        client.sendCtcpReply(event.getActor().getNick(), "SERVERID " + getServerId());
+                        break;
+                    case "VERIFY":
+                        client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + CreeperHost.getSignature() + ":" + CreeperHost.proxy.getUUID());
+                        break;
                 }
             }
         }
