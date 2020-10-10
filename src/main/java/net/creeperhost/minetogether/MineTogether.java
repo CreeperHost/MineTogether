@@ -55,6 +55,12 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.CodeSigner;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertPath;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -111,6 +117,12 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static AtomicReference<Profile> profile = new AtomicReference<>();
     public static AtomicReference<UUID> UUID = new AtomicReference<>();
     public ToastHandler toastHandler;
+    protected static String signature = null;
+
+    public static String getSignature()
+    {
+        return signature;
+    }
 
     public MineTogether()
     {
@@ -141,6 +153,9 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
+        signature = verifySignature();
+        if(signature == null) return;
+
         isOnline = proxy.checkOnline();
         if (!isOnline) {
             logger.error("Client is in offline mode");
@@ -219,6 +234,43 @@ public class MineTogether implements ICreeperHostMod, IHost
                 }
             }
         });
+    }
+
+    private String verifySignature()
+    {
+        if(MineTogether.class.getProtectionDomain().getCodeSource().getCodeSigners() == null) return null;
+
+        StringBuilder rawSig = new StringBuilder();
+        for (CodeSigner codeSigner : MineTogether.class.getProtectionDomain().getCodeSource().getCodeSigners()) {
+            CertPath certPath = codeSigner.getSignerCertPath();
+            List<? extends Certificate> certificates = certPath.getCertificates();
+            for(Certificate certificate : certificates)
+            {
+                try
+                {
+                    rawSig.append(Base64.getEncoder().encodeToString(certificate.getEncoded()));
+                } catch (CertificateEncodingException e) { e.printStackTrace(); }
+            }
+        }
+        byte[] messageDigest = new byte[0];
+        try
+        {
+            messageDigest = MessageDigest.getInstance("SHA-256").digest(rawSig.toString().getBytes());
+        } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+        String out = bytesToHex(messageDigest);
+        return out;
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
     
     @SubscribeEvent
