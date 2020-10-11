@@ -592,7 +592,10 @@ public class ChatHandler
                         break;
                     case "VERIFY":
                         if(!event.getActor().getNick().startsWith("MT")) {
-                            client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + CreeperHost.getSignature() + ":" + CreeperHost.proxy.getUUID());
+                            String serverID = CreeperHost.getServerIDAndVerify();
+                            if (serverID == null)
+                                return;
+                            client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + CreeperHost.getSignature() + ":" + CreeperHost.proxy.getUUID() + ":" + serverID);
                         }
                 }
             }

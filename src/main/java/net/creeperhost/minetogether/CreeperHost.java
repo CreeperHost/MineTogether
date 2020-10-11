@@ -37,7 +37,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.CodeSigner;
 import java.security.MessageDigest;
@@ -50,8 +49,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 @Mod(modid = CreeperHost.MOD_ID, name = CreeperHost.NAME, version = CreeperHost.VERSION, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2", guiFactory = "net.creeperhost.minetogether.gui.config.GuiCreeperConfig")
 public class CreeperHost implements ICreeperHostMod, IHost
@@ -110,10 +107,16 @@ public class CreeperHost implements ICreeperHostMod, IHost
         return signature;
     }
 
+    public static String getServerIDAndVerify()
+    {
+        return proxy.getServerIDAndVerify();
+    }
+
     @SuppressWarnings("Duplicates")
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature();
         if(event.getSide() != Side.SERVER && signature == null) return;
 

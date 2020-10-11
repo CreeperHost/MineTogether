@@ -31,6 +31,7 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,8 +40,10 @@ import org.lwjgl.input.Keyboard;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -234,5 +237,17 @@ public class Client implements IProxy
             return gameProfile != null && gameProfile.isComplete();
         } catch (AuthenticationException ignored) {}
         return false;
+    }
+
+    @Override
+    public String getServerIDAndVerify() {
+        Minecraft mc = Minecraft.getMinecraft();
+        String serverId = DigestUtils.sha1Hex(String.valueOf(new Random().nextInt()));
+        try {
+            mc.getSessionService().joinServer(mc.getSession().getProfile(), mc.getSession().getToken(), serverId);
+        } catch (AuthenticationException e) {
+            return null;
+        }
+        return serverId;
     }
 }

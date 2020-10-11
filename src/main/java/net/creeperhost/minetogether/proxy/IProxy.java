@@ -31,4 +31,6 @@ public interface IProxy
     void refreshChat();
 
     boolean checkOnline();
+
+    String getServerIDAndVerify();
 }

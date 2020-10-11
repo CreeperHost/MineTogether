@@ -49,4 +49,9 @@ public class Server implements IProxy
     public boolean checkOnline() {
         return false;
     }
+
+    @Override
+    public String getServerIDAndVerify() {
+        return null;
+    }
 }
