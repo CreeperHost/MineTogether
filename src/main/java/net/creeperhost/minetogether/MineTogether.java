@@ -55,6 +55,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.CodeSigner;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -70,6 +72,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 @Mod(value = Constants.MOD_ID)
 public class MineTogether implements ICreeperHostMod, IHost {
@@ -151,9 +154,9 @@ public class MineTogether implements ICreeperHostMod, IHost {
 
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event) {
+        String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature(findOurJar());
-        logger.error(signature);
-//        if(signature == null) return;
+        if(signature == null) return;
 
         isOnline = proxy.checkOnline();
         if (!isOnline) {
@@ -226,49 +229,40 @@ public class MineTogether implements ICreeperHostMod, IHost {
         });
     }
 
-    private String verifySignature(JarFile jarFile)
+    private String verifySignature(File jarFile)
     {
         if(jarFile == null) return null;
-        StringBuilder rawSig = new StringBuilder();
-        byte[] messageDigest = new byte[0];
-
-        logger.error(jarFile.entries().toString());
-
-        while (jarFile.entries().hasMoreElements()) {
-            JarEntry jarEntry = jarFile.entries().nextElement();
-            if(jarEntry.getCodeSigners() == null) return null;
-
-            for (Certificate certificate : jarEntry.getCertificates()) {
-                try {
-                    logger.error(certificate.getEncoded());
-                } catch (CertificateEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            for (CodeSigner codeSigner : jarEntry.getCodeSigners())
-            {
-                CertPath certPath = codeSigner.getSignerCertPath();
-                List<? extends Certificate> certificates = certPath.getCertificates();
-                for(Certificate certificate : certificates)
-                {
-                    try
-                    {
-                        rawSig.append(Base64.getEncoder().encodeToString(certificate.getEncoded()));
-                    } catch (CertificateEncodingException e) { e.printStackTrace(); }
-                }
-                try
-                {
-                    messageDigest = MessageDigest.getInstance("SHA-256").digest(rawSig.toString().getBytes());
-                    // I believe .digest appends constantly to the hash.
-                } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
-            }
+        MessageDigest messageDigest;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+            return null;
         }
+
+        byte[] fileBytes;
+        try
+        {
+            fileBytes = FileUtils.readFileToByteArray(jarFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        //TODO more efficante by iterating file into buffer
+        messageDigest.update(fileBytes);
+
         //Now we have the hash of the whole jar, not just a single class, previous implementation meant you could change anything except the first class...
-        return bytesToHex(messageDigest);
+        return bytesToHex(messageDigest.digest());
     }
 
-    private JarFile findOurJar()
+    public static String getServerIDAndVerify()
+    {
+        return proxy.getServerIDAndVerify();
+    }
+
+    private File findOurJar()
     {
         logger.info("Scanning mods directory for MineTogether jar");
         File[] modsDir = FMLPaths.MODSDIR.get().toFile().listFiles();
@@ -278,12 +272,12 @@ public class MineTogether implements ICreeperHostMod, IHost {
         {
             try {
                 JarFile jarFile = new JarFile(file);
-                logger.info(jarFile.getName());
+                logger.info("JARFILE " + jarFile.getName());
                 Map<String, Attributes> attributesMap = jarFile.getManifest().getEntries();
 
                 for (String s : attributesMap.keySet())
                 {
-                    if(s.equalsIgnoreCase("net/creeperhost/minetogether/CreeperHost.class"))
+                    if(s.equalsIgnoreCase("net/creeperhost/minetogether/MineTogether.class"))
                     {
                         logger.error("Main class found, MineTogether Jar found");
                         try {
@@ -294,38 +288,13 @@ public class MineTogether implements ICreeperHostMod, IHost {
                             ignored.printStackTrace();
                             return null;
                         }
-                        return jarFile;
+                        return file;
                     }
                 }
             } catch (IOException e) { e.printStackTrace(); }
         }
         return null;
     }
-
-//    private String verifySignature()
-//    {
-//        if(MineTogether.class.getProtectionDomain().getCodeSource().getCodeSigners() == null) return null;
-//
-//        StringBuilder rawSig = new StringBuilder();
-//        for (CodeSigner codeSigner : MineTogether.class.getProtectionDomain().getCodeSource().getCodeSigners()) {
-//            CertPath certPath = codeSigner.getSignerCertPath();
-//            List<? extends Certificate> certificates = certPath.getCertificates();
-//            for(Certificate certificate : certificates)
-//            {
-//                try
-//                {
-//                    rawSig.append(Base64.getEncoder().encodeToString(certificate.getEncoded()));
-//                } catch (CertificateEncodingException e) { e.printStackTrace(); }
-//            }
-//        }
-//        byte[] messageDigest = new byte[0];
-//        try
-//        {
-//            messageDigest = MessageDigest.getInstance("SHA-256").digest(rawSig.toString().getBytes());
-//        } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
-//        String out = bytesToHex(messageDigest);
-//        return out;
-//    }
 
     private static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();

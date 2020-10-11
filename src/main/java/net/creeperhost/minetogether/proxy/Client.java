@@ -30,15 +30,13 @@ import net.minecraft.util.Session;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class Client implements IProxy
@@ -232,5 +230,17 @@ public class Client implements IProxy
         {
         }
         return false;
+    }
+
+    @Override
+    public String getServerIDAndVerify() {
+        Minecraft mc = Minecraft.getInstance();
+        String serverId = DigestUtils.sha1Hex(String.valueOf(new Random().nextInt()));
+        try {
+            mc.getSessionService().joinServer(mc.getSession().getProfile(), mc.getSession().getToken(), serverId);
+        } catch (AuthenticationException e) {
+            return null;
+        }
+        return serverId;
     }
 }
