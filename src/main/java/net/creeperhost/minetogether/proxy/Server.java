@@ -73,4 +73,8 @@ public class Server implements IProxy
     {
         return false;
     }
+
+
+    @Override
+    public String getServerIDAndVerify() { return null; }
 }
