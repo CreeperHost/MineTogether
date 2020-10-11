@@ -142,7 +142,11 @@ public class MineTogether implements ICreeperHostMod, IHost
         MinecraftForge.EVENT_BUS.addListener(this::serverStopping);
         MinecraftForge.EVENT_BUS.register(this);
     }
-    
+
+    public static String getServerIDAndVerify() {
+        return proxy.getServerIDAndVerify();
+    }
+
     @SubscribeEvent
     public void preInit(FMLCommonSetupEvent event)
     {
