@@ -67,10 +67,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 @Mod(value = Constants.MOD_ID)
-public class MineTogether implements ICreeperHostMod, IHost
-{
+public class MineTogether implements ICreeperHostMod, IHost {
     public static final Logger logger = LogManager.getLogger("minetogether");
     public static ArrayList<String> mutedUsers = new ArrayList<>();
     public static IProxy proxy;
@@ -97,14 +99,14 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static int updateID;
     static int tries = 0;
     public IPlayerKicker kicker;
-    
+
     public String ourNick;
     public String playerName;
     public File mutedUsersFile;
     public String ftbPackID = "";
     public String base64;
     public String requestedID;
-    
+
     public static MineTogether instance;
     public static MinecraftServer server;
     public static String secret;
@@ -119,13 +121,11 @@ public class MineTogether implements ICreeperHostMod, IHost
     public ToastHandler toastHandler;
     protected static String signature = null;
 
-    public static String getSignature()
-    {
+    public static String getSignature() {
         return signature;
     }
 
-    public MineTogether()
-    {
+    public MineTogether() {
         instance = this;
         proxy = DistExecutor.runForDist(() -> Client::new, () -> Server::new);
         serverProxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
@@ -134,13 +134,12 @@ public class MineTogether implements ICreeperHostMod, IHost
         eventBus.addListener(this::preInitClient);
         eventBus.addListener(this::serverStarting);
         eventBus.addListener(this::serverStarted);
-        
+
         MinecraftForge.EVENT_BUS.register(this);
     }
-    
+
     @SubscribeEvent
-    public void preInit(FMLCommonSetupEvent event)
-    {
+    public void preInit(FMLCommonSetupEvent event) {
         ConfigHandler.init();
         updateFtbPackID();
         proxy.checkOnline();
@@ -149,12 +148,12 @@ public class MineTogether implements ICreeperHostMod, IHost
         //Lets check this early so we can decide if we need to start chat or not
         isBanned.set(Callbacks.isBanned());
     }
-    
+
     @SubscribeEvent
-    public void preInitClient(FMLClientSetupEvent event)
-    {
-        signature = verifySignature();
-        if(signature == null) return;
+    public void preInitClient(FMLClientSetupEvent event) {
+        signature = verifySignature(findOurJar());
+        logger.error(signature);
+//        if(signature == null) return;
 
         isOnline = proxy.checkOnline();
         if (!isOnline) {
@@ -162,10 +161,10 @@ public class MineTogether implements ICreeperHostMod, IHost
         }
         toastHandler = new ToastHandler();
         registerImplementation(new CreeperHostServerHost());
-        
+
         File gdprFile = new File("local/minetogether/gdpr.txt");
         gdpr = new GDPR(gdprFile);
-        
+
         HostHolder.host = this;
         File ingameChatFile = new File("local/minetogether/ingameChatFile.txt");
         ingameChat = new IngameChat(ingameChatFile);
@@ -179,20 +178,15 @@ public class MineTogether implements ICreeperHostMod, IHost
         int packID;
 
         HashMap<String, String> jsonObj = new HashMap<>();
-        if(this.ftbPackID.length() < 1) // Even if we get "m", we can throw it away.
+        if (this.ftbPackID.length() < 1) // Even if we get "m", we can throw it away.
         {
-            try
-            {
+            try {
                 packID = Integer.parseInt(Config.getInstance().curseProjectID);
-            }
-            catch (NumberFormatException e)
-            {
+            } catch (NumberFormatException e) {
                 packID = -1;
             }
             jsonObj.put("p", String.valueOf(packID));
-        }
-        else
-        {
+        } else {
             jsonObj.put("p", ftbPackID);
             jsonObj.put("b", base64);
         }
@@ -200,11 +194,10 @@ public class MineTogether implements ICreeperHostMod, IHost
         try //Temp fix until we cxan figure out why this fails
         {
             realName = gson.toJson(jsonObj);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             realName = "{\"p\": \"-1\"}";
         }
-        
+
         MinecraftForge.EVENT_BUS.register(new ScreenEvents());
         MinecraftForge.EVENT_BUS.register(new ClientTickEvents());
 
@@ -222,13 +215,10 @@ public class MineTogether implements ICreeperHostMod, IHost
                 }
             }, profileExecutor);
         }
-        Runtime.getRuntime().addShutdownHook(new Thread()
-        {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
-            public void run()
-            {
-                synchronized (ChatHandler.ircLock)
-                {
+            public void run() {
+                synchronized (ChatHandler.ircLock) {
                     if (ChatHandler.client != null)
                         ChatHandler.killChatConnection(false);
                 }
@@ -236,30 +226,106 @@ public class MineTogether implements ICreeperHostMod, IHost
         });
     }
 
-    private String verifySignature()
+    private String verifySignature(JarFile jarFile)
     {
-        if(MineTogether.class.getProtectionDomain().getCodeSource().getCodeSigners() == null) return null;
-
+        if(jarFile == null) return null;
         StringBuilder rawSig = new StringBuilder();
-        for (CodeSigner codeSigner : MineTogether.class.getProtectionDomain().getCodeSource().getCodeSigners()) {
-            CertPath certPath = codeSigner.getSignerCertPath();
-            List<? extends Certificate> certificates = certPath.getCertificates();
-            for(Certificate certificate : certificates)
+        byte[] messageDigest = new byte[0];
+
+        logger.error(jarFile.entries().toString());
+
+        while (jarFile.entries().hasMoreElements()) {
+            JarEntry jarEntry = jarFile.entries().nextElement();
+            if(jarEntry.getCodeSigners() == null) return null;
+
+            for (Certificate certificate : jarEntry.getCertificates()) {
+                try {
+                    logger.error(certificate.getEncoded());
+                } catch (CertificateEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            for (CodeSigner codeSigner : jarEntry.getCodeSigners())
             {
+                CertPath certPath = codeSigner.getSignerCertPath();
+                List<? extends Certificate> certificates = certPath.getCertificates();
+                for(Certificate certificate : certificates)
+                {
+                    try
+                    {
+                        rawSig.append(Base64.getEncoder().encodeToString(certificate.getEncoded()));
+                    } catch (CertificateEncodingException e) { e.printStackTrace(); }
+                }
                 try
                 {
-                    rawSig.append(Base64.getEncoder().encodeToString(certificate.getEncoded()));
-                } catch (CertificateEncodingException e) { e.printStackTrace(); }
+                    messageDigest = MessageDigest.getInstance("SHA-256").digest(rawSig.toString().getBytes());
+                    // I believe .digest appends constantly to the hash.
+                } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
             }
         }
-        byte[] messageDigest = new byte[0];
-        try
-        {
-            messageDigest = MessageDigest.getInstance("SHA-256").digest(rawSig.toString().getBytes());
-        } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
-        String out = bytesToHex(messageDigest);
-        return out;
+        //Now we have the hash of the whole jar, not just a single class, previous implementation meant you could change anything except the first class...
+        return bytesToHex(messageDigest);
     }
+
+    private JarFile findOurJar()
+    {
+        logger.info("Scanning mods directory for MineTogether jar");
+        File[] modsDir = FMLPaths.MODSDIR.get().toFile().listFiles();
+        if(modsDir == null) return null;
+
+        for(File file : modsDir)
+        {
+            try {
+                JarFile jarFile = new JarFile(file);
+                logger.info(jarFile.getName());
+                Map<String, Attributes> attributesMap = jarFile.getManifest().getEntries();
+
+                for (String s : attributesMap.keySet())
+                {
+                    if(s.equalsIgnoreCase("net/creeperhost/minetogether/CreeperHost.class"))
+                    {
+                        logger.error("Main class found, MineTogether Jar found");
+                        try {
+                            jarFile.close();
+                            jarFile = new JarFile(file, true);
+                        } catch(SecurityException ignored)
+                        {
+                            ignored.printStackTrace();
+                            return null;
+                        }
+                        return jarFile;
+                    }
+                }
+            } catch (IOException e) { e.printStackTrace(); }
+        }
+        return null;
+    }
+
+//    private String verifySignature()
+//    {
+//        if(MineTogether.class.getProtectionDomain().getCodeSource().getCodeSigners() == null) return null;
+//
+//        StringBuilder rawSig = new StringBuilder();
+//        for (CodeSigner codeSigner : MineTogether.class.getProtectionDomain().getCodeSource().getCodeSigners()) {
+//            CertPath certPath = codeSigner.getSignerCertPath();
+//            List<? extends Certificate> certificates = certPath.getCertificates();
+//            for(Certificate certificate : certificates)
+//            {
+//                try
+//                {
+//                    rawSig.append(Base64.getEncoder().encodeToString(certificate.getEncoded()));
+//                } catch (CertificateEncodingException e) { e.printStackTrace(); }
+//            }
+//        }
+//        byte[] messageDigest = new byte[0];
+//        try
+//        {
+//            messageDigest = MessageDigest.getInstance("SHA-256").digest(rawSig.toString().getBytes());
+//        } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+//        String out = bytesToHex(messageDigest);
+//        return out;
+//    }
 
     private static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();
