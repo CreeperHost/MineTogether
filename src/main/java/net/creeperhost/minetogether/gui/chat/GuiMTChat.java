@@ -692,7 +692,7 @@ public class GuiMTChat extends GuiScreen
 
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
-            if(profile != null && profile.isBanned()) messageComp = new TextComponentString("message deleted").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
+            if(profile != null && profile.isBanned()) messageComp = new TextComponentString("<message deleted>").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
 
             messageComp.getStyle().setColor(TextFormatting.WHITE);
 
