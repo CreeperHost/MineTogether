@@ -148,7 +148,6 @@ public class MTChatScreen extends Screen
         {
             addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, "Menu", new Menu(strings), true, p ->
             {
-
                 if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
                 {
                     MineTogether.instance.muteUser(activeDropdown);
@@ -545,6 +544,11 @@ public class MTChatScreen extends Screen
     {
         ClickEvent event = component.getStyle().getClickEvent();
         if (event == null)
+        {
+            return false;
+        }
+
+        if(menuDropdownButton != null && menuDropdownButton.dropdownOpen)
         {
             return false;
         }

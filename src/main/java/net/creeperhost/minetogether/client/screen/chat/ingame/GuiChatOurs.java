@@ -397,6 +397,11 @@ public class GuiChatOurs extends ChatScreen
         {
             return super.handleComponentClicked(component);
         }
+
+        if(menuDropdownButton != null && menuDropdownButton.dropdownOpen)
+        {
+            return false;
+        }
         
         if (component == ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).closeComponent)
         {
