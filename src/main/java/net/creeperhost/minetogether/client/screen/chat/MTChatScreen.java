@@ -745,7 +745,7 @@ public class MTChatScreen extends Screen
                 if (splitString.length >= 2) {
                     String name2 = splitString[1];
 
-                    if (name2.contains(Config.getInstance().curseProjectID) || name2.contains(MineTogether.instance.ftbPackID) && !MineTogether.instance.ftbPackID.isEmpty()) {
+                    if ((!MineTogether.instance.ftbPackID.isEmpty() && name2.contains(MineTogether.instance.ftbPackID))  || (!Config.getInstance().curseProjectID.isEmpty() && name2.contains(Config.getInstance().curseProjectID))) {
                         nickColour = TextFormatting.DARK_PURPLE;
                     }
                 }
