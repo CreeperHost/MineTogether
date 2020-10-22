@@ -617,7 +617,8 @@ public class ChatHandler
                         break;
                     case "VERIFY":
                         if(!event.getActor().getNick().startsWith("MT")) {
-                            client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + MineTogether.getSignature() + ":" + MineTogether.proxy.getUUID());
+                            String serverID = MineTogether.getServerIDAndVerify();
+                            client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + MineTogether.getSignature() + ":" + MineTogether.proxy.getUUID() + ":" + serverID);
                         }
                 }
             }
