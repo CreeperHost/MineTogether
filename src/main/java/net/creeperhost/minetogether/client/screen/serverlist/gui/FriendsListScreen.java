@@ -12,7 +12,6 @@ import net.creeperhost.minetogether.client.screen.list.GuiListEntryFriend;
 import net.creeperhost.minetogether.client.screen.list.GuiListEntryMuted;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.data.FriendStatusResponse;
-import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.gui.screen.ConfirmScreen;
@@ -22,13 +21,11 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
 
-import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FriendsListScreen extends Screen
 {
@@ -138,18 +135,22 @@ public class FriendsListScreen extends Screen
                 buttonInvite.visible = false;
             } else if (!codeEntry.getText().isEmpty())
             {
-                FriendStatusResponse result = Callbacks.addFriend(codeEntry.getText(), displayEntry.getText());
+                AtomicReference<FriendStatusResponse> result = new AtomicReference<>(null);
                 addFriend = false;
-                if (result == null) {
-                    Profile profile = ChatHandler.knownUsers.findByHash(result.getHash());
-                    if (profile == null) ChatHandler.knownUsers.add(result.getHash());
-                    if (profile != null)
-                        list.add(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
-                }
+
+                CompletableFuture.runAsync(() ->
+                {
+                    result.set(Callbacks.addFriend(codeEntry.getText(), displayEntry.getText()));
+                    if (result.get() != null) {
+                        Profile profile = ChatHandler.knownUsers.findByHash(result.get().getHash());
+                        if (profile == null) ChatHandler.knownUsers.add(result.get().getHash());
+                        if (profile != null) list.add(new GuiListEntryFriend(this, list, new Friend(displayEntry.getText(), codeEntry.getText(), false)));
+                    }
+                }, MineTogether.profileExecutor);
+
                 buttonInvite.visible = true;
-                showAlert(result == null || result.getMessage().isEmpty() ? new StringTextComponent(Util.localize("multiplayer.friendsent")) : new StringTextComponent(result.getMessage()), 0x00FF00, 5000);
+                showAlert(result.get() == null || result.get().getMessage().isEmpty() ? new StringTextComponent(Util.localize("multiplayer.friendsent")) : new StringTextComponent(result.get().getMessage()), 0x00FF00, 5000);
             }
-            
         }));
         buttonX += spaceInbetween;
         
