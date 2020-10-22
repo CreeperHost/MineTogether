@@ -71,7 +71,13 @@ public class KnownUsers
         profiles.updateAndGet(profiles1 ->
         {
             Profile profileTarget = findByHash(hash);
-            if(profileTarget != null && ((!profileTarget.isFriend() || ignoreFriend) || !profileTarget.isBanned())) profiles1.remove(profileTarget);
+            if(profileTarget == null) return profiles1;
+            if(profileTarget.isBanned()) return profiles1;
+            if(ignoreFriend) {
+                if (profileTarget.isFriend()) return profiles1;
+            }
+
+            profiles1.remove(profileTarget);
             return profiles1;
         });
     }
@@ -81,7 +87,13 @@ public class KnownUsers
         profiles.updateAndGet(profiles1 ->
         {
             Profile profileTarget = findByNick(nick);
-            if(profileTarget != null && ((!profileTarget.isFriend() || ignoreFriend) || !profileTarget.isBanned())) profiles1.remove(profileTarget);
+            if(profileTarget == null) return profiles1;
+            if(profileTarget.isBanned()) return profiles1;
+            if(ignoreFriend) {
+                if (profileTarget.isFriend()) return profiles1;
+            }
+
+            profiles1.remove(profileTarget);
             return profiles1;
         });
     }

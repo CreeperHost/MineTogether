@@ -103,6 +103,7 @@ public class WebUtils
             
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56");
+            conn.setRequestProperty("Fingerprint", MineTogether.getSignature());
             conn.setRequestMethod(method);
             if (cookies != null)
             {

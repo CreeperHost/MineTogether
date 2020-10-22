@@ -399,15 +399,15 @@ public class GuiChatOurs extends ChatScreen
         {
             return super.handleComponentClicked(style);
         }
-        
+
         if (style == ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).closeComponent)
         {
             MineTogether.instance.closeGroupChat();
             return true;
         }
         ClickEvent event = style.getClickEvent();
-        if (event == null)
-            return false;
+        if (event == null) return false;
+        if (menuDropdownButton.dropdownOpen) return false;
         if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
             String eventValue = event.getValue();
@@ -436,7 +436,9 @@ public class GuiChatOurs extends ChatScreen
                 return true;
             }
 
-            menuDropdownButton.x = (int) mc.mouseHelper.getMouseX() * this.height / this.mc.getMainWindow().getWidth() + 28;
+            if(menuDropdownButton == null) return false;
+
+            menuDropdownButton.x = (int) (mc.mouseHelper.getMouseX() * (this.height / this.mc.getMainWindow().getWidth())) +28;
             menuDropdownButton.y = (int) mc.mouseHelper.getMouseY() * this.height / this.mc.getMainWindow().getHeight();
             menuDropdownButton.dropdownOpen = true;
             menuDropdownButton.flipped = true;
