@@ -508,6 +508,12 @@ public class GuiMTChat extends GuiScreen
         ClickEvent event = component.getStyle().getClickEvent();
         if (event == null)
             return false;
+
+        if(menuDropdownButton != null && menuDropdownButton.dropdownOpen)
+        {
+            return false;
+        }
+
         if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
             String eventValue = event.getValue();

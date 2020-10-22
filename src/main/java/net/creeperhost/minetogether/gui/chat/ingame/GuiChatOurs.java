@@ -383,6 +383,11 @@ public class GuiChatOurs extends GuiChat
             return super.handleComponentClick(component);
         }
 
+        if(menuDropdownButton != null && menuDropdownButton.dropdownOpen)
+        {
+            return false;
+        }
+
         if(component == ((GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI()).closeComponent)
         {
             CreeperHost.instance.closeGroupChat();
