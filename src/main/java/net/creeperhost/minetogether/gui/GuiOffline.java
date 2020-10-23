@@ -35,7 +35,7 @@ public class GuiOffline extends GuiScreen
     private GuiCheckBox checkBox;
 
     private List<ITextComponent> gdprlines;
-    private boolean ignored = false;
+    private boolean ignored = true;
 
     public GuiOffline(){}
 
