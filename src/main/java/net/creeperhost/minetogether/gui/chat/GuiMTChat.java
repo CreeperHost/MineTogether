@@ -65,8 +65,8 @@ public class GuiMTChat extends GuiScreen
     private boolean inviteTemp = false;
     private String banMessage = "";
     private ButtonString banButton;
-    private GuiButton testButton;
     private GuiButton settingsButton;
+    private boolean isBanned = false;
 
     public GuiMTChat(GuiScreen parent)
     {
@@ -87,8 +87,6 @@ public class GuiMTChat extends GuiScreen
         {
             chat.updateLines(currentTarget);
         } catch (Exception ignored) {}
-
-//        TimestampComponentString.clearActive();
     }
 
     @Override
@@ -132,10 +130,12 @@ public class GuiMTChat extends GuiScreen
             inviteTemp = false;
         }
 
-        if(Callbacks.isBanned())
+        CompletableFuture.runAsync(() -> isBanned = Callbacks.isBanned(), CreeperHost.profileExecutor);
+
+        if(isBanned)
         {
             banMessage = "";
-            CompletableFuture.runAsync(() -> Callbacks.getBanMessage(), CreeperHost.instance.profileExecutor);
+            CompletableFuture.runAsync(Callbacks::getBanMessage, CreeperHost.profileExecutor);
             if(!banMessage.isEmpty())
                 buttonList.add(banButton = new ButtonString(8888, 46, height - 26, TextFormatting.RED + "Ban Reason: " + TextFormatting.WHITE + banMessage));
         }
@@ -698,7 +698,10 @@ public class GuiMTChat extends GuiScreen
 
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
-            if(profile != null && profile.isBanned()) messageComp = new TextComponentString("<message deleted>").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
+            if(profile != null && profile.isBanned()) {
+                messageComp = new TextComponentString("<message deleted>").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
+                messageColour = TextFormatting.DARK_GRAY;
+            }
 
             messageComp.getStyle().setColor(TextFormatting.WHITE);
 

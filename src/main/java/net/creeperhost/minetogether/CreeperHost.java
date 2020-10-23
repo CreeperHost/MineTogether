@@ -1,9 +1,6 @@
 package net.creeperhost.minetogether;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import net.creeperhost.minetogether.api.CreeperHostAPI;
 import net.creeperhost.minetogether.api.ICreeperHostMod;
 import net.creeperhost.minetogether.api.IServerHost;
@@ -118,7 +115,10 @@ public class CreeperHost implements ICreeperHostMod, IHost
     {
         String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature();
-        if(event.getSide() != Side.SERVER && signature == null) return;
+        if(event.getSide() != Side.SERVER && signature == null){
+            logger.error("MineTogethers signature in invalid, setting MineTogether to offline mode");
+            return;
+        }
 
         if (event.getSide() != Side.SERVER)
         {

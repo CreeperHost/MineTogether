@@ -53,6 +53,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -143,6 +144,17 @@ public class EventHandler
     {
         GuiScreen gui = event.getGui();
         GuiScreen curGui = Minecraft.getMinecraft().currentScreen;
+
+        if(gui instanceof GuiMainMenu && first)
+        {
+            File offline = new File("local/minetogether/offline.txt");
+
+            if(!isOnline && !offline.exists())
+            {
+                first = false;
+                event.setGui(new GuiOffline());
+            }
+        }
 
         if(!isOnline) return;
         

@@ -150,6 +150,7 @@ public class Profile
         long currentTime = System.currentTimeMillis() / 1000;
         if(currentTime > (lastFriendCheck + 30)) {
             ArrayList<Friend> friendsList = Callbacks.getFriendsList(false);
+            if(friendsList == null) return false;
             for (Friend friend : friendsList) {
                 String hash = getShortHash();
                 if(getShortHash().isEmpty()) hash = getMediumHash();
@@ -192,7 +193,7 @@ public class Profile
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, false);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, true);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
