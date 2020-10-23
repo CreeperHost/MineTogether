@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.events;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.api.Order;
+import net.creeperhost.minetogether.client.screen.OfflineScreen;
 import net.creeperhost.minetogether.client.screen.SettingsScreen;
 import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
 import net.creeperhost.minetogether.client.screen.chat.ingame.GuiChatOurs;
@@ -30,6 +31,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScreenEvents
@@ -196,13 +198,6 @@ public class ScreenEvents
                     }
                 }));
             }
-            
-            //TEST
-//            event.addWidget(new Button(event.getGui().width / 2 - 50, 5, 100, 20, I18n.format("Universe 7"), p ->
-//            {
-//                WorldHandler worldHandler = new WorldHandler();
-//                worldHandler.createWorld();
-//            }));
         }
         
         if (event.getGui() instanceof IngameMenuScreen)
@@ -232,6 +227,15 @@ public class ScreenEvents
 
         if (firstConnect && gui instanceof MainMenuScreen)
         {
+            File offline = new File("local/minetogether/offline.txt");
+
+            if(!MineTogether.isOnline && !offline.exists())
+            {
+                firstConnect = false;
+                event.setGui(new OfflineScreen(event.getGui()));
+            }
+
+            if(!MineTogether.isOnline) return;
             firstConnect = false;
             String server = System.getProperty("mt.server");
             int serverId = -1;

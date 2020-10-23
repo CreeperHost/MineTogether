@@ -542,6 +542,9 @@ public class MTChatScreen extends Screen
 
     public boolean handleComponentClick(ITextComponent component, double mouseX, double mouseY)
     {
+        //We know this is lies don't we Minecraft...
+        if(component.getStyle() == null) return false;
+        if(component.getStyle().getClickEvent() == null) return false;
         ClickEvent event = component.getStyle().getClickEvent();
         if (event == null)
         {
