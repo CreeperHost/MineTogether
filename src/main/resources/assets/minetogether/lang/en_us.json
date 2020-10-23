@@ -283,5 +283,8 @@
   "minetogether.linkaccount1":"Link your Minecraft account to your MineTogether account.",
   "minetogether.linkaccount2":"Linking your accounts will unlock abilities like being able to set your own nickname.\n\nThis will open a web-browser for you to sign in securely.,",
   "minetogether.banned1":"You have been banned from MineTogether chat for ",
-  "minetogether.banned2":"You can appeal your ban via your account on MineTogether.io\n\nDo you wish to appeal this ban?"
+  "minetogether.banned2":"You can appeal your ban via your account on MineTogether.io\n\nDo you wish to appeal this ban?",
+  "minetogether.offlinetext":"We have detected that your client is currently in offline mode.",
+  "minetogether.offlinetext1":"Due to this MineTogether and all of its features have been DISABLED",
+  "minetogether.offlinetext2": "If you own a Minecraft account and have not started your client in offline mode, You can attempt to restart your client to resolve this issue, This could also be caused by Mojang's authentication server's being unavalable at this time."
 }
