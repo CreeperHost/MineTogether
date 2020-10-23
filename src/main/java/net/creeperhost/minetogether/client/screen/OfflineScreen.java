@@ -97,7 +97,7 @@ public class OfflineScreen extends Screen
             }
             Minecraft.getInstance().displayGuiScreen(new MainMenuScreen());
         }));
-        buttons.add(checkBox = new CheckboxButton( (width / 2) - (font.getStringWidth("Do not show this screen again") / 2), height - 80, 150, 20, "Do not show this screen again", false));
+        buttons.add(checkBox = new CheckboxButton( (width / 2) - (font.getStringWidth("Do not show this screen again") / 2), height - 80, 150, 20, "Do not show this screen again", true));
     }
 
     @Override
