@@ -395,6 +395,9 @@ public class GuiChatOurs extends ChatScreen
     @Override
     public boolean handleComponentClicked(Style style)
     {
+        if(style == null) return false;
+        if(style.getClickEvent() == null) return false;
+
         if (isBase())
         {
             return super.handleComponentClicked(style);

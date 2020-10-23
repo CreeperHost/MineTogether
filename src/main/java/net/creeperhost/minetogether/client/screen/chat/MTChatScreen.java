@@ -539,6 +539,8 @@ public class MTChatScreen extends Screen
 
     public boolean handleComponentClick(Style style, double mouseX, double mouseY)
     {
+        if(style == null) return false;
+        if(style.getClickEvent() == null) return false;
         ClickEvent event = style.getClickEvent();
         if (event == null)
         {
@@ -728,8 +730,10 @@ public class MTChatScreen extends Screen
 
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
-            if(profile != null && profile.isBanned())
-                messageComp = new StringTextComponent("message deleted").setStyle(Style.EMPTY.setColor(Color.func_240744_a_(TextFormatting.DARK_GRAY)).setItalic(true));
+            if(profile != null && profile.isBanned()) {
+                messageComp = new StringTextComponent("<message deleted>").setStyle(Style.EMPTY.setColor(Color.func_240744_a_(TextFormatting.DARK_GRAY)).setItalic(true));
+                messageColour = TextFormatting.DARK_GRAY;
+            }
 
             messageComp.getStyle().setColor(Color.func_240744_a_(TextFormatting.WHITE));
 
