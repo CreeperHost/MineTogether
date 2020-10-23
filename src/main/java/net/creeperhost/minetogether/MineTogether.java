@@ -156,7 +156,12 @@ public class MineTogether implements ICreeperHostMod, IHost {
     public void preInitClient(FMLClientSetupEvent event) {
         String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature(findOurJar());
-        if(signature == null) return;
+        if(signature == null)
+        {
+            logger.error("MineTogethers signature does not match, Setting MineTogether to offline mode");
+            //Return here to stop anything else loading
+            return;
+        }
 
         isOnline = proxy.checkOnline();
         if (!isOnline) {
