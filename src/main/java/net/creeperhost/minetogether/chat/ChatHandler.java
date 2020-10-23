@@ -22,6 +22,7 @@ import org.kitteh.irc.client.library.element.mode.ChannelUserMode;
 import org.kitteh.irc.client.library.element.mode.ModeStatus;
 import org.kitteh.irc.client.library.event.channel.*;
 import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent;
+import org.kitteh.irc.client.library.event.client.NickRejectedEvent;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionFailedEvent;
 import org.kitteh.irc.client.library.event.user.*;
@@ -663,12 +664,22 @@ public class ChatHandler
                             }
                         });
                         return profile1;
-                    });                    ChatHandler.connectionStatus = ConnectionStatus.BANNED;
+                    });
+                    ChatHandler.connectionStatus = ConnectionStatus.BANNED;
                     Callbacks.getBanMessage();
                     host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
                 }
                 host.userBanned(nick);
             }));
+        }
+
+        @Handler
+        public void onNickRejected(NickRejectedEvent event)
+        {
+            if(event.getAttemptedNick().equalsIgnoreCase(nick))
+            {
+                addStatusMessage("Unable to connect to chat. Please make sure you do not have another Minecraft client open. If you have the FTBApp running, ensure that you launched Minecraft via the FTBApp.");
+            }
         }
     }
 
