@@ -282,42 +282,45 @@ public class MineTogether implements ICreeperHostMod, IHost
 
     private File findOurJar()
     {
-        logger.info("Scanning mods directory for MineTogether jar");
-        File[] modsDir = FMLPaths.MODSDIR.get().toFile().listFiles();
-        if(modsDir == null) return null;
+        try {
 
-        try
-        {
-            for (File file : modsDir)
-            {
-                try
-                {
+            logger.info("Scanning mods directory for MineTogether jar");
+            File[] modsDir = FMLPaths.MODSDIR.get().toFile().listFiles();
+            if (modsDir == null) return null;
+
+            for (File file : modsDir) {
+                try {
                     JarFile jarFile = new JarFile(file);
+                    if (jarFile == null) continue;
+
                     logger.info("JARFILE " + jarFile.getName());
                     Map<String, Attributes> attributesMap = jarFile.getManifest().getEntries();
 
-                    for (String s : attributesMap.keySet())
-                    {
-                        if (s.equalsIgnoreCase("net/creeperhost/minetogether/MineTogether.class"))
-                        {
+                    if (attributesMap == null) continue;
+
+                    for (String s : attributesMap.keySet()) {
+                        if (s.equalsIgnoreCase("net/creeperhost/minetogether/MineTogether.class")) {
                             logger.error("Main class found, MineTogether Jar found");
-                            try
-                            {
+                            try {
                                 jarFile.close();
                                 jarFile = new JarFile(file, true);
-                            }
-                            catch (SecurityException e)
-                            {
-                                e.printStackTrace();
+                            } catch (SecurityException ignored) {
+                                ignored.printStackTrace();
                                 return null;
                             }
                             return file;
                         }
                     }
-                } catch (IOException e) { e.printStackTrace(); }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             return null;
-        } catch (Exception e) { return null; }
+        } catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static String bytesToHex(byte[] hash) {
