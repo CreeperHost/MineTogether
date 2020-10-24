@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.client.screen.chat;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.creeperhost.minetogether.MineTogether;
@@ -20,6 +21,7 @@ import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.ConfirmScreen;
@@ -33,6 +35,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.common.ForgeHooks;
@@ -273,7 +276,9 @@ public class MTChatScreen extends Screen
         ChatHandler.ConnectionStatus status = ChatHandler.connectionStatus;
         renderDirtBackground(1);
         targetDropdownButton.updateDisplayString();
+
         chat.render(matrixStack, mouseX, mouseY, partialTicks);
+
         send.render(matrixStack, mouseX, mouseY, partialTicks);
         if (!ChatHandler.isOnline())
         {
@@ -303,7 +308,6 @@ public class MTChatScreen extends Screen
 
         connectionStatus.setMessage(comp);
 
-        drawLogo(matrixStack, font, width - 20, height - 30, 20, 30, 0.75F);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
         {
@@ -934,6 +938,92 @@ public class MTChatScreen extends Screen
             return width + 4;
         }
 
+        @Override
+        public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+        {
+            this.renderBackground(matrixStack);
+            int i = this.getScrollbarPosition();
+            int j = i + 6;
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder bufferbuilder = tessellator.getBuffer();
+            this.minecraft.getTextureManager().bindTexture(AbstractGui.BACKGROUND_LOCATION);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            float f = 32.0F;
+            bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            bufferbuilder.pos((double)this.x0, (double)this.y1, 0.0D).tex((float)this.x0 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.pos((double)this.x1, (double)this.y1, 0.0D).tex((float)this.x1 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.pos((double)this.x1, (double)this.y0, 0.0D).tex((float)this.x1 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.pos((double)this.x0, (double)this.y0, 0.0D).tex((float)this.x0 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            tessellator.draw();
+            int k = this.getRowLeft();
+            int l = this.y0 + 4 - (int)this.getScrollAmount();
+
+            drawLogo(matrixStack, font, width - 20, height + 18, 20, 30, 0.75F);
+            this.renderList(matrixStack, k, l, mouseX, mouseY, partialTicks);
+            this.minecraft.getTextureManager().bindTexture(AbstractGui.BACKGROUND_LOCATION);
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthFunc(519);
+            float f1 = 32.0F;
+            int i1 = -100;
+            bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            bufferbuilder.pos((double)this.x0, (double)this.y0, -100.0D).tex(0.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.pos((double)(this.x0 + this.width), (double)this.y0, -100.0D).tex((float)this.width / 32.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.pos((double)(this.x0 + this.width), 0.0D, -100.0D).tex((float)this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.pos((double)this.x0, 0.0D, -100.0D).tex(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.pos((double)this.x0, (double)this.height, -100.0D).tex(0.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.pos((double)(this.x0 + this.width), (double)this.height, -100.0D).tex((float)this.width / 32.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.pos((double)(this.x0 + this.width), (double)this.y1, -100.0D).tex((float)this.width / 32.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.pos((double)this.x0, (double)this.y1, -100.0D).tex(0.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            tessellator.draw();
+            RenderSystem.depthFunc(515);
+            RenderSystem.disableDepthTest();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+            RenderSystem.disableAlphaTest();
+            RenderSystem.shadeModel(7425);
+            RenderSystem.disableTexture();
+            int j1 = 4;
+            bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            bufferbuilder.pos((double)this.x0, (double)(this.y0 + 4), 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.pos((double)this.x1, (double)(this.y0 + 4), 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.pos((double)this.x1, (double)this.y0, 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.pos((double)this.x0, (double)this.y0, 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.pos((double)this.x0, (double)this.y1, 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.pos((double)this.x1, (double)this.y1, 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.pos((double)this.x1, (double)(this.y1 - 4), 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.pos((double)this.x0, (double)(this.y1 - 4), 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+            tessellator.draw();
+            int k1 = this.getMaxScroll();
+            if (k1 > 0) {
+                int l1 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
+                l1 = MathHelper.clamp(l1, 32, this.y1 - this.y0 - 8);
+                int i2 = (int)this.getScrollAmount() * (this.y1 - this.y0 - l1) / k1 + this.y0;
+                if (i2 < this.y0) {
+                    i2 = this.y0;
+                }
+
+                bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+                bufferbuilder.pos((double)i, (double)this.y1, 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+                bufferbuilder.pos((double)j, (double)this.y1, 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+                bufferbuilder.pos((double)j, (double)this.y0, 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+                bufferbuilder.pos((double)i, (double)this.y0, 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+                bufferbuilder.pos((double)i, (double)(i2 + l1), 0.0D).tex(0.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+                bufferbuilder.pos((double)j, (double)(i2 + l1), 0.0D).tex(1.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+                bufferbuilder.pos((double)j, (double)i2, 0.0D).tex(1.0F, 0.0F).color(128, 128, 128, 255).endVertex();
+                bufferbuilder.pos((double)i, (double)i2, 0.0D).tex(0.0F, 0.0F).color(128, 128, 128, 255).endVertex();
+                bufferbuilder.pos((double)i, (double)(i2 + l1 - 1), 0.0D).tex(0.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+                bufferbuilder.pos((double)(j - 1), (double)(i2 + l1 - 1), 0.0D).tex(1.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+                bufferbuilder.pos((double)(j - 1), (double)i2, 0.0D).tex(1.0F, 0.0F).color(192, 192, 192, 255).endVertex();
+                bufferbuilder.pos((double)i, (double)i2, 0.0D).tex(0.0F, 0.0F).color(192, 192, 192, 255).endVertex();
+                tessellator.draw();
+            }
+
+            this.renderDecorations(matrixStack, mouseX, mouseY);
+            RenderSystem.enableTexture();
+            RenderSystem.shadeModel(7424);
+            RenderSystem.enableAlphaTest();
+            RenderSystem.disableBlend();
+        }
 
         @Override
         protected void renderList(MatrixStack matrixStack, int p_renderList_1_, int p_renderList_2_, int mouseX, int mouseY, float p_renderList_5_)

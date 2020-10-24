@@ -162,8 +162,6 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
-        String serverIDAndVerify = proxy.getServerIDAndVerify();
-
         signature = verifySignature(findOurJar());
         if(signature == null) {
             logger.error("client signature is null, MineTogether will not load");
