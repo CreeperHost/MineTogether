@@ -294,6 +294,7 @@ public class MineTogether implements ICreeperHostMod, IHost
                     if (jarFile == null) continue;
 
                     logger.info("JARFILE " + jarFile.getName());
+                    if(jarFile.getManifest() == null) continue;
                     Map<String, Attributes> attributesMap = jarFile.getManifest().getEntries();
 
                     if (attributesMap == null) continue;
