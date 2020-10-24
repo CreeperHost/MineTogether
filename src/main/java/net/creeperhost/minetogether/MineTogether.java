@@ -154,7 +154,6 @@ public class MineTogether implements ICreeperHostMod, IHost {
 
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event) {
-        String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature(findOurJar());
         if(signature == null)
         {
@@ -269,8 +268,8 @@ public class MineTogether implements ICreeperHostMod, IHost {
 
     private File findOurJar()
     {
-        try {
-
+        try
+        {
             logger.info("Scanning mods directory for MineTogether jar");
             File[] modsDir = FMLPaths.MODSDIR.get().toFile().listFiles();
             if (modsDir == null) return null;
