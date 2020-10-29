@@ -1,6 +1,9 @@
 package net.creeperhost.minetogether.data;
 
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.chat.Message;
+import net.creeperhost.minetogether.common.LimitedSizeQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,14 +21,45 @@ public class KnownUsers
         this.profiles.set(new ArrayList<Profile>());
     }
 
+    public void clean()
+    {
+        List<String> remove = new ArrayList<>();
+        for(Profile profile : profiles.get())
+        {
+            if(profile.getUserDisplay().isEmpty()) continue;
+            if(profile.isFriend()) continue;
+            if(profile.isBanned()) continue;
+            //Check if chatlines contains profile.getDisplay();
+            LimitedSizeQueue<Message> tempMessages = ChatHandler.messages.get(ChatHandler.CHANNEL);
+            boolean skip = false;
+            for(Message message : tempMessages)
+            {
+                if(message.sender.equals("System")) continue;
+                if(message.sender.equalsIgnoreCase(profile.getUserDisplay()) || message.sender.equalsIgnoreCase(profile.getMediumHash()) || message.sender.equalsIgnoreCase(profile.getShortHash()))
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if(!skip) remove.add(profile.getLongHash());
+        }
+        for(String hash : remove)
+        {
+            removeByHash(hash, false);
+        }
+    }
+
     public Profile add(String hash)
     {
+        if(CreeperHost.profile.get().getLongHash().startsWith(hash.substring(2))) return null;
+
         Profile profile = new Profile(hash);
         if(findByNick(hash) == null)
         {
             profiles.updateAndGet(profiles1 ->
             {
                 profiles1.add(profile);
+//                CreeperHost.logger.warn("Adding " + hash + " to knownusers " + profiles.get().size());
                 return profiles1;
             });
             CompletableFuture.runAsync(() -> {
@@ -47,7 +81,7 @@ public class KnownUsers
             if(ignoreFriend) {
                 if (profileTarget.isFriend()) return profiles1;
             }
-
+//            CreeperHost.logger.warn("Removing " + hash + " from knownusers new size " + profiles.get().size());
             profiles1.remove(profileTarget);
             return profiles1;
         });
@@ -59,11 +93,12 @@ public class KnownUsers
         {
             Profile profileTarget = findByNick(nick);
             if(profileTarget == null) return profiles1;
+//            CreeperHost.logger.warn("attempting to remove user " + nick + " from knownusers");
             if(profileTarget.isBanned()) return profiles1;
             if(ignoreFriend) {
                 if (profileTarget.isFriend()) return profiles1;
             }
-
+//            CreeperHost.logger.warn("Removing user " + nick + " from knownusers new size " + profiles.get().size());
             profiles1.remove(profileTarget);
             return profiles1;
         });

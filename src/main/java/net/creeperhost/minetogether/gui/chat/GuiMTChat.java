@@ -93,6 +93,7 @@ public class GuiMTChat extends GuiScreen
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
+        ChatHandler.sendActive();
         if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
         {
             mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMTChat(parent)));
@@ -130,12 +131,12 @@ public class GuiMTChat extends GuiScreen
             inviteTemp = false;
         }
 
-        CompletableFuture.runAsync(() -> isBanned = Callbacks.isBanned(), CreeperHost.profileExecutor);
+        CompletableFuture.runAsync(() -> isBanned = Callbacks.isBanned(), CreeperHost.otherExecutor);
 
         if(isBanned)
         {
             banMessage = "";
-            CompletableFuture.runAsync(Callbacks::getBanMessage, CreeperHost.profileExecutor);
+            CompletableFuture.runAsync(Callbacks::getBanMessage, CreeperHost.otherExecutor);
             if(!banMessage.isEmpty())
                 buttonList.add(banButton = new ButtonString(8888, 46, height - 26, TextFormatting.RED + "Ban Reason: " + TextFormatting.WHITE + banMessage));
         }
@@ -147,7 +148,7 @@ public class GuiMTChat extends GuiScreen
     public void updateScreen()
     {
         super.updateScreen();
-        if(tickCounter % 10 == 0) rebuildChat();
+        if(tickCounter % 20 == 0) rebuildChat();
 
         if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
@@ -474,7 +475,7 @@ public class GuiMTChat extends GuiScreen
                     continue;
                 }
                 String tempWord = profile.getShortHash();
-                if (tempWord != null) {
+                if (tempWord != null && !tempWord.isEmpty()) {
                     split[i] = result.replaceAll(justNick, tempWord);
                     replaced = true;
                 }
@@ -577,8 +578,8 @@ public class GuiMTChat extends GuiScreen
 
     public static ITextComponent formatLine(Message message)
     {
-        try {
-
+        try
+        {
             String inputNick = message.sender;
             String outputNick = inputNick;
 
@@ -801,10 +802,7 @@ public class GuiMTChat extends GuiScreen
                     if (display == null)
                         continue;
                     List<ITextComponent> strings = GuiUtilRenderComponents.splitText(display, listWidth - 6, fontRendererObj, false, true);
-                    for (ITextComponent string : strings)
-                    {
-                        lines.add(string);
-                    }
+                    lines.addAll(strings);
                 }
             } catch (Exception e)
             {

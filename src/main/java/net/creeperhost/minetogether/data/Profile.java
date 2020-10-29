@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.gui.chat.Target;
@@ -41,12 +42,19 @@ public class Profile
         if(serverNick.length() == 30)
         {
             this.mediumHash = serverNick;
+            this.shortHash = serverNick.substring(16);
             userDisplay = "User#" + mediumHash.substring(2,7);
         }
         else if(serverNick.length() < 30)
         {
             this.shortHash = serverNick;
             userDisplay = "User#" + shortHash.substring(2,7);
+        } else {
+            //Got a FULL hash... Uh oh (This should never actually happen)
+            this.shortHash = "MT" + serverNick.substring(14);
+            this.mediumHash = "MT" + serverNick.substring(28);
+            this.longHash = serverNick;
+            this.userDisplay = "User#" + longHash.substring(0,5);
         }
     }
 
@@ -138,6 +146,7 @@ public class Profile
     }
 
     public String getUserDisplay() {
+        if(userDisplay.isEmpty() && longHash.length() > 0) return "User#"+longHash.substring(5);
         return userDisplay;
     }
 
@@ -152,9 +161,8 @@ public class Profile
             ArrayList<Friend> friendsList = Callbacks.getFriendsList(false);
             if(friendsList == null) return false;
             for (Friend friend : friendsList) {
-                String hash = getShortHash();
-                if(getShortHash().isEmpty()) hash = getMediumHash();
-                if (!hash.isEmpty() && friend.getCode().startsWith(hash.substring(2))) {
+                if(getLongHash().length() == 0) continue;
+                if (friend.getCode().equalsIgnoreCase(getLongHash())) {
                     this.friend = true;
                     this.lastFriendCheck = System.currentTimeMillis() / 1000;
                     this.friendName = friend.getName();

@@ -122,7 +122,7 @@ public class Client implements IProxy
                     CreeperHost.mutedUsers = gson.fromJson(new InputStreamReader(fis), strListToken);
                 } catch (IOException ignored) { }
             }
-            CompletableFuture.runAsync(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance), CreeperHost.instance.profileExecutor); // start in thread as can hold up the UI thread for some reason.
+            CompletableFuture.runAsync(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance), CreeperHost.otherExecutor); // start in thread as can hold up the UI thread for some reason.
         }
     }
 

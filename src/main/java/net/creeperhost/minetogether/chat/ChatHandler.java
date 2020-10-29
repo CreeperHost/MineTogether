@@ -21,6 +21,7 @@ import org.kitteh.irc.client.library.element.WhoisData;
 import org.kitteh.irc.client.library.element.mode.ChannelMode;
 import org.kitteh.irc.client.library.element.mode.ChannelUserMode;
 import org.kitteh.irc.client.library.element.mode.ModeStatus;
+import org.kitteh.irc.client.library.element.mode.UserMode;
 import org.kitteh.irc.client.library.event.channel.*;
 import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent;
 import org.kitteh.irc.client.library.event.client.NickRejectedEvent;
@@ -68,6 +69,7 @@ public class ChatHandler
     {
         ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn, _host);
         ChatConnectionHandler.INSTANCE.connect();
+        startCleanThread();
     }
 
     public static void reInit()
@@ -136,52 +138,49 @@ public class ChatHandler
         {
             if(!oldFriends.containsKey(friend.getKey()))
             {
-                CompletableFuture.runAsync(() ->
-                {
-                    Profile profile = knownUsers.findByNick(friend.getKey());
-                    if(profile == null) knownUsers.add(friend.getKey());
-                    if(profile != null) profile.isOnline();
-                }, CreeperHost.profileExecutor);
-
+                Profile profile = knownUsers.findByNick(friend.getKey());
+                if(profile == null) knownUsers.add(friend.getKey());
+                if(profile != null) profile.isOnline();
                 host.friendEvent(friend.getKey(), false);
             }
         }
     }
 
-    public static void sendMessage(String currentTarget, String text)
+    public static void sendMessage(String currentTarget, String _text)
     {
-        String nick;
-        if(ChatHandler.isOnline()) {
-            nick = client.getNick();
-            if (currentTarget.equals(CHANNEL)) {
-                client.getChannel(CHANNEL).get().sendMessage(text);
-            } else if (privateChatList != null && currentTarget.equals(privateChatList.channelname)) {
-                try {
-                    client.addChannel(privateChatList.getChannelname()); //Just to make sure the user is connected to the channel
-                    client.getChannel(privateChatList.getChannelname()).get().sendMessage(text);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        final String text = _text;
+        CompletableFuture.runAsync(() ->
+        {
+            String nick;
+            if (ChatHandler.isOnline()) {
+                nick = client.getNick();
+                if (currentTarget.equals(CHANNEL)) {
+                    client.getChannel(CHANNEL).get().sendMessage(text);
+                } else if (privateChatList != null && currentTarget.equals(privateChatList.channelname)) {
+                    try {
+                        client.addChannel(privateChatList.getChannelname()); //Just to make sure the user is connected to the channel
+                        client.getChannel(privateChatList.getChannelname()).get().sendMessage(text);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Profile profile = knownUsers.findByNick(currentTarget);
+                    if (profile != null && profile.isOnline()) {
+                        client.sendMessage(currentTarget, text);
+                    } else {
+                        CompletableFuture.runAsync(() -> updateFriends(client.getChannel(CHANNEL).get().getNicknames()), CreeperHost.profileExecutor);
+                        return;
+                    }
                 }
             } else {
-                Profile profile = knownUsers.findByNick(currentTarget);
-                if(profile != null && profile.isOnline())
-                {
-                    client.sendMessage(currentTarget, text);
-                } else {
-                    updateFriends(client.getChannel(CHANNEL).get().getNicknames());
-                    return;
-                }
-
+//                text = "Message not sent as not connected.";
+                nick = "System";
             }
-        } else {
-            text = "Message not sent as not connected.";
-            nick = "System";
-        }
 
-        synchronized (ircLock)
-        {
-            addMessageToChat(currentTarget, nick, text);
-        }
+            synchronized (ircLock) {
+                addMessageToChat(currentTarget, nick, text);
+            }
+        },CreeperHost.chatMessageExecutor);
     }
 
     public static void sendFriendRequest(String target, String desiredName)
@@ -205,8 +204,7 @@ public class ChatHandler
             userOpt = client.getChannel(CHANNEL).get().getUser(target + "`");
         if (userOpt.isPresent())
         {
-            if (privateChatList != null && !privateChatList.getChannelname().equals(channelName))
-                closePrivateChat();
+            if (privateChatList != null && !privateChatList.getChannelname().equals(channelName)) closePrivateChat();
             User user = userOpt.get();
             client.addChannel(channelName);
             Optional<Channel> channel = client.getChannel(channelName);
@@ -260,8 +258,7 @@ public class ChatHandler
 
     public static void acceptPrivateChatInvite(PrivateChat invite)
     {
-        if (hasGroup)
-            closePrivateChat();
+        if (hasGroup) closePrivateChat();
         privateChatList = invite;
         client.addChannel(invite.getChannelname());
         currentGroup = invite.getChannelname();
@@ -269,7 +266,55 @@ public class ChatHandler
         privateChatInvite = null;
     }
 
-    public static void closePrivateChat() {
+    public static void sendActive()
+    {
+        try
+        {
+            if (client == null) return;
+
+            if (!client.getChannel(CHANNEL).isPresent()) return;
+
+            Channel channel = client.getChannel(CHANNEL).get();
+
+            CompletableFuture.runAsync(() ->
+            {
+                channel.getUsers().forEach(user ->
+                {
+                    if (!channel.getUserModes(user).isPresent()) return;
+
+                    channel.getUserModes(user).get().forEach(channelUserMode ->
+                    {
+                        if (channelUserMode.getChar() == 'o')
+                        {
+                            client.sendCtcpMessage(user, "ACTIVE");
+                        }
+                    });
+                });
+            }, CreeperHost.otherExecutor);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static void startCleanThread()
+    {
+        CompletableFuture.runAsync(() ->
+        {
+            while (true)
+            {
+                knownUsers.clean();
+                try
+                {
+                    Thread.sleep(30000);
+                } catch (InterruptedException e) { }
+            }
+        }, CreeperHost.profileExecutor);
+    }
+
+    public static void closePrivateChat()
+    {
         String channelName = privateChatList.getChannelname();
         Optional<Channel> channel = client.getChannel(channelName);
         channel.ifPresent(channel1 -> channel1.part("My buddy left :("));
@@ -288,7 +333,6 @@ public class ChatHandler
         {
             if (!event.getTarget().getNick().equals(client.getNick()))
             {
-                knownUsers.removeByNick(event.getTarget().getNick(), false);
                 return;
             }
 
@@ -310,22 +354,14 @@ public class ChatHandler
         @Handler
         public void onConnected(ClientNegotiationCompleteEvent event)
         {
-            if(event.getClient() != ChatHandler.client)
-                return;
-
+            if(event.getClient() != ChatHandler.client) return;
             tries.set(0);
         }
 
         @Handler
         public void onQuit(ClientConnectionEndedEvent event)
         {
-            if (!event.getClient().getNick().equals(client.getNick()))
-            {
-                knownUsers.removeByNick(event.getClient().getNick(), false);
-            }
-
-            if(event.getClient() != ChatHandler.client)
-                return;
+            if(event.getClient() != ChatHandler.client) return;
 
             if(!Config.getInstance().isChatEnabled()) return;
 
@@ -349,15 +385,15 @@ public class ChatHandler
                     }
                 }
             }
-            if(event.getAffectedChannel().get().getName().equalsIgnoreCase(CHANNEL))
+            else if(event.getAffectedChannel().get().getName().equalsIgnoreCase(CHANNEL))
             {
                 Profile profile = knownUsers.findByNick(nick);
                 if(profile != null)
                 {
-                    CompletableFuture.runAsync(() -> profile.loadProfile(), CreeperHost.profileExecutor).thenRun(() -> profile.setBanned(false));
+                    CompletableFuture.runAsync(profile::loadProfile, CreeperHost.profileExecutor).thenRun(() -> profile.setBanned(false));
                 }
             }
-            updateFriends(event.getChannel().getNicknames());
+            CompletableFuture.runAsync(() -> updateFriends(event.getChannel().getNicknames()), CreeperHost.profileExecutor);
         }
 
         @Handler
@@ -369,67 +405,65 @@ public class ChatHandler
         @Handler
         public void onChannelLeave(ChannelPartEvent event)
         {
-            if (!event.getUser().getNick().equals(client.getNick()))
+            CompletableFuture.runAsync(() ->
             {
-                knownUsers.removeByNick(event.getUser().getNick(), false);
-            }
-
-            try {
-                String channelName = event.getAffectedChannel().get().getName();
-                if (channelName.equals(CHANNEL)) {
-                    String friendNick = event.getUser().getNick();
-                    friends.remove(friendNick);
-                } else {
-                    if (privateChatList != null && channelName.equals(privateChatList.channelname)) {
-                        if (privateChatList.owner.equals(event.getUser().getNick())) {
-                            host.closeGroupChat();
+                try
+                {
+                    String channelName = event.getAffectedChannel().get().getName();
+                    if (channelName.equals(CHANNEL)) {
+                        String friendNick = event.getUser().getNick();
+                        friends.remove(friendNick);
+                    } else {
+                        if (privateChatList != null && channelName.equals(privateChatList.channelname)) {
+                            if (privateChatList.owner.equals(event.getUser().getNick())) {
+                                host.closeGroupChat();
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if(debugHandler.isDebug()) logger.error(event.getMessage());
+                if (debugHandler.isDebug()) logger.error(event.getMessage());
+            }, CreeperHost.ircEventExecutor);
         }
 
         @Handler
         public void onUserQuit(UserQuitEvent event)
         {
-            if (!event.getUser().getNick().equals(client.getNick()))
+            CompletableFuture.runAsync(() ->
             {
-                knownUsers.removeByNick(event.getUser().getNick(), false);
-            }
-
-            String friendNick = event.getUser().getNick();
-            friends.remove(friendNick);
-            if (privateChatList != null && privateChatList.owner.equals(friendNick)) {
-                host.closeGroupChat();
-            }
-            if(debugHandler.isDebug()) logger.error(event.getMessage());
+                String friendNick = event.getUser().getNick();
+                friends.remove(friendNick);
+                if (privateChatList != null && privateChatList.owner.equals(friendNick)) {
+                    host.closeGroupChat();
+                }
+                if (debugHandler.isDebug()) logger.error(event.getMessage());
+            }, CreeperHost.ircEventExecutor);
         }
 
         @Handler
         public void onChannelMessage(ChannelMessageEvent event)
         {
-            User user = event.getActor();
-            String message = event.getMessage();
-            try {
-                if (!curseSync.containsKey(user.getNick())) {
-                    if (user.getRealName().isPresent())
-                        curseSync.put(user.getNick(), user.getRealName().get());
-                    else
-                        doWhois(user);
-                }
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-
-            synchronized (ircLock)
+            CompletableFuture.runAsync(() ->
             {
-                addMessageToChat(event.getChannel().getName(), user.getNick(), Format.stripAll(message));
-            }
+                User user = event.getActor();
+                String message = event.getMessage();
+                try {
+                    if (!curseSync.containsKey(user.getNick())) {
+                        if (user.getRealName().isPresent())
+                            curseSync.put(user.getNick(), user.getRealName().get());
+                        else
+                            doWhois(user);
+                    }
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
 
-            updateFriends(client.getChannel(CHANNEL).get().getNicknames());
+                synchronized (ircLock) {
+                    addMessageToChat(event.getChannel().getName(), user.getNick(), Format.stripAll(message));
+                }
+            }, CreeperHost.chatMessageExecutor);
+            CompletableFuture.runAsync(() -> updateFriends(client.getChannel(CHANNEL).get().getNicknames()), CreeperHost.profileExecutor);
         }
 
         private WhoisCommand whoisCommand = null;
@@ -444,162 +478,158 @@ public class ChatHandler
         @Handler
         public void onWhoisReturn(WhoisEvent event)
         {
-            WhoisData whoisData = event.getWhoisData();
-            Profile profile = knownUsers.findByNick(whoisData.getNick());
-            if(profile != null)
+            CompletableFuture.runAsync(() ->
             {
-                if(whoisData.getNick().equalsIgnoreCase(profile.getShortHash())) profile.setOnlineShort(whoisData.getRealName().isPresent());
-                else profile.setOnlineMedium(whoisData.getRealName().isPresent());
+                WhoisData whoisData = event.getWhoisData();
+                Profile profile = knownUsers.findByNick(whoisData.getNick());
+                if (profile != null) {
+                    if (whoisData.getNick().equalsIgnoreCase(profile.getShortHash()))
+                        profile.setOnlineShort(whoisData.getRealName().isPresent());
+                    else profile.setOnlineMedium(whoisData.getRealName().isPresent());
 
-                if (whoisData.getRealName().isPresent()) profile.setPackID(whoisData.getRealName().get());
-            }
+                    if (whoisData.getRealName().isPresent()) profile.setPackID(whoisData.getRealName().get());
+                }
 
-            if (whoisData.getRealName().isPresent()) curseSync.put(whoisData.getNick(), whoisData.getRealName().get());
+                if (whoisData.getRealName().isPresent())
+                    curseSync.put(whoisData.getNick(), whoisData.getRealName().get());
 
-            if(debugHandler.isDebug()) logger.error(event.getWhoisData());
+                if (debugHandler.isDebug()) logger.warn(event.getWhoisData());
+            }, CreeperHost.ircEventExecutor);
         }
 
         @Handler
         public void onChannelNotice(ChannelNoticeEvent event)
         {
-            Optional<SortedSet<ChannelUserMode>> userModes = event.getChannel().getUserModes(event.getActor());
-            if (userModes.isPresent())
-            {
-                SortedSet<ChannelUserMode> channelUserModes = userModes.get();
-                boolean valid = false;
-                for(ChannelUserMode mode: channelUserModes)
-                {
-                    switch (mode.getNickPrefix())
-                    {
-                        case '@':
-                        case '~':
-                            valid = true;
-                    }
-                }
-
-                if (valid)
-                {
-                    synchronized (ircLock)
-                    {
-                        addMessageToChat(CHANNEL, "System", event.getMessage());
-                    }
-                }
-            }
-        }
-
-        @Handler
-        public void onNotice(PrivateNoticeEvent event)
-        {
-            User user = event.getActor();
-            Optional<Channel> optchannel = client.getChannel(CHANNEL);
-            if (optchannel.isPresent())
-            {
-                Channel channel = optchannel.get();
-                Optional<SortedSet<ChannelUserMode>> userModesOpt = channel.getUserModes(user);
-                if (userModesOpt.isPresent())
-                {
-                    SortedSet<ChannelUserMode> channelUserModes = userModesOpt.get();
+            CompletableFuture.runAsync(() -> {
+                Optional<SortedSet<ChannelUserMode>> userModes = event.getChannel().getUserModes(event.getActor());
+                if (userModes.isPresent()) {
+                    SortedSet<ChannelUserMode> channelUserModes = userModes.get();
                     boolean valid = false;
-                    for(ChannelUserMode mode: channelUserModes)
-                    {
-                        switch (mode.getNickPrefix())
-                        {
+                    for (ChannelUserMode mode : channelUserModes) {
+                        switch (mode.getNickPrefix()) {
                             case '@':
                             case '~':
                                 valid = true;
                         }
                     }
 
-                    if (valid)
-                    {
-                        synchronized (ircLock)
-                        {
+                    if (valid) {
+                        synchronized (ircLock) {
                             addMessageToChat(CHANNEL, "System", event.getMessage());
                         }
                     }
                 }
-            }
+            }, CreeperHost.chatMessageExecutor);
+        }
+
+        @Handler
+        public void onNotice(PrivateNoticeEvent event)
+        {
+            CompletableFuture.runAsync(() -> {
+
+                User user = event.getActor();
+                Optional<Channel> optchannel = client.getChannel(CHANNEL);
+                if (optchannel.isPresent()) {
+                    Channel channel = optchannel.get();
+                    Optional<SortedSet<ChannelUserMode>> userModesOpt = channel.getUserModes(user);
+                    if (userModesOpt.isPresent()) {
+                        SortedSet<ChannelUserMode> channelUserModes = userModesOpt.get();
+                        boolean valid = false;
+                        for (ChannelUserMode mode : channelUserModes) {
+                            switch (mode.getNickPrefix()) {
+                                case '@':
+                                case '~':
+                                    valid = true;
+                            }
+                        }
+
+                        if (valid) {
+                            synchronized (ircLock) {
+                                addMessageToChat(CHANNEL, "System", event.getMessage());
+                            }
+                        }
+                    }
+                }
+
+            }, CreeperHost.chatMessageExecutor);
         }
 
         @Handler
         public void onPrivateMessage(PrivateMessageEvent event)
         {
-            String message = Format.stripAll(event.getMessage());
-            String user = event.getActor().getNick();
-            Profile profile = knownUsers.findByNick(user);
+            CompletableFuture.runAsync(() -> {
 
+                String message = Format.stripAll(event.getMessage());
+                String user = event.getActor().getNick();
+                Profile profile = knownUsers.findByNick(user);
 
-            if(profile == null) profile = knownUsers.add(user);
-            if(profile != null && profile.isFriend())
-            {
-                profile.isOnline();
-                synchronized (ircLock)
-                {
-                    LimitedSizeQueue messageQueue = messages.get(user);
-                    if (messageQueue == null)
-                    {
-                        messages.put(user, new LimitedSizeQueue<>(150));
+                if (profile == null) profile = knownUsers.add(user);
+                if (profile != null && profile.isFriend()) {
+                    profile.isOnline();
+                    synchronized (ircLock) {
+                        LimitedSizeQueue messageQueue = messages.get(user);
+                        if (messageQueue == null) {
+                            messages.put(user, new LimitedSizeQueue<>(150));
+                        }
+                        addMessageToChat(user, user, message);
+                        host.friendEvent(user, true);
                     }
-                    addMessageToChat(user, user, message);
-                    host.friendEvent(user, true);
+                } else {
+                    if (!client.getChannel(CHANNEL).get().getUser(user).isPresent()) {
+                        knownUsers.removeByNick(user, false);
+                    }
                 }
-            }
-            else
-            {
-                if(!client.getChannel(CHANNEL).get().getUser(user).isPresent())
-                {
-                    knownUsers.removeByNick(user, false);
-                }
-            }
+            }, CreeperHost.chatMessageExecutor);
         }
 
         @Handler
         public void onCTCP(PrivateCtcpQueryEvent event)
         {
-            if (event.isToClient())
-            {
-                String message = event.getMessage();
+            CompletableFuture.runAsync(() -> {
 
-                String[] split = message.split(" ");
-                if (split.length < 1)
-                    return;
+                if (event.isToClient()) {
+                    String message = event.getMessage();
 
-                switch (split[0].trim()) {
-                    case "FRIENDREQ": {
-                        if (split.length < 3)
-                            return;
-                        StringBuilder builder = new StringBuilder();
-                        for (int i = 1; i < split.length; i++) {
-                            builder.append(split[i]).append(" ");
-                        }
-                        String chatMessage = builder.toString().trim();
-                        addMessageToChat(CHANNEL, "FR:" + event.getActor().getNick(), chatMessage);
-                        break;
-                    }
-                    case "FRIENDACC": {
-                        if (split.length < 3)
-                            return;
-                        StringBuilder builder = new StringBuilder();
-                        for (int i = 2; i < split.length; i++) {
-                            builder.append(split[i]).append(" ");
-                        }
+                    String[] split = message.split(" ");
+                    if (split.length < 1)
+                        return;
 
-                        host.acceptFriend(split[1], builder.toString().trim());
-                        addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
-                        break;
-                    }
-                    case "SERVERID":
-                        client.sendCtcpReply(event.getActor().getNick(), "SERVERID " + getServerId());
-                        break;
-                    case "VERIFY":
-                        if(!event.getActor().getNick().startsWith("MT")) {
-                            String serverID = CreeperHost.getServerIDAndVerify();
-                            if (serverID == null)
+                    switch (split[0].trim()) {
+                        case "FRIENDREQ": {
+                            if (split.length < 3)
                                 return;
-                            client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + CreeperHost.getSignature() + ":" + CreeperHost.proxy.getUUID() + ":" + serverID);
+                            StringBuilder builder = new StringBuilder();
+                            for (int i = 1; i < split.length; i++) {
+                                builder.append(split[i]).append(" ");
+                            }
+                            String chatMessage = builder.toString().trim();
+                            addMessageToChat(CHANNEL, "FR:" + event.getActor().getNick(), chatMessage);
+                            break;
                         }
+                        case "FRIENDACC": {
+                            if (split.length < 3)
+                                return;
+                            StringBuilder builder = new StringBuilder();
+                            for (int i = 2; i < split.length; i++) {
+                                builder.append(split[i]).append(" ");
+                            }
+
+                            host.acceptFriend(split[1], builder.toString().trim());
+                            addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
+                            break;
+                        }
+                        case "SERVERID":
+                            client.sendCtcpReply(event.getActor().getNick(), "SERVERID " + getServerId());
+                            break;
+                        case "VERIFY":
+                            if (!event.getActor().getNick().startsWith("MT")) {
+                                String serverID = CreeperHost.getServerIDAndVerify();
+                                if (serverID == null) return;
+                                client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + CreeperHost.getSignature() + ":" + CreeperHost.proxy.getUUID() + ":" + serverID);
+                            }
+                    }
                 }
-            }
+            }, CreeperHost.ircEventExecutor);
         }
 
         private String getServerId() {
@@ -617,35 +647,39 @@ public class ChatHandler
         @Handler
         public void onUserBanned(ChannelModeEvent event)
         {
-            List<ModeStatus<ChannelMode>> b = event.getStatusList().getByMode('b');
-            b.forEach(mode -> mode.getParameter().ifPresent(param -> {
-                String nick = param.split("!")[0];
+            CompletableFuture.runAsync(() ->
+            {
+                List<ModeStatus<ChannelMode>> b = event.getStatusList().getByMode('b');
+                b.forEach(mode -> mode.getParameter().ifPresent(param -> {
+                    String nick = param.split("!")[0];
 
-                Profile profile = knownUsers.findByNick(nick);
-                if(profile != null) profile.setBanned(true);
+                    Profile profile = knownUsers.findByNick(nick);
+                    if (profile != null) profile.setBanned(true);
 
-                if (nick.toLowerCase().equals(ChatHandler.nick.toLowerCase())) {
-                    // it be us
-                    ChatConnectionHandler.INSTANCE.disconnect();
-                    CreeperHost.profile.getAndUpdate(profile1 ->
-                    {
-                       profile1.setBanned(true);
-                       CompletableFuture.runAsync(() ->
-                       {
-                          while (CreeperHost.profile.get().isBanned())
-                          {
-                              Callbacks.isBanned();
-                              try {
-                                  Thread.sleep(60000);
-                              } catch (InterruptedException e) { e.printStackTrace(); }
-                          }
-                       });
-                       return profile1;
-                    });
-                    host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
-                }
-                host.userBanned(nick);
-            }));
+                    if (nick.toLowerCase().equals(ChatHandler.nick.toLowerCase())) {
+                        // it be us
+                        ChatConnectionHandler.INSTANCE.disconnect();
+                        CreeperHost.profile.getAndUpdate(profile1 ->
+                        {
+                            profile1.setBanned(true);
+                            CompletableFuture.runAsync(() ->
+                            {
+                                while (CreeperHost.profile.get().isBanned()) {
+                                    Callbacks.isBanned();
+                                    try {
+                                        Thread.sleep(60000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                            return profile1;
+                        });
+                        host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
+                    }
+                    host.userBanned(nick);
+                }));
+            }, CreeperHost.ircEventExecutor);
         }
 
         @Handler

@@ -54,8 +54,7 @@ public class ChatConnectionHandler {
                 }); // no-op
                 mineTogether.listeners().input(s ->
                 {
-                    if(debugHandler.isDebug)
-                        logger.error("INPUT " + s);
+                    if(debugHandler.isDebug) logger.error("INPUT " + s);
                     if(s.contains(" :Nickname is already in use") && s.contains("433"))
                     {
                         ChatHandler.reconnectTimer.set(30000);
@@ -79,7 +78,7 @@ public class ChatConnectionHandler {
                 ChatHandler.inited.set(true);
                 ChatHandler.isInitting.set(false);
             }
-        }, CreeperHost.instance.profileExecutor));
+        }));
     }
 
     public synchronized void disconnect()

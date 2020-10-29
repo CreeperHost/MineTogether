@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.PacketHandler;
+import net.creeperhost.minetogether.chat.ChatUtil;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.common.WebUtils;
@@ -12,6 +13,7 @@ import net.creeperhost.minetogether.serverstuffs.command.CommandInvite;
 import net.creeperhost.minetogether.serverstuffs.command.CommandPregen;
 import net.creeperhost.minetogether.serverstuffs.hacky.IPlayerKicker;
 import net.creeperhost.minetogether.serverstuffs.pregen.PregenTask;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.INetHandlerPlayServer;
@@ -38,17 +40,15 @@ import org.lwjgl.Sys;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-@Mod(
-        modid = CreeperHostServer.MOD_ID,
-        name = CreeperHostServer.NAME,
-        version = CreeperHost.VERSION,
-        acceptableRemoteVersions = "*",
-        acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2"
-)
+@Mod(modid = CreeperHostServer.MOD_ID, name = CreeperHostServer.NAME, version = CreeperHost.VERSION, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2")
 public class CreeperHostServer
 {
     public static final String MOD_ID = "minetogetherserver";
@@ -57,8 +57,7 @@ public class CreeperHostServer
     
     @SidedProxy(clientSide = "net.creeperhost.minetogether.serverstuffs.ClientProxy", serverSide = "net.creeperhost.minetogether.serverstuffs.ServerProxy")
     public static IServerProxy proxy;
-    
-    
+
     @Mod.Instance(value = "minetogetherserver")
     public static CreeperHostServer INSTANCE;
     public static int updateID;
@@ -85,6 +84,9 @@ public class CreeperHostServer
     public String ftbPackID = "";
     public String base64;
     public String requestedID;
+    public ChatHandlerServer chatHandlerServer = null;
+    public String serverNick = "";
+    public String realName = "";
     
     public static Thread getThreadByName(String threadName)
     {
@@ -106,7 +108,6 @@ public class CreeperHostServer
         {
             watchdogKilled = proxy.killWatchdog();
         }
-        
     }
     
     private void resuscitateWatchdog()
@@ -117,12 +118,57 @@ public class CreeperHostServer
             watchdogKilled = false;
         }
     }
+
+    public void createID(MinecraftServer minecraftServer)
+    {
+        //Contents of api.callbacks.io/ip + machines ip + port + hash all 3 and take first 28 char + prefix with MS
+        String ipResp = WebUtils.getWebResponse("https://api.callbacks.io/ip");
+        if(ipResp.isEmpty()) return;
+        if(minecraftServer == null) return;
+        String serverIP = "";
+        try
+        {
+            serverIP = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) { e.printStackTrace(); }
+
+        String serverPort = "25565";
+
+        if(minecraftServer.isDedicatedServer())
+            serverPort = String.valueOf(minecraftServer.getServerPort());
+
+        if(serverIP.isEmpty()) return;
+
+        String joined = ipResp + serverIP + serverPort;
+        byte[] messageDigest = new byte[0];
+        try
+        {
+            messageDigest = MessageDigest.getInstance("SHA-256").digest(joined.getBytes());
+            realName = bytesToHex(messageDigest).toUpperCase();
+            serverNick =  "MS" + realName.substring(0, 28);
+        } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+    }
+
+    public static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
     
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
     {
-        if (!CreeperHost.instance.active)
-            return;
+        createID(event.getServer());
+        ChatUtil.IRCServer ircServer = ChatUtil.getIRCServerDetails();
+        if(!serverNick.isEmpty() && !realName.isEmpty())
+            chatHandlerServer = new ChatHandlerServer(serverNick, realName, ircServer.address, ircServer.port, ircServer.ssl);
+
+        if (!CreeperHost.instance.active) return;
         event.registerServerCommand(new CommandInvite());
         event.registerServerCommand(new CommandPregen());
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
@@ -188,8 +234,15 @@ public class CreeperHostServer
     @Mod.EventHandler
     public void serverStarted(FMLServerStartedEvent event)
     {
-        if (!CreeperHost.instance.active)
-            return;
+        if (!CreeperHost.instance.active) return;
+        try
+        {
+            if(chatHandlerServer != null) chatHandlerServer.init();
+
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (server != null && !server.isSinglePlayer())
         {
@@ -221,9 +274,7 @@ public class CreeperHostServer
             try
             {
                 discoverMode = Discoverability.valueOf(discoverModeString.toUpperCase());
-            } catch (IllegalArgumentException e)
-            {
-            }
+            } catch (IllegalArgumentException ignored) {}
             
             if (discoverMode != Discoverability.UNLISTED)
             {
@@ -271,8 +322,6 @@ public class CreeperHostServer
                 Gson gson = new Gson();
                 
                 String sendStr = gson.toJson(send);
-
-                System.out.println(sendStr);
 
                 String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
 
@@ -333,8 +382,8 @@ public class CreeperHostServer
     @Mod.EventHandler
     public void serverStopping(FMLServerStoppingEvent event)
     {
-        if (!CreeperHost.instance.active)
-            return;
+        if (!CreeperHost.instance.active) return;
+        chatHandlerServer.client.shutdown();
         serverOn = false;
         serializePreload();
         pregenTasks.clear();
@@ -474,8 +523,7 @@ public class CreeperHostServer
                     .toMinutes(estimatedTime);
             estimatedTime -= TimeUnit.MINUTES.toMillis(minutes);
             
-            long seconds = TimeUnit.MILLISECONDS
-                    .toSeconds(estimatedTime);
+            long seconds = TimeUnit.MILLISECONDS.toSeconds(estimatedTime);
             
             String time = days + " day(s) " + hours + " hour(s) " + minutes + " minute(s) " + seconds + " second(s)";
             

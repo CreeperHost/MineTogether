@@ -158,7 +158,7 @@ public class GuiChatOurs extends GuiChat
                 {
                     case 2:
                         if (ChatHandler.hasGroup) {
-                        currentTarget = ChatHandler.currentGroup;
+                            currentTarget = ChatHandler.currentGroup;
                         }
                     break;
 
@@ -263,6 +263,7 @@ public class GuiChatOurs extends GuiChat
                 ourChat.setBase(switchButton.activeButton == 0);
                 if (!ourChat.isBase()) {
                     ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);//ChatHandler.privateChatList.getChannelname());
+                    ChatHandler.sendActive();
                 }
                 switchButton.displayString = ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat";
             }

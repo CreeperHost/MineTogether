@@ -23,6 +23,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class GuiNewChatOurs extends GuiNewChat
 {
@@ -163,8 +164,8 @@ public class GuiNewChatOurs extends GuiNewChat
         }
         else
         {
-            if(tickCounter % 20 == 0) rebuildChat(ChatHandler.CHANNEL);
-            tickCounter++;
+//            if(tickCounter % 20 == 0) rebuildChat(ChatHandler.CHANNEL);
+//            tickCounter++;
 
             if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && ChatHandler.isOnline() && updateCounter % 6000 == 0)
             {
@@ -346,30 +347,38 @@ public class GuiNewChatOurs extends GuiNewChat
     public boolean unread;
     public String chatTarget;
 
+    public static CompletableFuture rebuildChatFuture;
+
     public void rebuildChat(String chatKey)
     {
-        int scroll = scrollPos;
-
-        chatTarget = chatKey;
-        chatLines.clear();
-        drawnChatLines.clear();
-        LimitedSizeQueue<Message> messages = ChatHandler.messages.get(chatKey);
-        if (messages == null)
-            return;
-        Map<Message, ChatLine> oldLookup = lineLookup;
-        lineLookup = new HashMap<>();
-        synchronized (ChatHandler.ircLock) {
-            for (Message message : messages) {
-                ChatLine existing = oldLookup.get(message);
-                int counter = existing != null ? existing.getUpdatedCounter() : 0;
-                int lineId = existing != null ? existing.getChatLineID() : 0;
-                ITextComponent component = GuiMTChat.formatLine(message);
-                if (component == null)
-                    continue;
-                setChatLine(message, component, lineId, counter, false);
-            }
-            scrollPos = scroll;
+        if(rebuildChatFuture != null)
+        {
+            if (!rebuildChatFuture.isDone()) return;
         }
+
+        rebuildChatFuture = CompletableFuture.runAsync(() ->
+        {
+            int scroll = scrollPos;
+
+            chatTarget = chatKey;
+            chatLines.clear();
+            drawnChatLines.clear();
+            LimitedSizeQueue<Message> messages = ChatHandler.messages.get(chatKey);
+            if (messages == null) return;
+            Map<Message, ChatLine> oldLookup = lineLookup;
+            lineLookup = new HashMap<>();
+            synchronized (ChatHandler.ircLock) {
+                for (Message message : messages) {
+                    ChatLine existing = oldLookup.get(message);
+                    int counter = existing != null ? existing.getUpdatedCounter() : 0;
+                    int lineId = existing != null ? existing.getChatLineID() : 0;
+                    ITextComponent component = GuiMTChat.formatLine(message);
+                    if (component == null) continue;
+                    setChatLine(message, component, lineId, counter, false);
+                }
+                scrollPos = scroll;
+            }
+        });
     }
     
     public void setChatLine(Message message, ITextComponent chatComponent, int chatLineId, int updateCounter, boolean displayOnly)

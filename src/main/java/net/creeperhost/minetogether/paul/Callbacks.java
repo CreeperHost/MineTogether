@@ -405,6 +405,7 @@ public final class Callbacks
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, false);
+        if(resp.equalsIgnoreCase("error")) return null;
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
@@ -666,7 +667,11 @@ public final class Callbacks
                                     String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
                                     boolean accepted = friend.get("accepted").getAsBoolean();
                                     Profile profile = ChatHandler.knownUsers.findByHash(code);
-                                    if(profile == null) ChatHandler.knownUsers.add(code);
+                                    if(profile == null) profile = ChatHandler.knownUsers.add(code);
+                                    CompletableFuture.runAsync(() -> {
+                                        Profile profile1 = ChatHandler.knownUsers.findByHash(code);
+                                        profile1.loadProfile();
+                                    }, CreeperHost.profileExecutor);
                                     tempArr.add(new Friend(name, code, accepted));
                                 }
                             }

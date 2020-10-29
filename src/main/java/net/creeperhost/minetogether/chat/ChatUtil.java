@@ -43,7 +43,7 @@ public class ChatUtil
             boolean ssl = server.get("ssl").getAsBoolean();
             return new IRCServer(address, port, ssl, channel);
         } else {
-            return new IRCServer("irc.minetogether.io", 6667, false, "#public");
+            return new IRCServer("irc.minetogether.io", 6667, false, "#outdated");
         }
     }
 
