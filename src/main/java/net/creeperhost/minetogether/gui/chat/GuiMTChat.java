@@ -16,8 +16,10 @@ import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.data.Friend;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -223,7 +225,6 @@ public class GuiMTChat extends GuiScreen
             drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
         }
 
-        drawLogo(fontRendererObj, width - 20, height - 30, 20, 30, 0.75F);
         super.drawScreen(mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
         {
@@ -768,8 +769,15 @@ public class GuiMTChat extends GuiScreen
             super(Minecraft.getMinecraft(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 50, 30, GuiMTChat.this.height - 50, 10, entryHeight, GuiMTChat.this.width, GuiMTChat.this.height);
             lines = new ArrayList<>();
             updateLines(currentTarget);
+            setHeaderInfo(true, 10);
         }
-        
+
+        @Override
+        protected void drawHeader(int entryRight, int relativeY, Tessellator tess)
+        {
+            drawLogo(fontRendererObj, width - 20, height - 30, 20, 30, 0.75F);
+        }
+
         @Override
         protected int getContentHeight()
         {

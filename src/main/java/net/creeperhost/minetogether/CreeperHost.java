@@ -120,7 +120,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     {
         String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature();
-        if(event.getSide() != Side.SERVER && signature == null){
+        if(event.getSide() != Side.SERVER && signature == null) {
             logger.error("MineTogethers signature in invalid, setting MineTogether to offline mode");
             return;
         }
