@@ -373,27 +373,25 @@ public class ChatHandler
         @Handler
         public void onChannelJoin(ChannelJoinEvent event)
         {
-            if (client.isUser(event.getUser()))
+            CompletableFuture.runAsync(() ->
             {
-                synchronized (ircLock)
+                if (client.isUser(event.getUser()))
                 {
-                    connectionStatus = ConnectionStatus.CONNECTED;
-                    Channel channel = event.getAffectedChannel().get();
-                    if (channel.getName().toUpperCase().equals("#" + client.getNick().toUpperCase()))
-                    {
-                        channel.commands().mode().add(ModeStatus.Action.ADD, client.getServerInfo().getChannelMode('i').get()).execute();
+                    synchronized (ircLock) {
+                        connectionStatus = ConnectionStatus.CONNECTED;
+                        Channel channel = event.getAffectedChannel().get();
+                        if (channel.getName().toUpperCase().equals("#" + client.getNick().toUpperCase())) {
+                            channel.commands().mode().add(ModeStatus.Action.ADD, client.getServerInfo().getChannelMode('i').get()).execute();
+                        }
+                    }
+                } else if (event.getAffectedChannel().get().getName().equalsIgnoreCase(CHANNEL)) {
+                    Profile profile = knownUsers.findByNick(nick);
+                    if (profile != null) {
+                        CompletableFuture.runAsync(profile::loadProfile, CreeperHost.profileExecutor).thenRun(() -> profile.setBanned(false));
                     }
                 }
-            }
-            else if(event.getAffectedChannel().get().getName().equalsIgnoreCase(CHANNEL))
-            {
-                Profile profile = knownUsers.findByNick(nick);
-                if(profile != null)
-                {
-                    CompletableFuture.runAsync(profile::loadProfile, CreeperHost.profileExecutor).thenRun(() -> profile.setBanned(false));
-                }
-            }
-            CompletableFuture.runAsync(() -> updateFriends(event.getChannel().getNicknames()), CreeperHost.profileExecutor);
+                CompletableFuture.runAsync(() -> updateFriends(event.getChannel().getNicknames()), CreeperHost.profileExecutor);
+            }, CreeperHost.ircEventExecutor);
         }
 
         @Handler
@@ -546,6 +544,7 @@ public class ChatHandler
                         if (valid) {
                             synchronized (ircLock) {
                                 addMessageToChat(CHANNEL, "System", event.getMessage());
+                                addMessageToChat(CHANNEL, "System", event.getMessage());
                             }
                         }
                     }
@@ -561,6 +560,11 @@ public class ChatHandler
 
                 String message = Format.stripAll(event.getMessage());
                 String user = event.getActor().getNick();
+                //TODO remove this
+                if(user.startsWith("MS"))
+                {
+                    addMessageToChat(user, user, message);
+                }
                 Profile profile = knownUsers.findByNick(user);
 
                 if (profile == null) profile = knownUsers.add(user);
@@ -685,10 +689,13 @@ public class ChatHandler
         @Handler
         public void onNickRejected(NickRejectedEvent event)
         {
-            if(event.getAttemptedNick().equalsIgnoreCase(nick))
+            CompletableFuture.runAsync(() ->
             {
-                addStatusMessage("Unable to connect to chat. Please make sure you do not have another Minecraft client open. If you have the FTBApp running, ensure that you launched Minecraft via the FTBApp.");
-            }
+                if (event.getAttemptedNick().equalsIgnoreCase(nick))
+                {
+                    addStatusMessage("Unable to connect to chat. Please make sure you do not have another Minecraft client open. If you have the FTBApp running, ensure that you launched Minecraft via the FTBApp.");
+                }
+            }, CreeperHost.ircEventExecutor);
         }
     }
 

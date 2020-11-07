@@ -13,16 +13,19 @@ import net.creeperhost.minetogether.serverstuffs.command.CommandInvite;
 import net.creeperhost.minetogether.serverstuffs.command.CommandPregen;
 import net.creeperhost.minetogether.serverstuffs.hacky.IPlayerKicker;
 import net.creeperhost.minetogether.serverstuffs.pregen.PregenTask;
-import net.minecraft.client.Minecraft;
+import net.creeperhost.minetogether.trade.commands.CommandTrade;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -36,7 +39,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.Sys;
+import org.kitteh.irc.client.library.Client;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -119,6 +122,13 @@ public class CreeperHostServer
         }
     }
 
+    public String getNick()
+    {
+        return serverNick;
+    }
+
+    public Client getClient(){ return chatHandlerServer.client; }
+
     public void createID(MinecraftServer minecraftServer)
     {
         //Contents of api.callbacks.io/ip + machines ip + port + hash all 3 and take first 28 char + prefix with MS
@@ -171,6 +181,7 @@ public class CreeperHostServer
         if (!CreeperHost.instance.active) return;
         event.registerServerCommand(new CommandInvite());
         event.registerServerCommand(new CommandPregen());
+        if(Config.getInstance().isTradeEnabled()) event.registerServerCommand(new CommandTrade());
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
 
         updateFtbPackID();
@@ -392,13 +403,20 @@ public class CreeperHostServer
     @SubscribeEvent
     public void clientConnectedtoServer(FMLNetworkEvent.ServerConnectionFromClientEvent event)
     {
-        if (!CreeperHost.instance.active)
-            return;
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        if (server == null || server.isSinglePlayer() || discoverMode != Discoverability.PUBLIC)
-            return;
-        
+        if (!CreeperHost.instance.active) return;
         INetHandlerPlayServer handler = event.getHandler();
+        if (handler instanceof NetHandlerPlayServer)
+        {
+            EntityPlayerMP entity = ((NetHandlerPlayServer) handler).playerEntity;
+            if(entity != null && !(entity instanceof FakePlayer))
+            {
+                entity.sendMessage(new TextComponentString("Connected to MineTogether server " + TextFormatting.GREEN + serverNick));
+            }
+        }
+
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server == null || server.isSinglePlayer() || discoverMode != Discoverability.PUBLIC) return;
+        
         if (handler instanceof NetHandlerPlayServer)
         {
             EntityPlayerMP entity = ((NetHandlerPlayServer) handler).playerEntity;

@@ -31,4 +31,9 @@ public class ChatHandlerServer
             if(client == null) client = mineTogether.buildAndConnect(); client.addChannel("#servers");
         });
     }
+
+    public void messageUser(String userNick, String message)
+    {
+        client.sendMessage(userNick, message);
+    }
 }

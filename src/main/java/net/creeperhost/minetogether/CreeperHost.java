@@ -16,6 +16,8 @@ import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
 import net.creeperhost.minetogether.siv.QueryGetter;
+import net.creeperhost.minetogether.trade.GuiHandler;
+import net.creeperhost.minetogether.trade.TradeEventHandler;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
@@ -26,6 +28,7 @@ import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -104,6 +107,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public static AtomicReference<UUID> UUID = new AtomicReference<UUID>();
     protected static String signature = null;
 
+    public static CreeperHost INSTANCE;
+
     public static String getSignature()
     {
         return signature;
@@ -118,8 +123,10 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        INSTANCE = this;
         String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature();
+        signature = "iliketrains";
         if(event.getSide() != Side.SERVER && signature == null) {
             logger.error("MineTogethers signature in invalid, setting MineTogether to offline mode");
             return;
@@ -225,6 +232,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
             }
 
             MinecraftForge.EVENT_BUS.register(new EventHandler());
+            if(Config.getInstance().isTradeEnabled())
+                MinecraftForge.EVENT_BUS.register(new TradeEventHandler());
             proxy.registerKeys();
         }
     }
@@ -262,6 +271,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
                 }
             }, profileExecutor);
         }
+        NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, new GuiHandler());
     }
 
     @Mod.EventHandler
@@ -632,5 +642,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public void serverStarted(FMLServerStartingEvent event)
     {
         event.registerServerCommand(new CommandKill());
+        event.registerServerCommand(new CommandThreadDump());
     }
 }

@@ -23,6 +23,7 @@ public class Config
     private boolean enableFriendOnlineToasts;
     private boolean enableMainMenuFriends;
     private boolean isLeft;
+    private boolean tradeEnabled;
 
     private int pregenDiameter = 120;
 
@@ -43,6 +44,7 @@ public class Config
         autoMT = true;
         enableFriendOnlineToasts = true;
         isLeft = true;
+        tradeEnabled = false;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
@@ -143,6 +145,8 @@ public class Config
     public void setLeft(boolean left) {
         isLeft = left;
     }
+
+    public boolean isTradeEnabled() { return tradeEnabled; }
 
     public void setEnableFriendOnlineToasts(boolean enableFriendOnlineToasts) {
         this.enableFriendOnlineToasts = enableFriendOnlineToasts;
