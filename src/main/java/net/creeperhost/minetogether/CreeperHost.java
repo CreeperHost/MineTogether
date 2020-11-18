@@ -127,6 +127,12 @@ public class CreeperHost implements ICreeperHostMod, IHost
         String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature();
         signature = "iliketrains";
+
+        if(event.getSide() != Side.SERVER) {
+            MinecraftForge.EVENT_BUS.register(new net.creeperhost.minetogether.mtconnect.EventHandler());
+        }
+
+
         if(event.getSide() != Side.SERVER && signature == null) {
             logger.error("MineTogethers signature in invalid, setting MineTogether to offline mode");
             return;
@@ -187,6 +193,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         
         if (event.getSide() != Side.SERVER)
         {
+
             updateFtbPackID();
 
             HostHolder.host = this;
