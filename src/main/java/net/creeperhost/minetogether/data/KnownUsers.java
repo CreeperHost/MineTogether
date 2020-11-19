@@ -70,6 +70,18 @@ public class KnownUsers
         }
         return null;
     }
+    public boolean update(Profile updatedProfile)
+    {
+        //No update without it being a completed profile
+        if(updatedProfile.longHash.length() == 0) return false;
+        profiles.updateAndGet((curProfiles) -> {
+            Profile existingProfile = findByHash(updatedProfile.longHash);
+            curProfiles.remove(existingProfile);
+            curProfiles.add(updatedProfile);
+            return curProfiles;
+        });
+        return (findByHash(updatedProfile.longHash) == updatedProfile);
+    }
 
     public void removeByHash(String hash, boolean ignoreFriend)
     {
@@ -86,7 +98,6 @@ public class KnownUsers
             return profiles1;
         });
     }
-
     public void removeByNick(String nick, boolean ignoreFriend)
     {
         profiles.updateAndGet(profiles1 ->

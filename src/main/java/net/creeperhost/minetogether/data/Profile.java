@@ -36,6 +36,7 @@ public class Profile
     private long lastOnlineCheck = 0;
     private boolean onlineShort = false;
     private boolean onlineMedium = false;
+    private boolean isLoadingProfile = false;
 
     public Profile(String serverNick)
     {
@@ -193,6 +194,8 @@ public class Profile
 
     public boolean loadProfile()
     {
+        if(isLoadingProfile) return false;
+        isLoadingProfile = true;
         String playerHash = (longHash.length() > 0) ? longHash : (mediumHash.length() > 0) ? mediumHash : shortHash;
         if(playerHash.length() == 0) return false;
         Map<String, String> sendMap = new HashMap<String, String>();
@@ -224,9 +227,11 @@ public class Profile
                 {
                     userDisplay = display;
                 }
+                isLoadingProfile = false;
                 return true;
             }
         }
+        isLoadingProfile = false;
         return false;
     }
 }
