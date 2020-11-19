@@ -32,7 +32,7 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
         this.owner = owner;
         this.wrapped = wrapped;
         oursWasUpdated = true;
-        addOurServer("127.0.0.1:42069", "penis");
+        addOurServer("127.0.0.1:42069", "MTConnect Test");
 
         CompletableFuture.runAsync(() ->
         {
