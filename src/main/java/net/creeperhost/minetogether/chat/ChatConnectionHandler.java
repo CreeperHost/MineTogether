@@ -4,13 +4,19 @@ import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.DebugHandler;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.IHost;
+import net.creeperhost.minetogether.common.RegexValidator;
+import net.creeperhost.minetogether.data.Profile;
+import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitteh.irc.client.library.Client;
+import org.kitteh.irc.client.library.util.Format;
 
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatConnectionHandler {
 
@@ -54,12 +60,112 @@ public class ChatConnectionHandler {
                 }); // no-op
                 mineTogether.listeners().input(s ->
                 {
+//                    CreeperHost.logger.error(TextFormatting.RED + s);
+
                     if(debugHandler.isDebug) logger.error("INPUT " + s);
                     if(s.contains(" :Nickname is already in use") && s.contains("433"))
                     {
                         ChatHandler.reconnectTimer.set(30000);
 //                        ChatHandler.addStatusMessage("You appear to be connected elsewhere delaying reconnect for 30 seconds");
                     }
+                    else if(s.contains("PRIVMSG"))
+                    {
+                        if(s.contains("#"))
+                        {
+                            CompletableFuture.runAsync(() ->
+                            {
+                                Pattern pattern = Pattern.compile(".*(MT[A-Za-z0-9]{28}).*PRIVMSG.*(\\#\\w+) \\:(.*)");
+                                Matcher matcher = pattern.matcher(s);
+                                if (matcher.matches())
+                                {
+                                    String name = matcher.group(1);
+                                    String channel = matcher.group(2);
+                                    String message = matcher.group(3);
+                                    ChatHandler.addMessageToChat(channel, name, Format.stripAll(message));
+                                    /*if(channel.equalsIgnoreCase(ChatHandler.CHANNEL))
+                                    {
+                                        ChatHandler.addMessageToChat(ChatHandler.CHANNEL, name, Format.stripAll(message));
+                                    }*/
+                                }
+                            }, CreeperHost.chatMessageExecutor);
+                        }
+                        else
+                        {
+                            CompletableFuture.runAsync(() ->
+                            {
+                                Pattern pattern = Pattern.compile("\\:(\\w+).*PRIVMSG.*\\:\\x01(.*)\\x01");
+                                Matcher matcher = pattern.matcher(s);
+                                if(matcher.matches())
+                                {
+                                    String name = matcher.group(1);
+                                    String message = matcher.group(2);
+
+                                    ChatHandler.Listener.onCTCP(name, message);
+                                }
+                            }, CreeperHost.chatMessageExecutor);
+                        }
+                    } else if(s.contains("NOTICE"))
+                    {
+                        CompletableFuture.runAsync(() ->
+                        {
+                            Pattern pattern = Pattern.compile("\\:(\\w+).*NOTICE.* \\:(.*)");
+                            Matcher matcher = pattern.matcher(s);
+                            if(matcher.matches())
+                            {
+                                String name = matcher.group(1);
+                                String message = matcher.group(2);
+                                boolean op = !name.startsWith("MT");
+
+                                if (op)
+                                {
+                                    //Channel Message
+                                    if (s.contains(ChatHandler.CHANNEL))
+                                    {
+                                        ChatHandler.Listener.onChannelNotice(name, message);
+                                    }
+                                    else if(s.contains(ChatHandler.nick))
+                                    {
+                                        ChatHandler.Listener.onNotice(name, message);
+                                    }
+                                }
+                            }
+                        }, CreeperHost.chatMessageExecutor);
+                    }
+                    else if(s.contains("MODE"))
+                    {
+                        CompletableFuture.runAsync(() ->
+                        {
+                            Pattern pattern = Pattern.compile("\\:(\\w+).*MODE.*\\#\\w+ (.)b (MT[a-zA-Z0-9]{28}).*");
+                            Matcher matcher = pattern.matcher(s);
+                            if(matcher.matches())
+                            {
+                                String nick = matcher.group(3);
+                                String modify = matcher.group(2);
+                                if(modify.equals("+"))
+                                {
+                                    ChatHandler.Listener.onUserBanned(nick);
+                                }
+                                if(modify.equals("-"))
+                                {
+                                    Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                                    profile.setBanned(false);
+                                    ChatHandler.knownUsers.update(profile);
+                                }
+                            }
+                        }, CreeperHost.ircEventExecutor);
+                    }
+                    //TODO we might need this for something
+//                    else if(s.contains("QUIT") || s.contains("LEAVE") || s.contains("PART"))
+//                    {
+//                        Pattern pattern = Pattern.compile("\\:(MT\\w{28})!");
+//                        Matcher matcher = pattern.matcher(s);
+//                        if(matcher.matches())
+//                        {
+//                            String name = matcher.group(1);
+//
+//                        }
+//                        CreeperHost.logger.error(TextFormatting.DARK_PURPLE + s);
+//                    }
                 });
                 mineTogether.listeners().output(s ->
                 {

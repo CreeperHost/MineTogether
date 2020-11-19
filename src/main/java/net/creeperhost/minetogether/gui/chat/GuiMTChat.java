@@ -132,8 +132,8 @@ public class GuiMTChat extends GuiScreen
             confirmInvite();
             inviteTemp = false;
         }
-
-        CompletableFuture.runAsync(() -> isBanned = Callbacks.isBanned(), CreeperHost.otherExecutor);
+        if(ChatHandler.isBannedFuture != null && !ChatHandler.isBannedFuture.isDone()) ChatHandler.isBannedFuture.cancel(true);
+        ChatHandler.isBannedFuture = CompletableFuture.runAsync(() -> isBanned = Callbacks.isBanned(), CreeperHost.otherExecutor);
 
         if(isBanned)
         {
