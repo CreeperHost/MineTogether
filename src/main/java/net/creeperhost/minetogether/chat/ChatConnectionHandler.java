@@ -153,6 +153,58 @@ public class ChatConnectionHandler {
                                 }
                             }
                         }, CreeperHost.ircEventExecutor);
+                    } else if(s.contains("JOIN"))
+                    {
+                        CompletableFuture.runAsync(() ->
+                        {
+                            Pattern pattern = Pattern.compile(":(MT.{28})!.*JOIN (#\\w+) . \\:(\\{.*\\})");
+                            Matcher matcher = pattern.matcher(s);
+                            if (matcher.matches()) {
+                                String nick = matcher.group(1);
+                                String channel = matcher.group(2);
+                                String json = matcher.group(3);
+                                if(ChatHandler.curseSync.containsKey(nick)) {
+                                    if(!ChatHandler.curseSync.get(nick).equals(json))
+                                    {
+                                        ChatHandler.curseSync.remove(nick);
+                                        ChatHandler.curseSync.put(nick, json);
+                                    }
+                                } else {
+                                    ChatHandler.curseSync.put(nick, json);
+                                }
+                                Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                                if (profile != null) {
+                                    profile.setPackID(json);
+                                    ChatHandler.knownUsers.update(profile);
+                                }
+                            }
+                        }, CreeperHost.ircEventExecutor);
+                    } else if(s.contains("{") && s.contains("}") && s.contains("352"))//WHOIS responses
+                    {
+                        CompletableFuture.runAsync(() ->
+                        {
+                            Pattern pattern = Pattern.compile(":.*352 MT.{28} (\\#\\w+) .*(MT.{28}) \\w\\+? :\\d (\\{.*\\})");
+                            Matcher matcher = pattern.matcher(s);
+                            if (matcher.matches()) {
+                                String nick = matcher.group(2);
+                                String channel = matcher.group(1);
+                                String json = matcher.group(3);
+                                if(ChatHandler.curseSync.containsKey(nick)) {
+                                    if(!ChatHandler.curseSync.get(nick).equals(json))
+                                    {
+                                        ChatHandler.curseSync.remove(nick);
+                                        ChatHandler.curseSync.put(nick, json);
+                                    }
+                                } else {
+                                    ChatHandler.curseSync.put(nick, json);
+                                }
+                                Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                                if (profile != null) {
+                                    profile.setPackID(json);
+                                    ChatHandler.knownUsers.update(profile);
+                                }
+                            }
+                        }, CreeperHost.ircEventExecutor);
                     }
                     //TODO we might need this for something
 //                    else if(s.contains("QUIT") || s.contains("LEAVE") || s.contains("PART"))

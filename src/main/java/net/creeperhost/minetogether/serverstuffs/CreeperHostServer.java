@@ -410,7 +410,8 @@ public class CreeperHostServer
             EntityPlayerMP entity = ((NetHandlerPlayServer) handler).playerEntity;
             if(entity != null && !(entity instanceof FakePlayer))
             {
-                entity.sendMessage(new TextComponentString("Connected to MineTogether server " + TextFormatting.GREEN + serverNick));
+                logger.info("Connected to MineTogether server " + serverNick);
+                //entity.sendMessage(new TextComponentString("Connected to MineTogether server " + TextFormatting.GREEN + serverNick));
             }
         }
 

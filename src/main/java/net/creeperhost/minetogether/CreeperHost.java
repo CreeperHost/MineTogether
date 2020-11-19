@@ -126,7 +126,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
         INSTANCE = this;
         String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature();
-        signature = "iliketrains";
+        //TODO: Temporary signature for a test build, to be removed tomorrow.
+        signature = "e0b2bea31e44554fd3dc1f9fc249387953b3d5fd068c45708581a13fea6239dd";
 
         if(event.getSide() != Side.SERVER) {
             MinecraftForge.EVENT_BUS.register(new net.creeperhost.minetogether.mtconnect.EventHandler());

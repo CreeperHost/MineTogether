@@ -41,7 +41,18 @@ public class KnownUsers
                     break;
                 }
             }
-            if(!skip) remove.add(profile.getLongHash());
+            if(!skip)
+            {
+                //Cleanup legacy code curseSync list...
+                if(ChatHandler.curseSync.containsKey(profile.getMediumHash()))
+                {
+                    ChatHandler.curseSync.remove(profile.getMediumHash());
+                } else if(ChatHandler.curseSync.containsKey(profile.getShortHash()))
+                {
+                    ChatHandler.curseSync.remove(profile.getShortHash());
+                }
+                remove.add(profile.getLongHash());
+            }
         }
         for(String hash : remove)
         {

@@ -43,7 +43,7 @@ public class Profile
         if(serverNick.length() == 30)
         {
             this.mediumHash = serverNick;
-            this.shortHash = serverNick.substring(16);
+            this.shortHash = serverNick.substring(0,16);
             userDisplay = "User#" + mediumHash.substring(2,7);
         }
         else if(serverNick.length() < 30)
@@ -52,8 +52,8 @@ public class Profile
             userDisplay = "User#" + shortHash.substring(2,7);
         } else {
             //Got a FULL hash... Uh oh (This should never actually happen)
-            this.shortHash = "MT" + serverNick.substring(14);
-            this.mediumHash = "MT" + serverNick.substring(28);
+            this.shortHash = "MT" + serverNick.substring(0,14);
+            this.mediumHash = "MT" + serverNick.substring(0,28);
             this.longHash = serverNick;
             this.userDisplay = "User#" + longHash.substring(0,5);
         }
