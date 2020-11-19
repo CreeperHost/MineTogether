@@ -6,6 +6,7 @@ import net.minecraft.client.gui.ServerListEntryNormal;
 import net.minecraft.client.gui.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
+import net.minecraft.client.network.LanServerInfo;
 
 import java.util.List;
 
@@ -29,8 +30,13 @@ public class CreeperHostServerSelectionList extends ServerSelectionList
         super.updateOnlineServers(p_148195_1_);
         ourList.add(new CreeperHostEntry(ourParent, new ServerData("", "127.0.0.1", false), true));
     }
-    
-    public void replaceList(List list)
+
+    @Override
+    public void updateNetworkServers(List<LanServerInfo> p_148194_1_) {
+        super.updateNetworkServers(p_148194_1_);
+    }
+
+    public void replaceList(List<ServerListEntryNormal> list)
     {
         if (ourList == list)
             return;

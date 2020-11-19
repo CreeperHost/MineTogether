@@ -18,6 +18,7 @@ import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
+import net.creeperhost.minetogether.mtconnect.FriendsServerList;
 import net.creeperhost.minetogether.oauth.ServerAuthTest;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
@@ -26,6 +27,7 @@ import net.creeperhost.minetogether.serverstuffs.CreeperHostServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.GuiConnecting;
+import net.minecraft.client.network.LanServerDetector;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
@@ -80,6 +82,7 @@ public class EventHandler
     private static NetworkManager lastNetworkManager = null;
     private static Field serverListSelectorField;
     private static Field serverListInternetField;
+    private static Field lanServerListField;
     private static int ticks = 0;
     private final ResourceLocation earlyResource = new ResourceLocation("textures/gui/achievement/achievement_background.png");
     private final ResourceLocation newResouce = new ResourceLocation("textures/gui/toasts.png");
@@ -334,8 +337,7 @@ public class EventHandler
                     buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
                 }
             }
-        } else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui)
-        {
+        } else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui) {
             GuiMultiplayer mpGUI = (GuiMultiplayer) gui;
 			if (CreeperHost.instance.getImplementation() == null)
 				CreeperHost.instance.setRandomImplementation();
@@ -354,6 +356,12 @@ public class EventHandler
                         serverListInternetField = ReflectionHelper.findField(ServerSelectionList.class, "serverListInternet", "field_148198_l", "");
                         serverListInternetField.setAccessible(true);
                     }
+
+                    if (lanServerListField == null)
+                    {
+                        lanServerListField = ReflectionHelper.findField(GuiMultiplayer.class, "lanServerList", "field_146799_A", "");
+                        lanServerListField.setAccessible(true);
+                    }
                     
                     ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
                     List serverListInternet = (List) serverListInternetField.get(serverListSelector); // Get the list from inside it
@@ -361,6 +369,10 @@ public class EventHandler
                     ourList.replaceList(serverListInternet);
                     serverListInternetField.set(ourList, serverListInternet);
                     serverListSelectorField.set(mpGUI, ourList);
+
+                    // friends stuff
+                    LanServerDetector.LanServerList oldLanServerList = (LanServerDetector.LanServerList) lanServerListField.get(mpGUI); // get the old lan server list
+                    lanServerListField.set(mpGUI, new FriendsServerList(oldLanServerList, mpGUI)); // we wrap it because there is a thread which works on the old stuff. Rather than doing more reflection this seemed ok
                 } catch (Throwable e)
                 {
                     CreeperHost.logger.warn("Reflection to alter server list failed.", e);
