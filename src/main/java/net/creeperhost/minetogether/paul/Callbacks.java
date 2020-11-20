@@ -556,11 +556,15 @@ public final class Callbacks
             FriendStatusResponse friendStatusResponse = new FriendStatusResponse(status.getAsString().equalsIgnoreCase("success"), message.getAsString(), "");
             if (!status.getAsString().equals("success"))
             {
-                String friendHash = obj.get("hash").getAsString();
-                friendStatusResponse.setHash(friendHash);
-                CreeperHost.logger.error("Unable to add friend.");
-                CreeperHost.logger.error(resp);
-                return friendStatusResponse;
+                if(!message.getAsString().equalsIgnoreCase("Friend request already pending."))
+                {
+                    String friendHash = obj.get("hash").getAsString();
+                    friendStatusResponse.setHash(friendHash);
+                    CreeperHost.logger.error("Unable to add friend.");
+                    CreeperHost.logger.error(resp);
+                    return friendStatusResponse;
+                }
+                return null;
             }
         }
         return null;

@@ -55,7 +55,6 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
                 {
                     CreeperHost.logger.info("Pinging server " + server);
                     this.owner.getOldServerPinger().ping(server);
-                    addPendingServer(server);
                 }
                 catch (UnknownHostException var2)
                 {
@@ -68,6 +67,10 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
                     CreeperHost.logger.info("Can't connect " + server);
                     server.pingToServer = -1L;
                     server.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_connect");
+                }
+                if(server.pingToServer > 0)
+                {
+                    addPendingServer(server);
                 }
             }
         });

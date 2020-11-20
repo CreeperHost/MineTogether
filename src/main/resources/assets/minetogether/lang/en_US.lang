@@ -206,6 +206,12 @@ minetogether.listing.closed=Closed Servers require a direct invite from the serv
 minetogether.listing.title=Server Type
 
 minetogether.global.cancel=Cancel
+minetogether.connect.open=Open to friends
+minetogether.connect.open.title=MineTogether Connect
+minetogether.connect.open.settings=Settings for MineTogether friends
+minetogether.connect.open.start=Open world to friends
+minetogether.connect.open.success=Opened local game world to your MineTogether friends.
+minetogether.connect.open.failed=Failed to open local game to MineTogether friends.
 
 minetogether.groupinvite.sure1=Are you sure you wish to invite this person to a group chat?
 minetogether.groupinvite.sure2=Once this has been done, it cannot be undone and you will need to create a new group to remove them.\n\nIf you are already in someone else's group chat, you will leave it.

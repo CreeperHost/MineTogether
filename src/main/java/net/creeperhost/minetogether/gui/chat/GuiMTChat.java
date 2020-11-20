@@ -535,7 +535,7 @@ public class GuiMTChat extends GuiScreen
                     builder.append(split[i]).append(" ");
                 
                 String friendName = builder.toString().trim();
-
+                if(!acceptedRequests.contains(chatInternalName)) acceptedRequests.add(chatInternalName);
                 Profile targetProfile = knownUsers.findByNick(chatInternalName);
                 if(targetProfile == null) targetProfile = knownUsers.add(chatInternalName);
                 
@@ -574,6 +574,7 @@ public class GuiMTChat extends GuiScreen
     }
 
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
+    private static List<String> acceptedRequests = new ArrayList<>();
 
 //    static SimpleDateFormat timestampFormat = new SimpleDateFormat("[HH:mm:ss] ");
 
@@ -592,7 +593,7 @@ public class GuiMTChat extends GuiScreen
                             return null;
                         String nick = split[1];
                         String nickDisplay = ChatHandler.getNameForUser(nick);
-
+                        if(acceptedRequests.contains(nick)) return null;
                         String cmdStr = message.messageStr;
                         String[] cmdSplit = cmdStr.split(" ");
 
@@ -671,7 +672,6 @@ public class GuiMTChat extends GuiScreen
 
             String[] split = messageStr.split(" ");
 
-            boolean highlight = false;
 
             for (int i = 0; i < split.length; i++) {
                 String splitStr = split[i];
@@ -680,7 +680,6 @@ public class GuiMTChat extends GuiScreen
                     if ((CreeperHost.profile.get() != null && (justNick.equals(CreeperHost.profile.get().getShortHash()) || justNick.equals(CreeperHost.profile.get().getMediumHash()))) || justNick.equals(CreeperHost.instance.ourNick)) {
                         splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + CreeperHost.instance.playerName + messageColour);
                         split[i] = splitStr;
-                        highlight = true;
                     } else if(justNick.length() >= 16)
                     {
                         String userName = "User#" + justNick.substring(2, 5);
@@ -701,7 +700,7 @@ public class GuiMTChat extends GuiScreen
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
             if(profile != null && profile.isBanned()) {
-                messageComp = new TextComponentString("<message deleted>").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true));
+                messageComp = new TextComponentString("<Message Deleted>").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true).setObfuscated(true));
                 messageColour = TextFormatting.DARK_GRAY;
             }
 
@@ -716,6 +715,13 @@ public class GuiMTChat extends GuiScreen
 
                     if ((!CreeperHost.instance.ftbPackID.isEmpty() && name2.contains(CreeperHost.instance.ftbPackID))  || (!Config.getInstance().curseProjectID.isEmpty() && name2.contains(Config.getInstance().curseProjectID))) {
                         nickColour = TextFormatting.DARK_PURPLE;
+                        if(profile != null)
+                        {
+                            if(profile.isFriend())
+                            {
+                                nickColour = TextFormatting.GOLD;
+                            }
+                        }
                     }
                 }
             }

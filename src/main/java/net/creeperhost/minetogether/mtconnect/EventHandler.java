@@ -13,8 +13,17 @@ public class EventHandler {
     public void guiInit(GuiScreenEvent.InitGuiEvent.Post event) {
         GuiScreen gui = event.getGui();
         if (gui instanceof GuiIngameMenu) {
-            GuiButton guiButton = new GuiButton(-69420, 0, 0, 70, 20, I18n.format("minetogether.connect"));
+            GuiButton guiButton = new GuiButton(-69420, 113, 116, 98, 20, I18n.format("minetogether.connect.open"));
             event.getButtonList().add(guiButton);
+            for(GuiButton b : event.getButtonList())
+            {
+                if(b.id == 7)//Open to LAN
+                {
+                    b.width = 98;
+                    b.xPosition += 102;
+                    break;
+                }
+            }
         }
     }
 

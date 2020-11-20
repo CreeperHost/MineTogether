@@ -70,40 +70,41 @@ public class ChatConnectionHandler {
                     }
                     else if(s.contains("PRIVMSG"))
                     {
-                        if(s.contains("#"))
+                        CompletableFuture.runAsync(() ->
                         {
-                            CompletableFuture.runAsync(() ->
+                            Pattern pattern = Pattern.compile(".*(MT[A-Za-z0-9]{28}).*PRIVMSG.*(\\#\\w+) \\:(.*)");
+                            Matcher matcher = pattern.matcher(s);
+                            if (matcher.matches())
                             {
-                                Pattern pattern = Pattern.compile(".*(MT[A-Za-z0-9]{28}).*PRIVMSG.*(\\#\\w+) \\:(.*)");
-                                Matcher matcher = pattern.matcher(s);
-                                if (matcher.matches())
+                                String name = matcher.group(1);
+                                String channel = matcher.group(2);
+                                String message = matcher.group(3);
+                                ChatHandler.addMessageToChat(channel, name, Format.stripAll(message));
+                                /*if(channel.equalsIgnoreCase(ChatHandler.CHANNEL))
                                 {
-                                    String name = matcher.group(1);
-                                    String channel = matcher.group(2);
-                                    String message = matcher.group(3);
-                                    ChatHandler.addMessageToChat(channel, name, Format.stripAll(message));
-                                    /*if(channel.equalsIgnoreCase(ChatHandler.CHANNEL))
-                                    {
-                                        ChatHandler.addMessageToChat(ChatHandler.CHANNEL, name, Format.stripAll(message));
-                                    }*/
-                                }
-                            }, CreeperHost.chatMessageExecutor);
-                        }
-                        else
-                        {
-                            CompletableFuture.runAsync(() ->
-                            {
-                                Pattern pattern = Pattern.compile("\\:(\\w+).*PRIVMSG.*\\:\\x01(.*)\\x01");
-                                Matcher matcher = pattern.matcher(s);
-                                if(matcher.matches())
-                                {
+                                    ChatHandler.addMessageToChat(ChatHandler.CHANNEL, name, Format.stripAll(message));
+                                }*/
+                            } else {
+                                pattern = Pattern.compile("\\:(\\w+).*PRIVMSG.*\\:\\x01(.*)\\x01");
+                                matcher = pattern.matcher(s);
+                                if (matcher.matches()) {
                                     String name = matcher.group(1);
                                     String message = matcher.group(2);
 
                                     ChatHandler.Listener.onCTCP(name, message);
+                                } else {
+                                    pattern = Pattern.compile("\\:(\\w+).*PRIVMSG.*\\:(.*)");
+                                    matcher = pattern.matcher(s);
+                                    if (matcher.matches()) {
+                                        String name = matcher.group(1);
+                                        String message = matcher.group(2);
+                                        ChatHandler.addMessageToChat(name, name, Format.stripAll(message));
+                                    } else {
+                                        System.out.println("Unknown message! "+s);
+                                    }
                                 }
-                            }, CreeperHost.chatMessageExecutor);
-                        }
+                            }
+                        }, CreeperHost.chatMessageExecutor);
                     } else if(s.contains("NOTICE"))
                     {
                         CompletableFuture.runAsync(() ->
