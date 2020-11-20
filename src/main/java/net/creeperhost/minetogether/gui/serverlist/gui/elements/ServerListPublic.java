@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.gui.serverlist.data.ServerDataPublic;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;

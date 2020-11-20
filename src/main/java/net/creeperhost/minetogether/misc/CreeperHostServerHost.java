@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.paul;
+package net.creeperhost.minetogether.misc;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;

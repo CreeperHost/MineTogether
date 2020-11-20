@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.gui.list;
 
 import net.creeperhost.minetogether.gui.GuiModPackList;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;

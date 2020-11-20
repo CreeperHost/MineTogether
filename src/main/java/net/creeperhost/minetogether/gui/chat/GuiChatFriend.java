@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.gui.chat;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.data.Profile;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;

@@ -24,6 +24,7 @@ public class Config
     private boolean enableMainMenuFriends;
     private boolean isLeft;
     private boolean tradeEnabled;
+    private boolean replaceRealms;
 
     private int pregenDiameter = 120;
 
@@ -45,6 +46,7 @@ public class Config
         enableFriendOnlineToasts = true;
         isLeft = true;
         tradeEnabled = false;
+        replaceRealms = true;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
@@ -147,6 +149,7 @@ public class Config
     }
 
     public boolean isTradeEnabled() { return tradeEnabled; }
+    public boolean getReplaceRealms() { return replaceRealms; }
 
     public void setEnableFriendOnlineToasts(boolean enableFriendOnlineToasts) {
         this.enableFriendOnlineToasts = enableFriendOnlineToasts;

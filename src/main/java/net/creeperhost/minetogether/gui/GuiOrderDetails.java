@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.gui;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Order;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.multiplayer.ServerList;
 

@@ -4,7 +4,7 @@ import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.gui.serverlist.data.ServerDataPublic;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.creeperhost.minetogether.data.EnumFlag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;

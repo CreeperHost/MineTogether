@@ -2,11 +2,10 @@ package net.creeperhost.minetogether.trade;
 
 import com.google.gson.*;
 import net.creeperhost.minetogether.common.WebUtils;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import org.lwjgl.Sys;
 
 import java.util.ArrayList;
 import java.util.HashMap;

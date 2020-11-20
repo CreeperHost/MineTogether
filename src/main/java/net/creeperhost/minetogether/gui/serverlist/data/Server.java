@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.gui.serverlist.data;
 
 import net.creeperhost.minetogether.gui.serverlist.gui.elements.ServerListEntryPublic;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.creeperhost.minetogether.data.EnumFlag;
 
 import java.util.Comparator;

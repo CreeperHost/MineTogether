@@ -11,7 +11,7 @@ import net.creeperhost.minetogether.gui.chat.GuiTextFieldLockable;
 import net.creeperhost.minetogether.gui.chat.TimestampComponentString;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.element.GuiButtonPair;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.network.NetHandlerPlayClient;

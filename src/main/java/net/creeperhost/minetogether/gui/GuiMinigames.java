@@ -14,7 +14,7 @@ import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.gui.element.GuiActiveFake;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompatCensor;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.creeperhost.minetogether.serverstuffs.CreeperHostServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -44,7 +44,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static net.creeperhost.minetogether.paul.Callbacks.getPlayerHash;
+import static net.creeperhost.minetogether.misc.Callbacks.getPlayerHash;
 
 public class GuiMinigames extends GuiScreen
 {

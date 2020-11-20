@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.api;
 
-import net.creeperhost.minetogether.paul.Constants;
+import net.creeperhost.minetogether.misc.Constants;
 
 public class Order
 {

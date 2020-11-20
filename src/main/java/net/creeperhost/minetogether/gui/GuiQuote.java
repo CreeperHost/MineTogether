@@ -6,7 +6,7 @@ import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.gui.element.GuiWell;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryCountry;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.gui.GuiButton;
 
 import java.io.IOException;

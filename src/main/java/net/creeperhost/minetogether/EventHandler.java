@@ -20,7 +20,7 @@ import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.mtconnect.FriendsServerList;
 import net.creeperhost.minetogether.oauth.ServerAuthTest;
-import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.misc.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.serverstuffs.CreeperHostServer;
@@ -58,6 +58,7 @@ import org.lwjgl.input.Keyboard;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -96,7 +97,7 @@ public class EventHandler
     private GuiMultiplayer lastInitialized = null;
     private ServerListNoEdit ourServerList;
     private boolean hasJoinedWorld;
-    private Thread inviteCheckThread;
+    private CompletableFuture inviteCheckFuture;
     private int inviteTicks = -1;
 
     private int clientTicks = 0; //Tick counter client side.
@@ -326,12 +327,20 @@ public class EventHandler
             if (CreeperHost.instance.getImplementation() == null)
                 return;
             List<GuiButton> buttonList = event.getButtonList();
+            for(GuiButton b : buttonList)
+            {
+                if(b.id == 14 && Config.getInstance().getReplaceRealms())
+                {
+                    b.displayString = I18n.format("minetogether.realms.replace");
+                    break;
+                }
+            }
             if (buttonList != null)
             {
                 //Multiplayer button
                 if(buttonList.size() > 2) {
                 //if(buttonList.contains(2)) {
-                    int x = buttonList.get(2).xPosition - buttonList.get(2).width - 26;
+                    int x = buttonList.get(2).xPosition - buttonList.get(2).width - 28;
                     buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, x, gui.height / 4 + 48 + 24));
                 } else {
                     buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
@@ -647,13 +656,18 @@ public class EventHandler
         GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu)
         {
-            if (button != null && button.id == MAIN_BUTTON_ID)
+            if (button != null && button.id == MAIN_BUTTON_ID && !Config.getInstance().getReplaceRealms())
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
             }
             if (button != null && button.id == MINIGAMES_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames(gui));
+            }
+            if(button != null && button.id == 14 && Config.getInstance().getReplaceRealms())
+            {
+                Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+                event.setCanceled(true);
             }
         } else if (gui instanceof GuiMultiplayer)
         {
@@ -852,14 +866,13 @@ public class EventHandler
         
         if (Config.getInstance().isServerListEnabled() && CreeperHost.instance.gdpr.hasAcceptedGDPR())
         {
-            if (inviteCheckThread == null)
+            if (!(inviteCheckFuture != null && !inviteCheckFuture.isDone()))
             {
-                inviteCheckThread = new Thread(() -> {
+                inviteCheckFuture = CompletableFuture.runAsync(() -> {
                     while (Config.getInstance().isServerListEnabled())
                     {
                         Invite tempInvite = null;
                         PrivateChat temp = null;
-
                         try
                         {
                             if(ChatHandler.isOnline()) //No point in trying this without a connection
@@ -875,28 +888,21 @@ public class EventHandler
 
                                 if (temp != null)
                                 {
-                                    CreeperHost.instance.displayToast(I18n.format("Your friend %s invited you to a private chat", CreeperHost.instance.getNameForUser(temp.getOwner()), ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 10000, () ->
+                                    CreeperHost.instance.displayToast(I18n.format("Your friend %s invited you to a private chat", CreeperHost.instance.getNameForUser(temp.getOwner()), ((Client) CreeperHost.proxy).openGuiKey.getDisplayName()), 5000, () ->
                                     {
                                         mc.displayGuiScreen(new GuiMTChat(Minecraft.getMinecraft().currentScreen, true));
                                     });
                                 }
                             }
                         }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                            // carry on - we'll just try again later, saves thread dying.
-                        }
+                        catch (Exception ignored) {}
 
                         try
                         {
-                            Thread.sleep(1000);
+                            Thread.sleep(5000);
                         } catch (InterruptedException ignored) {}
                     }
-                });
-                inviteCheckThread.setDaemon(true);
-                inviteCheckThread.setName("MineTogether invite check thread");
-                inviteCheckThread.start();
+                }, CreeperHost.otherExecutor);
             }
             
             boolean handled = false;
@@ -957,7 +963,7 @@ public class EventHandler
                     return;
                 if(Config.getInstance().isFriendOnlineToastsEnabled())
                 {
-                    CreeperHost.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 4000, null);
+                    CreeperHost.instance.displayToast(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend), 2000, null);
                 }
             }
         }
