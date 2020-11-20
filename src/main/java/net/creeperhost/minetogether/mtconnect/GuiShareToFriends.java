@@ -1,12 +1,10 @@
 package net.creeperhost.minetogether.mtconnect;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiShareToLan;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.GameType;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -27,10 +25,6 @@ public class GuiShareToFriends extends GuiShareToLan {
         {
             b.func_191745_a(this.mc, mouseX, mouseY, partialTicks);
         }
-        /*for (int j = 0; j < this.labelList.size(); ++j)
-        {
-            ((GuiLabel)this.labelList.get(j)).drawLabel(this.mc, mouseX, mouseY);
-        }*/
     }
 
     @Override
@@ -54,7 +48,7 @@ public class GuiShareToFriends extends GuiShareToLan {
 
         if (button.id == 101)
         {
-            this.mc.displayGuiScreen((GuiScreen)null);
+            this.mc.displayGuiScreen(null);
             boolean s = ConnectHelper.shareToFriends(GameType.getByName((String) gameModeString), (Boolean) allowCheatsBoolean);
             ITextComponent itextcomponent;
 

@@ -103,7 +103,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public static Executor ircEventExecutor = Executors.newFixedThreadPool(instance.aaron, new ThreadFactoryBuilder().setNameFormat("minetogether-ircevent-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     public static Executor chatMessageExecutor = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-chatmessage-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     public static DebugHandler debugHandler = new DebugHandler();
-    public static AtomicReference<Profile> profile = new AtomicReference<Profile>();
+    public static AtomicReference<Profile> profile = new AtomicReference<>();
     public static AtomicReference<UUID> UUID = new AtomicReference<UUID>();
     protected static String signature = null;
 
