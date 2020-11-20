@@ -1,23 +1,15 @@
 package net.creeperhost.minetogether.mtconnect;
 
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.data.Profile;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ThreadLanServerPing;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.HttpUtil;
 import net.minecraft.world.GameType;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
 
 public class ConnectHelper {
 
-    static boolean isEnabled = false;
+    public static boolean isEnabled = false;
 
     public static boolean shareToFriends(GameType type, boolean allowCheats) {
         IntegratedServer integratedServer = Minecraft.getMinecraft().getIntegratedServer();

@@ -19,6 +19,7 @@ import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.mtconnect.FriendsServerList;
+import net.creeperhost.minetogether.mtconnect.OurServerListEntryLanScan;
 import net.creeperhost.minetogether.oauth.ServerAuthTest;
 import net.creeperhost.minetogether.misc.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
@@ -84,6 +85,7 @@ public class EventHandler
     private static Field serverListSelectorField;
     private static Field serverListInternetField;
     private static Field lanServerListField;
+    private static Field ServerListEntryLanScanField;
     private static int ticks = 0;
     private final ResourceLocation earlyResource = new ResourceLocation("textures/gui/achievement/achievement_background.png");
     private final ResourceLocation newResouce = new ResourceLocation("textures/gui/toasts.png");
@@ -335,7 +337,7 @@ public class EventHandler
                     break;
                 }
             }
-            if (buttonList != null)
+            if (buttonList != null && !Config.getInstance().getReplaceRealms())
             {
                 //Multiplayer button
                 if(buttonList.size() > 2) {
@@ -371,7 +373,14 @@ public class EventHandler
                         lanServerListField = ReflectionHelper.findField(GuiMultiplayer.class, "lanServerList", "field_146799_A", "");
                         lanServerListField.setAccessible(true);
                     }
-                    
+
+                    if(ServerListEntryLanScanField == null)
+                    {
+                        ServerListEntryLanScanField = ReflectionHelper.findField(ServerSelectionList.class, "lanScanEntry", "field_148196_n", "");
+                        ServerListEntryLanScanField.setAccessible(true);
+                    }
+
+
                     ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
                     List serverListInternet = (List) serverListInternetField.get(serverListSelector); // Get the list from inside it
                     CreeperHostServerSelectionList ourList = new CreeperHostServerSelectionList(mpGUI, Minecraft.getMinecraft(), mpGUI.width, mpGUI.height, 32, mpGUI.height - 64, 36);
@@ -382,6 +391,7 @@ public class EventHandler
                     // friends stuff
                     LanServerDetector.LanServerList oldLanServerList = (LanServerDetector.LanServerList) lanServerListField.get(mpGUI); // get the old lan server list
                     lanServerListField.set(mpGUI, new FriendsServerList(oldLanServerList, mpGUI)); // we wrap it because there is a thread which works on the old stuff. Rather than doing more reflection this seemed ok
+                    ServerListEntryLanScanField.set(ourList, new OurServerListEntryLanScan());//This was far too much work to replace a string
                 } catch (Throwable e)
                 {
                     CreeperHost.logger.warn("Reflection to alter server list failed.", e);
@@ -656,7 +666,7 @@ public class EventHandler
         GuiButton button = event.getButton();
         if (gui instanceof GuiMainMenu)
         {
-            if (button != null && button.id == MAIN_BUTTON_ID && !Config.getInstance().getReplaceRealms())
+            if (button != null && button.id == MAIN_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
             }

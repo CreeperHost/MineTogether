@@ -208,6 +208,8 @@ minetogether.listing.title=Server Type
 
 minetogether.global.cancel=Cancel
 minetogether.connect.open=Open to friends
+minetogether.connect.scan=Scanning MineTogether Connect and LAN for available worlds
+minetogether.connect.scan.offline=Scanning LAN for available worlds
 minetogether.connect.open.title=MineTogether Connect
 minetogether.connect.open.settings=Settings for MineTogether friends
 minetogether.connect.open.start=Open world to friends
