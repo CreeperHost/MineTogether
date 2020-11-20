@@ -23,13 +23,8 @@ public class GuiShareToFriends extends GuiShareToLan {
         this.drawDefaultBackground();
         this.drawCenteredString(mc.fontRendererObj, I18n.format("minetogether.connect.open.title"), this.width / 2, 50, 16777215);
         this.drawCenteredString(mc.fontRendererObj, I18n.format("minetogether.connect.open.settings"), this.width / 2, 82, 16777215);
-        for (int i = 0; i < this.buttonList.size(); ++i)
+        for (GuiButton b : this.buttonList)
         {
-            GuiButton b = this.buttonList.get(i);
-            if(b.id == 101)
-            {
-                b.displayString = I18n.format("minetogether.connect.open.start");
-            }
             b.func_191745_a(this.mc, mouseX, mouseY, partialTicks);
         }
         /*for (int j = 0; j < this.labelList.size(); ++j)
@@ -39,11 +34,23 @@ public class GuiShareToFriends extends GuiShareToLan {
     }
 
     @Override
+    public void initGui() {
+        super.initGui();
+        for (GuiButton b : this.buttonList)
+        {
+            if(b.id == 101)
+            {
+                b.displayString = I18n.format("minetogether.connect.open.start");
+            }
+        }
+
+    }
+
+    @Override
     protected void actionPerformed(GuiButton button) throws IOException {
 
         Object gameModeString = ObfuscationReflectionHelper.getPrivateValue(GuiShareToLan.class, this, "gameMode", "field_146599_h");
         Object allowCheatsBoolean = ObfuscationReflectionHelper.getPrivateValue(GuiShareToLan.class, this, "allowCheats", "field_146600_i");
-
 
         if (button.id == 101)
         {
