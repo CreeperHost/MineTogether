@@ -619,12 +619,6 @@ public class ChatHandler
 //                b.forEach(mode -> mode.getParameter().ifPresent(param -> {
 //                    String nick = param.split("!")[0];
 
-                    Profile profile = knownUsers.findByNick(nick);
-                    if (profile != null)
-                    {
-                        profile.setBanned(true);
-                        knownUsers.update(profile);
-                    }
 
                     if (nick.equalsIgnoreCase(ChatHandler.nick)) {
                         // it be us
@@ -634,7 +628,8 @@ public class ChatHandler
                         CreeperHost.profile.getAndUpdate(profile1 ->
                         {
                             profile1.setBanned(true);
-                            if(ChatHandler.isBannedFuture != null && !ChatHandler.isBannedFuture.isDone()) ChatHandler.isBannedFuture.cancel(true);
+                            if (ChatHandler.isBannedFuture != null && !ChatHandler.isBannedFuture.isDone())
+                                ChatHandler.isBannedFuture.cancel(true);
                             ChatHandler.isBannedFuture = CompletableFuture.runAsync(() ->
                             {
                                 while (CreeperHost.profile.get().isBanned()) {
@@ -649,8 +644,20 @@ public class ChatHandler
                             return profile1;
                         });
                         host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
-//                    }
+
                         host.userBanned(nick);
+                    } else {
+                        Profile profile = knownUsers.findByNick(nick);
+                        if (profile == null)
+                        {
+                            //Banned on their first message? Oops.
+                            profile = knownUsers.add(nick);
+                        }
+                        if (profile != null)
+                        {
+                            profile.setBanned(true);
+                            knownUsers.update(profile);
+                        }
                     }
             }, CreeperHost.ircEventExecutor);
         }
@@ -678,7 +685,7 @@ public class ChatHandler
     {
         ChatHandler.client.shutdown();
         try {
-            ChatHandler.addStatusMessage((reconnect) ? "Chat disconnected, Reconnecting" : "Chat has disconnected.");
+            ChatHandler.addStatusMessage((reconnect) ? "Chat disconnected. Reconnecting..." : "Chat has disconnected.");
             ChatHandler.connectionStatus = ConnectionStatus.DISCONNECTED;
             Thread.sleep(reconnectTimer.get());
             logger.error("Reinit being called");
