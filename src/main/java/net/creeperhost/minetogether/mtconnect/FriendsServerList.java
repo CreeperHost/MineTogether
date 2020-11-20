@@ -32,7 +32,11 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
         this.owner = owner;
         this.wrapped = wrapped;
         oursWasUpdated = true;
-        addOurServer("127.0.0.1:42069", "MTConnect Test");
+        if(!ConnectHelper.isEnabled)
+        {
+            addOurServer("127.0.0.1:42069", "MTConnect is disabled");
+            return;
+        }
 
         CompletableFuture.runAsync(() ->
         {
@@ -40,7 +44,7 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
             while(friendsList == null) {
                 friendsList = Callbacks.getFriendsList(false);
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                 }
             }
@@ -48,30 +52,36 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
 
             for(Friend friend : friendsList)
             {
-                Profile profile = friend.getProfile();
-                String ipv6 = "2a04:de41:" + String.join(":", profile.longHash.substring(0,24).split("(?<=\\G....)"));
-                ServerData server = new ServerData(friend.getName() + "'s server", "[" + ipv6 + "]:42069", false);
-                try
-                {
-                    CreeperHost.logger.info("Pinging server " + server);
-                    this.owner.getOldServerPinger().ping(server);
-                }
-                catch (UnknownHostException var2)
-                {
-                    CreeperHost.logger.info("Can't resolve " + server);
-                    server.pingToServer = -1L;
-                    server.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_resolve");
-                }
-                catch (Exception var3)
-                {
-                    CreeperHost.logger.info("Can't connect " + server);
-                    server.pingToServer = -1L;
-                    server.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_connect");
-                }
-                if(server.pingToServer > 0)
-                {
-                    addPendingServer(server);
-                }
+                CompletableFuture.runAsync(() -> {
+                    Profile profile = friend.getProfile();
+                    if(!profile.isOnline()) return;
+                    System.out.println("Checking "+profile.getUserDisplay());
+                    ServerData server = new ServerData(friend.getName() + "'s server", "[" + profile.getConnectAddress() + "]:42069", false);
+                    try
+                    {
+                        CreeperHost.logger.info("Pinging server " + server.serverIP);
+                        this.owner.getOldServerPinger().ping(server);
+                    }
+                    catch (UnknownHostException var2)
+                    {
+                        CreeperHost.logger.info("Can't resolve " + server.serverIP);
+                        server.pingToServer = -1L;
+                        server.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_resolve");
+                    }
+                    catch (Exception var3)
+                    {
+                        CreeperHost.logger.info("Can't connect " + server.serverIP);
+                        server.pingToServer = -1L;
+                        server.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_connect");
+                    }
+                    if(server.pingToServer > 0)
+                    {
+                        addPendingServer(server);
+                    }
+                }, CreeperHost.otherExecutor);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {}
             }
         });
 

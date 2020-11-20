@@ -180,11 +180,11 @@ public class ChatConnectionHandler {
                                 }
                             }
                         }, CreeperHost.ircEventExecutor);
-                    } else if(s.contains("{") && s.contains("}") && s.contains("352"))//WHOIS responses
+                    } else if(s.contains(" 352 ") && s.split(" ")[1].contains("352"))//WHOIS responses
                     {
                         CompletableFuture.runAsync(() ->
                         {
-                            Pattern pattern = Pattern.compile(":.*352 MT.{28} (\\#\\w+) .*(MT.{28}) \\w\\+? :\\d (\\{.*\\})");
+                            Pattern pattern = Pattern.compile(":.*352 MT.{14,28} (\\#\\w+) .*(MT.{14,28}) \\w\\+? :\\d (\\{.*\\})");
                             Matcher matcher = pattern.matcher(s);
                             if (matcher.matches()) {
                                 String nick = matcher.group(2);
@@ -201,15 +201,36 @@ public class ChatConnectionHandler {
                                 }
                                 Profile profile = ChatHandler.knownUsers.findByNick(nick);
                                 if (profile != null) {
+                                    if(profile.isFriend()) {
+                                        profile.setOnlineMedium(true);
+                                    }
                                     profile.setPackID(json);
                                     ChatHandler.knownUsers.update(profile);
                                 }
                             }
                         }, CreeperHost.ircEventExecutor);
                     }
-                    //TODO we might need this for something
-//                    else if(s.contains("QUIT") || s.contains("LEAVE") || s.contains("PART"))
-//                    {
+                    else if(s.contains(" 401 ") && s.split(" ")[1].contains("401"))//WHOIS failure responses
+                    {
+                        CompletableFuture.runAsync(() ->
+                        {
+                            Pattern pattern = Pattern.compile(":.*401 MT.{14,28} (MT.{14,28}) :.*");
+                            Matcher matcher = pattern.matcher(s);
+                            if (matcher.matches()) {
+                                String nick = matcher.group(1);
+                                Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                                if (profile != null) {
+                                    if(profile.isFriend()) {
+                                        profile.setOnlineMedium(false);
+                                        ChatHandler.knownUsers.update(profile);
+                                    }
+                                }
+                            }
+                        }, CreeperHost.ircEventExecutor);
+                    }
+                    else if(s.contains("QUIT") || s.contains("LEAVE") || s.contains("PART"))
+                    {
+                        //TODO: Use this if we need it.
 //                        Pattern pattern = Pattern.compile("\\:(MT\\w{28})!");
 //                        Matcher matcher = pattern.matcher(s);
 //                        if(matcher.matches())
@@ -218,7 +239,9 @@ public class ChatConnectionHandler {
 //
 //                        }
 //                        CreeperHost.logger.error(TextFormatting.DARK_PURPLE + s);
-//                    }
+                    } else {
+                        if(debugHandler.isDebug) System.out.println("Unhandled IRC message!\n"+s);
+                    }
                 });
                 mineTogether.listeners().output(s ->
                 {
