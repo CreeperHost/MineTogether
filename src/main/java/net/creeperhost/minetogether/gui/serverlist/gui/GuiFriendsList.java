@@ -237,7 +237,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                 }, CreeperHost.profileExecutor);
 
                 buttonInvite.visible = true;
-                showAlert(String.valueOf(result.get() == null || result.get().getMessage().isEmpty() ? new TextComponentString(Util.localize("multiplayer.friendsent")) : new TextComponentString(result.get().getMessage())), 0x00FF00, 5000);
+                showAlert(String.valueOf(result.get() == null || result.get().getMessage().isEmpty() ? Util.localize("multiplayer.friendsent") : result.get().getMessage()), 0x00FF00, 5000);
             }
             
         } else if (button == buttonInvite && button.enabled && button.visible)
