@@ -32,8 +32,7 @@ public class Profile
     private boolean banned = false;
     private String packID = "";
     private long lastOnlineCheck = 0;
-    private boolean onlineShort = false;
-    private boolean onlineMedium = false;
+    private boolean isOnline = false;
     private boolean isLoadingProfile = false;
 
     public Profile(String serverNick)
@@ -108,30 +107,23 @@ public class Profile
                 whoisCommand = new WhoisCommand(ChatHandler.client);
 
             this.lastOnlineCheck = System.currentTimeMillis() / 1000;
-            whoisCommand.target(getShortHash()).execute();
             whoisCommand.target(getMediumHash()).execute();
         }
-        boolean flag =  (onlineShort || onlineMedium);
-        if(flag && !ChatHandler.friends.containsKey(mediumHash))
+        if(isOnline && !ChatHandler.friends.containsKey(mediumHash))
         {
             ChatHandler.friends.put(mediumHash, friendName);
-            Target.updateCache();
         }
-        else if(!flag && ChatHandler.friends.containsKey(mediumHash))
+        else if(!isOnline && ChatHandler.friends.containsKey(mediumHash))
         {
             ChatHandler.friends.remove(mediumHash);
         }
-        return flag;
+        Target.updateCache();
+        return isOnline;
     }
 
-    public void setOnlineShort(boolean onlineShort)
+    public void setOnline(boolean online)
     {
-        this.onlineShort = onlineShort;
-    }
-
-    public void setOnlineMedium(boolean onlineMedium)
-    {
-        this.onlineMedium = onlineMedium;
+        this.isOnline = online;
     }
 
     public String getCurrentIRCNick() {

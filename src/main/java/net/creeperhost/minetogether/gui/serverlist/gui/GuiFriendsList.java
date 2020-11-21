@@ -141,7 +141,7 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         searchEntry = new GuiTextFieldCompat(3, this.fontRendererObj, this.width / 2 - 80, y + 28, 160, 20);
         searchEntry.setVisible(true);
     }
-    
+    public static ArrayList<String> removedFriends = new ArrayList<>();
     protected void refreshFriendsList(boolean force)
     {
         ArrayList<Friend> friends = Callbacks.getFriendsList(force);
@@ -156,13 +156,30 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
                     String s = searchEntry.getText();
                     if(friend.getName().toLowerCase().contains(s.toLowerCase()))
                     {
-                        list.addEntry(friendEntry);
+                        if(!removedFriends.contains(friend.getCode())) list.addEntry(friendEntry);
                     }
                 }
                 else
+                {
+                    if(!removedFriends.contains(friend.getCode())) list.addEntry(friendEntry);
+                }
+            }
+            ArrayList<String> removedCopy = new ArrayList<String>(removedFriends);
+            for(String removed : removedCopy)
+            {
+                boolean isInList = false;
+                for(Friend friend : friends)
+                {
+                    if(friend.getCode().equalsIgnoreCase(removed))
                     {
-                        list.addEntry(friendEntry);
+                        isInList=true;
+                        break;
                     }
+                }
+                if(!isInList)
+                {
+                    removedFriends.remove(removed);
+                }
             }
         }
     }
@@ -428,7 +445,6 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         unmutePlayer = muted;
         mc.displayGuiScreen(new GuiYesNo(this, I18n.format("minetogether.unmute.sure1"), I18n.format("minetogether.unmute.sure2"), 2));
     }
-    
     @Override
     public void confirmClicked(boolean result, int id)
     {
@@ -436,8 +452,15 @@ public class GuiFriendsList extends GuiScreen implements GuiYesNoCallback
         {
             if(id == 0)
             {
-                Callbacks.removeFriend(removeFriend.getCode());
-                refreshFriendsList(true);
+                CompletableFuture.runAsync(() -> {
+                    removedFriends.add(removeFriend.getCode());
+                    refreshFriendsList(true);
+                    if(!Callbacks.removeFriend(removeFriend.getCode()))
+                    {
+                        removedFriends.remove(removeFriend.getCode());
+                        refreshFriendsList(true);
+                    }
+                });
             }
             else if(id == 2)
             {

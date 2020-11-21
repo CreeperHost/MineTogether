@@ -4,9 +4,7 @@ import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.DebugHandler;
 import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.common.IHost;
-import net.creeperhost.minetogether.common.RegexValidator;
 import net.creeperhost.minetogether.data.Profile;
-import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitteh.irc.client.library.Client;
@@ -17,6 +15,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static net.creeperhost.minetogether.chat.ChatHandler.privateChatList;
 
 public class ChatConnectionHandler {
 
@@ -184,7 +184,7 @@ public class ChatConnectionHandler {
                     {
                         CompletableFuture.runAsync(() ->
                         {
-                            Pattern pattern = Pattern.compile(":.*352 MT.{14,28} (\\#\\w+) .*(MT.{14,28}) \\w\\+? :\\d (\\{.*\\})");
+                            Pattern pattern = Pattern.compile(":.*352 MT.{28} (\\#\\w+) .*(MT.{28}) \\w\\+? :\\d (\\{.*\\})");
                             Matcher matcher = pattern.matcher(s);
                             if (matcher.matches()) {
                                 String nick = matcher.group(2);
@@ -202,7 +202,7 @@ public class ChatConnectionHandler {
                                 Profile profile = ChatHandler.knownUsers.findByNick(nick);
                                 if (profile != null) {
                                     if(profile.isFriend()) {
-                                        profile.setOnlineMedium(true);
+                                        profile.setOnline(true);
                                     }
                                     profile.setPackID(json);
                                     ChatHandler.knownUsers.update(profile);
@@ -214,14 +214,14 @@ public class ChatConnectionHandler {
                     {
                         CompletableFuture.runAsync(() ->
                         {
-                            Pattern pattern = Pattern.compile(":.*401 MT.{14,28} (MT.{14,28}) :.*");
+                            Pattern pattern = Pattern.compile(":.*401 MT.{28} (MT.{28}) :.*");
                             Matcher matcher = pattern.matcher(s);
                             if (matcher.matches()) {
                                 String nick = matcher.group(1);
                                 Profile profile = ChatHandler.knownUsers.findByNick(nick);
                                 if (profile != null) {
                                     if(profile.isFriend()) {
-                                        profile.setOnlineMedium(false);
+                                        profile.setOnline(false);
                                         ChatHandler.knownUsers.update(profile);
                                     }
                                 }
@@ -230,15 +230,15 @@ public class ChatConnectionHandler {
                     }
                     else if(s.contains("QUIT") || s.contains("LEAVE") || s.contains("PART"))
                     {
-                        //TODO: Use this if we need it.
-//                        Pattern pattern = Pattern.compile("\\:(MT\\w{28})!");
-//                        Matcher matcher = pattern.matcher(s);
-//                        if(matcher.matches())
-//                        {
-//                            String name = matcher.group(1);
-//
-//                        }
-//                        CreeperHost.logger.error(TextFormatting.DARK_PURPLE + s);
+                        Pattern pattern = Pattern.compile("\\:(MT\\w{28})!");
+                        Matcher matcher = pattern.matcher(s);
+                        if(matcher.matches())
+                        {
+                            String name = matcher.group(1);
+                            if (privateChatList != null && privateChatList.owner.equals(name)) {
+                                ChatHandler.host.closeGroupChat();
+                            }
+                        }
                     } else {
                         if(debugHandler.isDebug) System.out.println("Unhandled IRC message!\n"+s);
                     }

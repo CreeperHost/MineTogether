@@ -164,19 +164,10 @@ public class EventHandler
 
         if(!isOnline) return;
         
-        if (gui instanceof GuiMainMenu && (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled()))
-        {
-            if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
-            {
-                //Why is this still here?
-                //event.setGui(new GuiGDPR());
-            } else
-            {
-                if (first)
-                {
-                    first = false;
-                    CreeperHost.proxy.startChat();
-                }
+        if (gui instanceof GuiMainMenu && (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())) {
+            if (first) {
+                first = false;
+                CreeperHost.proxy.startChat();
             }
         }
         
@@ -341,7 +332,6 @@ public class EventHandler
             {
                 //Multiplayer button
                 if(buttonList.size() > 2) {
-                //if(buttonList.contains(2)) {
                     int x = buttonList.get(2).xPosition - buttonList.get(2).width - 28;
                     buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, x, gui.height / 4 + 48 + 24));
                 } else {
@@ -432,7 +422,10 @@ public class EventHandler
         {
             if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic))
             {
-                event.getButtonList().add(new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.public")));
+                GuiButton mpbtn = new GuiButton(MP_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.public"));
+                Config defaultConfig = new Config();
+                if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID)) mpbtn.enabled = false;
+                event.getButtonList().add(mpbtn);
                 buttonDrawn = true;
                 GuiButton editButton = null;
                 for (int i = 0; i < event.getButtonList().size(); i++)
@@ -657,7 +650,7 @@ public class EventHandler
             }
         }
     }
-    
+    boolean doubleCancel = false;
     @SubscribeEvent
     public void onActionPerformed(ActionPerformedEvent.Pre event)
     {
@@ -696,6 +689,20 @@ public class EventHandler
             if (button != null && button.id == MINIGAMES_BUTTON_ID)
             {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMinigames(gui));
+            }
+            if(button != null && button.id == 0) {
+                //TODO: Please give me a better way to fix this, reading the existing code to figure out why the cancel button doesn't work properly will give me a anxiety.
+                if(gui instanceof GuiMultiplayerPublic)
+                {
+                    doubleCancel = true;
+                } else {
+                    if(doubleCancel)
+                    {
+                        doubleCancel = false;
+                        event.setCanceled(true);
+                        Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
+                    }
+                }
             }
         } else if (gui instanceof GuiIngameMenu)
         {

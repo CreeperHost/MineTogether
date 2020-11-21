@@ -42,7 +42,7 @@ public class ChatHandler
 
     public static TreeMap<String, LimitedSizeQueue<Message>> messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     public static Client client = null;
-    static IHost host;
+    public static IHost host;
     static boolean online = false;
     public static AtomicBoolean isInitting = new AtomicBoolean(false);
     public static AtomicInteger tries = new AtomicInteger(0);
@@ -396,7 +396,7 @@ public class ChatHandler
             if(debugHandler.isDebug) logger.error(event.getCause().toString());
         }
 
-        @Handler
+        //@Handler
         public void onChannelLeave(ChannelPartEvent event)
         {
             CompletableFuture.runAsync(() ->
@@ -421,7 +421,7 @@ public class ChatHandler
             }, CreeperHost.ircEventExecutor);
         }
 
-        @Handler
+        //@Handler
         public void onUserQuit(UserQuitEvent event)
         {
             CompletableFuture.runAsync(() ->
@@ -462,34 +462,13 @@ public class ChatHandler
 
         private WhoisCommand whoisCommand = null;
 
-        private void doWhois(User user) {
+        public void doWhois(User user) {
             if (whoisCommand == null || whoisCommand.getClient() != client)
                 whoisCommand = new WhoisCommand(client);
 
             whoisCommand.target(user.getNick()).execute();
         }
 
-        @Handler
-        public void onWhoisReturn(WhoisEvent event)
-        {
-            CompletableFuture.runAsync(() ->
-            {
-                WhoisData whoisData = event.getWhoisData();
-                Profile profile = knownUsers.findByNick(whoisData.getNick());
-                if (profile != null) {
-                    if (whoisData.getNick().equalsIgnoreCase(profile.getShortHash()))
-                        profile.setOnlineShort(whoisData.getRealName().isPresent());
-                    else profile.setOnlineMedium(whoisData.getRealName().isPresent());
-
-                    if (whoisData.getRealName().isPresent()) profile.setPackID(whoisData.getRealName().get());
-                }
-
-                if (whoisData.getRealName().isPresent())
-                    curseSync.put(whoisData.getNick(), whoisData.getRealName().get());
-
-                if (debugHandler.isDebug()) logger.warn(event.getWhoisData());
-            }, CreeperHost.ircEventExecutor);
-        }
 
 //        @Handler
         public static void onChannelNotice(String user, String message)

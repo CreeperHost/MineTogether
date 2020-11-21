@@ -47,17 +47,13 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
                     CompletableFuture.runAsync(() -> {
                         Profile profile = friend.getProfile();
                         if (!profile.isOnline()) return;
-                        System.out.println("Checking " + profile.getUserDisplay());
                         ServerData server = new ServerData(friend.getName() + "'s server", "[" + profile.getConnectAddress() + "]:42069", false);
                         try {
-                            CreeperHost.logger.info("Pinging server " + server.serverIP);
                             this.owner.getOldServerPinger().ping(server);
                         } catch (UnknownHostException var2) {
-                            CreeperHost.logger.info("Can't resolve " + server.serverIP);
                             server.pingToServer = -1L;
                             server.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_resolve");
                         } catch (Exception var3) {
-                            CreeperHost.logger.info("Can't connect " + server.serverIP);
                             server.pingToServer = -1L;
                             server.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_connect");
                         }

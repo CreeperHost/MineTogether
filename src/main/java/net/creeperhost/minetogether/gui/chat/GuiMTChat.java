@@ -541,8 +541,8 @@ public class GuiMTChat extends GuiScreen
                 return true;
             }
             boolean friends = false;
-
-            for(Friend f : Callbacks.getFriendsList(false))
+            List<Friend> friendList = Callbacks.getFriendsList(false);
+            for(Friend f : friendList)
             {
                 if(f.getProfile() != null)
                 {

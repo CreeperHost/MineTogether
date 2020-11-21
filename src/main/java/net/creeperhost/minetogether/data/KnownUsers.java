@@ -104,7 +104,6 @@ public class KnownUsers
             if(ignoreFriend) {
                 if (profileTarget.isFriend()) return profiles1;
             }
-//            CreeperHost.logger.warn("Removing " + hash + " from knownusers new size " + profiles.get().size());
             profiles1.remove(profileTarget);
             return profiles1;
         });
@@ -115,12 +114,10 @@ public class KnownUsers
         {
             Profile profileTarget = findByNick(nick);
             if(profileTarget == null) return profiles1;
-//            CreeperHost.logger.warn("attempting to remove user " + nick + " from knownusers");
             if(profileTarget.isBanned()) return profiles1;
             if(ignoreFriend) {
                 if (profileTarget.isFriend()) return profiles1;
             }
-//            CreeperHost.logger.warn("Removing user " + nick + " from knownusers new size " + profiles.get().size());
             profiles1.remove(profileTarget);
             return profiles1;
         });
@@ -128,31 +125,45 @@ public class KnownUsers
 
     public Profile findByHash(String search)
     {
-        for(Profile profile : profiles.get())
-        {
-            if(profile.getLongHash().equalsIgnoreCase(search))
-                return profile;
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        Profile returnProfile = null;
+        for(Profile profile : profilesCopy) {
+            if (profile.getLongHash().equalsIgnoreCase(search))
+            {
+                returnProfile = profile;
+                break;
+            }
         }
-        return null;
+        return returnProfile;
     }
 
     public Profile findByDisplay(String search)
     {
-        for(Profile profile : profiles.get())
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        Profile returnProfile = null;
+        for(Profile profile : profilesCopy)
         {
             if(profile.getUserDisplay().equalsIgnoreCase(search))
-                return profile;
+            {
+                returnProfile = profile;
+                break;
+            }
         }
-        return null;
+        return returnProfile;
     }
 
     public Profile findByNick(String search)
     {
-        for(Profile profile : profiles.get())
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        Profile returnProfile = null;
+        for(Profile profile : profilesCopy)
         {
             if(profile.getShortHash().equalsIgnoreCase(search) || profile.getMediumHash().equalsIgnoreCase(search))
-                return profile;
+            {
+                returnProfile = profile;
+                break;
+            }
         }
-        return null;
+        return returnProfile;
     }
 }
