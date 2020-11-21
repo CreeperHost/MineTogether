@@ -697,7 +697,7 @@ public class GuiMTChat extends GuiScreen
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
             if((profile != null && profile.isBanned())||ChatHandler.backupBan.get().contains(inputNick)) {
-                messageComp = new TextComponentString("<Message Deleted>").setStyle(new Style().setColor(TextFormatting.DARK_GRAY).setItalic(true).setObfuscated(true));
+                messageComp = new TextComponentString("<Message Deleted>").setStyle(new Style().setObfuscated(true).setColor(TextFormatting.DARK_GRAY));
                 messageColour = TextFormatting.DARK_GRAY;
             }
 
@@ -755,7 +755,7 @@ public class GuiMTChat extends GuiScreen
 
             base.appendSibling(userComp);
 
-            return base.appendSibling(messageComp.setStyle(new Style().setColor(messageColour)));
+            return base.appendSibling(messageComp.setStyle(messageComp.getStyle().setColor(messageColour)));
         } catch (Throwable e)
         {
             e.printStackTrace();
