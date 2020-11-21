@@ -86,8 +86,10 @@ public class KnownUsers
         //No update without it being a completed profile
         if(updatedProfile.longHash.length() == 0) return false;
         profiles.updateAndGet((curProfiles) -> {
-            Profile existingProfile = findByHash(updatedProfile.longHash);
-            curProfiles.remove(existingProfile);
+            try {
+                Profile existingProfile = findByHash(updatedProfile.longHash);
+                curProfiles.remove(existingProfile);
+            } catch(Exception ignored) {}
             curProfiles.add(updatedProfile);
             return curProfiles;
         });

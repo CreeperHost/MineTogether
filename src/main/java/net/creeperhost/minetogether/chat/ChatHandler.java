@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class ChatHandler
@@ -60,6 +61,7 @@ public class ChatHandler
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicInteger reconnectTimer = new AtomicInteger(10000);
     public static CompletableFuture isBannedFuture;
+    public static AtomicReference<List<String>> backupBan = new AtomicReference<>(new ArrayList<>());
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
@@ -632,6 +634,10 @@ public class ChatHandler
                             profile.setBanned(true);
                             knownUsers.update(profile);
                         }
+                        backupBan.getAndUpdate((bans) -> {
+                          bans.add(nick);
+                          return bans;
+                        });
                     }
             }, CreeperHost.ircEventExecutor);
         }

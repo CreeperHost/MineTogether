@@ -149,8 +149,16 @@ public class ChatConnectionHandler {
                                 if(modify.equals("-"))
                                 {
                                     Profile profile = ChatHandler.knownUsers.findByNick(nick);
-                                    profile.setBanned(false);
-                                    ChatHandler.knownUsers.update(profile);
+                                    if(profile != null) {
+                                        profile.setBanned(false);
+                                        ChatHandler.knownUsers.update(profile);
+                                    }
+                                    if(ChatHandler.backupBan.get().contains(nick)) {
+                                        ChatHandler.backupBan.getAndUpdate((bans) -> {
+                                            bans.remove(nick);
+                                            return bans;
+                                        });
+                                    }
                                 }
                             }
                         }, CreeperHost.ircEventExecutor);
