@@ -16,9 +16,17 @@ import java.util.concurrent.CompletableFuture;
 public class EventHandler {
     public EventHandler() {
         CompletableFuture.runAsync(() -> {
-            try {
-                ConnectHelper.isEnabled = InetAddress.getByName("2a04:de41::1").isReachable(1000);
-            } catch (IOException ignored) {
+            //This needs to retry, otherwise a single failed ping for any of a great many reasons means a whole feature is disabled until a client restart...
+            while(!ConnectHelper.isEnabled) {
+                try {
+                    ConnectHelper.isEnabled = InetAddress.getByName("2a04:de41::1").isReachable(1000);
+                } catch (IOException ignored) {
+                }
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

@@ -105,6 +105,10 @@ task deobfJar(type: Jar) {
 
 build.dependsOn deobfJar
 
+task signJar(type: Exec) {
+    commandLine 'cmd', '/C', 'jarsigner -tsa http://timestamp.digicert.com -verbose -keystore NONE -storetype PKCS11 -providerClass sun.security.pkcs11.SunPKCS11 -providerArg "eToken.cfg" "build\\libs\\MineTogether-*-'+project.version.toString()+'.jar" "CreeperHost LTD"'
+}
+
 reobf {
     shadowJar {} // Reobfuscate the shadowed JAR
 }
