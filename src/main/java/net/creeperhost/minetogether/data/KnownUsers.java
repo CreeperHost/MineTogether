@@ -24,12 +24,12 @@ public class KnownUsers
     public void clean()
     {
         List<String> remove = new ArrayList<>();
-        for(Profile profile : profiles.get())
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        for(Profile profile : profilesCopy)
         {
             if(profile.getUserDisplay().isEmpty()) continue;
             if(profile.isFriend()) continue;
             if(profile.isBanned()) continue;
-            //Check if chatlines contains profile.getDisplay();
             LimitedSizeQueue<Message> tempMessages = ChatHandler.messages.get(ChatHandler.CHANNEL);
             boolean skip = false;
             for(Message message : tempMessages)
@@ -51,7 +51,7 @@ public class KnownUsers
                 {
                     ChatHandler.curseSync.remove(profile.getShortHash());
                 }
-                remove.add(profile.getLongHash());
+                if(profile.getLongHash().length() > 0) remove.add(profile.getLongHash());
             }
         }
         for(String hash : remove)
@@ -70,7 +70,6 @@ public class KnownUsers
             profiles.updateAndGet(profiles1 ->
             {
                 profiles1.add(profile);
-//                CreeperHost.logger.warn("Adding " + hash + " to knownusers " + profiles.get().size());
                 return profiles1;
             });
             CompletableFuture.runAsync(() -> {
@@ -83,17 +82,28 @@ public class KnownUsers
     }
     public boolean update(Profile updatedProfile)
     {
-        //No update without it being a completed profile
-        if(updatedProfile.longHash.length() == 0) return false;
-        profiles.updateAndGet((curProfiles) -> {
-            try {
-                Profile existingProfile = findByHash(updatedProfile.longHash);
+        Profile finalProfile = null;
+        if(updatedProfile.getLongHash().length() > 0) {
+            profiles.updateAndGet((curProfiles) -> {
+                Profile existingProfile = findByHash(updatedProfile.getLongHash());
+                if(existingProfile == null) return curProfiles;
                 curProfiles.remove(existingProfile);
-            } catch(Exception ignored) {}
-            curProfiles.add(updatedProfile);
-            return curProfiles;
-        });
-        return (findByHash(updatedProfile.longHash) == updatedProfile);
+                curProfiles.add(updatedProfile);
+                return curProfiles;
+            });
+            finalProfile = findByHash(updatedProfile.getLongHash());
+        } else if(updatedProfile.getMediumHash().length() > 0)
+        {
+            profiles.updateAndGet((curProfiles) -> {
+                Profile existingProfile = findByNick(updatedProfile.getMediumHash());
+                if(existingProfile == null) return curProfiles;
+                curProfiles.remove(existingProfile);
+                curProfiles.add(updatedProfile);
+                return curProfiles;
+            });
+            finalProfile = findByNick(updatedProfile.getMediumHash());
+        }
+        return (finalProfile != null && finalProfile == updatedProfile);
     }
 
     public void removeByHash(String hash, boolean ignoreFriend)
