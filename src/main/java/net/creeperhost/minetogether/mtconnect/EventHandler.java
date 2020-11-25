@@ -6,7 +6,9 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.io.IOException;
@@ -15,6 +17,7 @@ import java.net.UnknownHostException;
 import java.util.concurrent.CompletableFuture;
 
 public class EventHandler {
+
     public EventHandler() {
         CompletableFuture.runAsync(() -> {
             //This needs to retry, otherwise a single failed ping for any of a great many reasons means a whole feature is disabled until a client restart...
@@ -36,20 +39,24 @@ public class EventHandler {
         });
     }
 
+
     @SubscribeEvent
     public void guiInit(GuiScreenEvent.InitGuiEvent.Post event) {
+        IntegratedServer integratedServer = Minecraft.getMinecraft().getIntegratedServer();
         GuiScreen gui = event.getGui();
         if (gui instanceof GuiIngameMenu) {
-            GuiButton guiButton = new GuiButton(-69420, gui.width / 2 - 100, gui.height / 4 + 72 + -16, 98, 20, I18n.format("minetogether.connect.open"));
-            guiButton.enabled = ConnectHelper.isEnabled;
-            event.getButtonList().add(guiButton);
-            for(GuiButton b : event.getButtonList())
-            {
-                if(b.id == 7)//Open to LAN
-                {
-                    b.width = 98;
-                    b.xPosition += 102;
-                    break;
+            if (integratedServer != null) {
+                Object value = ObfuscationReflectionHelper.getPrivateValue(IntegratedServer.class, integratedServer, "isPublic", "field_71346_p");
+                GuiButton guiButton = new GuiButton(-69420, gui.width / 2 - 100, gui.height / 4 + 72 + -16, 98, 20, I18n.format("minetogether.connect.open"));
+                guiButton.enabled = ConnectHelper.isEnabled && !(boolean) value;
+                event.getButtonList().add(guiButton);
+                for (GuiButton b : event.getButtonList()) {
+                    if (b.id == 7)//Open to LAN
+                    {
+                        b.width = 98;
+                        b.xPosition += 102;
+                        break;
+                    }
                 }
             }
         }
