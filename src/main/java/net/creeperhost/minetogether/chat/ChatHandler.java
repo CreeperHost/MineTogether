@@ -326,7 +326,7 @@ public class ChatHandler
 
     public static class Listener
     {
-        @Handler
+//        @Handler
         public void onChannelLeave(ChannelKickEvent event)
         {
             if (!event.getTarget().getNick().equals(client.getNick()))
@@ -349,14 +349,14 @@ public class ChatHandler
             }
         }
 
-        @Handler
+//        @Handler
         public void onConnected(ClientNegotiationCompleteEvent event)
         {
             if(event.getClient() != ChatHandler.client) return;
             tries.set(0);
         }
 
-        @Handler
+//        @Handler
         public void onQuit(ClientConnectionEndedEvent event)
         {
             if(event.getClient() != ChatHandler.client) return;
@@ -388,11 +388,11 @@ public class ChatHandler
                         CompletableFuture.runAsync(profile::loadProfile, CreeperHost.profileExecutor).thenRun(() -> profile.setBanned(false));
                     }
                 }
-                CompletableFuture.runAsync(() -> updateFriends(event.getChannel().getNicknames()), CreeperHost.profileExecutor);
+//                CompletableFuture.runAsync(() -> updateFriends(event.getChannel().getNicknames()), CreeperHost.profileExecutor);
             }, CreeperHost.ircEventExecutor);
         }
 
-        @Handler
+//        @Handler
         public void onConnectionFailed(ClientConnectionFailedEvent event)
         {
             if(debugHandler.isDebug) logger.error(event.getCause().toString());
@@ -578,7 +578,7 @@ public class ChatHandler
             return String.valueOf(serverId);
         }
 
-        @Handler
+//        @Handler
         public void onInviteReceived(ChannelInviteEvent event)
         {
             String actorName = event.getActor().getName();
@@ -642,7 +642,7 @@ public class ChatHandler
             }, CreeperHost.ircEventExecutor);
         }
 
-        @Handler
+//        @Handler
         public void onNickRejected(NickRejectedEvent event)
         {
             CompletableFuture.runAsync(() ->

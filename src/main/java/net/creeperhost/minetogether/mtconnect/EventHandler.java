@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.mtconnect;
 
+import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
@@ -18,9 +19,13 @@ public class EventHandler {
         CompletableFuture.runAsync(() -> {
             //This needs to retry, otherwise a single failed ping for any of a great many reasons means a whole feature is disabled until a client restart...
             while(!ConnectHelper.isEnabled) {
+
                 try {
-                    ConnectHelper.isEnabled = InetAddress.getByName("2a04:de41::1").isReachable(1000);
-                } catch (IOException ignored) {
+                    boolean result = InetAddress.getByName("2a04:de41::1").isReachable(15000);
+                    ConnectHelper.isEnabled = result;
+                    CreeperHost.logger.info(result);
+                } catch (Throwable ignored) {
+                    ignored.printStackTrace();
                 }
                 try {
                     Thread.sleep(10000);

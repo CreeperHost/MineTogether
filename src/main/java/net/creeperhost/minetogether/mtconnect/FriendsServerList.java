@@ -93,7 +93,6 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
             {
                 if (!friendServer.serverMOTD.equals(I18n.format("multiplayer.status.pinging")))
                 {
-                    System.out.println("Removing " + friendServer + " " + friendServer.serverMOTD);
                     removingServers.add(friendServer);
                     if(!friendServer.serverMOTD.startsWith(TextFormatting.DARK_RED.toString()))
                     {

@@ -109,7 +109,7 @@ public class ChatConnectionHandler {
                     {
                         CompletableFuture.runAsync(() ->
                         {
-                            Pattern pattern = Pattern.compile("\\:(\\w+).*NOTICE.* \\:(.*)");
+                            Pattern pattern = Pattern.compile("\\:(\\w+).*NOTICE (?:MT.{28}|\\#\\w+) \\:(.*)");
                             Matcher matcher = pattern.matcher(s);
                             if(matcher.matches())
                             {
