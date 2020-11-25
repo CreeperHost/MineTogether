@@ -32,7 +32,7 @@ public class CommandThreadDump extends CommandBase
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) CreeperHost.ircEventExecutor;
-        String compleated = "Compleated tasks " + threadPoolExecutor.getCompletedTaskCount();
+        String compleated = "Completed tasks " + threadPoolExecutor.getCompletedTaskCount();
         String activeCount = "Active count " + threadPoolExecutor.getActiveCount();
         String corePoolSize = "Core Pool Size " + threadPoolExecutor.getCorePoolSize();
         sender.sendMessage(new TextComponentString(compleated));

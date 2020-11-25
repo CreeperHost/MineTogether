@@ -13,6 +13,7 @@ public class GuiTextFieldLockable extends GuiTextFieldCompat
     {
         super(componentId, fontrendererObj, x, y, par5Width, par6Height);
         fontRenderer = fontrendererObj;
+        this.setMaxStringLength(256);
     }
 
     @Override
