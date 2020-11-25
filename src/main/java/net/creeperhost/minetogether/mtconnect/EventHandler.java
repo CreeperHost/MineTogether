@@ -42,9 +42,9 @@ public class EventHandler {
 
     @SubscribeEvent
     public void guiInit(GuiScreenEvent.InitGuiEvent.Post event) {
-        IntegratedServer integratedServer = Minecraft.getMinecraft().getIntegratedServer();
         GuiScreen gui = event.getGui();
         if (gui instanceof GuiIngameMenu) {
+            IntegratedServer integratedServer = Minecraft.getMinecraft().getIntegratedServer();
             if (integratedServer != null) {
                 Object value = ObfuscationReflectionHelper.getPrivateValue(IntegratedServer.class, integratedServer, "isPublic", "field_71346_p");
                 GuiButton guiButton = new GuiButton(-69420, gui.width / 2 - 100, gui.height / 4 + 72 + -16, 98, 20, I18n.format("minetogether.connect.open"));
