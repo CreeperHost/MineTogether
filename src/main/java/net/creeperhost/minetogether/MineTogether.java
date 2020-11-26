@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -118,6 +119,10 @@ public class MineTogether implements ICreeperHostMod, IHost
 
     public static boolean isOnline = false;
     public static Executor profileExecutor = Executors.newCachedThreadPool(); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    public static Executor otherExecutor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("minetogether-other-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    public static Executor ircEventExecutor = Executors.newFixedThreadPool(15, new ThreadFactoryBuilder().setNameFormat("minetogether-ircevent-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    public static Executor chatMessageExecutor = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-chatmessage-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicReference<Profile> profile = new AtomicReference<>();
     public static AtomicReference<UUID> UUID = new AtomicReference<>();
@@ -163,6 +168,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     public void preInitClient(FMLClientSetupEvent event)
     {
         signature = verifySignature(findOurJar());
+        signature = "Development";
         if(signature == null) {
             logger.error("client signature is null, MineTogether will not load");
             return;
@@ -172,6 +178,9 @@ public class MineTogether implements ICreeperHostMod, IHost
         if (!isOnline) {
             logger.error("Client is in offline mode");
         }
+
+        MinecraftForge.EVENT_BUS.register(new net.creeperhost.minetogether.mtconnect.EventHandler());
+
         toastHandler = new ToastHandler();
         registerImplementation(new CreeperHostServerHost());
         

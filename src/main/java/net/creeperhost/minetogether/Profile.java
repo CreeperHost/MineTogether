@@ -137,6 +137,11 @@ public class Profile
         return premium;
     }
 
+    public String getConnectAddress()
+    {
+        return "2a04:de41:" + String.join(":", this.longHash.substring(0,24).split("(?<=\\G....)")).toLowerCase();
+    }
+
     public String getUserDisplay() {
         return userDisplay;
     }
