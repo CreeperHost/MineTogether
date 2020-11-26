@@ -752,6 +752,13 @@ public class MTChatScreen extends Screen
                     if ((name2.contains(MineTogether.instance.ftbPackID) && !MineTogether.instance.ftbPackID.isEmpty())
                             || (name2.contains(Config.getInstance().curseProjectID) && !Config.getInstance().curseProjectID.isEmpty() && !Config.getInstance().curseProjectID.equalsIgnoreCase("Insert curse project ID here"))) {
                         nickColour = TextFormatting.DARK_PURPLE;
+                        if(profile != null)
+                        {
+                            if(profile.isFriend())
+                            {
+                                nickColour = TextFormatting.GOLD;
+                            }
+                        }
                     }
                 }
             }
