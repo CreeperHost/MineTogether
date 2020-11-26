@@ -145,6 +145,7 @@ public class ChatConnectionHandler {
                                 if(modify.equals("+"))
                                 {
                                     ChatHandler.Listener.onUserBanned(nick);
+                                    ChatHandler.rebuildChat = true;
                                 }
                                 if(modify.equals("-"))
                                 {
@@ -152,6 +153,7 @@ public class ChatConnectionHandler {
                                     if(profile != null) {
                                         profile.setBanned(false);
                                         ChatHandler.knownUsers.update(profile);
+                                        ChatHandler.rebuildChat = true;
                                     }
                                     if(ChatHandler.backupBan.get().contains(nick)) {
                                         ChatHandler.backupBan.getAndUpdate((bans) -> {

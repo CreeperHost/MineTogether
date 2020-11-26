@@ -84,7 +84,7 @@ public class GuiMTChat extends GuiScreen
         Keyboard.enableRepeatEvents(false);
         try
         {
-            chat.updateLines(currentTarget);
+            chat.updateLines(currentTarget, false);
         } catch (Exception ignored) {}
     }
 
@@ -147,7 +147,7 @@ public class GuiMTChat extends GuiScreen
     public void updateScreen()
     {
         super.updateScreen();
-        if(tickCounter % 20 == 0) rebuildChat();
+        if(tickCounter % 20 == 0) rebuildChat(false);
 
         if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
@@ -168,15 +168,15 @@ public class GuiMTChat extends GuiScreen
             reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries.get() < 5);
             if (changed || ChatHandler.hasNewMessages(currentTarget))
             {
-                chat.updateLines(currentTarget);
+                chat.updateLines(currentTarget, false);
                 ChatHandler.setMessagesRead(currentTarget);
             }
         }
     }
 
-    public void rebuildChat()
+    public void rebuildChat(boolean force)
     {
-        chat.updateLines(currentTarget);
+        chat.updateLines(currentTarget, force);
     }
     
     boolean disabledDueToConnection = false;
@@ -295,7 +295,7 @@ public class GuiMTChat extends GuiScreen
                 if (menuDropdownButton.getSelected().option.equals("Mute"))
                 {
                     CreeperHost.instance.muteUser(activeDropdown);
-                    chat.updateLines(currentTarget);
+                    chat.updateLines(currentTarget, false);
                 } else if (menuDropdownButton.getSelected().option.equals("Add friend"))
                 {
                     mc.displayGuiScreen(new GuiChatFriend(this, CreeperHost.instance.playerName, knownUsers.findByDisplay(activeDropdown), Callbacks.getFriendCode(), "", false));
@@ -315,7 +315,7 @@ public class GuiMTChat extends GuiScreen
             } else if (button == cancelButton)
             {
 //                TimestampComponentString.clearActive();
-                chat.updateLines(currentTarget);
+                chat.updateLines(currentTarget, false);
                 this.mc.displayGuiScreen(parent);
             } else if (button == invited && ChatHandler.privateChatInvite != null)
             {
@@ -696,7 +696,7 @@ public class GuiMTChat extends GuiScreen
 
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
-            if((profile != null && profile.isBanned())||ChatHandler.backupBan.get().contains(inputNick)) {
+            if((profile != null && profile.isBanned()) || ChatHandler.backupBan.get().contains(inputNick)) {
                 messageComp = new TextComponentString("<Message Deleted>").setStyle(new Style().setObfuscated(true).setColor(TextFormatting.DARK_GRAY));
                 messageColour = TextFormatting.DARK_GRAY;
             }
@@ -771,7 +771,7 @@ public class GuiMTChat extends GuiScreen
         {
             super(Minecraft.getMinecraft(), GuiMTChat.this.width - 20, GuiMTChat.this.height - 50, 30, GuiMTChat.this.height - 50, 10, entryHeight, GuiMTChat.this.width, GuiMTChat.this.height);
             lines = new ArrayList<>();
-            updateLines(currentTarget);
+            updateLines(currentTarget, false);
             setHeaderInfo(true, 10);
         }
 
@@ -788,14 +788,14 @@ public class GuiMTChat extends GuiScreen
             return Math.max(super.getContentHeight(), viewHeight);
         }
         
-        protected void updateLines(String key)
+        protected void updateLines(String key, boolean force)
         {
             LimitedSizeQueue<Message> tempMessages;
             synchronized (ircLock)
             {
                 if(ChatHandler.client == null)
                     return;
-                if (ChatHandler.messages == null || ChatHandler.messages.size() == 0)
+                if ((ChatHandler.messages == null || ChatHandler.messages.size() == 0) && !force)
                     return;
                 tempMessages = ChatHandler.messages.get(key);
             }

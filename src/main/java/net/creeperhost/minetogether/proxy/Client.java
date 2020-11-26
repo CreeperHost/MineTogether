@@ -214,7 +214,7 @@ public class Client implements IProxy
                 chatGUI.rebuildChat(chatGUI.chatTarget);
             GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
             if (currentScreen != null && currentScreen instanceof GuiMTChat)
-                ((GuiMTChat)currentScreen).rebuildChat();
+                ((GuiMTChat)currentScreen).rebuildChat(true);
         }
     }
 

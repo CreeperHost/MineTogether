@@ -40,6 +40,7 @@ public class ChatHandler
     public static String CHANNEL = "#MineTogether";
     public static ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
     public static HashMap<String, String> curseSync = new HashMap<>();
+    public static boolean rebuildChat = false;
 
     public static TreeMap<String, LimitedSizeQueue<Message>> messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     public static Client client = null;
