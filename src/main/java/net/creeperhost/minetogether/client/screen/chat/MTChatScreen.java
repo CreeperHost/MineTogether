@@ -734,8 +734,9 @@ public class MTChatScreen extends Screen
 
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
-            if(profile != null && profile.isBanned()) {
-                messageComp = new StringTextComponent("<message deleted>").setStyle(Style.EMPTY.setColor(Color.func_240744_a_(TextFormatting.DARK_GRAY)).setItalic(true));
+            if((profile != null && profile.isBanned()) || ChatHandler.backupBan.get().contains(inputNick)) {
+                messageComp = new StringTextComponent("<Message Deleted>");
+                messageComp.getStyle().setColor(Color.func_240744_a_(TextFormatting.DARK_GRAY));
                 messageColour = TextFormatting.DARK_GRAY;
             }
 
@@ -778,7 +779,7 @@ public class MTChatScreen extends Screen
             }
 
             //Resetting the colour back to default as this causes an issue for the message
-            userComp = new StringTextComponent(arrowColour + "<" + nickColour + userComp.getString() + arrowColour + "> " + TextFormatting.WHITE);
+            userComp = new StringTextComponent(arrowColour + "<" + nickColour + userComp.getString() + arrowColour + "> ");
 
             if (!inputNick.equals(MineTogether.instance.ourNick) && !inputNick.equals(MineTogether.instance.ourNick + "`") && inputNick.startsWith("MT")) {
                 String finalOutputNick = outputNick;

@@ -33,20 +33,27 @@ public class Profile
     private boolean banned = false;
     private String packID = "";
     private long lastOnlineCheck = 0;
-    private boolean onlineShort = false;
-    private boolean onlineMedium = false;
+    private boolean isOnline = false;
+    private boolean isLoadingProfile = false;
 
     public Profile(String serverNick)
     {
         if(serverNick.length() == 30)
         {
             this.mediumHash = serverNick;
+            this.shortHash = serverNick.substring(0,16);
             userDisplay = "User#" + mediumHash.substring(2,7);
         }
         else if(serverNick.length() < 30)
         {
             this.shortHash = serverNick;
             userDisplay = "User#" + shortHash.substring(2,7);
+        } else {
+            //Got a FULL hash... Uh oh (This should never actually happen)
+            this.shortHash = "MT" + serverNick.substring(0,14);
+            this.mediumHash = "MT" + serverNick.substring(0,28);
+            this.longHash = serverNick;
+            this.userDisplay = "User#" + longHash.substring(0,5);
         }
     }
 
@@ -101,30 +108,23 @@ public class Profile
                 whoisCommand = new WhoisCommand(ChatHandler.client);
 
             this.lastOnlineCheck = System.currentTimeMillis() / 1000;
-            whoisCommand.target(getShortHash()).execute();
             whoisCommand.target(getMediumHash()).execute();
         }
-        boolean flag =  (onlineShort || onlineMedium);
-        if(flag && !ChatHandler.friends.containsKey(mediumHash))
+        if(isOnline && !ChatHandler.friends.containsKey(mediumHash))
         {
             ChatHandler.friends.put(mediumHash, friendName);
-            Target.updateCache();
         }
-        else if(!flag && ChatHandler.friends.containsKey(mediumHash))
+        else if(!isOnline && ChatHandler.friends.containsKey(mediumHash))
         {
             ChatHandler.friends.remove(mediumHash);
         }
-        return flag;
+        Target.updateCache();
+        return isOnline;
     }
 
-    public void setOnlineShort(boolean onlineShort)
+    public void setOnline(boolean online)
     {
-        this.onlineShort = onlineShort;
-    }
-
-    public void setOnlineMedium(boolean onlineMedium)
-    {
-        this.onlineMedium = onlineMedium;
+        this.isOnline = online;
     }
 
     public String getCurrentIRCNick() {
@@ -143,6 +143,7 @@ public class Profile
     }
 
     public String getUserDisplay() {
+        if(userDisplay.isEmpty() && longHash.length() > 0) return "User#"+longHash.substring(5);
         return userDisplay;
     }
 
@@ -155,10 +156,10 @@ public class Profile
         long currentTime = System.currentTimeMillis() / 1000;
         if(currentTime > (lastFriendCheck + 30)) {
             ArrayList<Friend> friendsList = Callbacks.getFriendsList(false);
+            if(friendsList == null) return false;
             for (Friend friend : friendsList) {
-                String hash = getShortHash();
-                if(getShortHash().isEmpty()) hash = getMediumHash();
-                if (!hash.isEmpty() && friend.getCode().startsWith(hash.substring(2))) {
+                if(getLongHash().length() == 0) continue;
+                if (friend.getCode().equalsIgnoreCase(getLongHash())) {
                     this.friend = true;
                     this.lastFriendCheck = System.currentTimeMillis() / 1000;
                     this.friendName = friend.getName();
@@ -169,8 +170,28 @@ public class Profile
         return this.friend;
     }
 
+    public boolean isBanned()
+    {
+        return banned;
+    }
+
+    public void setBanned(boolean banned)
+    {
+        this.banned = banned;
+    }
+
+    public void setPackID(String packID) {
+        this.packID = packID;
+    }
+
+    public String getPackID() {
+        return packID;
+    }
+
     public boolean loadProfile()
     {
+        if(isLoadingProfile) return false;
+        isLoadingProfile = true;
         String playerHash = (longHash.length() > 0) ? longHash : (mediumHash.length() > 0) ? mediumHash : shortHash;
         if(playerHash.length() == 0) return false;
         Map<String, String> sendMap = new HashMap<String, String>();
@@ -179,7 +200,7 @@ public class Profile
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, false);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, true);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
@@ -202,27 +223,11 @@ public class Profile
                 {
                     userDisplay = display;
                 }
+                isLoadingProfile = false;
                 return true;
             }
         }
+        isLoadingProfile = false;
         return false;
-    }
-
-    public boolean isBanned()
-    {
-        return banned;
-    }
-
-    public void setBanned(boolean banned)
-    {
-        this.banned = banned;
-    }
-
-    public void setPackID(String packID) {
-        this.packID = packID;
-    }
-
-    public String getPackID() {
-        return packID;
     }
 }

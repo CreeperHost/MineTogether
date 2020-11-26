@@ -1,5 +1,8 @@
 package net.creeperhost.minetogether;
 
+import net.creeperhost.minetogether.chat.ChatHandler;
+import net.creeperhost.minetogether.chat.Message;
+import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,8 +20,49 @@ public class KnownUsers
         this.profiles.set(new ArrayList<Profile>());
     }
 
+    public void clean()
+    {
+        List<String> remove = new ArrayList<>();
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        for(Profile profile : profilesCopy)
+        {
+            if(profile.getUserDisplay().isEmpty()) continue;
+            if(profile.isFriend()) continue;
+            if(profile.isBanned()) continue;
+            LimitedSizeQueue<Message> tempMessages = ChatHandler.messages.get(ChatHandler.CHANNEL);
+            boolean skip = false;
+            for(Message message : tempMessages)
+            {
+                if(message.sender.equals("System")) continue;
+                if(message.sender.equalsIgnoreCase(profile.getUserDisplay()) || message.sender.equalsIgnoreCase(profile.getMediumHash()) || message.sender.equalsIgnoreCase(profile.getShortHash()))
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if(!skip)
+            {
+                //Cleanup legacy code curseSync list...
+                if(ChatHandler.curseSync.containsKey(profile.getMediumHash()))
+                {
+                    ChatHandler.curseSync.remove(profile.getMediumHash());
+                } else if(ChatHandler.curseSync.containsKey(profile.getShortHash()))
+                {
+                    ChatHandler.curseSync.remove(profile.getShortHash());
+                }
+                if(profile.getLongHash().length() > 0) remove.add(profile.getLongHash());
+            }
+        }
+        for(String hash : remove)
+        {
+            removeByHash(hash, false);
+        }
+    }
+
     public Profile add(String hash)
     {
+        if(MineTogether.profile.get().getLongHash().startsWith(hash.substring(2))) return null;
+
         Profile profile = new Profile(hash);
         if(findByNick(hash) == null)
         {
@@ -30,40 +74,35 @@ public class KnownUsers
             CompletableFuture.runAsync(() -> {
                 Profile profileFuture = findByNick(hash);
                 profileFuture.loadProfile();
-            }, MineTogether.profileExecutor);
+            }, MineTogether.instance.profileExecutor);
             return profile;
         }
         return null;
     }
-
-    public Profile findByHash(String search)
+    public boolean update(Profile updatedProfile)
     {
-        for(Profile profile : profiles.get())
+        Profile finalProfile = null;
+        if(updatedProfile.getLongHash().length() > 0) {
+            profiles.updateAndGet((curProfiles) -> {
+                Profile existingProfile = findByHash(updatedProfile.getLongHash());
+                if(existingProfile == null) return curProfiles;
+                curProfiles.remove(existingProfile);
+                curProfiles.add(updatedProfile);
+                return curProfiles;
+            });
+            finalProfile = findByHash(updatedProfile.getLongHash());
+        } else if(updatedProfile.getMediumHash().length() > 0)
         {
-            if(profile.getLongHash().equalsIgnoreCase(search))
-                return profile;
+            profiles.updateAndGet((curProfiles) -> {
+                Profile existingProfile = findByNick(updatedProfile.getMediumHash());
+                if(existingProfile == null) return curProfiles;
+                curProfiles.remove(existingProfile);
+                curProfiles.add(updatedProfile);
+                return curProfiles;
+            });
+            finalProfile = findByNick(updatedProfile.getMediumHash());
         }
-        return null;
-    }
-
-    public Profile findByDisplay(String search)
-    {
-        for(Profile profile : profiles.get())
-        {
-            if(profile.getUserDisplay().equalsIgnoreCase(search))
-                return profile;
-        }
-        return null;
-    }
-
-    public Profile findByNick(String search)
-    {
-        for(Profile profile : profiles.get())
-        {
-            if(profile.getShortHash().equalsIgnoreCase(search) || profile.getMediumHash().equalsIgnoreCase(search))
-                return profile;
-        }
-        return null;
+        return (finalProfile != null && finalProfile == updatedProfile);
     }
 
     public void removeByHash(String hash, boolean ignoreFriend)
@@ -76,12 +115,10 @@ public class KnownUsers
             if(ignoreFriend) {
                 if (profileTarget.isFriend()) return profiles1;
             }
-
             profiles1.remove(profileTarget);
             return profiles1;
         });
     }
-
     public void removeByNick(String nick, boolean ignoreFriend)
     {
         profiles.updateAndGet(profiles1 ->
@@ -92,9 +129,52 @@ public class KnownUsers
             if(ignoreFriend) {
                 if (profileTarget.isFriend()) return profiles1;
             }
-
             profiles1.remove(profileTarget);
             return profiles1;
         });
+    }
+
+    public Profile findByHash(String search)
+    {
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        Profile returnProfile = null;
+        for(Profile profile : profilesCopy) {
+            if (profile.getLongHash().equalsIgnoreCase(search))
+            {
+                returnProfile = profile;
+                break;
+            }
+        }
+        return returnProfile;
+    }
+
+    public Profile findByDisplay(String search)
+    {
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        Profile returnProfile = null;
+        for(Profile profile : profilesCopy)
+        {
+            if(profile.getUserDisplay().equalsIgnoreCase(search))
+            {
+                returnProfile = profile;
+                break;
+            }
+        }
+        return returnProfile;
+    }
+
+    public Profile findByNick(String search)
+    {
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        Profile returnProfile = null;
+        for(Profile profile : profilesCopy)
+        {
+            if(profile.getShortHash().equalsIgnoreCase(search) || profile.getMediumHash().equalsIgnoreCase(search))
+            {
+                returnProfile = profile;
+                break;
+            }
+        }
+        return returnProfile;
     }
 }

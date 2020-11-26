@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class ChatHandler
@@ -62,7 +63,11 @@ public class ChatHandler
     private static int serverId = -1;
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicInteger reconnectTimer = new AtomicInteger(10000);
-    
+    public static boolean rebuildChat = false;
+    public static AtomicReference<List<String>> backupBan = new AtomicReference<>(new ArrayList<>());
+    public static CompletableFuture isBannedFuture;
+
+
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
         ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn, _host);
@@ -296,58 +301,6 @@ public class ChatHandler
     public static class Listener
     {
         @Handler
-        public void onChannelLeave(ChannelKickEvent event)
-        {
-            if (!event.getTarget().getNick().equals(client.getNick()))
-            {
-                knownUsers.removeByNick(event.getTarget().getNick(), false);
-                return;
-            }
-            
-            String reason = "Kicked - " + event.getMessage();
-            event.getChannel().join();
-            synchronized (ircLock)
-            {
-                if (tries.get() >= 4)
-                {
-                    client.shutdown();
-                    addMessageToChat(event.getChannel().getName(), "System", "Unable to rejoin chat. Disconnected from server");
-                }
-                addMessageToChat(event.getChannel().getName(), "System", "Disconnected From chat Rejoining");
-                if(debugHandler.isDebug()) logger.error(event.getMessage());
-                connectionStatus = ConnectionStatus.NOT_IN_CHANNEL;
-            }
-        }
-        
-        @Handler
-        public void onConnected(ClientNegotiationCompleteEvent event)
-        {
-            if(event.getClient() != ChatHandler.client)
-                return;
-
-            tries.set(0);
-        }
-        
-        @Handler
-        public void onQuit(ClientConnectionEndedEvent event)
-        {
-            if (!event.getClient().getNick().equals(client.getNick()))
-            {
-                knownUsers.removeByNick(event.getClient().getNick(), false);
-            }
-
-            if(event.getClient() != ChatHandler.client) return;
-
-            if(!Config.getInstance().isChatEnabled()) return;
-
-            if(ChatHandler.connectionStatus == ConnectionStatus.BANNED) return;
-
-            if(MineTogether.profile.get().isBanned()) return;
-
-            requestReconnect();
-        }
-        
-        @Handler
         public void onChannelJoin(ChannelJoinEvent event)
         {
             if (client.isUser(event.getUser()))
@@ -374,88 +327,6 @@ public class ChatHandler
             updateFriends(event.getChannel().getNicknames());
         }
 
-        @Handler
-        public void onConnectionFailed(ClientConnectionFailedEvent event)
-        {
-            if(debugHandler.isDebug) logger.error(event.getCause().toString());
-        }
-
-        @Handler
-        public void onChannelLeave(ChannelPartEvent event)
-        {
-            if (!event.getUser().getNick().equals(client.getNick()))
-            {
-                knownUsers.removeByNick(event.getUser().getNick(), false);
-            }
-
-            try
-            {
-                String channelName = event.getAffectedChannel().get().getName();
-                if (channelName.equals(CHANNEL))
-                {
-                    String friendNick = event.getUser().getNick();
-                    friends.remove(friendNick);
-                } else
-                {
-                    if (privateChatList != null && channelName.equals(privateChatList.channelname))
-                    {
-                        if (privateChatList.owner.equals(event.getUser().getNick()))
-                        {
-                            host.closeGroupChat();
-                        }
-                    }
-                }
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            if(debugHandler.isDebug()) logger.error(event.getMessage());
-        }
-        
-        @Handler
-        public void onUserQuit(UserQuitEvent event)
-        {
-            if (!event.getUser().getNick().equals(client.getNick()))
-            {
-                knownUsers.removeByNick(event.getUser().getNick(), false);
-            }
-
-            String friendNick = event.getUser().getNick();
-            friends.remove(friendNick);
-            if (privateChatList != null && privateChatList.owner.equals(friendNick))
-            {
-                host.closeGroupChat();
-            }
-            if(debugHandler.isDebug()) logger.error(event.getMessage());
-        }
-        
-        @Handler
-        public void onChannelMessage(ChannelMessageEvent event)
-        {
-            User user = event.getActor();
-            String message = event.getMessage();
-            try
-            {
-                if (!curseSync.containsKey(user.getNick()))
-                {
-                    if (user.getRealName().isPresent())
-                        curseSync.put(user.getNick(), user.getRealName().get());
-                    else
-                        doWhois(user);
-                }
-            } catch (Throwable t)
-            {
-                t.printStackTrace();
-            }
-            
-            synchronized (ircLock)
-            {
-                addMessageToChat(event.getChannel().getName(), user.getNick(), Format.stripAll(message));
-            }
-            
-            updateFriends(client.getChannel(CHANNEL).get().getNicknames());
-        }
-        
         private WhoisCommand whoisCommand = null;
         
         private void doWhois(User user)
@@ -465,125 +336,32 @@ public class ChatHandler
             
             whoisCommand.target(user.getNick()).execute();
         }
-        
-        @Handler
-        public void onWhoisReturn(WhoisEvent event)
+
+        public static void onChannelNotice(String user, String message)
         {
-            WhoisData whoisData = event.getWhoisData();
-            Profile profile = knownUsers.findByNick(whoisData.getNick());
-            if(profile != null)
+            CompletableFuture.runAsync(() ->
             {
-                if(whoisData.getNick().equalsIgnoreCase(profile.getShortHash())) profile.setOnlineShort(whoisData.getRealName().isPresent());
-                else profile.setOnlineMedium(whoisData.getRealName().isPresent());
-
-                if (whoisData.getRealName().isPresent()) profile.setPackID(whoisData.getRealName().get());
-            }
-
-            if (whoisData.getRealName().isPresent()) curseSync.put(whoisData.getNick(), whoisData.getRealName().get());
-
-            if(debugHandler.isDebug()) logger.error(event.getWhoisData());
-        }
-        
-        @Handler
-        public void onChannelNotice(ChannelNoticeEvent event)
-        {
-            Optional<SortedSet<ChannelUserMode>> userModes = event.getChannel().getUserModes(event.getActor());
-            if (userModes.isPresent())
-            {
-                SortedSet<ChannelUserMode> channelUserModes = userModes.get();
-                boolean valid = false;
-                for (ChannelUserMode mode : channelUserModes)
-                {
-                    switch (mode.getNickPrefix())
-                    {
-                        case '@':
-                        case '~':
-                            valid = true;
-                    }
-                }
-                
-                if (valid)
-                {
-                    synchronized (ircLock)
-                    {
-                        addMessageToChat(CHANNEL, "System", event.getMessage());
-                    }
-                }
-            }
-        }
-        
-        @Handler
-        public void onNotice(PrivateNoticeEvent event)
-        {
-            User user = event.getActor();
-            Optional<Channel> optchannel = client.getChannel(CHANNEL);
-            if (optchannel.isPresent())
-            {
-                Channel channel = optchannel.get();
-                Optional<SortedSet<ChannelUserMode>> userModesOpt = channel.getUserModes(user);
-                if (userModesOpt.isPresent())
-                {
-                    SortedSet<ChannelUserMode> channelUserModes = userModesOpt.get();
-                    boolean valid = false;
-                    for (ChannelUserMode mode : channelUserModes)
-                    {
-                        switch (mode.getNickPrefix())
-                        {
-                            case '@':
-                            case '~':
-                                valid = true;
-                        }
-                    }
-                    
-                    if (valid)
-                    {
-                        synchronized (ircLock)
-                        {
-                            addMessageToChat(CHANNEL, "System", event.getMessage());
-                        }
-                    }
-                }
-            }
-        }
-        
-        @Handler
-        public void onPrivateMessage(PrivateMessageEvent event)
-        {
-            String message = Format.stripAll(event.getMessage());
-            String user = event.getActor().getNick();
-            Profile profile = knownUsers.findByNick(user);
-            if(profile == null) profile = knownUsers.add(user);
-
-            if(profile != null && profile.isFriend())
-            {
-                profile.isOnline();
-
                 synchronized (ircLock)
                 {
-                    LimitedSizeQueue messageQueue = messages.get(user);
-                    if (messageQueue == null)
-                    {
-                        messages.put(user, new LimitedSizeQueue<>(150));
-                    }
-                    addMessageToChat(user, user, message);
-                    host.friendEvent(user, true);
+                    addMessageToChat(CHANNEL, "System", message);
                 }
-            }
-            else
-            {
-                if(!client.getChannel(CHANNEL).get().getUser(user).isPresent())
-                {
-                    knownUsers.removeByNick(user, false);
-                }
-            }
+            }, MineTogether.chatMessageExecutor);
         }
 
-        @Handler
-        public void onCTCP(PrivateCtcpQueryEvent event)
+        public static void onNotice(String name, String message)
         {
-            if (event.isToClient())
+            CompletableFuture.runAsync(() ->
             {
-                String message = event.getMessage();
+                synchronized (ircLock)
+                {
+                    addMessageToChat(CHANNEL, "System", message);
+                }
+            }, MineTogether.chatMessageExecutor);
+        }
+
+        public static void onCTCP(String user, String message)
+        {
+            CompletableFuture.runAsync(() -> {
 
                 String[] split = message.split(" ");
                 if (split.length < 1)
@@ -598,7 +376,7 @@ public class ChatHandler
                             builder.append(split[i]).append(" ");
                         }
                         String chatMessage = builder.toString().trim();
-                        addMessageToChat(CHANNEL, "FR:" + event.getActor().getNick(), chatMessage);
+                        addMessageToChat(CHANNEL, "FR:" + user, chatMessage);
                         break;
                     }
                     case "FRIENDACC": {
@@ -610,71 +388,75 @@ public class ChatHandler
                         }
 
                         host.acceptFriend(split[1], builder.toString().trim());
-                        addMessageToChat(CHANNEL, "FA:" + event.getActor().getNick(), builder.toString().trim());
+                        addMessageToChat(CHANNEL, "FA:" + user, builder.toString().trim());
                         break;
                     }
                     case "SERVERID":
-                        client.sendCtcpReply(event.getActor().getNick(), "SERVERID " + getServerId());
+                        client.sendCtcpReply(user, "SERVERID " + getServerId());
                         break;
                     case "VERIFY":
-                        if(!event.getActor().getNick().startsWith("MT")) {
-                            CompletableFuture.runAsync(() -> {
-                                String serverID = MineTogether.getServerIDAndVerify();
-                                client.sendCtcpReply(event.getActor().getNick(), "VERIFY " + MineTogether.getSignature() + ":" + MineTogether.proxy.getUUID() + ":" + serverID);
-                            }, MineTogether.profileExecutor);
+                        if (!user.startsWith("MT")) {
+                            String serverID = MineTogether.getServerIDAndVerify();
+                            if (serverID == null) return;
+                            client.sendCtcpReply(user, "VERIFY " + MineTogether.getSignature() + ":" + MineTogether.proxy.getUUID() + ":" + serverID);
                         }
                 }
-            }
+            }, MineTogether.ircEventExecutor);
         }
 
-        private String getServerId() {
+        private static String getServerId() {
             return String.valueOf(serverId);
         }
-        
-        @Handler
-        public void onInviteReceived(ChannelInviteEvent event)
+
+
+        public static void onUserBanned(String nick)
         {
-            String actorName = event.getActor().getName();
-            actorName = actorName.substring(0, actorName.indexOf("!"));
-            privateChatInvite = new PrivateChat(event.getChannel().getName(), actorName);
-        }
-        
-        @Handler
-        public void onUserBanned(ChannelModeEvent event)
-        {
-            List<ModeStatus<ChannelMode>> b = event.getStatusList().getByMode('b');
-            b.forEach(mode -> mode.getParameter().ifPresent(param ->
+            CompletableFuture.runAsync(() ->
             {
-                String nick = param.split("!")[0];
-
-                Profile profile = knownUsers.findByNick(nick);
-                if(profile != null) profile.setBanned(true);
-
-                if (nick.toLowerCase().equals(ChatHandler.nick.toLowerCase()))
-                {
+                if (nick.equalsIgnoreCase(ChatHandler.nick)) {
                     // it be us
+                    ChatHandler.host.userBanned(nick);
                     ChatConnectionHandler.INSTANCE.disconnect();
+                    ChatHandler.killChatConnection(false);
                     MineTogether.profile.getAndUpdate(profile1 ->
                     {
                         profile1.setBanned(true);
-                        CompletableFuture.runAsync(() ->
+                        if (ChatHandler.isBannedFuture != null && !ChatHandler.isBannedFuture.isDone())
+                            ChatHandler.isBannedFuture.cancel(true);
+                        ChatHandler.isBannedFuture = CompletableFuture.runAsync(() ->
                         {
-                            while (MineTogether.profile.get().isBanned())
-                            {
+                            while (MineTogether.profile.get().isBanned()) {
                                 Callbacks.isBanned();
                                 try {
                                     Thread.sleep(60000);
-                                } catch (InterruptedException e) { e.printStackTrace(); }
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                         return profile1;
                     });
-                    ChatHandler.connectionStatus = ConnectionStatus.BANNED;
-                    Callbacks.getBanMessage();
                     host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
+
+                    host.userBanned(nick);
+                } else {
+                    Profile profile = knownUsers.findByNick(nick);
+                    if (profile == null)
+                    {
+                        //Banned on their first message? Oops.
+                        profile = knownUsers.add(nick);
+                    }
+                    if (profile != null)
+                    {
+                        profile.setBanned(true);
+                        knownUsers.update(profile);
+                    }
+                    backupBan.getAndUpdate((bans) -> {
+                        bans.add(nick);
+                        return bans;
+                    });
                 }
-                host.userBanned(nick);
-            }));
+            }, MineTogether.ircEventExecutor);
         }
 
         @Handler
