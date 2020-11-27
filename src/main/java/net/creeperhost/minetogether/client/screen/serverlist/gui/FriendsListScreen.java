@@ -185,7 +185,7 @@ public class FriendsListScreen extends Screen
             refreshMutedList(false);
         }));
 
-        addButton(buttonCopy = new ButtonString( 65, this.height - 26, 60, 20, MineTogether.profile.get().getFriendCode(), p ->
+        addButton(buttonCopy = new ButtonString( 5, this.height - 26, 60, 20, MineTogether.profile.get().getFriendCode(), p ->
         {
             this.minecraft.keyboardListener.setClipboardString(MineTogether.profile.get().getFriendCode());
             showAlert(new StringTextComponent("Copied to clipboard."), 0x00FF00, 5000);
@@ -207,7 +207,8 @@ public class FriendsListScreen extends Screen
         
         searchEntry = new TextFieldWidget(this.font, this.width / 2 - 80, y + 28, 160, 20, new StringTextComponent(""));
     }
-    
+    public static ArrayList<String> removedFriends = new ArrayList<>();
+
     protected void refreshFriendsList(boolean force)
     {
         ArrayList<Friend> friends = Callbacks.getFriendsList(force);
@@ -217,16 +218,34 @@ public class FriendsListScreen extends Screen
             for (Friend friend : friends)
             {
                 GuiListEntryFriend friendEntry = new GuiListEntryFriend(this, list, friend);
-                if (searchEntry != null && !searchEntry.getText().isEmpty())
+                if(searchEntry != null && !searchEntry.getText().isEmpty())
                 {
                     String s = searchEntry.getText();
                     if(friend.getName().toLowerCase().contains(s.toLowerCase()))
                     {
-                        list.add(friendEntry);
+                        if(!removedFriends.contains(friend.getCode())) list.add(friendEntry);
                     }
-                } else
+                }
+                else
                 {
-                    list.add(friendEntry);
+                    if(!removedFriends.contains(friend.getCode())) list.add(friendEntry);
+                }
+            }
+            ArrayList<String> removedCopy = new ArrayList<String>(removedFriends);
+            for(String removed : removedCopy)
+            {
+                boolean isInList = false;
+                for(Friend friend : friends)
+                {
+                    if(friend.getCode().equalsIgnoreCase(removed))
+                    {
+                        isInList=true;
+                        break;
+                    }
+                }
+                if(!isInList)
+                {
+                    removedFriends.remove(removed);
                 }
             }
         }
@@ -305,7 +324,7 @@ public class FriendsListScreen extends Screen
         }
         if (searchEntry != null) this.searchEntry.render(matrixStack, mouseX, mouseY, partialTicks);
 
-        this.minecraft.fontRenderer.drawStringWithShadow(matrixStack, I18n.format("creeperhost.multiplayer.friendcode"), 10, this.height - 20, -1);
+        this.minecraft.fontRenderer.drawStringWithShadow(matrixStack, I18n.format("creeperhost.multiplayer.friendcode"), 10, this.height - 35, -1);
     }
     
     @Override
@@ -419,8 +438,15 @@ public class FriendsListScreen extends Screen
         {
             if (t)
             {
-                Callbacks.removeFriend(removeFriend.getCode());
-                refreshFriendsList(true);
+                CompletableFuture.runAsync(() -> {
+                    removedFriends.add(removeFriend.getCode());
+                    refreshFriendsList(true);
+                    if(!Callbacks.removeFriend(removeFriend.getCode()))
+                    {
+                        removedFriends.remove(removeFriend.getCode());
+                        refreshFriendsList(true);
+                    }
+                });
             }
             minecraft.displayGuiScreen(new FriendsListScreen(parent));
         }

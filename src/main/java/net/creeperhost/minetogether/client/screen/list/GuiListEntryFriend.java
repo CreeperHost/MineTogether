@@ -50,8 +50,10 @@ public class GuiListEntryFriend extends GuiListEntry
         }
         
         this.mc.fontRenderer.drawString(matrixStack, friend.getName(), x + 5, y + 5, 16777215);
-        this.mc.fontRenderer.drawString(matrixStack, new StringTextComponent(TextFormatting.GRAY + (friend.isAccepted() ? (profile != null && profile.isOnline() ? "Online" : "Offline") : "Pending")).getText(), x + 5, y + 5 + 10, 16777215);
-        
+        if(profile != null) {
+            this.mc.fontRenderer.drawString(matrixStack, TextFormatting.DARK_GRAY + profile.getUserDisplay(), x + listWidth - this.mc.fontRenderer.getStringWidth(profile.getUserDisplay()) - 20, y + 7, 16777215);
+            this.mc.fontRenderer.drawString(matrixStack, new StringTextComponent(TextFormatting.GRAY + (friend.isAccepted() ? (profile != null && profile.isOnline() ? TextFormatting.DARK_GREEN + "Online" : "Offline") : "Pending")).getText(), x + 5, y + 17, 16777215);
+        }
         int transparentString = (int) (transparency * 254) << 24;
         
         RenderSystem.enableAlphaTest();

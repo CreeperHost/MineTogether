@@ -25,23 +25,10 @@ public class ButtonString extends Button
             this.renderBg(matrixStack, mc, mouseX, mouseY);
             int color = 14737632;
 
-            if (packedFGColor != 0)
+            if(isHovered)
             {
-                color = packedFGColor;
-            } else if (!this.active)
-            {
-                color = 10526880;
-            } else if (this.isHovered)
-            {
-                color = 16777120;
+                color = TextFormatting.YELLOW.getColor();
             }
-
-//            ITextComponent buttonText = this.getMessage();
-//            int strWidth = mc.fontRenderer.getStringWidth(buttonText.getString());
-//            int ellipsisWidth = mc.fontRenderer.getStringWidth("...");
-//
-//            if (strWidth > width - 6 && strWidth > ellipsisWidth)
-//                buttonText = mc.fontRenderer.trimStringToWidth(buttonText, width - 6 - ellipsisWidth).trim() + "...";
 
             this.drawCenteredString(matrixStack, mc.fontRenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, color);
         }
