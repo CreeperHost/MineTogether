@@ -413,6 +413,11 @@ public class ChatHandler
         {
             CompletableFuture.runAsync(() ->
             {
+//                List<ModeStatus<ChannelMode>> b = event.getStatusList().getByMode('b');
+//                b.forEach(mode -> mode.getParameter().ifPresent(param -> {
+//                    String nick = param.split("!")[0];
+
+
                 if (nick.equalsIgnoreCase(ChatHandler.nick)) {
                     // it be us
                     ChatHandler.host.userBanned(nick);

@@ -168,11 +168,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     public void preInitClient(FMLClientSetupEvent event)
     {
         signature = verifySignature(findOurJar());
-        signature = "Development";
-        if(signature == null) {
-            logger.error("client signature is null, MineTogether will not load");
-            return;
-        }
+        if(signature == null) signature = "Development";
 
         isOnline = proxy.checkOnline();
         if (!isOnline) {
@@ -243,7 +239,6 @@ public class MineTogether implements ICreeperHostMod, IHost
                 }
             }, profileExecutor);
         }
-        isBanned.set(Callbacks.isBanned());
 
         Runtime.getRuntime().addShutdownHook(new Thread()
         {

@@ -1,12 +1,12 @@
 package net.creeperhost.minetogether.paul;
 
-import com.google.common.hash.Hashing;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.api.*;
 import net.creeperhost.minetogether.chat.ChatHandler;
+
 import net.creeperhost.minetogether.client.screen.serverlist.data.Invite;
 import net.creeperhost.minetogether.client.screen.serverlist.data.Server;
 import net.creeperhost.minetogether.config.Config;
@@ -17,7 +17,10 @@ import net.creeperhost.minetogether.data.ModPack;
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.util.WebUtils;
 
-import java.nio.charset.StandardCharsets;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -293,140 +296,53 @@ public final class Callbacks
         }
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/friendinvites", sendStr, true, true);
-        JsonParser parser = new JsonParser();
-        JsonElement element = parser.parse(resp);
-        if (element.isJsonObject())
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/friendinvites", sendStr, true, false);
+        if(!resp.equals("error"))
         {
-            JsonObject obj = element.getAsJsonObject();
-            if (obj.get("status").getAsString().equals("success"))
-            {
-                JsonArray invites = obj.getAsJsonArray("invites");
-                
-                for (JsonElement inviteEl : invites)
-                {
-                    JsonObject invite = inviteEl.getAsJsonObject();
-                    JsonObject server = invite.getAsJsonObject("server");
-                    String host = getSafe(server, "ip", "Unknown");//server.get("ip").getAsString();
-                    int project = getSafe(server, "project", 0);//server.get("project").getAsInt();
-                    String by = getSafe(server, "by", "Unknown");//invite.get("by").getAsString();
-                    String name = getSafe(server, "name", "Unknown");//server.get("name").getAsString();
-                    String port = getSafe(server, "port", "Unknown");//server.get("port").getAsString();
-                    String country = "UNK";
-                    String subdivision = "Unknown";
-                    if (server.has("location"))
-                    {
-                        JsonObject el = server.getAsJsonObject("location");
-                        country = getSafe(server, "country_code", "UNK");//el.get("country_code").getAsString();
-                        subdivision = getSafe(server, "subdivision", "Unknown");//el.get("subdivision").getAsString();
-                    }
-                    country = country.toUpperCase();
-                    EnumFlag flag = null;
-                    if (!country.isEmpty())
-                    {
-                        try
-                        {
-                            flag = EnumFlag.valueOf(country);
-                        } catch (IllegalArgumentException ignored)
-                        {
-                            flag = EnumFlag.UNKNOWN;
-                        }
-                    }
-                    
-                    int uptime = getSafe(server, "uptime", 0);//server.get("uptime").getAsInt();
-                    int players = getSafe(server, "expected_players", 0);//server.get("expected_players").getAsInt();
-                    
-                    String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
-                    
-                    Server serverEl = new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL);
-                    return new Invite(serverEl, project, by);
-                }
-            }
-        }
-        return null;
-    }
-    
-    public static boolean isBanned()
-    {
-        String hash = getPlayerHash(MineTogether.proxy.getUUID());
-        Map<String, String> sendMap = new HashMap<String, String>();
-        {
-            sendMap.put("hash", hash);
-        }
-        Gson gson = new Gson();
-        String sendStr = gson.toJson(sendMap);
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/isbanned", sendStr, true, true);
-        JsonParser parser = new JsonParser();
-        JsonElement element = parser.parse(resp);
-        if (element.isJsonObject())
-        {
-            JsonObject obj = element.getAsJsonObject();
-            JsonElement status = obj.get("status");
-            if (status.getAsString().equals("success"))
-            {
-                try
-                {
-                    JsonElement banned = obj.get("banned");
-                    MineTogether.profile.getAndUpdate(profile ->
-                    {
-                        profile.setBanned(banned.getAsBoolean());
-                        return profile;
-                    });
-                    return banned.getAsBoolean();
-                } catch (Exception e)
-                {
-                    return false;
-                }
-            } else
-            {
-                MineTogether.logger.error(resp);
-            }
-        }
-        return false;
-    }
-    
-    public static String banID = "";
-    public static String banMessage = "";
-    
-    public static String getBanMessage()
-    {
-        try
-        {
-            String hash = getPlayerHash(MineTogether.proxy.getUUID());
-            Map<String, String> sendMap = new HashMap<String, String>();
-            {
-                sendMap.put("hash", hash);
-            }
-            Gson gson = new Gson();
-            String sendStr = gson.toJson(sendMap);
-            String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/isbanned", sendStr, true, false);
-
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(resp);
             if (element.isJsonObject()) {
                 JsonObject obj = element.getAsJsonObject();
-                JsonElement status = obj.get("status");
-                if (status.getAsString().equals("success")) {
-                    if (obj.has("ban")) {
-                        JsonElement ban = obj.get("ban");
-                        JsonElement id = ban.getAsJsonObject().get("id");
-                        JsonElement timestamp = ban.getAsJsonObject().get("timestamp");
-                        JsonElement reason = ban.getAsJsonObject().get("reason");
+                if (obj.get("status").getAsString().equals("success")) {
+                    JsonArray invites = obj.getAsJsonArray("invites");
 
-                        banID = id.getAsString();
-                        banMessage = reason.getAsString();
+                    for (JsonElement inviteEl : invites) {
+                        JsonObject invite = inviteEl.getAsJsonObject();
+                        JsonObject server = invite.getAsJsonObject("server");
+                        String host = server.get("ip").getAsString();
+                        int project = server.get("project").getAsInt();
+                        String by = invite.get("by").getAsString();
+                        String name = server.get("name").getAsString();
+                        String port = server.get("port").getAsString();
+                        String country = "UNK";
+                        String subdivision = "Unknown";
+                        if (server.has("location")) {
+                            JsonObject el = server.getAsJsonObject("location");
+                            country = el.get("country_code").getAsString();
+                            subdivision = el.get("subdivision").getAsString();
+                        }
+                        country = country.toUpperCase();
+                        EnumFlag flag = null;
+                        if (!country.isEmpty()) {
+                            try {
+                                flag = EnumFlag.valueOf(country);
+                            } catch (IllegalArgumentException ignored) {
+                                flag = EnumFlag.UNKNOWN;
+                            }
+                        }
 
-                        return reason.getAsString() + " " + timestamp.getAsString();
+                        int uptime = server.get("uptime").getAsInt();
+                        int players = server.get("expected_players").getAsInt();
+
+                        String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
+
+                        Server serverEl = new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL);
+                        return new Invite(serverEl, project, by);
                     }
-                } else {
-                    MineTogether.logger.error(resp);
                 }
             }
-        } catch (Exception e)
-        {
-            return "";
         }
-        return "";
+        return null;
     }
     
     public static boolean inviteFriend(Friend friend)
@@ -441,16 +357,25 @@ public final class Callbacks
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invitefriend", sendStr, true, false);
-        JsonParser parser = new JsonParser();
-        JsonElement element = parser.parse(resp);
-        
-        if (element.isJsonObject())
+        int retries = 0;
+        while(resp.equals("error") && retries < 3) {
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException ignored) {}
+            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invitefriend", sendStr, true, false);
+            retries++;
+        }
+        if(!resp.equals("error"))
         {
-            JsonObject obj = element.getAsJsonObject();
-            
-            if (obj.get("status").getAsString().equals("success"))
-            {
-                return true;
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(resp);
+
+            if (element.isJsonObject()) {
+                JsonObject obj = element.getAsJsonObject();
+
+                if (obj.get("status").getAsString().equals("success")) {
+                    return true;
+                }
             }
         }
         MineTogether.logger.error("Unable to invite friend.");
@@ -464,12 +389,19 @@ public final class Callbacks
             return hashCache.get(uuid);
         
         String playerHash;
-        //noinspection UnstableApiUsage
-        playerHash = Hashing.sha256().hashBytes(uuid.toString().getBytes(StandardCharsets.UTF_8)).toString().toUpperCase();
+        try
+        {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
+            playerHash = (new HexBinaryAdapter()).marshal(hash);
+        } catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
         hashCache.put(uuid, playerHash);
         return playerHash;
     }
-
 
     public static Profile getProfile()
     {
@@ -481,6 +413,7 @@ public final class Callbacks
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, false);
+        if(resp.equalsIgnoreCase("error")) return null;
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         if (element.isJsonObject())
@@ -506,6 +439,62 @@ public final class Callbacks
         }
         return null;
     }
+    private static String banMessage;
+    public static boolean isBanned()
+    {
+        String hash = getPlayerHash(MineTogether.proxy.getUUID());
+        Map<String, String> sendMap = new HashMap<String, String>();
+        {
+            sendMap.put("hash", hash);
+        }
+        Gson gson = new Gson();
+        String sendStr = gson.toJson(sendMap);
+        String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/isbanned", sendStr, true, false);
+        int retries = 0;
+        while(resp.equals("error") && retries < 3)
+        {
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {}
+            resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/isbanned", sendStr, true, false);
+        }
+        if(!resp.equals("error")) {
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(resp);
+            if (element.isJsonObject()) {
+                JsonObject obj = element.getAsJsonObject();
+                JsonElement status = obj.get("status");
+                if (status.getAsString().equals("success")) {
+                    JsonElement banned = obj.get("banned");
+                    JsonElement ban = obj.get("ban");
+                    JsonElement id = ban.getAsJsonObject().get("id");
+                    JsonElement timestamp = ban.getAsJsonObject().get("timestamp");
+                    JsonElement reason = ban.getAsJsonObject().get("reason");
+
+                    banID = id.getAsString();
+                    banMessage = reason.getAsString();
+                    MineTogether.profile.getAndUpdate(profile ->
+                    {
+                        profile.setBanned(banned.getAsBoolean());
+                        return profile;
+                    });
+                    return banned.getAsBoolean();
+                } else {
+                    MineTogether.logger.error(resp);
+                }
+            }
+        }
+        return false;
+    }
+
+    public static String banID = "";
+
+    public static String getBanMessage()
+    {
+        if(banMessage == null) isBanned();
+        if(banMessage != null) return banMessage;
+        return "";
+    }
     
     public static String getFriendCode()
     {
@@ -520,22 +509,31 @@ public final class Callbacks
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/friendCode", sendStr, true, false);
-        JsonParser parser = new JsonParser();
-        JsonElement element = parser.parse(resp);
-        if (element.isJsonObject())
+        int retries = 0;
+        while(resp.equals("error") && retries < 3)
         {
-            JsonObject obj = element.getAsJsonObject();
-            JsonElement status = obj.get("status");
-            if (status.getAsString().equals("success"))
-            {
-                friendCode = obj.get("code").getAsString();
-            } else
-            {
-                MineTogether.logger.error("Unable to get friendcode.");
-                MineTogether.logger.error(resp);
-            }
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {}
+            retries++;
+            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/friendCode", sendStr, true, false);
         }
-        return friendCode;
+        if(!resp.equals("error")) {
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(resp);
+            if (element.isJsonObject()) {
+                JsonObject obj = element.getAsJsonObject();
+                JsonElement status = obj.get("status");
+                if (status.getAsString().equals("success")) {
+                    friendCode = obj.get("code").getAsString();
+                } else {
+                    MineTogether.logger.error("Unable to get friendcode.");
+                    MineTogether.logger.error(resp);
+                }
+            }
+            return friendCode;
+        }
+        return null;
     }
     
     public static FriendStatusResponse addFriend(String code, String display)
@@ -550,20 +548,34 @@ public final class Callbacks
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/requestfriend", sendStr, true, false);
-        JsonParser parser = new JsonParser();
-        JsonElement element = parser.parse(resp);
-        if (element.isJsonObject())
+        int retries = 0;
+        while(resp.equals("error") && retries < 3)
         {
-            JsonObject obj = element.getAsJsonObject();
-            JsonElement status = obj.get("status");
-            JsonElement message = obj.get("message");
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {}
+            retries++;
+            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/requestfriend", sendStr, true, false);
+        }
+        if(!resp.equals("error")) {
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(resp);
+            if (element.isJsonObject()) {
+                JsonObject obj = element.getAsJsonObject();
+                JsonElement status = obj.get("status");
+                JsonElement message = obj.get("message");
 
-            FriendStatusResponse friendStatusResponse = new FriendStatusResponse(status.getAsString().equalsIgnoreCase("success"), message.getAsString(), "");
-            if (!status.getAsString().equals("success"))
-            {
-                MineTogether.logger.error("Unable to add friend.");
-                MineTogether.logger.error(resp);
-                return friendStatusResponse;
+                FriendStatusResponse friendStatusResponse = new FriendStatusResponse(status.getAsString().equalsIgnoreCase("success"), message.getAsString(), "");
+                if (!status.getAsString().equals("success")) {
+                    if (!message.getAsString().equalsIgnoreCase("Friend request already pending.")) {
+                        String friendHash = obj.get("hash").getAsString();
+                        friendStatusResponse.setHash(friendHash);
+                        MineTogether.logger.error("Unable to add friend.");
+                        MineTogether.logger.error(resp);
+                        return friendStatusResponse;
+                    }
+                    return null;
+                }
             }
         }
         return null;
@@ -580,20 +592,30 @@ public final class Callbacks
         Gson gson = new Gson();
         String sendStr = gson.toJson(sendMap);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/removefriend", sendStr, true, false);
-        JsonParser parser = new JsonParser();
-        JsonElement element = parser.parse(resp);
-        if (element.isJsonObject())
+        int retries = 0;
+        while(resp.equals("error") && retries < 3)
         {
-            JsonObject obj = element.getAsJsonObject();
-            JsonElement status = obj.get("status");
-            if (!status.getAsString().equals("success"))
-            {
-                MineTogether.logger.error("Unable to remove friend.");
-                MineTogether.logger.error(resp);
-                return false;
-            }
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {}
+            retries++;
+            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/removefriend", sendStr, true, false);
         }
-        return true;
+        if(!resp.equals("error")) {
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(resp);
+            if (element.isJsonObject()) {
+                JsonObject obj = element.getAsJsonObject();
+                JsonElement status = obj.get("status");
+                JsonElement message = obj.get("message");
+                if (!status.getAsString().equals("success") && !message.getAsString().equalsIgnoreCase("Friend does not exist.")) {
+                    MineTogether.logger.error("Unable to remove friend: " + message);
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
     
     public static ArrayList<Minigame> getMinigames(boolean isModded)
@@ -627,11 +649,13 @@ public final class Callbacks
     }
     
     static boolean friendsGetting;
+    private static CompletableFuture friendFuture;
+    private static int friendFailures = 0;
 
     public static ArrayList<Friend> getFriendsList(boolean force)
     {
         if (friendsList == null)
-            friendsList = new Util.CachedValue<>(60000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>() {
+            friendsList = new Util.CachedValue<>(30000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>() {
                 @Override
                 public ArrayList<Friend> get(Object... args) {
                     if (friendsGetting) {
@@ -639,45 +663,64 @@ public final class Callbacks
                             return friendsList.getCachedValue(args); // prevent NPE if it is called twice the first time somehow, would rather just make two calls
                     }
                     friendsGetting = true;
-                    CompletableFuture.runAsync(() -> {
-                        Map<String, String> sendMap = new HashMap<String, String>();
-                        {
-                            sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
+                    if(friendFuture != null && !friendFuture.isDone())
+                    {
+                        if(friendFailures > 3) {
+                            friendFuture.cancel(true);
+                            friendFailures = 0;
+                        } else {
+                            friendFailures++;
                         }
+                    } else {
+                        friendFuture = CompletableFuture.runAsync(() -> {
+                            Map<String, String> sendMap = new HashMap<String, String>();
+                            {
+                                sendMap.put("hash", getPlayerHash(MineTogether.proxy.getUUID()));
+                            }
+                            String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
 
-                        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
+                            ArrayList<Friend> tempArr = new ArrayList<Friend>();
 
-                        ArrayList<Friend> tempArr = new ArrayList<Friend>();
+                            // no idea how this can return null, but apparently it can, so this will fix it.
+                            if (resp.equals("error")) {
+                                if (friendsList.getCachedValue(args) == null) {
+                                    friendsList.set(tempArr);
+                                }
+                                return;
+                            }
 
-                        // no idea how this can return null, but apparently it can, so this will fix it.
-                        if (resp.equals("error")) {
-                            friendsList.set(tempArr);
-                        }
+                            JsonElement el = new JsonParser().parse(resp);
+                            if (el.isJsonObject()) {
 
-                        JsonElement el = new JsonParser().parse(resp);
-                        if (el.isJsonObject()) {
+                                JsonObject obj = el.getAsJsonObject();
+                                if (obj.get("status").getAsString().equals("success")) {
+                                    JsonArray array = obj.getAsJsonArray("friends");
+                                    for (JsonElement friendEl : array) {
+                                        JsonObject friend = (JsonObject) friendEl;
+                                        String name = "null";
 
-                            JsonObject obj = el.getAsJsonObject();
-                            if (obj.get("status").getAsString().equals("success")) {
-                                JsonArray array = obj.getAsJsonArray("friends");
-                                for (JsonElement friendEl : array) {
-                                    JsonObject friend = (JsonObject) friendEl;
-                                    String name = "null";
-
-                                    if (!friend.get("name").isJsonNull()) {
-                                        name = friend.get("name").getAsString();
+                                        if (!friend.get("name").isJsonNull()) {
+                                            name = friend.get("name").getAsString();
+                                        }
+                                        String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
+                                        boolean accepted = friend.get("accepted").getAsBoolean();
+                                        Profile profile = ChatHandler.knownUsers.findByHash(code);
+                                        if (profile == null) profile = ChatHandler.knownUsers.add(code);
+                                        CompletableFuture.runAsync(() -> {
+                                            Profile profile1 = ChatHandler.knownUsers.findByHash(code);
+                                            profile1.loadProfile();
+                                            ChatHandler.knownUsers.update(profile1);
+                                        }, MineTogether.profileExecutor);
+                                        tempArr.add(new Friend(name, code, accepted));
                                     }
-                                    String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
-                                    boolean accepted = friend.get("accepted").getAsBoolean();
-                                    Profile profile = ChatHandler.knownUsers.findByHash(code);
-                                    if(profile == null) ChatHandler.knownUsers.add(code);
-                                    tempArr.add(new Friend(name, code, accepted));
+                                } else {
+                                    tempArr = friendsList.getCachedValue(args);
                                 }
                             }
-                        }
-                        friendsList.set(tempArr);
-                        friendsGetting = false;
-                    }, MineTogether.profileExecutor);
+                            friendsList.set(tempArr);
+                            friendsGetting = false;
+                        }, MineTogether.profileExecutor);
+                    }
                     return friendsList.getCachedValue(args);
                 }
 
@@ -688,7 +731,7 @@ public final class Callbacks
             });
         return friendsList.get(force);
     }
-    
+
     public static List<Server> getServerList(Enum listType)
     {
         if (serverListCache == null)
@@ -697,23 +740,22 @@ public final class Callbacks
             {
                 private Enum lastRequest;
                 private String playerHash;
-                
+
                 @Override
                 public List<Server> get(Object... args)
                 {
                     Enum listType = (Enum) args[0];
                     int enumOrdinal = listType.ordinal();
                     lastRequest = listType;
-                    MineTogether.logger.info("Loading " + (listType.name().toLowerCase()) + " server list.");
                     List<Server> list = new ArrayList<Server>();
-                    
+
                     Config defaultConfig = new Config();
-                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID) && MineTogether.instance.base64 == null)
+                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
                     {
                         list.add(new Server("No project ID! Please fix the MineTogether config or ensure a version.json exists.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
                         return list;
                     }
-                    
+
                     Map<String, String> jsonPass = new HashMap<String, String>();
                     jsonPass.put("projectid", MineTogether.instance.base64 == null ? Config.getInstance().curseProjectID : MineTogether.instance.base64);
                     if (enumOrdinal == 1)
@@ -722,63 +764,66 @@ public final class Callbacks
                         {
                             playerHash = getPlayerHash(MineTogether.proxy.getUUID());
                         }
-                        
+
                         jsonPass.put("hash", playerHash);
                     }
-                    
+
                     jsonPass.put("listType", listType.name().toLowerCase());
-                    
+
                     Gson gson = new Gson();
                     String jsonString = gson.toJson(jsonPass);
-                    
-                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
 
-                    JsonElement jElement = new JsonParser().parse(resp);
-                    if (jElement.isJsonObject())
+                    String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
+                    int retries = 0;
+                    while(resp.equals("error") && retries < 5)
                     {
-                        JsonObject object = jElement.getAsJsonObject();
-                        JsonArray array = object.getAsJsonArray("servers");
-                        if (array != null)
-                        {
-                            for (JsonElement serverEl : array)
-                            {
-                                JsonObject server = (JsonObject) serverEl;
-                                String name = getSafe(server, "name", "unknown");//server.get("name").getAsString();
-                                String host = getSafe(server, "ip", "unknown");//server.get("ip").getAsString();
-                                String port = getSafe(server, "port", "unknown");//server.get("port").getAsString();
-                                String country = "UNK";
-                                String subdivision = "Unknown";
-                                if (server.has("location"))
-                                {
-                                    JsonObject el = server.getAsJsonObject("location");
-                                    country = getSafe(el, "country_code", "UNK");//el.get("country_code").getAsString();
-                                    subdivision = getSafe(el, "subdivision", "Unknown");//el.get("subdivision").getAsString();
-                                }
-                                country = country.toUpperCase();
-                                EnumFlag flag = null;
-                                if (!country.isEmpty())
-                                {
-                                    try
-                                    {
-                                        flag = EnumFlag.valueOf(country);
-                                    } catch (IllegalArgumentException ignored)
-                                    {
-                                        flag = EnumFlag.UNKNOWN;
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException ignored) {}
+                        retries++;
+                        resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/list", jsonString, true, false);
+                    }
+                    if(!resp.equals("error")) {
+                        JsonElement jElement = new JsonParser().parse(resp);
+                        if (jElement.isJsonObject()) {
+                            JsonObject object = jElement.getAsJsonObject();
+                            JsonArray array = object.getAsJsonArray("servers");
+                            if (array != null) {
+                                for (JsonElement serverEl : array) {
+                                    JsonObject server = (JsonObject) serverEl;
+                                    String name = getSafe(server, "name", "unknown");//server.get("name").getAsString();
+                                    String host = getSafe(server, "ip", "unknown");//server.get("ip").getAsString();
+                                    String port = getSafe(server, "port", "unknown");//server.get("port").getAsString();
+                                    String country = "UNK";
+                                    String subdivision = "Unknown";
+                                    if (server.has("location")) {
+                                        JsonObject el = server.getAsJsonObject("location");
+                                        country = getSafe(el, "country_code", "UNK");//el.get("country_code").getAsString();
+                                        subdivision = getSafe(el, "subdivision", "Unknown");//el.get("subdivision").getAsString();
                                     }
+                                    country = country.toUpperCase();
+                                    EnumFlag flag = null;
+                                    if (!country.isEmpty()) {
+                                        try {
+                                            flag = EnumFlag.valueOf(country);
+                                        } catch (IllegalArgumentException ignored) {
+                                            flag = EnumFlag.UNKNOWN;
+                                        }
+                                    }
+
+                                    int uptime = getSafe(server, "uptime", 0);//server.get("uptime").getAsInt();
+                                    int players = getSafe(server, "expected_players", 0);//server.get("expected_players").getAsInt();
+
+                                    String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
+
+                                    list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL));
                                 }
-                                
-                                int uptime = getSafe(server, "uptime", 0);//server.get("uptime").getAsInt();
-                                int players = getSafe(server, "expected_players", 0);//server.get("expected_players").getAsInt();
-                                
-                                String applicationURL = server.has("applicationUrl") ? server.get("applictionUrl").getAsString() : null;
-                                
-                                list.add(new Server(name, host + ":" + port, uptime, players, flag, subdivision, applicationURL));
                             }
                         }
                     }
                     return list;
                 }
-                
+
                 @Override
                 public boolean needsRefresh(Object... args)
                 {
@@ -797,23 +842,31 @@ public final class Callbacks
         Gson gson = new Gson();
         String jsonString = gson.toJson(jsonPass);
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/server", jsonString, true, false);
-        JsonElement jElement = new JsonParser().parse(resp);
-        if (jElement.isJsonObject())
+        int retries = 0;
+        while(resp.equals("error") && retries < 3)
         {
-            JsonObject object = jElement.getAsJsonObject();
-            if(object.has("status") && object.get("status").getAsString().equals("success"))
-            {
-                JsonObject server = object.get("server").getAsJsonObject();
-                String host = server.get("ip").getAsString();
-                String name = server.get("name").getAsString();
-                String port = server.get("port").getAsString();
-                int uptime = server.get("uptime").getAsInt();
-                int players = server.get("expected_players").getAsInt();
-                EnumFlag flag = EnumFlag.UNKNOWN;
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {}
+            retries++;
+            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/server", jsonString, true, false);
+        }
+        if(!resp.equals("error")) {
+            JsonElement jElement = new JsonParser().parse(resp);
+            if (jElement.isJsonObject()) {
+                JsonObject object = jElement.getAsJsonObject();
+                if (object.has("status") && object.get("status").getAsString().equals("success")) {
+                    JsonObject server = object.get("server").getAsJsonObject();
+                    String host = server.get("ip").getAsString();
+                    String name = server.get("name").getAsString();
+                    String port = server.get("port").getAsString();
+                    int uptime = server.get("uptime").getAsInt();
+                    int players = server.get("expected_players").getAsInt();
+                    EnumFlag flag = EnumFlag.UNKNOWN;
 
-                return new Server(name, host + ":" + port, uptime, players, flag, "", "");
+                    return new Server(name, host + ":" + port, uptime, players, flag, "", "");
+                }
             }
-
         }
         return null;
     }
@@ -842,11 +895,11 @@ public final class Callbacks
             try
             {
                 String freeGeoIP = WebUtils.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
-
+                
                 JsonObject jObject = new JsonParser().parse(freeGeoIP).getAsJsonObject();
-
+                
                 jObject = jObject.getAsJsonObject("customer");
-
+                
                 userCountry = jObject.getAsJsonPrimitive("country").getAsString();
             } catch (Throwable t)
             {
@@ -885,15 +938,14 @@ public final class Callbacks
     {
         return MineTogether.instance.getImplementation().createOrder(order);
     }
-
+    
     public static String getVersionFromCurse(String curse)
     {
-        if (isInteger(curse))
+        if(isInteger(curse))
         {
+            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
             try
             {
-                String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
-
                 JsonElement jElement = new JsonParser().parse(resp);
                 JsonObject jObject = jElement.getAsJsonObject();
                 if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
@@ -915,19 +967,19 @@ public final class Callbacks
         try
         {
             Integer.parseInt(s);
-        } catch (NumberFormatException | NullPointerException e)
+        }
+        catch(NumberFormatException | NullPointerException e)
         {
             return false;
         }
         return true;
     }
-
+    
     public static String getVersionFromApi(String packid)
     {
+        String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
         try
         {
-            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
-
             JsonElement jElement = new JsonParser().parse(resp);
             JsonObject jObject = jElement.getAsJsonObject();
             if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
@@ -938,52 +990,46 @@ public final class Callbacks
                 return "";
             }
         } catch (Throwable ignored) {}
-
+        
         return "";
     }
 
     public static List<ModPack> getModpackFromCurse(String modpack, int limit)
     {
-        String url = "https://www.creeperhost.net/json/modpacks/mc/search/" + modpack;
-        
+        String url = "https://www.creeperhost.net/json/modpacks/mc/search/unique/" + modpack;
+
         //Return the recommended if nothing is searched
-        if (modpack == null || modpack.isEmpty())
+        if(modpack == null || modpack.isEmpty())
         {
             url = "https://www.creeperhost.net/json/modpacks/weekly/" + limit;
         }
-        
+
         String resp = WebUtils.getWebResponse(url);
         List<ModPack> modpackList = new ArrayList<>();
-        
+
         JsonElement jElement = new JsonParser().parse(resp);
-        
+
         if (jElement.isJsonObject())
         {
-            try
-            {
-                JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
-                JsonArray array = object.getAsJsonArray("mc");
+            JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
+            JsonArray array = object.getAsJsonArray("mc");
 
-                if (array != null)
+            if (array != null)
+            {
+                for (JsonElement serverEl : array)
                 {
-                    for (JsonElement serverEl : array)
+                    if(modpack != null && modpack.isEmpty() || modpackList.size() <= limit)
                     {
-                        if (modpackList.isEmpty() || modpackList.size() <= limit)
-                        {
-                            JsonObject server = (JsonObject) serverEl;
-                            String id = getSafe(server, "id", "failed to get id");
-                            String name = getSafe(server, "displayName", "failed to load displayName");
-                            String displayVersion = getSafe(server, "displayVersion", "failed to load displayVersion");
-                            String displayIcon = getSafe(server, "displayIcon", null);
+                        JsonObject server = (JsonObject) serverEl;
+                        String id = server.get("id").getAsString();
+                        String name = server.get("displayName").getAsString();
+                        String displayVersion = server.get("displayVersion").getAsString();
+                        String displayIcon = server.get("displayIcon").getAsString();
 
-                            modpackList.add(new ModPack(id, name, displayVersion, displayIcon));
-                        }
+                        modpackList.add(new ModPack(id, name, displayVersion, displayIcon));
                     }
-                    return modpackList;
                 }
-            } catch (Exception e)
-            {
-                return null;
+                return modpackList;
             }
         }
         return null;

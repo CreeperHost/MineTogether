@@ -214,7 +214,7 @@ public class MTChatScreen extends Screen
                     }
                     this.minecraft.displayGuiScreen(this);
 
-                }, new StringTextComponent(I18n.format("minetogether.banned1" + Callbacks.banMessage)),
+                }, new StringTextComponent(I18n.format("minetogether.banned1" + Callbacks.getBanMessage())),
                         new StringTextComponent(I18n.format("minetogether.banned2"))));
             }
         }));
