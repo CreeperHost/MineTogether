@@ -69,6 +69,8 @@ public class MTChatScreen extends Screen
     private String banMessage = "";
     private ButtonString banButton;
     private ButtonString connectionStatus;
+    private boolean isBanned = false;
+
 
     public MTChatScreen(Screen parent)
     {
@@ -199,6 +201,9 @@ public class MTChatScreen extends Screen
             confirmInvite();
             inviteTemp = false;
         }
+
+        if(ChatHandler.isBannedFuture != null && !ChatHandler.isBannedFuture.isDone()) ChatHandler.isBannedFuture.cancel(true);
+            ChatHandler.isBannedFuture = CompletableFuture.runAsync(() -> isBanned = Callbacks.isBanned(), MineTogether.otherExecutor);
 
         addButton(connectionStatus = new ButtonString(5, height - 26, 70, 20, "", p ->
         {

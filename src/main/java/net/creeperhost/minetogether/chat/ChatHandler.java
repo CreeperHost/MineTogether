@@ -67,7 +67,6 @@ public class ChatHandler
     public static AtomicReference<List<String>> backupBan = new AtomicReference<>(new ArrayList<>());
     public static CompletableFuture isBannedFuture;
 
-
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
         ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn, _host);
@@ -484,7 +483,7 @@ public class ChatHandler
     {
         ChatHandler.client.shutdown();
         try {
-            ChatHandler.addStatusMessage("Chat disconnected, Reconnecting");
+            ChatHandler.addStatusMessage((reconnect) ? "Chat disconnected, Reconnecting" : "Chat has disconnected.");
             ChatHandler.connectionStatus = ConnectionStatus.DISCONNECTED;
             Thread.sleep(reconnectTimer.get());
             logger.error("Reinit being called");
