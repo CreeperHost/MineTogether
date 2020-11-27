@@ -26,7 +26,6 @@ public class EventHandler {
                 try {
                     boolean result = InetAddress.getByName("2a04:de41::1").isReachable(15000);
                     ConnectHelper.isEnabled = result;
-                    CreeperHost.logger.info(result);
                 } catch (Throwable ignored) {
                     ignored.printStackTrace();
                 }
