@@ -19,11 +19,10 @@ import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.gui.screen.MultiplayerScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ServerSelectionList;
+import net.minecraft.client.gui.screen.*;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.network.LanServerInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
@@ -82,14 +81,14 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             return;
         }
         
-        String name = "creeperhost.config.serverlistenabled";
+        String name = "creeperhost.multiplayer.title.suffix.generic";
         
         if(listType != null)
         {
-            name = listType.name();
+            name = "creeperhost.multiplayer.title.prefix." + listType.name().toLowerCase();
         }
         
-        addButton(new Button(width - 105, 5, 100, 20, new StringTextComponent(I18n.format(name)), p ->
+        addButton(new Button(width - 85, 5, 80, 20, new StringTextComponent(I18n.format(name)), p ->
         {
             if (changeSort)
             {
@@ -98,7 +97,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             mc.displayGuiScreen(new ServerTypeScreen(this));
         }));
         
-        addButton(new GuiButtonMultiple(width - 125, 5, 1, p ->
+        addButton(new GuiButtonMultiple(width - 105, 5, 1, p ->
         {
             mc.displayGuiScreen(new MTChatScreen(this));
         }));
@@ -146,7 +145,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
         
         if(listType != null)
         {
-            addButton(sortOrderButton = new DropdownButton<>(width - 5 - 80 - 80, 5, 80, 20, new StringTextComponent("creeperhost.multiplayer.sort"), sortOrder, false, p ->
+            addButton(sortOrderButton = new DropdownButton<>(width - 165, 5, 80, 20, new StringTextComponent("creeperhost.multiplayer.sort"), sortOrder, false, p ->
             {
                 if (sortOrder != sortOrderButton.getSelected())
                 {
@@ -162,6 +161,35 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
     private void setServerList(ServerListPublic serverList)
     {
         serverListSelectorOurs.updateOnlineServers(serverList);
+    }
+
+    @Override
+    public void connectToSelected() {
+        if(this.serverListSelectorOurs != null) {
+            ServerSelectionList.Entry serverselectionlist$entry = this.serverListSelectorOurs.getSelected();
+            if (serverselectionlist$entry instanceof ServerSelectionListOurs.ServerListEntryPublic) {
+                this.connectToServer(((ServerSelectionListOurs.ServerListEntryPublic) serverselectionlist$entry).getServerData());
+            }
+        }
+        super.connectToSelected();
+    }
+
+    private void connectToServer(ServerData server) {
+        this.minecraft.displayGuiScreen(new ConnectingScreen(this, this.minecraft, server));
+    }
+
+    @Override
+    protected void func_214295_b()
+    {
+        this.btnSelectServer.active = false;
+        if(listType != null && serverListSelectorOurs != null) {
+            ServerSelectionList.Entry serverselectionlist$entry = this.serverListSelectorOurs.getSelected();
+            if (serverselectionlist$entry != null && !(serverselectionlist$entry instanceof ServerSelectionList.LanScanEntry)) {
+                this.btnSelectServer.active = true;
+            }
+            return;
+        }
+        super.func_214295_b();
     }
     
     @Override

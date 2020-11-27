@@ -619,7 +619,6 @@ public class MTChatScreen extends Screen
     public static ITextComponent formatLine(Message message)
     {
         try {
-
             String inputNick = message.sender;
             String outputNick = inputNick;
 
