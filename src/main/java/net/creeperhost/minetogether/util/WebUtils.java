@@ -17,8 +17,7 @@ import java.util.Map;
 public class WebUtils
 {
     private static List<String> cookies;
-    private static boolean logHide;
-    
+
     public static String getWebResponse(String urlString)
     {
         try
@@ -37,7 +36,7 @@ public class WebUtils
                     conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
                 }
             }
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56 MineTogether/0.0.0");
             conn.setRequestProperty("Fingerprint", MineTogether.getSignature());
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
@@ -57,10 +56,7 @@ public class WebUtils
             
             rd.close();
             return respData.toString();
-        } catch (Throwable t)
-        {
-            HostHolder.host.getLogger().warn("An error occurred while fetching " + urlString, t);
-        }
+        } catch (Throwable ignored) {}
         return "error";
     }
     
@@ -76,9 +72,8 @@ public class WebUtils
             {
                 postDataStringBuilder.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append("=").append(URLEncoder.encode(entry.getValue(), "UTF-8")).append("&");
             }
-        } catch (Exception ignored)
-        {
-        } finally
+        } catch (Exception ignored) {}
+        finally
         {
             postDataString = postDataStringBuilder.toString();
         }
@@ -102,7 +97,7 @@ public class WebUtils
             URL url = new URL(urlString);
             
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56 MineTogether/0.0.0");
             conn.setRequestProperty("Fingerprint", MineTogether.getSignature());
             conn.setRequestMethod(method);
             if (cookies != null)
@@ -122,13 +117,7 @@ public class WebUtils
             {
                 DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
                 wr.write(postData);
-            } catch (Throwable t)
-            {
-                if (!silent)
-                {
-                    t.printStackTrace();
-                }
-            }
+            } catch (Throwable ignored){}
             
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
@@ -146,17 +135,8 @@ public class WebUtils
             }
             
             rd.close();
-            logHide = false;
             return respData.toString();
-        } catch (Throwable t)
-        {
-            if (silent || logHide)
-            {
-                return "error";
-            }
-            logHide = true;
-            HostHolder.host.getLogger().warn("An error occurred while fetching " + urlString + ". Will hide repeated errors.", t);
-        }
+        } catch (Throwable ignored) {}
         return "error";
     }
     
