@@ -25,7 +25,8 @@ public class Config
     private boolean autoMT;
     private boolean enableFriendOnlineToasts;
     private boolean enableMainMenuFriends;
-    
+    private boolean replaceRealms;
+
     private int pregenDiameter = 120;
     
     public static Config instance;
@@ -46,6 +47,7 @@ public class Config
         autoMT = true;
         enableFriendOnlineToasts = true;
         enableMainMenuFriends = true;
+        replaceRealms = true;
     }
     
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
@@ -164,7 +166,9 @@ public class Config
     {
         return enableMainMenuFriends;
     }
-    
+
+    public boolean getReplaceRealms() { return replaceRealms; }
+
     public void setEnableMainMenuFriends(boolean enableMainMenuFriends)
     {
         this.enableMainMenuFriends = enableMainMenuFriends;

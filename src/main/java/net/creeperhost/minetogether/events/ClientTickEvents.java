@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,7 +35,7 @@ public class ClientTickEvents
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     Minecraft mc = Minecraft.getInstance();
-    private Thread inviteCheckThread;
+    private CompletableFuture inviteCheckFuture;
     private int inviteTicks = -1;
 
     private int clientTicks = 0; //Tick counter client side.
@@ -96,18 +97,16 @@ public class ClientTickEvents
         
         if (Config.getInstance().isServerListEnabled() && MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
-            if (inviteCheckThread == null)
+            if (!(inviteCheckFuture != null && !inviteCheckFuture.isDone()))
             {
-                inviteCheckThread = new Thread(() ->
+                inviteCheckFuture = CompletableFuture.runAsync(() ->
                 {
-                    while (Config.getInstance().isServerListEnabled())
-                    {
+                    while (Config.getInstance().isServerListEnabled()) {
                         Invite tempInvite = null;
                         PrivateChat temp = null;
-                        
-                        try
-                        {
-                            if(ChatHandler.isOnline()) //No point in trying this without a connection
+
+                        try {
+                            if (ChatHandler.isOnline()) //No point in trying this without a connection
                             {
                                 tempInvite = Callbacks.getInvite();
                                 temp = ChatHandler.privateChatInvite;
@@ -118,26 +117,18 @@ public class ClientTickEvents
                                 }
 
                                 if (temp != null) {
-                                    MineTogether.instance.toastHandler.displayToast(new StringTextComponent(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey())), 10000, () -> {
+                                    MineTogether.instance.toastHandler.displayToast(new StringTextComponent(I18n.format("Your friend %s invited you to a private chat", MineTogether.instance.getNameForUser(temp.getOwner()), ((Client) MineTogether.proxy).openGuiKey.getTranslationKey())), 5000, () -> {
                                         mc.displayGuiScreen(new MTChatScreen(Minecraft.getInstance().currentScreen, true));
                                     });
                                 }
                             }
-                        } catch (Exception ignored)
-                        {
-                        }
-                        
+                        } catch (Exception ignored) {}
                         try
                         {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ignored)
-                        {
-                        }
+                            Thread.sleep(5000);
+                        } catch (InterruptedException ignored) {}
                     }
-                });
-                inviteCheckThread.setDaemon(true);
-                inviteCheckThread.setName("MineTogether invite check thread");
-                inviteCheckThread.start();
+                    }, MineTogether.otherExecutor);
             }
             
             boolean handled = false;
@@ -198,7 +189,7 @@ public class ClientTickEvents
                     return;
                 if (Config.getInstance().isFriendOnlineToastsEnabled())
                 {
-                    MineTogether.instance.toastHandler.displayToast(new StringTextComponent(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend)), 4000, null);
+                    MineTogether.instance.toastHandler.displayToast(new StringTextComponent(I18n.format(friendMessage ? "%s has sent you a message!" : "Your friend %s has come online!", friend)), 2000, null);
                 }
             }
         }

@@ -292,5 +292,6 @@
   "minetogether.connect.open.settings":"Settings for MineTogether friends",
   "minetogether.connect.open.start":"Open world to friends",
   "minetogether.connect.open.success":"Opened local game world to your MineTogether friends.",
-  "minetogether.connect.open.failed":"Failed to open local game to MineTogether friends."
+  "minetogether.connect.open.failed":"Failed to open local game to MineTogether friends.",
+  "minetogether.realms.replace":"Get a server"
 }

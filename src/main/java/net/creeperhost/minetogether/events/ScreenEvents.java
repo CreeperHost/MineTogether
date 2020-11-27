@@ -17,9 +17,11 @@ import net.creeperhost.minetogether.client.screen.serverlist.data.Server;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.MultiplayerPublicScreen;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.paul.Callbacks;
+import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.*;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.RenderHelper;
@@ -37,6 +39,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScreenEvents
@@ -57,6 +60,15 @@ public class ScreenEvents
         
         if (event.getGui() instanceof MainMenuScreen)
         {
+            if(Config.getInstance().getReplaceRealms())
+            {
+                Widget realmsButton = ScreenUtils.removeButton("menu.online", event.getWidgetList());
+                Button realmsReplacmentButton = new Button(realmsButton.x, realmsButton.y, realmsButton.getWidth(), 20, new StringTextComponent(I18n.format("minetogether.realms.replace")), (button) ->
+                {
+                    Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+                });
+                event.addWidget(realmsReplacmentButton);
+            }
             if (MineTogether.instance.gdpr.hasAcceptedGDPR() && first)
             {
                 first = false;
@@ -91,11 +103,13 @@ public class ScreenEvents
             if (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())
             {
                 MineTogether.instance.setRandomImplementation();
-                
-                event.addWidget(new GuiButtonCreeper(event.getGui().width / 2 - 124, event.getGui().height / 4 + 96, p ->
+                if(!Config.instance.getReplaceRealms())
                 {
-                    Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
-                }));
+                    event.addWidget(new GuiButtonCreeper(event.getGui().width / 2 - 124, event.getGui().height / 4 + 96, p ->
+                    {
+                        Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+                    }));
+                }
             }
             //Replace Multiplayer Button
             AtomicInteger width = new AtomicInteger();
