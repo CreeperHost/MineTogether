@@ -140,6 +140,7 @@ public class KnownUsers
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
         Profile returnProfile = null;
         for(Profile profile : profilesCopy) {
+            if(profile == null || profile.getShortHash() == null || profile.getMediumHash() == null) continue;
             if (profile.getLongHash().equalsIgnoreCase(search))
             {
                 returnProfile = profile;
@@ -155,6 +156,7 @@ public class KnownUsers
         Profile returnProfile = null;
         for(Profile profile : profilesCopy)
         {
+            if(profile == null || profile.getShortHash() == null || profile.getMediumHash() == null) continue;
             if(profile.getUserDisplay().equalsIgnoreCase(search))
             {
                 returnProfile = profile;
@@ -170,6 +172,7 @@ public class KnownUsers
         Profile returnProfile = null;
         for(Profile profile : profilesCopy)
         {
+            if(profile == null || profile.getShortHash() == null || profile.getMediumHash() == null) continue;
             if(profile.getShortHash().equalsIgnoreCase(search) || profile.getMediumHash().equalsIgnoreCase(search))
             {
                 returnProfile = profile;
