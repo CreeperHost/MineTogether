@@ -50,6 +50,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
     public ServerSelectionListOurs serverListSelectorOurs;
     private boolean initialized;
     private ServerListPublic ourSavedServerList = null;
+    private Button multiplayerButton;
     
     public MultiplayerPublicScreen(Screen parentScreen)
     {
@@ -87,8 +88,8 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
         {
             name = "creeperhost.multiplayer.title.prefix." + listType.name().toLowerCase();
         }
-        
-        addButton(new Button(width - 85, 5, 80, 20, new StringTextComponent(I18n.format(name)), p ->
+
+        multiplayerButton = addButton(new Button(width - 85, 5, 80, 20, new StringTextComponent(I18n.format(name)), p ->
         {
             if (changeSort)
             {
@@ -96,6 +97,9 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             }
             mc.displayGuiScreen(new ServerTypeScreen(this));
         }));
+
+        Config defaultConfig = new Config();
+        if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID)) multiplayerButton.active = false;
         
         addButton(new GuiButtonMultiple(width - 105, 5, 1, p ->
         {

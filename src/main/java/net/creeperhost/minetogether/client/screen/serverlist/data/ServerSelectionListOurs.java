@@ -174,14 +174,14 @@ public class ServerSelectionListOurs extends ServerSelectionList
             boolean flag1 = server.version < SharedConstants.getVersion().getProtocolVersion();
             boolean flag2 = flag || flag1;
             this.mc.fontRenderer.drawString(p_230432_1_, server.serverName, (float)(p_230432_4_ + 32 + 3), (float)(p_230432_3_ + 1), 16777215);
-            List<IReorderingProcessor> list = this.mc.fontRenderer.func_238425_b_(server.serverMOTD, p_230432_5_ - 32 - 2);
+            List<IReorderingProcessor> list = this.mc.fontRenderer.trimStringToWidth(server.serverMOTD, p_230432_5_ - 32 - 2);
 
             for(int i = 0; i < Math.min(list.size(), 2); ++i) {
                 this.mc.fontRenderer.func_238422_b_(p_230432_1_, list.get(i), (float)(p_230432_4_ + 32 + 3), (float)(p_230432_3_ + 12 + 9 * i), 8421504);
             }
 
             ITextComponent itextcomponent1 = (ITextComponent)(server.populationInfo);
-            int j = this.mc.fontRenderer.func_238414_a_(itextcomponent1);
+            int j = this.mc.fontRenderer.getStringPropertyWidth(itextcomponent1);
             this.mc.fontRenderer.func_243248_b(p_230432_1_, itextcomponent1, (float)(p_230432_4_ + p_230432_5_ - j - 15 - 2), (float)(p_230432_3_ + 1), 8421504);
             int k = 0;
             int l;

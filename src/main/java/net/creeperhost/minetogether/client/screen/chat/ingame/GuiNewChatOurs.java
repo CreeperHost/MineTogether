@@ -26,6 +26,7 @@ import net.minecraft.util.text.event.HoverEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class GuiNewChatOurs extends NewChatGui
 {
@@ -151,7 +152,7 @@ public class GuiNewChatOurs extends NewChatGui
         mc = mcIn;
         chatTarget = ChatHandler.CHANNEL;
         
-        closeComponent = new StringTextComponent(new String(Character.toChars(10006))).setStyle(Style.EMPTY.setColor(Color.func_240744_a_(TextFormatting.RED)).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Click to close group chat"))));
+        closeComponent = new StringTextComponent(new String(Character.toChars(10006))).setStyle(Style.EMPTY.setColor(Color.fromTextFormatting(TextFormatting.RED)).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("Click to close group chat"))));
     }
     
     @Override
@@ -190,7 +191,11 @@ public class GuiNewChatOurs extends NewChatGui
                 int j = this.drawnChatLines.size();
                 double f = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
 
-                if(tickCounter % 20 == 0) rebuildChat(ChatHandler.CHANNEL);
+                if(tickCounter % 20 == 0 && ChatHandler.rebuildChat)
+                {
+                    if(ChatHandler.rebuildChat) ChatHandler.rebuildChat = false;
+                    rebuildChat(ChatHandler.CHANNEL);
+                }
 
                 tickCounter++;
                 
@@ -278,7 +283,7 @@ public class GuiNewChatOurs extends NewChatGui
                                 {
                                     int i2 = 0;
                                     int j2 = -i1 * 9;
-                                    IReorderingProcessor s = (IReorderingProcessor) chatline.func_238169_a_();
+                                    IReorderingProcessor s = (IReorderingProcessor) chatline.getLineString();
                                     RenderSystem.enableBlend();
                                     this.mc.fontRenderer.func_238407_a_(matrixStack, s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
                                     RenderSystem.disableAlphaTest();
@@ -358,32 +363,39 @@ public class GuiNewChatOurs extends NewChatGui
     
     public boolean unread;
     public String chatTarget;
-    
+
+    public static CompletableFuture rebuildChatFuture;
+
     public void rebuildChat(String chatKey)
     {
-        int scroll = scrollPos;
-        chatTarget = chatKey;
-        chatLines.clear();
-        drawnChatLines.clear();
-        LimitedSizeQueue<Message> messages = ChatHandler.messages.get(chatKey);
-        if (messages == null)
-            return;
-        synchronized (ChatHandler.ircLock)
+        if(rebuildChatFuture != null)
         {
+            if (!rebuildChatFuture.isDone()) return;
+        }
+
+        rebuildChatFuture = CompletableFuture.runAsync(() ->
+        {
+            int scroll = scrollPos;
+
+            chatTarget = chatKey;
+            chatLines.clear();
+            drawnChatLines.clear();
+            LimitedSizeQueue<Message> messages = ChatHandler.messages.get(chatKey);
+            if (messages == null) return;
             Map<Message, ChatLine> oldLookup = lineLookup;
             lineLookup = new HashMap<>();
-            for (Message message : messages)
-            {
-                ChatLine existing = oldLookup.get(message);
-                int counter = existing != null ? existing.getUpdatedCounter() : 0;
-                int lineId = existing != null ? existing.getChatLineID() : 0;
-                ITextComponent component = MTChatScreen.formatLine(message);
-                if (component == null)
-                    continue;
-                setChatLine(message, component, lineId, counter, false);
+            synchronized (ChatHandler.ircLock) {
+                for (Message message : messages) {
+                    ChatLine existing = oldLookup.get(message);
+                    int counter = existing != null ? existing.getUpdatedCounter() : 0;
+                    int lineId = existing != null ? existing.getChatLineID() : 0;
+                    ITextComponent component = MTChatScreen.formatLine(message);
+                    if (component == null) continue;
+                    setChatLine(message, component, lineId, counter, false);
+                }
+                scrollPos = scroll;
             }
-            scrollPos = scroll;
-        }
+        });
     }
 
     public void setChatLine(Message message, ITextComponent chatComponent, int chatLineId, int updateCounter, boolean displayOnly)
@@ -480,7 +492,7 @@ public class GuiNewChatOurs extends NewChatGui
             double d0 = mouseX - 2.0D;
             double d1 = (double)this.mc.getMainWindow().getScaledHeight() - mouseY - 40.0D;
             d0 = (double)MathHelper.floor(d0 / this.getScale());
-            d1 = (double)MathHelper.floor(d1 / (this.getScale() * (this.mc.gameSettings.field_238331_l_ + 1.0D)));
+            d1 = (double)MathHelper.floor(d1 / (this.getScale() * (this.mc.gameSettings.chatLineSpacing + 1.0D)));
             if (!(d0 < 0.0D) && !(d1 < 0.0D)) {
                 int i = Math.min(this.getLineCount(), this.drawnChatLines.size());
                 if (d0 <= (double)MathHelper.floor((double)this.getChatWidth() / this.getScale()) && d1 < (double)(9 * i + i))
@@ -489,7 +501,7 @@ public class GuiNewChatOurs extends NewChatGui
                     if (j >= 0 && j < this.drawnChatLines.size())
                     {
                         ChatLine chatline = this.drawnChatLines.get(j);
-                        return this.mc.fontRenderer.func_238420_b_().func_243239_a((IReorderingProcessor)chatline.func_238169_a_(), (int)d0);
+                        return this.mc.fontRenderer.getCharacterManager().func_243239_a((IReorderingProcessor)chatline.getLineString(), (int)d0);
 
                     }
                 }

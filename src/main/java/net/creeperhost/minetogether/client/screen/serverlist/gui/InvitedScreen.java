@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.client.screen.serverlist.data.Invite;
 import net.creeperhost.minetogether.client.screen.serverlist.data.ServerSelectionListOurs;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.util.Util;
+import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.widget.button.CheckboxButton;
@@ -49,9 +50,8 @@ public class InvitedScreen extends Screen
             if (minecraft.world != null)
             {
                 this.minecraft.world.sendQuittingDisconnectingPacket();
-                this.minecraft.loadWorld(null);
+                this.minecraft.displayGuiScreen(new ConnectingScreen(this, this.minecraft, server.getServerData()));
             }
-//            net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServer(null, server.getServerData());
         }));
         
         connectButton.active = canConnect;

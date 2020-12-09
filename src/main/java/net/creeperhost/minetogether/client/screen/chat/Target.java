@@ -58,7 +58,7 @@ public class Target implements DropdownButton.IDropdownOption
         if (newMessages)
         {
             StringTextComponent str = new StringTextComponent(targetName);
-            str.deepCopy().append(new StringTextComponent(" \u2022")).getStyle().setColor(Color.func_240744_a_(TextFormatting.RED));
+            str.deepCopy().append(new StringTextComponent(" \u2022")).getStyle().setColor(Color.fromTextFormatting(TextFormatting.RED));
             return str.getString();
         }
         

@@ -128,7 +128,7 @@ public class ScreenEvents
                     if (button.getMessage().getString().equalsIgnoreCase(name))
                     {
                         width.set(button.getWidth());
-                        height.set(button.getWidth_CLASH());
+                        height.set(button.getHeightRealms());
                         x.set(button.x);
                         y.set(button.y);
                         

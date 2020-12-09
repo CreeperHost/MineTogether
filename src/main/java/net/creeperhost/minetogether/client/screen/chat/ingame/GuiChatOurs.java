@@ -371,7 +371,7 @@ public class GuiChatOurs extends ChatScreen
         this.inputField.render(matrixStack, mouseX, mouseY, partialTicks);
         this.inputField.canWrite();
         //render
-        this.commandSuggestionHelper.func_238500_a_(matrixStack, mouseX, mouseY);
+        this.commandSuggestionHelper.drawSuggestionList(matrixStack, mouseX, mouseY);
         
         if (!(this.mc.ingameGUI.getChatGUI() instanceof GuiNewChatOurs))
             return;

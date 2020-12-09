@@ -53,7 +53,7 @@ public class PregenTask
         startTime = 0;
         if (chunksToGen != null) return;
         //TODO once dimensions work
-        ServerWorld world = MineTogether.server.getWorld(World.field_234918_g_); //DimensionManager.getWorld(MineTogether.server, dimension, false, true);
+        ServerWorld world = MineTogether.server.getWorld(World.OVERWORLD); //DimensionManager.getWorld(MineTogether.server, dimension, false, true);
         if (diameterX > 0 && totalChunks == 0) // only the first time
         {
             BlockPos pos = new BlockPos(world.getWorldInfo().getSpawnX(), world.getWorldInfo().getSpawnY(), world.getWorldInfo().getSpawnZ());

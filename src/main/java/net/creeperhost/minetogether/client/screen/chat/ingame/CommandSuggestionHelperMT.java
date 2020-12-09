@@ -25,10 +25,10 @@ public class CommandSuggestionHelperMT extends CommandSuggestionHelper {
     @Override
     public void init() {
         super.init();
-        String text = field_228095_d_.getText();
-        int pos = field_228095_d_.getCursorPosition();
+        String text = inputField.getText();
+        int pos = inputField.getCursorPosition();
         String toCursor = text.substring(0, pos);
-        int end = func_228121_a_(toCursor);
+        int end = getLastWhitespace(toCursor);
         List<String> users = ChatHandler.getOnlineUsers().stream()//
                 .filter(name -> ChatHandler.knownUsers.findByDisplay(name) != null || ChatHandler.friends.containsKey(name))//
                 .map(MineTogether.instance::getNameForUser).collect(Collectors.toList());

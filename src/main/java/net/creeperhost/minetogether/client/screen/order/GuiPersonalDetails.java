@@ -234,7 +234,7 @@ public class GuiPersonalDetails extends GuiGetServer
             ITextComponent link = new StringTextComponent(matcher.group(1));
             Style style = link.getStyle();
             style.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, matcher.group(2)));
-            style.setColor(Color.func_240744_a_(TextFormatting.BLUE));
+            style.setColor(Color.fromTextFormatting(TextFormatting.BLUE));
             style.setUnderlined(true);
             style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(Util.localize("order.url"))));
             

@@ -649,7 +649,7 @@ public class MTChatScreen extends Screen
                         ITextComponent userComp = new StringTextComponent("(" + nickDisplay + ") would like to add you as a friend. Click to ");
 
                         ITextComponent accept = new StringTextComponent("<Accept>");
-                        accept.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(Color.func_240744_a_(TextFormatting.GREEN));
+                        accept.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(Color.fromTextFormatting(TextFormatting.GREEN));
                         userComp.getSiblings().add(accept);
 
                         return userComp;
@@ -740,11 +740,11 @@ public class MTChatScreen extends Screen
 
             if((profile != null && profile.isBanned()) || ChatHandler.backupBan.get().contains(inputNick)) {
                 messageComp = new StringTextComponent("<Message Deleted>");
-                messageComp.getStyle().setColor(Color.func_240744_a_(TextFormatting.DARK_GRAY));
+                messageComp.getStyle().setColor(Color.fromTextFormatting(TextFormatting.DARK_GRAY));
                 messageColour = TextFormatting.DARK_GRAY;
             }
 
-            messageComp.getStyle().setColor(Color.func_240744_a_(TextFormatting.WHITE));
+            messageComp.getStyle().setColor(Color.fromTextFormatting(TextFormatting.WHITE));
 
             if (ChatHandler.curseSync.containsKey(inputNick)) {
                 String realname = ChatHandler.curseSync.get(inputNick).trim();
@@ -798,7 +798,7 @@ public class MTChatScreen extends Screen
             }
 
             TextFormatting finalMessageColour = messageColour;
-            messageComp = messageComp.deepCopy().modifyStyle(style -> style.setColor(Color.func_240744_a_(finalMessageColour)));
+            messageComp = messageComp.deepCopy().modifyStyle(style -> style.setColor(Color.fromTextFormatting(finalMessageColour)));
 
             base.getSiblings().add(userComp);
             base.getSiblings().add(messageComp);
@@ -896,7 +896,7 @@ public class MTChatScreen extends Screen
 
                 if (hovering)
                 {
-                    Style style = minecraft.fontRenderer.func_238420_b_().func_243239_a(component, (int) mouseX);
+                    Style style = minecraft.fontRenderer.getCharacterManager().func_243239_a(component, (int) mouseX);
                     handleComponentClick(style, mouseX, mouseY);
                     return true;
                 }
