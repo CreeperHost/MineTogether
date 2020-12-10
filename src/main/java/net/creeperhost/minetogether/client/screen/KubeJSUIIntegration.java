@@ -7,6 +7,8 @@ import net.creeperhost.minetogether.client.screen.serverlist.gui.FriendsListScre
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 
+import java.util.function.Consumer;
+
 /**
  * @author LatvianModder
  */
