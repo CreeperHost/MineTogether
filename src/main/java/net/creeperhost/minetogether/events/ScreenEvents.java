@@ -62,6 +62,8 @@ public class ScreenEvents
         {
             if(Config.getInstance().getReplaceRealms())
             {
+                Minecraft.getInstance().gameSettings.realmsNotifications = false;
+
                 Widget realmsButton = ScreenUtils.removeButton("menu.online", event.getWidgetList());
                 Button realmsReplacmentButton = new Button(realmsButton.x, realmsButton.y, realmsButton.getWidth(), 20, new StringTextComponent(I18n.format("minetogether.realms.replace")), (button) ->
                 {
@@ -195,7 +197,10 @@ public class ScreenEvents
             
             event.addWidget(new GuiButtonMultiple(event.getGui().width / 2 + 134, event.getGui().height - 52, 2, p ->
             {
-                Minecraft.getInstance().displayGuiScreen(new MultiplayerPublicScreen(((MultiplayerPublicScreen) event.getGui()).parent, ((MultiplayerPublicScreen) event.getGui()).listType, ((MultiplayerPublicScreen) event.getGui()).sortOrder));
+                if(event.getGui() instanceof MultiplayerPublicScreen)
+                {
+                    Minecraft.getInstance().displayGuiScreen(new MultiplayerPublicScreen(((MultiplayerPublicScreen) event.getGui()).parent, ((MultiplayerPublicScreen) event.getGui()).listType, ((MultiplayerPublicScreen) event.getGui()).sortOrder));
+                }
             }));
             
             event.addWidget(new Button(event.getGui().width / 2 - 50, event.getGui().height - 52, 78, 20, new StringTextComponent("Minigames"), p ->

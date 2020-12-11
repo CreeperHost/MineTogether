@@ -167,7 +167,14 @@ public class MineTogether implements ICreeperHostMod, IHost
     @SubscribeEvent
     public void preInitClient(FMLClientSetupEvent event)
     {
-        signature = verifySignature(findOurJar());
+        signature = verifySignature(findOurJar(FMLPaths.MODSDIR.get().toFile()));
+        File serverModsFolder = new File(FMLPaths.MODSDIR.get().toFile().getParent() + File.separator + "servermods" + File.separator);
+
+        if(signature == null && serverModsFolder.exists())
+        {
+            signature = verifySignature(findOurJar(serverModsFolder));
+        }
+
         if(signature == null) signature = "Development";
 
         isOnline = proxy.checkOnline();
@@ -282,12 +289,11 @@ public class MineTogether implements ICreeperHostMod, IHost
         return bytesToHex(messageDigest.digest());
     }
 
-    private File findOurJar()
+    private File findOurJar(File modsFolder)
     {
         try {
-
             logger.info("Scanning mods directory for MineTogether jar");
-            File[] modsDir = FMLPaths.MODSDIR.get().toFile().listFiles();
+            File[] modsDir = modsFolder.listFiles();//FMLPaths.MODSDIR.get().toFile().listFiles();
             if (modsDir == null) return null;
 
             for (File file : modsDir) {

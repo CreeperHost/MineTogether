@@ -1,6 +1,8 @@
 package net.creeperhost.minetogether.mtconnect;
 
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConfirmOpenLinkScreen;
@@ -66,7 +68,7 @@ public class EventHandler {
                 });
                 Button ourFeedback = new Button(bugs.x, options.y, feedBack.getWidth(), 20, new StringTextComponent(I18n.format("menu.reportBugs")), (button) ->
                 {
-                    String s = "https://pste.ch/";
+                    String s = Config.getInstance().getIssueTrackerUrl();
                     Minecraft.getInstance().displayGuiScreen(new ConfirmOpenLinkScreen((p_213069_2_) -> {
                         if (p_213069_2_) {
                             Util.getOSType().openURI(s);

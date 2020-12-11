@@ -26,6 +26,7 @@ public class Config
     private boolean enableFriendOnlineToasts;
     private boolean enableMainMenuFriends;
     private boolean replaceRealms;
+    private String issueTrackerUrl;
 
     private int pregenDiameter = 120;
     
@@ -48,6 +49,7 @@ public class Config
         enableFriendOnlineToasts = true;
         enableMainMenuFriends = true;
         replaceRealms = true;
+        issueTrackerUrl = "https://pste.ch/";
     }
     
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
@@ -173,7 +175,12 @@ public class Config
     {
         this.enableMainMenuFriends = enableMainMenuFriends;
     }
-    
+
+    public String getIssueTrackerUrl()
+    {
+        return issueTrackerUrl;
+    }
+
     public static void makeConfig(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
     {
         if (instance != null)
