@@ -408,7 +408,6 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             blit(matrixStack, x, y, 0.0F, 0.0F, 32, 32, 32, 32);
             int transparentString = (int) (transparency * 254) << 24;
             this.mc.fontRenderer.drawString(matrixStack, Util.localize("mp.partner"), x + 35, y, 16777215 + transparentString);
-//            GuiUtils.drawGradientRect(matrixStack, 300, listWidth + x - stringWidth - 5, y - 1, listWidth + x - 3, y + 8 + 1, 0x90000000, 0x90000000);
             RenderSystem.enableBlend();
             this.mc.fontRenderer.drawString(matrixStack, Util.localize("mp.getserver"), x + 32 + 3, y + this.mc.fontRenderer.FONT_HEIGHT + 1, 16777215 + transparentString);
             String s = Util.localize("mp.clickherebrand");
@@ -417,28 +416,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             if (mouseX >= listWidth + x - stringWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)
             {
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                
-                final int tooltipX = mouseX - 72;
                 final int tooltipY = mouseY + ((mc.getMainWindow().getScaledWidth() / 2 >= mouseY) ? 11 : -11);
-                final int tooltipTextWidth = 56;
-                final int tooltipHeight = 7;
-                
-                final int zLevel = 300;
-                
-                // re-purposed code from tooltip rendering
-                final int backgroundColor = 0xF0100010;
-//                GuiUtils.drawGradientRect(matrixStack, zLevel, tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
-//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
-//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
-//                GuiUtils.drawGradientRect(zLevel, tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
-//                GuiUtils.drawGradientRect(zLevel, tooltipX + tooltipTextWidth + 3, tooltipY - 3, tooltipX + tooltipTextWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
-                final int borderColorStart = 0x505000FF;
-                final int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
-//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
-//                GuiUtils.drawGradientRect(zLevel, tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
-//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
-//                GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
-                
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
                 mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
                 blit(matrixStack, mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
@@ -463,10 +441,11 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
             int x = serverListSelector.getLeft();
             int y = getRowTop(serverListSelector.children.indexOf(this));
 
-            if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY - y >= 0 && mouseY - y <= 7)
+            if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY >= y && mouseY >= y + 7)
             {
                 Config.getInstance().setMpMenuEnabled(false);
                 ConfigHandler.saveConfig();
+                ConfigHandler.init();
                 this.mc.displayGuiScreen(new MultiplayerPublicScreen(new MainMenuScreen()));
                 return true;
             }
