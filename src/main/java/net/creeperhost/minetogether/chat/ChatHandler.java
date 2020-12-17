@@ -294,7 +294,11 @@ public class ChatHandler
     
     public static List<String> getOnlineUsers()
     {
-        return client.getChannel(CHANNEL).map(channel1 -> channel1.getUsers().stream().map(User::getNick).collect(Collectors.toList())).orElse(new ArrayList<>());
+        try
+        {
+            return client.getChannel(CHANNEL).map(channel1 -> channel1.getUsers().stream().map(User::getNick).collect(Collectors.toList())).orElse(new ArrayList<>());
+        } catch (Exception ignored){}
+        return new ArrayList<>();
     }
     
     public static class Listener

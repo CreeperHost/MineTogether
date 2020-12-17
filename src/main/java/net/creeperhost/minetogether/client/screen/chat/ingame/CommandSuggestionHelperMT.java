@@ -29,10 +29,16 @@ public class CommandSuggestionHelperMT extends CommandSuggestionHelper {
         int pos = inputField.getCursorPosition();
         String toCursor = text.substring(0, pos);
         int end = getLastWhitespace(toCursor);
-        List<String> users = ChatHandler.getOnlineUsers().stream()//
-                .filter(name -> ChatHandler.knownUsers.findByDisplay(name) != null || ChatHandler.friends.containsKey(name))//
-                .map(MineTogether.instance::getNameForUser).collect(Collectors.toList());
-        SuggestionsBuilder builder = new SuggestionsBuilder(toCursor, end);
-        suggestionsFuture = ISuggestionProvider.suggest(users, builder);
+        try
+        {
+            List<String> users = ChatHandler.getOnlineUsers().stream()//
+                    .filter(name -> ChatHandler.knownUsers.findByDisplay(name) != null || ChatHandler.friends.containsKey(name))//
+                    .map(MineTogether.instance::getNameForUser).collect(Collectors.toList());
+            if(users != null && !users.isEmpty())
+            {
+                SuggestionsBuilder builder = new SuggestionsBuilder(toCursor, end);
+                suggestionsFuture = ISuggestionProvider.suggest(users, builder);
+            }
+        } catch (Exception ignored) {}
     }
 }
