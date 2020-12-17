@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.server.command;
 
+import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import net.creeperhost.minetogether.MineTogether;
@@ -7,8 +8,8 @@ import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.WhiteList;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -79,22 +80,11 @@ public class CommandInvite
         MinecraftServer server = MineTogether.server;
         Gson gson = new Gson();
         final ArrayList<String> tempHash = new ArrayList<String>();
-        
-        try
-        {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            
-            byte[] hash = digest.digest(profile.getId().toString().getBytes(Charset.forName("UTF-8")));
-            
-            String hashString = (new HexBinaryAdapter()).marshal(hash);
-            
-            MineTogether.logger.info("Removing player with hash " + hashString);
-            
-            tempHash.add(hashString);
-        } catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
-        }
+        String hashString = Hashing.sha256().hashBytes(profile.getId().toString().getBytes(StandardCharsets.UTF_8)).toString().toUpperCase();
+
+        MineTogether.logger.info("Removing player with hash " + hashString);
+
+        tempHash.add(hashString);
         
         MineTogether.InviteClass invite = new MineTogether.InviteClass();
         invite.hash = tempHash;

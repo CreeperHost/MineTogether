@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.paul;
 
+import com.google.common.hash.Hashing;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.MineTogether;
@@ -17,10 +18,7 @@ import net.creeperhost.minetogether.data.ModPack;
 import net.creeperhost.minetogether.util.Util;
 import net.creeperhost.minetogether.util.WebUtils;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -385,20 +383,10 @@ public final class Callbacks
     
     public static String getPlayerHash(UUID uuid)
     {
-        if (hashCache.containsKey(uuid))
-            return hashCache.get(uuid);
+        if (hashCache.containsKey(uuid)) return hashCache.get(uuid);
         
         String playerHash;
-        try
-        {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(uuid.toString().getBytes(Charset.forName("UTF-8")));
-            playerHash = (new HexBinaryAdapter()).marshal(hash);
-        } catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
+        playerHash = Hashing.sha256().hashBytes(uuid.toString().getBytes(StandardCharsets.UTF_8)).toString().toUpperCase();
         hashCache.put(uuid, playerHash);
         return playerHash;
     }
