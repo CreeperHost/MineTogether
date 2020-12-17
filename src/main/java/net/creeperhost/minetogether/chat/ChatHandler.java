@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.irc.test;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.engio.mbassy.listener.Handler;
@@ -154,39 +155,40 @@ public class ChatHandler
     
     public static void sendMessage(String currentTarget, String text)
     {
-        String nick;
-        if (ChatHandler.isOnline())
-        {
-            nick = client.getNick();
-            if (currentTarget.equals(CHANNEL))
-            {
-                client.getChannel(CHANNEL).get().sendMessage(text);
-            } else if (privateChatList != null && currentTarget.equals(privateChatList.channelname))
-            {
-                try
-                {
-                    client.addChannel(privateChatList.getChannelname()); //Just to make sure the user is connected to the channel
-                    client.getChannel(privateChatList.getChannelname()).get().sendMessage(text);
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-            } else
-            {
-                Profile profile = knownUsers.findByNick(currentTarget);
-                if(profile != null && profile.isOnline())
-                {
-                    client.sendMessage(currentTarget, text);
-                } else {
-                    updateFriends(client.getChannel(CHANNEL).get().getNicknames());
-                    return;
-                }
-            }
-        } else
-        {
-            text = "Message not sent as not connected.";
-            nick = "System";
-        }
+        test.sendMessage(text);
+//        String nick;
+//        if (ChatHandler.isOnline())
+//        {
+//            nick = client.getNick();
+//            if (currentTarget.equals(CHANNEL))
+//            {
+//                client.getChannel(CHANNEL).get().sendMessage(text);
+//            } else if (privateChatList != null && currentTarget.equals(privateChatList.channelname))
+//            {
+//                try
+//                {
+//                    client.addChannel(privateChatList.getChannelname()); //Just to make sure the user is connected to the channel
+//                    client.getChannel(privateChatList.getChannelname()).get().sendMessage(text);
+//                } catch (Exception e)
+//                {
+//                    e.printStackTrace();
+//                }
+//            } else
+//            {
+//                Profile profile = knownUsers.findByNick(currentTarget);
+//                if(profile != null && profile.isOnline())
+//                {
+//                    client.sendMessage(currentTarget, text);
+//                } else {
+//                    updateFriends(client.getChannel(CHANNEL).get().getNicknames());
+//                    return;
+//                }
+//            }
+//        } else
+//        {
+//            text = "Message not sent as not connected.";
+//            nick = "System";
+//        }
         
         synchronized (ircLock)
         {
@@ -239,7 +241,7 @@ public class ChatHandler
 
     public static boolean isOnline()
     {
-        return connectionStatus == ConnectionStatus.CONNECTED && client != null && client.getChannel(CHANNEL).isPresent();
+        return true;//connectionStatus == ConnectionStatus.CONNECTED && client != null && client.getChannel(CHANNEL).isPresent();
     }
     
     public static boolean hasNewMessages(String target)
@@ -274,8 +276,7 @@ public class ChatHandler
     
     public static void acceptPrivateChatInvite(PrivateChat invite)
     {
-        if (hasGroup)
-            closePrivateChat();
+        if (hasGroup) closePrivateChat();
         privateChatList = invite;
         client.addChannel(invite.getChannelname());
         currentGroup = invite.getChannelname();
@@ -365,6 +366,7 @@ public class ChatHandler
         public static void onCTCP(String user, String message)
         {
             CompletableFuture.runAsync(() -> {
+                MineTogether.instance.getLogger().error("CTCP message " + user + message);
 
                 String[] split = message.split(" ");
                 if (split.length < 1)
@@ -395,13 +397,14 @@ public class ChatHandler
                         break;
                     }
                     case "SERVERID":
-                        client.sendCtcpReply(user, "SERVERID " + getServerId());
+//                        client.sendCtcpReply(user, "SERVERID " + getServerId());
+                        test.sendCTPCMessage(user, "SERVERID", getServerId());
                         break;
                     case "VERIFY":
                         if (!user.startsWith("MT")) {
                             String serverID = MineTogether.getServerIDAndVerify();
                             if (serverID == null) return;
-                            client.sendCtcpReply(user, "VERIFY " + MineTogether.getSignature() + ":" + MineTogether.proxy.getUUID() + ":" + serverID);
+                            test.sendCTPCMessage(user, "VERIFY", MineTogether.getSignature() + ":" + MineTogether.proxy.getUUID() + ":" + serverID);
                         }
                 }
             }, MineTogether.ircEventExecutor);

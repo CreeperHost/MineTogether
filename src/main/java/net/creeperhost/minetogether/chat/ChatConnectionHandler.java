@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.Profile;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.irc.test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitteh.irc.client.library.Client;
@@ -44,8 +45,11 @@ public class ChatConnectionHandler
 
     public synchronized void connect()
     {
-        if (!canConnect())
-            return;
+        test.start(ChatUtil.getIRCServerDetails());
+
+        if(true) return;
+
+        if (!canConnect()) return;
 
         ChatHandler.client = null;
         ChatHandler.isInitting.set(true);

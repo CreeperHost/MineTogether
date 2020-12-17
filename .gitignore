@@ -23,3 +23,6 @@
 /1.12.2/run
 /1.12.2/*.iml
 /1.12.2/.gradle
+logs/debug.log
+
+logs/latest.log
