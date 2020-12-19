@@ -123,7 +123,6 @@ public class MTChatScreen extends Screen
         {
             targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, new StringTextComponent("Chat: %s"), Target.getMainTarget(), true, p ->
             {
-                targetDropdownButton.getPossibleVals().forEach(target -> System.out.println(target.getInternalTarget()));
                 if (targetDropdownButton.getMessage().getString().contains("new channel"))
                 {
                     PrivateChat privateChat = new PrivateChat("#" + MineTogether.instance.ourNick, MineTogether.instance.ourNick);
@@ -141,32 +140,30 @@ public class MTChatScreen extends Screen
         strings.add("Mute");
         strings.add("Add friend");
         strings.add("Mention");
-        if (menuDropdownButton == null)
+        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new StringTextComponent("Menu"), new Menu(strings), true, p ->
         {
-            addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new StringTextComponent("Menu"), new Menu(strings), true, p ->
+            if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
             {
-                if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
-                {
-                    MineTogether.instance.muteUser(activeDropdown);
-                    chat.updateLines(currentTarget);
-                }
-                else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
-                {
-                    minecraft.displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, knownUsers.findByDisplay(activeDropdown), Callbacks.getFriendCode(), "", false));
-                }
-                else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mention"))
-                {
-                    this.send.setFocused2(true);
-                    this.send.setText(this.send.getText() + " " + activeDropdown + " ");
-                }
-                else if (ChatHandler.privateChatInvite != null)
-                {
-                    confirmInvite();
-                }
-                menuDropdownButton.x = menuDropdownButton.y = -10000;
-                menuDropdownButton.wasJustClosed = false;
-            }));
-        }
+                MineTogether.instance.muteUser(activeDropdown);
+                chat.updateLines(currentTarget);
+            }
+            else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
+            {
+                minecraft.displayGuiScreen(new ChatFriendScreen(new MTChatScreen(parent), MineTogether.instance.playerName, knownUsers.findByDisplay(activeDropdown), Callbacks.getFriendCode(), "", false));
+            }
+            else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mention"))
+            {
+                this.send.setFocused2(true);
+                this.send.setText(this.send.getText() + " " + activeDropdown + " ");
+            }
+            else if (ChatHandler.privateChatInvite != null)
+            {
+                confirmInvite();
+            }
+            menuDropdownButton.x = menuDropdownButton.y = -10000;
+            menuDropdownButton.wasJustClosed = false;
+            menuDropdownButton.dropdownOpen = false;
+        }));
         addButton(friendsButton = new Button(5, 5, 100, 20, new StringTextComponent("Friends list"), p ->
         {
             MineTogether.proxy.openFriendsGui();
@@ -174,13 +171,8 @@ public class MTChatScreen extends Screen
         //Settings menu
         addButton(new GuiButtonMultiple(width - 124, 5, 3, p ->
         {
-            this.minecraft.displayGuiScreen(new SettingsScreen(this));
+            this.minecraft.displayGuiScreen(new SettingsScreen(new MTChatScreen(parent)));
         }));
-        //TODO remove before release
-//        addButton(new GuiButtonMultiple(width - 144, 5, 3, p ->
-//        {
-//            IrcHandler.reconnect();
-//        }));
         addButton(cancelButton = new Button(width - 100 - 5, height - 5 - 20, 100, 20, new StringTextComponent("Cancel"), p ->
         {
             this.minecraft.displayGuiScreen(parent);
@@ -224,7 +216,7 @@ public class MTChatScreen extends Screen
                             KeycloakOAuth.openURL(new URL("https://minetogether.io/profile/standing"));
                         } catch (MalformedURLException malformedURLException) { malformedURLException.printStackTrace(); }
                     }
-                    this.minecraft.displayGuiScreen(this);
+                    this.minecraft.displayGuiScreen(new MTChatScreen(parent));
 
                 }, new StringTextComponent(I18n.format("minetogether.banned1" + Callbacks.getBanMessage())),
                         new StringTextComponent(I18n.format("minetogether.banned2"))));
@@ -244,16 +236,6 @@ public class MTChatScreen extends Screen
     {
         super.tick();
 
-//        if(tickCounter % 10 == 0) rebuildChat();
-
-        if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
-        {
-            if (!ChatHandler.isInitting.get())
-            {
-//                ChatHandler.reInit();
-            }
-        }
-//        tickCounter++;
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
         boolean changed = false;
         if (!buttonTarget.equals(currentTarget))
