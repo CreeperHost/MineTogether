@@ -29,7 +29,7 @@ public class ChatFriendScreen extends Screen
     public ChatFriendScreen(Screen parent, String playerName, Profile friendTarget, String friendCode, String friendName, boolean accept)
     {
         super(new StringTextComponent(""));
-        this.playerName = friendTarget.getUserDisplay();
+        this.playerName = playerName;
         this.chatInternalName = friendTarget == null ? "" : friendTarget.getCurrentIRCNick();
         this.friendCode = friendCode;
         this.accept = accept;
