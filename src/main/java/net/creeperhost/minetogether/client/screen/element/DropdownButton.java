@@ -68,7 +68,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
             {
                 j = 16777120;
             }
-            
+
             this.drawCenteredString(matrixStack, fontrenderer, this.baseButtonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
             
             if (dropdownOpen)
