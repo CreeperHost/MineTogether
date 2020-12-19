@@ -397,7 +397,7 @@ public class IrcHandler
         }
         else
         {
-            if(ChatHandler.debugHandler.isDebug || true) System.out.println("Unhandled IRC message!\n"+s);
+            if(ChatHandler.debugHandler.isDebug) System.out.println("Unhandled IRC message!\n"+s);
         }
     }
 }

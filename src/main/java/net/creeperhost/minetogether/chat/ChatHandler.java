@@ -161,8 +161,6 @@ public class ChatHandler
             ChatHandler.currentGroup = "#" + owner;
         }
         IrcHandler.sendString("INVITE " + target + " #" + owner);
-        IrcHandler.sendString("INVITE " + "TravisN" + " #" + owner);
-
     }
 
     public static boolean isOnline()
