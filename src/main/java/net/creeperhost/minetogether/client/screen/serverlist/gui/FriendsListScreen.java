@@ -197,7 +197,6 @@ public class FriendsListScreen extends Screen
             {
                 toggle.setMessage(new StringTextComponent("Friends"));
                 isMuted = true;
-                showAlert(new StringTextComponent("Copied to clipboard."), 0x00FF00, 5000);
             } else if (toggle.getMessage().getString().contains("Friends"))
             {
                 toggle.setMessage(new StringTextComponent("Muted"));
