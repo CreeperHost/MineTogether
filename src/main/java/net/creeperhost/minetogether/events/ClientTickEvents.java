@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.client.screen.serverlist.gui.InvitedScreen;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.oauth.ServerAuthTest;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
@@ -79,7 +80,7 @@ public class ClientTickEvents
 
             //Try and disconnect if we have been told to.
             if (disconnectFromChat && ChatHandler.connectionStatus == ChatHandler.ConnectionStatus.DISCONNECTED) {
-                ChatHandler.requestReconnect();
+                IrcHandler.reconnect();
                 chatDisconnected = true;
             }
             connectToChat = false;

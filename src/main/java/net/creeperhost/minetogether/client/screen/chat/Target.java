@@ -101,6 +101,7 @@ public class Target implements DropdownButton.IDropdownOption
         
         possibleValsCache = new ArrayList<>();
         tempSet.add(new Target("Main", ChatHandler.CHANNEL, true));
+
         if (current != null && !tempSet.contains(current))
             tempSet.add(current);
         
@@ -139,7 +140,7 @@ public class Target implements DropdownButton.IDropdownOption
             privateChannel = p;
             tempSet.add(p);
         }
-        
+
         possibleValsCache = new ArrayList<>(tempSet);
         
         updating = false;

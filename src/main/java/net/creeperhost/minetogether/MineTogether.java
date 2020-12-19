@@ -246,19 +246,6 @@ public class MineTogether implements ICreeperHostMod, IHost
                 }
             }, profileExecutor);
         }
-
-        Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            @Override
-            public void run()
-            {
-                synchronized (ChatHandler.ircLock)
-                {
-                    if (ChatHandler.client != null)
-                        ChatHandler.killChatConnection(false);
-                }
-            }
-        });
     }
 
     private String verifySignature(File jarFile)

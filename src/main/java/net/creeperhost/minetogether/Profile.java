@@ -7,15 +7,13 @@ import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.client.screen.chat.Target;
 import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.WebUtils;
-import org.kitteh.irc.client.library.command.WhoisCommand;
-import org.kitteh.irc.client.library.element.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class Profile
 {
@@ -95,20 +93,13 @@ public class Profile
         return mediumHash;
     }
 
-    private WhoisCommand whoisCommand = null;
-
     public boolean isOnline()
     {
-        if(ChatHandler.client == null) return false;
-
         long currentTime = System.currentTimeMillis() / 1000;
         if(currentTime > (lastOnlineCheck + 10))
         {
-            if (whoisCommand == null || whoisCommand.getClient() != ChatHandler.client)
-                whoisCommand = new WhoisCommand(ChatHandler.client);
-
-            this.lastOnlineCheck = System.currentTimeMillis() / 1000;
-            whoisCommand.target(getMediumHash()).execute();
+            lastOnlineCheck = currentTime;
+            IrcHandler.whois(mediumHash);
         }
         if(isOnline && !ChatHandler.friends.containsKey(mediumHash))
         {
@@ -128,9 +119,7 @@ public class Profile
     }
 
     public String getCurrentIRCNick() {
-        Optional<User> userOpt = ChatHandler.client.getChannel(ChatHandler.CHANNEL).get().getUser(this.getShortHash());
-        if(userOpt.isPresent()) return this.getShortHash();
-        return this.getMediumHash();
+        return mediumHash;
     }
 
     public boolean isPremium() {

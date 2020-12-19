@@ -39,9 +39,7 @@ public class GuiChatOurs extends ChatScreen
     private GuiButtonPair switchButton;
     private String presetString;
     private boolean sleep;
-    private boolean disabledDueToBadwords;
     Minecraft mc = Minecraft.getInstance();
-    private boolean first = true;
 
     public GuiChatOurs(String presetString, boolean sleep)
     {
@@ -240,7 +238,8 @@ public class GuiChatOurs extends ChatScreen
             addStatusMessage(TextFormatting.RED + "Ban ID: " + TextFormatting.WHITE + Callbacks.banID);
             addStatusMessage("If you feel like this was a mistake please open a ban appeal on our github with your ban ID " + "https://github.com/CreeperHost/CreeperHostGui/issues");
             Client.first = false;
-            ChatConnectionHandler.INSTANCE.disconnect();
+            //TODO disconnect the user
+//            ChatConnectionHandler.INSTANCE.disconnect();
         }
         
         addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new StringTextComponent("Menu"), new MTChatScreen.Menu(strings), true, p ->
@@ -265,7 +264,7 @@ public class GuiChatOurs extends ChatScreen
         menuDropdownButton.flipped = false;
         if (sleep)
         {
-            addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, new StringTextComponent(I18n.format("multiplayer.stopSleeping")), p -> wakeFromSleep()));
+            addButton(new Button(this.width / 2 - 100, this.height - 40, 180, 20, new StringTextComponent(I18n.format("multiplayer.stopSleeping")), p -> wakeFromSleep()));
         }
     }
     

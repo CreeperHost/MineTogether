@@ -19,6 +19,7 @@ import net.creeperhost.minetogether.client.screen.element.DropdownButton;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.FriendsListScreen;
 import net.creeperhost.minetogether.client.screen.serverlist.gui.InvitedScreen;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
@@ -72,8 +73,7 @@ public class Client implements IProxy
     @Override
     public UUID getUUID()
     {
-        if (cache != null)
-            return cache;
+        if (cache != null) return cache;
 
         Session session = Minecraft.getInstance().getSession();
 
@@ -93,6 +93,8 @@ public class Client implements IProxy
     }
     
     boolean isChatReplaced = false;
+
+    private CompletableFuture chatThread = null;
     
     @Override
     public void startChat()
@@ -115,14 +117,18 @@ public class Client implements IProxy
                     MineTogether.mutedUsers = gson.fromJson(new InputStreamReader(fis), strListToken);
                 } catch (IOException ignored) { }
             }
-            CompletableFuture.runAsync(() -> ChatHandler.init(MineTogether.instance.ourNick, MineTogether.instance.realName, MineTogether.instance.online, MineTogether.instance), MineTogether.profileExecutor); // start in thread as can hold up the UI thread for some reason.
+            if(chatThread != null) {
+                chatThread.cancel(true);
+                chatThread = null;
+            }
+            chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogether.instance.ourNick, MineTogether.instance.realName, MineTogether.instance.online, MineTogether.instance), MineTogether.profileExecutor); // start in thread as can hold up the UI thread for some reason.
         }
     }
 
     @Override
     public void stopChat()
     {
-        ChatConnectionHandler.INSTANCE.disconnect();
+        IrcHandler.stop(true);
     }
     
     @Override

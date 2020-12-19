@@ -31,9 +31,8 @@ public class CommandSuggestionHelperMT extends CommandSuggestionHelper {
         int end = getLastWhitespace(toCursor);
         try
         {
-            List<String> users = ChatHandler.getOnlineUsers().stream()//
-                    .filter(name -> ChatHandler.knownUsers.findByDisplay(name) != null || ChatHandler.friends.containsKey(name))//
-                    .map(MineTogether.instance::getNameForUser).collect(Collectors.toList());
+            List<String> users = ChatHandler.knownUsers.getNames();
+
             if(users != null && !users.isEmpty())
             {
                 SuggestionsBuilder builder = new SuggestionsBuilder(toCursor, end);

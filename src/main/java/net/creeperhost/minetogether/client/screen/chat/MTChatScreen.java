@@ -16,6 +16,7 @@ import net.creeperhost.minetogether.client.screen.element.DropdownButton;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.creeperhost.minetogether.paul.Callbacks;
@@ -122,11 +123,12 @@ public class MTChatScreen extends Screen
         {
             targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, new StringTextComponent("Chat: %s"), Target.getMainTarget(), true, p ->
             {
+                targetDropdownButton.getPossibleVals().forEach(target -> System.out.println(target.getInternalTarget()));
                 if (targetDropdownButton.getMessage().getString().contains("new channel"))
                 {
                     PrivateChat privateChat = new PrivateChat("#" + MineTogether.instance.ourNick, MineTogether.instance.ourNick);
                     ChatHandler.privateChatList = privateChat;
-                    ChatHandler.createChannel(privateChat.getChannelname());
+                    IrcHandler.sendString("JOIN " + privateChat.getChannelname());
                 }
             });
         } else
@@ -174,6 +176,11 @@ public class MTChatScreen extends Screen
         {
             this.minecraft.displayGuiScreen(new SettingsScreen(this));
         }));
+        //TODO remove before release
+//        addButton(new GuiButtonMultiple(width - 144, 5, 3, p ->
+//        {
+//            IrcHandler.reconnect();
+//        }));
         addButton(cancelButton = new Button(width - 100 - 5, height - 5 - 20, 100, 20, new StringTextComponent("Cancel"), p ->
         {
             this.minecraft.displayGuiScreen(parent);
@@ -237,16 +244,16 @@ public class MTChatScreen extends Screen
     {
         super.tick();
 
-        if(tickCounter % 10 == 0) rebuildChat();
+//        if(tickCounter % 10 == 0) rebuildChat();
 
         if ((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
             if (!ChatHandler.isInitting.get())
             {
-                ChatHandler.reInit();
+//                ChatHandler.reInit();
             }
         }
-        tickCounter++;
+//        tickCounter++;
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
         boolean changed = false;
         if (!buttonTarget.equals(currentTarget))
@@ -649,7 +656,7 @@ public class MTChatScreen extends Screen
                         ITextComponent userComp = new StringTextComponent("(" + nickDisplay + ") would like to add you as a friend. Click to ");
 
                         ITextComponent accept = new StringTextComponent("<Accept>");
-                        accept.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(Color.fromTextFormatting(TextFormatting.GREEN));
+                        accept = accept.deepCopy().modifyStyle(style -> style.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).setColor(Color.fromTextFormatting(TextFormatting.GREEN)));
                         userComp.getSiblings().add(accept);
 
                         return userComp;
@@ -739,8 +746,8 @@ public class MTChatScreen extends Screen
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
             if((profile != null && profile.isBanned()) || ChatHandler.backupBan.get().contains(inputNick)) {
-                messageComp = new StringTextComponent("<Message Deleted>");
-                messageComp.getStyle().setColor(Color.fromTextFormatting(TextFormatting.DARK_GRAY));
+//                messageComp = new TextComponentString("<Message Deleted>").setStyle(new Style().setObfuscated(true).setColor(TextFormatting.DARK_GRAY));
+                messageComp = new StringTextComponent("<Message Deleted>").deepCopy().modifyStyle(style -> style.setObfuscated(true).setColor(Color.fromTextFormatting(TextFormatting.DARK_GRAY)));
                 messageColour = TextFormatting.DARK_GRAY;
             }
 
@@ -849,8 +856,6 @@ public class MTChatScreen extends Screen
             int oldMaxScroll = this.getMaxScroll();
             synchronized (ircLock)
             {
-                if (ChatHandler.client == null)
-                    return;
                 if (ChatHandler.messages == null || ChatHandler.messages.size() == 0)
                     return;
                 tempMessages = ChatHandler.messages.get(key);
