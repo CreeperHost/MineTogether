@@ -8,6 +8,7 @@ import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConfirmScreen;
@@ -41,14 +42,13 @@ public class SettingsScreen extends Screen
             {
                 MineTogether.instance.getLogger().info("Disabling in-game chat");
                 Config.getInstance().setChatEnabled(false);
-                MineTogether.proxy.stopChat();
-                MineTogether.proxy.disableIngameChat();
+                IrcHandler.stop(true);
             }
             else
             {
                 MineTogether.instance.getLogger().info("Enabling in-game chat");
                 Config.getInstance().setChatEnabled(true);
-                MineTogether.proxy.enableIngameChat();
+                IrcHandler.reconnect();
             }
             saveConfig();
         }));
