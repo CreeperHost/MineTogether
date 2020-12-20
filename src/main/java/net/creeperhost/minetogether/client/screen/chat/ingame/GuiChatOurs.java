@@ -318,6 +318,7 @@ public class GuiChatOurs extends ChatScreen
                     if (!ourChat.isBase())
                     {
                         ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);
+                        inputField.setEnabled(true);
                     }
                     switchButton.setMessage(ourChat.isBase() ? new StringTextComponent("MineTogether Chat") : new StringTextComponent("Minecraft Chat"));
                 } else

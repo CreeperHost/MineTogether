@@ -26,3 +26,5 @@
 logs/debug.log
 
 logs/latest.log
+
+src/main/java/net/creeperhost/minetogether/irc/Test.java
