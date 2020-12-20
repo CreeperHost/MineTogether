@@ -10,6 +10,8 @@ import net.creeperhost.minetogether.chat.PrivateChat;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -39,7 +41,7 @@ public class IrcHandler
             MineTogether.instance.getLogger().info("Starting new Chat socket");
             socket = new Socket(ircServer.address, ircServer.port);
             outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             bufferedWriter = new BufferedWriter(outputStreamWriter);
 
             chatFuture = CompletableFuture.runAsync(() ->
