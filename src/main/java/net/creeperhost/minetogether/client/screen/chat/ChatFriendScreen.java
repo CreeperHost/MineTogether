@@ -65,7 +65,7 @@ public class ChatFriendScreen extends Screen
         
         nameEntry = new TextFieldWidget(mc.fontRenderer, width / 2 - 100, height / 2 - 10, 200, 20, new StringTextComponent(""));
         if (first)
-            nameEntry.setText(playerName); // default to player name
+            nameEntry.setText(profile.getUserDisplay()); // default to player name
         first = false;
         
         acceptBtn.active = nameEntry.getText().trim().length() >= 3;

@@ -264,7 +264,7 @@ public class MineTogether implements ICreeperHostMod, IHost
             return null;
         }
 
-        //TODO more efficante by iterating file into buffer
+        //TODO more efficient by iterating file into buffer
         messageDigest.update(fileBytes);
 
         //Now we have the hash of the whole jar, not just a single class, previous implementation meant you could change anything except the first class...
