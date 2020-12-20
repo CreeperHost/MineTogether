@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.chat.PrivateChat;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +26,8 @@ public class IrcHandler
     private static BufferedWriter bufferedWriter;
     private static Socket socket;
 
+    private static int errCount = 0;
+
     private static final char CTCP_DELIMITER = '\u0001';
     private static final char CTCP_MQUOTE = '\u0016';
 
@@ -37,6 +40,7 @@ public class IrcHandler
         try
         {
             if(chatFuture != null) return;
+            errCount = 0;
 
             MineTogether.instance.getLogger().info("Starting new Chat socket");
             socket = new Socket(ircServer.address, ircServer.port);
@@ -114,8 +118,17 @@ public class IrcHandler
         try {
             bufferedWriter.write(str + "\r\n");
             bufferedWriter.flush();
+            errCount = 0;
+        }
+        catch (SocketException e)
+        {
+            errCount++;
+            if(errCount > 5) {
+                reconnect();
+            }
         }
         catch (Exception e) {
+            errCount++;
             System.out.println("Exception: "+e);
         }
     }
