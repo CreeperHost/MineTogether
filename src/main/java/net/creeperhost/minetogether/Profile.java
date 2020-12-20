@@ -14,6 +14,7 @@ import net.creeperhost.minetogether.util.WebUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class Profile
 {
@@ -33,6 +34,8 @@ public class Profile
     private long lastOnlineCheck = 0;
     private boolean isOnline = false;
     private boolean isLoadingProfile = false;
+    private long profileAge;
+    private boolean hasAccount = false;
 
     public Profile(String serverNick)
     {
@@ -109,7 +112,11 @@ public class Profile
         {
             ChatHandler.friends.remove(mediumHash);
         }
-        Target.updateCache();
+        if(isFriend())
+        {
+            Target.updateCache();
+            //Add them to DM list
+        }
         return isOnline;
     }
 
@@ -132,6 +139,16 @@ public class Profile
     }
 
     public String getUserDisplay() {
+        if(!userDisplay.isEmpty())
+        {
+            //Update users profiles every 30 mins for registered users, every 2 hours for unregistered (to check if they have registered)
+            if(profileAge > 0) {
+                long age = (System.currentTimeMillis() / 1000) - profileAge;
+                if ((hasAccount && age > 1800) || (!hasAccount && age > 7200)){
+                    CompletableFuture.runAsync(() -> loadProfile(), MineTogether.profileExecutor);
+                }
+            }
+        }
         if(userDisplay.isEmpty() && longHash.length() > 0) return "User#"+longHash.substring(5);
         return userDisplay;
     }
@@ -183,6 +200,7 @@ public class Profile
         isLoadingProfile = true;
         String playerHash = (longHash.length() > 0) ? longHash : (mediumHash.length() > 0) ? mediumHash : shortHash;
         if(playerHash.length() == 0) return false;
+        profileAge = System.currentTimeMillis() / 1000;
         Map<String, String> sendMap = new HashMap<String, String>();
         {
             sendMap.put("target", playerHash);
@@ -192,6 +210,8 @@ public class Profile
         String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, true);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
+        //WhoIs to get their pack
+        IrcHandler.whois(mediumHash);
         if (element.isJsonObject())
         {
             JsonObject obj = element.getAsJsonObject();
@@ -204,6 +224,7 @@ public class Profile
                 longHash = profileData.getAsJsonObject("hash").get("long").getAsString();
 
                 display = profileData.get("display").getAsString();
+                hasAccount = profileData.get("hasAccount").getAsBoolean();
                 premium = profileData.get("premium").getAsBoolean();
                 online = profileData.getAsJsonObject("chat").get("online").getAsBoolean();
                 friendCode = profileData.get("friendCode").getAsString();
@@ -215,6 +236,11 @@ public class Profile
                 isLoadingProfile = false;
                 return true;
             }
+        }
+        if(isFriend())
+        {
+            Target.updateCache();
+            //Add them to DM list
         }
         isLoadingProfile = false;
         return false;

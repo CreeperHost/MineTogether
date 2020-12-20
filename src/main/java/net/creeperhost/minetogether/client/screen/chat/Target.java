@@ -81,8 +81,8 @@ public class Target implements DropdownButton.IDropdownOption
         if (ChatHandler.messages == null) return;
         
         int chatSize = ChatHandler.messages.size();
-        if (updating || oldFriends == ChatHandler.friends && chatSize == oldMessagesSize)
-            return;
+        /*if (updating || oldFriends == ChatHandler.friends && chatSize == oldMessagesSize)
+            return;*/
         
         updating = true;
         

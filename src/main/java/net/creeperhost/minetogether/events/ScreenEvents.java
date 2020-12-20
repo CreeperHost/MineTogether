@@ -142,7 +142,7 @@ public class ScreenEvents
             
             event.addWidget(new Button(x.get(), y.get(), width.get(), height.get(), new StringTextComponent(I18n.format("menu.multiplayer")), p ->
             {
-                if (MineTogether.instance.gdpr.hasAcceptedGDPR())
+                if (MineTogether.instance != null && MineTogether.instance.gdpr != null && MineTogether.instance.gdpr.hasAcceptedGDPR())
                 {
                     Minecraft.getInstance().displayGuiScreen(new MultiplayerPublicScreen(event.getGui()));
                 } else

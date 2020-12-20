@@ -345,8 +345,6 @@ public class IrcHandler
                         profile.setPackID(json);
                         ChatHandler.knownUsers.update(profile);
                     }
-                } else {
-                    System.out.println("Failed whois; " + s);
                 }
             }, MineTogether.ircEventExecutor);
         }

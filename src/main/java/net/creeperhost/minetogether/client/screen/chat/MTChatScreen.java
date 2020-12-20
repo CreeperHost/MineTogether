@@ -374,7 +374,7 @@ public class MTChatScreen extends Screen
 
     public void confirmInvite()
     {
-        minecraft.displayGuiScreen(new ConfirmScreen(booleanConsumer, new StringTextComponent(I18n.format("You have been invited to join a private channel by %s", MineTogether.instance.getNameForUser(ChatHandler.privateChatInvite.getOwner()))),
+        minecraft.displayGuiScreen(new ConfirmScreen(booleanConsumer, new StringTextComponent("You have been invited to join a private channel by " + MineTogether.instance.getNameForUser(ChatHandler.privateChatInvite.getOwner())),
                 new StringTextComponent("Do you wish to accept this invite?" + (ChatHandler.hasGroup ? " You are already in a group chat - if you continue, you will swap groups - or disband the group if you are the host." : ""))));
     }
 
