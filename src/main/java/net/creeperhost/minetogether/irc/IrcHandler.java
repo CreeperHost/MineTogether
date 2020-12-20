@@ -77,7 +77,7 @@ public class IrcHandler
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 
@@ -98,7 +98,7 @@ public class IrcHandler
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 
