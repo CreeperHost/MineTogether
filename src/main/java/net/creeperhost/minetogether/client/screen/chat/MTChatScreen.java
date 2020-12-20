@@ -399,6 +399,9 @@ public class MTChatScreen extends Screen
             return true;
         }
         if (send.mouseClicked(mouseX, mouseY, mouseButton)) {
+            menuDropdownButton.x = menuDropdownButton.y = -10000;
+            menuDropdownButton.wasJustClosed = false;
+            menuDropdownButton.dropdownOpen = false;
             return true;
         }
         if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)

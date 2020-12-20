@@ -40,7 +40,7 @@ public class IrcHandler
 
             MineTogether.instance.getLogger().info("Starting new Chat socket");
             socket = new Socket(ircServer.address, ircServer.port);
-            outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
+            outputStreamWriter = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             bufferedWriter = new BufferedWriter(outputStreamWriter);
 
