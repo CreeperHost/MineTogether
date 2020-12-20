@@ -28,7 +28,6 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
         this.selected = def;
         possibleVals = (List<E>) def.getPossibleVals();
         baseButtonText = buttonText;
-        this.baseButtonText = new StringTextComponent(I18n.format(I18n.format(selected.getTranslate(selected, false)), baseButtonText));
         this.dynamic = dynamic;
     }
     

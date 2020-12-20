@@ -267,9 +267,6 @@ public class FriendsListScreen extends Screen
                     {
                         listMuted.add(mutedEntry);
                     }
-                } else
-                {
-                    listMuted.add(mutedEntry);
                 }
             }
         }
