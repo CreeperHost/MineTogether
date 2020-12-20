@@ -197,9 +197,8 @@ public class MineTogether implements ICreeperHostMod, IHost
         }
 
         int packID;
-
         HashMap<String, String> jsonObj = new HashMap<>();
-        if(this.ftbPackID.length() < 1) // Even if we get "m", we can throw it away.
+        if(this.ftbPackID.length() <= 1) // Even if we get "m", we can throw it away.
         {
             try
             {
@@ -216,7 +215,7 @@ public class MineTogether implements ICreeperHostMod, IHost
             jsonObj.put("p", ftbPackID);
             jsonObj.put("b", base64);
         }
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         try //Temp fix until we cxan figure out why this fails
         {
             realName = gson.toJson(jsonObj);
@@ -372,7 +371,7 @@ public class MineTogether implements ICreeperHostMod, IHost
 
                         base64 = Base64.getEncoder().encodeToString((String.valueOf(ftbPackID) + String.valueOf(versionID)).getBytes());
                         requestedID = Callbacks.getVersionFromApi(base64);
-                        if (requestedID.isEmpty()) return;
+                        if (requestedID.isEmpty()) requestedID = "-1";
 
                         Config.getInstance().setVersion(requestedID);
 
