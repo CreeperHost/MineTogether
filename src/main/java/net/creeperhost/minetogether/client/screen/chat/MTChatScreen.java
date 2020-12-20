@@ -100,6 +100,17 @@ public class MTChatScreen extends Screen
     {
         //Get this data early
         CompletableFuture.runAsync(Callbacks::getBanMessage, MineTogether.profileExecutor);
+        //Check which friends are online then update the channel list
+        CompletableFuture.runAsync(() -> {
+            ArrayList<Friend> friends = Callbacks.getFriendsList(false);
+            if (friends != null) {
+                for (Friend friend : friends) {
+                    Profile friendProfile = friend.getProfile();
+                    if(friendProfile != null) friend.getProfile().isOnline();
+                }
+            }
+            Target.updateCache();
+        });
 
         formattingList.add(TextFormatting.RED);
         formattingList.add(TextFormatting.GREEN);
