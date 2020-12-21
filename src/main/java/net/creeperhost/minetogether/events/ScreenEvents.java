@@ -65,11 +65,13 @@ public class ScreenEvents
                 Minecraft.getInstance().gameSettings.realmsNotifications = false;
 
                 Widget realmsButton = ScreenUtils.removeButton("menu.online", event.getWidgetList());
-                Button realmsReplacmentButton = new Button(realmsButton.x, realmsButton.y, realmsButton.getWidth(), 20, new StringTextComponent(I18n.format("minetogether.realms.replace")), (button) ->
-                {
-                    Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
-                });
-                event.addWidget(realmsReplacmentButton);
+                if(realmsButton != null) {
+                    Button realmsReplacmentButton = new Button(realmsButton.x, realmsButton.y, realmsButton.getWidth(), 20, new StringTextComponent(I18n.format("minetogether.realms.replace")), (button) ->
+                    {
+                        Minecraft.getInstance().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
+                    });
+                    event.addWidget(realmsReplacmentButton);
+                }
             }
             if (MineTogether.instance.gdpr.hasAcceptedGDPR() && first)
             {
