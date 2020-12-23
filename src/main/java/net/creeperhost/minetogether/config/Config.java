@@ -26,6 +26,7 @@ public class Config
     private boolean enableFriendOnlineToasts;
     private boolean enableMainMenuFriends;
     private boolean replaceRealms;
+    private transient boolean argChatDisable;
     private String issueTrackerUrl;
 
     private int pregenDiameter = 120;
@@ -62,6 +63,7 @@ public class Config
         this.mainMenuEnabled = mainMenuEnabled;
         this.serverHostButtonImage = serverHostButtonImage;
         this.serverHostMenuImage = serverHostMenuImage;
+        this.argChatDisable = System.getProperty("mt.disablechat").equalsIgnoreCase("true");
     }
     
     public static Config getInstance()
@@ -146,7 +148,7 @@ public class Config
     
     public boolean isChatEnabled()
     {
-        return chatEnabled;
+        return chatEnabled && (!argChatDisable);
     }
     
     public boolean isFriendOnlineToastsEnabled()
