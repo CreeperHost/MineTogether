@@ -34,6 +34,8 @@ public class IrcHandler
     private static final Pattern CTCP_ESCAPABLE_CHAR = Pattern.compile("[\n\r\u0000" + CTCP_DELIMITER + CTCP_MQUOTE + "\\\\]");
     private static final Pattern CTCP_ESCAPED_CHAR = Pattern.compile("([" + CTCP_MQUOTE + "\\\\])(.)");
     private static CompletableFuture chatFuture = null;
+    private static String lastMessage;
+    private static long lastMessageTime;
 
     public static void start(ChatUtil.IRCServer ircServer)
     {
@@ -135,7 +137,15 @@ public class IrcHandler
 
     public static void sendMessage(String channel, String message)
     {
-        sendString("PRIVMSG " + channel + " " + message);
+        if((lastMessage != null && lastMessage.equalsIgnoreCase(message)) || (lastMessageTime != 0 && lastMessageTime > System.currentTimeMillis()-300))
+        {
+            //TODO: Show a chat message telling them the message was not sent.
+        } else {
+            sendString("PRIVMSG " + channel + " " + message);
+            lastMessage = message;
+            lastMessageTime = System.currentTimeMillis();
+            //Stop spamming us please.
+        }
     }
 
     public static void whois(String nick)

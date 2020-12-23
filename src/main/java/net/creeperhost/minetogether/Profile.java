@@ -125,6 +125,11 @@ public class Profile
         this.isOnline = online;
     }
 
+    public boolean hasAccount()
+    {
+        return hasAccount;
+    }
+
     public String getCurrentIRCNick() {
         return mediumHash;
     }

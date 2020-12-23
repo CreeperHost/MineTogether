@@ -1,5 +1,7 @@
 package net.creeperhost.minetogether.client.screen.chat.ingame;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.Profile;
@@ -11,8 +13,11 @@ import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
 import net.creeperhost.minetogether.client.screen.chat.ScreenTextFieldLockable;
 import net.creeperhost.minetogether.client.screen.element.DropdownButton;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonPair;
+import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.proxy.Client;
+import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.NewChatGui;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -28,7 +33,10 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static net.creeperhost.minetogether.chat.ChatHandler.addStatusMessage;
 
@@ -157,12 +165,40 @@ public class GuiChatOurs extends ChatScreen
             }
         }
     }
-    
+    private Button newUserButton;
+    private String userCount = "over 2 million";
+    private String onlineCount = "thousands of";
     @Override
     public void init()
     {
         GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI();
-        
+        if(Config.getInstance().getFirstConnect())
+        {
+            CompletableFuture.runAsync(() -> {
+                if(onlineCount.equals("thousands of")) {
+                    String statistics = WebUtils.getWebResponse("https://minetogether.io/api/stats/all");
+                    Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                    HashMap<String, String> stats = gson.fromJson(statistics, HashMap.class);
+                    String users = stats.get("users");
+                    if (users != null && users.length() > 4) {
+                        userCount = users;
+                    }
+                    String online = stats.get("online");
+                    if(online != null && !online.equalsIgnoreCase("null"))
+                    {
+                        onlineCount = online;
+                    }
+                }
+                addButton(newUserButton = new Button(6, height - ((ourChat.getChatHeight()+80)/2)+45, ourChat.getChatWidth(), 20, new StringTextComponent("Join " + onlineCount + " online users now!"), p ->
+                {
+                    IrcHandler.sendCTPCMessage("Freddy", "ACTIVE", "");
+                    Config.getInstance().setFirstConnect(false);
+                    newUserButton.visible = false;
+                    ourChat.setBase(true);
+                }));
+                if(isBase()) newUserButton.visible = false;
+            }, MineTogether.otherExecutor);
+        }
         if (MineTogether.instance.gdpr.hasAcceptedGDPR())
         {
             ourChat.setBase(Client.chatType == 0);
@@ -196,7 +232,7 @@ public class GuiChatOurs extends ChatScreen
         if (isBase())
         {
             super.init();
-
+            if(newUserButton != null && newUserButton.visible) newUserButton.visible = false;
             if (sleep)
             {
                 addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, new StringTextComponent(I18n.format("multiplayer.stopSleeping")), p ->
@@ -233,7 +269,7 @@ public class GuiChatOurs extends ChatScreen
         strings.add(I18n.format("minetogether.chat.button.mention"));
         if(MineTogether.instance.isBanned.get() && Client.first)
         {
-            addStatusMessage(TextFormatting.RED + "You have been banned from Minetogether chat");
+            addStatusMessage(TextFormatting.RED + "You have been banned from MineTogether chat");
             addStatusMessage(TextFormatting.RED + "Ban Reason: " + TextFormatting.WHITE + Callbacks.getBanMessage());
             addStatusMessage(TextFormatting.RED + "Ban ID: " + TextFormatting.WHITE + Callbacks.banID);
             addStatusMessage("If you feel like this was a mistake please open a ban appeal on our github with your ban ID " + "https://github.com/CreeperHost/CreeperHostGui/issues");
@@ -360,10 +396,18 @@ public class GuiChatOurs extends ChatScreen
         if (isBase())
         {
             super.render(matrixStack, mouseX, mouseY, partialTicks);
+            if(newUserButton != null) newUserButton.visible = false;
             return;
         }
-
-        this.buttons.forEach(p -> p.render(matrixStack, mouseX, mouseY, partialTicks));
+        try {
+            if (this.buttons != null) {
+                this.buttons.forEach((p) -> {
+                    if (p != null) {
+                        p.render(matrixStack, mouseX, mouseY, partialTicks);
+                    }
+                });
+            }
+        } catch(ConcurrentModificationException ignored) {}//Not sure what to do about this, but this is why the client crashes when changing tabs sometimes.
         this.setFocusedDefault(this.inputField);
 
         this.inputField.setFocused2(true);
@@ -383,6 +427,17 @@ public class GuiChatOurs extends ChatScreen
             int x = mc.ingameGUI.getChatGUI().getChatWidth() - 2;
             int y = height - 40 - (mc.fontRenderer.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
             mc.fontRenderer.drawString(matrixStack, str, x, y, 0xFFFFFF);
+        }
+        if(Config.getInstance().getFirstConnect())
+        {
+            if(newUserButton != null)
+            {
+                newUserButton.visible = true;
+            }
+            drawCenteredString(matrixStack, font, "Welcome to MineTogether", (chatGui.getChatWidth()/2)+3, height - ((chatGui.getChatHeight()+80)/2), 0xFFFFFF);
+            drawCenteredString(matrixStack, font, "MineTogether is a multiplayer enhancement mod that provides", (chatGui.getChatWidth()/2)+3, height - ((chatGui.getChatHeight()+80)/2)+10, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, "a multitude of features like chat, friends list, server listing", (chatGui.getChatWidth()/2)+3, height - ((chatGui.getChatHeight()+80)/2)+20, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, "and more. Join "+userCount+" unique users.", (chatGui.getChatWidth() / 2)+3, height - ((chatGui.getChatHeight()+80)/2)+30, 0xFFFFFF);
         }
     }
     

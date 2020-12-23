@@ -1,5 +1,7 @@
 package net.creeperhost.minetogether.client.screen.chat;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -21,6 +23,7 @@ import net.creeperhost.minetogether.lib.Constants;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.creeperhost.minetogether.paul.Callbacks;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
+import net.creeperhost.minetogether.util.WebUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
@@ -65,6 +68,7 @@ public class MTChatScreen extends Screen
     private Button reconnectionButton;
     private Button cancelButton;
     private Button invited;
+    private Button newUserButton;
     private boolean inviteTemp = false;
     public static List<TextFormatting> formattingList = new ArrayList<>();
     private String banMessage = "";
@@ -233,6 +237,26 @@ public class MTChatScreen extends Screen
                         new StringTextComponent(I18n.format("minetogether.banned2"))));
             }
         }));
+        if(Config.getInstance().getFirstConnect())
+        {
+            CompletableFuture.runAsync(() -> {
+                String statistics = WebUtils.getWebResponse("https://minetogether.io/api/stats/all");
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                HashMap<String, String> stats = gson.fromJson(statistics, HashMap.class);
+                String users = stats.get("users");
+                if(users != null && users.length() > 4) {
+                    userCount = stats.get("users");
+                }
+
+                //TODO: Get the width of ts in pixels
+                addButton(newUserButton = new Button((width/2)-150, 75+(height/4), 300, 20, new StringTextComponent("Join "+stats.get("online")+" online users now!"), p ->
+                {
+                    IrcHandler.sendCTPCMessage("Freddy","ACTIVE", "");
+                    Config.getInstance().setFirstConnect(false);
+                    newUserButton.visible = false;
+                }));
+            }, MineTogether.otherExecutor);
+        }
     }
 
     public void refresh()
@@ -274,6 +298,7 @@ public class MTChatScreen extends Screen
     }
 
     boolean disabledDueToConnection = false;
+    private String userCount = "over 2 million";
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
@@ -306,6 +331,15 @@ public class MTChatScreen extends Screen
         }
         drawCenteredString(matrixStack, font, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
         ITextComponent comp = new StringTextComponent(TextFormatting.getValueByName(status.colour) + "\u2022" + " " + TextFormatting.WHITE + status.display);
+
+        if(Config.getInstance().getFirstConnect())
+        {
+            drawCenteredString(matrixStack, font, "Welcome to MineTogether", width / 2, (height/4)+25, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, "MineTogether is a multiplayer enhancement mod that provides", width / 2, (height/4)+35, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, "a multitude of features like chat, friends list, server listing", width / 2, (height/4)+45, 0xFFFFFF);
+            drawCenteredString(matrixStack, font, "and more. Join "+userCount+" unique users.", width / 2, (height/4)+55, 0xFFFFFF);
+        }
+
 
         if (ChatHandler.isInChannel.get()) {
             drawString(matrixStack, font, "Please Contact Support at with your nick " + ChatHandler.nick + " " + new StringTextComponent("here").setStyle(Style.EMPTY.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:creeperhost.net/contact"))), 10, height - 20, 0xFFFFFF);
@@ -439,7 +473,7 @@ public class MTChatScreen extends Screen
             send.setText("");
         }
 
-        boolean ourEnabled = send.getOurEnabled();
+        boolean ourEnabled = send.getOurEnabled() && (!Config.getInstance().getFirstConnect());
 
         if (!ourEnabled)
         {
@@ -621,6 +655,7 @@ public class MTChatScreen extends Screen
 
     public static ITextComponent formatLine(Message message)
     {
+        if(Config.getInstance().getFirstConnect()) return null;
         try {
             String inputNick = message.sender;
             String outputNick = inputNick;
