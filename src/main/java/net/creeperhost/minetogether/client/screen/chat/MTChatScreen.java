@@ -247,11 +247,9 @@ public class MTChatScreen extends Screen
                 if(users != null && users.length() > 4) {
                     userCount = stats.get("users");
                 }
-
-                //TODO: Get the width of ts in pixels
                 addButton(newUserButton = new Button((width/2)-150, 75+(height/4), 300, 20, new StringTextComponent("Join "+stats.get("online")+" online users now!"), p ->
                 {
-                    IrcHandler.sendCTPCMessage("Freddy","ACTIVE", "");
+                    IrcHandler.sendCTCPMessage("Freddy","ACTIVE", "");
                     Config.getInstance().setFirstConnect(false);
                     newUserButton.visible = false;
                 }));

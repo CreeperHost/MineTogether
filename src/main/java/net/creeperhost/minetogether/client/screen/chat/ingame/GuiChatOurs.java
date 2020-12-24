@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.Profile;
-import net.creeperhost.minetogether.chat.ChatConnectionHandler;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.client.screen.GDPRScreen;
 import net.creeperhost.minetogether.client.screen.chat.ChatFriendScreen;
@@ -26,7 +25,6 @@ import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
@@ -191,7 +189,7 @@ public class GuiChatOurs extends ChatScreen
                 }
                 addButton(newUserButton = new Button(6, height - ((ourChat.getChatHeight()+80)/2)+45, ourChat.getChatWidth(), 20, new StringTextComponent("Join " + onlineCount + " online users now!"), p ->
                 {
-                    IrcHandler.sendCTPCMessage("Freddy", "ACTIVE", "");
+                    IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                     Config.getInstance().setFirstConnect(false);
                     newUserButton.visible = false;
                     ourChat.setBase(true);

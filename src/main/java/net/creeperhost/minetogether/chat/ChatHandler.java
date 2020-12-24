@@ -136,16 +136,16 @@ public class ChatHandler
     
     public static void sendMessage(String currentTarget, String text)
     {
-        IrcHandler.sendMessage(currentTarget, text);
-        synchronized (ircLock)
-        {
-            addMessageToChat(currentTarget, nick, text);
+        if(IrcHandler.sendMessage(currentTarget, text)) {
+            synchronized (ircLock) {
+                addMessageToChat(currentTarget, nick, text);
+            }
         }
     }
 
     public static void sendFriendRequest(String target, String desiredName)
     {
-        IrcHandler.sendCTPCMessagePrivate(target, "FRIENDREQ", host.getFriendCode() + " " + desiredName);
+        IrcHandler.sendCTCPMessagePrivate(target, "FRIENDREQ", host.getFriendCode() + " " + desiredName);
     }
     
     public static void sendChannelInvite(String target, String owner)
@@ -180,7 +180,7 @@ public class ChatHandler
     
     public static void acceptFriendRequest(String chatInternalName, String desiredName)
     {
-        IrcHandler.sendCTPCMessagePrivate(chatInternalName, "FRIENDACC", host.getFriendCode() + " " + desiredName);
+        IrcHandler.sendCTCPMessagePrivate(chatInternalName, "FRIENDACC", host.getFriendCode() + " " + desiredName);
         addMessageToChat(CHANNEL, "System", "Friend request accepted.");
     }
     
@@ -271,13 +271,13 @@ public class ChatHandler
                     break;
                 }
                 case "SERVERID":
-                    IrcHandler.sendCTPCMessage(user, "SERVERID", getServerId());
+                    IrcHandler.sendCTCPMessage(user, "SERVERID", getServerId());
                     break;
                 case "VERIFY":
                     if (!user.startsWith("MT")) {
                         String serverID = MineTogether.getServerIDAndVerify();
                         if (serverID == null) return;
-                        IrcHandler.sendCTPCMessage(user, "VERIFY", MineTogether.getSignature() + ":" + MineTogether.proxy.getUUID() + ":" + serverID);
+                        IrcHandler.sendCTCPMessage(user, "VERIFY", MineTogether.getSignature() + ":" + MineTogether.proxy.getUUID() + ":" + serverID);
                     }
             }
         }, MineTogether.ircEventExecutor);

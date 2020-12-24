@@ -109,11 +109,16 @@ public class IrcHandler
 //            e.printStackTrace();
         }
     }
-
+    private static boolean reconnecting = false;
     public static void reconnect()
     {
-        stop(true);
-        MineTogether.proxy.startChat();
+        if(reconnecting) return;
+        reconnecting = true;
+        try {
+            stop(true);
+            MineTogether.proxy.startChat();
+        } catch(Throwable ignored) {}
+        reconnecting = false;
     }
 
     public static void sendString(String str) {
@@ -132,19 +137,22 @@ public class IrcHandler
         catch (Exception e) {
             errCount++;
             System.out.println("Exception: "+e);
+            e.printStackTrace();
         }
     }
 
-    public static void sendMessage(String channel, String message)
+    public static boolean sendMessage(String channel, String message)
     {
-        if((lastMessage != null && lastMessage.equalsIgnoreCase(message)) || (lastMessageTime != 0 && lastMessageTime > System.currentTimeMillis()-300))
+        long messageTime = System.currentTimeMillis();
+        if((lastMessage != null && lastMessage.equalsIgnoreCase(message)) || (lastMessageTime != 0 && lastMessageTime > (messageTime-300)))
         {
-            //TODO: Show a chat message telling them the message was not sent.
+            ChatHandler.addMessageToChat(channel,"System", "Please refrain from flooding.");
+            return false;
         } else {
-            sendString("PRIVMSG " + channel + " " + message);
+            sendString("PRIVMSG " + channel + " " + new String(message.getBytes(), StandardCharsets.UTF_8));
             lastMessage = message;
             lastMessageTime = System.currentTimeMillis();
-            //Stop spamming us please.
+            return true;
         }
     }
 
@@ -153,12 +161,12 @@ public class IrcHandler
         sendString("WHOIS " + nick);
     }
 
-    public static void sendCTPCMessage(String target, String type, String value)
+    public static void sendCTCPMessage(String target, String type, String value)
     {
         sendString("NOTICE " + target + " :" + toCtcp(type + " " + value));
     }
 
-    public static void sendCTPCMessagePrivate(String target, String type, String value)
+    public static void sendCTCPMessagePrivate(String target, String type, String value)
     {
         sendString("PRIVMSG " + target + " :" + toCtcp(type + " " + value));
     }
