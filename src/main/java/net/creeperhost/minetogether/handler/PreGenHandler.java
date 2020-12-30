@@ -52,7 +52,7 @@ public class PreGenHandler
     {
         if(!file.exists())
         {
-            MineTogether.logger.error("File does not exist");
+//            MineTogether.logger.error("File does not exist");
             return;
         }
 
