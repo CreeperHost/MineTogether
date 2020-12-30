@@ -13,6 +13,7 @@ import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.chat.PrivateChat;
 import net.creeperhost.minetogether.client.screen.GDPRScreen;
 import net.creeperhost.minetogether.client.screen.SettingsScreen;
+import net.creeperhost.minetogether.client.screen.element.ButtonNoBlend;
 import net.creeperhost.minetogether.client.screen.element.ButtonString;
 import net.creeperhost.minetogether.client.screen.element.DropdownButton;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonMultiple;
@@ -75,6 +76,8 @@ public class MTChatScreen extends Screen
     private ButtonString banButton;
     private ButtonString connectionStatus;
     private boolean isBanned = false;
+    private static final ResourceLocation GALACTIC_ALT_FONT = new ResourceLocation("minecraft", "alt");
+    private static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
 
 
     public MTChatScreen(Screen parent)
@@ -247,11 +250,14 @@ public class MTChatScreen extends Screen
                 if(users != null && users.length() > 4) {
                     userCount = stats.get("users");
                 }
-                addButton(newUserButton = new Button((width/2)-150, 75+(height/4), 300, 20, new StringTextComponent("Join "+stats.get("online")+" online users now!"), p ->
+//                send.setDisabled("Disabled");
+//                send.setFocused2(false);
+                addButton(newUserButton = new ButtonNoBlend((width/2)-150, 75+(height/4), 300, 20, new StringTextComponent("Join "+stats.get("online")+" online users now!"), p ->
                 {
                     IrcHandler.sendCTCPMessage("Freddy","ACTIVE", "");
                     Config.getInstance().setFirstConnect(false);
                     newUserButton.visible = false;
+                    refresh();
                 }));
             }, MineTogether.otherExecutor);
         }
@@ -332,12 +338,15 @@ public class MTChatScreen extends Screen
 
         if(Config.getInstance().getFirstConnect())
         {
+            fill(matrixStack, chat.getLeft(), chat.getTop(), chat.getWidth() + 5, chat.getHeight(), 0x99000000);
+//            fill(matrixStack, chat.getLeft(), chat.getTop(), chat.getWidth() + 5, chat.getHeight(), 0x99000000);
+
+            RenderSystem.blendColor(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
             drawCenteredString(matrixStack, font, "Welcome to MineTogether", width / 2, (height/4)+25, 0xFFFFFF);
             drawCenteredString(matrixStack, font, "MineTogether is a multiplayer enhancement mod that provides", width / 2, (height/4)+35, 0xFFFFFF);
             drawCenteredString(matrixStack, font, "a multitude of features like chat, friends list, server listing", width / 2, (height/4)+45, 0xFFFFFF);
             drawCenteredString(matrixStack, font, "and more. Join "+userCount+" unique users.", width / 2, (height/4)+55, 0xFFFFFF);
         }
-
 
         if (ChatHandler.isInChannel.get()) {
             drawString(matrixStack, font, "Please Contact Support at with your nick " + ChatHandler.nick + " " + new StringTextComponent("here").setStyle(Style.EMPTY.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:creeperhost.net/contact"))), 10, height - 20, 0xFFFFFF);
@@ -345,7 +354,6 @@ public class MTChatScreen extends Screen
 
         connectionStatus.setMessage(comp);
 
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
         {
             renderTooltip(matrixStack, new StringTextComponent(send.getDisabledMessage()), mouseX, mouseY);
@@ -355,6 +363,8 @@ public class MTChatScreen extends Screen
         {
             renderTooltip(matrixStack, new StringTextComponent("Click here to appeal your ban"), mouseX, mouseY);
         }
+
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     public static void drawLogo(MatrixStack matrixStack, FontRenderer fontRendererObj, int containerWidth, int containerHeight, int containerX, int containerY, float scale)
@@ -653,8 +663,8 @@ public class MTChatScreen extends Screen
 
     public static ITextComponent formatLine(Message message)
     {
-        if(Config.getInstance().getFirstConnect()) return null;
-        try {
+        try
+        {
             String inputNick = message.sender;
             String outputNick = inputNick;
 
@@ -836,6 +846,13 @@ public class MTChatScreen extends Screen
             TextFormatting finalMessageColour = messageColour;
             messageComp = messageComp.deepCopy().modifyStyle(style -> style.setColor(Color.fromTextFormatting(finalMessageColour)));
 
+            if(Config.getInstance().getFirstConnect())
+            {
+//                userComp = userComp.deepCopy().modifyStyle(style -> style.setFontId(GALACTIC_ALT_FONT));
+                messageComp = new StringTextComponent(rot13(messageComp.getString()));
+                messageComp = messageComp.deepCopy().modifyStyle(style -> style.setFontId(GALACTIC_ALT_FONT));
+            }
+
             base.getSiblings().add(userComp);
             base.getSiblings().add(messageComp);
 
@@ -846,6 +863,19 @@ public class MTChatScreen extends Screen
             e.printStackTrace();
         }
         return new StringTextComponent("Error formatting line, Please report this to the issue tracker");
+    }
+
+    public static String rot13(String input) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if       (c >= 'a' && c <= 'm') c += 13;
+            else if  (c >= 'A' && c <= 'M') c += 13;
+            else if  (c >= 'n' && c <= 'z') c -= 13;
+            else if  (c >= 'N' && c <= 'Z') c -= 13;
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     public static String rainbow(String s)

@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
 import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.proxy.Client;
 import net.creeperhost.minetogether.util.LimitedSizeQueue;
 import net.minecraft.client.Minecraft;
@@ -322,9 +323,9 @@ public class GuiNewChatOurs extends NewChatGui
                 int j2 = -line * 9;
                 fill(matrixStack, -2, j2 - 9, k + 4, j2, l1 / 2 << 24);
             }
-
             RenderSystem.popMatrix();
         }
+
     }
     
     @Override

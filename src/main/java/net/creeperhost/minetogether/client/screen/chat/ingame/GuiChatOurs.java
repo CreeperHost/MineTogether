@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.client.screen.GDPRScreen;
 import net.creeperhost.minetogether.client.screen.chat.ChatFriendScreen;
 import net.creeperhost.minetogether.client.screen.chat.MTChatScreen;
 import net.creeperhost.minetogether.client.screen.chat.ScreenTextFieldLockable;
+import net.creeperhost.minetogether.client.screen.element.ButtonNoBlend;
 import net.creeperhost.minetogether.client.screen.element.DropdownButton;
 import net.creeperhost.minetogether.client.screen.element.GuiButtonPair;
 import net.creeperhost.minetogether.config.Config;
@@ -187,12 +188,13 @@ public class GuiChatOurs extends ChatScreen
                         onlineCount = online;
                     }
                 }
-                addButton(newUserButton = new Button(6, height - ((ourChat.getChatHeight()+80)/2)+45, ourChat.getChatWidth(), 20, new StringTextComponent("Join " + onlineCount + " online users now!"), p ->
+                addButton(newUserButton = new ButtonNoBlend(6, height - ((ourChat.getChatHeight()+80)/2)+45, ourChat.getChatWidth(), 20, new StringTextComponent("Join " + onlineCount + " online users now!"), p ->
                 {
                     IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                     Config.getInstance().setFirstConnect(false);
                     newUserButton.visible = false;
-                    ourChat.setBase(true);
+                    ourChat.setBase(false);
+                    ourChat.rebuildChat(ChatHandler.CHANNEL);
                 }));
                 if(isBase()) newUserButton.visible = false;
             }, MineTogether.otherExecutor);
@@ -397,15 +399,6 @@ public class GuiChatOurs extends ChatScreen
             if(newUserButton != null) newUserButton.visible = false;
             return;
         }
-        try {
-            if (this.buttons != null) {
-                this.buttons.forEach((p) -> {
-                    if (p != null) {
-                        p.render(matrixStack, mouseX, mouseY, partialTicks);
-                    }
-                });
-            }
-        } catch(ConcurrentModificationException ignored) {}//Not sure what to do about this, but this is why the client crashes when changing tabs sometimes.
         this.setFocusedDefault(this.inputField);
 
         this.inputField.setFocused2(true);
@@ -432,11 +425,24 @@ public class GuiChatOurs extends ChatScreen
             {
                 newUserButton.visible = true;
             }
+            int y = height - 40 - (mc.fontRenderer.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
+
+            fill(matrixStack, 0, y, chatGui.getChatWidth() + 6, chatGui.getChatHeight() + y, 0x99000000);
+
             drawCenteredString(matrixStack, font, "Welcome to MineTogether", (chatGui.getChatWidth()/2)+3, height - ((chatGui.getChatHeight()+80)/2), 0xFFFFFF);
             drawCenteredString(matrixStack, font, "MineTogether is a multiplayer enhancement mod that provides", (chatGui.getChatWidth()/2)+3, height - ((chatGui.getChatHeight()+80)/2)+10, 0xFFFFFF);
             drawCenteredString(matrixStack, font, "a multitude of features like chat, friends list, server listing", (chatGui.getChatWidth()/2)+3, height - ((chatGui.getChatHeight()+80)/2)+20, 0xFFFFFF);
             drawCenteredString(matrixStack, font, "and more. Join "+userCount+" unique users.", (chatGui.getChatWidth() / 2)+3, height - ((chatGui.getChatHeight()+80)/2)+30, 0xFFFFFF);
         }
+        try {
+            if (this.buttons != null) {
+                this.buttons.forEach((p) -> {
+                    if (p != null) {
+                        p.render(matrixStack, mouseX, mouseY, partialTicks);
+                    }
+                });
+            }
+        } catch(ConcurrentModificationException ignored) {}//Not sure what to do about this, but this is why the client crashes when changing tabs sometimes.
     }
     
     private void wakeFromSleep()
