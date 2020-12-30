@@ -42,12 +42,14 @@ public class SettingsScreen extends Screen
             {
                 MineTogether.instance.getLogger().info("Disabling in-game chat");
                 Config.getInstance().setChatEnabled(false);
+                MineTogether.proxy.disableIngameChat();
                 IrcHandler.stop(true);
             }
             else
             {
                 MineTogether.instance.getLogger().info("Enabling in-game chat");
                 Config.getInstance().setChatEnabled(true);
+                MineTogether.proxy.enableIngameChat();
                 IrcHandler.reconnect();
             }
             saveConfig();
