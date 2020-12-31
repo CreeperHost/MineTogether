@@ -372,8 +372,8 @@ public class MineTogether implements ICreeperHostMod, IHost
                         requestedID = Callbacks.getVersionFromApi(base64);
                         if (requestedID.isEmpty()) requestedID = "-1";
 
-                        Config.getInstance().setVersion(requestedID);
-
+                        Config.instance.curseProjectID = requestedID;
+                        Config.saveConfig();
                         this.ftbPackID = "m" + ftbPackID;
                     }
                 } catch (Exception MalformedJsonException)
@@ -626,12 +626,11 @@ public class MineTogether implements ICreeperHostMod, IHost
                 
                 send.put("version", 2);
                 
-                Gson gson = new Gson();
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 
                 String sendStr = gson.toJson(send);
-                
                 String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
-                
+
                 int sleepTime = 90000;
                 
                 try

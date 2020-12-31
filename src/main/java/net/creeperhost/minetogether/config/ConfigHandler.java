@@ -28,9 +28,7 @@ public class ConfigHandler
             {
                 Config.loadFromFile(CONFIG_LOCATION);
             }
-        } catch (Exception ignored)
-        {
-        }
+        } catch (Exception ignored) {}
     }
     
     public static void saveConfig()
@@ -38,8 +36,6 @@ public class ConfigHandler
         try (FileOutputStream configOut = new FileOutputStream(CONFIG_LOCATION))
         {
             IOUtils.write(Config.saveConfig(), configOut, Charset.defaultCharset());
-        } catch (Throwable ignored)
-        {
-        }
+        } catch (Throwable ignored) {}
     }
 }

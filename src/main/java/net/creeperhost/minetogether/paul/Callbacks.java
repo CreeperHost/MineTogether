@@ -943,9 +943,7 @@ public final class Callbacks
                 {
                     return "0";
                 }
-            } catch (Throwable ignored)
-            {
-            }
+            } catch (Throwable ignored) {}
         }
         return "0";
     }
@@ -978,7 +976,6 @@ public final class Callbacks
                 return "";
             }
         } catch (Throwable ignored) {}
-        
         return "";
     }
 

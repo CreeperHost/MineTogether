@@ -29,6 +29,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 
 import java.util.ArrayList;
@@ -149,7 +150,7 @@ public class MultiplayerPublicScreen extends MultiplayerScreen
         
         if(listType != null)
         {
-            addButton(sortOrderButton = new DropdownButton<>(width - 165, 5, 80, 20, new StringTextComponent("creeperhost.multiplayer.sort"), sortOrder, false, p ->
+            addButton(sortOrderButton = new DropdownButton<>(width - 165, 5, 80, 20, new TranslationTextComponent("creeperhost.multiplayer.sort"), sortOrder, false, p ->
             {
                 if (sortOrder != sortOrderButton.getSelected())
                 {
