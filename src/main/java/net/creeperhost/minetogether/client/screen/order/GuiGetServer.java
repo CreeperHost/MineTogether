@@ -39,7 +39,7 @@ public abstract class GuiGetServer extends Screen
             case 1:
                 return new GuiQuote(1, order);
             case 2:
-                return new GuiServerLocation(2, order);
+                return new GuiLocationMap(2, order);
             case 3:
                 return new GuiPersonalDetails(3, order);
             case 4:
