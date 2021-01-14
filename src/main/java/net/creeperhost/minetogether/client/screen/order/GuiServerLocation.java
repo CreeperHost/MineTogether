@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.util.Util;
 
 import java.util.Map;
 
+@Deprecated
 public class GuiServerLocation extends GuiGetServer
 {
     private GuiList list;

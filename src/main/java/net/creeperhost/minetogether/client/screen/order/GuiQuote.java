@@ -151,7 +151,8 @@ public class GuiQuote extends GuiGetServer
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
-        
+        fill(matrixStack, 0, this.height - 20, width, 20, 0x99000000);
+
         if (countryEnabled)
         {
             this.list.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -169,6 +170,7 @@ public class GuiQuote extends GuiGetServer
                     buttonPrev.visible = false;
                     return;
                 }
+
                 this.wellBottom.drawScreen();
                 this.wellLeft.drawScreen();
                 this.wellRight.drawScreen();

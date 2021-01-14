@@ -54,7 +54,7 @@ public class GuiGeneralServerInfo extends GuiGetServer
         
         pregen = addButton(new CheckboxButton(halfWidth - (checkboxWidth / 2), halfHeight - 8, 20, 20, new StringTextComponent(checkboxString), order.pregen));
 
-        modpack = addButton(new Button(width - 90, 10, 86, 20, new StringTextComponent("Change Modpack"), b -> {
+        modpack = addButton(new Button(4, 4, 86, 20, new StringTextComponent("Change Modpack"), b -> {
             Minecraft.getInstance().displayGuiScreen(new GuiModPackList(this));
         }));
     }
@@ -125,6 +125,8 @@ public class GuiGeneralServerInfo extends GuiGetServer
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
+        fill(matrixStack, 0, this.height - 20, width, 20, 0x99000000);
+
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         
         this.drawCenteredString(matrixStack, this.font, Util.localize("info.server_name"), this.width / 2, this.height / 2 - 65, -1);

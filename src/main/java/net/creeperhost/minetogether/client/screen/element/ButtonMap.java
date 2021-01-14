@@ -40,9 +40,13 @@ public class ButtonMap extends Button
         ResourceLocation map = new ResourceLocation(Constants.MOD_ID, "textures/map/" + buttonText + ".png");
         minecraft.getTextureManager().bindTexture(map);
 
-        if(isHovered() || isFocused())
+        if(isHovered())
         {
-            RenderSystem.color4f(0, 1F, 0, alpha);
+            RenderSystem.color4f(0F, 1F, 0F, alpha);
+        }
+        if(isFocused())
+        {
+            RenderSystem.color4f(0F, 0.6F, 0F, alpha);
         }
         if(!active)
         {

@@ -404,6 +404,7 @@ public class GuiPersonalDetails extends GuiGetServer
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         this.renderDirtBackground(0);
+        fill(matrixStack, 0, this.height - 20, width, 20, 0x99000000);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         
         if ((!orderPressed || !isSure) && !loginMode)

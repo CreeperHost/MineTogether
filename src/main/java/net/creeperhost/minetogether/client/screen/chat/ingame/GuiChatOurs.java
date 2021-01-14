@@ -86,8 +86,6 @@ public class GuiChatOurs extends ChatScreen
             wakeFromSleep();
             return super.charTyped(typedChar, keyCode);
         }
-        
-        assert inputField instanceof ScreenTextFieldLockable;
         boolean ourEnabled = inputField instanceof ScreenTextFieldLockable && ((ScreenTextFieldLockable) inputField).getOurEnabled();
         
         if (!ourEnabled)

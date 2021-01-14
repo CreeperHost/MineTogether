@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -98,10 +99,8 @@ public abstract class GuiGetServer extends Screen
     @Override
     public void render(MatrixStack matrixStack, int p_render_1_, int p_render_2_, float p_render_3_)
     {
-        this.drawCenteredString(matrixStack, minecraft.fontRenderer, Util.localize("gui.get_server"), this.width / 2, 10, -1);
-        
-        this.drawCenteredString(matrixStack, minecraft.fontRenderer, Util.localize("info.step", this.stepId + 1, STEP_AMOUNT), this.width / 2, 20, -1);
-        this.drawCenteredString(matrixStack, minecraft.fontRenderer, this.getStepName(), this.width / 2, 30, -1);
+        this.drawCenteredString(matrixStack, minecraft.fontRenderer, "Step " + (this.stepId + 1 + " / ") + STEP_AMOUNT, this.width - 30, 10, -1);
+        this.drawCenteredString(matrixStack, minecraft.fontRenderer, this.getStepName(), this.width / 2, 10, -1);
         
         super.render(matrixStack, p_render_1_, p_render_2_, p_render_3_);
     }

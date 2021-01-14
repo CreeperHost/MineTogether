@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.creeperhost.minetogether.util.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -19,10 +20,10 @@ import java.util.List;
 public class GuiWell
 {
     private final Minecraft mc;
-    private final int top;
-    private final int bottom;
-    private final int right;
-    private final int left;
+    public final int top;
+    public final int bottom;
+    public final int right;
+    public final int left;
     public List<String> lines;
     private boolean centeredF;
     private String title;
@@ -42,51 +43,14 @@ public class GuiWell
     @SuppressWarnings("Duplicates")
     public void drawScreen()
     {
-        RenderSystem.disableLighting();
-        RenderSystem.disableFog();
-        Tessellator tessellator = Tessellator.getInstance();
-        
-        BufferBuilder buffer = tessellator.getBuffer();
-        this.mc.getTextureManager().bindTexture(Screen.BACKGROUND_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        float f = 32.0F;
-        buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex( ((float) this.left / f), ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
-        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex( ((float) this.right / f), ((float) this.bottom / f)).color(32, 32, 32, 255).endVertex();
-        buffer.pos((double) this.right, (double) this.top, 0.0D).tex(((float) this.right / f), ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
-        buffer.pos((double) this.left, (double) this.top, 0.0D).tex(((float) this.left / f), ((float) this.top / f)).color(32, 32, 32, 255).endVertex();
-        tessellator.draw();
-        
-        RenderSystem.disableDepthTest();
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
-        RenderSystem.disableAlphaTest();
-        RenderSystem.shadeModel(7425);
-        RenderSystem.disableTexture();
-        buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        buffer.pos((double) this.left, (double) (this.top + 4), 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
-        buffer.pos((double) this.right, (double) (this.top + 4), 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
-        buffer.pos((double) this.right, (double) this.top, 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-        buffer.pos((double) this.left, (double) this.top, 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-        tessellator.draw();
-        buffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        buffer.pos((double) this.left, (double) this.bottom, 0.0D).tex(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-        buffer.pos((double) this.right, (double) this.bottom, 0.0D).tex(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-        buffer.pos((double) this.right, (double) (this.bottom - 4), 0.0D).tex(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
-        buffer.pos((double) this.left, (double) (this.bottom - 4), 0.0D).tex(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
-        tessellator.draw();
-        
-        RenderSystem.enableTexture();
-        RenderSystem.shadeModel(7424);
-        RenderSystem.enableAlphaTest();
-        RenderSystem.disableBlend();
-        
         FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
         
         int titleWidth = fontRenderer.getStringWidth(title);
         MatrixStack matrixStack = new MatrixStack();
+        AbstractGui.fill(matrixStack, left, top, right, bottom, 0x66000000);
+
         fontRenderer.drawStringWithShadow(matrixStack, title, this.left + ((this.right - this.left) / 2) - (titleWidth / 2), this.top + 2, 0xFFFFFF);
-        
+
         int topStart = this.top + 15;
         
         for (String line : lines)
