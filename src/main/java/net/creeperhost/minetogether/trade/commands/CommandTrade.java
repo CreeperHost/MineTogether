@@ -69,9 +69,6 @@ public class CommandTrade extends CommandBase
                         break;
                     case "serverid":
                         player.sendMessage(new TextComponentString(CreeperHostServer.INSTANCE.getNick()));
-
-                    case "test":
-                        CreeperHostServer.INSTANCE.chatHandlerServer.messageUser("MT6C416B82DFBD050EA2279038E981", "TEST TEST TEST");
                 }
 //            player.openGui(CreeperHost.INSTANCE, GuiHandler.trade, player.world, player.getPosition().getX(), player.getPosition().getY(), player.getPosition().getZ());
             }

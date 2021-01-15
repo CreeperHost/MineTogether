@@ -85,7 +85,7 @@ public class CreeperHostServer
     public String ftbPackID = "";
     public String base64;
     public String requestedID;
-    public ChatHandlerServer chatHandlerServer = null;
+//    public ChatHandlerServer chatHandlerServer = null;
     public String serverNick = "";
     public String realName = "";
     
@@ -125,7 +125,7 @@ public class CreeperHostServer
         return serverNick;
     }
 
-    public Client getClient(){ return chatHandlerServer.client; }
+//    public Client getClient(){ return chatHandlerServer.client; }
 
     public void createID(MinecraftServer minecraftServer)
     {
@@ -171,10 +171,10 @@ public class CreeperHostServer
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
     {
-        createID(event.getServer());
-        ChatUtil.IRCServer ircServer = ChatUtil.getIRCServerDetails();
-        if(!serverNick.isEmpty() && !realName.isEmpty())
-            chatHandlerServer = new ChatHandlerServer(serverNick, realName, ircServer.address, ircServer.port, ircServer.ssl);
+//        createID(event.getServer());
+//        ChatUtil.IRCServer ircServer = ChatUtil.getIRCServerDetails();
+//        if(!serverNick.isEmpty() && !realName.isEmpty())
+//            chatHandlerServer = new ChatHandlerServer(serverNick, realName, ircServer.address, ircServer.port, ircServer.ssl);
 
         if (!CreeperHost.instance.active) return;
         event.registerServerCommand(new CommandInvite());
@@ -244,14 +244,14 @@ public class CreeperHostServer
     public void serverStarted(FMLServerStartedEvent event)
     {
         if (!CreeperHost.instance.active) return;
-        try
-        {
-            if(chatHandlerServer != null) chatHandlerServer.init();
-
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+//        try
+//        {
+//            if(chatHandlerServer != null) chatHandlerServer.init();
+//
+//        } catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
         final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if (server != null && !server.isSinglePlayer())
         {
@@ -392,7 +392,7 @@ public class CreeperHostServer
     public void serverStopping(FMLServerStoppingEvent event)
     {
         if (!CreeperHost.instance.active) return;
-        chatHandlerServer.client.shutdown();
+//        chatHandlerServer.client.shutdown();
         serverOn = false;
         serializePreload();
         pregenTasks.clear();
