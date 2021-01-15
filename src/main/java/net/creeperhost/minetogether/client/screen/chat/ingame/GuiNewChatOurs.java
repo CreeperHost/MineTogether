@@ -28,7 +28,6 @@ public class GuiNewChatOurs extends NewChatGui
 {
     private boolean base = true;
     public static boolean tabCompletion = false;
-    
     int updateCounter;
     
     @Override
@@ -121,10 +120,6 @@ public class GuiNewChatOurs extends NewChatGui
         }
     }
 
-//    private boolean getChatOpen() {
-//        return this.mc.currentScreen instanceof ChatScreen;
-//    }
-
     private final Minecraft mc;
     
     private final List<ChatLine<IReorderingProcessor>> chatLines = Lists.newArrayList();
@@ -216,7 +211,6 @@ public class GuiNewChatOurs extends NewChatGui
 
                             if (chatline != null) {
                                 int j1 = updateCounter - chatline.getUpdatedCounter();
-
                                 if (j1 < 200 || flag) {
                                     double d0 = (double) j1 / 200.0D;
                                     d0 = 1.0D - d0;
