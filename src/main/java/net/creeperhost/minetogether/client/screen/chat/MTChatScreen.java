@@ -70,6 +70,8 @@ public class MTChatScreen extends Screen
     private Button cancelButton;
     private Button invited;
     private Button newUserButton;
+    private Button disableButton;
+
     private boolean inviteTemp = false;
     public static List<TextFormatting> formattingList = new ArrayList<>();
     private String banMessage = "";
@@ -257,7 +259,18 @@ public class MTChatScreen extends Screen
                     IrcHandler.sendCTCPMessage("Freddy","ACTIVE", "");
                     Config.getInstance().setFirstConnect(false);
                     newUserButton.visible = false;
+                    disableButton.visible = false;
                     refresh();
+                }));
+                addButton(disableButton = new ButtonNoBlend((width/2)-150, 95+(height/4), 300, 20, new StringTextComponent("Don't ask me again"), p ->
+                {
+                    Config.getInstance().setChatEnabled(false);
+                    MineTogether.proxy.disableIngameChat();
+                    Config.getInstance().setFirstConnect(false);
+                    newUserButton.visible = false;
+                    disableButton.visible = false;
+                    IrcHandler.stop(true);
+                    this.minecraft.displayGuiScreen(parent);
                 }));
             }, MineTogether.otherExecutor);
         }

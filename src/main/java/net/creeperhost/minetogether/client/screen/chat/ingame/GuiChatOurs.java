@@ -163,6 +163,8 @@ public class GuiChatOurs extends ChatScreen
         }
     }
     private Button newUserButton;
+    private Button disableButton;
+
     private String userCount = "over 2 million";
     private String onlineCount = "thousands of";
     @Override
@@ -191,10 +193,25 @@ public class GuiChatOurs extends ChatScreen
                     IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                     Config.getInstance().setFirstConnect(false);
                     newUserButton.visible = false;
+                    disableButton.visible = false;
                     ourChat.setBase(false);
                     ourChat.rebuildChat(ChatHandler.CHANNEL);
+                    this.mc.displayGuiScreen(null);
                 }));
-                if(isBase()) newUserButton.visible = false;
+                addButton(disableButton = new ButtonNoBlend(6, height - ((ourChat.getChatHeight()+80)/2)+70, ourChat.getChatWidth(), 20, new StringTextComponent("Don't ask me again"), p ->
+                {
+                    Config.getInstance().setChatEnabled(false);
+                    MineTogether.proxy.disableIngameChat();
+                    disableButton.visible = false;
+                    newUserButton.visible = false;
+                    IrcHandler.stop(true);
+                    ourChat.setBase(true);
+                    buttons.clear();
+                }));
+                if(isBase()) {
+                    newUserButton.visible = false;
+                    disableButton.visible = false;
+                }
             }, MineTogether.otherExecutor);
         }
         if (MineTogether.instance.gdpr.hasAcceptedGDPR())
@@ -230,7 +247,10 @@ public class GuiChatOurs extends ChatScreen
         if (isBase())
         {
             super.init();
-            if(newUserButton != null && newUserButton.visible) newUserButton.visible = false;
+            if(newUserButton != null && newUserButton.visible) {
+                newUserButton.visible = false;
+                disableButton.visible = false;
+            }
             if (sleep)
             {
                 addButton(new Button(this.width / 2 - 100, this.height - 40, 60, 20, new StringTextComponent(I18n.format("multiplayer.stopSleeping")), p ->
@@ -394,7 +414,10 @@ public class GuiChatOurs extends ChatScreen
         if (isBase())
         {
             super.render(matrixStack, mouseX, mouseY, partialTicks);
-            if(newUserButton != null) newUserButton.visible = false;
+            if(newUserButton != null) {
+                newUserButton.visible = false;
+                disableButton.visible = false;
+            }
             return;
         }
         this.setFocusedDefault(this.inputField);
@@ -422,6 +445,7 @@ public class GuiChatOurs extends ChatScreen
             if(newUserButton != null)
             {
                 newUserButton.visible = true;
+                disableButton.visible = true;
             }
             int y = height - 40 - (mc.fontRenderer.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
 
