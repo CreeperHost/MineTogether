@@ -102,7 +102,16 @@ public class Profile
         if(currentTime > (lastOnlineCheck + 10))
         {
             lastOnlineCheck = currentTime;
-            IrcHandler.whois(mediumHash);
+
+            CompletableFuture.runAsync(() ->
+            {
+                try
+                {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) { e.printStackTrace(); }
+                IrcHandler.whois(mediumHash);
+
+            }, MineTogether.whoIsExecutor);
         }
         if(isOnline && !ChatHandler.friends.containsKey(mediumHash))
         {
@@ -216,7 +225,16 @@ public class Profile
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
         //WhoIs to get their pack
-        IrcHandler.whois(mediumHash);
+        if(!mediumHash.equals(MineTogether.instance.ourNick)) CompletableFuture.runAsync(() ->
+        {
+            try
+            {
+                Thread.sleep(1000);
+
+            } catch (InterruptedException e) { e.printStackTrace(); }
+            IrcHandler.whois(mediumHash);
+
+        }, MineTogether.whoIsExecutor);
         if (element.isJsonObject())
         {
             JsonObject obj = element.getAsJsonObject();

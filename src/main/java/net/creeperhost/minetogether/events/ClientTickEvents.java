@@ -80,6 +80,7 @@ public class ClientTickEvents
 
             //Try and disconnect if we have been told to.
             if (disconnectFromChat && ChatHandler.connectionStatus == ChatHandler.ConnectionStatus.DISCONNECTED) {
+                MineTogether.logger.error("Chat detected as disconnected, Attempting to reconnect");
                 IrcHandler.reconnect();
                 chatDisconnected = true;
             }

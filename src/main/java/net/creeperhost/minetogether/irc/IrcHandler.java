@@ -61,22 +61,24 @@ public class IrcHandler
                     {
                         if (line.startsWith("PING "))
                         {
-//                            System.out.println(line);
-                            sendString("PONG " + line.substring(5) + "\r\n");
+                            MineTogether.logger.info(line);
+                            sendString("PONG " + line.substring(5) + "\r\n", true);
                             if(first.get()) {
                                 ChatHandler.connectionStatus = ChatHandler.ConnectionStatus.CONNECTED;
-                                sendString("USER " + "MineTogether" + " 8 * :" + MineTogether.instance.realName);//"MineTogether" + " 8 * :" + "{\"p\":\"m35\",\"b\":\"MzUxNzQ\\u003d\"}");
-                                sendString("JOIN " + ircServer.channel);
+                                sendString("USER " + "MineTogether" + " 8 * :" + MineTogether.instance.realName, true);//"MineTogether" + " 8 * :" + "{\"p\":\"m35\",\"b\":\"MzUxNzQ\\u003d\"}");
+                                sendString("JOIN " + ircServer.channel, true);
                                 first.getAndSet(false);
                             }
                         } else {
-                            handleInput(line);
+                            String finalLine = line;
+                            CompletableFuture.runAsync(() -> handleInput(finalLine), MineTogether.messageHandlerExecutor);
+//                            handleInput(line);
 //                            System.out.println(line);
                         }
                     }
                 } catch (Exception ignored) {}
             });
-            sendString("NICK " + nickname);
+            sendString("NICK " + nickname, true);
 
             while (!socket.isClosed())
             {
@@ -85,7 +87,7 @@ public class IrcHandler
         }
         catch (Exception e)
         {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -121,21 +123,38 @@ public class IrcHandler
         reconnecting = false;
     }
 
-    public static void sendString(String str) {
-        try {
-            bufferedWriter.write(str + "\r\n");
+    public static void sendString(String str, boolean errorCount)
+    {
+        if(socket.isClosed() || !socket.isConnected()) return;
+        if(str.isEmpty()) return;
+
+        MineTogether.logger.info(str);
+
+        String preFormat = str + "\r\n";
+        byte[] out = preFormat.getBytes(StandardCharsets.UTF_8);
+        String s = new String(out, StandardCharsets.UTF_8);
+        char[] chars = s.toCharArray();
+
+        try
+        {
+            bufferedWriter.write(chars);
             bufferedWriter.flush();
             errCount = 0;
         }
         catch (SocketException e)
         {
-            errCount++;
-            if(errCount > 5) {
+            if(errorCount) errCount++;
+
+            if(errCount > 5)
+            {
+                MineTogether.logger.error("errCount: " + errCount);
                 reconnect();
             }
+            e.printStackTrace();
         }
-        catch (Exception e) {
-            errCount++;
+        catch (Exception e)
+        {
+            if(errorCount) errCount++;
             System.out.println("Exception: "+e);
             e.printStackTrace();
         }
@@ -149,7 +168,7 @@ public class IrcHandler
             ChatHandler.addMessageToChat(channel,"System", "Please refrain from flooding.");
             return false;
         } else {
-            sendString("PRIVMSG " + channel + " " + new String(message.getBytes(), StandardCharsets.UTF_8));
+            sendString("PRIVMSG " + channel + " " + new String(message.getBytes(), StandardCharsets.UTF_8), true);
             lastMessage = message;
             lastMessageTime = System.currentTimeMillis();
             return true;
@@ -158,22 +177,25 @@ public class IrcHandler
 
     public static void whois(String nick)
     {
-        sendString("WHOIS " + nick);
+        if(ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) return;
+        if(nick.length() < 28) return;
+
+        sendString("WHOIS " + nick, false);
     }
 
     public static void sendCTCPMessage(String target, String type, String value)
     {
-        sendString("NOTICE " + target + " :" + toCtcp(type + " " + value));
+        sendString("NOTICE " + target + " :" + toCtcp(type + " " + value), true);
     }
 
     public static void sendCTCPMessagePrivate(String target, String type, String value)
     {
-        sendString("PRIVMSG " + target + " :" + toCtcp(type + " " + value));
+        sendString("PRIVMSG " + target + " :" + toCtcp(type + " " + value), true);
     }
 
     public static void joinChannel(String channel)
     {
-        sendString("JOIN " + channel);
+        sendString("JOIN " + channel, true);
     }
 
     public static String toCtcp(String message)

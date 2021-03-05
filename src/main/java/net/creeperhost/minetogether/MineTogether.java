@@ -117,6 +117,8 @@ public class MineTogether implements ICreeperHostMod, IHost
     public static Executor otherExecutor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("minetogether-other-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     public static Executor ircEventExecutor = Executors.newFixedThreadPool(15, new ThreadFactoryBuilder().setNameFormat("minetogether-ircevent-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     public static Executor chatMessageExecutor = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-chatmessage-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    public static Executor messageHandlerExecutor = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-messagehandler-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    public static Executor whoIsExecutor = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-whoisexecuter-%d").build()); //new ThreadPoolExecutor(100, 100, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
     public static DebugHandler debugHandler = new DebugHandler();
     public static AtomicReference<Profile> profile = new AtomicReference<>();

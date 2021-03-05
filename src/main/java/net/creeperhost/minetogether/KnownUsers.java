@@ -74,8 +74,12 @@ public class KnownUsers
             });
             CompletableFuture.runAsync(() -> {
                 Profile profileFuture = findByNick(hash);
+                try
+                {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) { e.printStackTrace(); }
                 profileFuture.loadProfile();
-            }, MineTogether.instance.profileExecutor);
+            }, MineTogether.profileExecutor);
             return profile;
         }
         return null;

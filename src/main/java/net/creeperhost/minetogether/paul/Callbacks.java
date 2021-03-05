@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public final class Callbacks
 {
@@ -695,11 +696,17 @@ public final class Callbacks
                                         boolean accepted = friend.get("accepted").getAsBoolean();
                                         Profile profile = ChatHandler.knownUsers.findByHash(code);
                                         if (profile == null) profile = ChatHandler.knownUsers.add(code);
+                                        try
+                                        {
+                                            Thread.sleep(1000);
+                                        } catch (InterruptedException e) { e.printStackTrace(); }
+
                                         CompletableFuture.runAsync(() -> {
                                             Profile profile1 = ChatHandler.knownUsers.findByHash(code);
                                             profile1.loadProfile();
                                             ChatHandler.knownUsers.update(profile1);
                                         }, MineTogether.profileExecutor);
+
                                         tempArr.add(new Friend(name, code, accepted));
                                     }
                                 } else {

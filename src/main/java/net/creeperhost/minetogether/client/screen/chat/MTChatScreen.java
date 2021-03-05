@@ -147,7 +147,7 @@ public class MTChatScreen extends Screen
                 {
                     PrivateChat privateChat = new PrivateChat("#" + MineTogether.instance.ourNick, MineTogether.instance.ourNick);
                     ChatHandler.privateChatList = privateChat;
-                    IrcHandler.sendString("JOIN " + privateChat.getChannelname());
+                    IrcHandler.sendString("JOIN " + privateChat.getChannelname(), true);
                 }
             });
         } else
@@ -798,7 +798,6 @@ public class MTChatScreen extends Screen
             ITextComponent messageComp = newChatWithLinksOurs(messageStr);
 
             if((profile != null && profile.isBanned()) || ChatHandler.backupBan.get().contains(inputNick)) {
-//                messageComp = new TextComponentString("<Message Deleted>").setStyle(new Style().setObfuscated(true).setColor(TextFormatting.DARK_GRAY));
                 messageComp = new StringTextComponent("<Message Deleted>").deepCopy().modifyStyle(style -> style.setObfuscated(true).setColor(Color.fromTextFormatting(TextFormatting.DARK_GRAY)));
                 messageColour = TextFormatting.DARK_GRAY;
             }
@@ -861,7 +860,6 @@ public class MTChatScreen extends Screen
 
             if(Config.getInstance().getFirstConnect())
             {
-//                userComp = userComp.deepCopy().modifyStyle(style -> style.setFontId(GALACTIC_ALT_FONT));
                 messageComp = new StringTextComponent(rot13(messageComp.getString()));
                 messageComp = messageComp.deepCopy().modifyStyle(style -> style.setFontId(GALACTIC_ALT_FONT));
             }
@@ -873,6 +871,7 @@ public class MTChatScreen extends Screen
 
         } catch (Throwable e)
         {
+            MineTogether.logger.error("Failed to format line: Sender " + message.sender + " Message" + message.messageStr);
             e.printStackTrace();
         }
         return new StringTextComponent("Error formatting line, Please report this to the issue tracker");

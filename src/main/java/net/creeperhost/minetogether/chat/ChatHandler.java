@@ -155,12 +155,12 @@ public class ChatHandler
         if(privateChatList == null)
         {
             IrcHandler.joinChannel("#" + owner);
-            IrcHandler.sendString("MODE #" + owner + " +i");
+            IrcHandler.sendString("MODE #" + owner + " +i", true);
             privateChatList = new PrivateChat("#" + owner, owner);
             ChatHandler.hasGroup = true;
             ChatHandler.currentGroup = "#" + owner;
         }
-        IrcHandler.sendString("INVITE " + target + " #" + owner);
+        IrcHandler.sendString("INVITE " + target + " #" + owner, true);
     }
 
     public static boolean isOnline()
@@ -211,7 +211,7 @@ public class ChatHandler
     
     public static void closePrivateChat()
     {
-        IrcHandler.sendString("PART " + privateChatList.getChannelname());
+        IrcHandler.sendString("PART " + privateChatList.getChannelname(), true);
         privateChatList = null;
         ChatHandler.hasGroup = false;
     }
