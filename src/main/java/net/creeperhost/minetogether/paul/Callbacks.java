@@ -1050,9 +1050,9 @@ public final class Callbacks
     
     public static String getVersionFromApi(String packid)
     {
-        String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
         try
         {
+            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
             JsonElement jElement = new JsonParser().parse(resp);
             JsonObject jObject = jElement.getAsJsonObject();
             if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
@@ -1068,42 +1068,39 @@ public final class Callbacks
 
     public static List<ModPack> getModpackFromCurse(String modpack, int limit)
     {
-        String url = "https://www.creeperhost.net/json/modpacks/mc/search/unique/" + modpack;
+        try {
+            String url = "https://www.creeperhost.net/json/modpacks/mc/search/unique/" + modpack;
 
-        //Return the recommended if nothing is searched
-        if(modpack == null || modpack.isEmpty())
-        {
-            url = "https://www.creeperhost.net/json/modpacks/weekly/" + limit;
-        }
-
-        String resp = WebUtils.getWebResponse(url);
-        List<ModPack> modpackList = new ArrayList<>();
-
-        JsonElement jElement = new JsonParser().parse(resp);
-
-        if (jElement.isJsonObject())
-        {
-            JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
-            JsonArray array = object.getAsJsonArray("mc");
-
-            if (array != null)
-            {
-                for (JsonElement serverEl : array)
-                {
-                    if(modpack != null && modpack.isEmpty() || modpackList.size() <= limit)
-                    {
-                        JsonObject server = (JsonObject) serverEl;
-                        String id = server.get("id").getAsString();
-                        String name = server.get("displayName").getAsString();
-                        String displayVersion = server.get("displayVersion").getAsString();
-                        String displayIcon = server.get("displayIcon").getAsString();
-
-                        modpackList.add(new ModPack(id, name, displayVersion, displayIcon));
-                    }
-                }
-                return modpackList;
+            //Return the recommended if nothing is searched
+            if (modpack == null || modpack.isEmpty()) {
+                url = "https://www.creeperhost.net/json/modpacks/weekly/" + limit;
             }
-        }
+
+            String resp = WebUtils.getWebResponse(url);
+            List<ModPack> modpackList = new ArrayList<>();
+
+            JsonElement jElement = new JsonParser().parse(resp);
+
+            if (jElement.isJsonObject()) {
+                JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
+                JsonArray array = object.getAsJsonArray("mc");
+
+                if (array != null) {
+                    for (JsonElement serverEl : array) {
+                        if (modpack != null && modpack.isEmpty() || modpackList.size() <= limit) {
+                            JsonObject server = (JsonObject) serverEl;
+                            String id = server.get("id").getAsString();
+                            String name = server.get("displayName").getAsString();
+                            String displayVersion = server.get("displayVersion").getAsString();
+                            String displayIcon = server.get("displayIcon").getAsString();
+
+                            modpackList.add(new ModPack(id, name, displayVersion, displayIcon));
+                        }
+                    }
+                    return modpackList;
+                }
+            }
+        } catch (Exception ignored) {}
         return null;
     }
 

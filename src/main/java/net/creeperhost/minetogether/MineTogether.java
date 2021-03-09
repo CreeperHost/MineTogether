@@ -154,7 +154,8 @@ public class MineTogether implements ICreeperHostMod, IHost
     public void preInit(FMLCommonSetupEvent event)
     {
         ConfigHandler.init();
-        updateFtbPackID();
+        //Get off our main thread!
+        CompletableFuture.runAsync(() -> updateFtbPackID()).join();
         proxy.checkOnline();
         proxy.registerKeys();
         PacketHandler.register();
