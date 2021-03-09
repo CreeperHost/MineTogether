@@ -47,6 +47,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Mod(modid = CreeperHostServer.MOD_ID, name = CreeperHostServer.NAME, version = CreeperHost.VERSION, acceptableRemoteVersions = "*", acceptedMinecraftVersions = "1.9.4,1.10.2,1.11.2")
@@ -182,27 +183,24 @@ public class CreeperHostServer
         if(Config.getInstance().isTradeEnabled()) event.registerServerCommand(new CommandTrade());
         deserializePreload(new File(getSaveFolder(), "pregenData.json"));
 
-        updateFtbPackID();
-        int packID;
+        CompletableFuture.runAsync(() -> {
+            updateFtbPackID();
+            int packID;
 
-        HashMap<String, String> jsonObj = new HashMap<>();
-        if(this.ftbPackID.length() < 1) // Even if we get "m", we can throw it away.
-        {
-            try
+            HashMap<String, String> jsonObj = new HashMap<>();
+            if (this.ftbPackID.length() < 1) // Even if we get "m", we can throw it away.
             {
-                packID = Integer.parseInt(Config.getInstance().curseProjectID);
+                try {
+                    packID = Integer.parseInt(Config.getInstance().curseProjectID);
+                } catch (NumberFormatException e) {
+                    packID = -1;
+                }
+                jsonObj.put("p", String.valueOf(packID));
+            } else {
+                jsonObj.put("p", ftbPackID);
+                jsonObj.put("b", base64);
             }
-            catch (NumberFormatException e)
-            {
-                packID = -1;
-            }
-            jsonObj.put("p", String.valueOf(packID));
-        }
-        else
-        {
-            jsonObj.put("p", ftbPackID);
-            jsonObj.put("b", base64);
-        }
+        }).join();
     }
 
     public void updateFtbPackID()

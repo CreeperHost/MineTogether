@@ -18,13 +18,20 @@ public class WebUtils {
     private static List<String> cookies;
     public static String getWebResponse(String urlString)
     {
+        return getWebResponse(urlString, 0);
+    }
+    public static String getWebResponse(String urlString, int timeout)
+    {
         try
         {
+            if(timeout == 0) timeout = 120;
             URL url = new URL(urlString);
             URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
             url = uri.toURL();
             // lul
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(10);
+            conn.setReadTimeout(timeout);
             conn.setRequestMethod("GET");
 
             if (cookies != null)

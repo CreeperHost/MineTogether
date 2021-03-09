@@ -940,9 +940,9 @@ public final class Callbacks
     {
         if(isInteger(curse))
         {
-            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse);
             try
             {
+                String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse, 20);
                 JsonElement jElement = new JsonParser().parse(resp);
                 JsonObject jObject = jElement.getAsJsonObject();
                 if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
@@ -974,9 +974,9 @@ public final class Callbacks
     
     public static String getVersionFromApi(String packid)
     {
-        String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid);
         try
         {
+            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid, 20);
             JsonElement jElement = new JsonParser().parse(resp);
             JsonObject jObject = jElement.getAsJsonObject();
             if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
