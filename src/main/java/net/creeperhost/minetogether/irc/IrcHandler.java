@@ -61,7 +61,6 @@ public class IrcHandler
                     {
                         if (line.startsWith("PING "))
                         {
-                            MineTogether.logger.info(line);
                             sendString("PONG " + line.substring(5) + "\r\n", true);
                             if(first.get()) {
                                 ChatHandler.connectionStatus = ChatHandler.ConnectionStatus.CONNECTED;
@@ -72,8 +71,6 @@ public class IrcHandler
                         } else {
                             String finalLine = line;
                             CompletableFuture.runAsync(() -> handleInput(finalLine), MineTogether.messageHandlerExecutor);
-//                            handleInput(line);
-//                            System.out.println(line);
                         }
                     }
                 } catch (Exception ignored) {}
@@ -128,8 +125,6 @@ public class IrcHandler
         if(socket.isClosed() || !socket.isConnected()) return;
         if(str.isEmpty()) return;
 
-        MineTogether.logger.info(str);
-
         String preFormat = str + "\r\n";
         byte[] out = preFormat.getBytes(StandardCharsets.UTF_8);
         String s = new String(out, StandardCharsets.UTF_8);
@@ -147,7 +142,6 @@ public class IrcHandler
 
             if(errCount > 5)
             {
-                MineTogether.logger.error("errCount: " + errCount);
                 reconnect();
             }
             e.printStackTrace();
@@ -155,7 +149,6 @@ public class IrcHandler
         catch (Exception e)
         {
             if(errorCount) errCount++;
-            System.out.println("Exception: "+e);
             e.printStackTrace();
         }
     }
