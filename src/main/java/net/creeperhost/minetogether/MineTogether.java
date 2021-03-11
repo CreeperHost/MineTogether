@@ -139,8 +139,8 @@ public class MineTogether implements ICreeperHostMod, IHost
     public MineTogether()
     {
         instance = this;
-        proxy = DistExecutor.runForDist(() -> Client::new, () -> Server::new);
-        serverProxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
+        proxy = DistExecutor.safeRunForDist(() -> Client::new, () -> Server::new);
+        serverProxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         eventBus.addListener(this::preInit);
         eventBus.addListener(this::preInitClient);
@@ -155,7 +155,7 @@ public class MineTogether implements ICreeperHostMod, IHost
     {
         ConfigHandler.init();
         //Get off our main thread!
-        CompletableFuture.runAsync(() -> updateFtbPackID()).join();
+        CompletableFuture.runAsync(this::updateFtbPackID).join();
         proxy.checkOnline();
         proxy.registerKeys();
         PacketHandler.register();
