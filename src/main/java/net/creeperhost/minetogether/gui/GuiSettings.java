@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.gui;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -52,14 +53,15 @@ public class GuiSettings extends GuiScreen
             {
                 CreeperHost.instance.getLogger().info("Disabling in-game chat");
                 Config.getInstance().setChatEnabled(false);
-                CreeperHost.proxy.stopChat();
                 CreeperHost.proxy.disableIngameChat();
+                IrcHandler.stop(true);
             }
             else
             {
                 CreeperHost.instance.getLogger().info("Enabling in-game chat");
                 Config.getInstance().setChatEnabled(true);
                 CreeperHost.proxy.enableIngameChat();
+                IrcHandler.reconnect();
             }
             saveConfig();
         }
