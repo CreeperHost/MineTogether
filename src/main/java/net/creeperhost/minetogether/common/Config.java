@@ -2,6 +2,8 @@ package net.creeperhost.minetogether.common;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.data.Profile;
 
 /**
  * Created by Aaron on 05/05/2017.
@@ -26,6 +28,8 @@ public class Config
     private boolean tradeEnabled;
     private boolean replaceRealms;
     private transient boolean argChatDisable;
+    private String firstConnect = "";
+
 
     private int pregenDiameter = 120;
 
@@ -134,6 +138,32 @@ public class Config
         return chatEnabled && (!argChatDisable);
     }
 
+    public boolean getFirstConnect() {
+        //Explanation
+        //If they have an account, we can safely assume they know what MineTogether is, so we won't display the welcome
+        //We use a string for firstConnect to ensure it's the same person, and if account changes we can display again.
+        boolean response = true;
+        if(CreeperHost.profile != null)
+        {
+            Profile self = CreeperHost.profile.get();
+            if(self != null) {
+                response = (!self.hasAccount());
+            }
+        }
+        if(response)
+        {
+            response = (!firstConnect.equalsIgnoreCase(CreeperHost.instance.ourNick));
+        }
+        return response;
+    }
+
+    public void setFirstConnect(boolean first)
+    {
+        firstConnect = (first) ? "" : CreeperHost.instance.ourNick;
+        //TODO: Turn transient and save to a local config instead
+        saveConfig();
+    }
+
     public boolean isFriendOnlineToastsEnabled() { return enableFriendOnlineToasts; }
 
     public String getCurseProjectID() { return curseProjectID; }
@@ -171,7 +201,7 @@ public class Config
     }
 
     public static String saveConfig() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         return gson.toJson(instance);
     }
 }

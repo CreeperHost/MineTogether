@@ -1,6 +1,9 @@
 package net.creeperhost.minetogether.gui.chat;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.creeperhost.minetogether.CreeperHost;
+import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.data.Profile;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.chat.Message;
@@ -11,6 +14,7 @@ import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.GuiSettings;
 import net.creeperhost.minetogether.gui.element.ButtonString;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
+import net.creeperhost.minetogether.gui.element.FancyButton;
 import net.creeperhost.minetogether.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.misc.Callbacks;
@@ -39,6 +43,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,11 +67,14 @@ public class GuiMTChat extends GuiScreen
     private GuiButton reconnectionButton;
     private GuiButton cancelButton;
     private GuiButton invited;
+    private GuiButton newUserButton;
+    private GuiButton disableButton;
     private boolean inviteTemp = false;
     private String banMessage = "";
     private ButtonString banButton;
     private GuiButton settingsButton;
     private boolean isBanned = false;
+    private String userCount = "over 2 million";
 
     public GuiMTChat(GuiScreen parent)
     {
@@ -154,6 +162,45 @@ public class GuiMTChat extends GuiScreen
             if(!banMessage.isEmpty())
                 buttonList.add(banButton = new ButtonString(8888, 46, height - 26, TextFormatting.RED + "Ban Reason: " + TextFormatting.WHITE + banMessage));
         }
+
+        if(Config.getInstance().getFirstConnect())
+        {
+            CompletableFuture.runAsync(() -> {
+                String statistics = WebUtils.getWebResponse("https://minetogether.io/api/stats/all");
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                HashMap<String, String> stats = gson.fromJson(statistics, HashMap.class);
+                String users = stats.get("users");
+                if(users != null && users.length() > 4) {
+                    userCount = stats.get("users");
+                }
+
+                //TODO: Get the width of ts in pixels
+                addButton(newUserButton = new FancyButton(847, (width/2)-150, 75+(height/4), 300, 20, "Join "+stats.get("online")+" online users now!", p ->
+                {
+                    IrcHandler.sendCTCPMessage("Freddy","ACTIVE", "");
+                    Config.getInstance().setFirstConnect(false);
+                    newUserButton.visible = false;
+                    disableButton.visible = false;
+                    Config.saveConfig();
+                    refresh();
+                }));
+                addButton(disableButton = new FancyButton(848, (width/2)-150, 95+(height/4), 300, 20, "Don't ask me again", p ->
+                {
+                    Config.getInstance().setChatEnabled(false);
+                    CreeperHost.proxy.disableIngameChat();
+                    Config.getInstance().setFirstConnect(false);
+                    newUserButton.visible = false;
+                    disableButton.visible = false;
+                    IrcHandler.stop(true);
+                    this.mc.displayGuiScreen(parent);
+                }));
+            }, CreeperHost.otherExecutor);
+        }
+    }
+
+    public void refresh()
+    {
+        Minecraft.getMinecraft().displayGuiScreen(new GuiMTChat(parent));
     }
 
     long tickCounter = 0;
@@ -237,6 +284,16 @@ public class GuiMTChat extends GuiScreen
             drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
         }
 
+        if(Config.getInstance().getFirstConnect())
+        {
+            drawGradientRect(chat.left, chat.top, chat.width + 5, chat.height, 0x99000000, 0x99000000);
+
+            drawCenteredString(fontRendererObj, "Welcome to MineTogether", width / 2, (height/4)+25, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, "MineTogether is a multiplayer enhancement mod that provides", width / 2, (height/4)+35, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, "a multitude of features like chat, friends list, server listing", width / 2, (height/4)+45, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, "and more. Join " + userCount + " unique users.", width / 2, (height / 4) +55, 0xFFFFFF);
+        }
+
         super.drawScreen(mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
         {
@@ -299,6 +356,11 @@ public class GuiMTChat extends GuiScreen
     {
         if(button != null)
         {
+            if(button instanceof FancyButton)
+            {
+                FancyButton fancyButton = (FancyButton) button;
+                fancyButton.onPress();
+            }
             if (button == targetDropdownButton && targetDropdownButton.displayString.contains("new channel"))
             {
                 PrivateChat privateChat = new PrivateChat("#" + CreeperHost.instance.ourNick, CreeperHost.instance.ourNick);
@@ -592,6 +654,8 @@ public class GuiMTChat extends GuiScreen
 
     public static ITextComponent formatLine(Message message)
     {
+        if(Config.getInstance().getFirstConnect()) return null;
+
         try
         {
             String inputNick = message.sender;
@@ -781,6 +845,10 @@ public class GuiMTChat extends GuiScreen
     private class GuiScrollingChat extends GuiScrollingList
     {
         private ArrayList<ITextComponent> lines;
+        int width = GuiMTChat.this.width - 20;
+        int height = GuiMTChat.this.height - 50;
+        int top = 30;
+        int left = 10;
         
         GuiScrollingChat(int entryHeight)
         {
