@@ -202,7 +202,7 @@ public class GuiNewChatOurs extends GuiNewChat
                     GlStateManager.scale(f1, f1, 1.0F);
                     int l = 0;
 
-                    if(this.drawnChatLines.size() > 0)
+                    if(this.drawnChatLines != null && this.drawnChatLines.size() > 0)
                     {
                         for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1) {
                             ChatLine chatline = this.drawnChatLines.get(i1 + this.scrollPos);
@@ -238,41 +238,38 @@ public class GuiNewChatOurs extends GuiNewChat
 
                     if (!isBase() && getChatOpen())
                         GuiMTChat.drawLogo(mc.fontRendererObj, k + 4 + 2, 40, -2, (int) (-lines * 4.5), 0.75F);
-                    
-                    for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
-                    {
-                        ChatLine chatline = this.drawnChatLines.get(i1 + this.scrollPos);
-                        
-                        if (chatline != null)
-                        {
-                            int j1 = updateCounter - chatline.getUpdatedCounter();
-                            
-                            if (j1 < 200 || flag)
-                            {
-                                double d0 = (double) j1 / 200.0D;
-                                d0 = 1.0D - d0;
-                                d0 = d0 * 10.0D;
-                                d0 = MathHelper.clamp(d0, 0.0D, 1.0D);
-                                d0 = d0 * d0;
-                                int l1 = (int) (255.0D * d0);
-                                
-                                if (flag)
-                                {
-                                    l1 = 255;
-                                }
-                                
-                                l1 = (int) ((float) l1 * f);
-                                ++l;
-                                
-                                if (l1 > 3)
-                                {
-                                    int i2 = 0;
-                                    int j2 = -i1 * 9;
-                                    String s = chatline.getChatComponent().getFormattedText();
-                                    GlStateManager.enableBlend();
-                                    this.mc.fontRendererObj.drawStringWithShadow(s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
-                                    GlStateManager.disableAlpha();
-                                    GlStateManager.disableBlend();
+                    if(this.drawnChatLines != null && this.drawnChatLines.size() > 0) {
+
+                        for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1) {
+                            ChatLine chatline = this.drawnChatLines.get(i1 + this.scrollPos);
+
+                            if (chatline != null) {
+                                int j1 = updateCounter - chatline.getUpdatedCounter();
+
+                                if (j1 < 200 || flag) {
+                                    double d0 = (double) j1 / 200.0D;
+                                    d0 = 1.0D - d0;
+                                    d0 = d0 * 10.0D;
+                                    d0 = MathHelper.clamp(d0, 0.0D, 1.0D);
+                                    d0 = d0 * d0;
+                                    int l1 = (int) (255.0D * d0);
+
+                                    if (flag) {
+                                        l1 = 255;
+                                    }
+
+                                    l1 = (int) ((float) l1 * f);
+                                    ++l;
+
+                                    if (l1 > 3) {
+                                        int i2 = 0;
+                                        int j2 = -i1 * 9;
+                                        String s = chatline.getChatComponent().getFormattedText();
+                                        GlStateManager.enableBlend();
+                                        this.mc.fontRendererObj.drawStringWithShadow(s, 0.0F, (float) (j2 - 8), 16777215 + (l1 << 24));
+                                        GlStateManager.disableAlpha();
+                                        GlStateManager.disableBlend();
+                                    }
                                 }
                             }
                         }
