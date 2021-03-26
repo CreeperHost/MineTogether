@@ -43,6 +43,7 @@ public class WebUtils {
             }
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56 MineTogether/0.0.0");
             conn.setRequestProperty("Fingerprint", CreeperHost.getSignature());
+            conn.setRequestProperty("Identifier", URLEncoder.encode(CreeperHost.instance.realName, "UTF-8"));
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             StringBuilder respData = new StringBuilder();
@@ -107,6 +108,8 @@ public class WebUtils {
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56 MineTogether/0.0.0");
+            conn.setRequestProperty("Fingerprint", CreeperHost.getSignature());
+            conn.setRequestProperty("Identifier", URLEncoder.encode(CreeperHost.instance.realName, "UTF-8"));
             conn.setRequestMethod(method);
             conn.setReadTimeout(30000);
             if (cookies != null)
