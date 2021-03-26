@@ -540,6 +540,10 @@ public class EventHandler
             {
                 buttonDrawn = true;
                 event.getButtonList().add(new GuiButton(FRIEND_BUTTON_ID, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends")));
+                int x = gui.width - 20 - 5;
+                if (buttonDrawn) x -= 99;
+
+                event.getButtonList().add(new GuiButtonMultiple(CHAT_BUTTON_ID, x, 5, 1));
             }
 
             if (gui instanceof GuiMainMenu)
@@ -616,14 +620,6 @@ public class EventHandler
             {
                 int i = 11;
                 event.getButtonList().add(ingameChatButton = new GuiButton(-20, gui.width / 2 - 155 + i % 2 * 160, gui.height / 6 + 24 * (i >> 1), 150, 20, "MineTogether Chat: " + (CreeperHost.instance.ingameChat.hasDisabledIngameChat() ? "OFF" : "ON")));
-            }
-            
-            if (gui instanceof GuiIngameMenu)
-            {
-                int x = gui.width - 20 - 5;
-                if (buttonDrawn)
-                    x -= 99;
-                event.getButtonList().add(new GuiButtonMultiple(CHAT_BUTTON_ID, x, 5, 1));
             }
         }
     }
