@@ -75,6 +75,8 @@ public class EventHandler
     private static final int MP_BUTTON_ID = 8008135;
     private static final int CHAT_BUTTON_ID = 800813;
     private static final int FRIEND_BUTTON_ID = 1337420;
+    private static final int CHAT_BUTTON_ID_MAINMENU = 800813;
+    private static final int FRIEND_BUTTON_ID_MAINMENU = 1337420;
     private static final int MINIGAMES_BUTTON_ID = 0xdeadbeef;
     
     private static GuiServerInfo guiServerInfo = new GuiServerInfo();
@@ -339,6 +341,15 @@ public class EventHandler
                     buttonList.add(new GuiButtonCreeper(MAIN_BUTTON_ID, gui.width / 2 + 104, gui.height / 4 + 48 + 72 + 12));
                 }
             }
+
+            buttonDrawn = true;
+
+            if(Config.getInstance().isEnableMainMenuFriends())
+            {
+                event.getButtonList().add(new GuiButton(FRIEND_BUTTON_ID_MAINMENU, gui.width - 100 - 5, 5, 100, 20, I18n.format("creeperhost.multiplayer.friends")));
+                event.getButtonList().add(new GuiButtonMultiple(CHAT_BUTTON_ID_MAINMENU, gui.width - 25 - 99, 5, 1));
+            }
+
         } else if (gui instanceof GuiMultiplayer && !(gui instanceof GuiMultiplayerPublic) && lastInitialized != gui) {
             GuiMultiplayer mpGUI = (GuiMultiplayer) gui;
 			if (CreeperHost.instance.getImplementation() == null)
@@ -668,6 +679,16 @@ public class EventHandler
             {
                 Minecraft.getMinecraft().displayGuiScreen(GuiGetServer.getByStep(0, new Order()));
                 event.setCanceled(true);
+            }
+
+            if (button != null && button.id == FRIEND_BUTTON_ID_MAINMENU)
+            {
+                CreeperHost.proxy.openFriendsGui();
+            }
+
+            if (button != null && button.id == CHAT_BUTTON_ID_MAINMENU)
+            {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMTChat(gui));
             }
         } else if (gui instanceof GuiMultiplayer)
         {

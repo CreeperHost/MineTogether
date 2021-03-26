@@ -52,6 +52,7 @@ public class Config
         isLeft = true;
         tradeEnabled = false;
         replaceRealms = true;
+        enableMainMenuFriends = true;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage) {
@@ -136,6 +137,16 @@ public class Config
     public boolean isChatEnabled()
     {
         return chatEnabled && (!argChatDisable);
+    }
+
+    public boolean isEnableMainMenuFriends()
+    {
+        return enableMainMenuFriends;
+    }
+
+    public void setEnableMainMenuFriends(boolean enableMainMenuFriends)
+    {
+        this.enableMainMenuFriends = enableMainMenuFriends;
     }
 
     public boolean getFirstConnect() {
