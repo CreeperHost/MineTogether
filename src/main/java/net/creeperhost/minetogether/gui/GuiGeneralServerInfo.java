@@ -68,7 +68,7 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.slotSlider = new GuiSlider(this, 1, halfWidth - 100, halfHeight + 15, Util.localize("slider.player_count"), Constants.MIN_PLAYER_COUNT, Constants.MAX_PLAYER_COUNT, this.order.playerAmount, SLIDER_FORMATTER);
         this.slotSlider.width = 200;
         this.buttonList.add(this.slotSlider);
-        modpack = new GuiButton(21212, width - 90,  10, 86, 20, "Change Modpack");
+        modpack = new GuiButton(21212, 4, 4, 86, 20, "Change Modpack");
         buttonList.add(modpack);
     }
 
@@ -130,8 +130,9 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
+
         super.drawScreen(mouseX, mouseY, partialTicks);
-        
+
         this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width / 2, this.height / 2 - 65, -1);
         
         int colour;
@@ -157,6 +158,8 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
         this.nameField.drawTextBox();
         
         this.drawCenteredString(fontRendererObj, message, (this.width / 2), (this.height / 2) - 26, colour);
+
+        drawGradientRect(50, this.height - 20, width, 20, 0x66000000, 0x66000000);
     }
     
     @Override

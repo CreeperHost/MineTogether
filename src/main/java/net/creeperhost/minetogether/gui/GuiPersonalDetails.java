@@ -324,6 +324,7 @@ public class GuiPersonalDetails extends GuiGetServer
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
+        drawGradientRect(0, this.height - 20, width, 20, 0x99000000, 0x99000000);
         super.drawScreen(mouseX, mouseY, partialTicks);
         
         if ((!orderPressed || !isSure) && !loginMode)

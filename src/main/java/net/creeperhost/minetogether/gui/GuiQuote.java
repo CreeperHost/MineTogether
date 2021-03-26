@@ -40,13 +40,13 @@ public class GuiQuote extends GuiGetServer
     public void initGui()
     {
         super.initGui();
-        
+
         this.list = new GuiList(this, this.mc, this.width, this.height, 56, this.height - 36, 36);
         
-        this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, 67, this.height - 88, Util.localize("quote.vpsfeatures"), new ArrayList<String>(), true, 0);
-        this.wellRight = new GuiWell(this.mc, this.width, 67, this.height - 88, Util.localize("quote.vpsincluded"), new ArrayList<String>(), true, (this.width / 2) + 10);
-        this.wellBottom = new GuiWell(this.mc, this.width, this.height - 83, this.height - 36, "", new ArrayList<String>(), true, 0);
-        
+        this.wellLeft = new GuiWell(this.mc, this.width / 2 - 10, 67, this.height - 88, Util.localize("quote.vpsfeatures"), new ArrayList<String>(), true, 0, zLevel);
+        this.wellRight = new GuiWell(this.mc, this.width, 67, this.height - 88, Util.localize("quote.vpsincluded"), new ArrayList<String>(), true, (this.width / 2) + 10, zLevel);
+        this.wellBottom = new GuiWell(this.mc, this.width, this.height - 83, this.height - 36, "", new ArrayList<String>(), true, 0, zLevel);
+
         int start = (this.width / 2) + 10;
         int end = this.width;
         int middle = (end - start) / 2;
@@ -189,7 +189,9 @@ public class GuiQuote extends GuiGetServer
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
-        
+
+        drawGradientRect(0, this.height - 20, width, 20, 0x99000000, 0x99000000);
+
         if (countryEnabled)
         {
             this.list.drawScreen(mouseX, mouseY, partialTicks);

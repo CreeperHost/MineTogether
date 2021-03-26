@@ -79,10 +79,8 @@ public abstract class GuiGetServer extends GuiScreen
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        this.drawCenteredString(this.fontRendererObj, Util.localize("gui.get_server"), this.width / 2, 10, -1);
-        
-        this.drawCenteredString(this.fontRendererObj, Util.localize("info.step", this.stepId + 1, STEP_AMOUNT), this.width / 2, 20, -1);
-        this.drawCenteredString(this.fontRendererObj, this.getStepName(), this.width / 2, 30, -1);
+        this.drawCenteredString(fontRendererObj, "Step " + (this.stepId + 1 + " / ") + STEP_AMOUNT, this.width - 30, 10, -1);
+        this.drawCenteredString(fontRendererObj, this.getStepName(), this.width / 2, 10, -1);
         
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
