@@ -16,11 +16,14 @@ public class ScreenUtils
 
     public static Widget findButton(String buttonString, List<Widget> widgetList)
     {
-        for(Widget widget : widgetList)
+        if(widgetList != null && !widgetList.isEmpty())
         {
-            if(widget.getMessage().getString().equalsIgnoreCase(I18n.format(buttonString)))
+            for (Widget widget : widgetList)
             {
-                return widget;
+                if (widget.getMessage().getString().equalsIgnoreCase(I18n.format(buttonString)))
+                {
+                    return widget;
+                }
             }
         }
         return null;
