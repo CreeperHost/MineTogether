@@ -217,7 +217,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
             int packID;
 
             HashMap<String, String> jsonObj = new HashMap<>();
-            if(this.ftbPackID.length() < 1) // Even if we get "m", we can throw it away.
+            if(this.ftbPackID.length() <= 1) // Even if we get "m", we can throw it away.
             {
                 try
                 {
@@ -315,7 +315,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         }
         return hexString.toString();
     }
-    
+
     public void updateFtbPackID()
     {
         File versions = new File(configFile.getParentFile().getParentFile() + File.separator + "version.json");
@@ -333,30 +333,20 @@ public class CreeperHost implements ICreeperHostMod, IHost
                         int ftbPackID = object.getAsJsonPrimitive("parent").getAsInt();
 
                         base64 = Base64.getEncoder().encodeToString((String.valueOf(ftbPackID) + String.valueOf(versionID)).getBytes());
-                        String ID = Callbacks.getVersionFromApi(base64);
+                        requestedID = Callbacks.getVersionFromApi(base64);
+                        if (requestedID.isEmpty()) requestedID = "-1";
 
-                        if (ID.isEmpty()) return;
-
-                        requestedID = ID;
-
-                        Config.getInstance().setVersion(requestedID);
-
+                        Config.getInstance().curseProjectID = requestedID;
+                        Config.saveConfig();
                         this.ftbPackID = "m" + ftbPackID;
-
-                        if(debugHandler.isDebug())
-                        {
-                            logger.debug("Base64 " + base64);
-                            logger.debug("Requested FTB Pack ID " + requestedID);
-                        }
                     }
-                } catch (Exception exception)
+                } catch (Exception MalformedJsonException)
                 {
-                    logger.error("MalformedJsonException version.json is not valid returning to curse ID");
-                    exception.printStackTrace();
+                    logger.error("version.json is not valid returning to curse ID");
                 }
             } catch (IOException ignored)
             {
-                logger.info("IOException version.json not found returning to curse ID");
+                logger.info("version.json not found returning to curse ID");
             }
         }
     }
@@ -580,7 +570,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
     @Deprecated
     public void saveAnonFile()
     {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         File anonUsersFile = new File("local/minetogether/anonusers.json");
         try
         {

@@ -577,7 +577,7 @@ public final class Callbacks
         }
         return null;
     }
-    
+
     public static boolean removeFriend(String friendHash)
     {
         String hash = getPlayerHash(CreeperHost.proxy.getUUID());
