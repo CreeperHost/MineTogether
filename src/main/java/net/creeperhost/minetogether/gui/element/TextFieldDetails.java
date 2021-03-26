@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.gui.element;
 import net.creeperhost.minetogether.common.IOrderValidation;
 import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.DefferedValidation;
-import net.creeperhost.minetogether.gui.GuiPersonalDetails;
+import net.creeperhost.minetogether.gui.order.GuiPersonalDetails;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 

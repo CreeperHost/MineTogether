@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui;
+package net.creeperhost.minetogether.gui.order;
 
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Order;
@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.api.OrderSummary;
 import net.creeperhost.minetogether.gui.element.GuiWell;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryCountry;
+import net.creeperhost.minetogether.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.gui.GuiButton;
 

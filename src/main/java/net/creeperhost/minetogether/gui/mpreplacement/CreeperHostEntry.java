@@ -4,7 +4,7 @@ import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.Config;
-import net.creeperhost.minetogether.gui.GuiGetServer;
+import net.creeperhost.minetogether.gui.order.GuiGetServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiMultiplayer;

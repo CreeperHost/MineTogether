@@ -12,6 +12,8 @@ import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.gui.element.GuiButtonCreeper;
 import net.creeperhost.minetogether.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.gui.mpreplacement.CreeperHostServerSelectionList;
+import net.creeperhost.minetogether.gui.order.GuiGetServer;
+import net.creeperhost.minetogether.gui.order.GuiServerInfo;
 import net.creeperhost.minetogether.gui.serverlist.data.Invite;
 import net.creeperhost.minetogether.gui.serverlist.data.Server;
 import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;

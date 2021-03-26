@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui;
+package net.creeperhost.minetogether.gui.order;
 
 import com.google.common.base.Splitter;
 import net.creeperhost.minetogether.CreeperHost;
@@ -6,7 +6,9 @@ import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Order;
 import net.creeperhost.minetogether.common.IOrderValidation;
 import net.creeperhost.minetogether.common.RegexValidator;
+import net.creeperhost.minetogether.gui.DefferedValidation;
 import net.creeperhost.minetogether.gui.element.TextFieldDetails;
+import net.creeperhost.minetogether.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.*;

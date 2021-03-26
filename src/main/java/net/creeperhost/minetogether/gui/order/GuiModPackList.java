@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.gui;
+package net.creeperhost.minetogether.gui.order;
 
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Order;
@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.common.Config;
 import net.creeperhost.minetogether.gui.element.GuiTextFieldCompat;
 import net.creeperhost.minetogether.gui.list.GuiList;
 import net.creeperhost.minetogether.gui.list.GuiListEntryModpack;
+import net.creeperhost.minetogether.gui.order.GuiGetServer;
 import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
