@@ -942,7 +942,7 @@ public final class Callbacks
         {
             try
             {
-                String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse, 20);
+                String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/curseforge/" + curse, 20000);
                 JsonElement jElement = new JsonParser().parse(resp);
                 JsonObject jObject = jElement.getAsJsonObject();
                 if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
@@ -976,7 +976,7 @@ public final class Callbacks
     {
         try
         {
-            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid, 20);
+            String resp = WebUtils.getWebResponse("https://www.creeperhost.net/json/modpacks/modpacksch/" + packid, 20000);
             JsonElement jElement = new JsonParser().parse(resp);
             JsonObject jObject = jElement.getAsJsonObject();
             if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
