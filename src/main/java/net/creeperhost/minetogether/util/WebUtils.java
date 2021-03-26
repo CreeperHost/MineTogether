@@ -27,7 +27,7 @@ public class WebUtils
     {
         try
         {
-            if(timeout == 0) timeout = 120;
+            if(timeout == 0) timeout = 120000;
 
             URL url = new URL(urlString);
             URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
