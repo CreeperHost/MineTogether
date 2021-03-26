@@ -37,7 +37,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
-import org.kitteh.irc.client.library.Client;
 
 import java.io.*;
 import java.lang.reflect.Type;

@@ -20,6 +20,7 @@ import net.creeperhost.minetogether.gui.chat.ingame.GuiNewChatOurs;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
@@ -126,7 +127,7 @@ public class Client implements IProxy
     @Override
     public void stopChat()
     {
-        ChatConnectionHandler.INSTANCE.disconnect();
+        IrcHandler.stop(true);
     }
     
     @Override

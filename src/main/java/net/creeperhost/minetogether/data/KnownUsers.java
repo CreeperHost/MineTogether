@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class KnownUsers
 {
@@ -74,8 +75,12 @@ public class KnownUsers
             });
             CompletableFuture.runAsync(() -> {
                 Profile profileFuture = findByNick(hash);
+                try
+                {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) { e.printStackTrace(); }
                 profileFuture.loadProfile();
-            }, CreeperHost.instance.profileExecutor);
+            }, CreeperHost.profileExecutor);
             return profile;
         }
         return null;
@@ -180,5 +185,25 @@ public class KnownUsers
             }
         }
         return returnProfile;
+    }
+
+    public List<String> getNames()
+    {
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        return profilesCopy.stream().map(Profile::getUserDisplay).collect(Collectors.toList());
+    }
+
+    public List<String> getFriends()
+    {
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        List<String> returnList = new ArrayList<>();
+        for(Profile profile : profilesCopy)
+        {
+            if(profile.isFriend())
+            {
+                returnList.add(profile.getMediumHash());
+            }
+        }
+        return returnList;
     }
 }

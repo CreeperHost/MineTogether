@@ -1,7 +1,5 @@
 package net.creeperhost.minetogether.serverstuffs;
 
-import org.kitteh.irc.client.library.Client;
-
 import java.util.concurrent.CompletableFuture;
 
 public class ChatHandlerServer
@@ -11,7 +9,6 @@ public class ChatHandlerServer
     public String ircServerAddress;
     public int ircServerPort;
     public boolean ssl;
-    public Client client;
 
     public ChatHandlerServer(String nick, String realName, String ircServerAddress, int ircServerPort, boolean ssl)
     {
@@ -26,14 +23,14 @@ public class ChatHandlerServer
     {
         CompletableFuture.runAsync(() ->
         {
-            Client.Builder mineTogether = Client.builder().nick(nick).realName(realName).user("MineTogether");
-            mineTogether.server().host(ircServerAddress).port(ircServerPort).secure(ssl);
-            if(client == null) client = mineTogether.buildAndConnect(); client.addChannel("#servers");
+//            Client.Builder mineTogether = Client.builder().nick(nick).realName(realName).user("MineTogether");
+//            mineTogether.server().host(ircServerAddress).port(ircServerPort).secure(ssl);
+//            if(client == null) client = mineTogether.buildAndConnect(); client.addChannel("#servers");
         });
     }
 
-    public void messageUser(String userNick, String message)
-    {
-        client.sendMessage(userNick, message);
-    }
+//    public void messageUser(String userNick, String message)
+//    {
+//        client.sendMessage(userNick, message);
+//    }
 }

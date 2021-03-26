@@ -4,17 +4,16 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.gui.chat.Target;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.misc.Callbacks;
-import org.kitteh.irc.client.library.command.WhoisCommand;
-import org.kitteh.irc.client.library.element.User;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class Profile
 {
@@ -34,6 +33,8 @@ public class Profile
     private long lastOnlineCheck = 0;
     private boolean isOnline = false;
     private boolean isLoadingProfile = false;
+    private long profileAge;
+    private boolean hasAccount = false;
 
     public Profile(String serverNick)
     {
@@ -94,20 +95,22 @@ public class Profile
         return mediumHash;
     }
 
-    private WhoisCommand whoisCommand = null;
-
     public boolean isOnline()
     {
-        if(ChatHandler.client == null) return false;
-
         long currentTime = System.currentTimeMillis() / 1000;
         if(currentTime > (lastOnlineCheck + 10))
         {
-            if (whoisCommand == null || whoisCommand.getClient() != ChatHandler.client)
-                whoisCommand = new WhoisCommand(ChatHandler.client);
+            lastOnlineCheck = currentTime;
 
-            this.lastOnlineCheck = System.currentTimeMillis() / 1000;
-            whoisCommand.target(getMediumHash()).execute();
+            CompletableFuture.runAsync(() ->
+            {
+                try
+                {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) { e.printStackTrace(); }
+                IrcHandler.whois(mediumHash);
+
+            }, CreeperHost.whoIsExecutor);
         }
         if(isOnline && !ChatHandler.friends.containsKey(mediumHash))
         {
@@ -117,7 +120,11 @@ public class Profile
         {
             ChatHandler.friends.remove(mediumHash);
         }
-        Target.updateCache();
+        if(isFriend())
+        {
+            Target.updateCache();
+            //Add them to DM list
+        }
         return isOnline;
     }
 
@@ -126,10 +133,13 @@ public class Profile
         this.isOnline = online;
     }
 
+    public boolean hasAccount()
+    {
+        return hasAccount;
+    }
+
     public String getCurrentIRCNick() {
-        Optional<User> userOpt = ChatHandler.client.getChannel(ChatHandler.CHANNEL).get().getUser(this.getShortHash());
-        if(userOpt.isPresent()) return this.getShortHash();
-        return this.getMediumHash();
+        return mediumHash;
     }
 
     public boolean isPremium() {
@@ -142,6 +152,16 @@ public class Profile
     }
 
     public String getUserDisplay() {
+        if(!userDisplay.isEmpty())
+        {
+            //Update users profiles every 30 mins for registered users, every 2 hours for unregistered (to check if they have registered)
+            if(profileAge > 0) {
+                long age = (System.currentTimeMillis() / 1000) - profileAge;
+                if ((hasAccount && age > 1800) || (!hasAccount && age > 7200)){
+                    CompletableFuture.runAsync(() -> loadProfile(), CreeperHost.profileExecutor);
+                }
+            }
+        }
         if(userDisplay.isEmpty() && longHash.length() > 0) return "User#"+longHash.substring(5);
         return userDisplay;
     }
@@ -193,6 +213,7 @@ public class Profile
         isLoadingProfile = true;
         String playerHash = (longHash.length() > 0) ? longHash : (mediumHash.length() > 0) ? mediumHash : shortHash;
         if(playerHash.length() == 0) return false;
+        profileAge = System.currentTimeMillis() / 1000;
         Map<String, String> sendMap = new HashMap<String, String>();
         {
             sendMap.put("target", playerHash);
@@ -202,6 +223,17 @@ public class Profile
         String resp = WebUtils.putWebResponse("https://api.creeper.host/minetogether/profile", sendStr, true, true);
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(resp);
+        //WhoIs to get their pack
+        if(!mediumHash.equals(CreeperHost.instance.ourNick)) CompletableFuture.runAsync(() ->
+        {
+            try
+            {
+                Thread.sleep(1000);
+
+            } catch (InterruptedException e) { e.printStackTrace(); }
+            IrcHandler.whois(mediumHash);
+
+        }, CreeperHost.whoIsExecutor);
         if (element.isJsonObject())
         {
             JsonObject obj = element.getAsJsonObject();
@@ -214,6 +246,7 @@ public class Profile
                 longHash = profileData.getAsJsonObject("hash").get("long").getAsString();
 
                 display = profileData.get("display").getAsString();
+                hasAccount = profileData.get("hasAccount").getAsBoolean();
                 premium = profileData.get("premium").getAsBoolean();
                 online = profileData.getAsJsonObject("chat").get("online").getAsBoolean();
                 friendCode = profileData.get("friendCode").getAsString();
@@ -225,6 +258,11 @@ public class Profile
                 isLoadingProfile = false;
                 return true;
             }
+        }
+        if(isFriend())
+        {
+            Target.updateCache();
+            //Add them to DM list
         }
         isLoadingProfile = false;
         return false;

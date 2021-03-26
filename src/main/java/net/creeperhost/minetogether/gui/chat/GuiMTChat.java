@@ -12,6 +12,7 @@ import net.creeperhost.minetogether.gui.GuiSettings;
 import net.creeperhost.minetogether.gui.element.ButtonString;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
 import net.creeperhost.minetogether.gui.element.GuiButtonMultiple;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.misc.Callbacks;
 import net.creeperhost.minetogether.data.Friend;
 import net.minecraft.client.Minecraft;
@@ -92,7 +93,21 @@ public class GuiMTChat extends GuiScreen
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
-        ChatHandler.sendActive();
+
+        //Get this data early
+        CompletableFuture.runAsync(Callbacks::getBanMessage, CreeperHost.profileExecutor);
+        //Check which friends are online then update the channel list
+        CompletableFuture.runAsync(() -> {
+            ArrayList<Friend> friends = Callbacks.getFriendsList(false);
+            if (friends != null) {
+                for (Friend friend : friends) {
+                    Profile friendProfile = friend.getProfile();
+                    if(friendProfile != null) friend.getProfile().isOnline();
+                }
+            }
+            Target.updateCache();
+        });
+//        ChatHandler.sendActive();
         if (!CreeperHost.instance.gdpr.hasAcceptedGDPR())
         {
             mc.displayGuiScreen(new GuiGDPR(parent, () -> new GuiMTChat(parent)));
@@ -286,9 +301,9 @@ public class GuiMTChat extends GuiScreen
         {
             if (button == targetDropdownButton && targetDropdownButton.displayString.contains("new channel"))
             {
-                PrivateChat p = new PrivateChat("#" + CreeperHost.instance.ourNick, CreeperHost.instance.ourNick);
-                ChatHandler.privateChatList = p;
-                ChatHandler.createChannel(p.getChannelname());
+                PrivateChat privateChat = new PrivateChat("#" + CreeperHost.instance.ourNick, CreeperHost.instance.ourNick);
+                ChatHandler.privateChatList = privateChat;
+                IrcHandler.sendString("JOIN " + privateChat.getChannelname(), true);
             }
             if (button == menuDropdownButton)
             {
@@ -793,8 +808,6 @@ public class GuiMTChat extends GuiScreen
             LimitedSizeQueue<Message> tempMessages;
             synchronized (ircLock)
             {
-                if(ChatHandler.client == null)
-                    return;
                 if ((ChatHandler.messages == null || ChatHandler.messages.size() == 0) && !force)
                     return;
                 tempMessages = ChatHandler.messages.get(key);

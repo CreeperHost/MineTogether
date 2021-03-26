@@ -263,7 +263,7 @@ public class GuiChatOurs extends GuiChat
                 ourChat.setBase(switchButton.activeButton == 0);
                 if (!ourChat.isBase()) {
                     ourChat.rebuildChat(switchButton.activeButton == 1 ? ChatHandler.CHANNEL : ChatHandler.currentGroup);//ChatHandler.privateChatList.getChannelname());
-                    ChatHandler.sendActive();
+//                    ChatHandler.sendActive();
                 }
                 switchButton.displayString = ourChat.isBase() ? "MineTogether Chat" : "Minecraft Chat";
             }
@@ -469,7 +469,8 @@ public class GuiChatOurs extends GuiChat
                 replace = false;
             } else {
                 if (!isBase()) {
-                    ourCompletions = ChatHandler.getOnlineUsers().stream().filter(name -> ChatHandler.knownUsers.findByDisplay(name) != null || ChatHandler.friends.containsKey(name)).map(s -> CreeperHost.instance.getNameForUser(s)).filter(nick -> nick.toLowerCase().startsWith(lastWord.toLowerCase())).toArray(String[]::new);
+                    //TODO fix this
+//                    ourCompletions = ChatHandler.getOnlineUsers().stream().filter(name -> ChatHandler.knownUsers.findByDisplay(name) != null || ChatHandler.friends.containsKey(name)).map(s -> CreeperHost.instance.getNameForUser(s)).filter(nick -> nick.toLowerCase().startsWith(lastWord.toLowerCase())).toArray(String[]::new);
                     replace = true;
                 }
             }

@@ -18,6 +18,7 @@ import net.creeperhost.minetogether.gui.serverlist.data.ServerListNoEdit;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.mtconnect.FriendsServerList;
 import net.creeperhost.minetogether.mtconnect.OurServerListEntryLanScan;
 import net.creeperhost.minetogether.oauth.ServerAuthTest;
@@ -865,7 +866,7 @@ public class EventHandler
 
             //Try and disconnect if we have been told to.
             if (disconnectFromChat && ChatHandler.connectionStatus == ChatHandler.ConnectionStatus.DISCONNECTED) {
-                ChatHandler.requestReconnect();
+                IrcHandler.reconnect();
                 chatDisconnected = true;
             }
             connectToChat = false;
