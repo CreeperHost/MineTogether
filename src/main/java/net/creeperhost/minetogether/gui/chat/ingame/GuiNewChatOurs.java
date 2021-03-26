@@ -202,37 +202,35 @@ public class GuiNewChatOurs extends GuiNewChat
                     GlStateManager.scale(f1, f1, 1.0F);
                     int l = 0;
 
-                    for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
+                    if(this.drawnChatLines.size() > 0)
                     {
-                        ChatLine chatline = this.drawnChatLines.get(i1 + this.scrollPos);
+                        for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1) {
+                            ChatLine chatline = this.drawnChatLines.get(i1 + this.scrollPos);
 
-                        if (chatline != null)
-                        {
-                            int j1 = updateCounter - chatline.getUpdatedCounter();
+                            if (chatline != null) {
+                                int j1 = updateCounter - chatline.getUpdatedCounter();
 
-                            if (j1 < 200 || flag)
-                            {
-                                double d0 = (double) j1 / 200.0D;
-                                d0 = 1.0D - d0;
-                                d0 = d0 * 10.0D;
-                                d0 = MathHelper.clamp(d0, 0.0D, 1.0D);
-                                d0 = d0 * d0;
-                                int l1 = (int) (255.0D * d0);
+                                if (j1 < 200 || flag) {
+                                    double d0 = (double) j1 / 200.0D;
+                                    d0 = 1.0D - d0;
+                                    d0 = d0 * 10.0D;
+                                    d0 = MathHelper.clamp(d0, 0.0D, 1.0D);
+                                    d0 = d0 * d0;
+                                    int l1 = (int) (255.0D * d0);
 
-                                if (flag)
-                                {
-                                    l1 = 255;
-                                }
+                                    if (flag) {
+                                        l1 = 255;
+                                    }
 
-                                l1 = (int) ((float) l1 * f);
-                                ++l;
+                                    l1 = (int) ((float) l1 * f);
+                                    ++l;
 
-                                if (l1 > 3)
-                                {
-                                    int i2 = 0;
-                                    int j2 = -i1 * 9;
-                                    drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
-                                    GlStateManager.enableBlend();
+                                    if (l1 > 3) {
+                                        int i2 = 0;
+                                        int j2 = -i1 * 9;
+                                        drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
+                                        GlStateManager.enableBlend();
+                                    }
                                 }
                             }
                         }
