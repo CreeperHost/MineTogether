@@ -18,13 +18,13 @@ import java.net.URL;
 public class GuiListEntryModpack extends GuiListEntry
 {
     private GuiModPackList modpackList;
-    Callbacks.Modpack modpack;
+    Callbacks.ModPack modpack;
     private float transparency = 0.5F;
     private DynamicTexture texture;
     private ResourceLocation resourceLocation;
     private BufferedImage image;
 
-    public GuiListEntryModpack(GuiModPackList modPackList, GuiList list, Callbacks.Modpack modpack)
+    public GuiListEntryModpack(GuiModPackList modPackList, GuiList list, Callbacks.ModPack modpack)
     {
         super(list);
         this.modpackList = modPackList;
@@ -61,7 +61,7 @@ public class GuiListEntryModpack extends GuiListEntry
         fontRendererIn.drawStringWithShadow(text, (float)(x - fontRendererIn.getStringWidth(text) / 2), (float)y, color);
     }
 
-    public void createDynamicTexture(Callbacks.Modpack modpack)
+    public void createDynamicTexture(Callbacks.ModPack modpack)
     {
         try
         {
@@ -97,7 +97,7 @@ public class GuiListEntryModpack extends GuiListEntry
         }
     }
 
-    public Callbacks.Modpack getModpack()
+    public Callbacks.ModPack getModpack()
     {
         return modpack;
     }

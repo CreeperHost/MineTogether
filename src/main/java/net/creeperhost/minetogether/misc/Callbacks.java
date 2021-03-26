@@ -991,44 +991,41 @@ public final class Callbacks
         return "";
     }
 
-    public static List<Modpack> getModpackFromCurse(String modpack, int limit)
+    public static List<ModPack> getModpackFromCurse(String modpack, int limit)
     {
-        String url = "https://www.creeperhost.net/json/modpacks/mc/search/unique/" + modpack;
+        try {
+            String url = "https://www.creeperhost.net/json/modpacks/mc/search/unique/" + modpack;
 
-        //Return the recommended if nothing is searched
-        if(modpack == null || modpack.isEmpty())
-        {
-            url = "https://www.creeperhost.net/json/modpacks/weekly/" + limit;
-        }
-
-        String resp = WebUtils.getWebResponse(url);
-        List<Modpack> modpackList = new ArrayList<>();
-
-        JsonElement jElement = new JsonParser().parse(resp);
-
-        if (jElement.isJsonObject())
-        {
-            JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
-            JsonArray array = object.getAsJsonArray("mc");
-
-            if (array != null)
-            {
-                for (JsonElement serverEl : array)
-                {
-                    if(modpack != null && modpack.isEmpty() || modpackList.size() <= limit)
-                    {
-                        JsonObject server = (JsonObject) serverEl;
-                        String id = server.get("id").getAsString();
-                        String name = server.get("displayName").getAsString();
-                        String displayVersion = server.get("displayVersion").getAsString();
-                        String displayIcon = server.get("displayIcon").getAsString();
-
-                        modpackList.add(new Modpack(id, name, displayVersion, displayIcon));
-                    }
-                }
-                return modpackList;
+            //Return the recommended if nothing is searched
+            if (modpack == null || modpack.isEmpty()) {
+                url = "https://www.creeperhost.net/json/modpacks/weekly/" + limit;
             }
-        }
+
+            String resp = WebUtils.getWebResponse(url);
+            List<ModPack> modpackList = new ArrayList<>();
+
+            JsonElement jElement = new JsonParser().parse(resp);
+
+            if (jElement.isJsonObject()) {
+                JsonObject object = jElement.getAsJsonObject().getAsJsonObject("modpacks");
+                JsonArray array = object.getAsJsonArray("mc");
+
+                if (array != null) {
+                    for (JsonElement serverEl : array) {
+                        if (modpack != null && modpack.isEmpty() || modpackList.size() <= limit) {
+                            JsonObject server = (JsonObject) serverEl;
+                            String id = server.get("id").getAsString();
+                            String name = server.get("displayName").getAsString();
+                            String displayVersion = server.get("displayVersion").getAsString();
+                            String displayIcon = server.get("displayIcon").getAsString();
+
+                            modpackList.add(new ModPack(id, name, displayVersion, displayIcon));
+                        }
+                    }
+                    return modpackList;
+                }
+            }
+        } catch (Exception ignored) {}
         return null;
     }
 
@@ -1062,14 +1059,14 @@ public final class Callbacks
         }
     }
 
-    public static class Modpack
+    public static class ModPack
     {
         String id;
         String name;
         String displayVersion;
         String displayIcon;
 
-        public Modpack(String id, String name, String displayVersion, String displayIcon)
+        public ModPack(String id, String name, String displayVersion, String displayIcon)
         {
             this.id = id;
             this.name = name;

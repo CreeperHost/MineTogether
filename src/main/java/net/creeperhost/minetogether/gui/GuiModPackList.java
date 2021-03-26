@@ -61,7 +61,7 @@ public class GuiModPackList extends GuiScreen
         buttonList.add(buttonSelect);
     }
 
-    public static List<Callbacks.Modpack> modpacks;
+    public static List<Callbacks.ModPack> modPacks;
 
     private void refreshList()
     {
@@ -74,10 +74,10 @@ public class GuiModPackList extends GuiScreen
             }
             list.clearList();
 
-            modpacks = Callbacks.getModpackFromCurse(s, 10);
-            if (modpacks != null && !modpacks.isEmpty())
+            modPacks = Callbacks.getModpackFromCurse(s, 10);
+            if (modPacks != null && !modPacks.isEmpty())
             {
-                modpacks.forEach(mp ->
+                modPacks.forEach(mp ->
                 {
                     GuiListEntryModpack entry = new GuiListEntryModpack(this, list, mp);
                     list.addEntry(entry);
