@@ -15,6 +15,7 @@ import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.data.FriendStatusResponse;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -1026,6 +1027,59 @@ public final class Callbacks
                 }
             }
         } catch (Exception ignored) {}
+        return null;
+    }
+
+    public static Map<String, String> getRegionMap()
+    {
+        Map<String, String> rawMap = new HashMap<String, String>();
+        Map<String, String> returnMap = new HashMap<String, String>();
+
+        try
+        {
+            String jsonData = WebUtils.getWebResponse("https://www.creeperhost.net/json/locations");
+
+            Type type = new com.google.common.reflect.TypeToken<Map<String, String>>() {}.getType();
+            Gson g = new Gson();
+            JsonElement el = new JsonParser().parse(jsonData);
+            rawMap = g.fromJson(el.getAsJsonObject().get("regionMap"), type);
+        } catch (Exception e)
+        {
+            CreeperHost.logger.error("Unable to fetch server locations" + e);
+        }
+        for (Map.Entry<String, String> entry : rawMap.entrySet())
+        {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            returnMap.put(key, value);
+        }
+        return returnMap;
+    }
+
+    public static Map<String, String> getDataCentres()
+    {
+        String url = "https://www.creeperhost.net/json/datacentre/closest";
+        String resp = WebUtils.getWebResponse(url);
+        Map<String, String> map = new HashMap<>();
+
+        JsonElement jElement = new JsonParser().parse(resp);
+
+        if (jElement.isJsonObject())
+        {
+            JsonArray array = jElement.getAsJsonObject().getAsJsonArray("datacentres");
+
+            if (array != null)
+            {
+                for (JsonElement serverEl : array)
+                {
+                    JsonObject object = (JsonObject) serverEl;
+                    String name = object.get("name").getAsString();
+                    String distance = object.get("distance").getAsString();
+                    map.put(name, distance);
+                }
+                return map;
+            }
+        }
         return null;
     }
 
