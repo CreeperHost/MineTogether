@@ -199,7 +199,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
         if (event.getSide() != Side.SERVER)
         {
 
-            updateFtbPackID();
+            CompletableFuture.runAsync(this::updateFtbPackID).join();
 
             HostHolder.host = this;
             File gdprFile = new File("local/minetogether/gdpr.txt");
