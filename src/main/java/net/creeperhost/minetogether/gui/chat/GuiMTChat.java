@@ -358,8 +358,7 @@ public class GuiMTChat extends GuiScreen
         {
             if(button instanceof FancyButton)
             {
-                FancyButton fancyButton = (FancyButton) button;
-                fancyButton.onPress();
+                ((FancyButton) button).onPress();
             }
             if (button == targetDropdownButton && targetDropdownButton.displayString.contains("new channel"))
             {

@@ -1,8 +1,11 @@
 package net.creeperhost.minetogether.gui.chat.ingame;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.chat.ChatHandler;
 import net.creeperhost.minetogether.common.Config;
+import net.creeperhost.minetogether.common.WebUtils;
 import net.creeperhost.minetogether.data.Profile;
 import net.creeperhost.minetogether.gui.GuiGDPR;
 import net.creeperhost.minetogether.gui.chat.GuiChatFriend;
@@ -10,7 +13,9 @@ import net.creeperhost.minetogether.gui.chat.GuiMTChat;
 import net.creeperhost.minetogether.gui.chat.GuiTextFieldLockable;
 import net.creeperhost.minetogether.gui.chat.TimestampComponentString;
 import net.creeperhost.minetogether.gui.element.DropdownButton;
+import net.creeperhost.minetogether.gui.element.FancyButton;
 import net.creeperhost.minetogether.gui.element.GuiButtonPair;
+import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -32,7 +37,9 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class GuiChatOurs extends GuiChat
 {
@@ -182,19 +189,68 @@ public class GuiChatOurs extends GuiChat
         }
 
     }
+
+    private GuiButton newUserButton;
+    private GuiButton disableButton;
+
+    private String userCount = "over 2 million";
+    private String onlineCount = "thousands of";
     
     @Override
     public void initGui()
     {
+        GuiNewChatOurs ourChat = null;
+
         if (!presetString.isEmpty())
         {
             if (Minecraft.getMinecraft().ingameGUI.getChatGUI() instanceof GuiNewChatOurs)
             {
-                GuiNewChatOurs ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
+                ourChat = (GuiNewChatOurs) Minecraft.getMinecraft().ingameGUI.getChatGUI();
                 ourChat.setBase(true);
             }
         }
         super.initGui();
+
+        if(Config.getInstance().getFirstConnect())
+        {
+            CompletableFuture.runAsync(() -> {
+                if(onlineCount.equals("thousands of")) {
+                    String statistics = WebUtils.getWebResponse("https://minetogether.io/api/stats/all");
+                    Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                    HashMap<String, String> stats = gson.fromJson(statistics, HashMap.class);
+                    String users = stats.get("users");
+                    if (users != null && users.length() > 4) {
+                        userCount = users;
+                    }
+                    String online = stats.get("online");
+                    if (online != null && !online.equalsIgnoreCase("null")) {
+                        onlineCount = online;
+                    }
+                }
+                }, CreeperHost.otherExecutor);
+
+                addButton(newUserButton = new FancyButton(776, 6, height - ((mc.ingameGUI.getChatGUI().getChatHeight()+80)/2)+45, mc.ingameGUI.getChatGUI().getChatWidth(), 20, "Join " + onlineCount + " online users now!", p ->
+                {
+                    IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
+                    Config.getInstance().setFirstConnect(false);
+                    newUserButton.visible = false;
+                    disableButton.visible = false;
+                    this.mc.displayGuiScreen(null);
+                }));
+                addButton(disableButton = new FancyButton(777, 6, height - ((mc.ingameGUI.getChatGUI().getChatHeight()+80)/2)+70, mc.ingameGUI.getChatGUI().getChatWidth(), 20, "Don't ask me again", p ->
+                {
+                    Config.getInstance().setChatEnabled(false);
+                    CreeperHost.proxy.disableIngameChat();
+                    disableButton.visible = false;
+                    newUserButton.visible = false;
+                    IrcHandler.stop(true);
+                    buttonList.clear();
+                }));
+                if(isBase()) {
+                    newUserButton.visible = false;
+                    disableButton.visible = false;
+                }
+        }
         GuiTextField oldInputField = this.inputField;
         this.inputField = new GuiTextFieldLockable(0, this.fontRendererObj, 4, this.height - 12, this.width - 4, 12);
         this.inputField.setMaxStringLength(256);
@@ -234,6 +290,10 @@ public class GuiChatOurs extends GuiChat
     @Override
     protected void actionPerformed(GuiButton button) throws IOException
     {
+        if(button instanceof FancyButton)
+        {
+            ((FancyButton) button).onPress();
+        }
         if (button == menuDropdownButton)
         {
             if (menuDropdownButton.getSelected().option.equals(I18n.format("minetogether.chat.button.mute")))
@@ -305,11 +365,6 @@ public class GuiChatOurs extends GuiChat
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        for (int i = 0; i < this.buttonList.size(); ++i)
-        {
-            this.buttonList.get(i).func_191745_a(this.mc, mouseX, mouseY, partialTicks);
-        }
-        
         for (int j = 0; j < this.labelList.size(); ++j)
         {
             this.labelList.get(j).drawLabel(this.mc, mouseX, mouseY);
@@ -332,8 +387,6 @@ public class GuiChatOurs extends GuiChat
             mc.fontRendererObj.drawString(str, x, y, 0xFFFFFF);
         }
 
-        //TimestampComponentString.clearActive();
-
         if (!((GuiTextFieldLockable)inputField).getOurEnabled() && ((GuiTextFieldLockable)inputField).isHovered(mouseX, mouseY))
         {
             drawHoveringText(Arrays.asList(((GuiTextFieldLockable)inputField).getDisabledMessage()), mouseX, mouseY);
@@ -350,22 +403,45 @@ public class GuiChatOurs extends GuiChat
                 TimestampComponentString.clearActive();
             }
         }
+
+        if(Config.getInstance().getFirstConnect())
+        {
+            if(newUserButton != null)
+            {
+                newUserButton.visible = true;
+                disableButton.visible = true;
+            }
+
+            int y = height - 40 - (fontRendererObj.FONT_HEIGHT * Math.max(Math.min(chatGui.drawnChatLines.size(), chatGui.getLineCount()), 20));
+
+            drawGradientRect( 0, y, chatGui.getChatWidth() + 6, chatGui.getChatHeight() + y, 0x99000000, 0x99000000);
+
+            drawCenteredString(fontRendererObj, "Welcome to MineTogether", (chatGui.getChatWidth()/2)+3, height - ((chatGui.getChatHeight()+80)/2), 0xFFFFFF);
+            drawCenteredString(fontRendererObj, "MineTogether is a multiplayer enhancement mod that provides", (chatGui.getChatWidth()/2)+3, height - ((chatGui.getChatHeight()+80)/2)+10, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, "a multitude of features like chat, friends list, server listing", (chatGui.getChatWidth()/2)+3, height - ((chatGui.getChatHeight()+80)/2)+20, 0xFFFFFF);
+            drawCenteredString(fontRendererObj, "and more. Join "+userCount+" unique users.", (chatGui.getChatWidth() / 2)+3, height - ((chatGui.getChatHeight()+80)/2)+30, 0xFFFFFF);
+        }
+
+        for (int i = 0; i < this.buttonList.size(); ++i)
+        {
+            this.buttonList.get(i).func_191745_a(this.mc, mouseX, mouseY, partialTicks);
+        }
     }
-    
+
     @Deprecated
     public void drawLogo()
     {
         ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(CreeperHost.MOD_ID, "textures/creeperhost25.png");
         ResourceLocation resourceLocationMinetogetherLogo = new ResourceLocation(CreeperHost.MOD_ID, "textures/minetogether25.png");
-        
+
         GL11.glPushMatrix();
         Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationCreeperLogo);
         GL11.glEnable(GL11.GL_BLEND);
         Gui.drawModalRectWithCustomSizedTexture(-8, this.height - 80, 0.0F, 0.0F, 40, 40, 40F, 40);
-        
+
         Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocationMinetogetherLogo);
         Gui.drawModalRectWithCustomSizedTexture(this.width / 2 - 160, this.height - 155, 0.0F, 0.0F, 160, 120, 160F, 120F);
-        
+
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glPopMatrix();
     }
