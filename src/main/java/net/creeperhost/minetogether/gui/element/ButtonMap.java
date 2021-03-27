@@ -2,24 +2,41 @@ package net.creeperhost.minetogether.gui.element;
 
 import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.config.GuiUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ButtonMap extends FancyButton
 {
     String buttonText;
+    boolean focus;
+    int imageWidth;
+    int imageHeight;
+    double x;
+    double y;
 
-    public ButtonMap(int id, int xPos, int yPos, int width, int height, String displayString, boolean active, FancyButton.IPressable pressedAction)
+    public ButtonMap(int id, double xPos, double yPos, int width, int height, int imageWidth, int imageHeight, String displayString, boolean active, FancyButton.IPressable pressedAction)
     {
-        super(id, xPos, yPos, width, height, displayString, pressedAction);
+        super(id, (int)xPos, (int)yPos, width, height, displayString, pressedAction);
+        this.x = xPos;
+        this.y = yPos;
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
         this.buttonText = displayString;
-//        tooltiplist.add(new StringTextComponent(buttonText));
         this.enabled = active;
+        this.focus = false;
+    }
+
+    public boolean isFocus()
+    {
+        return focus;
+    }
+
+    public void setFocus(boolean focus)
+    {
+        this.focus = focus;
     }
 
     @Override
@@ -30,19 +47,36 @@ public class ButtonMap extends FancyButton
         ResourceLocation map = new ResourceLocation(CreeperHost.MOD_ID, "textures/map/" + buttonText + ".png");
         minecraft.getTextureManager().bindTexture(map);
 
-        if(isMouseOver())
+        this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+        int k = this.getHoverState(this.hovered);
+
+        if(this.hovered)
         {
             GlStateManager.color(0F, 1F, 0F, 1.0F);
         }
-//        if(isFocused())
-//        {
-//            GlStateManager.color(0F, 0.6F, 0F, 1.0F);
-//        }
+        if(isFocus())
+        {
+            GlStateManager.color(0F, 0.6F, 0F, 1.0F);
+        }
         if(!enabled)
         {
             GlStateManager.color(0.4F, 0.4F, 0.4F, 1.0F);
         }
-        Gui.drawModalRectWithCustomSizedTexture(this.xPosition, this.yPosition, 0, 0, this.width, this.height, this.width, this.height);
+        drawModalRectWithCustomSizedTexture(x, y, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
         GlStateManager.color(1F, 1F, 1F, 1.0F);
+    }
+
+    public static void drawModalRectWithCustomSizedTexture(double x, double y, float u, float v, int width, int height, float textureWidth, float textureHeight)
+    {
+        float f = 1.0F / textureWidth;
+        float f1 = 1.0F / textureHeight;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.pos((double)x, (double)(y + height), 0.0D).tex((double)(u * f), (double)((v + (float)height) * f1)).endVertex();
+        bufferbuilder.pos((double)(x + width), (double)(y + height), 0.0D).tex((double)((u + (float)width) * f), (double)((v + (float)height) * f1)).endVertex();
+        bufferbuilder.pos((double)(x + width), (double)y, 0.0D).tex((double)((u + (float)width) * f), (double)(v * f1)).endVertex();
+        bufferbuilder.pos((double)x, (double)y, 0.0D).tex((double)(u * f), (double)(v * f1)).endVertex();
+        tessellator.draw();
     }
 }

@@ -3,7 +3,9 @@ package net.creeperhost.minetogether.gui.order;
 import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.Util;
 import net.creeperhost.minetogether.api.Order;
+import net.creeperhost.minetogether.common.Pair;
 import net.creeperhost.minetogether.gui.element.ButtonMap;
+import net.creeperhost.minetogether.gui.element.FancyButton;
 import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -11,13 +13,15 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 public class GuiLocationMap extends GuiGetServer
 {
     private final ResourceLocation siv = new ResourceLocation(CreeperHost.MOD_ID, "textures/guisiv.png");
-    private GuiButton currentFocus;
+    private ButtonMap currentFocus;
     private Map<String, String> regions;
     private Map<String, String> dataCenters;
     private String distance = "";
@@ -36,28 +40,57 @@ public class GuiLocationMap extends GuiGetServer
         regions = Callbacks.getRegionMap();
         dataCenters = Callbacks.getDataCentres();
 
-        addButton(new ButtonMap(21, (width / 2) - 230, y - 94, 60, 60, "na-west", false, this::updateSelected));
-        addButton(new ButtonMap(22,(width / 2) - 204, y - 35, 52, 42, "na-south", false, this::updateSelected));
-        addButton(new ButtonMap(23, (width / 2) - 170, y - 97, 60, 62, "na-east", false, this::updateSelected));
-        addButton(new ButtonMap(24,(width / 2) - 170, y - 1, 84, 88, "south-america", false, this::updateSelected));
+        float scalingFactor = 8;
 
-        addButton(new ButtonMap(25, (width / 2) - 115, y - 122, 54, 28, "greenland", false, this::updateSelected));
+        int nawestX = 413;
+        int nawestY = 398;
+        int nasouthX = 422;
+        int nasouthY = 266;
+        int naeastX = 420;
+        int naeastY = 416;
+        int southamericaX = 492;
+        int southamericaY = 768;
+        int greenlandX = 407;
+        int greenlandY = 194;
+        int euwestX = 422;
+        int euwestY = 354;
+        int eumiddleeastX = 567;
+        int eumiddleeastY = 547;
+        int russiaX = 1150;
+        int russiaY = 540;
+        int asiaX = 687;
+        int asiaY = 602;
+        int australiaX = 673;
+        int australiaY = 511;
+        int subsaharanafricaX = 664;
+        int subsaharanafricaY = 518;
+        int northafricaX = 669;
+        int northafricaY = 288;
 
-        addButton(new ButtonMap(26,(width / 2) - 36, y - 104, 55, 55, "eu-west", false, this::updateSelected));
-        addButton(new ButtonMap(27, (width / 2 - 4), y - 94, 80, 80, "eu-middle-east", false, this::updateSelected));
-        addButton(new ButtonMap(28, (width / 2) + 24, y - 114, 156, 76, "russia", false, this::updateSelected));
+        double halfWidth = (double)width / 2;
 
-        addButton(new ButtonMap(29, (width / 2) + 70, y - 62, 96, 80, "asia", false, this::updateSelected));
-        addButton(new ButtonMap(30, (width / 2) + 130, y, 98, 67, "australia", false, this::updateSelected));
+        addButton(new ButtonMap(21, halfWidth - 228, y - 94, (int) (nawestX / scalingFactor), (int) (nawestY / scalingFactor),             (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-west", false, this::updateSelected));
+        addButton(new ButtonMap(22, halfWidth - 207, y - 44.8, (int) (nasouthX / scalingFactor), (int) (nasouthY / scalingFactor),            (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-south", false, this::updateSelected));
+        addButton(new ButtonMap(23, halfWidth - 176.5, y - 96.5, (int) (naeastX / scalingFactor), (int) (naeastY / scalingFactor),             (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-east", false, this::updateSelected));
+        addButton(new ButtonMap(24, halfWidth - 171.8, y - 19.5, (int) (southamericaX / scalingFactor), (int) (southamericaY / scalingFactor),   (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "south-america", false, this::updateSelected));
 
-        addButton(new ButtonMap(31, (width / 2) - 39, y - 5, 84, 74, "sub-saharan-africa", false, this::updateSelected));
-        addButton(new ButtonMap(32, (width / 2) - 45, y - 47, 84, 44, "north-africa", false, this::updateSelected));
+        addButton(new ButtonMap(25, halfWidth - 115, y - 122, (int) (greenlandX / scalingFactor), (int) (greenlandY / scalingFactor),      (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "greenland", false, this::updateSelected));
+
+        addButton(new ButtonMap(26, halfWidth - 30.8, y - 101.2, (int) (euwestX / scalingFactor), (int) (euwestY / scalingFactor),              (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-west", false, this::updateSelected));
+        addButton(new ButtonMap(27, halfWidth - 0.5 , y - 95, (int) (eumiddleeastX / scalingFactor), (int) (eumiddleeastY / scalingFactor),        (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-middle-east", false, this::updateSelected));
+        addButton(new ButtonMap(28, halfWidth + 24, y - 114, (int) (russiaX / scalingFactor), (int) (russiaY / scalingFactor),             (int) (2048 / scalingFactor), (int) (2048 / scalingFactor), "russia", false, this::updateSelected));
+
+        addButton(new ButtonMap(29, halfWidth + 64.5, y - 69, (int) (asiaX / scalingFactor), (int) (asiaY / scalingFactor),                  (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "asia", false, this::updateSelected));
+        addButton(new ButtonMap(30, halfWidth + 119.5, y - 5.5, (int) (australiaX / scalingFactor), (int) (australiaY / scalingFactor),                 (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "australia", false, this::updateSelected));
+
+        addButton(new ButtonMap(31, halfWidth - 35.8, y - 23.2, (int) (subsaharanafricaX / scalingFactor), (int) (subsaharanafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "sub-saharan-africa", false, this::updateSelected));
+        addButton(new ButtonMap(32, halfWidth - 41.4, y - 57.7, (int) (northafricaX / scalingFactor), (int) (northafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "north-africa", false, this::updateSelected));
 
         //TODO remove this
-//        buttons.add(new Button(this.width - 180, height - 30, 80, 20, new StringTextComponent("REFRESH"), (button) ->
-//        {
-//            Minecraft.getInstance().displayGuiScreen(new GuiLocationMap(stepId, order));
-//        }));
+        addButton(new FancyButton(33, this.width - 180, height - 30, 80, 20, "REFRESH", (button) ->
+        {
+            Minecraft.getMinecraft().displayGuiScreen(new GuiLocationMap(stepId, order));
+        }));
 
         //Should never be null but /shrug its Minecraft
         if(regions != null && !regions.isEmpty())
@@ -70,7 +103,7 @@ public class GuiLocationMap extends GuiGetServer
                     {
                         if (widget.displayString.equalsIgnoreCase(s))
                         {
-//                            widget.active = true;
+                            widget.enabled = true;
                         }
                         if(order.serverLocation != null)
                         {
@@ -96,23 +129,25 @@ public class GuiLocationMap extends GuiGetServer
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawDefaultBackground();
-        drawGradientRect(0, this.height - 20, width, 20, 0x99000000, 0x99000000);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         if(currentFocus != null)
         {
             mc.getTextureManager().bindTexture(siv);
-//            fill(matrixStack, this.width - 140, 40, width, 20, 0x99000000);
-            drawTexturedModalRect(this.width - 140, 20, 0, 0, 140, 20);
-            drawString(fontRendererObj, ttl(currentFocus.displayString), this.width - 138, 26, -1);
+            int x = fontRendererObj.getStringWidth(ttl(currentFocus.displayString));
+            int buffer = 10;
+
+//            drawGradientRect(this.width - 140, 40, width, 20, 0x99000000, 0x99000000);
+            drawTexturedModalRect((this.width - buffer) - x - 5, 20, 0, 0, x + buffer, 20);
+            drawString(fontRendererObj, ttl(currentFocus.displayString), (this.width - x) - 10, 26, -1);
             Minecraft.getMinecraft().getTextureManager().bindTexture(ICONS);
 
             //16 = 4 bars
             //32 = 3 bars
             //40 = 2 bars
             //48 = 1 bars
-            if(!distance.isEmpty()) Gui.drawModalRectWithCustomSizedTexture(this.width - 18, 22, 16, 16, 0, distanceConvert(Integer.parseInt(distance)), 8, 8);
+//            if(!distance.isEmpty()) Gui.drawModalRectWithCustomSizedTexture(this.width - 18, 22, 16, 16, 0, distanceConvert(Integer.parseInt(distance)), 8, 8);
         }
     }
 
@@ -126,14 +161,30 @@ public class GuiLocationMap extends GuiGetServer
     {
         try
         {
-//            if(currentFocus != null) currentFocus.changeFocus(false);
-            this.currentFocus = button;
-//            button.changeFocus(true);
-            if(dataCenters != null && !dataCenters.isEmpty()) distance = dataCenters.get(regionToDataCentre(currentFocus.displayString));
+            if(button != null && button instanceof ButtonMap)
+            {
+                ButtonMap buttonMap = (ButtonMap) button;
+                if(currentFocus != null) currentFocus.setFocus(false);
+                    this.currentFocus = buttonMap;
+                    buttonMap.setFocus(true);
+                if (dataCenters != null && !dataCenters.isEmpty())
+                    distance = dataCenters.get(regionToDataCentre(currentFocus.displayString));
+            }
         } catch (Exception e)
         {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) throws IOException
+    {
+        if(button instanceof FancyButton)
+        {
+            FancyButton fancyButton = (FancyButton) button;
+            fancyButton.onPress();
+        }
+        super.actionPerformed(button);
     }
 
     public String ttl(String input)
