@@ -131,6 +131,8 @@ public class GuiGeneralServerInfo extends GuiGetServer implements GuiPageButtonL
     {
         this.drawDefaultBackground();
 
+        drawGradientRect(0, 20, width, height - 20, 0x99000000, 0x99000000);
+
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         this.drawCenteredString(this.fontRendererObj, Util.localize("info.server_name"), this.width / 2, this.height / 2 - 65, -1);
