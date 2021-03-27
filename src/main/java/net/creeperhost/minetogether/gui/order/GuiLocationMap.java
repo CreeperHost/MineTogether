@@ -87,10 +87,10 @@ public class GuiLocationMap extends GuiGetServer
         addButton(new ButtonMap(32, halfWidth - 41.4, y - 57.7, (int) (northafricaX / scalingFactor), (int) (northafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "north-africa", false, this::updateSelected));
 
         //TODO remove this
-        addButton(new FancyButton(33, this.width - 180, height - 30, 80, 20, "REFRESH", (button) ->
-        {
-            Minecraft.getMinecraft().displayGuiScreen(new GuiLocationMap(stepId, order));
-        }));
+//        addButton(new FancyButton(33, this.width - 180, height - 30, 80, 20, "REFRESH", (button) ->
+//        {
+//            Minecraft.getMinecraft().displayGuiScreen(new GuiLocationMap(stepId, order));
+//        }));
 
         //Should never be null but /shrug its Minecraft
         if(regions != null && !regions.isEmpty())
@@ -107,7 +107,7 @@ public class GuiLocationMap extends GuiGetServer
                         }
                         if(order.serverLocation != null)
                         {
-                            if(widget.displayString.equalsIgnoreCase(datacentreToRegion(order.serverLocation)))
+                            if(widget.displayString.equalsIgnoreCase(datacentreToRegion(order.serverLocation)) || widget.displayString.equalsIgnoreCase(order.serverLocation))
                             {
                                 updateSelected((GuiButton) widget);
                                 if (dataCenters != null && distance.isEmpty())
@@ -129,6 +129,7 @@ public class GuiLocationMap extends GuiGetServer
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawDefaultBackground();
+        drawGradientRect(0, 20, width, height - 20, 0x99000000, 0x99000000);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -136,18 +137,20 @@ public class GuiLocationMap extends GuiGetServer
         {
             mc.getTextureManager().bindTexture(siv);
             int x = fontRendererObj.getStringWidth(ttl(currentFocus.displayString));
-            int buffer = 10;
+            int bufferLeft = 20;
 
-//            drawGradientRect(this.width - 140, 40, width, 20, 0x99000000, 0x99000000);
-            drawTexturedModalRect((this.width - buffer) - x - 5, 20, 0, 0, x + buffer, 20);
-            drawString(fontRendererObj, ttl(currentFocus.displayString), (this.width - x) - 10, 26, -1);
+            drawTexturedModalRect((this.width - bufferLeft) - x - 5, 20, 0, 0, x + bufferLeft, 20);
+            drawString(fontRendererObj, ttl(currentFocus.displayString), (this.width - x) - bufferLeft, 26, -1);
+
             Minecraft.getMinecraft().getTextureManager().bindTexture(ICONS);
 
             //16 = 4 bars
             //32 = 3 bars
             //40 = 2 bars
             //48 = 1 bars
-//            if(!distance.isEmpty()) Gui.drawModalRectWithCustomSizedTexture(this.width - 18, 22, 16, 16, 0, distanceConvert(Integer.parseInt(distance)), 8, 8);
+            if(distance != null && !distance.isEmpty()) {
+                Gui.drawModalRectWithCustomSizedTexture(this.width - 18, 26, 0, distanceConvert(Integer.parseInt(distance)), 8, 8, 256, 256);
+            }
         }
     }
 
@@ -169,6 +172,8 @@ public class GuiLocationMap extends GuiGetServer
                     buttonMap.setFocus(true);
                 if (dataCenters != null && !dataCenters.isEmpty())
                     distance = dataCenters.get(regionToDataCentre(currentFocus.displayString));
+
+                order.serverLocation = currentFocus.displayString;
             }
         } catch (Exception e)
         {
@@ -231,7 +236,7 @@ public class GuiLocationMap extends GuiGetServer
                 return "asia";
             case "sydney":
                 return "australia";
-            case "istanbul":
+            case "bucharest":
                 return "eu-middle-east";
             default:
                 return "";
@@ -260,7 +265,7 @@ public class GuiLocationMap extends GuiGetServer
             case "australia":
                 return "sydney";
             case "eu-middle-east":
-                return "istanbul";
+                return "bucharest";
             default:
                 return "";
         }

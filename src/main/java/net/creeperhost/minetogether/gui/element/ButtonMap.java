@@ -42,6 +42,8 @@ public class ButtonMap extends FancyButton
     @Override
     public void func_191745_a(Minecraft mc, int mouseX, int mouseY, float partial)
     {
+        GlStateManager.color(1F, 1F, 1F, 1.0F);
+
         Minecraft minecraft = Minecraft.getMinecraft();
 
         ResourceLocation map = new ResourceLocation(CreeperHost.MOD_ID, "textures/map/" + buttonText + ".png");
