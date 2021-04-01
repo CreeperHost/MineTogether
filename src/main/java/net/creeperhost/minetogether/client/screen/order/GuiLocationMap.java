@@ -88,10 +88,10 @@ public class GuiLocationMap extends GuiGetServer
 
 
         //TODO remove this
-        buttons.add(new Button(this.width - 180, height - 30, 80, 20, new StringTextComponent("REFRESH"), (button) ->
-        {
-            Minecraft.getInstance().displayGuiScreen(new GuiLocationMap(stepId, order));
-        }));
+//        buttons.add(new Button(this.width - 180, height - 30, 80, 20, new StringTextComponent("REFRESH"), (button) ->
+//        {
+//            Minecraft.getInstance().displayGuiScreen(new GuiLocationMap(stepId, order));
+//        }));
 
         //Should never be null but /shrug its Minecraft
         if(regions != null && !regions.isEmpty())
