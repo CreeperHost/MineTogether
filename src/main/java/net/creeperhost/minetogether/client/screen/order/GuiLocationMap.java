@@ -108,7 +108,7 @@ public class GuiLocationMap extends GuiGetServer
                         }
                         if(order.serverLocation != null)
                         {
-                            if(widget.getMessage().getString().equalsIgnoreCase(datacentreToRegion(order.serverLocation)))
+                            if(widget.getMessage().getString().equalsIgnoreCase(datacentreToRegion(order.serverLocation)) || widget.getMessage().getString().equalsIgnoreCase(order.serverLocation))
                             {
                                 updateSelected((Button) widget);
                                 if (dataCenters != null && distance.isEmpty())
