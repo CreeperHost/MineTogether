@@ -40,28 +40,58 @@ public class GuiLocationMap extends GuiGetServer
         regions = Callbacks.getRegionMap();
         dataCenters = Callbacks.getDataCentres();
 
-        buttons.add(new ButtonMap((width / 2) - 230, y - 94, 60, 60, new StringTextComponent("na-west"), false, this::updateSelected));
-        buttons.add(new ButtonMap((width / 2) - 204, y - 35, 52, 42, new StringTextComponent("na-south"), false, this::updateSelected));
-        buttons.add(new ButtonMap((width / 2) - 170, y - 97, 60, 62, new StringTextComponent("na-east"), false, this::updateSelected));
-        buttons.add(new ButtonMap((width / 2) - 170, y - 1, 84, 88, new StringTextComponent("south-america"), false, this::updateSelected));
+        float scalingFactor = 8;
 
-        buttons.add(new ButtonMap((width / 2) - 115, y - 122, 54, 28, new StringTextComponent("greenland"), false, this::updateSelected));
+        int nawestX = 413;
+        int nawestY = 398;
+        int nasouthX = 422;
+        int nasouthY = 266;
+        int naeastX = 420;
+        int naeastY = 416;
+        int southamericaX = 492;
+        int southamericaY = 768;
+        int greenlandX = 407;
+        int greenlandY = 194;
+        int euwestX = 422;
+        int euwestY = 354;
+        int eumiddleeastX = 567;
+        int eumiddleeastY = 547;
+        int russiaX = 1150;
+        int russiaY = 540;
+        int asiaX = 687;
+        int asiaY = 602;
+        int australiaX = 673;
+        int australiaY = 511;
+        int subsaharanafricaX = 664;
+        int subsaharanafricaY = 518;
+        int northafricaX = 669;
+        int northafricaY = 288;
 
-        buttons.add(new ButtonMap((width / 2) - 36, y - 104, 55, 55, new StringTextComponent("eu-west"), false, this::updateSelected));
-        buttons.add(new ButtonMap((width / 2 - 4), y - 94, 80, 80, new StringTextComponent("eu-middle-east"), false, this::updateSelected));
-        buttons.add(new ButtonMap((width / 2) + 24, y - 114, 156, 76, new StringTextComponent("russia"), false, this::updateSelected));
+        float halfWidth = (float)width / 2;
 
-        buttons.add(new ButtonMap((width / 2) + 70, y - 62, 96, 80, new StringTextComponent("asia"), false, this::updateSelected));
-        buttons.add(new ButtonMap((width / 2) + 130, y, 98, 67, new StringTextComponent("australia"), false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 228F, y - 94F, (int) (nawestX / scalingFactor), (int) (nawestY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-west", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 207F, y - 44.8F, (int) (nasouthX / scalingFactor), (int) (nasouthY / scalingFactor),            (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-south", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 176.5F, y - 96.5F, (int) (naeastX / scalingFactor), (int) (naeastY / scalingFactor),             (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-east", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 171.8F, y - 19.5F, (int) (southamericaX / scalingFactor), (int) (southamericaY / scalingFactor),   (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "south-america", false, this::updateSelected));
 
-        buttons.add(new ButtonMap((width / 2) - 39, y - 5, 84, 74, new StringTextComponent("sub-saharan-africa"), false, this::updateSelected));
-        buttons.add(new ButtonMap((width / 2) - 45, y - 47, 84, 44, new StringTextComponent("north-africa"), false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 115F, y - 122F, (int) (greenlandX / scalingFactor), (int) (greenlandY / scalingFactor),      (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "greenland", false, this::updateSelected));
+
+        addButton(new ButtonMap(halfWidth - 30.8F, y - 101.2F, (int) (euwestX / scalingFactor), (int) (euwestY / scalingFactor),              (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-west", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 0.5F, y - 95F, (int) (eumiddleeastX / scalingFactor), (int) (eumiddleeastY / scalingFactor),        (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-middle-east", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth + 24F, y - 114F, (int) (russiaX / scalingFactor), (int) (russiaY / scalingFactor),             (int) (2048 / scalingFactor), (int) (2048 / scalingFactor), "russia", false, this::updateSelected));
+
+        addButton(new ButtonMap(halfWidth + 64.5F, y - 69F, (int) (asiaX / scalingFactor), (int) (asiaY / scalingFactor),                  (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "asia", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth + 119.5F, y - 5.5F, (int) (australiaX / scalingFactor), (int) (australiaY / scalingFactor),                 (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "australia", false, this::updateSelected));
+
+        addButton(new ButtonMap(halfWidth - 35.8F, y - 23.2F, (int) (subsaharanafricaX / scalingFactor), (int) (subsaharanafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "sub-saharan-africa", false, this::updateSelected));
+        addButton(new ButtonMap( halfWidth - 41.4F, y - 57.7F, (int) (northafricaX / scalingFactor), (int) (northafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "north-africa", false, this::updateSelected));
+
 
         //TODO remove this
-//        buttons.add(new Button(this.width - 180, height - 30, 80, 20, new StringTextComponent("REFRESH"), (button) ->
-//        {
-//            Minecraft.getInstance().displayGuiScreen(new GuiLocationMap(stepId, order));
-//        }));
+        buttons.add(new Button(this.width - 180, height - 30, 80, 20, new StringTextComponent("REFRESH"), (button) ->
+        {
+            Minecraft.getInstance().displayGuiScreen(new GuiLocationMap(stepId, order));
+        }));
 
         //Should never be null but /shrug its Minecraft
         if(regions != null && !regions.isEmpty())
@@ -120,16 +150,22 @@ public class GuiLocationMap extends GuiGetServer
         if(currentFocus != null)
         {
             minecraft.getTextureManager().bindTexture(siv);
-//            fill(matrixStack, this.width - 140, 40, width, 20, 0x99000000);
-            blit(matrixStack, this.width - 140, 20, 0, 0, 140, 20);
-            drawString(matrixStack, minecraft.fontRenderer, ttl(currentFocus.getMessage().getString()), this.width - 138, 26, -1);
+            int x = font.getStringWidth(ttl(currentFocus.getMessage().getString()));
+            int bufferLeft = 20;
+
+            blit(matrixStack, (this.width - bufferLeft) - x - 5, 20, 0, 0, x + bufferLeft, 20);
+
+            drawString(matrixStack, font, ttl(currentFocus.getMessage().getString()), (this.width - x) - bufferLeft, 26, -1);
             Minecraft.getInstance().getTextureManager().bindTexture(GUI_ICONS_LOCATION);
 
             //16 = 4 bars
             //32 = 3 bars
             //40 = 2 bars
             //48 = 1 bars
-            if(!distance.isEmpty()) AbstractGui.blit(matrixStack, this.width - 18, 22, 16, 16, 0, distanceConvert(Integer.parseInt(distance)), 8, 8, 256, 256);
+            if(distance != null && !distance.isEmpty())
+            {
+                AbstractGui.blit(matrixStack, this.width - 18, 26, 8, 8, 0, distanceConvert(Integer.parseInt(distance)), 8, 8, 256, 256);
+            }
         }
     }
 
@@ -177,7 +213,7 @@ public class GuiLocationMap extends GuiGetServer
                 return "asia";
             case "sydney":
                 return "australia";
-            case "istanbul":
+            case "bucharest":
                 return "eu-middle-east";
             default:
                 return "";
@@ -206,7 +242,7 @@ public class GuiLocationMap extends GuiGetServer
             case "australia":
                 return "sydney";
             case "eu-middle-east":
-                return "istanbul";
+                return "bucharest";
             default:
                 return "";
         }
