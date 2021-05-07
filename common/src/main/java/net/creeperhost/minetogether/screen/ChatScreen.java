@@ -79,7 +79,7 @@ public class ChatScreen extends Screen
         }));
         addButton(new ButtonMultiple(width - 124, 5, 3, p ->
         {
-//            this.minecraft.displayGuiScreen(new SettingsScreen(new MTChatScreen(parent)));
+            this.minecraft.setScreen(new SettingsScreen(this));
         }));
         addButton(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TranslatableComponent("Cancel"), p ->
         {
