@@ -17,3 +17,5 @@ classes/
 .vscode
 .settings
 *.launch
+forge_client.launch
+forge_server.launch
