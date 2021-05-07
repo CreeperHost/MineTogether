@@ -1,7 +1,9 @@
 package net.creeperhost.minetogether;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
+import me.shedaniel.architectury.platform.Platform;
 import me.shedaniel.architectury.utils.EnvExecutor;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogether.minetogetherlib.chat.MineTogetherChat;
@@ -13,6 +15,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -24,7 +28,11 @@ public class Minetogether
     private static CompletableFuture chatThread = null;
     private static MineTogetherChat mineTogetherChat;
 
-    public static void init() {}
+    public static void init()
+    {
+        Path configFile = Platform.getConfigFolder().resolve(MOD_ID + ".json");
+        Config.init(configFile.toFile());
+    }
 
     public static void clientInit()
     {
@@ -63,6 +71,7 @@ public class Minetogether
         chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, MineTogetherChat.INSTANCE.online, MineTogetherChat.INSTANCE), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
     }
 
+    //TODO fix session checking
     public static UUID getUUID()
     {
         User session = Minecraft.getInstance().getUser();
