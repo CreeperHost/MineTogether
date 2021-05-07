@@ -4,6 +4,7 @@ import me.shedaniel.architectury.event.events.GuiEvent;
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.screen.ChatScreen;
+import net.creeperhost.minetogether.screen.FriendsListScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
 import net.creeperhost.minetogether.screen.widgets.ButtonMultiple;
 import net.minecraft.client.Minecraft;
@@ -30,16 +31,17 @@ public class MinetogetherClient
         {
             ScreenHooks.addButton(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent(I18n.get("minetogether.multiplayer.friends")), p ->
             {
-                //TODO
-//                MineTogether.proxy.openFriendsGui();
+                Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
             }));
 
             ScreenHooks.addButton(screen, new ButtonMultiple(screen.width - 125, 5, 1, p ->
             {
-                //TODO
-                if (Config.getInstance().isChatEnabled()) {
+                if (Config.getInstance().isChatEnabled())
+                {
                     Minecraft.getInstance().setScreen(new ChatScreen(screen));
-                } else {
+                }
+                else
+                {
                     Minecraft.getInstance().setScreen(new SettingsScreen(screen));
                 }
             }));

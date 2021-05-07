@@ -1,0 +1,177 @@
+package net.creeperhost.minetogether.screen;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Minetogether;
+import net.creeperhost.minetogether.helpers.ScreenHelpers;
+import net.creeperhost.minetogether.minetogetherlib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.minetogetherlib.chat.data.Friend;
+import net.creeperhost.minetogether.screen.listentries.ListEntryFriend;
+import net.creeperhost.minetogether.screen.prefab.ScreenList;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import org.lwjgl.glfw.Callbacks;
+
+import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+
+public class FriendsListScreen extends Screen
+{
+    private Screen parent;
+    private ScreenList<ListEntryFriend> list;
+
+    private String friendCode = "";
+    private String hoveringText = null;
+    private EditBox searchEntry;
+    private CompletableFuture friendsFuture;
+    private int ticks;
+
+    private boolean first = true;
+
+    public FriendsListScreen(Screen parent)
+    {
+        super(new TranslatableComponent("minetogether.friendscreen.title"));
+        this.parent = parent;
+        this.friendCode = ChatCallbacks.getFriendCode(Minetogether.getUUID());
+        friendsFuture = CompletableFuture.runAsync(() -> refreshFriendsList(true));
+    }
+
+    @Override
+    public void init()
+    {
+        super.init();
+        if (list == null)
+        {
+            list = new ScreenList(this, minecraft, width, height, 32, this.height - 64, 36);
+        } else
+        {
+            list.updateSize(width, height, 32, this.height - 64);
+        }
+
+        addButtons();
+        searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height -32, 160, 20, new TranslatableComponent(""));
+    }
+
+    public void addButtons()
+    {
+        addButton(new Button(width - 105, height - 5 - 20, 100, 20, new TranslatableComponent("Cancel"), p ->
+        {
+//            if (!addFriend)
+                minecraft.setScreen(parent);
+//            else
+//            {
+//                addFriend = false;
+//                buttonInvite.visible = true;
+//                codeEntry.setText("");
+//            }
+        }));
+
+         addButton(new Button(this.width - 105, this.height - 46, 100, 20, new TranslatableComponent("minetogether.button.refresh"), p ->
+        {
+            refreshFriendsList(false);
+        }));
+    }
+
+    @Override
+    public void render(PoseStack poseStack, int i, int j, float f)
+    {
+        renderDirtBackground(1);
+        list.render(poseStack, i, j, f);
+        searchEntry.render(poseStack, i, j, f);
+        super.render(poseStack, i, j, f);
+        drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
+
+        if(list.children().isEmpty()) ScreenHelpers.loadingSpin(f, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+    }
+
+    @Override
+    public void tick()
+    {
+        ticks++;
+        if(friendsFuture.isDone())
+        {
+            refreshFriendsList(false);
+        }
+    }
+
+    public static ArrayList<String> removedFriends = new ArrayList<>();
+    protected boolean refreshFriendsList(boolean force)
+    {
+        ArrayList<Friend> friends = ChatCallbacks.getFriendsList(force, Minetogether.getUUID());
+        list.clearList();
+        if (friends != null)
+        {
+            for (Friend friend : friends)
+            {
+                ListEntryFriend friendEntry = new ListEntryFriend(this, list, friend);
+                if(searchEntry != null && !searchEntry.getValue().isEmpty())
+                {
+                    String s = searchEntry.getValue();
+                    if(friend.getName().toLowerCase().contains(s.toLowerCase()))
+                    {
+                        if(!removedFriends.contains(friend.getCode())) list.add(friendEntry);
+                    }
+                }
+                else
+                {
+                    if(!removedFriends.contains(friend.getCode())) list.add(friendEntry);
+                }
+            }
+            ArrayList<String> removedCopy = new ArrayList<String>(removedFriends);
+            for(String removed : removedCopy)
+            {
+                boolean isInList = false;
+                for(Friend friend : friends)
+                {
+                    if(friend.getCode().equalsIgnoreCase(removed))
+                    {
+                        isInList=true;
+                        break;
+                    }
+                }
+                if(!isInList)
+                {
+                    removedFriends.remove(removed);
+                }
+            }
+        }
+        return true;
+    }
+
+    public void setHoveringText(String hoveringText)
+    {
+        this.hoveringText = hoveringText;
+    }
+
+    @Override
+    public boolean mouseClicked(double d, double e, int i)
+    {
+        list.mouseClicked(d, e, i);
+        searchEntry.mouseClicked(d, e, i);
+        return super.mouseClicked(d, e, i);
+    }
+
+    @Override
+    public boolean charTyped(char c, int i)
+    {
+        searchEntry.charTyped(c, i);
+        return super.charTyped(c, i);
+    }
+
+    @Override
+    public boolean keyPressed(int i, int j, int k)
+    {
+        searchEntry.keyPressed(i, j, k);
+        return super.keyPressed(i, j, k);
+    }
+
+    @Override
+    public boolean mouseScrolled(double d, double e, double f)
+    {
+        list.mouseScrolled(d, e, f);
+        return super.mouseScrolled(d, e, f);
+    }
+}

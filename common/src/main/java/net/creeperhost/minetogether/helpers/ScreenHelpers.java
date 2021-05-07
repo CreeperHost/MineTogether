@@ -7,8 +7,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -83,6 +85,24 @@ public class ScreenHelpers
         GuiComponent.blit(matrixStack, x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
 
         RenderSystem.disableBlend();
+        RenderSystem.popMatrix();
+    }
+
+    public static void loadingSpin(float partialTicks, int ticks, int x, int y, ItemStack stack)
+    {
+        int rotateTickMax = 30;
+        int throbTickMax = 20;
+        int rotateTicks = ticks % rotateTickMax;
+        int throbTicks = ticks % throbTickMax;
+        RenderSystem.pushMatrix();
+        RenderSystem.translated(x, y, 0);
+        float scale = 1F + ((throbTicks >= (throbTickMax / 2) ? (throbTickMax - (throbTicks + partialTicks)) : (throbTicks + partialTicks)) * (2F / throbTickMax));
+        RenderSystem.scalef(scale, scale, scale);
+        RenderSystem.rotatef((rotateTicks + partialTicks) * (360F / rotateTickMax), 0, 0, 1);
+
+        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+        itemRenderer.renderGuiItem(stack, -8, -8);
+
         RenderSystem.popMatrix();
     }
 }

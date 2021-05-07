@@ -1,4 +1,6 @@
 {
   "minetogether.multiplayer.friends": "Friends List",
-  "minetogether.settings.title": "MineTogether Settings"
+  "minetogether.settings.title": "MineTogether Settings",
+  "minetogether.button.refresh": "Refresh",
+  "minetogether.friendscreen.title": "MineTogether Friends"
 }

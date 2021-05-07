@@ -75,6 +75,7 @@ public class ChatScreen extends Screen
         }));
         addButton(new Button(5, 5, 100, 20, new TranslatableComponent("Friends list"), p ->
         {
+            this.minecraft.setScreen(new FriendsListScreen(this));
 //            MineTogether.proxy.openFriendsGui();
         }));
         addButton(new ButtonMultiple(width - 124, 5, 3, p ->
@@ -99,7 +100,7 @@ public class ChatScreen extends Screen
         renderConnectionStatus();
         chat.render(poseStack, mouseX, mouseY, partialTicks);
         send.render(poseStack, mouseX, mouseY, partialTicks);
-        drawCenteredString(poseStack, font, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
+        drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
 
         super.render(poseStack, mouseX, mouseY, partialTicks);
     }

@@ -31,6 +31,7 @@ public class SettingsScreen extends Screen
             {
                 Minetogether.logger.info("Disabling in-game chat");
                 Config.getInstance().setChatEnabled(false);
+                //TODO
 //                MineTogether.proxy.disableIngameChat();
 //                IrcHandler.stop(true);
             }
@@ -38,6 +39,7 @@ public class SettingsScreen extends Screen
             {
                 Minetogether.logger.info("Enabling in-game chat");
                 Config.getInstance().setChatEnabled(true);
+                //TODO
 //                MineTogether.proxy.enableIngameChat();
 //                IrcHandler.reconnect();
             }
@@ -55,7 +57,9 @@ public class SettingsScreen extends Screen
             Config.getInstance().setEnableMainMenuFriends(!enabled);
             saveConfig();
         }));
-        addButton(new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("Link Account")), p -> {
+        addButton(new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("Link Account")), p ->
+        {
+            //TODO
 //            minecraft.displayGuiScreen(new ConfirmScreen(e -> {
 //                if (e) {
 //                    KeycloakOAuth.main(new String[]{});
