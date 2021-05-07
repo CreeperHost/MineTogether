@@ -5,6 +5,7 @@ import me.shedaniel.architectury.platform.Platform;
 
 import java.nio.file.Path;
 
+@Deprecated
 public class MinetogetherExpectPlatform {
     /**
      * We can use {@link Platform#getConfigFolder()} but this is just an example of {@link ExpectPlatform}.

@@ -8,6 +8,7 @@ import net.creeperhost.minetogether.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogether.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogether.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.fabricmc.api.EnvType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -46,7 +47,7 @@ public class Minetogether
         MineTogetherChat.INSTANCE.ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
         MineTogetherChat.INSTANCE.online = true;
         MineTogetherChat.INSTANCE.realName = "{\"p\": \"-1\"}";
-        MineTogetherChat.INSTANCE.signature = "Development";
+        MineTogetherChat.INSTANCE.signature = new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
         MineTogetherChat.INSTANCE.serverID = getServerIDAndVerify();
         MineTogetherChat.INSTANCE.uuid = getUUID();
 
