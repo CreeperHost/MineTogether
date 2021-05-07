@@ -1,0 +1,35 @@
+modLoader = "javafml"
+loaderVersion = "[35,)"
+#issueTrackerURL = ""
+license = "Insert License Here"
+
+[[mods]]
+modId = "minetogether"
+version = "${version}"
+displayName = "MineTogether"
+authors = "Me!"
+description = '''
+This is an example description! Tell everyone what your mod is about!
+'''
+#logoFile = ""
+
+[[dependencies.minetogether]]
+modId = "forge"
+mandatory = true
+versionRange = "[35,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.minetogether]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.16.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.minetogether]]
+modId = "architectury"
+mandatory = true
+versionRange = "[1.1.55,)"
+ordering = "AFTER"
+side = "BOTH"
