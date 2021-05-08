@@ -11,6 +11,7 @@ import net.creeperhost.minetogether.screen.prefab.ScreenList;
 import net.creeperhost.minetogether.screen.widgets.ButtonString;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -60,7 +61,7 @@ public class FriendsListScreen extends Screen
 
     public void addButtons()
     {
-        addButton(new Button(width - 105, height - 5 - 20, 100, 20, new TranslatableComponent("Cancel"), p ->
+        addButton(new Button(5, height - 60, 100, 20, new TranslatableComponent("Cancel"), p ->
         {
 //            if (!addFriend)
                 this.minecraft.setScreen(parent);
@@ -78,9 +79,17 @@ public class FriendsListScreen extends Screen
 //            showAlert(new StringTextComponent("Copied to clipboard."), 0x00FF00, 5000);
         }));
 
-         addButton(new Button(this.width - 105, this.height - 46, 100, 20, new TranslatableComponent("minetogether.button.refresh"), p ->
+         addButton(new Button(this.width - 105, this.height - 26, 100, 20,
+                 new TranslatableComponent("minetogether.button.refresh"), p -> refreshFriendsList(false)));
+
+        addButton(new Button(this.width - 105, this.height - 60, 100, 20, new TranslatableComponent("minetogether.button.invite"), p ->
         {
-            refreshFriendsList(false);
+            //TODO
+        }));
+
+        addButton(new Button(this.width / 2 - 50, this.height - 60, 100, 20, new TranslatableComponent("multiplayer.button.addfriend"), p ->
+        {
+            //TODO
         }));
     }
 
@@ -92,7 +101,7 @@ public class FriendsListScreen extends Screen
         searchEntry.render(poseStack, i, j, f);
         super.render(poseStack, i, j, f);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
-        drawCenteredString(poseStack, font, new TranslatableComponent("creeperhost.multiplayer.friendcode"), 40, this.height - 35, -1);
+        drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.multiplayer.friendcode"), 40, this.height - 35, -1);
 
         if(list.children().isEmpty()) ScreenHelpers.loadingSpin(f, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
     }
@@ -159,4 +168,32 @@ public class FriendsListScreen extends Screen
     {
         this.hoveringText = hoveringText;
     }
+
+    private Friend removeFriend;
+    @SuppressWarnings("all")
+    public void removeFriend(Friend friend)
+    {
+        removeFriend = friend;
+        ConfirmScreen confirmScreen = new ConfirmScreen(t ->
+        {
+            if(t)
+            {
+                CompletableFuture.runAsync(() ->
+                {
+                   removedFriends.add(friend.getCode());
+                   refreshFriendsList(true);
+                   if(!ChatCallbacks.removeFriend(removeFriend.getCode(), Minetogether.getUUID()))
+                   {
+                       removedFriends.remove(friend.getCode());
+                       refreshFriendsList(true);
+                   }
+                });
+            }
+            minecraft.setScreen(new FriendsListScreen(parent));
+        }, new TranslatableComponent("minetogether.removefriend.sure1"), new TranslatableComponent("minetogether.removefriend.sure2"));
+        minecraft.setScreen(confirmScreen);
+    }
+
+    //TODO
+    public void inviteGroupChat(Friend friend) { }
 }

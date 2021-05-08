@@ -3,5 +3,9 @@
   "minetogether.settings.title": "MineTogether Settings",
   "minetogether.button.refresh": "Refresh",
   "minetogether.friendscreen.title": "MineTogether Friends",
-  "creeperhost.multiplayer.friendcode": "Friend Code"
+  "minetogether.multiplayer.friendcode": "Friend Code",
+  "minetogether.removefriend.sure1":"Are you sure you wish to remove the friend?",
+  "minetogether.removefriend.sure2":"",
+  "minetogether.button.invite":"Invite Friend",
+  "multiplayer.button.addfriend":"Add Friend"
 }

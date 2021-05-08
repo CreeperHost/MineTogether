@@ -22,7 +22,7 @@ public class ListEntryFriend extends ScreenListEntry
     private boolean wasHovering;
     private final String cross = new String(Character.toChars(10006));
     private final int crossWidth = Minecraft.getInstance().font.width(cross);
-    private ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(Minetogether.MOD_ID, "textures/icon2.png");
+    private final ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(Minetogether.MOD_ID, "textures/icon2.png");
 
     public ListEntryFriend(FriendsListScreen friendsListScreen, ScreenList screenList, Friend friend)
     {
@@ -86,5 +86,28 @@ public class ListEntryFriend extends ScreenListEntry
     public Friend getFriend()
     {
         return friend;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int p_mouseClicked_5_)
+    {
+        int listWidth = ((list.getWidth() - list.getRowWidth()) / 2) + list.getRowWidth();
+
+        int yTop = list.getRowTop(this);
+
+        if (mouseX >= listWidth - crossWidth - 4 && mouseX <= listWidth - 5 && mouseY - yTop >= 0 && mouseY - yTop <= 7)
+        {
+            friendsListScreen.removeFriend(friend);
+            wasHovering = false;
+            friendsListScreen.setHoveringText(null);
+            return false;
+        } else if ((profile != null && profile.isOnline()) && mouseX >= listWidth - crossWidth - 4 && mouseX <= listWidth - 2 && mouseY - yTop >= 0 && mouseY - yTop <= 27)
+        {
+            friendsListScreen.inviteGroupChat(friend);
+            wasHovering = false;
+            friendsListScreen.setHoveringText(null);
+            return false;
+        }
+        return super.mouseClicked(mouseX, mouseY, p_mouseClicked_5_);
     }
 }
