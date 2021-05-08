@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.Minetogether;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.helpers.ScreenHelpers;
 import net.creeperhost.minetogether.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.minetogetherlib.chat.MineTogetherChat;
@@ -16,7 +16,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.lwjgl.glfw.Callbacks;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +36,7 @@ public class FriendsListScreen extends Screen
     {
         super(new TranslatableComponent("minetogether.friendscreen.title"));
         this.parent = parent;
-        this.friendCode = ChatCallbacks.getFriendCode(Minetogether.getUUID());
+        this.friendCode = ChatCallbacks.getFriendCode(MineTogether.getUUID());
     }
 
     @Override
@@ -126,7 +125,7 @@ public class FriendsListScreen extends Screen
     public static ArrayList<String> removedFriends = new ArrayList<>();
     protected boolean refreshFriendsList(boolean force)
     {
-        ArrayList<Friend> friends = ChatCallbacks.getFriendsList(force, Minetogether.getUUID());
+        ArrayList<Friend> friends = ChatCallbacks.getFriendsList(force, MineTogether.getUUID());
         list.clearList();
         if (friends != null)
         {
@@ -185,7 +184,7 @@ public class FriendsListScreen extends Screen
                 {
                    removedFriends.add(friend.getCode());
                    refreshFriendsList(true);
-                   if(!ChatCallbacks.removeFriend(removeFriend.getCode(), Minetogether.getUUID()))
+                   if(!ChatCallbacks.removeFriend(removeFriend.getCode(), MineTogether.getUUID()))
                    {
                        removedFriends.remove(friend.getCode());
                        refreshFriendsList(true);

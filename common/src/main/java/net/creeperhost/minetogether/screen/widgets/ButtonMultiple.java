@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.screen.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.Minetogether;
+import net.creeperhost.minetogether.MineTogether;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ButtonMultiple extends Button
 {
-    private static ResourceLocation buttonImg = new ResourceLocation(Minetogether.MOD_ID, "textures/widgets.png");
+    private static ResourceLocation buttonImg = new ResourceLocation(MineTogether.MOD_ID, "textures/widgets.png");
     private final int index;
 
     public ButtonMultiple(int xPos, int yPos, int index, OnPress onPress)

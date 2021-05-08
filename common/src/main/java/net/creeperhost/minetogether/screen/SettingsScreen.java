@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.Minetogether;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
@@ -29,7 +29,7 @@ public class SettingsScreen extends Screen
         {
             if(Config.getInstance().isChatEnabled())
             {
-                Minetogether.logger.info("Disabling in-game chat");
+                MineTogether.logger.info("Disabling in-game chat");
                 Config.getInstance().setChatEnabled(false);
                 //TODO
 //                MineTogether.proxy.disableIngameChat();
@@ -37,7 +37,7 @@ public class SettingsScreen extends Screen
             }
             else
             {
-                Minetogether.logger.info("Enabling in-game chat");
+                MineTogether.logger.info("Enabling in-game chat");
                 Config.getInstance().setChatEnabled(true);
                 //TODO
 //                MineTogether.proxy.enableIngameChat();

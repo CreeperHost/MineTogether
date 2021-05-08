@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.helpers;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
-import net.creeperhost.minetogether.Minetogether;
+import net.creeperhost.minetogether.MineTogether;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
@@ -57,8 +57,8 @@ public class ScreenHelpers
         int height = (int) (containerHeight * adjust);
         int x = (int) (containerX * adjust);
         int y = (int) (containerY * adjust);
-        ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(Minetogether.MOD_ID, "textures/creeperhost_logo_1-25.png");
-        ResourceLocation resourceLocationMineTogetherLogo = new ResourceLocation(Minetogether.MOD_ID, "textures/minetogether25.png");
+        ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(MineTogether.MOD_ID, "textures/creeperhost_logo_1-25.png");
+        ResourceLocation resourceLocationMineTogetherLogo = new ResourceLocation(MineTogether.MOD_ID, "textures/minetogether25.png");
 
         RenderSystem.pushMatrix();
         RenderSystem.scaled(scale, scale, scale);

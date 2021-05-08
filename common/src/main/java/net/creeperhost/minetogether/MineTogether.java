@@ -16,13 +16,12 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class Minetogether
+public class MineTogether
 {
     public static final String MOD_ID = "minetogether";
     public static Logger logger = LogManager.getLogger();
@@ -37,7 +36,7 @@ public class Minetogether
 
     public static void clientInit()
     {
-        EnvExecutor.runInEnv(EnvType.CLIENT, () -> MinetogetherClient::init);
+        EnvExecutor.runInEnv(EnvType.CLIENT, () -> MineTogetherClient::init);
         startChat();
     }
 

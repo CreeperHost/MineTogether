@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether;
 
 import me.shedaniel.architectury.event.events.GuiEvent;
-import me.shedaniel.architectury.event.events.TickEvent;
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
@@ -20,12 +19,12 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.List;
 
-public class MinetogetherClient
+public class MineTogetherClient
 {
     public static ToastHandler toastHandler;
     public static void init()
     {
-        GuiEvent.INIT_POST.register(MinetogetherClient::onScreenOpen);
+        GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
     }
 
     private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)

@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import net.creeperhost.minetogether.Minetogether;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.helpers.ScreenHelpers;
 import net.creeperhost.minetogether.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler;
@@ -464,7 +464,7 @@ public class ChatScreen extends Screen
 
         } catch (Throwable e)
         {
-            Minetogether.logger.error("Failed to format line: Sender " + message.sender + " Message" + message.messageStr);
+            MineTogether.logger.error("Failed to format line: Sender " + message.sender + " Message" + message.messageStr);
             e.printStackTrace();
         }
         return new TranslatableComponent("Error formatting line, Please report this to the issue tracker");
