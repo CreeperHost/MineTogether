@@ -7,5 +7,6 @@
   "minetogether.removefriend.sure1":"Are you sure you wish to remove the friend?",
   "minetogether.removefriend.sure2":"",
   "minetogether.button.invite":"Invite Friend",
-  "multiplayer.button.addfriend":"Add Friend"
+  "multiplayer.button.addfriend":"Add Friend",
+  "minetogether.friendslist.empty":"You have no friends :("
 }

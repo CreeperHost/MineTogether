@@ -79,13 +79,15 @@ public class FriendsListScreen extends Screen
 //            showAlert(new StringTextComponent("Copied to clipboard."), 0x00FF00, 5000);
         }));
 
-         addButton(new Button(this.width - 105, this.height - 26, 100, 20,
+        addButton(new Button(this.width - 105, this.height - 26, 100, 20,
                  new TranslatableComponent("minetogether.button.refresh"), p -> refreshFriendsList(false)));
 
-        addButton(new Button(this.width - 105, this.height - 60, 100, 20, new TranslatableComponent("minetogether.button.invite"), p ->
+        Button inviteButton;
+        addButton(inviteButton = new Button(this.width - 105, this.height - 60, 100, 20, new TranslatableComponent("minetogether.button.invite"), p ->
         {
             //TODO
         }));
+        inviteButton.active = false;
 
         addButton(new Button(this.width / 2 - 50, this.height - 60, 100, 20, new TranslatableComponent("multiplayer.button.addfriend"), p ->
         {
@@ -103,7 +105,8 @@ public class FriendsListScreen extends Screen
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
         drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.multiplayer.friendcode"), 40, this.height - 35, -1);
 
-        if(list.children().isEmpty()) ScreenHelpers.loadingSpin(f, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+        if(!ChatCallbacks.friendFuture.isDone() && list.children().isEmpty()) ScreenHelpers.loadingSpin(f, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+        if(ChatCallbacks.friendFuture.isDone() && list.children().isEmpty()) drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
     }
 
     @Override
@@ -196,4 +199,28 @@ public class FriendsListScreen extends Screen
 
     //TODO
     public void inviteGroupChat(Friend friend) { }
+
+    @Override
+    public boolean charTyped(char c, int i)
+    {
+        if(searchEntry.isFocused())
+        {
+            boolean flag = searchEntry.charTyped(c, i);
+            refreshFriendsList(false);
+            return flag;
+        }
+        return super.charTyped(c, i);
+    }
+
+    @Override
+    public boolean keyPressed(int i, int j, int k)
+    {
+        if(searchEntry.isFocused())
+        {
+            boolean flag = searchEntry.keyPressed(i, j, k);
+            refreshFriendsList(false);
+            return flag;
+        }
+        return super.keyPressed(i, j, k);
+    }
 }
