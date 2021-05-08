@@ -16,6 +16,8 @@ import net.creeperhost.minetogether.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogether.minetogetherlib.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.screen.widgets.ButtonMultiple;
 import net.creeperhost.minetogether.screen.widgets.ButtonString;
+import net.creeperhost.minetogether.screen.widgets.DropdownButton;
+import net.creeperhost.minetogether.screen.widgets.Target;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -39,7 +41,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler.*;
 
-
 public class ChatScreen extends Screen
 {
     private final Screen parent;
@@ -47,6 +48,7 @@ public class ChatScreen extends Screen
     private EditBox send;
     private String currentTarget = ChatHandler.CHANNEL;
     private ButtonString connectionStatus;
+    public DropdownButton<Target> targetDropdownButton;
 
     public ChatScreen(Screen parent)
     {
@@ -69,14 +71,18 @@ public class ChatScreen extends Screen
 
     public void addButtons()
     {
-        addButton(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Main"), p ->
+        addButton(targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, new TranslatableComponent("Chat: %s"), Target.getMainTarget(), true, p ->
         {
-
+            if (targetDropdownButton.getMessage().getString().contains("new channel"))
+            {
+//                PrivateChat privateChat = new PrivateChat("#" + MineTogether.instance.ourNick, MineTogether.instance.ourNick);
+//                ChatHandler.privateChatList = privateChat;
+//                IrcHandler.sendString("JOIN " + privateChat.getChannelname(), true);
+            }
         }));
         addButton(new Button(5, 5, 100, 20, new TranslatableComponent("Friends list"), p ->
         {
             this.minecraft.setScreen(new FriendsListScreen(this));
-//            MineTogether.proxy.openFriendsGui();
         }));
         addButton(new ButtonMultiple(width - 124, 5, 3, p ->
         {
@@ -117,7 +123,6 @@ public class ChatScreen extends Screen
     {
         synchronized (ircLock)
         {
-//            reconnectionButton.visible = reconnectionButton.active = !(ChatHandler.tries.get() < 5);
             if (ChatHandler.hasNewMessages(currentTarget))
             {
                 chat.updateLines(currentTarget);
