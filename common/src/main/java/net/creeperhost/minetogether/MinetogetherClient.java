@@ -1,8 +1,10 @@
 package net.creeperhost.minetogether;
 
 import me.shedaniel.architectury.event.events.GuiEvent;
+import me.shedaniel.architectury.event.events.TickEvent;
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.screen.ChatScreen;
 import net.creeperhost.minetogether.screen.FriendsListScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
@@ -20,6 +22,7 @@ import java.util.List;
 
 public class MinetogetherClient
 {
+    public static ToastHandler toastHandler;
     public static void init()
     {
         GuiEvent.INIT_POST.register(MinetogetherClient::onScreenOpen);
