@@ -290,7 +290,7 @@ public final class ChatCallbacks
     }
 
     static boolean friendsGetting;
-    private static CompletableFuture friendFuture;
+    public static CompletableFuture friendFuture;
     private static int friendFailures = 0;
 
     public static ArrayList<Friend> getFriendsList(boolean force, UUID uuid)

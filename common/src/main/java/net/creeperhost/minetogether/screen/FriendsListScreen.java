@@ -4,9 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Minetogether;
 import net.creeperhost.minetogether.helpers.ScreenHelpers;
 import net.creeperhost.minetogether.minetogetherlib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogether.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogether.screen.listentries.ListEntryFriend;
 import net.creeperhost.minetogether.screen.prefab.ScreenList;
+import net.creeperhost.minetogether.screen.widgets.ButtonString;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,7 +28,6 @@ public class FriendsListScreen extends Screen
     private String friendCode = "";
     private String hoveringText = null;
     private EditBox searchEntry;
-    private CompletableFuture friendsFuture;
     private int ticks;
 
     private boolean first = true;
@@ -36,7 +37,6 @@ public class FriendsListScreen extends Screen
         super(new TranslatableComponent("minetogether.friendscreen.title"));
         this.parent = parent;
         this.friendCode = ChatCallbacks.getFriendCode(Minetogether.getUUID());
-        friendsFuture = CompletableFuture.runAsync(() -> refreshFriendsList(true));
     }
 
     @Override
@@ -53,6 +53,9 @@ public class FriendsListScreen extends Screen
 
         addButtons();
         searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height -32, 160, 20, new TranslatableComponent(""));
+        children.add(list);
+        children.add(searchEntry);
+        refreshFriendsList(true);
     }
 
     public void addButtons()
@@ -60,13 +63,19 @@ public class FriendsListScreen extends Screen
         addButton(new Button(width - 105, height - 5 - 20, 100, 20, new TranslatableComponent("Cancel"), p ->
         {
 //            if (!addFriend)
-                minecraft.setScreen(parent);
+                this.minecraft.setScreen(parent);
 //            else
 //            {
 //                addFriend = false;
 //                buttonInvite.visible = true;
 //                codeEntry.setText("");
 //            }
+        }));
+
+        addButton(new ButtonString( 5, this.height - 26, 60, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
+        {
+            this.minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
+//            showAlert(new StringTextComponent("Copied to clipboard."), 0x00FF00, 5000);
         }));
 
          addButton(new Button(this.width - 105, this.height - 46, 100, 20, new TranslatableComponent("minetogether.button.refresh"), p ->
@@ -83,6 +92,7 @@ public class FriendsListScreen extends Screen
         searchEntry.render(poseStack, i, j, f);
         super.render(poseStack, i, j, f);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
+        drawCenteredString(poseStack, font, new TranslatableComponent("creeperhost.multiplayer.friendcode"), 40, this.height - 35, -1);
 
         if(list.children().isEmpty()) ScreenHelpers.loadingSpin(f, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
     }
@@ -91,9 +101,13 @@ public class FriendsListScreen extends Screen
     public void tick()
     {
         ticks++;
-        if(friendsFuture.isDone())
+        if(ChatCallbacks.friendFuture != null && ChatCallbacks.friendFuture.isDone())
         {
-            refreshFriendsList(false);
+            if(first)
+            {
+                first = false;
+                refreshFriendsList(false);
+            }
         }
     }
 
@@ -144,34 +158,5 @@ public class FriendsListScreen extends Screen
     public void setHoveringText(String hoveringText)
     {
         this.hoveringText = hoveringText;
-    }
-
-    @Override
-    public boolean mouseClicked(double d, double e, int i)
-    {
-        list.mouseClicked(d, e, i);
-        searchEntry.mouseClicked(d, e, i);
-        return super.mouseClicked(d, e, i);
-    }
-
-    @Override
-    public boolean charTyped(char c, int i)
-    {
-        searchEntry.charTyped(c, i);
-        return super.charTyped(c, i);
-    }
-
-    @Override
-    public boolean keyPressed(int i, int j, int k)
-    {
-        searchEntry.keyPressed(i, j, k);
-        return super.keyPressed(i, j, k);
-    }
-
-    @Override
-    public boolean mouseScrolled(double d, double e, double f)
-    {
-        list.mouseScrolled(d, e, f);
-        return super.mouseScrolled(d, e, f);
     }
 }
