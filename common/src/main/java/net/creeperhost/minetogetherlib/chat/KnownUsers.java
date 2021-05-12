@@ -1,8 +1,8 @@
-package net.creeperhost.minetogether.minetogetherlib.chat;
+package net.creeperhost.minetogetherlib.chat;
 
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Message;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Profile;
-import net.creeperhost.minetogether.minetogetherlib.util.LimitedSizeQueue;
+import net.creeperhost.minetogetherlib.chat.data.Message;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
 
 import java.util.ArrayList;
 import java.util.List;

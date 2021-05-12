@@ -1,9 +1,9 @@
-package net.creeperhost.minetogether.minetogetherlib.chat;
+package net.creeperhost.minetogetherlib.chat;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.creeperhost.minetogether.minetogetherlib.chat.irc.IRCServer;
-import net.creeperhost.minetogether.minetogetherlib.util.WebUtils;
+import net.creeperhost.minetogetherlib.chat.irc.IRCServer;
+import net.creeperhost.minetogetherlib.util.WebUtils;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

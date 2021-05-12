@@ -1,11 +1,11 @@
-package net.creeperhost.minetogether.minetogetherlib.minigames;
+package net.creeperhost.minetogetherlib.minigames;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.creeperhost.minetogether.minetogetherlib.util.WebUtils;
+import net.creeperhost.minetogetherlib.util.WebUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

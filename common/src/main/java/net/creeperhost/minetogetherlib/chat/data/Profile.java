@@ -1,14 +1,14 @@
-package net.creeperhost.minetogether.minetogetherlib.chat.data;
+package net.creeperhost.minetogetherlib.chat.data;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.creeperhost.minetogether.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogether.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogether.minetogetherlib.chat.irc.IrcHandler;
-import net.creeperhost.minetogether.minetogetherlib.util.WebUtils;
+import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
+import net.creeperhost.minetogetherlib.util.WebUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,10 +1,10 @@
-package net.creeperhost.minetogether.minetogetherlib.chat;
+package net.creeperhost.minetogetherlib.chat;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Friend;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.IHost;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Message;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.chat.data.Friend;
+import net.creeperhost.minetogetherlib.chat.data.IHost;
+import net.creeperhost.minetogetherlib.chat.data.Message;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

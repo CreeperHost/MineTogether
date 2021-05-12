@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.minetogetherlib.chat.irc;
+package net.creeperhost.minetogetherlib.chat.irc;
 
 import java.util.regex.Pattern;
 

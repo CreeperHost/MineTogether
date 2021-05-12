@@ -1,7 +1,7 @@
-package net.creeperhost.minetogether.minetogetherlib.chat;
+package net.creeperhost.minetogetherlib.chat;
 
-import net.creeperhost.minetogether.minetogetherlib.chat.data.IHost;
-import net.creeperhost.minetogether.minetogetherlib.chat.irc.IrcHandler;
+import net.creeperhost.minetogetherlib.chat.data.IHost;
+import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

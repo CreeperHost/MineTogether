@@ -1,17 +1,15 @@
-package net.creeperhost.minetogether.minetogetherlib.chat;
+package net.creeperhost.minetogetherlib.chat;
 
 import com.google.common.hash.Hashing;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Friend;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Profile;
-import net.creeperhost.minetogether.minetogetherlib.minigames.Minigame;
-import net.creeperhost.minetogether.minetogetherlib.serverlists.EnumFlag;
-import net.creeperhost.minetogether.minetogetherlib.serverlists.FriendStatusResponse;
-import net.creeperhost.minetogether.minetogetherlib.serverlists.ModPack;
-import net.creeperhost.minetogether.minetogetherlib.serverlists.Server;
-import net.creeperhost.minetogether.minetogetherlib.util.Util;
-import net.creeperhost.minetogether.minetogetherlib.util.WebUtils;
+import net.creeperhost.minetogetherlib.chat.data.Friend;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.serverlists.EnumFlag;
+import net.creeperhost.minetogetherlib.serverlists.FriendStatusResponse;
+import net.creeperhost.minetogetherlib.serverlists.ModPack;
+import net.creeperhost.minetogetherlib.serverlists.Server;
+import net.creeperhost.minetogetherlib.util.Util;
+import net.creeperhost.minetogetherlib.util.WebUtils;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;

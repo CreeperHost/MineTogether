@@ -1,10 +1,10 @@
-package net.creeperhost.minetogether.minetogetherlib.chat.irc;
+package net.creeperhost.minetogetherlib.chat.irc;
 
-import net.creeperhost.minetogether.minetogetherlib.chat.ChatConnectionStatus;
-import net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogether.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.PrivateChat;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.data.PrivateChat;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

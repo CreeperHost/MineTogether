@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.minetogetherlib.chat.data;
+package net.creeperhost.minetogetherlib.chat.data;
 
 import org.apache.logging.log4j.Logger;
 

@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.minetogetherlib.minigames;
+package net.creeperhost.minetogetherlib.minigames;
 
 public class Minigame
 {

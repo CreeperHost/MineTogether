@@ -1,6 +1,6 @@
-package net.creeperhost.minetogether.minetogetherlib.chat.data;
+package net.creeperhost.minetogetherlib.chat.data;
 
-import net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
 
 public class Friend
 {

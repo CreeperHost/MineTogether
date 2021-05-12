@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.minetogetherlib.chat.data;
+package net.creeperhost.minetogetherlib.chat.data;
 
 public class Message
 {

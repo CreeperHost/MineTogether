@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.minetogetherlib.chat;
+package net.creeperhost.minetogetherlib.chat;
 
 public enum ChatConnectionStatus
 {
