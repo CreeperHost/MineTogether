@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 public class IrcHandler
 {
     public static Logger logger = LogManager.getLogger();
-    public static final String nickname = MineTogetherChat.INSTANCE.ourNick;//MineTogether.instance.ourNick;
+    public static final String nickname = MineTogetherChat.INSTANCE.ourNick;
     public static AtomicBoolean first = new AtomicBoolean(true);
     private static OutputStreamWriter outputStreamWriter;
     private static BufferedWriter bufferedWriter;
@@ -441,12 +441,12 @@ public class IrcHandler
             }
             else
             {
-                System.out.println(s);
+//                System.out.println(s);
             }
         }
         else
         {
-            logger.error("Unhandled IRC message!\n"+s);
+//            logger.error("Unhandled IRC message!\n"+s);
         }
     }
 }

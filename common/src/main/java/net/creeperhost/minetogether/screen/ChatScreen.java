@@ -8,12 +8,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.helpers.ScreenHelpers;
-import net.creeperhost.minetogether.minetogetherlib.chat.ChatConnectionStatus;
-import net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogether.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Message;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Profile;
-import net.creeperhost.minetogether.minetogetherlib.util.LimitedSizeQueue;
+import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.data.Message;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.screen.widgets.ButtonMultiple;
 import net.creeperhost.minetogether.screen.widgets.ButtonString;
 import net.creeperhost.minetogether.screen.widgets.DropdownButton;
@@ -39,7 +39,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler.*;
+
+import static net.creeperhost.minetogetherlib.chat.ChatHandler.ircLock;
+import static net.creeperhost.minetogetherlib.chat.ChatHandler.knownUsers;
 
 public class ChatScreen extends Screen
 {
@@ -121,6 +123,9 @@ public class ChatScreen extends Screen
     @Override
     public void tick()
     {
+        String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
+        if (!buttonTarget.equals(currentTarget)) currentTarget = buttonTarget;
+
         synchronized (ircLock)
         {
             if (ChatHandler.hasNewMessages(currentTarget))
@@ -153,6 +158,7 @@ public class ChatScreen extends Screen
         return super.mouseScrolled(d, e, f);
     }
 
+    @Deprecated
     public void rebuildChat()
     {
         double scroll = chat.getScrollAmount();
@@ -242,7 +248,7 @@ public class ChatScreen extends Screen
                 } else {
                     justNick = result.replaceAll("[^A-Za-z0-9#]", "");
                 }
-                Profile profile = ChatHandler.knownUsers.findByDisplay(justNick);
+                Profile profile = knownUsers.findByDisplay(justNick);
                 if(profile == null)
                 {
                     continue;
@@ -326,7 +332,7 @@ public class ChatScreen extends Screen
             Profile profile = null;
 
             if (inputNick.startsWith("MT") && inputNick.length() >= 16) {
-                profile = ChatHandler.knownUsers.findByNick(inputNick);
+                profile = knownUsers.findByNick(inputNick);
                 if (profile == null) profile = knownUsers.add(inputNick);
                 if (profile != null) {
                     premium.set(profile.isPremium());
@@ -377,7 +383,7 @@ public class ChatScreen extends Screen
                     } else if(justNick.length() >= 16)
                     {
                         String userName = "User#" + justNick.substring(2, 5);
-                        Profile mentionProfile = ChatHandler.knownUsers.findByNick(justNick);
+                        Profile mentionProfile = knownUsers.findByNick(justNick);
                         if (mentionProfile != null) {
                             userName = mentionProfile.getUserDisplay();
                         }
@@ -553,7 +559,7 @@ public class ChatScreen extends Screen
         {
             LimitedSizeQueue<Message> tempMessages;
             int oldMaxScroll = this.getMaxScroll();
-            synchronized (ChatHandler.ircLock)
+            synchronized (ircLock)
             {
                 if (ChatHandler.messages == null || ChatHandler.messages.size() == 0) return;
                 tempMessages = ChatHandler.messages.get(key);

@@ -8,5 +8,12 @@
   "minetogether.removefriend.sure2":"",
   "minetogether.button.invite":"Invite Friend",
   "multiplayer.button.addfriend":"Add Friend",
-  "minetogether.friendslist.empty":"You have no friends :("
+  "minetogether.friendslist.empty":"You have no friends :(",
+  "minetogether.button.getserver": "Get a server!",
+  "minetogether.info.server_name": "Server name",
+  "minetogether.order.screen.generalinfo": "General Server Info",
+  "minetogether.screen.generalinfo.secure.line1":"All data is transmitted via SSL, no payment details",
+  "minetogether.screen.generalinfo.secure.line2":"will be taken in the client. You will be redirected outside",
+  "minetogether.screen.generalinfo.secure.line3":"of the client to CreeperHost's secure portal to make payment",
+  "minetogether.screen.generalinfo.pregen": "Agree to Mojang EULA and pre-generate world?"
 }

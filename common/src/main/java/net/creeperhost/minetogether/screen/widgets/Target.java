@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.screen.widgets;
 
-import net.creeperhost.minetogether.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;

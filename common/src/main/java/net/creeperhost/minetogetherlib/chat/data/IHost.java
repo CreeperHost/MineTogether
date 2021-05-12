@@ -4,6 +4,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
+@Deprecated
 public interface IHost
 {
     String getNameForUser(String nick);

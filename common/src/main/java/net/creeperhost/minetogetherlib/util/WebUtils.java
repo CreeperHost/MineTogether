@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.minetogetherlib.util;
+package net.creeperhost.minetogetherlib.util;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

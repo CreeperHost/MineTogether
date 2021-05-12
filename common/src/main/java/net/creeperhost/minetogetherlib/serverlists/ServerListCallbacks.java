@@ -1,10 +1,10 @@
-package net.creeperhost.minetogether.minetogetherlib.serverlists;
+package net.creeperhost.minetogetherlib.serverlists;
 
 import com.google.gson.*;
-import net.creeperhost.minetogether.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogether.minetogetherlib.chat.data.Friend;
-import net.creeperhost.minetogether.minetogetherlib.util.Util;
-import net.creeperhost.minetogether.minetogetherlib.util.WebUtils;
+import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
+import net.creeperhost.minetogetherlib.chat.data.Friend;
+import net.creeperhost.minetogetherlib.util.Util;
+import net.creeperhost.minetogetherlib.util.WebUtils;
 
 import java.util.*;
 

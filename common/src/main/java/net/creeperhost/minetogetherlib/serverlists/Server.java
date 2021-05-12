@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.minetogetherlib.serverlists;
+package net.creeperhost.minetogetherlib.serverlists;
 
 public class Server
 {
