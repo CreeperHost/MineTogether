@@ -33,12 +33,12 @@ public abstract class OrderServerScreen extends Screen
     public void addNavigationButtons()
     {
         addButton(this.buttonPrev = new Button(10, this.height - 30, 80, 20,
-                new TranslatableComponent("button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order))));
+                new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order))));
 
         addButton(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20,
-                new TranslatableComponent("button.cancel"), (button) -> this.minecraft.setScreen(null)));
+                new TranslatableComponent("minetogether.button.cancel"), (button) -> this.minecraft.setScreen(null)));
 
-        addButton(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("button.next"), (button) ->
+        addButton(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.next"), (button) ->
         {
             if ((this.stepId + 1) == STEP_AMOUNT)
             {
@@ -68,8 +68,8 @@ public abstract class OrderServerScreen extends Screen
             case 0:
             default:
                 return new GeneralServerInfoScreen(0, order);
-//            case 1:
-//                return new GuiQuote(1, order);
+            case 1:
+                return new QuoteScreen(1, order);
 //            case 2:
 //                return new GuiLocationMap(2, order);
 //            case 3:

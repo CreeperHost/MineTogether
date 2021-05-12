@@ -15,5 +15,8 @@
   "minetogether.screen.generalinfo.secure.line1":"All data is transmitted via SSL, no payment details",
   "minetogether.screen.generalinfo.secure.line2":"will be taken in the client. You will be redirected outside",
   "minetogether.screen.generalinfo.secure.line3":"of the client to CreeperHost's secure portal to make payment",
-  "minetogether.screen.generalinfo.pregen": "Agree to Mojang EULA and pre-generate world?"
+  "minetogether.screen.generalinfo.pregen": "Agree to Mojang EULA and pre-generate world?",
+  "minetogether.button.prev":"Previous Step",
+  "minetogether.button.next":"Next Step",
+  "minetogether.button.cancel":"Cancel"
 }
