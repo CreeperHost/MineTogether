@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.helpers.ScreenHelpers;
+import net.creeperhost.minetogether.module.serverorder.screen.listentries.ListEntryCountry;
 import net.creeperhost.minetogether.screen.prefab.ScreenList;
 import net.creeperhost.minetogether.screen.widgets.ScreenWell;
 import net.creeperhost.minetogetherlib.Order;
@@ -28,6 +29,8 @@ public class QuoteScreen extends OrderServerScreen
     private Button countryButton;
     private boolean refreshing;
     private int ticks;
+    private boolean first = false;
+    private boolean showList = false;
 
     public QuoteScreen(int stepId, Order order)
     {
@@ -51,6 +54,7 @@ public class QuoteScreen extends OrderServerScreen
         if(name == null || name.isEmpty()) name = "Failed to load";
         countryButton = addButton(new Button(start + middle - 100, this.height - 70, 200, 20, new TranslatableComponent(name), p ->
         {
+            showList = true;
 //            countryOnRelease = true;
 //            this.oldButtonxPrev = this.buttonPrev.x;
 //            this.countryPrev = (GuiListEntryCountry) this.list.getSelected();
@@ -73,6 +77,8 @@ public class QuoteScreen extends OrderServerScreen
 
         if(!refreshing)
         {
+            if(showList) list.render(poseStack, mouseX, mouseY, partialTicks);
+
             if (!summary.summaryError.isEmpty())
             {
                 super.render(poseStack, mouseX, mouseY, partialTicks);
@@ -162,22 +168,7 @@ public class QuoteScreen extends OrderServerScreen
             order.productID = summary.productID;
             order.currency = summary.currency;
 
-            //TODO
-//            if (firstTime)
-//            {
-//                firstTime = false;
-//                Map<String, String> locations = ServerOrderCallbacks.getCountries();
-//                for (Map.Entry<String, String> entry : locations.entrySet())
-//                {
-//                    GuiListEntryCountry listEntry = new GuiListEntryCountry(list, entry.getKey(), entry.getValue());
-//                    list.add(listEntry);
-//
-//                    if (order.country.equals(listEntry.countryID))
-//                    {
-//                        list.setSelected(listEntry);
-//                    }
-//                }
-//            }
+            if (first) updateList();
 
             wellLeft.lines = summary.serverFeatures;
             wellRight.lines = summary.serverIncluded;
@@ -185,5 +176,22 @@ public class QuoteScreen extends OrderServerScreen
             countryButton.visible = true;
             refreshing = false;
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    public void updateList()
+    {
+        first = false;
+        Map<String, String> locations = ServerOrderCallbacks.getCountries();
+        for (Map.Entry<String, String> entry : locations.entrySet())
+        {
+            ListEntryCountry listEntry = new ListEntryCountry(list, entry.getKey(), entry.getValue());
+            list.add(listEntry);
+
+            if (order.country.equals(listEntry.countryID))
+            {
+                list.setSelected(listEntry);
+            }
+        }
     }
 }

@@ -55,8 +55,8 @@ public abstract class OrderServerScreen extends Screen
     @Override
     public void render(PoseStack poseStack, int i, int j, float f)
     {
-        this.drawCenteredString(poseStack, minecraft.font, "Step " + (this.stepId + 1 + " / ") + STEP_AMOUNT, this.width - 30, 10, -1);
-        this.drawCenteredString(poseStack, minecraft.font, this.getStepName(), this.width / 2, 10, -1);
+        drawCenteredString(poseStack, minecraft.font, "Step " + (this.stepId + 1 + " / ") + STEP_AMOUNT, this.width - 30, 10, -1);
+        drawCenteredString(poseStack, minecraft.font, this.getStepName(), this.width / 2, 10, -1);
         super.render(poseStack, i, j, f);
     }
 
@@ -80,5 +80,4 @@ public abstract class OrderServerScreen extends Screen
     }
 
     public abstract String getStepName();
-
 }
