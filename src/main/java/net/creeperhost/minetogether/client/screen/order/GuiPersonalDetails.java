@@ -506,7 +506,10 @@ public class GuiPersonalDetails extends GuiGetServer
         {
             if (field.mouseClicked(mouseX, mouseY, mouseButton))
             {
+                if(focusedField != null) focusedField.setFocused(false);
+                focusedField = field;
                 field.setFocused(true);
+                return true;
             }
         }
         return false;
@@ -548,8 +551,7 @@ public class GuiPersonalDetails extends GuiGetServer
     public void validationChanged(TextFieldDetails details, boolean valid, IOrderValidation validator, IOrderValidation.ValidationPhase phase)
     {
         if (details.getId() == 0)
-        {
-            if (!valid && validator.getName().equals("NotEmailExistsValidator") && (!validator.isAsync() || validator == null))
+        { if (!valid && validator.getName().equals("NotEmailExistsValidator") && !validator.isAsync())
             {
                 isEmailValid = false;
                 loginMode = true;

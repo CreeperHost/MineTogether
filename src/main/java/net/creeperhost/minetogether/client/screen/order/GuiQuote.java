@@ -177,7 +177,7 @@ public class GuiQuote extends GuiGetServer
                 
                 
                 this.drawCenteredString(matrixStack, this.font, Util.localize("quote.requirements") + " " + summary.serverHostName.toLowerCase() + " package", this.width / 2, 36, -1);
-                this.drawCenteredString(matrixStack, this.font, "In our " + GuiLocationMap.ttl(order.serverLocation) + " location", this.width / 2, 48, -1);
+                this.drawCenteredString(matrixStack, this.font, "In our " + order.serverLocation + " location", this.width / 2, 48, -1);
 
                 String formatString = summary.prefix + "%1$.2f " + summary.suffix;
                 

@@ -258,7 +258,7 @@ public class GuiLocationMap extends GuiGetServer
         {
             if(widget == buttonNext)
             {
-                if(currentFocus != null) this.order.serverLocation = currentFocus.getMessage().getString().trim();
+                if(currentFocus != null) this.order.serverLocation = regionToDataCentre(currentFocus.getMessage().getString().trim());
             }
             widget.mouseClicked(mouseX, mouseY, button);
         });
