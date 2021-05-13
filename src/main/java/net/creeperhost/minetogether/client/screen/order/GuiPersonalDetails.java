@@ -549,7 +549,7 @@ public class GuiPersonalDetails extends GuiGetServer
     {
         if (details.getId() == 0)
         {
-            if (!valid && validator.getName().equals("NotEmailExistsValidator") && !validator.isAsync())
+            if (!valid && validator.getName().equals("NotEmailExistsValidator") && (!validator.isAsync() || validator == null))
             {
                 isEmailValid = false;
                 loginMode = true;

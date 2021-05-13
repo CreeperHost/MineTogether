@@ -39,6 +39,8 @@ public class GuiLocationMap extends GuiGetServer
         int y = (this.height / 2) + 20;
         regions = Callbacks.getRegionMap();
         dataCenters = Callbacks.getDataCentres();
+        if(order.country == null || order.country.isEmpty()) order.country = Callbacks.getUserCountry();
+        if(order.serverLocation == null || order.serverLocation.isEmpty()) order.serverLocation = Callbacks.getRecommendedLocation();
 
         float scalingFactor = 8;
 
@@ -169,7 +171,7 @@ public class GuiLocationMap extends GuiGetServer
         }
     }
 
-    public String ttl(String input)
+    public static String ttl(String input)
     {
         String key = "minetogether.region." + input.toLowerCase(Locale.ROOT);
         if(I18n.hasKey(key)) return I18n.format(key);

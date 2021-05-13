@@ -34,15 +34,27 @@ public abstract class GuiGetServer extends Screen
     {
         switch (step)
         {
+//            case 0:
+//            default:
+//                return new GuiGeneralServerInfo(0, order);
+//            case 1:
+//                return new GuiQuote(1, order);
+//            case 2:
+//                return new GuiLocationMap(2, order);
+//            case 3:
+//                return new GuiPersonalDetails(3, order);
+//            case 4:
+//                return new GuiOrderDetails(4, order);
+
             case 0:
             default:
                 return new GuiGeneralServerInfo(0, order);
             case 1:
-                return new GuiQuote(1, order);
+                return new GuiLocationMap(1, order);
             case 2:
-                return new GuiLocationMap(2, order);
+                return new GuiPersonalDetails(2, order);
             case 3:
-                return new GuiPersonalDetails(3, order);
+                return new GuiQuote(3, order);
             case 4:
                 return new GuiOrderDetails(4, order);
         }
