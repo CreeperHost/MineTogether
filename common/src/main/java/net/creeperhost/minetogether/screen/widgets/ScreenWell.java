@@ -34,7 +34,7 @@ public class ScreenWell
     }
     
     @SuppressWarnings("Duplicates")
-    public void drawScreen()
+    public void render()
     {
         Font fontRenderer = Minecraft.getInstance().font;
         

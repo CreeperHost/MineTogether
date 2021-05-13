@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CallBacksMinigames
+public class MinigamesCallbacks
 {
     public static ArrayList<Minigame> getMinigames(boolean isModded, String minecraftVersion, String curseProjectID)
     {

@@ -18,5 +18,26 @@
   "minetogether.screen.generalinfo.pregen": "Agree to Mojang EULA and pre-generate world?",
   "minetogether.button.prev":"Previous Step",
   "minetogether.button.next":"Next Step",
-  "minetogether.button.cancel":"Cancel"
+  "minetogether.button.cancel":"Cancel",
+  "minetogether.order.screen.generalinfo.quote": "Server Quote",
+
+  "minetogether.quote.vpsfeatures":"VPS Features",
+  "minetogether.quote.figures":"Figures based on you being in",
+  "minetogether.quote.refreshing":"Please wait - refreshing quote",
+  "minetogether.quote.error":"Error occurred while fetching quote.",
+  "minetogether.quote.curseerror":"Cannot find specified project on CreeperHost. If correct, wait 15!",
+  "minetogether.quote.promoerror":"Promo code does not exist on CreeperHost.",
+  "minetogether.quote.vpsincluded":"Included Features",
+  "minetogether.quote.vpsincluded1":"Free Dedicated IPv4",
+  "minetogether.quote.vpsincluded2":"Unmetered slots",
+  "minetogether.quote.vpsincluded3":"Free website",
+  "minetogether.quote.vpsincluded4":"Free VoIP",
+  "minetogether.quote.vpsincluded5":"Install or switch games for free",
+  "minetogether.quote.vpsincluded6":"Monthly subscription - cancel at any",
+  "minetogether.quote.vpsincluded7":"time with 7 days notice",
+  "minetogether.quote.requirements":"Based on your requirements, we recommend a",
+  "minetogether.quote.tax":"Tax",
+  "minetogether.quote.subtotal":"SubTotal",
+  "minetogether.quote.total":"Total",
+  "minetogether.quote.discount":"Discount"
 }
