@@ -1,15 +1,14 @@
 package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.helpers.ScreenHelpers;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogether.screen.listentries.ListEntryFriend;
 import net.creeperhost.minetogether.screen.prefab.ScreenList;
 import net.creeperhost.minetogether.screen.widgets.ButtonString;
+import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;

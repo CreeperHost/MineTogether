@@ -6,7 +6,6 @@ import net.creeperhost.minetogether.module.serverorder.screen.listentries.ListEn
 import net.creeperhost.minetogether.screen.prefab.ScreenList;
 import net.creeperhost.minetogether.screen.widgets.ScreenWell;
 import net.creeperhost.minetogetherlib.Order;
-import net.creeperhost.minetogetherlib.minigames.MinigamesCallbacks;
 import net.creeperhost.minetogetherlib.serverorder.OrderSummary;
 import net.creeperhost.minetogetherlib.serverorder.ServerOrderCallbacks;
 import net.minecraft.client.gui.components.Button;

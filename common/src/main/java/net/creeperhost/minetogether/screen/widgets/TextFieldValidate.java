@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.screen.widgets;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.TranslatableComponent;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

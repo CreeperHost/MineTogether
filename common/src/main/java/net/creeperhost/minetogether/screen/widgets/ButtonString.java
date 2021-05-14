@@ -1,14 +1,11 @@
 package net.creeperhost.minetogether.screen.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.helpers.ScreenHelpers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class ButtonString extends Button
 {
