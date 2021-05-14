@@ -3,8 +3,12 @@ buildscript {
         jcenter()
         mavenCentral()
         maven {
-            name = 'forge'
-            url = 'https://files.minecraftforge.net/maven'
+            name = 'CreeperHost Maven'
+            url = 'https://maven.creeperhost.net'
+        }
+        maven {
+            name = 'Sponge Maven'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
         }
         maven {
             name = "sonatype"
@@ -13,12 +17,14 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
 }
 plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
 
 ext.configFile = file "build.properties"
 
@@ -45,6 +51,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
+            arg "-mixin.config=minetogether.mixins.json"
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -53,7 +60,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             mods {
-                examplemod {
+                minetogether {
                     source sourceSets.main
                 }
             }
@@ -93,18 +100,24 @@ minecraft {
             }
         }
     }
+
+}
+
+mixin {
+    add sourceSets.main, "minetogether.refmap.json"
 }
 
 jar {
     manifest {
         attributes([
-                "Specification-Title": "examplemod",
-                "Specification-Vendor": "examplemodsareus",
+                "Specification-Title": "MineTogether",
+                "Specification-Vendor": "CreeperHost",
                 "Specification-Version": "1", // We are version 1 of ourselves
                 "Implementation-Title": project.name,
                 "Implementation-Version": "${version}",
-                "Implementation-Vendor" :"examplemodsareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                "Implementation-Vendor" :"CreeperHost",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs": "minetogether.mixins.json"
         ])
     }
 }
@@ -122,6 +135,9 @@ dependencies {
     shadow 'org.nanohttpd:nanohttpd:2.3.1'
     shadow 'com.github.scribejava:scribejava-apis:6.9.0'
     shadow 'com.github.scribejava:scribejava-core:6.9.0'
+    shadow group: 'org.jitsi', name: 'ice4j', version: '3.0-29-g3e0a9f9'
+
+    annotationProcessor 'org.spongepowered:mixin:0.8:processor'
 }
 
 shadowJar {
@@ -132,7 +148,6 @@ shadowJar {
         exclude(dependency("io.netty::"))
     }
 
-    // Relocate fluent-hc to prevent conflicts with other mods that include it
     relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
     relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
     relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
@@ -149,4 +164,3 @@ def reobfArtifact = artifacts.add('default', reobfFile) {
 reobf {
     shadowJar {} // Reobfuscate the shadowed JAR
 }
-

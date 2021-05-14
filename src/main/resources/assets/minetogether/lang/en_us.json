@@ -293,6 +293,7 @@
   "minetogether.connect.open.start":"Open world to friends",
   "minetogether.connect.open.success":"Opened local game world to your MineTogether friends.",
   "minetogether.connect.open.failed":"Failed to open local game to MineTogether friends.",
+  "minetogether.connect.title": "Multiplayer (MineTogether Connect)",
   "minetogether.realms.replace":"Get a server",
   "minetogether.region.eu-west":"Western Europe",
   "minetogether.region.eu-middle-east":"Eastern Europe & Middle East",

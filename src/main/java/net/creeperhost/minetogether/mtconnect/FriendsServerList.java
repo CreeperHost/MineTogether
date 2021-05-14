@@ -24,10 +24,10 @@ import java.util.concurrent.CompletableFuture;
 public class FriendsServerList extends LanServerDetector.LanServerList {
     private final LanServerDetector.LanServerList wrapped;
     private boolean oursWasUpdated = false;
-    private List<LanServerInfo> ourLanServers = new ArrayList<>();
-    private MultiplayerScreen owner;
+    private final List<LanServerInfo> ourLanServers = new ArrayList<>();
+    private final MultiplayerScreen owner;
 
-    private List<ServerData> pendingFriendServers = new ArrayList<>();
+    private final List<ServerData> pendingFriendServers = new ArrayList<>();
 
     public FriendsServerList(LanServerDetector.LanServerList wrapped, MultiplayerScreen owner) {
         this.owner = owner;
@@ -36,37 +36,33 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
         if(ConnectHelper.isEnabled) {
             CompletableFuture.runAsync(() ->
             {
-                ArrayList<Friend> friendsList = Callbacks.getFriendsList(false);
-                while (friendsList == null) {
-                    friendsList = Callbacks.getFriendsList(false);
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                    }
-                }
-                for (Friend friend : friendsList) {
-                    CompletableFuture.runAsync(() -> {
-                        Profile profile = friend.getProfile();
-                        if (!profile.isOnline()) return;
-                        ServerData server = new ServerData(friend.getName() + "'s server", "[" + profile.getConnectAddress() + "]:42069", false);
+                ConnectHandler.getFriends((friends) -> {
+                    if (friends == null || friends.getFriends() == null) return null;
+                    for (ConnectHandler.FriendsResponse.Friend friend : friends.getFriends()) {
+                        CompletableFuture.runAsync(() -> {
+                            ServerData server = new ServerData(friend.getDisplayName() + "'s server", friend.getAddress(), false);
+                            try {
+                                this.owner.getOldServerPinger().ping(server, () -> {
+                                    addPendingServer(server);
+                                });
+                            } catch (UnknownHostException var2) {
+                                server.pingToServer = -1L;
+                                server.serverMOTD = new StringTextComponent(TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_resolve"));
+                            } catch (Exception var3) {
+                                server.pingToServer = -1L;
+                                server.serverMOTD = new StringTextComponent(TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_connect"));
+                            }
+                            if (server.pingToServer > 0) {
+                                addPendingServer(server);
+                            }
+                        }, MineTogether.otherExecutor);
                         try {
-                            this.owner.getOldServerPinger().ping(server, null);
-                        } catch (UnknownHostException var2) {
-                            server.pingToServer = -1L;
-                            server.serverMOTD = new StringTextComponent(TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_resolve"));
-                        } catch (Exception var3) {
-                            server.pingToServer = -1L;
-                            server.serverMOTD = new StringTextComponent(TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_connect"));
+                            Thread.sleep(25);
+                        } catch (InterruptedException e) {
                         }
-                        if (server.pingToServer > 0) {
-                            addPendingServer(server);
-                        }
-                    }, MineTogether.otherExecutor);
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
                     }
-                }
+                    return null;
+                });
             });
         }
     }

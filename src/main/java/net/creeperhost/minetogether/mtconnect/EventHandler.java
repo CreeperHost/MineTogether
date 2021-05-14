@@ -1,48 +1,33 @@
 package net.creeperhost.minetogether.mtconnect;
 
-import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.config.ConfigHandler;
 import net.creeperhost.minetogether.util.ScreenUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConfirmOpenLinkScreen;
 import net.minecraft.client.gui.screen.IngameMenuScreen;
+import net.minecraft.client.gui.screen.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
-import java.net.InetAddress;
-import java.util.List;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EventHandler {
 
     public EventHandler() {
-        CompletableFuture.runAsync(() -> {
-            //This needs to retry, otherwise a single failed ping for any of a great many reasons means a whole feature is disabled until a client restart...
-            while(!ConnectHelper.isEnabled) {
-
-                try {
-                    boolean result = InetAddress.getByName("2a04:de41::1").isReachable(15000);
-                    ConnectHelper.isEnabled = result;
-//                    MineTogether.logger.info(result);
-                } catch (Throwable ignored) {
-                    ignored.printStackTrace();
-                }
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        CompletableFuture.runAsync(ConnectHandler::connectToProc);
     }
 
 
@@ -80,6 +65,23 @@ public class EventHandler {
                 guiButton.active = ConnectHelper.isEnabled && !integratedServer.getPublic();
                 event.addWidget(guiButton);
                 event.addWidget(ourFeedback);
+            }
+        } else if (gui instanceof MultiplayerScreen) {
+            if(ConnectHelper.isEnabled) {
+                MultiplayerScreen guiMp = (MultiplayerScreen) gui;
+                if (!(guiMp.lanServerList instanceof FriendsServerList)) {
+                    guiMp.lanServerList = new FriendsServerList(guiMp.lanServerList, guiMp);
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent()
+    public void serverShutdown(FMLServerStoppingEvent ev) {
+        MinecraftServer server = ev.getServer();
+        if(server instanceof IntegratedServer) {
+            if(ConnectHelper.isShared((IntegratedServer)server)) {
+                ConnectHandler.close();
             }
         }
     }

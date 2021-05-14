@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.mtconnect;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.creeperhost.minetogether.util.ScreenUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ShareToLanScreen;
 import net.minecraft.client.gui.widget.Widget;
@@ -41,23 +42,8 @@ public class GuiShareToFriends extends ShareToLanScreen
 
         Button ourButton = new Button(startButton.x, startButton.y, startButton.getWidth(), 20, new StringTextComponent(I18n.format("minetogether.connect.open.start")), (button1) ->
         {
-            Object gameModeString = ObfuscationReflectionHelper.getPrivateValue(ShareToLanScreen.class, this, "field_146599_h");
-            Object allowCheatsBoolean = ObfuscationReflectionHelper.getPrivateValue(ShareToLanScreen.class, this, "field_146600_i");
-
             this.minecraft.displayGuiScreen(null);
-            boolean s = ConnectHelper.shareToFriends(GameType.getByName((String) gameModeString), (Boolean) allowCheatsBoolean);
-            ITextComponent itextcomponent;
-
-            if (s)
-            {
-                itextcomponent = new StringTextComponent("minetogether.connect.open.success");
-            }
-            else
-            {
-                itextcomponent = new StringTextComponent("minetogether.connect.open.failed");
-            }
-
-            this.minecraft.ingameGUI.getChatGUI().printChatMessage(itextcomponent);
+            ConnectHelper.shareToFriends(GameType.getByName(gameMode), allowCheats);
         });
         this.buttons.add(ourButton);
     }
