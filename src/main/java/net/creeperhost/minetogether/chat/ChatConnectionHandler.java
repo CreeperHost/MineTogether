@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.common.IHost;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.irc.IrcHandler;
+import net.creeperhost.minetogether.paul.Callbacks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

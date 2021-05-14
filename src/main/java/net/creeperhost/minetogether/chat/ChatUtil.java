@@ -25,7 +25,7 @@ public class ChatUtil
     
     public static IRCServer getIRCServerDetails()
     {
-        String resp = WebUtils.getWebResponse("https://api.creeper.host/serverlist/chatserver");
+        String resp = WebUtils.getWebResponse("https://api.creeper.host/serverlist/chatserver", 0, true);
         
         if (resp.equals("error"))
         {

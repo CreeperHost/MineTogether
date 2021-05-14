@@ -162,6 +162,8 @@ public class MTChatScreen extends Screen
         strings.add("Mention");
         addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new StringTextComponent("Menu"), new Menu(strings), true, p ->
         {
+            if(!menuDropdownButton.dropdownOpen) return;
+
             if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
             {
                 MineTogether.instance.muteUser(activeDropdown);
@@ -175,6 +177,7 @@ public class MTChatScreen extends Screen
             {
                 this.send.setFocused2(true);
                 this.send.setText(this.send.getText() + " " + activeDropdown + " ");
+                this.send.setFocused2(false);
             }
             else if (ChatHandler.privateChatInvite != null)
             {
@@ -643,14 +646,16 @@ public class MTChatScreen extends Screen
             }
             boolean friends = false;
 
-            for(Friend f : Callbacks.getFriendsList(false))
-            {
-                if(f.getProfile() != null)
-                {
-                    if (eventValue.startsWith(f.getProfile().getShortHash()))
-                    {
-                        friends = true;
-                        break;
+            List<Friend> friends1 = Callbacks.getFriendsList(false);
+
+            //Added null check as friends list can take some time to come back when its huge...
+            if(friends1 != null) {
+                for (Friend f : friends1) {
+                    if (f.getProfile() != null) {
+                        if (eventValue.startsWith(f.getProfile().getShortHash())) {
+                            friends = true;
+                            break;
+                        }
                     }
                 }
             }

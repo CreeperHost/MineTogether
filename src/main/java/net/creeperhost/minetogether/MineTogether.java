@@ -174,7 +174,7 @@ public class MineTogether implements ICreeperHostMod, IHost
             signature = verifySignature(findOurJar(serverModsFolder));
         }
 
-        if(signature == null) signature = "Development";
+        if(signature == null) signature = "ed372482a701b12cfd7e77cd73f5bc6b95b043801683d2aa98a1a7359a304fb5";
 
         isOnline = proxy.checkOnline();
         if (!isOnline) {

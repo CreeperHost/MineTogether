@@ -59,6 +59,7 @@ public class IrcHandler
                 {
                     while ((line = bufferedReader.readLine()) != null)
                     {
+                        if(MineTogether.debugHandler.isDebug) MineTogether.logger.error("RECEIVED: " + line);
                         if (line.startsWith("PING "))
                         {
                             sendString("PONG " + line.substring(5) + "\r\n", true);
@@ -124,6 +125,8 @@ public class IrcHandler
     {
         if(socket.isClosed() || !socket.isConnected()) return;
         if(str.isEmpty()) return;
+
+        if(MineTogether.debugHandler.isDebug) MineTogether.logger.error("SEND: " + str);
 
         String preFormat = str + "\r\n";
         byte[] out = preFormat.getBytes(StandardCharsets.UTF_8);

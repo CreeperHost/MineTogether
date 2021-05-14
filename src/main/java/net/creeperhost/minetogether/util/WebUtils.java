@@ -25,6 +25,11 @@ public class WebUtils
 
     public static String getWebResponse(String urlString, int timeout)
     {
+        return getWebResponse(urlString, timeout, false);
+    }
+
+    public static String getWebResponse(String urlString, int timeout, boolean displayError)
+    {
         try
         {
             if(timeout == 0) timeout = 120000;
@@ -34,7 +39,7 @@ public class WebUtils
             url = uri.toURL();
             // lul
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(10);
+//            conn.setConnectTimeout(10000);
             conn.setReadTimeout(timeout);
             conn.setRequestMethod("GET");
             
@@ -69,7 +74,9 @@ public class WebUtils
             
             rd.close();
             return respData.toString();
-        } catch (Throwable ignored) {
+        } catch (Throwable throwable)
+        {
+            if(displayError) throwable.printStackTrace();
         }
         return "error";
     }
