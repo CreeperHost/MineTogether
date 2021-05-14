@@ -834,7 +834,7 @@ public class MTChatScreen extends Screen
                 nickColour = TextFormatting.GRAY;
                 arrowColour = premium.get() ? TextFormatting.GREEN : TextFormatting.GRAY;
                 messageColour = TextFormatting.GRAY;
-                outputNick = Minecraft.getInstance().getSession().getUsername();
+                outputNick = outputNick = MineTogether.profile.get().getUserDisplay();
                 userComp = new StringTextComponent(outputNick);
             }
 
