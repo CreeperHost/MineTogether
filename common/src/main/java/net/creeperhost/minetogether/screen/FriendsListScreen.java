@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.helpers.ScreenHelpers;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
@@ -36,7 +37,7 @@ public class FriendsListScreen extends Screen
     {
         super(new TranslatableComponent("minetogether.friendscreen.title"));
         this.parent = parent;
-        this.friendCode = ChatCallbacks.getFriendCode(MineTogether.getUUID());
+        this.friendCode = ChatCallbacks.getFriendCode(MineTogetherClient.getUUID());
     }
 
     @Override
@@ -125,7 +126,7 @@ public class FriendsListScreen extends Screen
     public static ArrayList<String> removedFriends = new ArrayList<>();
     protected boolean refreshFriendsList(boolean force)
     {
-        ArrayList<Friend> friends = ChatCallbacks.getFriendsList(force, MineTogether.getUUID());
+        ArrayList<Friend> friends = ChatCallbacks.getFriendsList(force, MineTogetherClient.getUUID());
         list.clearList();
         if (friends != null)
         {
@@ -184,7 +185,7 @@ public class FriendsListScreen extends Screen
                 {
                    removedFriends.add(friend.getCode());
                    refreshFriendsList(true);
-                   if(!ChatCallbacks.removeFriend(removeFriend.getCode(), MineTogether.getUUID()))
+                   if(!ChatCallbacks.removeFriend(removeFriend.getCode(), MineTogetherClient.getUUID()))
                    {
                        removedFriends.remove(friend.getCode());
                        refreshFriendsList(true);

@@ -25,8 +25,6 @@ public class MineTogether
 {
     public static final String MOD_ID = "minetogether";
     public static Logger logger = LogManager.getLogger();
-    private static CompletableFuture chatThread = null;
-    private static MineTogetherChat mineTogetherChat;
 
     public static void init()
     {
@@ -37,58 +35,5 @@ public class MineTogether
     public static void clientInit()
     {
         EnvExecutor.runInEnv(EnvType.CLIENT, () -> MineTogetherClient::init);
-        startChat();
-    }
-
-    public static void startChat()
-    {
-        mineTogetherChat = new MineTogetherChat();
-        MineTogetherChat.INSTANCE.ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
-        MineTogetherChat.INSTANCE.online = true;
-        MineTogetherChat.INSTANCE.realName = "{\"p\": \"-1\"}";
-        MineTogetherChat.INSTANCE.signature = new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
-        MineTogetherChat.INSTANCE.serverID = getServerIDAndVerify();
-        MineTogetherChat.INSTANCE.uuid = getUUID();
-
-        if(chatThread != null) {
-            chatThread.cancel(true);
-            chatThread = null;
-        }
-        if (MineTogetherChat.INSTANCE.profile.get() == null) {
-            MineTogetherChat.INSTANCE.profile.set(new Profile(MineTogetherChat.INSTANCE.ourNick));
-            CompletableFuture.runAsync(() ->
-            {
-                while (MineTogetherChat.INSTANCE.profile.get().getLongHash().isEmpty()) {
-                    MineTogetherChat.INSTANCE.profile.get().loadProfile();
-                    try {
-                        Thread.sleep(30000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, MineTogetherChat.INSTANCE.profileExecutor);
-        }
-        chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, MineTogetherChat.INSTANCE.online, MineTogetherChat.INSTANCE), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
-    }
-
-    //TODO fix session checking
-    public static UUID getUUID()
-    {
-        User session = Minecraft.getInstance().getUser();
-        UUID uuid = Minecraft.getInstance().getUser().getGameProfile().getId();
-//        MineTogether.instance.online = !uuid.equals(PlayerEntity.getOfflineUUID(session.getUsername()));
-
-        return uuid;
-    }
-
-    public static String getServerIDAndVerify() {
-        Minecraft mc = Minecraft.getInstance();
-        String serverId = DigestUtils.sha1Hex(String.valueOf(new Random().nextInt()));
-        try {
-            mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
-        } catch (AuthenticationException e) {
-            return null;
-        }
-        return serverId;
     }
 }
