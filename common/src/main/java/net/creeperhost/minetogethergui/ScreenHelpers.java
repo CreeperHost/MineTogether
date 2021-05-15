@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.helpers;
+package net.creeperhost.minetogethergui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;

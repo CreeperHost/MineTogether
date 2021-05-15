@@ -6,7 +6,7 @@ import me.shedaniel.architectury.hooks.ScreenHooks;
 import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
-import net.creeperhost.minetogether.helpers.ScreenHelpers;
+import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogether.module.serverorder.screen.OrderServerScreen;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;

@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.helpers.ScreenHelpers;
+import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.widgets.ScreenWell;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.serverorder.OrderSummary;

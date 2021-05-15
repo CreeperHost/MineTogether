@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.helpers.ScreenHelpers;
+import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogether.screen.SettingsScreen;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonString;

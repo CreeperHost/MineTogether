@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogether.helpers.ScreenHelpers;
+import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryFriend;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.widgets.ButtonString;

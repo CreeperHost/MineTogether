@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.helpers.ScreenHelpers;
+import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.serverorder.ServerOrderCallbacks;
 import net.minecraft.Util;

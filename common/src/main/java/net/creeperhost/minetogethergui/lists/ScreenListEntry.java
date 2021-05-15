@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.screen.prefab;
+package net.creeperhost.minetogethergui.lists;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
