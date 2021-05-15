@@ -1,8 +1,8 @@
 package net.creeperhost.minetogether.module.serverorder.screen.listentries;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.screen.prefab.ScreenList;
-import net.creeperhost.minetogether.screen.prefab.ScreenListEntry;
+import net.creeperhost.minetogethergui.lists.ScreenList;
+import net.creeperhost.minetogethergui.lists.ScreenListEntry;
 
 public class ListEntryCountry extends ScreenListEntry
 {

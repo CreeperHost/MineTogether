@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.helpers;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
@@ -212,5 +213,10 @@ public class ScreenHelpers
         bufferBuilder.vertex(matrix4f, (float)i, (float)j, (float)m).color(g, h, p, f).endVertex();
         bufferBuilder.vertex(matrix4f, (float)i, (float)l, (float)m).color(r, s, t, q).endVertex();
         bufferBuilder.vertex(matrix4f, (float)k, (float)l, (float)m).color(r, s, t, q).endVertex();
+    }
+
+    public static void renderGif(PoseStack poseStack, ResourceLocation resourceLocation, int x, int y)
+    {
+        GlStateManager._color4f(1, 1, 1, 1);
     }
 }

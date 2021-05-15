@@ -8,10 +8,10 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.helpers.ScreenHelpers;
 import net.creeperhost.minetogether.module.serverorder.screen.OrderServerScreen;
-import net.creeperhost.minetogether.screen.ChatScreen;
-import net.creeperhost.minetogether.screen.FriendsListScreen;
+import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
+import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
-import net.creeperhost.minetogether.screen.widgets.ButtonMultiple;
+import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
@@ -45,6 +45,7 @@ public class MineTogetherClient
         startChat();
     }
 
+    @SuppressWarnings("all")
     public static void startChat()
     {
         mineTogetherChat = new MineTogetherChat();

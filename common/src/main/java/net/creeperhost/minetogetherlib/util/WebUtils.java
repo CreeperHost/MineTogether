@@ -1,5 +1,7 @@
 package net.creeperhost.minetogetherlib.util;
 
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -31,7 +33,7 @@ public class WebUtils
             url = uri.toURL();
             // lul
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(10);
+//            conn.setConnectTimeout(10);
             conn.setReadTimeout(timeout);
             conn.setRequestMethod("GET");
             
@@ -43,11 +45,10 @@ public class WebUtils
                 }
             }
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.138 Safari/537.36 Vivaldi/1.8.770.56 MineTogether/0.0.0");
-                //TODO
-//            if(MineTogether.getSignature() != null)
-//                conn.setRequestProperty("Fingerprint", MineTogether.getSignature());
-//            if(MineTogether.instance.realName != null && !MineTogether.instance.realName.isEmpty())
-//                conn.setRequestProperty("Identifier", URLEncoder.encode(MineTogether.instance.realName, "UTF-8"));
+            if(MineTogetherChat.INSTANCE.signature != null)
+                conn.setRequestProperty("Fingerprint", MineTogetherChat.INSTANCE.signature);
+            if(MineTogetherChat.INSTANCE.realName != null && !MineTogetherChat.INSTANCE.realName.isEmpty())
+                conn.setRequestProperty("Identifier", URLEncoder.encode(MineTogetherChat.INSTANCE.realName, "UTF-8"));
 
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;

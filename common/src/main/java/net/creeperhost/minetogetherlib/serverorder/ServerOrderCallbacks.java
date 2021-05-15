@@ -1,18 +1,14 @@
 package net.creeperhost.minetogetherlib.serverorder;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.util.WebUtils;
 import net.minecraft.client.resources.language.I18n;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -441,5 +437,218 @@ public class ServerOrderCallbacks
                 userCountry = "US"; // default
             }
         return userCountry;
+    }
+
+    public static Map<String, String> getRegionMap()
+    {
+        Map<String, String> rawMap = new HashMap<String, String>();
+        Map<String, String> returnMap = new HashMap<String, String>();
+
+        try
+        {
+            String jsonData = WebUtils.getWebResponse("https://www.creeperhost.net/json/locations");
+
+            Type type = new com.google.common.reflect.TypeToken<Map<String, String>>() {}.getType();
+            Gson g = new Gson();
+            JsonElement el = new JsonParser().parse(jsonData);
+            rawMap = g.fromJson(el.getAsJsonObject().get("regionMap"), type);
+        } catch (Exception e)
+        {
+            MineTogether.logger.error("Unable to fetch server locations" + e);
+        }
+        for (Map.Entry<String, String> entry : rawMap.entrySet())
+        {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            returnMap.put(key, value);
+        }
+        return returnMap;
+    }
+
+    public static Map<String, String> getDataCentres()
+    {
+        String url = "https://www.creeperhost.net/json/datacentre/closest";
+        String resp = WebUtils.getWebResponse(url);
+        Map<String, String> map = new HashMap<>();
+
+        JsonElement jElement = new JsonParser().parse(resp);
+
+        if (jElement.isJsonObject())
+        {
+            JsonArray array = jElement.getAsJsonObject().getAsJsonArray("datacentres");
+
+            if (array != null)
+            {
+                for (JsonElement serverEl : array)
+                {
+                    JsonObject object = (JsonObject) serverEl;
+                    String name = object.get("name").getAsString();
+                    String distance = object.get("distance").getAsString();
+                    map.put(name, distance);
+                }
+                return map;
+            }
+        }
+        return null;
+    }
+
+    public static boolean doesEmailExist(final String email)
+    {
+        try
+        {
+            String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/account/exists", new HashMap<String, String>()
+            {{
+                put("email", email);
+            }});
+
+            if (response.equals("error"))
+            {
+                // Something went wrong, so lets just pretend everything fine and don't change the validation status
+            } else
+            {
+                JsonElement jElement = new JsonParser().parse(response);
+                JsonObject jObject = jElement.getAsJsonObject();
+                if (jObject.getAsJsonPrimitive("status").getAsString().equals("error"))
+                {
+                    return false;
+                }
+            }
+        } catch (Throwable t)
+        {
+            MineTogether.logger.error("Unable to check if email exists", t);
+            return false;
+        }
+        return true;
+    }
+
+    public static String doLogin(final String username, final String password)
+    {
+        try
+        {
+            String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/account/login", new HashMap<String, String>()
+            {{
+                put("email", username);
+                put("password", password);
+            }});
+
+            if (response.equals("error"))
+            {
+                // Something went wrong, so lets just pretend everything fine and don't change the validation status
+            } else
+            {
+                JsonElement jElement = new JsonParser().parse(response);
+                JsonObject jObject = jElement.getAsJsonObject();
+                if (jObject.getAsJsonPrimitive("status").getAsString().equals("error"))
+                {
+                    return jObject.getAsJsonPrimitive("message").getAsString();
+                } else
+                {
+                    return "success:" + jObject.getAsJsonPrimitive("currency").getAsString() + ":" + jObject.getAsJsonPrimitive("userid").getAsString();
+                }
+            }
+            return "Unknown Error";
+        } catch (Throwable t)
+        {
+            MineTogether.logger.error("Unable to do login", t);
+            return "Unknown Error";
+        }
+    }
+
+    public static String createOrder(final Order order)
+    {
+        try
+        {
+            String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + order.serverLocation, new HashMap<String, String>()
+            {{
+                put("name", order.name);
+                put("swid", Config.getInstance().getVersion());
+                if (order.pregen)
+                    put("pregen", String.valueOf(Config.getInstance().getPregenDiameter()));
+            }});
+
+            if (response.equals("error"))
+            {
+
+            } else
+            {
+                JsonElement jElement = new JsonParser().parse(response);
+                JsonObject jObject = jElement.getAsJsonObject();
+                if (jObject.getAsJsonPrimitive("status").getAsString().equals("success"))
+                {
+                    jObject = jObject.getAsJsonObject("more");
+                    return "success:" + jObject.getAsJsonPrimitive("invoiceid").getAsString() + ":" + jObject.getAsJsonPrimitive("orderid").getAsString();
+                } else
+                {
+                    return jObject.getAsJsonPrimitive("message").getAsString();
+                }
+            }
+            return "Unknown error";
+        } catch (Throwable t)
+        {
+            MineTogether.logger.error("Unable to create order");
+            return "Unknown error";
+        }
+    }
+
+    public static String createAccount(final Order order)
+    {
+        try
+        {
+            String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>()
+            {{
+                put("servername", order.name);
+                put("modpack", Config.getInstance().getVersion());
+                put("email", order.emailAddress);
+                put("password", order.password);
+                put("fname", order.firstName);
+                put("lname", order.lastName);
+                put("addr1", order.address);
+                put("city", order.city);
+                put("tel", order.phone);
+                put("county", order.state);
+                put("state", order.state);
+                put("country", order.country);
+                put("pcode", order.zip);
+                put("currency", order.currency);
+            }});
+            if (response.equals("error"))
+            {
+                // Something went wrong, so lets just pretend everything fine and don't change the validation status
+            } else
+            {
+                JsonElement jElement = new JsonParser().parse(response);
+                JsonObject jObject = jElement.getAsJsonObject();
+                if (jObject.getAsJsonPrimitive("status").getAsString().equals("error"))
+                {
+                    return jObject.getAsJsonPrimitive("message").getAsString();
+                } else
+                {
+                    return "success:" + jObject.getAsJsonPrimitive("currency").getAsString() + ":" + jObject.getAsJsonPrimitive("userid").getAsString();
+                }
+            }
+            return "Unknown error";
+        } catch (Throwable t)
+        {
+            MineTogether.logger.error("Unable to create account", t);
+            return "Unknown error";
+        }
+    }
+
+    public static String getPaymentLink(String invoiceID)
+    {
+        return "https://billing.creeperhost.net/viewinvoice.php?id=" + invoiceID;
+    }
+
+    public static boolean cancelOrder(int orderNum)
+    {
+        try
+        {
+            String response = WebUtils.getWebResponse("https://www.creeperhost.net/json/order/" + orderNum + "/cancel");
+        } catch (Throwable t)
+        {
+            MineTogether.logger.error("Unable to cancel order");
+            return false;
+        }
+        return true;
     }
 }

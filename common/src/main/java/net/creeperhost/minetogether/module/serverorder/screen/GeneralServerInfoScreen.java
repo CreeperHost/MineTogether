@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.screen.widgets.TextFieldValidate;
+import net.creeperhost.minetogethergui.widgets.TextFieldValidate;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.serverorder.AvailableResult;
 import net.creeperhost.minetogetherlib.serverorder.ServerOrderCallbacks;

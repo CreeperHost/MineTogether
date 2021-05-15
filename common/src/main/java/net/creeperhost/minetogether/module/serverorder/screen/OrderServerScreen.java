@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogetherlib.Order;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -27,6 +28,7 @@ public abstract class OrderServerScreen extends Screen
     public void init()
     {
         super.init();
+        minecraft.keyboardHandler.setSendRepeatsToGui(true);
         addNavigationButtons();
     }
 
@@ -36,7 +38,7 @@ public abstract class OrderServerScreen extends Screen
                 new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order))));
 
         addButton(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20,
-                new TranslatableComponent("minetogether.button.cancel"), (button) -> this.minecraft.setScreen(null)));
+                new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
 
         addButton(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.next"), (button) ->
         {
@@ -69,15 +71,20 @@ public abstract class OrderServerScreen extends Screen
             default:
                 return new GeneralServerInfoScreen(0, order);
             case 1:
-                return new QuoteScreen(1, order);
-//            case 2:
-//                return new GuiLocationMap(2, order);
-//            case 3:
-//                return new GuiPersonalDetails(3, order);
-//            case 4:
-//                return new GuiOrderDetails(4, order);
+                return new MapScreen(1, order);
+            case 2:
+                return new PersonalDetailsScreen(2, order);
+            case 3:
+                return new QuoteScreen(3, order);
+            case 4:
+                return new OrderDetailsScreen(4, order);
         }
     }
 
     public abstract String getStepName();
+
+    public void cancelOrder()
+    {
+        this.minecraft.setScreen(null);
+    }
 }
