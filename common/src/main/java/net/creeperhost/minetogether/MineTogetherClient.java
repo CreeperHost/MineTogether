@@ -1,7 +1,11 @@
 package net.creeperhost.minetogether;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.architectury.event.events.GuiEvent;
+import me.shedaniel.architectury.event.events.client.ClientTickEvent;
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
@@ -22,10 +26,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.List;
@@ -41,7 +47,9 @@ public class MineTogetherClient
 
     public static void init()
     {
+        toastHandler = new ToastHandler();
         GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
+        ClientTickEvent.CLIENT_PRE.register(MineTogetherClient::onRenderTick);
         startChat();
     }
 
@@ -87,15 +95,57 @@ public class MineTogetherClient
         return uuid;
     }
 
-    public static String getServerIDAndVerify() {
+    public static String getServerIDAndVerify()
+    {
         Minecraft mc = Minecraft.getInstance();
         String serverId = DigestUtils.sha1Hex(String.valueOf(new Random().nextInt()));
-        try {
+        try
+        {
             mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
-        } catch (AuthenticationException e) {
-            return null;
-        }
+        } catch (AuthenticationException e) { return null; }
         return serverId;
+    }
+
+    private static void onRenderTick(Minecraft minecraft)
+    {
+        if (MineTogetherClient.toastHandler != null && MineTogetherClient.toastHandler.toastText != null)
+        {
+            int u = 0;
+            int v = 0;
+            long curTime = System.currentTimeMillis();
+            if (MineTogetherClient.toastHandler.fadeTime > curTime)
+            {
+                long fadeDiff = MineTogetherClient.toastHandler.fadeTime - MineTogetherClient.toastHandler.endTime;
+                long curFade = Math.min(MineTogetherClient.toastHandler.fadeTime - curTime, fadeDiff);
+                float alpha = (float) curFade / (float) fadeDiff;
+
+                PoseStack poseStack = new PoseStack();
+
+                RenderSystem.disableLighting();
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                Minecraft.getInstance().getTextureManager().bind(MineTogetherClient.toastHandler.TEXTURE_TOASTS);
+
+                drawTexturedModalRect(poseStack, Minecraft.getInstance().getWindow().getWidth() - 160, 0, u, v, 160, 32);
+                RenderSystem.enableBlend();
+                int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
+
+                List<FormattedCharSequence> s = ComponentRenderUtils.wrapComponents(MineTogetherClient.toastHandler.toastText, 140, Minecraft.getInstance().font);
+                int start = 2;
+                for(FormattedCharSequence properties : s)
+                {
+                    Minecraft.getInstance().font.drawShadow(poseStack, properties, Minecraft.getInstance().getWindow().getWidth() - 155, start +=8, textColour);
+                }
+
+            } else
+            {
+                MineTogetherClient.toastHandler.clearToast(false);
+            }
+        }
+    }
+
+    private static void drawTexturedModalRect(PoseStack poseStack, int x, int y, int textureX, int textureY, int width, int height)
+    {
+        Screen.blit(poseStack, x, y, textureX, textureY, width, height, 256, 256);
     }
 
     private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
@@ -107,7 +157,8 @@ public class MineTogetherClient
             {
                 ScreenHooks.addButton(screen, new Button(relms.x, relms.y, relms.getWidth(), relms.getHeight(), new TranslatableComponent("minetogether.button.getserver"), p ->
                 {
-                    Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order()));
+//                    Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order()));
+                    toastHandler.displayToast(new TranslatableComponent("TEST"), 50, null);
                 }));
             }
 
