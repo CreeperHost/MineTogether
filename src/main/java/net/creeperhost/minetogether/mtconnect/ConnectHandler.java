@@ -19,7 +19,7 @@ public class ConnectHandler {
 
     public static void connectToProc() {
         try {
-            socket = new Socket("127.0.0.1", 42067);
+            socket = new Socket("127.0.0.1", 42068);
             ConnectHelper.isEnabled = true;
             CompletableFuture.runAsync(() -> {
                 InputStream inputStream = null;
