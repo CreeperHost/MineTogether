@@ -7,15 +7,18 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogether.screen.SettingsScreen;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogethergui.widgets.Target;
+import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
@@ -27,12 +30,10 @@ import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.*;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -52,6 +53,8 @@ public class ChatScreen extends Screen
     private String currentTarget = ChatHandler.CHANNEL;
     private ButtonString connectionStatus;
     public DropdownButton<Target> targetDropdownButton;
+    private DropdownButton<Menu> menuDropdownButton;
+    private String activeDropdown;
 
     public ChatScreen(Screen parent)
     {
@@ -83,6 +86,37 @@ public class ChatScreen extends Screen
 //                IrcHandler.sendString("JOIN " + privateChat.getChannelname(), true);
             }
         }));
+        List<String> strings = new ArrayList<>();
+        strings.add("Mute");
+        strings.add("Add friend");
+        strings.add("Mention");
+        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new Menu(strings), false, p ->
+        {
+            if(!menuDropdownButton.dropdownOpen) return;
+
+            if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
+            {
+//                MineTogether.instance.muteUser(activeDropdown);
+                chat.updateLines(currentTarget);
+            }
+            else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
+            {
+                minecraft.setScreen(new FriendRequestScreen(new ChatScreen(parent), Minecraft.getInstance().getUser().getName(), knownUsers.findByDisplay(activeDropdown), ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
+            }
+            else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mention"))
+            {
+                this.send.setFocus(true);
+                this.send.setValue(this.send.getValue() + " " + activeDropdown + " ");
+            }
+            else if (ChatHandler.privateChatInvite != null)
+            {
+//                confirmInvite();
+            }
+            menuDropdownButton.x = menuDropdownButton.y = -10000;
+            menuDropdownButton.wasJustClosed = false;
+            menuDropdownButton.dropdownOpen = false;
+        }));
+
         addButton(new Button(5, 5, 100, 20, new TranslatableComponent("Friends list"), p ->
         {
             this.minecraft.setScreen(new FriendsListScreen(this));
@@ -108,6 +142,7 @@ public class ChatScreen extends Screen
 
         renderConnectionStatus();
         chat.render(poseStack, mouseX, mouseY, partialTicks);
+        menuDropdownButton.render(poseStack, mouseX, mouseY, partialTicks);
         send.render(poseStack, mouseX, mouseY, partialTicks);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
 
@@ -140,9 +175,22 @@ public class ChatScreen extends Screen
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
-        send.mouseClicked(mouseX, mouseY, mouseButton);
+        if(super.mouseClicked(mouseX, mouseY, mouseButton)) return true;
+
+        if (send.mouseClicked(mouseX, mouseY, mouseButton)) {
+            menuDropdownButton.x = menuDropdownButton.y = -10000;
+            menuDropdownButton.wasJustClosed = false;
+            menuDropdownButton.dropdownOpen = false;
+            return true;
+        }
+        if (menuDropdownButton.wasJustClosed && !menuDropdownButton.dropdownOpen)
+        {
+            menuDropdownButton.x = menuDropdownButton.y = -10000;
+            menuDropdownButton.wasJustClosed = false;
+            return true;
+        }
         chat.mouseClicked(mouseX, mouseY, mouseButton);
-        return super.mouseClicked(mouseX, mouseY, mouseButton);
+        return false;//super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     @Override
@@ -184,6 +232,77 @@ public class ChatScreen extends Screen
     {
         send.charTyped(c, i);
         return super.charTyped(c, i);
+    }
+
+    public boolean handleComponentClick(Style style, double mouseX, double mouseY)
+    {
+        if(style == null) return false;
+        if(style.getClickEvent() == null) return false;
+        ClickEvent event = style.getClickEvent();
+        if (event == null)
+        {
+            return false;
+        }
+
+        if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
+        {
+            String eventValue = event.getValue();
+            if (eventValue.contains(":"))
+            {
+                String[] split = eventValue.split(":");
+                if (split.length < 3)
+                    return false;
+
+                String chatInternalName = split[1];
+
+                String friendCode = split[2];
+
+                StringBuilder builder = new StringBuilder();
+
+                for (int i = 3; i < split.length; i++)
+                    builder.append(split[i]).append(" ");
+
+                String friendName = builder.toString().trim();
+
+                Profile targetProfile = knownUsers.findByNick(chatInternalName);
+                if(targetProfile == null) targetProfile = knownUsers.add(chatInternalName);
+
+                //TODO
+//                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, targetProfile, friendCode, friendName, true));
+
+                return true;
+            }
+            boolean friends = false;
+
+            List<Friend> friends1 = ChatCallbacks.getFriendsList(false, MineTogetherClient.getUUID());
+
+            //Added null check as friends list can take some time to come back when its huge...
+            if(friends1 != null) {
+                for (Friend f : friends1) {
+                    if (f.getProfile() != null) {
+                        if (eventValue.startsWith(f.getProfile().getShortHash())) {
+                            friends = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if(!friends)
+            {
+                menuDropdownButton.x = (int) mouseX;
+                menuDropdownButton.y = (int) mouseY;
+                menuDropdownButton.flipped = mouseY > 150;
+                menuDropdownButton.dropdownOpen = true;
+                activeDropdown = event.getValue();
+                return true;
+            }
+        }
+        if (event.getAction() == ClickEvent.Action.OPEN_URL)
+        {
+            this.handleComponentClicked(style);
+        }
+        return false;
     }
 
     //Fuck java regex, |(OR) operator doesn't work for shit, regex checked out on regex101, regexr etc.
@@ -732,6 +851,63 @@ public class ChatScreen extends Screen
                     renderEntry(poseStack, j, mouseX, mouseY, p_renderList_5_);
                 }
             }
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int p_mouseClicked_5_)
+        {
+            for (int i = 0; i < lines.size(); i++)
+            {
+                FormattedCharSequence component = lines.get(i);
+                int totalWidth = 5;
+                int oldTotal = totalWidth;
+                totalWidth += minecraft.font.width(component);
+                boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(i) && mouseY < getRowTop(i) + itemHeight;
+
+                if (hovering)
+                {
+                    Style style = minecraft.font.getSplitter().componentStyleAtWidth(component, (int) mouseX);
+                    handleComponentClick(style, mouseX, mouseY);
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public static class Menu implements DropdownButton.IDropdownOption
+    {
+        List<DropdownButton.IDropdownOption> possibleValsCache;
+        public String option;
+
+        public Menu(List<String> options)
+        {
+            possibleValsCache = new ArrayList<>();
+            possibleValsCache.add(this);
+            option = options.get(0);
+            options.remove(0);
+            for (String option : options)
+            {
+                possibleValsCache.add(new Menu(possibleValsCache, option));
+            }
+        }
+
+        public Menu(List<DropdownButton.IDropdownOption> vals, String option)
+        {
+            possibleValsCache = vals;
+            this.option = option;
+        }
+
+        @Override
+        public String getTranslate(DropdownButton.IDropdownOption current, boolean dropdownOpen)
+        {
+            return option;
+        }
+
+        @Override
+        public List<DropdownButton.IDropdownOption> getPossibleVals()
+        {
+            return possibleValsCache;
         }
     }
 }

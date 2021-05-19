@@ -11,7 +11,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 public class SettingsScreen extends Screen
 {
-    private Screen parent;
+    private final Screen parent;
 
     public SettingsScreen(Screen parent)
     {

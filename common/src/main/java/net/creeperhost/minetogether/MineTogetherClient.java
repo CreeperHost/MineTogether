@@ -62,7 +62,7 @@ public class MineTogetherClient
         MineTogetherChat.INSTANCE.ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
         MineTogetherChat.INSTANCE.online = true;
         MineTogetherChat.INSTANCE.realName = "{\"p\": \"-1\"}";
-        MineTogetherChat.INSTANCE.signature = new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
+        MineTogetherChat.INSTANCE.signature = "ac669a2730276d27ee4a2b5e1bd509f7a6dbb167730aa9dc4c1b2aa796fd99ee";//new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
         MineTogetherChat.INSTANCE.serverID = getServerIDAndVerify();
         MineTogetherChat.INSTANCE.uuid = getUUID();
 

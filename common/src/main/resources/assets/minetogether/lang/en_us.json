@@ -92,5 +92,10 @@
   "minetogether.order.info2":"By continuing, you agree to CreeperHost's (Terms Of Service|https://creeper.host/tos) and (Policies|https://creeper.host/policies).",
   "minetogether.order.info3":"An order and invoice will be generated, but you are under no obligation to pay.",
   "minetogether.order.info4":"They will be automatically cancelled after 72 hours if no payment is received.",
-  "minetogether.order.url":"Click to open in your web browser"
+  "minetogether.order.url":"Click to open in your web browser",
+
+  "minetogether.friend.acceptgui":"Accept friend",
+  "minetogether.friend.addgui":"Add friend",
+  "minetogether.friend.acceptname":"Please enter the name you want to know your friend as",
+  "minetogether.friend.addname":"Please enter the name you want to know your friend as"
 }
