@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.handler.EnumToastType;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryFriend;
 import net.creeperhost.minetogethergui.lists.ScreenList;
@@ -63,7 +64,7 @@ public class FriendsListScreen extends Screen
         addButton(new Button(5, height - 60, 100, 20, new TranslatableComponent("Cancel"), p ->
         {
 //            if (!addFriend)
-                this.minecraft.setScreen(parent);
+                minecraft.setScreen(parent);
 //            else
 //            {
 //                addFriend = false;
@@ -74,8 +75,8 @@ public class FriendsListScreen extends Screen
 
         addButton(new ButtonString( 5, this.height - 26, 60, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
-            this.minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
-//            showAlert(new StringTextComponent("Copied to clipboard."), 0x00FF00, 5000);
+            minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
+            MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, EnumToastType.DEFAULT, null);
         }));
 
         addButton(new Button(this.width - 105, this.height - 26, 100, 20,

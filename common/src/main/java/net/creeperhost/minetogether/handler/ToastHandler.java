@@ -10,21 +10,27 @@ public class ToastHandler
     public Component toastText;
     public long endTime;
     public long fadeTime;
+    public EnumToastType toastType;
+    public int x;
+    public int y;
 
-    public void displayToast(Component text, int duration, Runnable method)
+    public void displayToast(Component text, int x, int y, int duration, EnumToastType toastType, Runnable method)
     {
-        toastText = text;
-        endTime = System.currentTimeMillis() + duration;
-        fadeTime = endTime + 500;
-        toastMethod = method;
+        this.toastText = text;
+        this.x = x;
+        this.y = y;
+        this.endTime = System.currentTimeMillis() + duration;
+        this.fadeTime = endTime + 500;
+        this.toastType = toastType;
+        this.toastMethod = method;
     }
 
     public void clearToast(boolean fade)
     {
-        toastText = null;
-        endTime = System.currentTimeMillis();
-        toastMethod = null;
-        fadeTime = endTime + (fade ? 500 : 0);
+        this.toastText = null;
+        this.endTime = System.currentTimeMillis();
+        this.toastMethod = null;
+        this.fadeTime = endTime + (fade ? 500 : 0);
     }
 
     public boolean isActiveToast()
@@ -35,5 +41,20 @@ public class ToastHandler
     private ResourceLocation getToastResourceLocation()
     {
         return TEXTURE_TOASTS;
+    }
+
+    public EnumToastType getToastType()
+    {
+        return toastType;
+    }
+
+    public int getX()
+    {
+        return x;
+    }
+
+    public int getY()
+    {
+        return y;
     }
 }
