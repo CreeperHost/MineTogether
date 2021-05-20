@@ -27,5 +27,8 @@
   },
   "suggests": {
     "flamingo": "*"
-  }
+  },
+  "mixins": [
+    "minetogether.mixins.json"
+  ]
 }

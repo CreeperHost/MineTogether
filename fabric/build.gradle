@@ -80,3 +80,7 @@ publishing {
         // Add repositories to publish to here.
     }
 }
+
+loom {
+    mixinConfig 'mixins.minetogether.json'
+}

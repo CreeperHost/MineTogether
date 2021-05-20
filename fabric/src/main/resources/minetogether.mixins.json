@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "net.creeperhost.minetogether.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinMultiplayerScreen"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

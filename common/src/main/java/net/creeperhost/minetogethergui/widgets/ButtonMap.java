@@ -3,6 +3,7 @@ package net.creeperhost.minetogethergui.widgets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
+import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -62,24 +63,7 @@ public class ButtonMap extends Button
         {
             RenderSystem.color4f(0.4F, 0.4F, 0.4F, alpha);
         }
-        drawModalRectWithCustomSizedTextureFloat(poseStack.last().pose(), x, y, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+        ScreenHelpers.drawModalRectWithCustomSizedTextureFloat(poseStack.last().pose(), x, y, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
         RenderSystem.color4f(1F, 1F, 1F, alpha);
-    }
-
-    public static void drawModalRectWithCustomSizedTextureFloat(Matrix4f matrix, float x, float y, float u, float v, int width, int height, float textureWidth, float textureHeight)
-    {
-        float f = 1.0F / textureWidth;
-        float f1 = 1.0F / textureHeight;
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuilder();
-        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX);
-
-        bufferbuilder.vertex(matrix, (float)x, (float)(y + height), 0.0F).uv((float) (u * f), (float)((v + (float)height) * f1)).endVertex();
-        bufferbuilder.vertex(matrix, (float)(x + width), (float)(y + height), 0.0F).uv((float)((u + (float)width) * f), (float)((v + (float)height) * f1)).endVertex();
-        bufferbuilder.vertex(matrix, (float)(x + width), (float)y, 0.0F).uv((float)((u + (float)width) * f), (float)(v * f1)).endVertex();
-        bufferbuilder.vertex(matrix, (float)x, (float)y, 0.0F).uv((float)(u * f), (float)(v * f1)).endVertex();
-        bufferbuilder.end();
-        RenderSystem.enableAlphaTest();
-        BufferUploader.end(bufferbuilder);
     }
 }

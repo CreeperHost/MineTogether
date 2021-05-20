@@ -8,6 +8,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogethergui.gif.AnimatedGif;
+import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogether.screen.SettingsScreen;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
@@ -33,9 +35,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.*;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,6 +57,8 @@ public class ChatScreen extends Screen
     public DropdownButton<Target> targetDropdownButton;
     private DropdownButton<Menu> menuDropdownButton;
     private String activeDropdown;
+    private AnimatedGif gifImage;
+    private AnimatedGif.GifPlayer gifPlayer;
 
     public ChatScreen(Screen parent)
     {
@@ -70,6 +74,16 @@ public class ChatScreen extends Screen
         chat.setLeftPos(10);
         send = new EditBox(minecraft.font, 11, this.height - 48, width - 22, 20, new TranslatableComponent(""));
         send.setFocus(true);
+        send.setMaxLength(256);
+
+        try {
+//            gifImage = AnimatedGif.fromPath(Paths.get("C:\\Users\\TravisN\\Documents\\dev\\Architectury\\MineTogether\\common\\src\\main\\resources\\assets\\minetogether\\textures\\giphy.gif"));
+//            gifImage = AnimatedGif.fromURL(new URL("https://i.pinimg.com/originals/61/65/cb/6165cba36c16381449d0be75d2d6a85c.gif"));
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();;
+        }
 
         addButtons();
         super.init();
@@ -146,6 +160,8 @@ public class ChatScreen extends Screen
         send.render(poseStack, mouseX, mouseY, partialTicks);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
 
+        if(gifPlayer != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 60, 40, partialTicks);
+
         super.render(poseStack, mouseX, mouseY, partialTicks);
     }
 
@@ -159,6 +175,7 @@ public class ChatScreen extends Screen
     @Override
     public void tick()
     {
+        if(gifPlayer != null) gifPlayer.tick();
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
         if (!buttonTarget.equals(currentTarget)) currentTarget = buttonTarget;
 
@@ -603,7 +620,7 @@ public class ChatScreen extends Screen
 
     public static Component newChatWithLinksOurs(String string)
     {
-        Component component = new TranslatableComponent(string);//ForgeHooks.newChatWithLinks(string);
+        Component component = ComponentUtils.newChatWithLinks(string, true);
         if (component.getStyle().getClickEvent() != null)
         {
             Component oldcomponent = component;
@@ -640,7 +657,7 @@ public class ChatScreen extends Screen
             updateLines(currentTarget);
         }
 
-        public void renderEntry(PoseStack matrixStack, int index, int mouseX, int mouseY, float p_renderList_5_)
+        public void renderEntry(PoseStack poseStack, int index, int mouseX, int mouseY, float partialTicks)
         {
             try
             {
@@ -652,16 +669,35 @@ public class ChatScreen extends Screen
 
                 boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(index) && mouseY < getRowTop(index) + itemHeight;
 
+                Style style = minecraft.font.getSplitter().componentStyleAtWidth(component, (int) mouseX);
+
                 if(hovering)
                 {
                     RenderSystem.enableBlend();
                     RenderSystem.color4f(1, 1, 1, 0.90F);
-                    minecraft.font.draw(matrixStack, component, 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
+                    minecraft.font.draw(poseStack, component, 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
+                    renderComponentHoverEffect(poseStack, style , mouseX, mouseY);
+                    if(style.getHoverEvent() != null && style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
+                    {
+                        Component urlComponent = (Component)style.getHoverEvent().getValue(ComponentUtils.RENDER_GIF);
+                        String url = urlComponent.getString();
+                        gifImage = AnimatedGif.fromURL(new URL(url));
+                        if(gifImage != null && gifPlayer == null)
+                        {
+                            gifPlayer = gifImage.makeGifPlayer();
+                            gifPlayer.setAutoplay(true);
+                            gifPlayer.setLooping(true);
+                        }
+                    }
+                    else
+                    {
+                        gifPlayer = null;
+                    }
                     RenderSystem.color4f(1, 1, 1, 1);
                 }
                 else
                 {
-                    minecraft.font.draw(matrixStack, component, 10 + oldTotal, getRowTop(index), 0xFFFFFF);
+                    minecraft.font.draw(poseStack, component, 10 + oldTotal, getRowTop(index), 0xFFFFFF);
                 }
             } catch (Exception e)
             {

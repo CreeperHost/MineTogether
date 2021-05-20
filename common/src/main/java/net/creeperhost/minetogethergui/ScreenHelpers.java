@@ -1,6 +1,5 @@
 package net.creeperhost.minetogethergui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
@@ -9,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.language.I18n;
@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
+import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -200,7 +201,8 @@ public class ScreenHelpers
         }
     }
 
-    protected static void fillGradient(Matrix4f matrix4f, BufferBuilder bufferBuilder, int i, int j, int k, int l, int m, int n, int o) {
+    protected static void fillGradient(Matrix4f matrix4f, BufferBuilder bufferBuilder, int i, int j, int k, int l, int m, int n, int o)
+    {
         float f = (float)(n >> 24 & 255) / 255.0F;
         float g = (float)(n >> 16 & 255) / 255.0F;
         float h = (float)(n >> 8 & 255) / 255.0F;
@@ -215,8 +217,88 @@ public class ScreenHelpers
         bufferBuilder.vertex(matrix4f, (float)k, (float)l, (float)m).color(r, s, t, q).endVertex();
     }
 
-    public static void renderGif(PoseStack poseStack, ResourceLocation resourceLocation, int x, int y)
+    public static void drawModalRectWithCustomSizedTextureFloat(Matrix4f matrix, float x, float y, float u, float v, int width, int height, float textureWidth, float textureHeight)
     {
-        GlStateManager._color4f(1, 1, 1, 1);
+        float f = 1.0F / textureWidth;
+        float f1 = 1.0F / textureHeight;
+        Tesselator tessellator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuilder();
+        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX);
+
+        bufferbuilder.vertex(matrix, (float)x, (float)(y + height), 0.0F).uv((float) (u * f), (float)((v + (float)height) * f1)).endVertex();
+        bufferbuilder.vertex(matrix, (float)(x + width), (float)(y + height), 0.0F).uv((float)((u + (float)width) * f), (float)((v + (float)height) * f1)).endVertex();
+        bufferbuilder.vertex(matrix, (float)(x + width), (float)y, 0.0F).uv((float)((u + (float)width) * f), (float)(v * f1)).endVertex();
+        bufferbuilder.vertex(matrix, (float)x, (float)y, 0.0F).uv((float)(u * f), (float)(v * f1)).endVertex();
+        bufferbuilder.end();
+        RenderSystem.enableAlphaTest();
+        BufferUploader.end(bufferbuilder);
+    }
+
+    public static void drawContinuousTexturedBox(PoseStack matrixStack, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight, int borderSize, float zLevel)
+    {
+        drawContinuousTexturedBox(matrixStack, x, y, u, v, width, height, textureWidth, textureHeight, borderSize, borderSize, borderSize, borderSize, zLevel);
+    }
+
+    public static void drawContinuousTexturedBox(PoseStack matrixStack, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight, int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel)
+    {
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+
+        int fillerWidth = textureWidth - leftBorder - rightBorder;
+        int fillerHeight = textureHeight - topBorder - bottomBorder;
+        int canvasWidth = width - leftBorder - rightBorder;
+        int canvasHeight = height - topBorder - bottomBorder;
+        int xPasses = canvasWidth / fillerWidth;
+        int remainderWidth = canvasWidth % fillerWidth;
+        int yPasses = canvasHeight / fillerHeight;
+        int remainderHeight = canvasHeight % fillerHeight;
+
+        // Draw Border
+        // Top Left
+        drawTexturedModalRect(matrixStack, x, y, u, v, leftBorder, topBorder, zLevel);
+        // Top Right
+        drawTexturedModalRect(matrixStack, x + leftBorder + canvasWidth, y, u + leftBorder + fillerWidth, v, rightBorder, topBorder, zLevel);
+        // Bottom Left
+        drawTexturedModalRect(matrixStack, x, y + topBorder + canvasHeight, u, v + topBorder + fillerHeight, leftBorder, bottomBorder, zLevel);
+        // Bottom Right
+        drawTexturedModalRect(matrixStack, x + leftBorder + canvasWidth, y + topBorder + canvasHeight, u + leftBorder + fillerWidth, v + topBorder + fillerHeight, rightBorder, bottomBorder, zLevel);
+
+        for (int i = 0; i < xPasses + (remainderWidth > 0 ? 1 : 0); i++)
+        {
+            // Top Border
+            drawTexturedModalRect(matrixStack, x + leftBorder + (i * fillerWidth), y, u + leftBorder, v, (i == xPasses ? remainderWidth : fillerWidth), topBorder, zLevel);
+            // Bottom Border
+            drawTexturedModalRect(matrixStack, x + leftBorder + (i * fillerWidth), y + topBorder + canvasHeight, u + leftBorder, v + topBorder + fillerHeight, (i == xPasses ? remainderWidth : fillerWidth), bottomBorder, zLevel);
+
+            // Throw in some filler for good measure
+            for (int j = 0; j < yPasses + (remainderHeight > 0 ? 1 : 0); j++)
+                drawTexturedModalRect(matrixStack, x + leftBorder + (i * fillerWidth), y + topBorder + (j * fillerHeight), u + leftBorder, v + topBorder, (i == xPasses ? remainderWidth : fillerWidth), (j == yPasses ? remainderHeight : fillerHeight), zLevel);
+        }
+
+        // Side Borders
+        for (int j = 0; j < yPasses + (remainderHeight > 0 ? 1 : 0); j++)
+        {
+            // Left Border
+            drawTexturedModalRect(matrixStack, x, y + topBorder + (j * fillerHeight), u, v + topBorder, leftBorder, (j == yPasses ? remainderHeight : fillerHeight), zLevel);
+            // Right Border
+            drawTexturedModalRect(matrixStack, x + leftBorder + canvasWidth, y + topBorder + (j * fillerHeight), u + leftBorder + fillerWidth, v + topBorder, rightBorder, (j == yPasses ? remainderHeight : fillerHeight), zLevel);
+        }
+    }
+
+    public static void drawTexturedModalRect(PoseStack matrixStack, int x, int y, int u, int v, int width, int height, float zLevel)
+    {
+        final float uScale = 1f / 0x100;
+        final float vScale = 1f / 0x100;
+
+        Tesselator tessellator = Tesselator.getInstance();
+        BufferBuilder wr = tessellator.getBuilder();
+        wr.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
+        Matrix4f matrix = matrixStack.last().pose();
+        wr.vertex(matrix, x, y + height, zLevel).uv( u * uScale, ((v + height) * vScale)).endVertex();
+        wr.vertex(matrix,x + width,y + height, zLevel).uv((u + width) * uScale, ((v + height) * vScale)).endVertex();
+        wr.vertex(matrix,x + width, y, zLevel).uv((u + width) * uScale, (v * vScale)).endVertex();
+        wr.vertex(matrix, x, y, zLevel).uv( u * uScale, (v * vScale)).endVertex();
+        tessellator.end();
     }
 }

@@ -11,6 +11,7 @@ import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.EnumToastType;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogether.module.serverorder.screen.OrderServerScreen;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
@@ -32,6 +33,8 @@ import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -62,7 +65,7 @@ public class MineTogetherClient
         MineTogetherChat.INSTANCE.ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
         MineTogetherChat.INSTANCE.online = true;
         MineTogetherChat.INSTANCE.realName = "{\"p\": \"-1\"}";
-        MineTogetherChat.INSTANCE.signature = "ac669a2730276d27ee4a2b5e1bd509f7a6dbb167730aa9dc4c1b2aa796fd99ee";//new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
+        MineTogetherChat.INSTANCE.signature = new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
         MineTogetherChat.INSTANCE.serverID = getServerIDAndVerify();
         MineTogetherChat.INSTANCE.uuid = getUUID();
 
@@ -87,7 +90,7 @@ public class MineTogetherClient
         chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, MineTogetherChat.INSTANCE.online, MineTogetherChat.INSTANCE), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
     }
 
-    //TODO fix session checking
+    //TODO fix session checking and move this
     public static UUID getUUID()
     {
         User session = Minecraft.getInstance().getUser();
@@ -148,6 +151,8 @@ public class MineTogetherClient
 
     private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
     {
+        MultiPlayerModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
+
         if (screen instanceof TitleScreen)
         {
             AbstractWidget relms = ScreenHelpers.removeButton("menu.online", abstractWidgets);
