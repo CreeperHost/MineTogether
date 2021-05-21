@@ -8,6 +8,7 @@ import me.shedaniel.architectury.hooks.ScreenHooks;
 import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.module.connect.ConnectModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogethergui.ScreenHelpers;
@@ -49,6 +50,7 @@ public class MineTogetherClient
         toastHandler = new ToastHandler();
         GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
         GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
+        ConnectModule.init();
         startChat();
     }
 
