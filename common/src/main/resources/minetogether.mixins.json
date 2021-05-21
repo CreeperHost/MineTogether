@@ -3,8 +3,10 @@
   "package": "net.creeperhost.minetogether.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinMultiplayerScreen",
-    "MixinSelectionList"
+    "MixinIntegratedServer",
+    "MixinSelectionList",
+    "MixinServerSelectionList",
+    "MixinShareToLanScreen"
   ],
   "injectors": {
     "defaultRequire": 1

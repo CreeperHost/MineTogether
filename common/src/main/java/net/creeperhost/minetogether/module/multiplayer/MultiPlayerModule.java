@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.module.multiplayer;
 
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.mixin.MixinMultiplayerScreen;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
 import net.creeperhost.minetogether.module.multiplayer.screen.ServerTypeScreen;
@@ -16,12 +15,10 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
-import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MultiPlayerModule
 {
@@ -30,8 +27,6 @@ public class MultiPlayerModule
         if(screen instanceof JoinMultiplayerScreen)
         {
             JoinMultiplayerScreen multiplayerScreen = (JoinMultiplayerScreen) screen;
-            //Add our entry into the server list
-            addCreeperHostServerEntry(multiplayerScreen);
             //Clean up the buttons in the screen to allow us to add ours
             updateMultiPlayerScreenButtons(multiplayerScreen, abstractWidgets);
 
@@ -101,22 +96,5 @@ public class MultiPlayerModule
             }));
             //Another mod has messed with a button, Lets not crash and continue
         } catch (Exception ignored) {}
-    }
-
-    public static void addCreeperHostServerEntry(JoinMultiplayerScreen multiplayerScreen)
-    {
-        //Don't add our entry on a the public server list screen
-        if(multiplayerScreen instanceof JoinMultiplayerScreenPublic) return;
-
-        ServerSelectionList serverSelectionList = ((MixinMultiplayerScreen) multiplayerScreen).getServerSelectionList();
-        CreeperHostServerEntry creeperHostEntry = new CreeperHostServerEntry(multiplayerScreen, null, serverSelectionList);
-
-        //Check to see if we already have an entry in the list before adding it
-        AtomicBoolean hasEntry = new AtomicBoolean(false);
-        serverSelectionList.children().forEach(entry ->
-        {
-            if(entry instanceof CreeperHostServerEntry) hasEntry.set(true);
-        });
-        if(Config.getInstance().isMpMenuEnabled() && !hasEntry.get()) serverSelectionList.children().add(0, creeperHostEntry);
     }
 }
