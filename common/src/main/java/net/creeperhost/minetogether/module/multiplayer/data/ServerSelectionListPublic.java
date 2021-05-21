@@ -1,17 +1,25 @@
-//package net.creeperhost.minetogether.module.multiplayer.screen;
+//package net.creeperhost.minetogether.module.multiplayer.data;
 //
 //import com.google.common.collect.Lists;
 //import com.google.common.hash.Hashing;
 //import com.mojang.blaze3d.systems.RenderSystem;
-//import net.creeperhost.minetogether.module.multiplayer.data.ServerDataPublic;
+//import com.mojang.blaze3d.vertex.PoseStack;
+//import net.creeperhost.minetogether.MineTogether;
+//import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
+//import net.creeperhost.minetogetherlib.serverlists.EnumFlag;
+//import net.creeperhost.minetogetherlib.serverlists.Server;
+//import net.creeperhost.minetogetherlib.serverorder.ServerOrderCallbacks;
 //import net.minecraft.client.Minecraft;
 //import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 //import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 //import net.minecraft.client.multiplayer.ServerData;
 //import net.minecraft.client.multiplayer.ServerList;
 //import net.minecraft.client.renderer.texture.DynamicTexture;
+//import net.minecraft.client.server.LanServer;
+//import net.minecraft.network.chat.Component;
+//import net.minecraft.network.chat.TranslatableComponent;
+//import net.minecraft.resources.ResourceLocation;
 //import org.apache.commons.lang3.Validate;
-//
 //import java.net.UnknownHostException;
 //import java.util.ArrayList;
 //import java.util.Collections;
@@ -28,7 +36,6 @@
 //        super(multiplayerScreen, mc, width, height, top, bottom, slotHeight);
 //        this.multiplayerScreen = multiplayerScreen;
 //    }
-//
 //
 //    @Override
 //    public void setList()
@@ -50,30 +57,30 @@
 //        this.serverListLan.clear();
 //        this.serverListInternetOurs.clear();
 //
-//        for (int i = 0; i < p_148195_1_.countServers(); ++i)
+//        for (int i = 0; i < p_148195_1_.size(); ++i)
 //        {
-//            this.serverListInternetOurs.add(new ServerSelectionListOurs.ServerListEntryPublic((MultiplayerPublicScreen) this.multiplayerScreen, p_148195_1_.getServerData(i)));
+//            this.serverListInternetOurs.add(new ServerSelectionListPublic.ServerListEntryPublic((JoinMultiplayerScreen) this.multiplayerScreen, p_148195_1_.getServerData(i)));
 //        }
 //
 //        this.setList();
 //    }
 //
 //    @Override
-//    public void updateNetworkServers(List<LanServerInfo> p_148194_1_) {}
+//    public void updateNetworkServers(List<LanServer> p_148194_1_) {}
 //
-//    public class ServerListEntryPublic extends ServerSelectionList.NormalEntry
+//    public class ServerListEntryPublic extends ServerSelectionList.OnlineServerEntry
 //    {
-//        MultiplayerPublicScreen multiplayerScreen;
+//        JoinMultiplayerScreenPublic multiplayerScreen;
 //        ServerData wrappedEntry;
 //        Minecraft mc = Minecraft.getInstance();
-//        private ResourceLocation flags = new ResourceLocation(Constants.MOD_ID, "textures/flags/flags.png");
-//        private ResourceLocation applicationGui = new ResourceLocation(Constants.MOD_ID, "textures/gui.png");
+//        private ResourceLocation flags = new ResourceLocation(MineTogether.MOD_ID, "textures/flags/flags.png");
+//        private ResourceLocation applicationGui = new ResourceLocation(MineTogether.MOD_ID, "textures/gui.png");
 //        private String lastIconB64;
 //        private ResourceLocation serverIcon;
 //        private DynamicTexture icon;
 //        private long lastClickTime;
 //
-//        public ServerListEntryPublic(MultiplayerPublicScreen multiplayerScreen, ServerData wrappedEntry)
+//        public ServerListEntryPublic(JoinMultiplayerScreenPublic multiplayerScreen, ServerData wrappedEntry)
 //        {
 //            super(multiplayerScreen, wrappedEntry);
 //            this.multiplayerScreen = multiplayerScreen;
@@ -83,7 +90,7 @@
 //        }
 //
 //        @Override
-//        public void render(MatrixStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float p_render_9_)
+//        public void render(PoseStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isHovering, float p_render_9_)
 //        {
 //            renderVanilla(matrixStack, slotIndex, y, x, listWidth, slotHeight, mouseX, mouseY, isHovering, p_render_9_);
 //
@@ -92,7 +99,7 @@
 //            String applicationURL = server.applicationURL;
 //            if (flag != null)
 //            {
-//                Minecraft.getInstance().getTextureManager().bindTexture(flags);
+//                Minecraft.getInstance().getTextureManager().bind(flags);
 //                int flagWidth = 16;
 //                int flagHeight = flag.height / (flag.width / flagWidth);
 //                drawScaledCustomSizeModalRect(x + listWidth - 5 - flagWidth, y + slotHeight - 10 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
@@ -101,20 +108,20 @@
 //                        && mouseY >= y + slotHeight - 10 - flagHeight
 //                        && mouseY <= y + slotHeight - flagHeight + flagHeight)
 //                {
-//                    List<ITextComponent> tooltipList = new ArrayList<>();
+//                    List<Component> tooltipList = new ArrayList<>();
 //
-//                    String countryName = Callbacks.getCountries().get(flag.name());
+//                    String countryName = ServerOrderCallbacks.getCountries().get(flag.name());
 //                    if (countryName == null)
 //                    {
 //                        countryName = flag.name();
 //                    }
-//                    tooltipList.add(new StringTextComponent(countryName));
+//                    tooltipList.add(new TranslatableComponent(countryName));
 //                    multiplayerScreen.func_238854_b_(tooltipList);//(countryName + (server.subdivision.equals("Unknown") ? "" : "\n" + server.subdivision));
 //                }
 //            }
 //            if (applicationURL != null)
 //            {
-//                Minecraft.getInstance().getTextureManager().bindTexture(applicationGui);
+//                Minecraft.getInstance().getTextureManager().bind(applicationGui);
 //                int flagWidth = 16;
 //                int flagHeight = flag.height / (flag.width / flagWidth);
 //                blit(matrixStack, x, y + slotHeight - 10 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
@@ -123,8 +130,8 @@
 //                        && mouseY >= y + slotHeight - flagHeight
 //                        && mouseY <= y + slotHeight - flagHeight + flagHeight)
 //                {
-//                    List<ITextComponent> tooltipList = new ArrayList<>();
-//                    tooltipList.add(new StringTextComponent("Click here to open the application link in a browser window!"));
+//                    List<Component> tooltipList = new ArrayList<>();
+//                    tooltipList.add(new TranslatableComponent("Click here to open the application link in a browser window!"));
 //                    multiplayerScreen.func_238854_b_(tooltipList);
 //                }
 //            }
@@ -132,7 +139,7 @@
 //
 //        ServerData server = getServerData();
 //
-//        public void renderVanilla(MatrixStack p_230432_1_, int p_230432_2_, int p_230432_3_, int p_230432_4_, int p_230432_5_, int p_230432_6_, int p_230432_7_, int p_230432_8_, boolean p_230432_9_, float p_230432_10_) {
+//        public void renderVanilla(PoseStack p_230432_1_, int p_230432_2_, int p_230432_3_, int p_230432_4_, int p_230432_5_, int p_230432_6_, int p_230432_7_, int p_230432_8_, boolean p_230432_9_, float p_230432_10_) {
 //            if (!server.pinged) {
 //                server.pinged = true;
 //                server.pingToServer = -2L;
@@ -332,7 +339,7 @@
 //        }
 //
 //        @Override
-//        public ServerDataPublic getServer()
+//        public ServerDataPublic getServerData()
 //        {
 //            return (ServerDataPublic) super.getServerData();
 //        }

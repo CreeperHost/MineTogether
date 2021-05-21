@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.module.multiplayer.screen;
+package net.creeperhost.minetogether.module.multiplayer.data;
 
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
 

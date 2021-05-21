@@ -4,6 +4,7 @@ import me.shedaniel.architectury.hooks.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.mixin.MixinMultiplayerScreen;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
+import net.creeperhost.minetogether.module.multiplayer.data.CreeperHostServerEntry;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
 import net.creeperhost.minetogether.module.multiplayer.screen.ServerTypeScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;

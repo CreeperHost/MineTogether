@@ -1,6 +1,7 @@
 package net.creeperhost.minetogetherlib.serverlists;
 
 import com.google.gson.*;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogetherlib.util.Util;
@@ -344,12 +345,12 @@ public class ServerListCallbacks
                     lastRequest = listType;
                     List<Server> list = new ArrayList<Server>();
 
-//                    Config defaultConfig = new Config();
-//                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
-//                    {
-//                        list.add(new Server("No project ID! Please fix the MineTogether config or ensure a version.json exists.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
-//                        return list;
-//                    }
+                    Config defaultConfig = new Config();
+                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
+                    {
+                        list.add(new Server("No project ID! Please fix the MineTogether config or ensure a version.json exists.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
+                        return list;
+                    }
 
                     Map<String, String> jsonPass = new HashMap<String, String>();
 //                    jsonPass.put("projectid", MineTogether.instance.base64 == null ? Config.getInstance().curseProjectID : MineTogether.instance.base64);

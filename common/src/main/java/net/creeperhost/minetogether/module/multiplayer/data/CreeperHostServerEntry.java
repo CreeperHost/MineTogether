@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.module.multiplayer;
+package net.creeperhost.minetogether.module.multiplayer.data;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
