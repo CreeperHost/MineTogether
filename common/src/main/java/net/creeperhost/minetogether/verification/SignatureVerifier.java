@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.verification;
 
+import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.MineTogether;
 import org.apache.commons.io.FileUtils;
 
@@ -15,9 +16,9 @@ public class SignatureVerifier
 {
     private final File jarFile;
 
-    public SignatureVerifier(File modsFolder)
+    public SignatureVerifier()
     {
-        this.jarFile = findOurJar(modsFolder);
+        this.jarFile = findOurJar(Platform.getGameFolder().resolve("mods").toFile());
     }
 
     public String verify()

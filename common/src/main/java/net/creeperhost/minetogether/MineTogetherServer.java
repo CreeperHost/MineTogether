@@ -1,9 +1,19 @@
 package net.creeperhost.minetogether;
 
+import net.creeperhost.minetogether.verification.SignatureVerifier;
+
 public class MineTogetherServer
 {
+    public static boolean serverOn = false;
+    public static String secret = "";
+    public static int updateID;
+
     public static void init()
     {
+        serverOn = true;
+        SignatureVerifier signatureVerifier = new SignatureVerifier();
+        secret = signatureVerifier.verify();
+        //This is just a test and needs to be moved
         killWatchDog();
     }
 

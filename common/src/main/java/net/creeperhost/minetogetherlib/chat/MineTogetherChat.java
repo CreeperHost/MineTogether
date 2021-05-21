@@ -1,10 +1,13 @@
 package net.creeperhost.minetogetherlib.chat;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import net.creeperhost.minetogetherlib.chat.data.Friend;
+import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;

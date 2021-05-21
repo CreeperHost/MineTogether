@@ -1,10 +1,7 @@
 package net.creeperhost.minetogetherlib.chat;
 
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogetherlib.chat.data.Friend;
-import net.creeperhost.minetogetherlib.chat.data.Message;
-import net.creeperhost.minetogetherlib.chat.data.PrivateChat;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.chat.data.*;
 import net.creeperhost.minetogetherlib.chat.irc.IRCServer;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;

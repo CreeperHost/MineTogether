@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.util;
 
+import net.creeperhost.minetogether.MineTogetherClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
 
