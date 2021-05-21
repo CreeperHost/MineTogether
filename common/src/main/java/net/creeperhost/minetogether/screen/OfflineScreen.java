@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import me.shedaniel.architectury.platform.Platform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -86,9 +87,11 @@ public class OfflineScreen extends Screen
     {
         addButton(new Button((width / 2) - 40, height - 40, 80, 20, new TranslatableComponent("Continue"), (b) ->
         {
-            File offline = new File("local/minetogether/offline.txt");
-            if(checkBox.selected()) {
+            File offline = new File(Platform.getGameFolder() + "/local/minetogether/offline.txt");
+            if(checkBox.selected())
+            {
                 try {
+                    offline.getParentFile().mkdirs();
                     offline.createNewFile();
                 } catch (IOException e) { e.printStackTrace(); }
             }

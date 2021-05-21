@@ -9,6 +9,7 @@ import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
+import net.creeperhost.minetogether.screen.OfflineScreen;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogether.module.serverorder.screen.OrderServerScreen;
@@ -31,8 +32,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.entity.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.File;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -43,6 +46,7 @@ public class MineTogetherClient
     public static ToastHandler toastHandler;
     private static CompletableFuture chatThread = null;
     private static MineTogetherChat mineTogetherChat;
+    private static boolean isOnlineUUID = false;
 
     public static void init()
     {
@@ -57,11 +61,11 @@ public class MineTogetherClient
     {
         mineTogetherChat = new MineTogetherChat();
         MineTogetherChat.INSTANCE.ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
-        MineTogetherChat.INSTANCE.online = true;
+        MineTogetherChat.INSTANCE.uuid = getUUID();
+        MineTogetherChat.INSTANCE.online = isOnlineUUID;
         MineTogetherChat.INSTANCE.realName = "{\"p\": \"-1\"}";
         MineTogetherChat.INSTANCE.signature = new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
         MineTogetherChat.INSTANCE.serverID = getServerIDAndVerify();
-        MineTogetherChat.INSTANCE.uuid = getUUID();
 
         if(chatThread != null) {
             chatThread.cancel(true);
@@ -84,12 +88,11 @@ public class MineTogetherClient
         chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, MineTogetherChat.INSTANCE.online, MineTogetherChat.INSTANCE), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
     }
 
-    //TODO fix session checking and move this
     public static UUID getUUID()
     {
         User session = Minecraft.getInstance().getUser();
         UUID uuid = Minecraft.getInstance().getUser().getGameProfile().getId();
-//        MineTogether.instance.online = !uuid.equals(PlayerEntity.getOfflineUUID(session.getUsername()));
+        isOnlineUUID = !uuid.equals(Player.createPlayerUUID(session.getName()));
 
         return uuid;
     }
@@ -143,8 +146,21 @@ public class MineTogetherClient
         }
     }
 
+    static boolean firstOpen = true;
+
     private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
     {
+        if(firstOpen && screen instanceof TitleScreen)
+        {
+            File offline = new File("local/minetogether/offline.txt");
+
+            if(!MineTogetherClient.isOnlineUUID && !offline.exists())
+            {
+                firstOpen = false;
+                Minecraft.getInstance().setScreen(new OfflineScreen());
+            }
+        }
+
         MultiPlayerModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
 
         if (screen instanceof TitleScreen)
