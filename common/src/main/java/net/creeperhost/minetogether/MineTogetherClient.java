@@ -8,7 +8,9 @@ import me.shedaniel.architectury.hooks.ScreenHooks;
 import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
+import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
 import net.creeperhost.minetogether.screen.OfflineScreen;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogethergui.ScreenHelpers;
@@ -96,40 +98,7 @@ public class MineTogetherClient
 
     private static void onScreenRender(Screen screen, PoseStack poseStack, int i, int i1, float part)
     {
-        //Make sure that the screen is not null for any reason
-        if(screen == null) return;
-
-        if (MineTogetherClient.toastHandler != null && MineTogetherClient.toastHandler.toastText != null)
-        {
-            long curTime = System.currentTimeMillis();
-            if (MineTogetherClient.toastHandler.fadeTime > curTime)
-            {
-                long fadeDiff = MineTogetherClient.toastHandler.fadeTime - MineTogetherClient.toastHandler.endTime;
-                long curFade = Math.min(MineTogetherClient.toastHandler.fadeTime - curTime, fadeDiff);
-                float alpha = (float) curFade / (float) fadeDiff;
-
-                RenderSystem.disableLighting();
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-                Minecraft.getInstance().getTextureManager().bind(MineTogetherClient.toastHandler.TEXTURE_TOASTS);
-                List<FormattedCharSequence> s = ComponentRenderUtils.wrapComponents(MineTogetherClient.toastHandler.toastText, 140, Minecraft.getInstance().font);
-
-                int toastHeight = 32 + (s.size() * 8);
-                Screen.blit(poseStack, toastHandler.getX(), toastHandler.getY(), toastHandler.getToastType().getX(), toastHandler.getToastType().getY(), 160, 32, 256, 256);
-
-                RenderSystem.enableBlend();
-                int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
-
-                int start = (toastHandler.getY() + 2);
-                for(FormattedCharSequence properties : s)
-                {
-                    Minecraft.getInstance().font.drawShadow(poseStack, properties, toastHandler.getX() + 15, start +=8, textColour);
-                }
-
-            } else
-            {
-                MineTogetherClient.toastHandler.clearToast(false);
-            }
-        }
+        if(toastHandler != null) toastHandler.onScreenRender(screen, poseStack, i, i1, part);
     }
 
     static boolean firstOpen = true;
@@ -146,36 +115,8 @@ public class MineTogetherClient
                 Minecraft.getInstance().setScreen(new OfflineScreen());
             }
         }
-
         MultiPlayerModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
-
-        if (screen instanceof TitleScreen)
-        {
-            AbstractWidget relms = ScreenHelpers.removeButton("menu.online", abstractWidgets);
-            if(relms != null)
-            {
-                ScreenHooks.addButton(screen, new Button(relms.x, relms.y, relms.getWidth(), relms.getHeight(), new TranslatableComponent("minetogether.button.getserver"), p ->
-                {
-                    Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order()));
-                }));
-            }
-
-            ScreenHooks.addButton(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.friends"), p ->
-            {
-                Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
-            }));
-
-            ScreenHooks.addButton(screen, new ButtonMultiple(screen.width - 125, 5, 1, p ->
-            {
-                if (Config.getInstance().isChatEnabled())
-                {
-                    Minecraft.getInstance().setScreen(new ChatScreen(screen));
-                }
-                else
-                {
-                    Minecraft.getInstance().setScreen(new SettingsScreen(screen));
-                }
-            }));
-        }
+        ServerOrderModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
+        ChatModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
     }
 }

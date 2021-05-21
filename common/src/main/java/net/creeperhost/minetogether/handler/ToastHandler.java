@@ -1,7 +1,16 @@
 package net.creeperhost.minetogether.handler;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.MineTogetherClient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.ComponentRenderUtils;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
+
+import java.util.List;
 
 public class ToastHandler
 {
@@ -56,5 +65,42 @@ public class ToastHandler
     public int getY()
     {
         return y;
+    }
+
+    public void onScreenRender(Screen screen, PoseStack poseStack, int i, int i1, float part)
+    {
+        if(screen == null) return;
+
+        if (MineTogetherClient.toastHandler != null && MineTogetherClient.toastHandler.toastText != null)
+        {
+            long curTime = System.currentTimeMillis();
+            if (MineTogetherClient.toastHandler.fadeTime > curTime)
+            {
+                long fadeDiff = MineTogetherClient.toastHandler.fadeTime - MineTogetherClient.toastHandler.endTime;
+                long curFade = Math.min(MineTogetherClient.toastHandler.fadeTime - curTime, fadeDiff);
+                float alpha = (float) curFade / (float) fadeDiff;
+
+                RenderSystem.disableLighting();
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                Minecraft.getInstance().getTextureManager().bind(MineTogetherClient.toastHandler.TEXTURE_TOASTS);
+                List<FormattedCharSequence> s = ComponentRenderUtils.wrapComponents(MineTogetherClient.toastHandler.toastText, 140, Minecraft.getInstance().font);
+
+                int toastHeight = 32 + (s.size() * 8);
+                Screen.blit(poseStack, MineTogetherClient.toastHandler.getX(), MineTogetherClient.toastHandler.getY(), MineTogetherClient.toastHandler.getToastType().getX(), MineTogetherClient.toastHandler.getToastType().getY(), 160, 32, 256, 256);
+
+                RenderSystem.enableBlend();
+                int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
+
+                int start = (MineTogetherClient.toastHandler.getY() + 2);
+                for(FormattedCharSequence properties : s)
+                {
+                    Minecraft.getInstance().font.drawShadow(poseStack, properties, MineTogetherClient.toastHandler.getX() + 15, start +=8, textColour);
+                }
+
+            } else
+            {
+                MineTogetherClient.toastHandler.clearToast(false);
+            }
+        }
     }
 }
