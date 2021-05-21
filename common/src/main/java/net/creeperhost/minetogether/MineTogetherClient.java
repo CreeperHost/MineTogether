@@ -1,39 +1,23 @@
 package net.creeperhost.minetogether;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.architectury.event.events.GuiEvent;
-import me.shedaniel.architectury.hooks.ScreenHooks;
 import me.shedaniel.architectury.platform.Platform;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
 import net.creeperhost.minetogether.screen.OfflineScreen;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
-import net.creeperhost.minetogethergui.ScreenHelpers;
-import net.creeperhost.minetogether.module.serverorder.screen.OrderServerScreen;
-import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
-import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
-import net.creeperhost.minetogether.screen.SettingsScreen;
-import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
-import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -41,7 +25,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class MineTogetherClient
 {

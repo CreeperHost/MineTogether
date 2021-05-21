@@ -4,8 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
