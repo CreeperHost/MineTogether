@@ -9,7 +9,7 @@ public class Server
     public final EnumFlag flag;
     public final String subdivision;
     public final String applicationURL;
-    
+
     public Server(String displayName, String host, int uptime, int playerCount, EnumFlag flag, String subdivision, String applicationURL)
     {
         this.displayName = displayName;
@@ -20,14 +20,14 @@ public class Server
         this.subdivision = subdivision;
         this.applicationURL = applicationURL;
     }
-    
+
     @Override
     public String toString()
     {
         return "Server[" + displayName + ", " + host + ", " + uptime + ", " + playerCount + ", " + flag.name() + "]";
     }
-    
-//    public static class NameComparator implements Comparator<ServerSelectionListOurs.ServerListEntryPublic>
+
+//    public static class NameComparator implements Comparator<ServerSelectionListPublic.ServerListEntryPublic>
 //    {
 //        public static final NameComparator INSTANCE = new NameComparator();
 //
@@ -36,7 +36,7 @@ public class Server
 //        }
 //
 //        @Override
-//        public int compare(ServerSelectionListOurs.ServerListEntryPublic o1, ServerSelectionListOurs.ServerListEntryPublic o2)
+//        public int compare(ServerSelectionListPublic.ServerListEntryPublic o1, ServerSelectionListPublic.ServerListEntryPublic o2)
 //        {
 //            String str1 = o1.getServerData().serverName;
 //            String str2 = o2.getServerData().serverName;
@@ -49,7 +49,7 @@ public class Server
 //        }
 //    }
 //
-//    public static class PlayerComparator implements Comparator<ServerSelectionListOurs.ServerListEntryPublic>
+//    public static class PlayerComparator implements Comparator<ServerSelectionListPublic.ServerListEntryPublic>
 //    {
 //        public static final PlayerComparator INSTANCE = new PlayerComparator();
 //
@@ -58,7 +58,7 @@ public class Server
 //        }
 //
 //        @Override
-//        public int compare(ServerSelectionListOurs.ServerListEntryPublic o1, ServerSelectionListOurs.ServerListEntryPublic o2)
+//        public int compare(ServerSelectionListPublic.ServerListEntryPublic o1, ServerSelectionListPublic.ServerListEntryPublic o2)
 //        {
 //            int o1Players = 0;
 //            int o2Players = 0;
@@ -75,7 +75,7 @@ public class Server
 //        }
 //    }
 //
-//    public static class UptimeComparator implements Comparator<ServerSelectionListOurs.ServerListEntryPublic>
+//    public static class UptimeComparator implements Comparator<ServerSelectionListPublic.ServerListEntryPublic>
 //    {
 //        public static final UptimeComparator INSTANCE = new UptimeComparator();
 //
@@ -84,7 +84,7 @@ public class Server
 //        }
 //
 //        @Override
-//        public int compare(ServerSelectionListOurs.ServerListEntryPublic o1, ServerSelectionListOurs.ServerListEntryPublic o2)
+//        public int compare(ServerSelectionListPublic.ServerListEntryPublic o1, ServerSelectionListPublic.ServerListEntryPublic o2)
 //        {
 //            System.out.println(o1.getServerData().server.uptime + " " + o2.getServerData().server.uptime);
 //            return o1.getServerData().server.uptime > o2.getServerData().server.uptime ? -1
@@ -102,7 +102,7 @@ public class Server
 //        }
 //
 //        @Override
-//        public int compare(ServerSelectionListOurs.ServerListEntryPublic o1, ServerSelectionListOurs.ServerListEntryPublic o2)
+//        public int compare(ServerSelectionListPublic.ServerListEntryPublic o1, ServerSelectionListPublic.ServerListEntryPublic o2)
 //        {
 //            if (o1.getServerData().server.flag == null)
 //            {
@@ -144,7 +144,8 @@ public class Server
 //            }
 //        }
 //    }
-//
+
+    //TODO
 //    public static class PingComparator implements Comparator<ServerSelectionList.NormalEntry>
 //    {
 //        public static final PingComparator INSTANCE = new PingComparator();

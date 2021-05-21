@@ -15,8 +15,8 @@ import java.util.List;
 
 public class GuiButtonLarge extends Button
 {
-    private String description;
-    private ItemStack stack;
+    private final String description;
+    private final ItemStack stack;
     
     public GuiButtonLarge(int x, int y, int widthIn, int heightIn, String buttonText, String description, ItemStack stack, Button.OnPress onPress)
     {
@@ -64,10 +64,5 @@ public class GuiButtonLarge extends Button
             renderItem.renderGuiItem(stack, (this.x) + (width / 2) - 8, (this.y) + 24);
             matrixStack.popPose();
         }
-    }
-    
-    public static String padLeft(String s, int n)
-    {
-        return String.format("%1$" + n + "s", s);
     }
 }

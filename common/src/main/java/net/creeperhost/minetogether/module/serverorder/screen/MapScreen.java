@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogethergui.widgets.ButtonMap;
+import net.creeperhost.minetogether.module.serverorder.widget.ButtonMap;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.serverorder.ServerOrderCallbacks;
 import net.minecraft.client.Minecraft;
@@ -67,22 +67,22 @@ public class MapScreen extends OrderServerScreen
 
         float halfWidth = (float)width / 2;
 
-        addButton(new ButtonMap(halfWidth - 228F, y - 94F, (int) (nawestX / scalingFactor), (int) (nawestY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-west", false, mapButtonPath, this::updateSelected));
-        addButton(new ButtonMap(halfWidth - 207F, y - 44.8F, (int) (nasouthX / scalingFactor), (int) (nasouthY / scalingFactor),            (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-south", false, mapButtonPath, this::updateSelected));
-        addButton(new ButtonMap(halfWidth - 176.5F, y - 96.5F, (int) (naeastX / scalingFactor), (int) (naeastY / scalingFactor),             (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-east", false, mapButtonPath, this::updateSelected));
-        addButton(new ButtonMap(halfWidth - 171.8F, y - 19.5F, (int) (southamericaX / scalingFactor), (int) (southamericaY / scalingFactor),   (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "south-america", false, mapButtonPath, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 228F, y - 94F, (int) (nawestX / scalingFactor), (int) (nawestY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-west", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 207F, y - 44.8F, (int) (nasouthX / scalingFactor), (int) (nasouthY / scalingFactor),            (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-south", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 176.5F, y - 96.5F, (int) (naeastX / scalingFactor), (int) (naeastY / scalingFactor),             (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-east", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 171.8F, y - 19.5F, (int) (southamericaX / scalingFactor), (int) (southamericaY / scalingFactor),   (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "south-america", false, this::updateSelected));
 
-        addButton(new ButtonMap(halfWidth - 115F, y - 122F, (int) (greenlandX / scalingFactor), (int) (greenlandY / scalingFactor),      (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "greenland", false, mapButtonPath, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 115F, y - 122F, (int) (greenlandX / scalingFactor), (int) (greenlandY / scalingFactor),      (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "greenland", false, this::updateSelected));
 
-        addButton(new ButtonMap(halfWidth - 30.8F, y - 101.2F, (int) (euwestX / scalingFactor), (int) (euwestY / scalingFactor),              (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-west", false, mapButtonPath, this::updateSelected));
-        addButton(new ButtonMap(halfWidth - 0.5F, y - 95F, (int) (eumiddleeastX / scalingFactor), (int) (eumiddleeastY / scalingFactor),        (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-middle-east", false, mapButtonPath, this::updateSelected));
-        addButton(new ButtonMap(halfWidth + 24F, y - 114F, (int) (russiaX / scalingFactor), (int) (russiaY / scalingFactor),             (int) (2048 / scalingFactor), (int) (2048 / scalingFactor), "russia", false, mapButtonPath, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 30.8F, y - 101.2F, (int) (euwestX / scalingFactor), (int) (euwestY / scalingFactor),              (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-west", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 0.5F, y - 95F, (int) (eumiddleeastX / scalingFactor), (int) (eumiddleeastY / scalingFactor),        (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-middle-east", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth + 24F, y - 114F, (int) (russiaX / scalingFactor), (int) (russiaY / scalingFactor),             (int) (2048 / scalingFactor), (int) (2048 / scalingFactor), "russia", false, this::updateSelected));
 
-        addButton(new ButtonMap(halfWidth + 64.5F, y - 69F, (int) (asiaX / scalingFactor), (int) (asiaY / scalingFactor),                  (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "asia", false, mapButtonPath, this::updateSelected));
-        addButton(new ButtonMap(halfWidth + 119.5F, y - 5.5F, (int) (australiaX / scalingFactor), (int) (australiaY / scalingFactor),                 (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "australia", false, mapButtonPath, this::updateSelected));
+        addButton(new ButtonMap(halfWidth + 64.5F, y - 69F, (int) (asiaX / scalingFactor), (int) (asiaY / scalingFactor),                  (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "asia", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth + 119.5F, y - 5.5F, (int) (australiaX / scalingFactor), (int) (australiaY / scalingFactor),                 (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "australia", false, this::updateSelected));
 
-        addButton(new ButtonMap(halfWidth - 35.8F, y - 23.2F, (int) (subsaharanafricaX / scalingFactor), (int) (subsaharanafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "sub-saharan-africa", false, mapButtonPath, this::updateSelected));
-        addButton(new ButtonMap( halfWidth - 41.4F, y - 57.7F, (int) (northafricaX / scalingFactor), (int) (northafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "north-africa", false, mapButtonPath, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 35.8F, y - 23.2F, (int) (subsaharanafricaX / scalingFactor), (int) (subsaharanafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "sub-saharan-africa", false, this::updateSelected));
+        addButton(new ButtonMap( halfWidth - 41.4F, y - 57.7F, (int) (northafricaX / scalingFactor), (int) (northafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "north-africa", false, this::updateSelected));
 
         //Should never be null but /shrug its Minecraft
         if(regions != null && !regions.isEmpty())
