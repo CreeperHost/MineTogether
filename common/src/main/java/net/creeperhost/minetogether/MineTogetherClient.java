@@ -85,7 +85,7 @@ public class MineTogetherClient
                 }
             }, MineTogetherChat.INSTANCE.profileExecutor);
         }
-        chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, MineTogetherChat.INSTANCE.online, MineTogetherChat.INSTANCE), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
+        chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, MineTogetherChat.INSTANCE.online), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
     }
 
     public static UUID getUUID()

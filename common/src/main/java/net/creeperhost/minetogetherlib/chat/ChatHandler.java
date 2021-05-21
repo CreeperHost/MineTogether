@@ -1,5 +1,6 @@
 package net.creeperhost.minetogetherlib.chat;
 
+import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogetherlib.chat.data.*;
 import net.creeperhost.minetogetherlib.chat.irc.IRCServer;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
@@ -22,7 +23,6 @@ public class ChatHandler
     public static ChatConnectionStatus connectionStatus = ChatConnectionStatus.DISCONNECTED;
     public static HashMap<String, String> curseSync = new HashMap<>();
     public static TreeMap<String, LimitedSizeQueue<Message>> messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    static IHost host;
     static boolean online = false;
     public static AtomicBoolean isInitting = new AtomicBoolean(false);
     public static AtomicInteger tries = new AtomicInteger(0);
@@ -42,20 +42,20 @@ public class ChatHandler
     public static AtomicReference<List<String>> backupBan = new AtomicReference<>(new ArrayList<>());
     public static CompletableFuture isBannedFuture;
 
-    public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
+    public static void init(String nickIn, String realNameIn, boolean onlineIn)
     {
-        ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn, _host);
+        ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn);
         ChatConnectionHandler.INSTANCE.connect();
         startCleanThread();
     }
     
     public static void reInit()
     {
-        if (!isInitting.get() && host != null && initedString != null && realName != null)
+        if (!isInitting.get() && initedString != null && realName != null)
         {
             inited.set(false);
             connectionStatus = ChatConnectionStatus.CONNECTING;
-            init(initedString, realName, online, host);
+            init(initedString, realName, online);
         }
     }
 
@@ -73,7 +73,7 @@ public class ChatHandler
         
         Message messagePair = new Message(System.currentTimeMillis(), user, message);
         tempQueue.add(messagePair);
-        host.messageReceived(target, messagePair);
+//        host.messageReceived(target, messagePair);
         newMessages.put(target, Boolean.TRUE);
     }
     
@@ -90,12 +90,12 @@ public class ChatHandler
     
     public static String getNameForUser(String nick)
     {
-        return host.getNameForUser(nick);
+        return "";//host.getNameForUser(nick);
     }
     
     public static void updateFriends(List<String> users)
     {
-        List<Friend> friendsCall = host.getFriends();
+        List<Friend> friendsCall = ChatCallbacks.getFriendsList(false, MineTogetherClient.getUUID());
         HashMap<String, String> oldFriends = friends;
         friends = new HashMap<>();
         for (Friend friend : friendsCall)
@@ -122,7 +122,7 @@ public class ChatHandler
                     if(profile != null) profile.isOnline();
                 }, MineTogetherChat.profileExecutor);
 
-                host.friendEvent(friend.getKey(), false);
+//                host.friendEvent(friend.getKey(), false);
             }
         }
     }
@@ -138,7 +138,7 @@ public class ChatHandler
 
     public static void sendFriendRequest(String target, String desiredName)
     {
-        IrcHandler.sendCTCPMessagePrivate(target, "FRIENDREQ", host.getFriendCode() + " " + desiredName);
+        IrcHandler.sendCTCPMessagePrivate(target, "FRIENDREQ", MineTogetherChat.profile.get().getFriendCode() + " " + desiredName);
     }
     
     public static void sendChannelInvite(String target, String owner)
@@ -173,7 +173,7 @@ public class ChatHandler
     
     public static void acceptFriendRequest(String chatInternalName, String desiredName)
     {
-        IrcHandler.sendCTCPMessagePrivate(chatInternalName, "FRIENDACC", host.getFriendCode() + " " + desiredName);
+        IrcHandler.sendCTCPMessagePrivate(chatInternalName, "FRIENDACC", MineTogetherChat.profile.get().getFriendCode() + " " + desiredName);
         addMessageToChat(CHANNEL, "System", "Friend request accepted.");
     }
     
@@ -259,7 +259,7 @@ public class ChatHandler
                         builder.append(split[i]).append(" ");
                     }
 
-                    host.acceptFriend(split[1], builder.toString().trim());
+//                    host.acceptFriend(split[1], builder.toString().trim());
                     addMessageToChat(CHANNEL, "FA:" + user, builder.toString().trim());
                     break;
                 }
@@ -287,7 +287,7 @@ public class ChatHandler
         {
             if (nick.equalsIgnoreCase(ChatHandler.nick)) {
                 // it be us
-                ChatHandler.host.userBanned(nick);
+//                ChatHandler.host.userBanned(nick);
                 IrcHandler.stop(true);
                 MineTogetherChat.profile.getAndUpdate(profile1 ->
                 {
@@ -307,9 +307,9 @@ public class ChatHandler
                     });
                     return profile1;
                 });
-                host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
-
-                host.userBanned(nick);
+//                host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
+//
+//                host.userBanned(nick);
             } else {
                 Profile profile = knownUsers.findByNick(nick);
                 if (profile == null)
