@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogether.handler.EnumToastType;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryFriend;
 import net.creeperhost.minetogethergui.lists.ScreenList;
@@ -76,7 +76,7 @@ public class FriendsListScreen extends Screen
         addButton(new ButtonString( 5, this.height - 26, 60, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
             minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
-            MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, EnumToastType.DEFAULT, null);
+            MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
         }));
 
         addButton(new Button(this.width - 105, this.height - 26, 100, 20,
