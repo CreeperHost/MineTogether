@@ -108,7 +108,7 @@ public class IrcHandler
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
     private static boolean reconnecting = false;
@@ -118,7 +118,6 @@ public class IrcHandler
         reconnecting = true;
         try {
             stop(true);
-//            MineTogether.proxy.startChat();
         } catch(Throwable ignored) {}
         reconnecting = false;
     }
