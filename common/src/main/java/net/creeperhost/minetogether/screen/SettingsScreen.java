@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
@@ -44,7 +45,7 @@ public class SettingsScreen extends Screen
                 //TODO
 //                MineTogether.proxy.enableIngameChat();
                 IrcHandler.reconnect();
-                MineTogetherClient.startChat();
+                MineTogetherClient.getMineTogetherChat().startChat();
             }
             saveConfig();
         }));

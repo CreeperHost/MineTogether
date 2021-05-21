@@ -44,7 +44,6 @@ import java.util.concurrent.CompletableFuture;
 public class MineTogetherClient
 {
     public static ToastHandler toastHandler;
-    private static CompletableFuture chatThread = null;
     private static MineTogetherChat mineTogetherChat;
     private static boolean isOnlineUUID = false;
 
@@ -53,39 +52,26 @@ public class MineTogetherClient
         toastHandler = new ToastHandler();
         GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
         GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
-        startChat();
+        buildChat();
     }
 
     @SuppressWarnings("all")
-    public static void startChat()
+    public static void buildChat()
     {
-        mineTogetherChat = new MineTogetherChat();
-        MineTogetherChat.INSTANCE.ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
-        MineTogetherChat.INSTANCE.uuid = getUUID();
-        MineTogetherChat.INSTANCE.online = isOnlineUUID;
-        MineTogetherChat.INSTANCE.realName = "{\"p\": \"-1\"}";
-        MineTogetherChat.INSTANCE.signature = new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
-        MineTogetherChat.INSTANCE.serverID = getServerIDAndVerify();
+        String ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
+        UUID uuid = getUUID();
+        boolean online = isOnlineUUID;
+        String realName = "{\"p\": \"-1\"}";
+        String signature = "ac669a2730276d27ee4a2b5e1bd509f7a6dbb167730aa9dc4c1b2aa796fd99ee";// new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
+        String serverID = getServerIDAndVerify();
 
-        if(chatThread != null) {
-            chatThread.cancel(true);
-            chatThread = null;
-        }
-        if (MineTogetherChat.INSTANCE.profile.get() == null) {
-            MineTogetherChat.INSTANCE.profile.set(new Profile(MineTogetherChat.INSTANCE.ourNick));
-            CompletableFuture.runAsync(() ->
-            {
-                while (MineTogetherChat.INSTANCE.profile.get().getLongHash().isEmpty()) {
-                    MineTogetherChat.INSTANCE.profile.get().loadProfile();
-                    try {
-                        Thread.sleep(30000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, MineTogetherChat.INSTANCE.profileExecutor);
-        }
-        chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, MineTogetherChat.INSTANCE.online), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
+        mineTogetherChat = new MineTogetherChat(ourNick, uuid, online, realName, signature, serverID);
+        mineTogetherChat.startChat();
+    }
+
+    public static MineTogetherChat getMineTogetherChat()
+    {
+        return mineTogetherChat;
     }
 
     public static UUID getUUID()
