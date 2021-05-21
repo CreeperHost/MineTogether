@@ -13,7 +13,6 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.client.server.LanServer;
 import net.minecraft.resources.ResourceLocation;
 
 public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEntry
@@ -26,9 +25,9 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
     protected final ResourceLocation BUTTON_TEXTURES = new ResourceLocation(MineTogether.MOD_ID, "textures/hidebtn.png");
     private ServerSelectionList serverSelectionList;
 
-    public CreeperHostServerEntry(JoinMultiplayerScreen joinMultiplayerScreen, LanServer serverData, ServerSelectionList serverSelectionList)
+    public CreeperHostServerEntry(ServerSelectionList serverSelectionList)
     {
-        super(joinMultiplayerScreen, serverData);
+        super(null, null);
         stringWidth = this.mc.font.width(cross);
         this.serverSelectionList = serverSelectionList;
     }
@@ -72,7 +71,6 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
     {
         int listWidth = ((((MixinSelectionList)serverSelectionList).getWidth() - serverSelectionList.getRowWidth()) / 2) + serverSelectionList.getRowWidth();
 
-        int x = serverSelectionList.getRowLeft();
         int y = ((MixinSelectionList) serverSelectionList).invokeRowTop(serverSelectionList.children().indexOf(this));
 
         if (mouseX >= listWidth - stringWidth - 4 && mouseX <= listWidth - 5 && mouseY >= y && mouseY >= y - 7)
