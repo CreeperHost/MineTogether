@@ -8,5 +8,6 @@ public class MinetogetherModFabric implements ModInitializer {
     public void onInitialize() {
         MineTogether.init();
         MineTogether.clientInit();
+        MineTogether.serverInit();
     }
 }

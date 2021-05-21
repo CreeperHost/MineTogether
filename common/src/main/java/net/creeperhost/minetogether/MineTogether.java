@@ -24,4 +24,9 @@ public class MineTogether
     {
         EnvExecutor.runInEnv(EnvType.CLIENT, () -> MineTogetherClient::init);
     }
+
+    public static void serverInit()
+    {
+        EnvExecutor.runInEnv(EnvType.SERVER, () -> MineTogetherClient::init);
+    }
 }

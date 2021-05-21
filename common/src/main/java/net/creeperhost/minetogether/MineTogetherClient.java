@@ -62,7 +62,7 @@ public class MineTogetherClient
         UUID uuid = getUUID();
         boolean online = isOnlineUUID;
         String realName = "{\"p\": \"-1\"}";
-        String signature = "ac669a2730276d27ee4a2b5e1bd509f7a6dbb167730aa9dc4c1b2aa796fd99ee";// new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
+        String signature = new SignatureVerifier(Platform.getGameFolder().resolve("mods").toFile()).verify();
         String serverID = getServerIDAndVerify();
 
         mineTogetherChat = new MineTogetherChat(ourNick, uuid, online, realName, signature, serverID);
