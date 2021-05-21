@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.module.connect;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import me.shedaniel.architectury.event.events.GuiEvent;
 import me.shedaniel.architectury.event.events.LifecycleEvent;
 import me.shedaniel.architectury.hooks.ScreenHooks;
@@ -18,9 +19,17 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class ConnectModule {
+
+    public static Executor connectExecutor;
+    public static boolean isInitted = false;
+
     public static void init() {
+        isInitted = true;
+        Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("minetogether-connect-%d").build());
         GuiEvent.INIT_POST.register(ConnectModule::onScreenOpen);
         LifecycleEvent.SERVER_STOPPING.register(ConnectModule::onServerStopping);
     }

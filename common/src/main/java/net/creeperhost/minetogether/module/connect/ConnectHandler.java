@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public class ConnectHandler {
@@ -46,7 +47,6 @@ public class ConnectHandler {
                         }
                     }
                 } catch (Throwable ignored) {
-                    ignored.printStackTrace();
                 } finally {
                     try {
                         if (inputStream != null) inputStream.close();
@@ -105,11 +105,12 @@ public class ConnectHandler {
         return null;
     }
 
-    public static Response blocking(Function<Function<Response, Void>, Void> func) {
-        final Response[] tempResponse = new Response[1];
+    public static <E extends Response> E blocking(Function<Function<E, Void>, Void> func) {
+
+        AtomicReference<E> tempResponse = new AtomicReference<>();
         final Object tempLock = new Object();
         func.apply((response) -> {
-            tempResponse[0] = response;
+            tempResponse.set(response);
             synchronized (tempLock) {
                 tempLock.notifyAll();
             }
@@ -124,15 +125,20 @@ public class ConnectHandler {
         } catch (InterruptedException ignored) {
         }
 
-        return tempResponse[0];
+        return tempResponse.get();
     }
 
     public static void close() {
         sendMessage(new Message("CLOSE"), (ResponseInfo) null);
     }
 
-    public static void getFriends(Function<FriendsResponse, Void> callback) {
+    public static Void getFriends(Function<FriendsResponse, Void> callback) {
         sendMessage(new Message("FRIENDS"), new ResponseInfo<>(FriendsResponse.class, callback));
+        return null;
+    }
+
+    public static FriendsResponse getFriendsBlocking() {
+        return blocking(ConnectHandler::getFriends);
     }
 
     static class Response extends Message {
