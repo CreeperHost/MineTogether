@@ -1,6 +1,5 @@
 package net.creeperhost.minetogethergui.lists;
 
-import net.creeperhost.minetogethergui.lists.ScreenListEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.screens.Screen;
