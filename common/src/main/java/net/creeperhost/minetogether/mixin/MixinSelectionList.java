@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface MixinSelectionList
 {
     @Invoker("getRowTop")
-    public int invokeRowTop(int i);
+    int invokeRowTop(int i);
 
     @Accessor
     int getWidth();
