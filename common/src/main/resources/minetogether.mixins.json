@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinIntegratedServer",
+    "MixinJoinMultiplayerScreen",
+    "MixinMinecraftTitle",
     "MixinSelectionList",
     "MixinServerSelectionList",
     "MixinShareToLanScreen"

@@ -127,4 +127,12 @@
   "minetogether.offlinetext":"We have detected that your client is currently in offline mode.",
   "minetogether.offlinetext1":"Due to this MineTogether and all of its features have been DISABLED",
   "minetogether.offlinetext2": "If you own a Minecraft account and have not started your client in offline mode, You can attempt to restart your client to resolve this issue, This could also be caused by Mojang's authentication server's being unavalable at this time."
+
+  "minetogether.connect.open": "Open to friends",
+  "minetogether.connect.open.title":"MineTogether Connect",
+  "minetogether.connect.open.settings":"Settings for MineTogether friends",
+  "minetogether.connect.open.start":"Open world to friends",
+  "minetogether.connect.open.success":"Opened local game world to your MineTogether friends.",
+  "minetogether.connect.open.failed":"Failed to open local game to MineTogether friends.",
+  "minetogether.connect.title": "Multiplayer (MineTogether Connect)"
 }
