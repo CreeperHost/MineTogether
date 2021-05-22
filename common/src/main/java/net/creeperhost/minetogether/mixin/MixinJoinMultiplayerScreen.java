@@ -43,7 +43,8 @@ public abstract class MixinJoinMultiplayerScreen {
         if (friendsServerList.isDirty()) {
             List<LanServer> list = friendsServerList.getServers();
             friendsServerList.markClean();
-            (ServerSelectionListMixin)serverSelectionList
+            //I'm confused what you are trying to do here??
+//            (ServerSelectionListMixin)serverSelectionList;
             this.serverSelectionList.updateNetworkServers(list);
         }
     }
