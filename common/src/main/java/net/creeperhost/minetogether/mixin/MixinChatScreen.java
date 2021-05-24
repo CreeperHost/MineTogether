@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.mixin;
 
 import com.google.common.collect.Lists;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.GuiButtonPair;
 import net.creeperhost.minetogether.module.connect.FriendsServerList;
 import net.creeperhost.minetogether.util.MathHelper;
@@ -24,7 +25,7 @@ import java.util.List;
 @Mixin(ChatScreen.class)
 public class MixinChatScreen extends Screen
 {
-    private Button switchButton;
+    private GuiButtonPair switchButton;
 
     protected MixinChatScreen(Component component)
     {
@@ -34,10 +35,11 @@ public class MixinChatScreen extends Screen
     @Inject(at=@At("TAIL"), method="init()V")
     public void init(CallbackInfo ci)
     {
-        int x = MathHelper.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;// .getChatGUI().getChatWidth())) + 16 + 2;
+        int x = MathHelper.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;
 
         addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, 0, false, false, true, p ->
         {
+            ChatModule.showMTChat = switchButton.activeButton == 1;
 
         }, I18n.get("minetogether.ingame.chat.local"), I18n.get("minetogether.ingame.chat.global")));
     }
