@@ -125,23 +125,26 @@ public abstract class MixinChatComponent
 
     public void updateList()
     {
-        LimitedSizeQueue<Message> temp;
-        if(ChatHandler.messages == null || ChatHandler.messages.isEmpty()) return;
-        temp = ChatHandler.messages.get(ChatHandler.CHANNEL);
-        List<FormattedCharSequence> lines = new ArrayList<>();
-        List<GuiMessage<FormattedCharSequence>> newLines = new ArrayList<>();
-        //There must be a better way of doing this but brain go brrr....
-        for(Message message : temp)
+        try {
+            LimitedSizeQueue<Message> temp;
+            if (ChatHandler.messages == null || ChatHandler.messages.isEmpty()) return;
+            temp = ChatHandler.messages.get(ChatHandler.CHANNEL);
+            List<FormattedCharSequence> lines = new ArrayList<>();
+            List<GuiMessage<FormattedCharSequence>> newLines = new ArrayList<>();
+            //There must be a better way of doing this but brain go brrr....
+            for (Message message : temp) {
+                Component component = ChatScreen.formatLine(message);
+                if (component == null) continue;
+                lines.addAll(ComponentRenderUtils.wrapComponents(component, Minecraft.getInstance().gui.getChat().getWidth() - 10, Minecraft.getInstance().font));
+            }
+            for (FormattedCharSequence formattedCharSequence : lines) {
+                if (formattedCharSequence == null) continue;
+                newLines.add(new GuiMessage<>(0, formattedCharSequence, 0));
+            }
+            mtChatMessages = Lists.reverse(newLines);
+        } catch (Exception e)
         {
-            Component component = ChatScreen.formatLine(message);
-            if(component == null) continue;
-            lines.addAll(ComponentRenderUtils.wrapComponents(component, Minecraft.getInstance().gui.getChat().getWidth() - 10, Minecraft.getInstance().font));
+            e.printStackTrace();
         }
-        for(FormattedCharSequence formattedCharSequence : lines)
-        {
-            if(formattedCharSequence == null) continue;
-            newLines.add(new GuiMessage<>(0, formattedCharSequence, 0));
-        }
-        mtChatMessages = Lists.reverse(newLines);
     }
 }

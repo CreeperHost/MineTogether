@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.GuiButtonPair;
 import net.creeperhost.minetogether.module.connect.FriendsServerList;
 import net.creeperhost.minetogether.util.MathHelper;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -42,5 +43,16 @@ public class MixinChatScreen extends Screen
             ChatModule.showMTChat = switchButton.activeButton == 1;
 
         }, I18n.get("minetogether.ingame.chat.local"), I18n.get("minetogether.ingame.chat.global")));
+    }
+
+    @Override
+    public void sendMessage(String string)
+    {
+        if(ChatModule.showMTChat)
+        {
+            ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
+            return;
+        }
+        super.sendMessage(string);
     }
 }
