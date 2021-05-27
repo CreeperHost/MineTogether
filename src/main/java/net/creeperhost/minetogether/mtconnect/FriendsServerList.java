@@ -2,83 +2,63 @@ package net.creeperhost.minetogether.mtconnect;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import net.creeperhost.minetogether.CreeperHost;
-import net.creeperhost.minetogether.data.Friend;
-import net.creeperhost.minetogether.data.Profile;
-import net.creeperhost.minetogether.misc.Callbacks;
 import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.network.LanServerDetector;
 import net.minecraft.client.network.LanServerInfo;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.TextFormatting;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class FriendsServerList extends LanServerDetector.LanServerList {
     private final LanServerDetector.LanServerList wrapped;
-    private boolean oursWasUpdated = false;
-    private List<LanServerInfo> ourLanServers = new ArrayList<>();
-    private GuiMultiplayer owner;
+    public static ScheduledExecutorService detectorExecutor;
+    private boolean oursWasUpdated;
+    private final List<LanServerInfo> ourLanServers = new ArrayList<>();
 
-    private List<ServerData> pendingFriendServers = new ArrayList<>();
+    final GuiMultiplayer owner;
 
-    public FriendsServerList(LanServerDetector.LanServerList wrapped, GuiMultiplayer owner) {
+    private final List<ServerData> pendingFriendServers = new ArrayList<>();
+
+    public FriendsServerList(GuiMultiplayer owner, LanServerDetector.LanServerList wrapped) {
         this.owner = owner;
         this.wrapped = wrapped;
         oursWasUpdated = true;
         if(ConnectHelper.isEnabled) {
-            CompletableFuture.runAsync(() ->
-            {
-                ArrayList<Friend> friendsList = Callbacks.getFriendsList(false);
-                while (friendsList == null) {
-                    friendsList = Callbacks.getFriendsList(false);
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                    }
-                }
-                for (Friend friend : friendsList) {
-                    CompletableFuture.runAsync(() -> {
-                        Profile profile = friend.getProfile();
-                        if (!profile.isOnline()) return;
-                        ServerData server = new ServerData(friend.getName() + "'s server", "[" + profile.getConnectAddress() + "]:42069", false);
-                        try {
-                            this.owner.getOldServerPinger().ping(server);
-                        } catch (UnknownHostException var2) {
-                            server.pingToServer = -1L;
-                            server.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_resolve");
-                        } catch (Exception var3) {
-                            server.pingToServer = -1L;
-                            server.serverMOTD = TextFormatting.DARK_RED + I18n.format("multiplayer.status.cannot_connect");
-                        }
-                        if (server.pingToServer > 0) {
-                            addPendingServer(server);
-                        }
-                    }, CreeperHost.otherExecutor);
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            });
+            detectorExecutor = Executors.newSingleThreadScheduledExecutor();
+            detectorExecutor.scheduleAtFixedRate(new FriendDetector(this), 0, 10, TimeUnit.SECONDS);
         }
     }
 
     public synchronized void addOurServer(String address, String friendName) {
-        LanServerInfo lanServerInfo = new LanServerInfo(friendName + "'s world", address);
+        LanServerInfo lanServerInfo = new LanServerInfo(friendName, address);
         //TODO: Use MineTogether connect logo as icon for server?
-        ourLanServers.add(lanServerInfo);
-        oursWasUpdated = true;
+        synchronized (ourLanServers) {
+            ourLanServers.add(lanServerInfo);
+        }
     }
 
     public synchronized void addPendingServer(ServerData data) {
-        pendingFriendServers.add(data);
+        synchronized (pendingFriendServers) {
+             for (ServerData server: pendingFriendServers) {
+                if(data.serverIP.equals(server.serverIP) && data.serverName.equals(server.serverName)) {
+                    return;
+                }
+            }
+            synchronized (ourLanServers) {
+                for (LanServerInfo server: ourLanServers) {
+                    if(data.serverIP.equals(server.getServerIpPort())) {
+                        return;
+                    }
+                }
+            }
+            pendingFriendServers.add(data);
+        }
     }
 
     private long lastCheckTime = System.currentTimeMillis() - 1000;
@@ -89,19 +69,16 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
         if (lastCheckTime + 1000 <= curTime)
         {
             ArrayList<ServerData> removingServers = new ArrayList<>();
-            for(ServerData friendServer : pendingFriendServers)
-            {
-                if (!friendServer.serverMOTD.equals(I18n.format("multiplayer.status.pinging")))
+            synchronized (pendingFriendServers) {
+                for(ServerData friendServer : pendingFriendServers)
                 {
                     removingServers.add(friendServer);
-                    if(!friendServer.serverMOTD.startsWith(TextFormatting.DARK_RED.toString()))
-                    {
-                        addOurServer(friendServer.serverIP, friendServer.serverName);
-                        oursWasUpdated = true;
-                    }
+                    addOurServer(friendServer.serverIP, friendServer.serverName);
+                    oursWasUpdated = true;
                 }
+                pendingFriendServers.removeAll(removingServers);
             }
-            pendingFriendServers.removeAll(removingServers);
+
             lastCheckTime = System.currentTimeMillis();
         }
         return oursWasUpdated || wrapped.getWasUpdated();

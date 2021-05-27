@@ -49,19 +49,7 @@ public class GuiShareToFriends extends GuiShareToLan {
         if (button.id == 101)
         {
             this.mc.displayGuiScreen(null);
-            boolean s = ConnectHelper.shareToFriends(GameType.getByName((String) gameModeString), (Boolean) allowCheatsBoolean);
-            ITextComponent itextcomponent;
-
-            if (s)
-            {
-                itextcomponent = new TextComponentTranslation("minetogether.connect.open.success");
-            }
-            else
-            {
-                itextcomponent = new TextComponentTranslation("minetogether.connect.open.failed");
-            }
-
-            this.mc.ingameGUI.getChatGUI().printChatMessage(itextcomponent);
+            ConnectHelper.shareToFriends(GameType.getByName((String) gameModeString), (Boolean) allowCheatsBoolean);
         } else {
             super.actionPerformed(button);
         }

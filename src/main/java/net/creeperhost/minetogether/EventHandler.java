@@ -168,6 +168,11 @@ public class EventHandler
         }
 
         if(!isOnline) return;
+
+        if (mc.currentScreen instanceof GuiMultiplayer && !(mc.currentScreen instanceof GuiMultiplayerPublic) && FriendsServerList.detectorExecutor != null) {
+            FriendsServerList.detectorExecutor.shutdown();
+            FriendsServerList.detectorExecutor = null;
+        }
         
         if (gui instanceof GuiMainMenu && (Config.getInstance().isServerListEnabled() || Config.getInstance().isChatEnabled())) {
             if (first) {
@@ -394,7 +399,7 @@ public class EventHandler
 
                     // friends stuff
                     LanServerDetector.LanServerList oldLanServerList = (LanServerDetector.LanServerList) lanServerListField.get(mpGUI); // get the old lan server list
-                    lanServerListField.set(mpGUI, new FriendsServerList(oldLanServerList, mpGUI)); // we wrap it because there is a thread which works on the old stuff. Rather than doing more reflection this seemed ok
+                    lanServerListField.set(mpGUI, new FriendsServerList(mpGUI, oldLanServerList)); // we wrap it because there is a thread which works on the old stuff. Rather than doing more reflection this seemed ok
                     ServerListEntryLanScanField.set(ourList, new OurServerListEntryLanScan());//This was far too much work to replace a string
                 } catch (Throwable e)
                 {
