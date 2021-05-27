@@ -32,7 +32,7 @@ public class WebUtils {
             url = uri.toURL();
             // lul
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(10);
+            conn.setConnectTimeout(10000);
             conn.setReadTimeout(timeout);
             conn.setRequestMethod("GET");
 

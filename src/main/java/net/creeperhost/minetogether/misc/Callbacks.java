@@ -469,8 +469,8 @@ public final class Callbacks
                     JsonElement timestamp = ban.getAsJsonObject().get("timestamp");
                     JsonElement reason = ban.getAsJsonObject().get("reason");
 
-                    banID = id.getAsString();
-                    banMessage = reason.getAsString();
+                    banID = id == null ? "" : id.getAsString();
+                    banMessage = reason == null ? "" : reason.getAsString();
                     CreeperHost.profile.getAndUpdate(profile ->
                     {
                         profile.setBanned(banned.getAsBoolean());

@@ -99,7 +99,7 @@ public class Client implements IProxy
     
     boolean isChatReplaced = false;
 
-    private CompletableFuture chatThread = null;
+    public static CompletableFuture chatThread = null;
 
     @Override
     public void startChat()

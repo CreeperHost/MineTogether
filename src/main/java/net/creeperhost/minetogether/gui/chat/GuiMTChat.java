@@ -19,6 +19,7 @@ import net.creeperhost.minetogether.gui.element.GuiButtonMultiple;
 import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.misc.Callbacks;
 import net.creeperhost.minetogether.data.Friend;
+import net.creeperhost.minetogether.proxy.Client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
@@ -152,8 +153,8 @@ public class GuiMTChat extends GuiScreen
             confirmInvite();
             inviteTemp = false;
         }
-        if(ChatHandler.isBannedFuture != null && !ChatHandler.isBannedFuture.isDone()) ChatHandler.isBannedFuture.cancel(true);
-        ChatHandler.isBannedFuture = CompletableFuture.runAsync(() -> isBanned = Callbacks.isBanned(), CreeperHost.otherExecutor);
+
+        isBanned = CreeperHost.profile.get() != null && CreeperHost.profile.get().isBanned();
 
         if(isBanned)
         {
@@ -214,7 +215,7 @@ public class GuiMTChat extends GuiScreen
         if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
             if(!ChatHandler.isInitting.get()) {
-                ChatHandler.reInit();
+                Client.chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance), CreeperHost.profileExecutor); // start in thread as can hold up the UI thread for some reason.
             }
         }
         tickCounter++;
@@ -753,7 +754,7 @@ public class GuiMTChat extends GuiScreen
                 String justNick = splitStr.replaceAll("[^A-Za-z0-9#]", "");
                 if (justNick.startsWith("MT") && justNick.length() >= 16) {
                     if ((CreeperHost.profile.get() != null && (justNick.equals(CreeperHost.profile.get().getShortHash()) || justNick.equals(CreeperHost.profile.get().getMediumHash()))) || justNick.equals(CreeperHost.instance.ourNick)) {
-                        splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + CreeperHost.instance.playerName + messageColour);
+                        splitStr = splitStr.replaceAll(justNick, TextFormatting.RED + CreeperHost.profile.get().userDisplay + messageColour);
                         split[i] = splitStr;
                     } else if(justNick.length() >= 16)
                     {
@@ -805,7 +806,7 @@ public class GuiMTChat extends GuiScreen
                 nickColour = TextFormatting.GRAY;
                 arrowColour = premium.get() ? TextFormatting.GREEN : TextFormatting.GRAY;
                 messageColour = TextFormatting.GRAY;
-                outputNick = Minecraft.getMinecraft().getSession().getUsername();
+                outputNick = CreeperHost.profile.get() != null ? CreeperHost.profile.get().userDisplay : Minecraft.getMinecraft().getSession().getUsername();
                 userComp = new TextComponentString(outputNick);
                 messageComp.getStyle().setColor(TextFormatting.GRAY);//Make own messages 'obvious' but not in your face as they're your own...
             }

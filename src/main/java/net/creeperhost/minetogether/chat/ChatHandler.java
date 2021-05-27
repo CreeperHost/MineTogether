@@ -50,6 +50,10 @@ public class ChatHandler
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
+        Callbacks.isBanned();
+        if(CreeperHost.profile.get() != null && CreeperHost.profile.get().isBanned()) {
+            if(debugHandler.isDebug) logger.debug("Not attempting to connect as use is banned");
+        }
         ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn, _host);
         ChatConnectionHandler.INSTANCE.connect();
         startCleanThread();
@@ -309,6 +313,7 @@ public class ChatHandler
                                 e.printStackTrace();
                             }
                         }
+                        reInit();
                     });
                     return profile1;
                 });

@@ -122,6 +122,7 @@ public class IrcHandler
 
     public static void sendString(String str, boolean errorCount)
     {
+        if (ChatHandler.debugHandler.isDebug) System.out.println("OUT:" + str);
         if(socket.isClosed() || !socket.isConnected()) return;
         if(str.isEmpty()) return;
 
@@ -235,6 +236,7 @@ public class IrcHandler
 
     public static void handleInput(String s)
     {
+        if (ChatHandler.debugHandler.isDebug) System.out.println("IN:" + s);
         if(s.contains(" :Nickname is already in use") && s.contains("433"))
         {
             ChatHandler.reconnectTimer.set(30000);
@@ -334,6 +336,8 @@ public class IrcHandler
                             });
                         }
                     }
+                } else {
+
                 }
             }, CreeperHost.ircEventExecutor);
         } else if(s.contains("JOIN"))
