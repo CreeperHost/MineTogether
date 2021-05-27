@@ -164,6 +164,7 @@ public class ConnectHandler {
         static class Friend {
             private String address;
             private String displayName;
+            private String chosenName;
 
             public String getAddress() {
                 return address;
@@ -171,6 +172,10 @@ public class ConnectHandler {
 
             public String getDisplayName() {
                 return displayName;
+            }
+
+            public String getChosenName() {
+                return chosenName;
             }
         }
     }

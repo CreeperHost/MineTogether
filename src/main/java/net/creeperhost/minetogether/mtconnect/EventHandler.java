@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.mtconnect;
 
-import net.creeperhost.minetogether.CreeperHost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
@@ -11,17 +10,7 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.CompletableFuture;
-
 public class EventHandler {
-
-    public EventHandler() {
-        ConnectHandler.connectToProc();
-    }
-
 
     @SubscribeEvent
     public void guiInit(GuiScreenEvent.InitGuiEvent.Post event) {

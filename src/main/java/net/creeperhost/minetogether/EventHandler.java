@@ -21,6 +21,7 @@ import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiMultiplayerPublic;
 import net.creeperhost.minetogether.irc.IrcHandler;
+import net.creeperhost.minetogether.mtconnect.ConnectHandler;
 import net.creeperhost.minetogether.mtconnect.FriendsServerList;
 import net.creeperhost.minetogether.mtconnect.OurServerListEntryLanScan;
 import net.creeperhost.minetogether.oauth.ServerAuthTest;
@@ -89,6 +90,7 @@ public class EventHandler
     private static NetworkManager lastNetworkManager = null;
     private static Field serverListSelectorField;
     private static Field serverListInternetField;
+    private static Field serverListLanField;
     private static Field lanServerListField;
     private static Field ServerListEntryLanScanField;
     private static int ticks = 0;
@@ -115,7 +117,8 @@ public class EventHandler
 
     public static boolean isOnline = false;
     private static Future<?> onlineCheckFuture;
-    
+    private boolean firstMtConnect = true;
+
     public static NetworkManager getNetworkManager(GuiConnecting con)
     {
         long time = System.currentTimeMillis() + 5000;
@@ -292,6 +295,7 @@ public class EventHandler
         if (firstConnect && gui instanceof GuiMainMenu)
         {
             firstConnect = false;
+
             String server = System.getProperty("mt.server");
             int serverId = -1;
             if (server != null)
@@ -323,6 +327,11 @@ public class EventHandler
         }
 
         if(!isOnline) return;
+        
+        if (firstMtConnect && gui instanceof GuiMainMenu) {
+            ConnectHandler.connectToProc();
+            firstMtConnect = false;
+        }
 
         if (Config.getInstance().isMainMenuEnabled() && gui instanceof GuiMainMenu)
         {
@@ -377,6 +386,12 @@ public class EventHandler
                         serverListInternetField.setAccessible(true);
                     }
 
+                    if (serverListLanField == null)
+                    {
+                        serverListLanField = ReflectionHelper.findField(ServerSelectionList.class, "serverListLan", "field_148199_m", "");
+                        serverListLanField.setAccessible(true);
+                    }
+
                     if (lanServerListField == null)
                     {
                         lanServerListField = ReflectionHelper.findField(GuiMultiplayer.class, "lanServerList", "field_146799_A", "");
@@ -393,11 +408,15 @@ public class EventHandler
                     ServerSelectionList serverListSelector = (ServerSelectionList) serverListSelectorField.get(mpGUI); // Get the old selector
                     List serverListInternet = (List) serverListInternetField.get(serverListSelector); // Get the list from inside it
                     CreeperHostServerSelectionList ourList = new CreeperHostServerSelectionList(mpGUI, Minecraft.getMinecraft(), mpGUI.width, mpGUI.height, 32, mpGUI.height - 64, 36);
-                    ourList.replaceList(serverListInternet);
+                    ourList.replaceOnlineList(serverListInternet);
                     serverListInternetField.set(ourList, serverListInternet);
                     serverListSelectorField.set(mpGUI, ourList);
 
                     // friends stuff
+                    List serverListLan  = (List) serverListLanField.get(serverListSelector);
+                    ourList.replaceNetworkList(serverListLan);
+                    serverListLanField.set(ourList, serverListLan);
+
                     LanServerDetector.LanServerList oldLanServerList = (LanServerDetector.LanServerList) lanServerListField.get(mpGUI); // get the old lan server list
                     lanServerListField.set(mpGUI, new FriendsServerList(mpGUI, oldLanServerList)); // we wrap it because there is a thread which works on the old stuff. Rather than doing more reflection this seemed ok
                     ServerListEntryLanScanField.set(ourList, new OurServerListEntryLanScan());//This was far too much work to replace a string

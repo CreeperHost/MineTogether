@@ -19,11 +19,11 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
     private final LanServerDetector.LanServerList wrapped;
     public static ScheduledExecutorService detectorExecutor;
     private boolean oursWasUpdated;
-    private final List<LanServerInfo> ourLanServers = new ArrayList<>();
+    private final List<LanServerInfoConnect> ourLanServers = new ArrayList<>();
 
     final GuiMultiplayer owner;
 
-    private final List<ServerData> pendingFriendServers = new ArrayList<>();
+    private final List<FriendDetector.PendingFriend> pendingFriendServers = new ArrayList<>();
 
     public FriendsServerList(GuiMultiplayer owner, LanServerDetector.LanServerList wrapped) {
         this.owner = owner;
@@ -35,24 +35,24 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
         }
     }
 
-    public synchronized void addOurServer(String address, String friendName) {
-        LanServerInfo lanServerInfo = new LanServerInfo(friendName, address);
+    public synchronized void addOurServer(FriendDetector.PendingFriend friend) {
+        LanServerInfoConnect lanServerInfo = new LanServerInfoConnect(friend);
         //TODO: Use MineTogether connect logo as icon for server?
         synchronized (ourLanServers) {
             ourLanServers.add(lanServerInfo);
         }
     }
 
-    public synchronized void addPendingServer(ServerData data) {
+    public synchronized void addPendingServer(FriendDetector.PendingFriend data) {
         synchronized (pendingFriendServers) {
-             for (ServerData server: pendingFriendServers) {
-                if(data.serverIP.equals(server.serverIP) && data.serverName.equals(server.serverName)) {
+             for (FriendDetector.PendingFriend server: pendingFriendServers) {
+                if(data.getAddress().equals(server.getAddress())) {
                     return;
                 }
             }
             synchronized (ourLanServers) {
                 for (LanServerInfo server: ourLanServers) {
-                    if(data.serverIP.equals(server.getServerIpPort())) {
+                    if(data.getAddress().equals(server.getServerIpPort())) {
                         return;
                     }
                 }
@@ -68,12 +68,12 @@ public class FriendsServerList extends LanServerDetector.LanServerList {
         long curTime = System.currentTimeMillis();
         if (lastCheckTime + 1000 <= curTime)
         {
-            ArrayList<ServerData> removingServers = new ArrayList<>();
+            ArrayList<FriendDetector.PendingFriend> removingServers = new ArrayList<>();
             synchronized (pendingFriendServers) {
-                for(ServerData friendServer : pendingFriendServers)
+                for(FriendDetector.PendingFriend friendServer : pendingFriendServers)
                 {
                     removingServers.add(friendServer);
-                    addOurServer(friendServer.serverIP, friendServer.serverName);
+                    addOurServer(friendServer);
                     oursWasUpdated = true;
                 }
                 pendingFriendServers.removeAll(removingServers);
