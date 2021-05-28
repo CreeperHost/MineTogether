@@ -99,8 +99,6 @@ public class Client implements IProxy
     
     boolean isChatReplaced = false;
 
-    public static CompletableFuture chatThread = null;
-
     @Override
     public void startChat()
     {
@@ -122,11 +120,7 @@ public class Client implements IProxy
                     CreeperHost.mutedUsers = gson.fromJson(new InputStreamReader(fis), strListToken);
                 } catch (IOException ignored) { }
             }
-            if(chatThread != null) {
-                chatThread.cancel(true);
-                chatThread = null;
-            }
-            chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance), CreeperHost.profileExecutor); // start in thread as can hold up the UI thread for some reason.
+            ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance);
         }
     }
 

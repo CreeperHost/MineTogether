@@ -171,6 +171,8 @@ public class GuiChatOurs extends GuiChat
 
                 }
                 ChatHandler.sendMessage(currentTarget, text);
+            } else if (ChatHandler.isBanned()) {
+                ChatHandler.onNotice("System", "Unable to send message as you are banned. Please open the main MineTogether chat from the pause menu to appeal.");
             }
         }
     }

@@ -171,7 +171,7 @@ public class GuiNewChatOurs extends GuiNewChat
             }
             tickCounter++;
 
-            if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && ChatHandler.isOnline() && updateCounter % 6000 == 0)
+            if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.VERIFYING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.VERIFIED) && ChatHandler.isOnline() && updateCounter % 6000 == 0)
             {
                 rebuildChat(ChatHandler.CHANNEL);
                 if(!ChatHandler.isInitting.get())

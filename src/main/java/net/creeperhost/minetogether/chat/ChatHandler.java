@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -47,16 +48,23 @@ public class ChatHandler
     public static boolean rebuildChat = false;
     public static AtomicReference<List<String>> backupBan = new AtomicReference<>(new ArrayList<>());
     public static CompletableFuture isBannedFuture;
+    private static CompletableFuture<Void> chatThread;
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn, IHost _host)
     {
+        isInitting.set(true);
         Callbacks.isBanned();
         if(CreeperHost.profile.get() != null && CreeperHost.profile.get().isBanned()) {
-            if(debugHandler.isDebug) logger.debug("Not attempting to connect as use is banned");
+            logger.info("Not attempting to connect to MineTogether chat as user is banned");
+            isInitting.set(false);
+            return;
         }
         ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn, _host);
-        ChatConnectionHandler.INSTANCE.connect();
         startCleanThread();
+        if(chatThread != null) {
+            chatThread.cancel(true);
+        }
+        chatThread = CompletableFuture.runAsync(ChatConnectionHandler.INSTANCE::connect, CreeperHost.profileExecutor);
     }
 
     public static void reInit()
@@ -168,7 +176,7 @@ public class ChatHandler
 
     public static boolean isOnline()
     {
-        return connectionStatus == ConnectionStatus.CONNECTED;//connectionStatus == ConnectionStatus.CONNECTED && client != null && client.getChannel(CHANNEL).isPresent();
+        return connectionStatus == ConnectionStatus.VERIFIED || connectionStatus == ConnectionStatus.VERIFYING;//connectionStatus == ConnectionStatus.CONNECTED && client != null && client.getChannel(CHANNEL).isPresent();
     }
 
     public static boolean hasNewMessages(String target)
@@ -197,19 +205,23 @@ public class ChatHandler
         privateChatInvite = null;
     }
 
+    private static AtomicBoolean cleanThreadStarted = new AtomicBoolean(false);
+
     public static void startCleanThread()
     {
-        CompletableFuture.runAsync(() ->
-        {
-            while (true)
+        if (!cleanThreadStarted.get()) {
+            cleanThreadStarted.set(true);
+            CompletableFuture.runAsync(() ->
             {
-                knownUsers.clean();
-                try
-                {
-                    Thread.sleep(30000);
-                } catch (InterruptedException e) { }
-            }
-        }, CreeperHost.profileExecutor);
+                while (true) {
+                    knownUsers.clean();
+                    try {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }, CreeperHost.profileExecutor);
+        }
     }
 
     public static void closePrivateChat()
@@ -300,24 +312,11 @@ public class ChatHandler
                 IrcHandler.stop(true);
                 CreeperHost.profile.getAndUpdate(profile1 ->
                 {
+                    ChatHandler.onNotice("System", "You were banned from the chat.");
                     profile1.setBanned(true);
-                    if (ChatHandler.isBannedFuture != null && !ChatHandler.isBannedFuture.isDone())
-                        ChatHandler.isBannedFuture.cancel(true);
-                    ChatHandler.isBannedFuture = CompletableFuture.runAsync(() ->
-                    {
-                        while (CreeperHost.profile.get().isBanned()) {
-                            Callbacks.isBanned();
-                            try {
-                                Thread.sleep(60000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        reInit();
-                    });
+                    weAreBanned();
                     return profile1;
                 });
-                host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
 
                 host.userBanned(nick);
             } else {
@@ -340,11 +339,35 @@ public class ChatHandler
         }, CreeperHost.ircEventExecutor);
     }
 
+    public static void weAreBanned() {
+        connectionStatus = ConnectionStatus.BANNED;
+        if (ChatHandler.isBannedFuture != null) return;
+        ChatHandler.isBannedFuture = CompletableFuture.runAsync(() ->
+        {
+            while (CreeperHost.profile.get().isBanned()) {
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Callbacks.isBanned();
+            }
+            reInit();
+            ChatHandler.isBannedFuture = null;
+        });
+    }
+
+    public static boolean isBanned() {
+        return CreeperHost.profile.get().isBanned();
+    }
+
     public enum ConnectionStatus
     {
-        CONNECTED("Connected", "GREEN"),
+        VERIFIED("Verified", "GREEN"),
         CONNECTING("Connecting", "GOLD"),
+        VERIFYING("Verifying", "GOLD"),
         DISCONNECTED("Disconnected", "RED"),
+        BANNED("Banned", "BLACK"),
         NOT_IN_CHANNEL("Not in channel", "RED");
 
         public final String display;

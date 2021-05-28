@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.mtconnect;
 
 import com.google.gson.Gson;
+import net.creeperhost.minetogether.CreeperHost;
 
 import java.io.*;
 import java.net.Socket;
@@ -66,7 +67,7 @@ public class ConnectHandler {
                 socket = null;
             } catch (IOException ignored) {
             }
-            e.printStackTrace();
+            CreeperHost.logger.info("Not starting/shutdown MineTogether Connect as helper application is not running");
             ConnectHelper.isEnabled = false;
         }
     }

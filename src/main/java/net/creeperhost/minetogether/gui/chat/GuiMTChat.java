@@ -42,9 +42,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,11 +69,10 @@ public class GuiMTChat extends GuiScreen
     private GuiButton newUserButton;
     private GuiButton disableButton;
     private boolean inviteTemp = false;
-    private String banMessage = "";
-    private ButtonString banButton;
     private GuiButton settingsButton;
     private boolean isBanned = false;
     private String userCount = "over 2 million";
+    private ButtonString statusButton;
 
     public GuiMTChat(GuiScreen parent)
     {
@@ -103,8 +100,6 @@ public class GuiMTChat extends GuiScreen
     {
         Keyboard.enableRepeatEvents(true);
 
-        //Get this data early
-        CompletableFuture.runAsync(Callbacks::getBanMessage, CreeperHost.profileExecutor);
         //Check which friends are online then update the channel list
         CompletableFuture.runAsync(() -> {
             ArrayList<Friend> friends = Callbacks.getFriendsList(false);
@@ -141,6 +136,13 @@ public class GuiMTChat extends GuiScreen
 
         buttonList.add(settingsButton = new GuiButtonMultiple(-80801, width - 124, 5, 3));
 
+        buttonList.add(statusButton = new ButtonString(-80804, 10, height - 20, () -> {
+            ChatHandler.ConnectionStatus status = ChatHandler.connectionStatus;
+            ITextComponent comp = new TextComponentString("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
+            comp.appendSibling(new TextComponentString(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
+            return comp.getFormattedText();
+        }, ButtonString.RenderPlace.EXACT));
+
         reconnectionButton.visible = reconnectionButton.enabled = !(ChatHandler.tries.get() < 5);
 
         buttonList.add(invited = new GuiButton(777, 5 + 70, height - 5 - 20, 60, 20, "Invites"));
@@ -155,14 +157,6 @@ public class GuiMTChat extends GuiScreen
         }
 
         isBanned = CreeperHost.profile.get() != null && CreeperHost.profile.get().isBanned();
-
-        if(isBanned)
-        {
-            banMessage = "";
-            CompletableFuture.runAsync(Callbacks::getBanMessage, CreeperHost.otherExecutor);
-            if(!banMessage.isEmpty())
-                buttonList.add(banButton = new ButtonString(8888, 46, height - 26, TextFormatting.RED + "Ban Reason: " + TextFormatting.WHITE + banMessage));
-        }
 
         if(Config.getInstance().getFirstConnect())
         {
@@ -212,12 +206,12 @@ public class GuiMTChat extends GuiScreen
         super.updateScreen();
         if(tickCounter % 20 == 0) rebuildChat(false);
 
-        if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
+        /*if((ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTING && ChatHandler.connectionStatus != ChatHandler.ConnectionStatus.CONNECTED) && tickCounter % 1200 == 0)
         {
             if(!ChatHandler.isInitting.get()) {
                 Client.chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(CreeperHost.instance.ourNick, CreeperHost.instance.realName, CreeperHost.instance.online, CreeperHost.instance), CreeperHost.profileExecutor); // start in thread as can hold up the UI thread for some reason.
             }
-        }
+        }*/
         tickCounter++;
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
         boolean changed = false;
@@ -247,7 +241,6 @@ public class GuiMTChat extends GuiScreen
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        ChatHandler.ConnectionStatus status = ChatHandler.connectionStatus;
         drawDefaultBackground();
         targetDropdownButton.updateDisplayString();
         chat.drawScreen(mouseX, mouseY, partialTicks);
@@ -274,16 +267,11 @@ public class GuiMTChat extends GuiScreen
                 targetDropdownButton.setSelected(Target.getMainTarget());
         }
         drawCenteredString(fontRendererObj, "MineTogether Chat", width / 2, 5, 0xFFFFFF);
-        ITextComponent comp = new TextComponentString("\u2022").setStyle(new Style().setColor(TextFormatting.getValueByName(status.colour)));
-        comp.appendSibling(new TextComponentString(" " + status.display).setStyle(new Style().setColor(TextFormatting.WHITE)));
         if(ChatHandler.isInChannel.get())
         {
             drawString(fontRendererObj, "Please Contact Support at with your nick " + ChatHandler.nick + " " + new TextComponentString("here").setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:creeperhost.net/contact"))), 10, height - 20, 0xFFFFFF);
         }
-        else if(banMessage.isEmpty())
-        {
-            drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
-        }
+        //drawString(fontRendererObj, comp.getFormattedText(), 10, height - 20, 0xFFFFFF);
 
         if(Config.getInstance().getFirstConnect())
         {
@@ -298,12 +286,12 @@ public class GuiMTChat extends GuiScreen
         super.drawScreen(mouseX, mouseY, partialTicks);
         if (!send.getOurEnabled() && send.isHovered(mouseX, mouseY))
         {
-            drawHoveringText(Arrays.asList(send.getDisabledMessage()), mouseX, mouseY);
+            drawHoveringText(Collections.singletonList(send.getDisabledMessage()), mouseX, mouseY);
         }
 
-        if(banButton != null && banButton.isMouseOver())
+        if(ChatHandler.connectionStatus == ChatHandler.ConnectionStatus.BANNED && statusButton.isMouseOver())
         {
-            drawHoveringText(Arrays.asList("Click here copy Ban-ID to clipboard"), mouseX, mouseY);
+            drawHoveringText(Collections.singletonList("Click here to appeal ban"), mouseX, mouseY);
         }
     }
 
@@ -398,7 +386,7 @@ public class GuiMTChat extends GuiScreen
             {
                 confirmInvite();
             }
-            else if (button == banButton)
+            else if (button == statusButton)
             {
                 Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(Callbacks.banID), null);
                 KeycloakOAuth.openURL(new URL("https://minetogether.io/profile"));

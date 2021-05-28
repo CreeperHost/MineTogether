@@ -474,6 +474,7 @@ public final class Callbacks
                     CreeperHost.profile.getAndUpdate(profile ->
                     {
                         profile.setBanned(banned.getAsBoolean());
+                        if (banned.getAsBoolean()) ChatHandler.weAreBanned();
                         return profile;
                     });
                     return banned.getAsBoolean();
@@ -489,7 +490,6 @@ public final class Callbacks
 
     public static String getBanMessage()
     {
-        if(banMessage == null) isBanned();
         if(banMessage != null) return banMessage;
         return "";
     }
