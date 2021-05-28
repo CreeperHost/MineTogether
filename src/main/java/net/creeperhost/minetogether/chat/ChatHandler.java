@@ -312,7 +312,7 @@ public class ChatHandler
                 IrcHandler.stop(true);
                 CreeperHost.profile.getAndUpdate(profile1 ->
                 {
-                    ChatHandler.onNotice("System", "You were banned from the chat.");
+                    ChatHandler.onNotice("System", "You were banned from the chat. Please open the main MineTogether chat from the pause menu if you wish to appeal.");
                     profile1.setBanned(true);
                     weAreBanned();
                     return profile1;
@@ -348,9 +348,12 @@ public class ChatHandler
                 try {
                     Thread.sleep(60000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
                 Callbacks.isBanned();
+            }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
             }
             reInit();
             ChatHandler.isBannedFuture = null;
