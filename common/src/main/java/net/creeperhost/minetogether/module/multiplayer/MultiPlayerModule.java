@@ -84,10 +84,11 @@ public class MultiPlayerModule
                 cancel.setWidth(cancel.getWidth() - 2);
             }
 
-            ScreenHooks.addButton(multiplayerScreen, new ButtonMultiple(multiplayerScreen.width / 2 + 134, multiplayerScreen.height - 52, 2, p ->
+            if(!(multiplayerScreen instanceof JoinMultiplayerScreenPublic))
             {
-                Minecraft.getInstance().setScreen(new JoinMultiplayerScreen(new TitleScreen()));
-            }));
+                ScreenHooks.addButton(multiplayerScreen, new ButtonMultiple(multiplayerScreen.width / 2 + 134, multiplayerScreen.height - 52, 2,
+                        p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
+            }
 
             ScreenHooks.addButton(multiplayerScreen, new Button(multiplayerScreen.width / 2 - 50, multiplayerScreen.height - 52, 78, 20, new TranslatableComponent("minetogether.button.minigames"), p ->
             {

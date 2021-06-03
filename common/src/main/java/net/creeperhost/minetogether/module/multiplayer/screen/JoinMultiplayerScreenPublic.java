@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.module.multiplayer.data.ServerDataPublic;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerListType;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerSortOrder;
 import net.creeperhost.minetogethergui.ScreenHelpers;
+import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogetherlib.serverlists.Server;
 import net.creeperhost.minetogetherlib.serverlists.ServerListCallbacks;
@@ -17,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -88,7 +90,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
         {
 //            if (sortOrder != sortOrderButton.getSelected())
 //            {
-//                changeSort = true;
+////                changeSort = true;
 //                sortOrder = sortOrderButton.getSelected();
 //                sort();
 //                minecraft.setScreen(new JoinMultiplayerScreenPublic(parent, serverListType, sortOrder));
@@ -101,9 +103,8 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
 
         editButton = ScreenHelpers.findButton("selectServer.edit", buttons);
         deleteButton = ScreenHelpers.findButton("selectServer.delete", buttons);
-
-        //TODO replace the refresh button with to just refresh the server list
-        //TODO replace the cancel button to return and not send to main menu
+        addButton(new ButtonMultiple(width / 2 + 134, height - 52, 2,
+                p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(new TitleScreen(), serverListType, serverSortOrder))));
     }
 
     @Override
