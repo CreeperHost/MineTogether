@@ -2,11 +2,12 @@ package net.creeperhost.minetogetherlib.chat;
 
 public enum ChatConnectionStatus
 {
-    CONNECTED("Connected", "GREEN"),
+    VERIFIED("Verified", "GREEN"),
     CONNECTING("Connecting", "GOLD"),
+    VERIFYING("Verifying", "GOLD"),
     DISCONNECTED("Disconnected", "RED"),
-    NOT_IN_CHANNEL("Not in channel", "RED"),
-    BANNED("Banned", "BLACK");
+    BANNED("Banned", "BLACK"),
+    NOT_IN_CHANNEL("Not in channel", "RED");
 
     public final String display;
     public final String colour;

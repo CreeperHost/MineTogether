@@ -161,7 +161,7 @@ public class ChatHandler
 
     public static boolean isOnline()
     {
-        return connectionStatus == ChatConnectionStatus.CONNECTED;
+        return connectionStatus == ChatConnectionStatus.VERIFIED;
     }
     
     public static boolean hasNewMessages(String target)

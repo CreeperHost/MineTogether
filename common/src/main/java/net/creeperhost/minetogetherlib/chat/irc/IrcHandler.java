@@ -66,7 +66,7 @@ public class IrcHandler
                         {
                             sendString("PONG " + line.substring(5) + "\r\n", true);
                             if(first.get()) {
-                                ChatHandler.connectionStatus = ChatConnectionStatus.CONNECTED;
+                                ChatHandler.connectionStatus = ChatConnectionStatus.VERIFIED;
                                 sendString("USER " + "MineTogether" + " 8 * :" + MineTogetherChat.INSTANCE.realName, true);//"MineTogether" + " 8 * :" + "{\"p\":\"m35\",\"b\":\"MzUxNzQ\\u003d\"}");
                                 sendString("JOIN " + ircServer.channel, true);
                                 first.getAndSet(false);
@@ -172,7 +172,7 @@ public class IrcHandler
 
     public static void whois(String nick)
     {
-        if(ChatHandler.connectionStatus != ChatConnectionStatus.CONNECTED) return;
+        if(ChatHandler.connectionStatus != ChatConnectionStatus.VERIFIED) return;
         if(nick.length() < 28) return;
 
         sendString("WHOIS " + nick, false);
