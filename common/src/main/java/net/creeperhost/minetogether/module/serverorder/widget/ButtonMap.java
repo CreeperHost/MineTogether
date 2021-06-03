@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.module.serverorder.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.minecraft.client.Minecraft;
@@ -48,7 +49,7 @@ public class ButtonMap extends Button
 
         Minecraft minecraft = Minecraft.getInstance();
 
-        ResourceLocation map = new ResourceLocation(MineTogether.MOD_ID, "textures/map/" + buttonText + ".png");
+        ResourceLocation map = new ResourceLocation(Constants.MOD_ID, "textures/map/" + buttonText + ".png");
         minecraft.getTextureManager().bind(map);
 
         if(isHovered())

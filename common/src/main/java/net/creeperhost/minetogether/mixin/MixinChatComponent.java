@@ -19,13 +19,16 @@ import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -35,21 +38,9 @@ import java.util.List;
 @Mixin(ChatComponent.class)
 public abstract class MixinChatComponent
 {
-    @Shadow private Minecraft minecraft;
-    @Shadow private int chatScrollbarPos;
-    @Shadow protected abstract boolean isChatHidden();
-    @Shadow protected abstract void processPendingMessages();
-    @Shadow public abstract int getLinesPerPage();
-    @Shadow protected abstract boolean isChatFocused();
-    @Shadow public abstract double getScale();
     @Shadow public abstract int getWidth();
 
-    @Shadow
-    private static double getTimeFactor(int i)
-    {
-        return 0;
-    }
-
+    @Shadow @Final private List<GuiMessage<FormattedCharSequence>> trimmedMessages;
     private List<GuiMessage<FormattedCharSequence>> mtChatMessages;
 
     @Inject(at=@At("HEAD"), method="processPendingMessages", cancellable = true)
@@ -58,77 +49,20 @@ public abstract class MixinChatComponent
         updateList();
     }
 
-    @Inject(at=@At("HEAD"), method="render", cancellable = true)
-    public void render(PoseStack poseStack, int i, CallbackInfo ci)
+    @Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
+    private List<GuiMessage<FormattedCharSequence>> trimmedMessages(ChatComponent chatComponent)
     {
-        if(ChatModule.showMTChat)
-        {
-            if (!isChatHidden())
-            {
-                processPendingMessages();
-                int j = getLinesPerPage();
-                int k = this.mtChatMessages.size();
-                if (k > 0)
-                {
-                    boolean bl = false;
-                    if (isChatFocused()) bl = true;
-
-                    double d = getScale();
-                    int l = Mth.ceil((double) getWidth() / d);
-                    RenderSystem.pushMatrix();
-                    RenderSystem.translatef(2.0F, 8.0F, 0.0F);
-                    RenderSystem.scaled(d, d, 1.0D);
-                    double e = this.minecraft.options.chatOpacity * 0.8999999761581421D + 0.10000000149011612D;
-                    double f = this.minecraft.options.textBackgroundOpacity;
-                    double g = 9.0D * (this.minecraft.options.chatLineSpacing + 1.0D);
-                    double h = -8.0D * (this.minecraft.options.chatLineSpacing + 1.0D) + 4.0D * this.minecraft.options.chatLineSpacing;
-                    int m = 0;
-
-                    int n;
-                    int y;
-                    int ab;
-                    int ac;
-                    for (n = 0; n + this.chatScrollbarPos < this.mtChatMessages.size() && n < j; ++n)
-                    {
-                        GuiMessage<FormattedCharSequence> guiMessage = (GuiMessage) this.mtChatMessages.get(n + this.chatScrollbarPos);
-                        if (guiMessage != null)
-                        {
-                            y = i - guiMessage.getAddedTime();
-                            if (y < 200 || bl) {
-                                double p = bl ? 1.0D : getTimeFactor(y);
-                                ab = (int) (255.0D * p * e);
-                                ac = (int) (255.0D * p * f);
-                                ++m;
-                                if (ab > 3)
-                                {
-                                    double t = (double) (-n) * g;
-                                    poseStack.pushPose();
-                                    poseStack.translate(0.0D, 0.0D, 50.0D);
-                                    Screen.fill(poseStack, -2, (int) (t - g), 0 + l + 4, (int) t, ac << 24);
-                                    RenderSystem.enableBlend();
-                                    poseStack.translate(0.0D, 0.0D, 50.0D);
-                                    this.minecraft.font.drawShadow(poseStack, (FormattedCharSequence) guiMessage.getMessage(), 0.0F, (float) ((int) (t + h)), 16777215 + (ab << 24));
-                                    RenderSystem.disableAlphaTest();
-                                    RenderSystem.disableBlend();
-                                    poseStack.popPose();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            RenderSystem.popMatrix();
-            //return here to allow vanilla render to take over in commands tab
-            ci.cancel();
-        }
+        return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
     }
 
     public void updateList()
     {
-        try {
-            LimitedSizeQueue<Message> temp;
-            if (ChatHandler.messages == null || ChatHandler.messages.isEmpty()) return;
-            temp = ChatHandler.messages.get(ChatHandler.CHANNEL);
+        if(!ChatModule.showMTChat) return;
+        if (ChatHandler.messages == null || ChatHandler.messages.isEmpty()) return;
+
+        try
+        {
+            LimitedSizeQueue<Message> temp = ChatHandler.messages.get(ChatHandler.CHANNEL);
             List<FormattedCharSequence> lines = new ArrayList<>();
             List<GuiMessage<FormattedCharSequence>> newLines = new ArrayList<>();
             //There must be a better way of doing this but brain go brrr....
@@ -141,6 +75,7 @@ public abstract class MixinChatComponent
                 if (formattedCharSequence == null) continue;
                 newLines.add(new GuiMessage<>(0, formattedCharSequence, 0));
             }
+//            mtChatMessages = Lists.reverse(newLines);
             mtChatMessages = Lists.reverse(newLines);
         } catch (Exception e)
         {

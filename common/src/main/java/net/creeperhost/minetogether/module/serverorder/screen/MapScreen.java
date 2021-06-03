@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.module.serverorder.widget.ButtonMap;
 import net.creeperhost.minetogetherlib.Order;
@@ -16,12 +17,11 @@ import java.util.Map;
 
 public class MapScreen extends OrderServerScreen
 {
-    private final ResourceLocation siv = new ResourceLocation(MineTogether.MOD_ID, "textures/guisiv.png");
+    private final ResourceLocation siv = new ResourceLocation(Constants.MOD_ID, "textures/guisiv.png");
     private Button currentFocus;
     private Map<String, String> regions;
     private Map<String, String> dataCenters;
     private String distance = "";
-    private String mapButtonPath = MineTogether.MOD_ID + "textures/map/";
 
     public MapScreen(int stepId, Order order)
     {

@@ -11,12 +11,11 @@ import java.nio.file.Path;
 
 public class MineTogether
 {
-    public static final String MOD_ID = "minetogether";
     public static Logger logger = LogManager.getLogger();
 
     public static void init()
     {
-        Path configFile = Platform.getConfigFolder().resolve(MOD_ID + ".json");
+        Path configFile = Platform.getConfigFolder().resolve(Constants.MOD_ID + ".json");
         Config.init(configFile.toFile());
     }
 

@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.chat.screen.listentries;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
 import net.creeperhost.minetogethergui.lists.ScreenList;
@@ -22,7 +23,7 @@ public class ListEntryFriend extends ScreenListEntry
     private boolean wasHovering;
     private final String cross = new String(Character.toChars(10006));
     private final int crossWidth = Minecraft.getInstance().font.width(cross);
-    private final ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(MineTogether.MOD_ID, "textures/icon2.png");
+    private final ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(Constants.MOD_ID, "textures/icon2.png");
 
     public ListEntryFriend(FriendsListScreen friendsListScreen, ScreenList screenList, Friend friend)
     {

@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.multiplayer.data;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.mixin.MixinSelectionList;
@@ -18,11 +19,11 @@ import net.minecraft.resources.ResourceLocation;
 public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEntry
 {
     private final Minecraft mc = Minecraft.getInstance();
-    private final ResourceLocation serverIcon = new ResourceLocation(MineTogether.MOD_ID, "textures/creeperhost.png");
+    private final ResourceLocation serverIcon = new ResourceLocation(Constants.MOD_ID, "textures/creeperhost.png");
     private float transparency = 0.5F;
     private final String cross = new String(Character.toChars(10006));
     private final int stringWidth;
-    protected final ResourceLocation BUTTON_TEXTURES = new ResourceLocation(MineTogether.MOD_ID, "textures/hidebtn.png");
+    protected final ResourceLocation BUTTON_TEXTURES = new ResourceLocation(Constants.MOD_ID, "textures/hidebtn.png");
     private ServerSelectionList serverSelectionList;
 
     public CreeperHostServerEntry(ServerSelectionList serverSelectionList)

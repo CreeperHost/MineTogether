@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogethergui.widgets.TextFieldValidate;
 import net.creeperhost.minetogetherlib.Order;
@@ -18,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class GeneralServerInfoScreen extends OrderServerScreen
 {
-    private static final ResourceLocation lockIcon = new ResourceLocation(MineTogether.MOD_ID, "textures/lock.png");
+    private static final ResourceLocation lockIcon = new ResourceLocation(Constants.MOD_ID, "textures/lock.png");
     private String message = "Name can not be blank";
     private EditBox nameField;
     private boolean isAcceptable = false;

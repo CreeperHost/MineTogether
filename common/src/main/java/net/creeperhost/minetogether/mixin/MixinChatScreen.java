@@ -51,6 +51,7 @@ public class MixinChatScreen extends Screen
         if(ChatModule.showMTChat)
         {
             ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
+            Minecraft.getInstance().gui.getChat().addRecentChat(string);
             return;
         }
         super.sendMessage(string);
