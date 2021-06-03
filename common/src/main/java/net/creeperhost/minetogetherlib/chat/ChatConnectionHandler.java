@@ -17,13 +17,10 @@ public class ChatConnectionHandler
         ChatHandler.online = onlineIn;
         ChatHandler.realName = realNameIn;
         ChatHandler.initedString = nickIn;
-//        ChatHandler.host = _host;
         ChatHandler.nick = nickIn;
         ChatHandler.IRC_SERVER = ChatUtil.getIRCServerDetails();
         ChatHandler.CHANNEL = ChatHandler.online ? ChatHandler.IRC_SERVER.channel : "#SuperSpecialPirateClub";
-//        ChatHandler.host.updateChatChannel();
         ChatHandler.tries.set(0);
-//        banned = MineTogether.instance.isBanned.get();
     }
 
     public synchronized void connect()

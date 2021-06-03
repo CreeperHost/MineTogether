@@ -290,7 +290,6 @@ public class ChatHandler
         {
             if (nick.equalsIgnoreCase(ChatHandler.nick)) {
                 // it be us
-//                ChatHandler.host.userBanned(nick);
                 IrcHandler.stop(true);
                 MineTogetherChat.profile.getAndUpdate(profile1 ->
                 {
@@ -300,7 +299,7 @@ public class ChatHandler
                     ChatHandler.isBannedFuture = CompletableFuture.runAsync(() ->
                     {
                         while (MineTogetherChat.profile.get().isBanned()) {
-//                            ChatCallbacks.isBanned();
+                            ChatCallbacks.isBanned(MineTogetherChat.INSTANCE.uuid);
                             try {
                                 Thread.sleep(60000);
                             } catch (InterruptedException e) {

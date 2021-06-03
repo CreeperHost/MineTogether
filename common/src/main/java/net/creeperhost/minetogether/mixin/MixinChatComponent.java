@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.mixin;
 
 import com.google.common.collect.Lists;
+import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
@@ -56,7 +57,7 @@ public abstract class MixinChatComponent
             List<GuiMessage<FormattedCharSequence>> newLines = new ArrayList<>();
             //There must be a better way of doing this but brain go brrr....
             for (Message message : temp) {
-                Component component = ChatScreen.formatLine(message);
+                Component component = ChatFormatter.formatLine(message);
                 if (component == null) continue;
                 lines.addAll(ComponentRenderUtils.wrapComponents(component, Minecraft.getInstance().gui.getChat().getWidth() - 10, Minecraft.getInstance().font));
             }
