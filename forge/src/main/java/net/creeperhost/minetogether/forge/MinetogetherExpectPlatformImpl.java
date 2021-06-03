@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.forge;
 
-import net.creeperhost.minetogether.MinetogetherExpectPlatform;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.nio.file.Path;
