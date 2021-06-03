@@ -76,15 +76,6 @@ public class ChatScreen extends Screen
         send.setFocus(true);
         send.setMaxLength(256);
 
-        try {
-//            gifImage = AnimatedGif.fromPath(Paths.get("C:\\Users\\TravisN\\Documents\\dev\\Architectury\\MineTogether\\common\\src\\main\\resources\\assets\\minetogether\\textures\\giphy.gif"));
-//            gifImage = AnimatedGif.fromURL(new URL("https://i.pinimg.com/originals/61/65/cb/6165cba36c16381449d0be75d2d6a85c.gif"));
-
-        }catch (Exception e)
-        {
-            e.printStackTrace();;
-        }
-
         addButtons();
         super.init();
     }
@@ -699,10 +690,7 @@ public class ChatScreen extends Screen
                 {
                     minecraft.font.draw(poseStack, component, 10 + oldTotal, getRowTop(index), 0xFFFFFF);
                 }
-            } catch (Exception e)
-            {
-//                e.printStackTrace();
-            }
+            } catch (Exception ignored) {}
         }
 
         @Override
