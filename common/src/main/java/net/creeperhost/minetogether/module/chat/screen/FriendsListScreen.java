@@ -54,6 +54,7 @@ public class FriendsListScreen extends Screen
 
         addButtons();
         searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height -32, 160, 20, new TranslatableComponent(""));
+        searchEntry.setSuggestion("Search");
         children.add(list);
         children.add(searchEntry);
         refreshFriendsList(true);
@@ -217,6 +218,7 @@ public class FriendsListScreen extends Screen
     {
         if(searchEntry.isFocused())
         {
+            searchEntry.setSuggestion("");
             boolean flag = searchEntry.keyPressed(i, j, k);
             refreshFriendsList(false);
             return flag;
