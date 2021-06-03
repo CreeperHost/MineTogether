@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.mixin;
 
 import net.creeperhost.minetogether.module.chat.ChatModule;
-import net.creeperhost.minetogether.module.chat.screen.GuiButtonPair;
+import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.MathHelper;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.minecraft.client.Minecraft;
