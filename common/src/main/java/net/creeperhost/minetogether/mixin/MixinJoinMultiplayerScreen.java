@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.mixin;
 
 import net.creeperhost.minetogether.module.connect.FriendsServerList;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.server.LanServer;
@@ -16,6 +17,9 @@ import java.util.List;
 @Mixin(JoinMultiplayerScreen.class)
 public abstract class MixinJoinMultiplayerScreen {
     @Shadow protected ServerSelectionList serverSelectionList;
+    @Shadow private Button selectButton;
+    @Shadow private Button deleteButton;
+    @Shadow private Button editButton;
     FriendsServerList friendsServerList = null;
     private boolean applicableCache = false;
     private boolean isApplicableCached = false;

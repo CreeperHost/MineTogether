@@ -12,6 +12,7 @@ import net.creeperhost.minetogether.module.connect.ConnectModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
 import net.creeperhost.minetogether.screen.OfflineScreen;
+import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
@@ -34,6 +35,7 @@ public class MineTogetherClient
     public static ToastHandler toastHandler;
     private static MineTogetherChat mineTogetherChat;
     private static boolean isOnlineUUID = false;
+    public static String base64 = "";
 
     public static void init()
     {
@@ -52,7 +54,7 @@ public class MineTogetherClient
         String ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
         UUID uuid = getUUID();
         boolean online = isOnlineUUID;
-        String realName = "{\"p\": \"-1\"}";
+        String realName = new ModPackVerifier().verify();//"{\"p\": \"-1\"}";
         String signature = new SignatureVerifier().verify();
         String serverID = getServerIDAndVerify();
 

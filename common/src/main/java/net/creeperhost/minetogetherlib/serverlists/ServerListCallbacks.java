@@ -328,7 +328,7 @@ public class ServerListCallbacks
         return null;
     }
 
-    public static List<Server> getServerList(Enum listType)
+    public static List<Server> getServerList(Enum listType, UUID uuid, String base64, String curseID)
     {
         if (serverListCache == null)
         {
@@ -353,16 +353,16 @@ public class ServerListCallbacks
                     }
 
                     Map<String, String> jsonPass = new HashMap<String, String>();
-//                    jsonPass.put("projectid", MineTogether.instance.base64 == null ? Config.getInstance().curseProjectID : MineTogether.instance.base64);
-//                    if (enumOrdinal == 1)
-//                    {
-//                        if (playerHash == null)
-//                        {
-//                            playerHash = ChatCallbacks.getPlayerHash(MineTogether.proxy.getUUID());
-//                        }
-//
-//                        jsonPass.put("hash", playerHash);
-//                    }
+                    jsonPass.put("projectid", base64 == null ? curseID : base64);
+                    if (enumOrdinal == 1)
+                    {
+                        if (playerHash == null)
+                        {
+                            playerHash = ChatCallbacks.getPlayerHash(uuid);
+                        }
+
+                        jsonPass.put("hash", playerHash);
+                    }
 
                     jsonPass.put("listType", listType.name().toLowerCase());
 

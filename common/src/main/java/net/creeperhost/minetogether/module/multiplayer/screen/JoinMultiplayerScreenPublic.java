@@ -1,6 +1,11 @@
 package net.creeperhost.minetogether.module.multiplayer.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.mixin.MixinJoinMultiplayerScreen;
+import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerDataPublic;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerListType;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerSortOrder;
@@ -9,6 +14,7 @@ import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogetherlib.serverlists.Server;
 import net.creeperhost.minetogetherlib.serverlists.ServerListCallbacks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -28,6 +34,10 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
     private ServerSortOrder serverSortOrder;
     private boolean loadingSevers = false;
     private int ticks;
+    private DropdownButton dropdownButton;
+    private AbstractWidget editButton;
+    private AbstractWidget deleteButton;
+
 
     public JoinMultiplayerScreenPublic(Screen parent, ServerListType serverListType, ServerSortOrder serverSortOrder)
     {
@@ -54,7 +64,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
     {
         loadingSevers = true;
         ServerList serverList = new ServerList(Minecraft.getInstance());
-        List<Server> list = ServerListCallbacks.getServerList(serverListType);
+        List<Server> list = ServerListCallbacks.getServerList(serverListType, MineTogetherClient.getUUID(), MineTogetherClient.base64, Config.getInstance().getCurseProjectID());
         for(Server server : list)
         {
             serverList.add(new ServerDataPublic(server));
@@ -64,6 +74,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
         loadingSevers = false;
     }
 
+    @SuppressWarnings("unchecked")
     public void addButtons()
     {
         String buttonName = "minetogether.multiplayer.title.prefix." + serverListType.name().toLowerCase();
@@ -73,7 +84,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
             minecraft.setScreen(new ServerTypeScreen(this));
         }));
 
-        addButton(new DropdownButton<>(width - 165, 5, 80, 20, new TranslatableComponent("minetogether.multiplayer.sort"), sortOrder, false, p ->
+        addButton(dropdownButton = new DropdownButton<>(width - 165, 5, 80, 20, new TranslatableComponent("minetogether.multiplayer.sort"), sortOrder, false, p ->
         {
 //            if (sortOrder != sortOrderButton.getSelected())
 //            {
@@ -83,6 +94,14 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
 //                minecraft.setScreen(new JoinMultiplayerScreenPublic(parent, serverListType, sortOrder));
 //            }
         }));
+        //Set the button to the correct state
+        try {
+            dropdownButton.setSelected(sortOrder);
+        } catch (Exception ignored) {}
+
+        editButton = ScreenHelpers.findButton("selectServer.edit", buttons);
+        deleteButton = ScreenHelpers.findButton("selectServer.delete", buttons);
+
         //TODO replace the refresh button with to just refresh the server list
         //TODO replace the cancel button to return and not send to main menu
     }
@@ -101,12 +120,18 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
     }
 
     @Override
-    public void tick()
+    public void onSelectedChange()
     {
-//        super.tick();
-        ticks++;
+        super.onSelectedChange();
+        if(editButton != null) editButton.active = false;
+        if(deleteButton != null) deleteButton.active = false;
     }
 
+    @Override
+    public void tick()
+    {
+        ticks++;
+    }
 
     public void sort()
     {
