@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.mixin;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
@@ -39,11 +40,23 @@ public abstract class MixinChatComponent
         updateList();
     }
 
+    @Inject(at=@At("HEAD"), method="render", cancellable = true)
+    public void render(PoseStack poseStack, int i, CallbackInfo ci)
+    {
+
+    }
+
     @Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<FormattedCharSequence>> trimmedMessages(ChatComponent chatComponent)
     {
         return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
     }
+
+//    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiComponent;fill(Lcom/mojang/blaze3d/vertex/PoseStack;IIIII)V"))
+//    private static void fill(PoseStack poseStack, int i, int j, int k, int l, int m)
+//    {
+//
+//    }
 
     public void updateList()
     {
@@ -65,11 +78,10 @@ public abstract class MixinChatComponent
                 if (formattedCharSequence == null) continue;
                 newLines.add(new GuiMessage<>(0, formattedCharSequence, 0));
             }
-//            mtChatMessages = Lists.reverse(newLines);
             mtChatMessages = Lists.reverse(newLines);
         } catch (Exception e)
         {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 }

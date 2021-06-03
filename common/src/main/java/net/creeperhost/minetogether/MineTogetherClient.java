@@ -1,6 +1,9 @@
 package net.creeperhost.minetogether;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.architectury.event.events.GuiEvent;
 import net.creeperhost.minetogether.handler.ToastHandler;
@@ -38,11 +41,14 @@ public class MineTogetherClient
         GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
         GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
         ConnectModule.init();
+        if(!checkOnline()) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
+
         buildChat();
     }
 
     public static void buildChat()
     {
+        MineTogether.logger.info("Building MineTogether chat");
         String ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
         UUID uuid = getUUID();
         boolean online = isOnlineUUID;
@@ -77,6 +83,25 @@ public class MineTogetherClient
             mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
         } catch (AuthenticationException e) { return null; }
         return serverId;
+    }
+
+    public static boolean checkOnline()
+    {
+        YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Minecraft.getInstance().getProxy(), UUID.randomUUID().toString());
+        YggdrasilMinecraftSessionService sessionService = (YggdrasilMinecraftSessionService) authService.createMinecraftSessionService();
+        User session = Minecraft.getInstance().getUser();
+        GameProfile profile = session.getGameProfile();
+        String token = session.getAccessToken();
+        String serverId = UUID.randomUUID().toString();
+        try
+        {
+            sessionService.joinServer(profile, token, serverId);
+            GameProfile gameProfile = sessionService.hasJoinedServer(profile, serverId, null);
+            return gameProfile != null && gameProfile.isComplete();
+        } catch (AuthenticationException ignored)
+        {
+        }
+        return false;
     }
 
     private static void onScreenRender(Screen screen, PoseStack poseStack, int i, int i1, float part)

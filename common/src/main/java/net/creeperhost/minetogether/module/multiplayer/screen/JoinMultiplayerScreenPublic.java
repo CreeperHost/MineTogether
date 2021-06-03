@@ -103,7 +103,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
     @Override
     public void tick()
     {
-        super.tick();
+//        super.tick();
         ticks++;
     }
 
