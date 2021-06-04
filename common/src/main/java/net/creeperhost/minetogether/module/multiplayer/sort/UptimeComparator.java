@@ -5,11 +5,13 @@ import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 
 import java.util.Comparator;
 
-public class ServerNameComparator implements Comparator<ServerSelectionList.Entry>
+public class UptimeComparator implements Comparator<ServerSelectionList.Entry>
 {
-    public static final ServerNameComparator INSTANCE = new ServerNameComparator();
+    public static final UptimeComparator INSTANCE = new UptimeComparator();
 
-    private ServerNameComparator() {}
+    private UptimeComparator()
+    {
+    }
 
     @Override
     public int compare(ServerSelectionList.Entry o1, ServerSelectionList.Entry o2)
@@ -17,14 +19,8 @@ public class ServerNameComparator implements Comparator<ServerSelectionList.Entr
         PublicServerEntry p1 = (PublicServerEntry) o1;
         PublicServerEntry p2 = (PublicServerEntry) o2;
 
-        String str1 = p1.getServerData().name;
-        String str2 = p2.getServerData().name;
-
-        int res = String.CASE_INSENSITIVE_ORDER.compare(str1, str2);
-        if (res == 0)
-        {
-            res = str1.compareTo(str2);
-        }
-        return res;
+        return p1.getServerData().server.uptime > p2.getServerData().server.uptime ? -1
+                : p1.getServerData().server.uptime < p2.getServerData().server.uptime ? 1
+                : 0;
     }
 }

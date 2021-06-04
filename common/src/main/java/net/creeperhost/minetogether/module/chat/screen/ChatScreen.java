@@ -92,6 +92,7 @@ public class ChatScreen extends Screen
 //                IrcHandler.sendString("JOIN " + privateChat.getChannelname(), true);
             }
         }));
+        targetDropdownButton.setSelected(Target.getMainTarget());
         List<String> strings = new ArrayList<>();
         strings.add("Mute");
         strings.add("Add friend");

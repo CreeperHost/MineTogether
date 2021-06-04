@@ -54,7 +54,7 @@ public class MineTogetherClient
         String ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
         UUID uuid = getUUID();
         boolean online = isOnlineUUID;
-        String realName = new ModPackVerifier().verify();//"{\"p\": \"-1\"}";
+        String realName = new ModPackVerifier().verify();
         String signature = new SignatureVerifier().verify();
         String serverID = getServerIDAndVerify();
 
