@@ -26,21 +26,25 @@ import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.*;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -136,9 +140,28 @@ public class ChatScreen extends Screen
         {
             this.minecraft.setScreen(parent);
         }));
-        addButton(connectionStatus = new ButtonString(5, height - 26, 70, 20, new TranslatableComponent(""), p ->
+        addButton(connectionStatus = new ButtonString(8, height - 20, 70, 20, () ->
         {
+            ChatConnectionStatus status = ChatHandler.connectionStatus;
+            return new TranslatableComponent(ChatFormatting.getByName(status.colour) + "\u2022" + " " + ChatFormatting.WHITE + status.display);
+        }, ButtonString.RenderPlace.EXACT, button ->
+        {
+            if(ChatHandler.connectionStatus == ChatConnectionStatus.BANNED)
+            {
+                ConfirmScreen confirmScreen = new ConfirmScreen(t ->
+                {
+                    if(t)
+                    {
+                        try
+                        {
+                            Util.getPlatform().openUrl(new URL("https://minetogether.io/profile/standing"));
+                        } catch (MalformedURLException e) { e.printStackTrace(); }
+                    }
+                    minecraft.setScreen(this);
+                }, new TranslatableComponent("minetogether.bannedscreen.line1"), new TranslatableComponent("minetogether.bannedscreen.line2"));
 
+                minecraft.setScreen(confirmScreen);
+            }
         }));
     }
 
@@ -277,9 +300,7 @@ public class ChatScreen extends Screen
                 Profile targetProfile = knownUsers.findByNick(chatInternalName);
                 if(targetProfile == null) targetProfile = knownUsers.add(chatInternalName);
 
-                //TODO
-//                Minecraft.getInstance().displayGuiScreen(new ChatFriendScreen(this, MineTogether.instance.playerName, targetProfile, friendCode, friendName, true));
-
+                Minecraft.getInstance().setScreen(new FriendRequestScreen(this, Minecraft.getInstance().getUser().getName(), targetProfile, friendCode, friendName, true));
                 return true;
             }
             boolean friends = false;
