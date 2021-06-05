@@ -3,16 +3,16 @@
   "id": "minetogether",
   "version": "${version}",
   "name": "Minetogether",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "",
   "authors": [
-    "Me!"
+    "Gigabit101, CreeperHost!"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/CreeperHost/MineTogether",
+    "sources": "https://github.com/CreeperHost/MineTogether/issues"
   },
   "license": "Insert License Here",
-  "icon": "assets/examplemod/icon.png",
+  "icon": "",
   "environment": "*",
   "entrypoints": {
     "main": [
