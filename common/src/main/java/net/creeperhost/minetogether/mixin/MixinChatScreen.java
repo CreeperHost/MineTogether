@@ -1,11 +1,14 @@
 package net.creeperhost.minetogether.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.MathHelper;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
@@ -15,6 +18,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -77,7 +81,8 @@ public abstract class MixinChatScreen extends Screen
         if(ChatModule.showMTChat)
         {
             ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
-            Minecraft.getInstance().gui.getChat().addRecentChat(string);
+            //TODO stop this from logging sent messages
+            Minecraft.getInstance().gui.getChat().addMessage(ChatFormatter.formatLine(new Message(0, MineTogetherChat.INSTANCE.ourNick, string)));
             return;
         }
         super.sendMessage(string);

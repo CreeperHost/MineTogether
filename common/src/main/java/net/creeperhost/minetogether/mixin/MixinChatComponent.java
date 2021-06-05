@@ -30,21 +30,26 @@ import java.util.List;
 public abstract class MixinChatComponent
 {
     @Shadow public abstract int getWidth();
-
     @Shadow @Final private List<GuiMessage<FormattedCharSequence>> trimmedMessages;
-    private List<GuiMessage<FormattedCharSequence>> mtChatMessages;
+    @Shadow @Final private List<GuiMessage<Component>> allMessages;
 
-    @Inject(at=@At("HEAD"), method="processPendingMessages", cancellable = true)
+    @Shadow protected abstract void addMessage(Component component, int i, int j, boolean bl);
+
+    private List<GuiMessage<FormattedCharSequence>> mtChatMessages = new ArrayList<>();
+    private List<GuiMessage<Component>> mtAllMessages = new ArrayList<>();
+
+    @Inject(at=@At("RETURN"), method="processPendingMessages", cancellable = true)
     public void getProcessPendingMessages(CallbackInfo ci)
     {
-        updateList();
+        if(ChatModule.showMTChat && ChatModule.hasNewMessage)
+        {
+            updateList();
+            ChatModule.hasNewMessage = false;
+        }
     }
 
     @Inject(at=@At("HEAD"), method="render", cancellable = true)
-    public void render(PoseStack poseStack, int i, CallbackInfo ci)
-    {
-
-    }
+    public void render(PoseStack poseStack, int i, CallbackInfo ci) {}
 
     @Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<FormattedCharSequence>> trimmedMessages(ChatComponent chatComponent)
@@ -52,33 +57,30 @@ public abstract class MixinChatComponent
         return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
     }
 
-//    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiComponent;fill(Lcom/mojang/blaze3d/vertex/PoseStack;IIIII)V"))
-//    private static void fill(PoseStack poseStack, int i, int j, int k, int l, int m)
-//    {
-//
-//    }
+    @Redirect(method = "addMessage(Lnet/minecraft/network/chat/Component;IIZ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
+    private List<GuiMessage<FormattedCharSequence>> addMessage(ChatComponent chatComponent)
+    {
+        return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
+    }
+
+    @Redirect(method = "addMessage(Lnet/minecraft/network/chat/Component;IIZ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;allMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
+    private List<GuiMessage<Component>> addMessageAll(ChatComponent chatComponent)
+    {
+        return ChatModule.showMTChat ? mtAllMessages : allMessages;
+    }
 
     public void updateList()
     {
-        if(!ChatModule.showMTChat) return;
-        if (ChatHandler.messages == null || ChatHandler.messages.isEmpty()) return;
-
         try
         {
             LimitedSizeQueue<Message> temp = ChatHandler.messages.get(ChatHandler.CHANNEL);
-            List<FormattedCharSequence> lines = new ArrayList<>();
-            List<GuiMessage<FormattedCharSequence>> newLines = new ArrayList<>();
             //There must be a better way of doing this but brain go brrr....
-            for (Message message : temp) {
+            for (Message message : temp)
+            {
                 Component component = ChatFormatter.formatLine(message);
                 if (component == null) continue;
-                lines.addAll(ComponentRenderUtils.wrapComponents(component, Minecraft.getInstance().gui.getChat().getWidth() - 10, Minecraft.getInstance().font));
+                addMessage(component, 1, Minecraft.getInstance().gui.getGuiTicks(), false);
             }
-            for (FormattedCharSequence formattedCharSequence : lines) {
-                if (formattedCharSequence == null) continue;
-                newLines.add(new GuiMessage<>(0, formattedCharSequence, 0));
-            }
-            mtChatMessages = Lists.reverse(newLines);
         } catch (Exception e)
         {
 //            e.printStackTrace();

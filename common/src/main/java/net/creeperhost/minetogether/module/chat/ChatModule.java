@@ -19,6 +19,7 @@ import java.util.List;
 public class ChatModule
 {
     public static boolean showMTChat = false;
+    public static boolean hasNewMessage = true;
 
     public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
     {
