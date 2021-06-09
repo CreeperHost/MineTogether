@@ -54,7 +54,9 @@ public abstract class MixinChatScreen extends Screen
     @Inject(at=@At("HEAD"), method="render", cancellable = true)
     public void render(PoseStack poseStack, int i, int j, float f, CallbackInfo ci)
     {
-        if(ChatModule.showMTChat) ScreenHelpers.drawLogo(poseStack, font, width / 2 + 15, height + 18, 20, 30, 0.75F);
+        int k = MathHelper.ceil((float) Minecraft.getInstance().gui.getChat().getWidth() / (float) Minecraft.getInstance().options.chatScale);
+
+        if(ChatModule.showMTChat) ScreenHelpers.drawLogo(poseStack, font, k + 6, height + 18, -2, 30, 0.75F);
         ChatComponent chatComponent = Minecraft.getInstance().gui.getChat();
         int y = height - 40 - (Minecraft.getInstance().font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
         //TODO bring this back when I can remove fill from the components
