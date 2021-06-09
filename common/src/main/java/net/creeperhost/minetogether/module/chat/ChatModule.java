@@ -47,6 +47,7 @@ public class ChatModule
 
     public static void sendMessage(Component component)
     {
-        ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
+        if(ChatModule.showMTChat)
+            ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
     }
 }
