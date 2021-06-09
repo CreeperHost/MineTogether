@@ -43,7 +43,8 @@ public class MineTogetherClient
         GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
         GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
         ConnectModule.init();
-        if(!checkOnline()) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
+        getUUID();
+        if(!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
 
         buildChat();
     }
@@ -87,6 +88,7 @@ public class MineTogetherClient
         return serverId;
     }
 
+    @Deprecated
     public static boolean checkOnline()
     {
         YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Minecraft.getInstance().getProxy(), UUID.randomUUID().toString());

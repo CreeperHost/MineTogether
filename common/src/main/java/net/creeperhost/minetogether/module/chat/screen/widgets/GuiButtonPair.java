@@ -7,7 +7,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 
-@SuppressWarnings("SuspiciousNameCombination")
 public class GuiButtonPair extends Button
 {
     GuiButtonChat button1;
@@ -114,7 +113,7 @@ public class GuiButtonPair extends Button
                 button.x = buttWidth * visibleNum;
                 button.y = 0;
             }
-            
+
             RenderSystem.scaled(scale, scale, scale);
             
             RenderSystem.pushMatrix();
