@@ -18,6 +18,8 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -37,6 +39,9 @@ public abstract class MixinChatComponent
 
     private List<GuiMessage<FormattedCharSequence>> mtChatMessages = new ArrayList<>();
     private List<GuiMessage<Component>> mtAllMessages = new ArrayList<>();
+
+    @Invoker("addMessage")
+    public abstract void invokeAddMessage(Component component, int i, int j, boolean bl);
 
     @Inject(at=@At("RETURN"), method="processPendingMessages", cancellable = true)
     public void getProcessPendingMessages(CallbackInfo ci)

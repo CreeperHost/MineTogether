@@ -50,20 +50,7 @@ public class GuiButtonChat extends Button
             
             fill(matrixStack, x, y, x + width, y + height, l1 / 2 << 24);
             
-            this.drawCenteredString(matrixStack, fontrenderer, this.buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
-            
+            drawCenteredString(matrixStack, fontrenderer, this.buttonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
         }
-    }
-    
-    
-    @Override
-    public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_)
-    {
-        boolean ret = super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
-//        if (ret)
-//            if (MineTogether.instance.gdpr.hasAcceptedGDPR())
-//                ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).unread = false;
-        
-        return ret;
     }
 }

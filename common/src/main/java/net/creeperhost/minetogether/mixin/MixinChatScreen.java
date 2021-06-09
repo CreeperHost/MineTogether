@@ -43,7 +43,7 @@ public abstract class MixinChatScreen extends Screen
     {
         int x = MathHelper.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;
 
-        addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, 0, false, false, true, p ->
+        addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.showMTChat ? 1 : 0, false, false, true, p ->
         {
             ChatModule.showMTChat = switchButton.activeButton == 1;
 
@@ -83,11 +83,15 @@ public abstract class MixinChatScreen extends Screen
     @Override
     public void sendMessage(String string)
     {
+        if(minecraft == null) return;
+
         if(ChatModule.showMTChat)
         {
             ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
             //TODO stop this from logging sent messages
-            Minecraft.getInstance().gui.getChat().addMessage(ChatFormatter.formatLine(new Message(0, MineTogetherChat.INSTANCE.ourNick, string)));
+            Component message = ChatFormatter.formatLine(new Message(0, MineTogetherChat.INSTANCE.ourNick, string));
+//            ((MixinChatComponent) (Object) minecraft.gui.getChat()).invokeAddMessage(message, 1, minecraft.gui.getGuiTicks(), false);
+            minecraft.gui.getChat().addMessage(message);
             return;
         }
         super.sendMessage(string);
