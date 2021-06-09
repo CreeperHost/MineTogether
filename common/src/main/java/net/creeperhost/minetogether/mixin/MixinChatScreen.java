@@ -18,7 +18,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -54,21 +53,21 @@ public abstract class MixinChatScreen extends Screen
     @Inject(at=@At("HEAD"), method="render", cancellable = true)
     public void render(PoseStack poseStack, int i, int j, float f, CallbackInfo ci)
     {
-        int k = MathHelper.ceil((float) Minecraft.getInstance().gui.getChat().getWidth() / (float) Minecraft.getInstance().options.chatScale);
+        int k = MathHelper.ceil((float) minecraft.gui.getChat().getWidth() / (float) minecraft.options.chatScale);
 
         if(ChatModule.showMTChat) ScreenHelpers.drawLogo(poseStack, font, k + 6, height + 18, -2, 30, 0.75F);
-        ChatComponent chatComponent = Minecraft.getInstance().gui.getChat();
-        int y = height - 40 - (Minecraft.getInstance().font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
+        ChatComponent chatComponent = minecraft.gui.getChat();
+        int y = height - 40 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
         //TODO bring this back when I can remove fill from the components
         //fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + y, 0x99000000);
 
         setFocused(input);
         input.setFocus(true);
-        fill(poseStack, 2, this.height - 14, this.width - 2, this.height - 2, this.minecraft.options.getBackgroundColor(-2147483648));
+        fill(poseStack, 2, this.height - 14, this.width - 2, this.height - 2, minecraft.options.getBackgroundColor(-2147483648));
 
         input.render(poseStack, i, j, f);
         if(!ChatModule.showMTChat) commandSuggestions.render(poseStack, i, j);
-        Style style = this.minecraft.gui.getChat().getClickedComponentStyleAt((double)i, (double)j);
+        Style style = minecraft.gui.getChat().getClickedComponentStyleAt((double)i, (double)j);
         if (style != null && style.getHoverEvent() != null) {
             this.renderComponentHoverEffect(poseStack, style, i, j);
         }
