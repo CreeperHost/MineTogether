@@ -3,6 +3,7 @@
   "package": "net.creeperhost.minetogether.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "ChatComponentInvoker",
     "MixinChatComponent",
     "MixinChatScreen",
     "MixinIntegratedServer",

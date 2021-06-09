@@ -88,10 +88,6 @@ public abstract class MixinChatScreen extends Screen
         if(ChatModule.showMTChat)
         {
             ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
-            //TODO stop this from logging sent messages
-            Component message = ChatFormatter.formatLine(new Message(0, MineTogetherChat.INSTANCE.ourNick, string));
-//            ((MixinChatComponent) (Object) minecraft.gui.getChat()).invokeAddMessage(message, 1, minecraft.gui.getGuiTicks(), false);
-            minecraft.gui.getChat().addMessage(message);
             return;
         }
         super.sendMessage(string);

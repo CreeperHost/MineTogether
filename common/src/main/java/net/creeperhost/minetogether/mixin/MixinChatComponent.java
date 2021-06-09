@@ -1,24 +1,20 @@
 package net.creeperhost.minetogether.mixin;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
-import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,19 +33,16 @@ public abstract class MixinChatComponent
 
     @Shadow protected abstract void addMessage(Component component, int i, int j, boolean bl);
 
-    private List<GuiMessage<FormattedCharSequence>> mtChatMessages = new ArrayList<>();
-    private List<GuiMessage<Component>> mtAllMessages = new ArrayList<>();
-
-    @Invoker("addMessage")
-    public abstract void invokeAddMessage(Component component, int i, int j, boolean bl);
+    private final List<GuiMessage<FormattedCharSequence>> mtChatMessages = new ArrayList<>();
+    private final List<GuiMessage<Component>> mtAllMessages = new ArrayList<>();
 
     @Inject(at=@At("RETURN"), method="processPendingMessages", cancellable = true)
     public void getProcessPendingMessages(CallbackInfo ci)
     {
         if(ChatModule.showMTChat && ChatModule.hasNewMessage)
         {
-            updateList();
             ChatModule.hasNewMessage = false;
+            updateList();
         }
     }
 
@@ -73,18 +66,28 @@ public abstract class MixinChatComponent
     {
         return ChatModule.showMTChat ? mtAllMessages : allMessages;
     }
+    @Redirect(method = "scrollChat(D)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
+    private List<GuiMessage<FormattedCharSequence>> scrollChat(ChatComponent chatComponent)
+    {
+        return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
+    }
+
+    @Redirect(method = "getClickedComponentStyleAt", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
+    private List<GuiMessage<FormattedCharSequence>> getClickedComponentStyleAt(ChatComponent chatComponent)
+    {
+        return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
+    }
 
     public void updateList()
     {
         try
         {
             LimitedSizeQueue<Message> temp = ChatHandler.messages.get(ChatHandler.CHANNEL);
-            //There must be a better way of doing this but brain go brrr....
             for (Message message : temp)
             {
                 Component component = ChatFormatter.formatLine(message);
                 if (component == null) continue;
-                addMessage(component, 1, Minecraft.getInstance().gui.getGuiTicks(), false);
+                addMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
             }
         } catch (Exception e)
         {

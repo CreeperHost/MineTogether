@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.chat;
 
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.mixin.ChatComponentInvoker;
 import net.creeperhost.minetogether.mixin.MixinChatComponent;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
@@ -42,5 +43,10 @@ public class ChatModule
                 }));
             }
         }
+    }
+
+    public static void sendMessage(Component component)
+    {
+        ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
     }
 }

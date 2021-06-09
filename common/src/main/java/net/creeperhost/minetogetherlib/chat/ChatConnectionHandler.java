@@ -26,6 +26,7 @@ public class ChatConnectionHandler
     public synchronized void connect()
     {
         IrcHandler.start(ChatUtil.getIRCServerDetails());
+        logger.info("Attempting to connect to irc channel " + ChatHandler.CHANNEL);
     }
 
     public boolean canConnect()
