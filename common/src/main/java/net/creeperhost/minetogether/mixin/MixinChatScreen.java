@@ -1,14 +1,17 @@
 package net.creeperhost.minetogether.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.module.chat.ChatFormatter;
+import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.module.chat.ChatModule;
+import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
 import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
+import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogether.util.MathHelper;
 import net.creeperhost.minetogethergui.ScreenHelpers;
+import net.creeperhost.minetogethergui.widgets.DropdownButton;
+import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Message;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
@@ -18,11 +21,17 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mixin(ChatScreen.class)
 public abstract class MixinChatScreen extends Screen
@@ -32,6 +41,10 @@ public abstract class MixinChatScreen extends Screen
     @Shadow protected EditBox input;
     @Shadow private CommandSuggestions commandSuggestions;
     private GuiButtonPair switchButton;
+    private DropdownButton<net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu> dropdownButton;
+    private String currentDropdown;
+    private int mouseX;
+    private int mouseY;
 
     protected MixinChatScreen(Component component)
     {
@@ -48,6 +61,33 @@ public abstract class MixinChatScreen extends Screen
             ChatModule.showMTChat = switchButton.activeButton == 1;
 
         }, I18n.get("minetogether.ingame.chat.local"), I18n.get("minetogether.ingame.chat.global")));
+
+        List<String> strings = new ArrayList<>();
+
+        strings.add(I18n.get("minetogether.chat.button.mute"));
+        strings.add(I18n.get("minetogether.chat.button.addfriend"));
+        strings.add(I18n.get("minetogether.chat.button.mention"));
+
+        addButton(dropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu(strings), true, p ->
+        {
+            if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mute")))
+            {
+//                MineTogether.instance.muteUser(activeDropdown);
+//                ourChat.rebuildChat(ourChat.chatTarget);
+//                ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setChatLine(null, new StringTextComponent(I18n.format("minetogether.chat.muted")), 0, 5, false);
+            }
+            else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.addfriend")))
+            {
+                Profile profile = ChatHandler.knownUsers.findByDisplay(currentDropdown);
+                minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
+            }
+            else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mention")))
+            {
+                input.setFocus(true);
+                input.setValue(input.getValue() + " " + currentDropdown + " ");
+            }
+        }));
+        dropdownButton.flipped = true;
     }
 
     @Inject(at=@At("HEAD"), method="render", cancellable = true)
@@ -55,6 +95,9 @@ public abstract class MixinChatScreen extends Screen
     {
         //This is just to stop IntelliJ from complaining
         if(minecraft == null) return;
+
+        mouseX = i;
+        mouseY = j;
 
         int k = MathHelper.ceil((float) minecraft.gui.getChat().getWidth() / (float) minecraft.options.chatScale);
         int z = MathHelper.ceil((float) minecraft.gui.getChat().getHeight() / (float) minecraft.options.chatScale);
@@ -72,24 +115,66 @@ public abstract class MixinChatScreen extends Screen
         input.render(poseStack, i, j, f);
         if(!ChatModule.showMTChat) commandSuggestions.render(poseStack, i, j);
         Style style = minecraft.gui.getChat().getClickedComponentStyleAt((double)i, (double)j);
-        if (style != null && style.getHoverEvent() != null) {
+        if (style != null && style.getHoverEvent() != null)
+        {
+            if(style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
+            {
+                //TODO
+            }
             this.renderComponentHoverEffect(poseStack, style, i, j);
         }
         super.render(poseStack, i, j, f);
 
         ci.cancel();
     }
+    /*
+     * Used to remove any left over open dropdowns, Called at the head of mouseClicked to avoid it interfering with handleComponentClicked
+     */
+    @Inject(at=@At("TAIL"), method="mouseClicked", cancellable = true)
+    public void mouseClicked(double d, double e, int i, CallbackInfoReturnable<Boolean> cir)
+    {
+        if (dropdownButton != null && dropdownButton.wasJustClosed && !dropdownButton.dropdownOpen)
+        {
+            dropdownButton.x = dropdownButton.y = -10000;
+            dropdownButton.wasJustClosed = false;
+        }
+    }
 
     @Override
     public void sendMessage(String string)
     {
+        //This is just to stop IntelliJ from complaining
         if(minecraft == null) return;
 
+        //If its our chat screen send the message to our chat handler for sending
         if(ChatModule.showMTChat)
         {
             ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
             return;
         }
         super.sendMessage(string);
+    }
+
+    @Override
+    public boolean handleComponentClicked(@Nullable Style style)
+    {
+        //This is just to stop IntelliJ from complaining
+        if(minecraft == null) return false;
+        //Let vanilla take over when its not using our tab
+        if(!ChatModule.showMTChat) return super.handleComponentClicked(style);
+        //If the Style is null there is nothing to be done
+        if(style == null) return false;
+        //If the click event is null there is nothing to be done
+        if(style.getClickEvent() == null) return false;
+        //This should never be null but lets be safe
+        if(dropdownButton == null) return false;
+        //If the dropdown is already open lets not do anything or this could lead to issues
+        if(dropdownButton.dropdownOpen) return false;
+
+        dropdownButton.x = mouseX;
+        dropdownButton.y = mouseY;
+        dropdownButton.dropdownOpen = true;
+        currentDropdown = style.getClickEvent().getValue();
+        return true;
     }
 }

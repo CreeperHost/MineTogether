@@ -35,6 +35,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.*;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -98,23 +99,23 @@ public class ChatScreen extends Screen
         }));
         targetDropdownButton.setSelected(Target.getMainTarget());
         List<String> strings = new ArrayList<>();
-        strings.add("Mute");
-        strings.add("Add friend");
-        strings.add("Mention");
+        strings.add(I18n.get("minetogether.chat.button.mute"));
+        strings.add(I18n.get("minetogether.chat.button.addfriend"));
+        strings.add(I18n.get("minetogether.chat.button.mention"));
         addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new Menu(strings), false, p ->
         {
             if(!menuDropdownButton.dropdownOpen) return;
 
-            if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mute"))
+            if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mute")))
             {
 //                MineTogether.instance.muteUser(activeDropdown);
                 chat.updateLines(currentTarget);
             }
-            else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Add friend"))
+            else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.addfriend")))
             {
                 minecraft.setScreen(new FriendRequestScreen(new ChatScreen(parent), Minecraft.getInstance().getUser().getName(), knownUsers.findByDisplay(activeDropdown), ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
             }
-            else if (menuDropdownButton.getSelected().option.equalsIgnoreCase("Mention"))
+            else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mention")))
             {
                 this.send.setFocus(true);
                 this.send.setValue(this.send.getValue() + " " + activeDropdown + " ");

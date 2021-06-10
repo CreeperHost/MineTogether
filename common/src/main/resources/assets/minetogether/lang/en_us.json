@@ -139,5 +139,8 @@
   "minetogether.ingame.chat.global":"MineTogether",
   "minetogether.ingame.chat.local":"Commands",
   "minetogether.bannedscreen.line1": "You have been banned from MineTogether Chat",
-  "minetogether.bannedscreen.line2": "Do you wish to appeal the ban via the MineTogether website?"
+  "minetogether.bannedscreen.line2": "Do you wish to appeal the ban via the MineTogether website?",
+  "minetogether.chat.button.mute": "Mute",
+  "minetogether.chat.button.addfriend": "Add Friend",
+  "minetogether.chat.button.mention": "Mention"
 }
