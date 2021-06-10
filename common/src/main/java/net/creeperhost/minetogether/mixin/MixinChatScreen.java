@@ -79,7 +79,7 @@ public abstract class MixinChatScreen extends Screen
             else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.addfriend")))
             {
                 Profile profile = ChatHandler.knownUsers.findByDisplay(currentDropdown);
-                minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
+                if(profile != null) minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
             }
             else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mention")))
             {
@@ -128,7 +128,7 @@ public abstract class MixinChatScreen extends Screen
         ci.cancel();
     }
     /*
-     * Used to remove any left over open dropdowns, Called at the head of mouseClicked to avoid it interfering with handleComponentClicked
+     * Used to remove any left over open dropdowns, Called at the tail of mouseClicked to avoid it interfering with handleComponentClicked
      */
     @Inject(at=@At("TAIL"), method="mouseClicked", cancellable = true)
     public void mouseClicked(double d, double e, int i, CallbackInfoReturnable<Boolean> cir)
