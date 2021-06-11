@@ -16,6 +16,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +42,7 @@ public class IrcHandler
     private static CompletableFuture chatFuture = null;
     private static String lastMessage;
     private static long lastMessageTime;
+    private static long startTimestamp;
 
     public static void start(IRCServer ircServer)
     {
@@ -52,23 +56,47 @@ public class IrcHandler
             outputStreamWriter = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             bufferedWriter = new BufferedWriter(outputStreamWriter);
+            startTimestamp = System.currentTimeMillis();
 
             chatFuture = CompletableFuture.runAsync(() ->
             {
                 logger.info("Starting new Chat thread");
 
                 String line = null;
+                final int[] verifyCount = {0};
                 try
                 {
                     while ((line = bufferedReader.readLine()) != null)
                     {
+                        ChatHandler.isInitting.set(false); // we have received data, we're obviously not initting anymore
                         if (line.startsWith("PING "))
                         {
                             sendString("PONG " + line.substring(5) + "\r\n", true);
                             if(first.get()) {
-                                ChatHandler.connectionStatus = ChatConnectionStatus.VERIFIED;
+                                ChatHandler.connectionStatus = ChatConnectionStatus.VERIFYING;
                                 sendString("USER " + "MineTogether" + " 8 * :" + MineTogetherChat.INSTANCE.realName, true);//"MineTogether" + " 8 * :" + "{\"p\":\"m35\",\"b\":\"MzUxNzQ\\u003d\"}");
                                 sendString("JOIN " + ircServer.channel, true);
+                                ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+                                executor.scheduleAtFixedRate(() -> {
+                                    if (ChatHandler.connectionStatus == ChatConnectionStatus.VERIFYING) {
+                                        if(verifyCount[0] >= 5) {
+                                            ChatHandler.onNotice("System", "Verification failed after 6 attempts");
+                                            logger.info("Tried to verify 5 times. Not trying again.");
+                                            executor.shutdownNow();
+                                        } else {
+                                            ChatHandler.onNotice("System", "Attempting verification. Please wait!");
+                                            sendString("PART " + ircServer.channel + " Hopping to try and verify", true);
+                                            try {
+                                                Thread.sleep(2000);
+                                            } catch (InterruptedException e) {
+                                            }
+                                            sendString("JOIN " + ircServer.channel, true);
+                                            verifyCount[0]++;
+                                        }
+                                    } else {
+                                        executor.shutdownNow();
+                                    }
+                                }, 60, 60, TimeUnit.SECONDS);
                                 first.getAndSet(false);
                             }
                         } else {
@@ -172,7 +200,7 @@ public class IrcHandler
 
     public static void whois(String nick)
     {
-        if(ChatHandler.connectionStatus != ChatConnectionStatus.VERIFIED) return;
+        if(!(ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED || ChatHandler.connectionStatus == ChatConnectionStatus.VERIFYING)) return;
         if(nick.length() < 28) return;
 
         sendString("WHOIS " + nick, false);
@@ -336,6 +364,16 @@ public class IrcHandler
                             });
                         }
                     }
+                } else {
+                    pattern = Pattern.compile("\\:(\\w+).*MODE.*\\#\\w+ (.)v (MT[a-zA-Z0-9]{28})");
+                    matcher = pattern.matcher(s);
+                    if(matcher.matches()) {
+                        String nick = matcher.group(3);
+                        String modify = matcher.group(2);
+                        if(nick.equals(nickname) && modify.equals("+")) {
+                            ChatHandler.connectionStatus = ChatConnectionStatus.VERIFIED;
+                        }
+                    }
                 }
             }, MineTogetherChat.ircEventExecutor);
         } else if(s.contains("JOIN"))
@@ -442,6 +480,9 @@ public class IrcHandler
             {
 //                System.out.println(s);
             }
+        } else if (s.contains(" 404 " + nickname)) {
+            // send failure
+            ChatHandler.onNotice("System", "Unable to send message as not verified. Please wait!");
         }
         else
         {
