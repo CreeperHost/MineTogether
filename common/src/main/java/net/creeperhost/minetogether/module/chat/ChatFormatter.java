@@ -91,9 +91,8 @@ public class ChatFormatter
                     outputNick = MineTogetherChat.profile.get().getUserDisplay();
                 } else {
                     //Should probably check mutedUsers against their shortHash...
-                    //TODO
-//                    if (MineTogether.instance.mutedUsers.contains(inputNick))
-//                        return null;
+                    if (ChatModule.mutedUsers.contains(inputNick))
+                        return null;
                 }
             } else if (!inputNick.equals("System")) {
                 return null;

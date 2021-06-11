@@ -79,7 +79,6 @@ public class ChatHandler
         
         Message messagePair = new Message(System.currentTimeMillis(), user, message);
         tempQueue.add(messagePair);
-//        ChatModule.hasNewMessage = true;
 
         ChatModule.sendMessage(ChatFormatter.formatLine(messagePair));
         newMessages.put(target, Boolean.TRUE);

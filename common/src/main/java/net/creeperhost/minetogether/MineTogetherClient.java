@@ -33,8 +33,7 @@ import java.util.UUID;
 public class MineTogetherClient
 {
     public static ToastHandler toastHandler;
-    private static MineTogetherChat mineTogetherChat;
-    private static boolean isOnlineUUID = false;
+    public static boolean isOnlineUUID = false;
     public static String base64 = "";
 
     public static void init()
@@ -45,27 +44,7 @@ public class MineTogetherClient
         ConnectModule.init();
         getUUID();
         if(!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
-
-        buildChat();
-    }
-
-    public static void buildChat()
-    {
-        MineTogether.logger.info("Building MineTogether chat");
-        String ourNick = "MT" + ChatCallbacks.getPlayerHash(getUUID()).substring(0, 28);
-        UUID uuid = getUUID();
-        boolean online = isOnlineUUID;
-        String realName = new ModPackVerifier().verify();
-        String signature = new SignatureVerifier().verify();
-        String serverID = getServerIDAndVerify();
-
-        mineTogetherChat = new MineTogetherChat(ourNick, uuid, online, realName, signature, serverID);
-        mineTogetherChat.startChat();
-    }
-
-    public static MineTogetherChat getMineTogetherChat()
-    {
-        return mineTogetherChat;
+        ChatModule.init();
     }
 
     public static UUID getUUID()

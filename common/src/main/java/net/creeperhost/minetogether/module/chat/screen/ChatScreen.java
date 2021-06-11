@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
+import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.screen.SettingsScreen;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogethergui.ScreenHelpers;
@@ -108,7 +109,7 @@ public class ChatScreen extends Screen
 
             if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mute")))
             {
-//                MineTogether.instance.muteUser(activeDropdown);
+                ChatModule.muteUser(currentTarget);
                 chat.updateLines(currentTarget);
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.addfriend")))

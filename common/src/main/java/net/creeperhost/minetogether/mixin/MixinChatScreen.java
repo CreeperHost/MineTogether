@@ -12,6 +12,7 @@ import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
@@ -72,9 +73,8 @@ public abstract class MixinChatScreen extends Screen
         {
             if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mute")))
             {
-//                MineTogether.instance.muteUser(activeDropdown);
-//                ourChat.rebuildChat(ourChat.chatTarget);
-//                ((GuiNewChatOurs) Minecraft.getInstance().ingameGUI.getChatGUI()).setChatLine(null, new StringTextComponent(I18n.format("minetogether.chat.muted")), 0, 5, false);
+                ChatModule.muteUser(currentDropdown);
+                ChatHandler.addStatusMessage("Locally muted " + currentDropdown);
             }
             else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.addfriend")))
             {
