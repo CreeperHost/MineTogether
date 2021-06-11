@@ -197,6 +197,33 @@ public class ChatScreen extends Screen
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
         if (!buttonTarget.equals(currentTarget)) currentTarget = buttonTarget;
 
+        send.active = ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED;
+        send.setEditable(ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED);
+        //Remove focus if the client is not verified
+        if(send.isFocused() && ChatHandler.connectionStatus != ChatConnectionStatus.VERIFIED)
+        {
+            send.setFocus(false);
+        }
+
+        switch (ChatHandler.connectionStatus)
+        {
+            case VERIFYING:
+                send.setSuggestion("Unable to send messages while client is being verified");
+                break;
+            case BANNED:
+                send.setSuggestion("Unable to send messages while client is banned");
+                break;
+            case DISCONNECTED:
+                send.setSuggestion("Unable to send messages while client is disconnect");
+                break;
+            case CONNECTING:
+                send.setSuggestion("Unable to send messages while client is connecting");
+                break;
+            case VERIFIED:
+                send.setSuggestion("");
+                break;
+        }
+
         synchronized (ircLock)
         {
             if (ChatHandler.hasNewMessages(currentTarget))

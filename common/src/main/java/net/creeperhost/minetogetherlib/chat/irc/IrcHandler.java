@@ -88,8 +88,7 @@ public class IrcHandler
                                             sendString("PART " + ircServer.channel + " Hopping to try and verify", true);
                                             try {
                                                 Thread.sleep(2000);
-                                            } catch (InterruptedException e) {
-                                            }
+                                            } catch (InterruptedException ignored) {}
                                             sendString("JOIN " + ircServer.channel, true);
                                             verifyCount[0]++;
                                         }

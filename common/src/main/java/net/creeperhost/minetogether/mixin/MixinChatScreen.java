@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.util.MathHelper;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
+import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.ChatFormatting;
@@ -127,6 +128,50 @@ public abstract class MixinChatScreen extends Screen
 
         ci.cancel();
     }
+
+    @Inject(at=@At("TAIL"), method="tick")
+    public void tick(CallbackInfo ci)
+    {
+        //This should never happen but better safe than sorry
+        if(input == null) return;
+
+        if(ChatModule.showMTChat)
+        {
+            input.active = ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED;
+            input.setEditable(ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED);
+            //Remove focus if the client is not verified
+            if(input.isFocused() && ChatHandler.connectionStatus != ChatConnectionStatus.VERIFIED)
+            {
+                input.setFocus(false);
+            }
+            switch (ChatHandler.connectionStatus)
+            {
+                case VERIFYING:
+                    input.setSuggestion("Unable to send messages while client is being verified");
+                    break;
+                case BANNED:
+                    input.setSuggestion("Unable to send messages while client is banned");
+                    break;
+                case DISCONNECTED:
+                    input.setSuggestion("Unable to send messages while client is disconnect");
+                    break;
+                case CONNECTING:
+                    input.setSuggestion("Unable to send messages while client is connecting");
+                    break;
+                case VERIFIED:
+                    input.setSuggestion("");
+                    break;
+            }
+        }
+        else
+        {
+            //Set these back just incase the tab is switched
+            input.active = true;
+            input.setEditable(true);
+            input.setSuggestion("");
+        }
+    }
+
     /*
      * Used to remove any left over open dropdowns, Called at the tail of mouseClicked to avoid it interfering with handleComponentClicked
      */
