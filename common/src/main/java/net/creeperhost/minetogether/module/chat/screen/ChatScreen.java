@@ -110,7 +110,7 @@ public class ChatScreen extends Screen
             if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mute")))
             {
                 ChatModule.muteUser(currentTarget);
-                chat.updateLines(currentTarget);
+                ChatHandler.addStatusMessage("Locally muted " + currentTarget);
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.addfriend")))
             {
