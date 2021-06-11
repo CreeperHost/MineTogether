@@ -10,7 +10,6 @@ import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.chat.irc.IRCServer;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
-import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

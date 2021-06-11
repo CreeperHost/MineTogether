@@ -1,11 +1,8 @@
 package net.creeperhost.minetogether.module.multiplayer.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.mixin.MixinJoinMultiplayerScreen;
-import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.multiplayer.data.PublicServerEntry;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerDataPublic;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerListType;

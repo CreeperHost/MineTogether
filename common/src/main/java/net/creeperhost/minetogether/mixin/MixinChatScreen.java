@@ -13,7 +13,6 @@ import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
