@@ -74,26 +74,28 @@ public class FriendsListScreen extends Screen
 //            }
         }));
 
-        addButton(new ButtonString( 5, this.height - 26, 60, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
+        addButton(new ButtonString( 5, height - 26, 60, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
             minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
             MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
         }));
 
-        addButton(new Button(this.width - 105, this.height - 26, 100, 20,
+        addButton(new Button(width - 105, height - 26, 100, 20,
                  new TranslatableComponent("minetogether.button.refresh"), p -> refreshFriendsList(false)));
 
         Button inviteButton;
-        addButton(inviteButton = new Button(this.width - 105, this.height - 60, 100, 20, new TranslatableComponent("minetogether.button.invite"), p ->
+        addButton(inviteButton = new Button(width - 105, height - 60, 100, 20, new TranslatableComponent("minetogether.button.invite"), p ->
         {
             //TODO
         }));
         inviteButton.active = false;
 
-        addButton(new Button(this.width / 2 - 50, this.height - 60, 100, 20, new TranslatableComponent("multiplayer.button.addfriend"), p ->
+        addButton(new Button(width / 2 - 50, height - 60, 100, 20, new TranslatableComponent("multiplayer.button.addfriend"), p ->
         {
             //TODO
         }));
+
+        addButton(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Muted list"), button -> minecraft.setScreen(new MutedListScreen(parent))));
     }
 
     @Override

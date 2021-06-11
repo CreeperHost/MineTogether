@@ -46,8 +46,8 @@ public class ChatModule
 
     public static void init()
     {
-        buildChat();
         loadMutedList();
+        buildChat();
     }
 
     public static void buildChat()
@@ -102,24 +102,24 @@ public class ChatModule
         {
             if(!mutedUsersPath.getParent().toFile().exists()) mutedUsersPath.getParent().toFile().mkdirs();
             FileUtils.writeStringToFile(mutedUsersPath.toFile(), gson.toJson(mutedUsers), Charset.defaultCharset());
-        } catch (IOException ignored)
-        {
-        }
+        } catch (IOException ignored) {}
     }
 
     public static void unmuteUser(String user)
     {
         Profile profile = ChatHandler.knownUsers.findByDisplay(user);
-        mutedUsers.remove(profile.getShortHash());
-        mutedUsers.remove(profile.getMediumHash());
+        try
+        {
+            mutedUsers.remove(user);
+            mutedUsers.remove(profile.getShortHash());
+            mutedUsers.remove(profile.getMediumHash());
+        } catch (Exception ignored) {}
         Gson gson = new Gson();
         try
         {
             if(!mutedUsersPath.getParent().toFile().exists()) mutedUsersPath.getParent().toFile().mkdirs();
             FileUtils.writeStringToFile(mutedUsersPath.toFile(), gson.toJson(mutedUsers), Charset.defaultCharset());
-        } catch (IOException ignored)
-        {
-        }
+        } catch (IOException ignored) {}
     }
 
     public static void loadMutedList()
