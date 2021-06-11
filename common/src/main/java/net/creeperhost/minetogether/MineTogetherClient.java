@@ -6,6 +6,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.architectury.event.events.GuiEvent;
+import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.connect.ConnectModule;
@@ -105,5 +106,6 @@ public class MineTogetherClient
         MultiPlayerModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
         ServerOrderModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
         ChatModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
+        AutoServerConnectHandler.onScreenOpen(screen, abstractWidgets, guiEventListeners);
     }
 }
