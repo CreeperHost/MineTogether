@@ -208,16 +208,16 @@ public class ChatScreen extends Screen
         switch (ChatHandler.connectionStatus)
         {
             case VERIFYING:
-                send.setSuggestion("Unable to send messages while client is being verified");
+                send.setSuggestion(I18n.get("minetogether.chat.message.unverified"));
                 break;
             case BANNED:
-                send.setSuggestion("Unable to send messages while client is banned");
+                send.setSuggestion(I18n.get("minetogether.chat.message.banned"));
                 break;
             case DISCONNECTED:
-                send.setSuggestion("Unable to send messages while client is disconnect");
+                send.setSuggestion(I18n.get("minetogether.chat.message.disconnect"));
                 break;
             case CONNECTING:
-                send.setSuggestion("Unable to send messages while client is connecting");
+                send.setSuggestion(I18n.get("minetogether.chat.message.connecting"));
                 break;
             case VERIFIED:
                 send.setSuggestion("");

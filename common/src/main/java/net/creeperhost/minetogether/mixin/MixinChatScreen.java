@@ -146,16 +146,16 @@ public abstract class MixinChatScreen extends Screen
             switch (ChatHandler.connectionStatus)
             {
                 case VERIFYING:
-                    input.setSuggestion("Unable to send messages while client is being verified");
+                    input.setSuggestion(I18n.get("minetogether.chat.message.unverified"));
                     break;
                 case BANNED:
-                    input.setSuggestion("Unable to send messages while client is banned");
+                    input.setSuggestion(I18n.get("minetogether.chat.message.banned"));
                     break;
                 case DISCONNECTED:
-                    input.setSuggestion("Unable to send messages while client is disconnect");
+                    input.setSuggestion(I18n.get("minetogether.chat.message.disconnect"));
                     break;
                 case CONNECTING:
-                    input.setSuggestion("Unable to send messages while client is connecting");
+                    input.setSuggestion(I18n.get("minetogether.chat.message.connecting"));
                     break;
                 case VERIFIED:
                     input.setSuggestion("");
