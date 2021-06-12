@@ -7,23 +7,24 @@ import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.MutedListScreen;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.lists.ScreenListEntry;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
 public class ListEntryMuted extends ScreenListEntry
 {
-    private final String muted;
+    private final Profile profile;
     private final MutedListScreen mutedListScreen;
     private boolean wasHovering;
     private final String cross = new String(Character.toChars(10006));
     private final int crossWidth = Minecraft.getInstance().font.width(cross);
-    private final ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(Constants.MOD_ID, "textures/icon2.png");
 
-    public ListEntryMuted(MutedListScreen mutedListScreen, ScreenList screenList, String muted)
+    public ListEntryMuted(MutedListScreen mutedListScreen, ScreenList screenList, Profile profile)
     {
         super(screenList);
         this.mutedListScreen = mutedListScreen;
-        this.muted = muted;
+        this.profile = profile;
     }
 
     private float transparency = 0.5F;
@@ -42,7 +43,7 @@ public class ListEntryMuted extends ScreenListEntry
                 transparency -= 0.04;
         }
 
-        this.mc.font.draw(matrixStack, muted, x + 5, y + 5, 16777215);
+        this.mc.font.draw(matrixStack, profile.getUserDisplay(), x + 5, y + 5, 16777215);
 
         int transparentString = (int) (transparency * 254) << 24;
 
@@ -72,7 +73,9 @@ public class ListEntryMuted extends ScreenListEntry
 
         if (mouseX >= listWidth - crossWidth - 4 && mouseX <= listWidth - 5 && mouseY - yTop >= 0 && mouseY - yTop <= 7)
         {
-            ChatModule.unmuteUser(muted);
+            ChatModule.unmuteUser(profile.getLongHash());
+            profile.setMuted(false);
+            ChatHandler.knownUsers.update(profile);
             mutedListScreen.refreshMutedList();
             wasHovering = false;
             mutedListScreen.setHoveringText(null);

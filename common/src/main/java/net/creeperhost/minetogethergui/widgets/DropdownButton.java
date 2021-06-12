@@ -130,7 +130,9 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
             if (clickedElement != null)
             {
                 setSelected(clickedElement);
-                onPress();
+                try {
+                    onPress();
+                } catch (Exception ignored){}
                 close();
                 return true;
             }

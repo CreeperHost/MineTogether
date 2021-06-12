@@ -8,8 +8,10 @@ import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Friend;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -19,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class FriendsListScreen extends Screen
@@ -126,36 +129,36 @@ public class FriendsListScreen extends Screen
         }
     }
 
-    public static ArrayList<String> removedFriends = new ArrayList<>();
+    public static ArrayList<Profile> removedFriends = new ArrayList<>();
     protected boolean refreshFriendsList(boolean force)
     {
-        ArrayList<Friend> friends = ChatCallbacks.getFriendsList(force, MineTogetherClient.getUUID());
+        List<Profile> friends = ChatHandler.knownUsers.getFriends();
         list.clearList();
         if (friends != null)
         {
-            for (Friend friend : friends)
+            for (Profile friendProfile : friends)
             {
-                ListEntryFriend friendEntry = new ListEntryFriend(this, list, friend);
+                ListEntryFriend friendEntry = new ListEntryFriend(this, list, friendProfile);
                 if(searchEntry != null && !searchEntry.getValue().isEmpty())
                 {
                     String s = searchEntry.getValue();
-                    if(friend.getName().toLowerCase().contains(s.toLowerCase()))
+                    if(friendProfile.friendName.toLowerCase().contains(s.toLowerCase()))
                     {
-                        if(!removedFriends.contains(friend.getCode())) list.add(friendEntry);
+                        if(!removedFriends.contains(friendProfile)) list.add(friendEntry);
                     }
                 }
                 else
                 {
-                    if(!removedFriends.contains(friend.getCode())) list.add(friendEntry);
+                    if(!removedFriends.contains(friendProfile)) list.add(friendEntry);
                 }
             }
-            ArrayList<String> removedCopy = new ArrayList<String>(removedFriends);
-            for(String removed : removedCopy)
+            List<Profile> removedCopy = new ArrayList<Profile>(removedFriends);
+            for(Profile removed : removedCopy)
             {
                 boolean isInList = false;
-                for(Friend friend : friends)
+                for(Profile friend : friends)
                 {
-                    if(friend.getCode().equalsIgnoreCase(removed))
+                    if(friend.friendCode.equalsIgnoreCase(removed.friendCode))
                     {
                         isInList=true;
                         break;
@@ -186,7 +189,7 @@ public class FriendsListScreen extends Screen
             {
                 CompletableFuture.runAsync(() ->
                 {
-                   removedFriends.add(friend.getCode());
+                   removedFriends.add(friend.getProfile());
                    refreshFriendsList(true);
                    if(!ChatCallbacks.removeFriend(removeFriend.getCode(), MineTogetherClient.getUUID()))
                    {

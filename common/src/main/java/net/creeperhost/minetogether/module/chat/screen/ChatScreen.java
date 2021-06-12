@@ -40,6 +40,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
@@ -109,7 +110,7 @@ public class ChatScreen extends Screen
 
             if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mute")))
             {
-                ChatModule.muteUser(currentTarget);
+                ChatModule.muteUser(knownUsers.findByDisplay(activeDropdown).longHash);
                 ChatHandler.addStatusMessage("Locally muted " + currentTarget);
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.addfriend")))
@@ -492,7 +493,8 @@ public class ChatScreen extends Screen
                 {
                     RenderSystem.enableBlend();
                     RenderSystem.color4f(1, 1, 1, 0.90F);
-                    minecraft.font.draw(poseStack, component, 10 + oldTotal, getRowTop(index), 0xBBFFFFFF);
+                    renderHead(poseStack, 10 + oldTotal, getRowTop(index));
+                    minecraft.font.draw(poseStack, component, 24 + oldTotal, getRowTop(index), 0xBBFFFFFF);
                     renderComponentHoverEffect(poseStack, style , mouseX, mouseY);
                     if(style.getHoverEvent() != null && style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
                     {
@@ -514,9 +516,20 @@ public class ChatScreen extends Screen
                 }
                 else
                 {
-                    minecraft.font.draw(poseStack, component, 10 + oldTotal, getRowTop(index), 0xFFFFFF);
+                    renderHead(poseStack, 10 + oldTotal, getRowTop(index));
+                    minecraft.font.draw(poseStack, component, 24 + oldTotal, getRowTop(index), 0xFFFFFF);
                 }
             } catch (Exception ignored) {}
+        }
+
+        public void renderHead(PoseStack poseStack, int x, int y)
+        {
+            this.minecraft.getTextureManager().bind(new ResourceLocation("textures/entity/steve.png"));
+
+            GuiComponent.blit(poseStack, x, y - 2, 9, 9, 8.0F, 8.0F, 8, 8, 64, 64);
+            RenderSystem.enableBlend();
+            GuiComponent.blit(poseStack, x, y - 2, 9, 9, 40.0F, 8.0F, 8, 8, 64, 64);
+            RenderSystem.disableBlend();
         }
 
         @Override

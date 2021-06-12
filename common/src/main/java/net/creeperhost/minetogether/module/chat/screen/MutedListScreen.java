@@ -4,12 +4,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryMuted;
 import net.creeperhost.minetogethergui.lists.ScreenList;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MutedListScreen extends Screen
 {
@@ -74,17 +77,18 @@ public class MutedListScreen extends Screen
 
     public void refreshMutedList()
     {
-        ArrayList<String> mutedUsers = ChatModule.mutedUsers;
+        List<Profile> mutedUsers = ChatHandler.knownUsers.getMuted();
+        System.out.println(mutedUsers.size());
         list.clearList();
         if (mutedUsers != null)
         {
-            for (String mute : mutedUsers)
+            for (Profile mute : mutedUsers)
             {
                 ListEntryMuted mutedEntry = new ListEntryMuted(this, list, mute);
                 if (searchEntry != null && !searchEntry.getValue().isEmpty())
                 {
                     String s = searchEntry.getValue();
-                    if (mute.toLowerCase().contains(s.toLowerCase()))
+                    if (mute.getUserDisplay().toLowerCase().contains(s.toLowerCase()))
                     {
                         list.add(mutedEntry);
                     }

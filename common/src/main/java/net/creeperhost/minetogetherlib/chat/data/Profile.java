@@ -35,6 +35,7 @@ public class Profile
     private boolean isLoadingProfile = false;
     private long profileAge;
     private boolean hasAccount = false;
+    private boolean muted = false;
 
     public Profile(String serverNick)
     {
@@ -187,6 +188,20 @@ public class Profile
             }
         }
         return this.friend;
+    }
+
+    public void setFriend(boolean friend) {
+        this.friend = friend;
+    }
+
+    public boolean isMuted()
+    {
+        return muted;
+    }
+
+    public void setMuted(boolean muted)
+    {
+        this.muted = muted;
     }
 
     public boolean isBanned()

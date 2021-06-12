@@ -24,12 +24,12 @@ public class ListEntryFriend extends ScreenListEntry
     private final int crossWidth = Minecraft.getInstance().font.width(cross);
     private final ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(Constants.MOD_ID, "textures/icon2.png");
 
-    public ListEntryFriend(FriendsListScreen friendsListScreen, ScreenList screenList, Friend friend)
+    public ListEntryFriend(FriendsListScreen friendsListScreen, ScreenList screenList, Profile profile)
     {
         super(screenList);
         this.friendsListScreen = friendsListScreen;
-        this.friend = friend;
-        this.profile = friend.getProfile();
+        friend = new Friend(profile.friendName, profile.friendCode, true);
+        this.profile = profile;
     }
 
     private float transparency = 0.5F;

@@ -146,7 +146,8 @@
   "minetogether.chat.message.unverified": "Unable to send messages while client is unverified",
   "minetogether.chat.message.banned": "Unable to send messages while client is banned",
   "minetogether.chat.message.disconnect": "Unable to send messages while client is disconnect",
-  "minetogether.chat.message.connecting": "Unable to send messages while client is connecting"
+  "minetogether.chat.message.connecting": "Unable to send messages while client is connecting",
+  "minetogether.socialInteractions.tab_friends": "Friends"
 
 
 }

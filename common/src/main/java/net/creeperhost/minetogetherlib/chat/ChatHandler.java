@@ -99,7 +99,7 @@ public class ChatHandler
         return "";//host.getNameForUser(nick);
     }
     
-    public static void updateFriends(List<String> users)
+    public static void updateFriends(List<Profile> users)
     {
         List<Friend> friendsCall = ChatCallbacks.getFriendsList(false, MineTogetherClient.getUUID());
         HashMap<String, String> oldFriends = friends;
@@ -109,9 +109,9 @@ public class ChatHandler
             if (friend.isAccepted()) // why did I never do this before?
             {
                 String friendCode = "MT" + friend.getCode().substring(0, 28);
-                for (String user : users)
+                for (Profile user : users)
                 {
-                    if (user.equals(friendCode))
+                    if (user.friendCode.equals(friendCode))
                         friends.put(friendCode, friend.getName());
                 }
             }
@@ -312,10 +312,9 @@ public class ChatHandler
                     });
                     return profile1;
                 });
-//                host.messageReceived(ChatHandler.CHANNEL, new Message(System.currentTimeMillis(), "System", "You were banned from the chat."));
-//
-//                host.userBanned(nick);
-            } else {
+            } else
+            {
+                ChatModule.hasNewMessage = true;
                 Profile profile = knownUsers.findByNick(nick);
                 if (profile == null)
                 {

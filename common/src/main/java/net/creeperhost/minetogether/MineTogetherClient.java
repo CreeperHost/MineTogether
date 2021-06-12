@@ -6,9 +6,11 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.architectury.event.events.GuiEvent;
+import me.shedaniel.architectury.hooks.ScreenHooks;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
+import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialinteractionsScreen;
 import net.creeperhost.minetogether.module.connect.ConnectModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
@@ -16,9 +18,12 @@ import net.creeperhost.minetogether.screen.OfflineScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -102,6 +107,11 @@ public class MineTogetherClient
                 firstOpen = false;
                 Minecraft.getInstance().setScreen(new OfflineScreen());
             }
+        }
+        if(screen instanceof PauseScreen)
+        {
+            ScreenHooks.addButton(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("TEST"), p ->
+                    Minecraft.getInstance().setScreen(new MineTogetherSocialinteractionsScreen())));
         }
         MultiPlayerModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
         ServerOrderModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);

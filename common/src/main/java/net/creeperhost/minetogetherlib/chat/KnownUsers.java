@@ -27,6 +27,7 @@ public class KnownUsers
         {
             if(profile.getUserDisplay().isEmpty()) continue;
             if(profile.isFriend()) continue;
+            if(profile.isMuted()) continue;
             if(profile.isBanned()) continue;
             LimitedSizeQueue<Message> tempMessages = ChatHandler.messages.get(ChatHandler.CHANNEL);
             boolean skip = false;
@@ -190,17 +191,36 @@ public class KnownUsers
         return profilesCopy.stream().map(Profile::getUserDisplay).collect(Collectors.toList());
     }
 
-    public List<String> getFriends()
+    public List<Profile> getFriends()
     {
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
-        List<String> returnList = new ArrayList<>();
+        List<Profile> returnList = new ArrayList<>();
         for(Profile profile : profilesCopy)
         {
             if(profile.isFriend())
             {
-                returnList.add(profile.getMediumHash());
+                returnList.add(profile);
             }
         }
         return returnList;
+    }
+
+    public List<Profile> getMuted()
+    {
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        List<Profile> returnList = new ArrayList<>();
+        for(Profile profile : profilesCopy)
+        {
+            if(profile.isMuted())
+            {
+                returnList.add(profile);
+            }
+        }
+        return returnList;
+    }
+
+    public AtomicReference<List<Profile>> getProfiles()
+    {
+        return profiles;
     }
 }

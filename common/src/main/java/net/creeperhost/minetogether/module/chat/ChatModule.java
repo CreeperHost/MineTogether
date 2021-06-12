@@ -15,6 +15,7 @@ import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
@@ -34,6 +35,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class ChatModule
 {
@@ -45,8 +47,8 @@ public class ChatModule
 
     public static void init()
     {
-        loadMutedList();
         buildChat();
+        loadMutedList();
     }
 
     public static void buildChat()
@@ -96,6 +98,14 @@ public class ChatModule
         if(mutedUsers.contains(user)) return;
 
         mutedUsers.add(user);
+        CompletableFuture.runAsync(() -> {
+            Profile profile = ChatHandler.knownUsers.findByHash(user);
+            if(profile == null) profile = ChatHandler.knownUsers.add(user);
+            profile.loadProfile();
+            profile.setMuted(true);
+            ChatHandler.knownUsers.update(profile);
+        }, MineTogetherChat.profileExecutor);
+
         Gson gson = new Gson();
         try
         {
@@ -104,14 +114,18 @@ public class ChatModule
         } catch (IOException ignored) {}
     }
 
-    public static void unmuteUser(String user)
+    public static void unmuteUser(String longhash)
     {
-        Profile profile = ChatHandler.knownUsers.findByDisplay(user);
         try
         {
-            mutedUsers.remove(user);
-            mutedUsers.remove(profile.getShortHash());
-            mutedUsers.remove(profile.getMediumHash());
+            mutedUsers.remove(longhash);
+            CompletableFuture.runAsync(() -> {
+                Profile profile = ChatHandler.knownUsers.findByHash(longhash);
+                if(profile == null) profile = ChatHandler.knownUsers.add(longhash);
+                profile.loadProfile();
+                profile.setMuted(false);
+                ChatHandler.knownUsers.update(profile);
+            }, MineTogetherChat.profileExecutor);
         } catch (Exception ignored) {}
         Gson gson = new Gson();
         try
@@ -128,6 +142,16 @@ public class ChatModule
         {
             FileReader fileReader = new FileReader(mutedUsersPath.toFile());
             mutedUsers = gson.fromJson(fileReader, ArrayList.class);
+            for(String s : mutedUsers)
+            {
+                CompletableFuture.runAsync(() -> {
+                    Profile profile = ChatHandler.knownUsers.findByHash(s);
+                    if(profile == null) profile = ChatHandler.knownUsers.add(s);
+                    profile.loadProfile();
+                    profile.setMuted(true);
+                    ChatHandler.knownUsers.update(profile);
+                }, MineTogetherChat.profileExecutor);
+            }
         } catch (Exception ignored)
         {
         }
