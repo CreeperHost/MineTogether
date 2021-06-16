@@ -1,9 +1,7 @@
 package net.creeperhost.minetogetherlib.chat;
 
-import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
-import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.PrivateChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;

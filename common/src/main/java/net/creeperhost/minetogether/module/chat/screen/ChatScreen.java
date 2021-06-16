@@ -21,7 +21,6 @@ import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
@@ -307,6 +306,8 @@ public class ChatScreen extends Screen
             return false;
         }
 
+//        boolean friends = false;
+
         if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
             String eventValue = event.getValue();
@@ -330,34 +331,35 @@ public class ChatScreen extends Screen
                 Profile targetProfile = knownUsers.findByNick(chatInternalName);
                 if(targetProfile == null) targetProfile = knownUsers.add(chatInternalName);
 
+//                friends = targetProfile.isFriend();
+
                 Minecraft.getInstance().setScreen(new FriendRequestScreen(this, Minecraft.getInstance().getUser().getName(), targetProfile, friendCode, friendName, true));
                 return true;
             }
-            boolean friends = false;
 
-            List<Friend> friends1 = ChatCallbacks.getFriendsList(false, MineTogetherClient.getUUID());
-
-            //Added null check as friends list can take some time to come back when its huge...
-            if(friends1 != null) {
-                for (Friend f : friends1) {
-                    if (f.getProfile() != null) {
-                        if (eventValue.startsWith(f.getProfile().getShortHash())) {
-                            friends = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if(!friends)
-            {
+//            List<Friend> friends1 = ChatCallbacks.getFriendsList(false, MineTogetherClient.getUUID());
+//
+//            //Added null check as friends list can take some time to come back when its huge...
+//            if(friends1 != null) {
+//                for (Friend f : friends1) {
+//                    if (f.getProfile() != null) {
+//                        if (eventValue.startsWith(f.getProfile().getShortHash())) {
+//                            friends = true;
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if(!friends)
+//            {
                 menuDropdownButton.x = (int) mouseX;
                 menuDropdownButton.y = (int) mouseY;
                 menuDropdownButton.flipped = mouseY > 150;
                 menuDropdownButton.dropdownOpen = true;
                 activeDropdown = event.getValue();
                 return true;
-            }
+//            }
         }
         if (event.getAction() == ClickEvent.Action.OPEN_URL)
         {

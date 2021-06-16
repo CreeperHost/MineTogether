@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogether.api.MineTogetherAPI;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
@@ -111,14 +110,11 @@ public class ProfileEntry extends Entry<ProfileEntry>
         Component component = new TranslatableComponent(profile.getUserDisplay());
 
         int t;
-        if (component == TextComponent.EMPTY) {
+        if (component.equals(TextComponent.EMPTY)) {
             GuiComponent.fill(poseStack, k, j, k + l, j + m, FastColor.ARGB32.color(255, 74, 74, 74));
-            this.minecraft.font.getClass();
             t = j + (m - 9) / 2;
         } else {
             GuiComponent.fill(poseStack, k, j, k + l, j + m, FastColor.ARGB32.color(255, 48, 48, 48));
-            this.minecraft.font.getClass();
-            this.minecraft.font.getClass();
             t = j + (m - (9 + 9)) / 2;
             this.minecraft.font.draw(poseStack, component, (float)r, (float)(t + 12), FastColor.ARGB32.color(140, 255, 255, 255));
         }

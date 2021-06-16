@@ -2,33 +2,30 @@ package net.creeperhost.minetogetherlib.chat;
 
 import com.google.common.hash.Hashing;
 import com.google.gson.*;
-import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.serverlists.EnumFlag;
 import net.creeperhost.minetogetherlib.serverlists.FriendStatusResponse;
 import net.creeperhost.minetogetherlib.serverlists.ModPack;
 import net.creeperhost.minetogetherlib.serverlists.Server;
-import net.creeperhost.minetogetherlib.util.Util;
 import net.creeperhost.minetogetherlib.util.WebUtils;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 public final class ChatCallbacks
 {
     private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
     private static String friendCode;
-    private static Util.CachedValue<ArrayList<Friend>> friendsList = null;
+//    private static Util.CachedValue<ArrayList<Friend>> friendsList = null;
 
-    public static boolean inviteFriend(Friend friend, UUID uuid, String ourServerID)
+    public static boolean inviteFriend(Profile profile, UUID uuid, String ourServerID)
     {
         String hash = getPlayerHash(uuid);
         Map<String, String> sendMap = new HashMap<String, String>();
         {
             sendMap.put("hash", hash);
-            sendMap.put("target", friend.getCode());
+            sendMap.put("target", profile.getFriendCode());
             sendMap.put("server", String.valueOf(ourServerID));
         }
         Gson gson = new Gson();
@@ -287,97 +284,95 @@ public final class ChatCallbacks
         return false;
     }
 
-    static boolean friendsGetting;
-    public static CompletableFuture friendFuture;
-    private static int friendFailures = 0;
-
-
-    @Deprecated
-    public static ArrayList<Friend> getFriendsList(boolean force, UUID uuid)
-    {
-        if (friendsList == null)
-            friendsList = new Util.CachedValue<>(30000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>() {
-                @Override
-                public ArrayList<Friend> get(Object... args) {
-                    if (friendsGetting) {
-                        if (friendsList.getCachedValue(args) != null)
-                            return friendsList.getCachedValue(args); // prevent NPE if it is called twice the first time somehow, would rather just make two calls
-                    }
-                    friendsGetting = true;
-                    if(friendFuture != null && !friendFuture.isDone())
-                    {
-                        if(friendFailures > 3) {
-                            friendFuture.cancel(true);
-                            friendFailures = 0;
-                        } else {
-                            friendFailures++;
-                        }
-                    } else {
-                        friendFuture = CompletableFuture.runAsync(() -> {
-                            Map<String, String> sendMap = new HashMap<String, String>();
-                            {
-                                sendMap.put("hash", getPlayerHash(uuid));
-                            }
-                            String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
-
-                            ArrayList<Friend> tempArr = new ArrayList<Friend>();
-
-                            // no idea how this can return null, but apparently it can, so this will fix it.
-                            if (resp.equals("error")) {
-                                if (friendsList.getCachedValue(args) == null) {
-                                    friendsList.set(tempArr);
-                                }
-                                return;
-                            }
-
-                            JsonElement el = new JsonParser().parse(resp);
-                            if (el.isJsonObject()) {
-
-                                JsonObject obj = el.getAsJsonObject();
-                                if (obj.get("status").getAsString().equals("success")) {
-                                    JsonArray array = obj.getAsJsonArray("friends");
-                                    for (JsonElement friendEl : array) {
-                                        JsonObject friend = (JsonObject) friendEl;
-                                        String name = "null";
-
-                                        if (!friend.get("name").isJsonNull()) {
-                                            name = friend.get("name").getAsString();
-                                        }
-                                        String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
-                                        boolean accepted = friend.get("accepted").getAsBoolean();
-                                        Profile profile = ChatHandler.knownUsers.findByHash(code);
-                                        if (profile == null) profile = ChatHandler.knownUsers.add(code);
-                                        try
-                                        {
-                                            Thread.sleep(1000);
-                                        } catch (InterruptedException e) { e.printStackTrace(); }
-
-                                        CompletableFuture.runAsync(() -> {
-                                            Profile profile1 = ChatHandler.knownUsers.findByHash(code);
-                                            profile1.loadProfile();
-                                            ChatHandler.knownUsers.update(profile1);
-                                        }, MineTogetherChat.profileExecutor);
-
-                                        tempArr.add(new Friend(name, code, accepted));
-                                    }
-                                } else {
-                                    tempArr = friendsList.getCachedValue(args);
-                                }
-                            }
-                            friendsList.set(tempArr);
-                            friendsGetting = false;
-                        }, MineTogetherChat.profileExecutor);
-                    }
-                    return friendsList.getCachedValue(args);
-                }
-
-                @Override
-                public boolean needsRefresh(Object... args) {
-                    return args.length > 0 && args[0].equals(true);
-                }
-            });
-        return friendsList.get(force);
-    }
+//    static boolean friendsGetting;
+//    public static CompletableFuture friendFuture;
+//    private static int friendFailures = 0;
+//    @Deprecated
+//    public static ArrayList<Friend> getFriendsList(boolean force, UUID uuid)
+//    {
+//        if (friendsList == null)
+//            friendsList = new Util.CachedValue<>(30000, new Util.CachedValue.ICacheCallback<ArrayList<Friend>>() {
+//                @Override
+//                public ArrayList<Friend> get(Object... args) {
+//                    if (friendsGetting) {
+//                        if (friendsList.getCachedValue(args) != null)
+//                            return friendsList.getCachedValue(args); // prevent NPE if it is called twice the first time somehow, would rather just make two calls
+//                    }
+//                    friendsGetting = true;
+//                    if(friendFuture != null && !friendFuture.isDone())
+//                    {
+//                        if(friendFailures > 3) {
+//                            friendFuture.cancel(true);
+//                            friendFailures = 0;
+//                        } else {
+//                            friendFailures++;
+//                        }
+//                    } else {
+//                        friendFuture = CompletableFuture.runAsync(() -> {
+//                            Map<String, String> sendMap = new HashMap<String, String>();
+//                            {
+//                                sendMap.put("hash", getPlayerHash(uuid));
+//                            }
+//                            String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
+//
+//                            ArrayList<Friend> tempArr = new ArrayList<Friend>();
+//
+//                            // no idea how this can return null, but apparently it can, so this will fix it.
+//                            if (resp.equals("error")) {
+//                                if (friendsList.getCachedValue(args) == null) {
+//                                    friendsList.set(tempArr);
+//                                }
+//                                return;
+//                            }
+//
+//                            JsonElement el = new JsonParser().parse(resp);
+//                            if (el.isJsonObject()) {
+//
+//                                JsonObject obj = el.getAsJsonObject();
+//                                if (obj.get("status").getAsString().equals("success")) {
+//                                    JsonArray array = obj.getAsJsonArray("friends");
+//                                    for (JsonElement friendEl : array) {
+//                                        JsonObject friend = (JsonObject) friendEl;
+//                                        String name = "null";
+//
+//                                        if (!friend.get("name").isJsonNull()) {
+//                                            name = friend.get("name").getAsString();
+//                                        }
+//                                        String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
+//                                        boolean accepted = friend.get("accepted").getAsBoolean();
+//                                        Profile profile = ChatHandler.knownUsers.findByHash(code);
+//                                        if (profile == null) profile = ChatHandler.knownUsers.add(code);
+//                                        try
+//                                        {
+//                                            Thread.sleep(1000);
+//                                        } catch (InterruptedException e) { e.printStackTrace(); }
+//
+//                                        CompletableFuture.runAsync(() -> {
+//                                            Profile profile1 = ChatHandler.knownUsers.findByHash(code);
+//                                            profile1.loadProfile();
+//                                            ChatHandler.knownUsers.update(profile1);
+//                                        }, MineTogetherChat.profileExecutor);
+//
+//                                        tempArr.add(new Friend(name, code, accepted));
+//                                    }
+//                                } else {
+//                                    tempArr = friendsList.getCachedValue(args);
+//                                }
+//                            }
+//                            friendsList.set(tempArr);
+//                            friendsGetting = false;
+//                        }, MineTogetherChat.profileExecutor);
+//                    }
+//                    return friendsList.getCachedValue(args);
+//                }
+//
+//                @Override
+//                public boolean needsRefresh(Object... args) {
+//                    return args.length > 0 && args[0].equals(true);
+//                }
+//            });
+//        return friendsList.get(force);
+//    }
 
     public static Server getServer(int id) {
         Map<String, String> jsonPass = new HashMap<String, String>();

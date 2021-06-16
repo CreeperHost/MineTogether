@@ -20,10 +20,8 @@ public class FriendUpdateThread
 
     public static void init()
     {
-        updateFriendsList();
         Runnable runnable = FriendUpdateThread::updateFriendsList;
-
-        executorService.schedule(runnable, 30, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(runnable, 0,30, TimeUnit.SECONDS);
     }
 
     public static void setFriendUpdate(Runnable runnable)
@@ -61,6 +59,7 @@ public class FriendUpdateThread
                     if(accepted)
                     {
                         Profile friendProfile = ChatHandler.knownUsers.findByHash(code);
+                        if(friendProfile == null) friendProfile = ChatHandler.knownUsers.add(code);
                         friendProfile.setFriendName(name);
                         friendProfile.setFriend(true);
                         ChatHandler.knownUsers.update(friendProfile);

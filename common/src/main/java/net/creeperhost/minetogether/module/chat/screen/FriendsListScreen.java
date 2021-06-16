@@ -10,7 +10,6 @@ import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -111,22 +110,22 @@ public class FriendsListScreen extends Screen
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
         drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.multiplayer.friendcode"), 40, this.height - 35, -1);
 
-        if(!ChatCallbacks.friendFuture.isDone() && list.children().isEmpty()) ScreenHelpers.loadingSpin(f, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
-        if(ChatCallbacks.friendFuture.isDone() && list.children().isEmpty()) drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
+//        if(!ChatCallback.friendFuture.isDone() && list.children().isEmpty()) ScreenHelpers.loadingSpin(f, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+        if(list.children().isEmpty()) drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
     }
 
     @Override
     public void tick()
     {
         ticks++;
-        if(ChatCallbacks.friendFuture != null && ChatCallbacks.friendFuture.isDone())
-        {
-            if(first)
-            {
-                first = false;
-                refreshFriendsList(false);
-            }
-        }
+//        if(ChatCallbacks.friendFuture != null && ChatCallbacks.friendFuture.isDone())
+//        {
+//            if(first)
+//            {
+//                first = false;
+//                refreshFriendsList(false);
+//            }
+//        }
     }
 
     public static ArrayList<Profile> removedFriends = new ArrayList<>();
@@ -200,9 +199,6 @@ public class FriendsListScreen extends Screen
         }, new TranslatableComponent("minetogether.removefriend.sure1"), new TranslatableComponent("minetogether.removefriend.sure2"));
         minecraft.setScreen(confirmScreen);
     }
-
-    //TODO
-    public void inviteGroupChat(Friend friend) { }
 
     @Override
     public boolean charTyped(char c, int i)

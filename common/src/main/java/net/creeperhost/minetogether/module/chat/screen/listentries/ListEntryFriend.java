@@ -6,7 +6,6 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.lists.ScreenListEntry;
-import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

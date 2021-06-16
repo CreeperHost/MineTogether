@@ -3,7 +3,6 @@ package net.creeperhost.minetogetherlib.serverlists;
 import com.google.gson.*;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.data.Friend;
 import net.creeperhost.minetogetherlib.util.Util;
 import net.creeperhost.minetogetherlib.util.WebUtils;
 
@@ -11,9 +10,7 @@ import java.util.*;
 
 public class ServerListCallbacks
 {
-//    private static Map<IServerHost, Map<String, String>> locationCache = new HashMap<IServerHost, Map<String, String>>();
     private static String userCountry;
-    private static Util.CachedValue<ArrayList<Friend>> friendsList = null;
     private static Util.CachedValue<List<Server>> serverListCache;
 
     private static Map<String, String> countries = new LinkedHashMap<String, String>()

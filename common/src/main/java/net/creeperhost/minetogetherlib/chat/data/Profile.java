@@ -204,20 +204,20 @@ public class Profile
 
     public boolean isFriend()
     {
-        long currentTime = System.currentTimeMillis() / 1000;
-        if(currentTime > (lastFriendCheck + 30)) {
-            ArrayList<Friend> friendsList = ChatCallbacks.getFriendsList(false, MineTogetherChat.INSTANCE.uuid);
-            if(friendsList == null) return false;
-            for (Friend friend : friendsList) {
-                if(getLongHash().length() == 0) continue;
-                if (friend.getCode().equalsIgnoreCase(getLongHash())) {
-                    this.friend = true;
-                    this.lastFriendCheck = System.currentTimeMillis() / 1000;
-                    this.friendName = friend.getName();
-                    break;
-                }
-            }
-        }
+//        long currentTime = System.currentTimeMillis() / 1000;
+//        if(currentTime > (lastFriendCheck + 30)) {
+//            ArrayList<Friend> friendsList = ChatCallbacks.getFriendsList(false, MineTogetherChat.INSTANCE.uuid);
+//            if(friendsList == null) return false;
+//            for (Friend friend : friendsList) {
+//                if(getLongHash().length() == 0) continue;
+//                if (friend.getCode().equalsIgnoreCase(getLongHash())) {
+//                    this.friend = true;
+//                    this.lastFriendCheck = System.currentTimeMillis() / 1000;
+//                    this.friendName = friend.getName();
+//                    break;
+//                }
+//            }
+//        }
         return this.friend;
     }
 
