@@ -1,11 +1,15 @@
 package net.creeperhost.minetogetherlib.chat;
 
+import com.google.gson.*;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
+import net.creeperhost.minetogetherlib.util.WebUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -190,6 +194,7 @@ public class KnownUsers
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
         return profilesCopy.stream().map(Profile::getUserDisplay).collect(Collectors.toList());
     }
+    private long lastFriendsUpdate = 0;
 
     public List<Profile> getFriends()
     {
@@ -212,6 +217,20 @@ public class KnownUsers
         for(Profile profile : profilesCopy)
         {
             if(profile.isMuted())
+            {
+                returnList.add(profile);
+            }
+        }
+        return returnList;
+    }
+
+    public List<Profile> getPartyMembers()
+    {
+        List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
+        List<Profile> returnList = new ArrayList<>();
+        for(Profile profile : profilesCopy)
+        {
+            if(profile.isPartyMember())
             {
                 returnList.add(profile);
             }

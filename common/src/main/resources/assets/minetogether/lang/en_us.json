@@ -147,7 +147,6 @@
   "minetogether.chat.message.banned": "Unable to send messages while client is banned",
   "minetogether.chat.message.disconnect": "Unable to send messages while client is disconnect",
   "minetogether.chat.message.connecting": "Unable to send messages while client is connecting",
-  "minetogether.socialInteractions.tab_friends": "Friends"
-
-
+  "minetogether.socialInteractions.tab_friends": "Friends",
+  "minetogether.socialInteractions.tab_party": "Party"
 }

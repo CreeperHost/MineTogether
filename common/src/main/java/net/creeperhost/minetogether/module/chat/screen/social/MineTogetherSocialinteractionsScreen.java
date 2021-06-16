@@ -1,9 +1,10 @@
 package net.creeperhost.minetogether.module.chat.screen.social;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialInteractionsPlayerList;
+import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
@@ -13,9 +14,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MineTogetherSocialinteractionsScreen extends Screen
 {
     public static final ResourceLocation SOCIAL_INTERACTIONS_LOCATION = new ResourceLocation("textures/gui/social_interactions.png");
@@ -23,6 +21,8 @@ public class MineTogetherSocialinteractionsScreen extends Screen
     private Button allButton;
     private Button friendsButton;
     private Button blockedButton;
+    private Button partyButton;
+    private Button createParty;
     private EditBox searchBox;
     private String lastSearch = "";
     private Page page;
@@ -48,18 +48,40 @@ public class MineTogetherSocialinteractionsScreen extends Screen
             socialInteractionsPlayerList = new MineTogetherSocialInteractionsPlayerList(this, minecraft, width, height, 88, listEnd(), 36);
         }
 
-        int i = socialInteractionsPlayerList.getRowWidth() / 3;
+        int i = socialInteractionsPlayerList.getRowWidth() / 4;
         int j = socialInteractionsPlayerList.getRowLeft();
         int k = socialInteractionsPlayerList.getRowRight();
+        int m = 64 + 16 * this.backgroundUnits();
 
         allButton = addButton(new Button(j, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_all"), (button) -> {
             showPage(Page.ALL);
         }));
-        friendsButton = addButton(new Button((j + k - i) / 2 + 1, 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_friends"), (button) -> {
+        friendsButton = addButton(new Button(j + allButton.getWidth(), 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_friends"), (button) -> {
             showPage(Page.FRIENDS);
         }));
-        blockedButton = addButton(new Button(k - i + 1, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_blocked"), (button) -> {
+        blockedButton = addButton(new Button(k - i, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_blocked"), (button) -> {
             showPage(Page.BLOCKED);
+        }));
+        partyButton = addButton(new Button(j + allButton.getWidth() * 2, 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_party"), (button) -> {
+            showPage(Page.PARTY);
+        }));
+
+        createParty = addButton(new Button((width / 2) - 80, m, 160, 20, new TranslatableComponent("Create Party?"), button ->
+        {
+            String channelName = MineTogetherChat.profile.get().getMediumHash();
+
+            if(!ChatHandler.hasParty)
+            {
+                ChatHandler.createPartyChannel(channelName);
+                System.out.println(channelName);
+                MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Joining Group channel " + channelName), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+            }
+            else
+            {
+                ChatHandler.leaveChannel(channelName);
+                MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Leaving channel " + channelName), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+            }
+            showPage(page);
         }));
 
         String string = searchBox != null ? searchBox.getValue() : "";
@@ -82,6 +104,25 @@ public class MineTogetherSocialinteractionsScreen extends Screen
         renderBackground(poseStack);
 
         if(!socialInteractionsPlayerList.list.isEmpty()) socialInteractionsPlayerList.render(poseStack, i, j, f);
+        if(createParty != null)
+        {
+            if (page == Page.PARTY)
+            {
+                createParty.active = true;
+                createParty.visible = true;
+            }
+            else
+            {
+                createParty.active = false;
+                createParty.visible = false;
+            }
+        }
+
+        if(createParty != null)
+        {
+            String buttonText = ChatHandler.hasParty ? "Disband Party" : "Create Party";
+            createParty.setMessage(new TranslatableComponent(buttonText));
+        }
 
         if (!searchBox.isFocused() && searchBox.getValue().isEmpty())
         {
@@ -178,6 +219,7 @@ public class MineTogetherSocialinteractionsScreen extends Screen
     public static enum Page {
         ALL,
         FRIENDS,
+        PARTY,
         BLOCKED;
 
         private Page() {

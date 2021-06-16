@@ -2,6 +2,7 @@ package net.creeperhost.minetogetherlib.chat.data;
 
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 
+@Deprecated
 public class Friend
 {
     private final String name;

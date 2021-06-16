@@ -178,22 +178,20 @@ public class FriendsListScreen extends Screen
         this.hoveringText = hoveringText;
     }
 
-    private Friend removeFriend;
     @SuppressWarnings("all")
-    public void removeFriend(Friend friend)
+    public void removeFriend(Profile profile)
     {
-        removeFriend = friend;
         ConfirmScreen confirmScreen = new ConfirmScreen(t ->
         {
             if(t)
             {
                 CompletableFuture.runAsync(() ->
                 {
-                   removedFriends.add(friend.getProfile());
+                   removedFriends.add(profile);
                    refreshFriendsList(true);
-                   if(!ChatCallbacks.removeFriend(removeFriend.getCode(), MineTogetherClient.getUUID()))
+                   if(!ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getUUID()))
                    {
-                       removedFriends.remove(friend.getCode());
+                       profile.setFriend(false);
                        refreshFriendsList(true);
                    }
                 });

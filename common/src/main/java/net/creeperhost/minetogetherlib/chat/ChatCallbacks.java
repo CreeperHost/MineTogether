@@ -291,6 +291,8 @@ public final class ChatCallbacks
     public static CompletableFuture friendFuture;
     private static int friendFailures = 0;
 
+
+    @Deprecated
     public static ArrayList<Friend> getFriendsList(boolean force, UUID uuid)
     {
         if (friendsList == null)

@@ -19,6 +19,8 @@ public class MineTogetherChat
     public static Executor chatMessageExecutor = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-chatmessage-%d").build());
     public static Executor messageHandlerExecutor = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-messagehandler-%d").build());
     public static Executor whoIsExecutor = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-whoisexecuter-%d").build());
+    public static Executor friendExecutor = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-friend-%d").build());
+
     private static CompletableFuture chatThread = null;
 
     public String ourNick = "";

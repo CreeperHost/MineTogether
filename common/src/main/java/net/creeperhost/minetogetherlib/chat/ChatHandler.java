@@ -38,7 +38,7 @@ public class ChatHandler
     static String realName;
     public static PrivateChat privateChatList = null;
     public static PrivateChat privateChatInvite = null;
-    public static boolean hasGroup = false;
+    public static boolean hasParty = false;
     public static AtomicBoolean isInChannel = new AtomicBoolean(false);
     public static Logger logger = LogManager.getLogger();
     private static int serverId = -1;
@@ -99,39 +99,39 @@ public class ChatHandler
         return "";//host.getNameForUser(nick);
     }
     
-    public static void updateFriends(List<Profile> users)
-    {
-        List<Friend> friendsCall = ChatCallbacks.getFriendsList(false, MineTogetherClient.getUUID());
-        HashMap<String, String> oldFriends = friends;
-        friends = new HashMap<>();
-        for (Friend friend : friendsCall)
-        {
-            if (friend.isAccepted()) // why did I never do this before?
-            {
-                String friendCode = "MT" + friend.getCode().substring(0, 28);
-                for (Profile user : users)
-                {
-                    if (user.friendCode.equals(friendCode))
-                        friends.put(friendCode, friend.getName());
-                }
-            }
-        }
-        
-        for (Map.Entry<String, String> friend : friends.entrySet())
-        {
-            if (!oldFriends.containsKey(friend.getKey()))
-            {
-                CompletableFuture.runAsync(() ->
-                {
-                    Profile profile = knownUsers.findByNick(friend.getKey());
-                    if(profile == null) knownUsers.add(friend.getKey());
-                    if(profile != null) profile.isOnline();
-                }, MineTogetherChat.profileExecutor);
-
-//                host.friendEvent(friend.getKey(), false);
-            }
-        }
-    }
+//    public static void updateFriends(List<Profile> users)
+//    {
+//        List<Friend> friendsCall = ChatCallbacks.getFriendsList(false, MineTogetherClient.getUUID());
+//        HashMap<String, String> oldFriends = friends;
+//        friends = new HashMap<>();
+//        for (Friend friend : friendsCall)
+//        {
+//            if (friend.isAccepted()) // why did I never do this before?
+//            {
+//                String friendCode = "MT" + friend.getCode().substring(0, 28);
+//                for (Profile user : users)
+//                {
+//                    if (user.friendCode.equals(friendCode))
+//                        friends.put(friendCode, friend.getName());
+//                }
+//            }
+//        }
+//
+//        for (Map.Entry<String, String> friend : friends.entrySet())
+//        {
+//            if (!oldFriends.containsKey(friend.getKey()))
+//            {
+//                CompletableFuture.runAsync(() ->
+//                {
+//                    Profile profile = knownUsers.findByNick(friend.getKey());
+//                    if(profile == null) knownUsers.add(friend.getKey());
+//                    if(profile != null) profile.isOnline();
+//                }, MineTogetherChat.profileExecutor);
+//
+////                host.friendEvent(friend.getKey(), false);
+//            }
+//        }
+//    }
     
     public static void sendMessage(String currentTarget, String text)
     {
@@ -146,7 +146,26 @@ public class ChatHandler
     {
         IrcHandler.sendCTCPMessagePrivate(target, "FRIENDREQ", MineTogetherChat.profile.get().getFriendCode() + " " + desiredName);
     }
-    
+
+    public static void createPartyChannel(String owner)
+    {
+        //Reset the
+        privateChatList = null;
+
+        IrcHandler.joinChannel("#" + owner);
+        IrcHandler.sendString("MODE #" + owner + " +i", true);
+        privateChatList = new PrivateChat("#" + owner, owner);
+        ChatHandler.hasParty = true;
+        ChatHandler.currentGroup = "#" + owner;
+    }
+
+    public static void leaveChannel(String owner)
+    {
+        if(!hasParty) return;
+        IrcHandler.partChannel("#" + owner);
+        ChatHandler.hasParty = false;
+    }
+
     public static void sendChannelInvite(String target, String owner)
     {
         privateChatList = null;
@@ -156,7 +175,7 @@ public class ChatHandler
             IrcHandler.joinChannel("#" + owner);
             IrcHandler.sendString("MODE #" + owner + " +i", true);
             privateChatList = new PrivateChat("#" + owner, owner);
-            ChatHandler.hasGroup = true;
+            ChatHandler.hasParty = true;
             ChatHandler.currentGroup = "#" + owner;
         }
         IrcHandler.sendString("INVITE " + target + " #" + owner, true);
@@ -185,11 +204,11 @@ public class ChatHandler
     
     public static void acceptPrivateChatInvite(PrivateChat invite)
     {
-        if (hasGroup) closePrivateChat();
+        if (hasParty) closePrivateChat();
         privateChatList = invite;
         IrcHandler.joinChannel(invite.getChannelname());
         currentGroup = invite.getChannelname();
-        hasGroup = true;
+        hasParty = true;
         privateChatInvite = null;
     }
 
@@ -212,7 +231,7 @@ public class ChatHandler
     {
         IrcHandler.sendString("PART " + privateChatList.getChannelname(), true);
         privateChatList = null;
-        ChatHandler.hasGroup = false;
+        ChatHandler.hasParty = false;
     }
 
     public static void onChannelNotice(String user, String message)

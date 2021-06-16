@@ -16,7 +16,6 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ListEntryFriend extends ScreenListEntry
 {
-    private final Friend friend;
     private final FriendsListScreen friendsListScreen;
     private final Profile profile;
     private boolean wasHovering;
@@ -28,7 +27,6 @@ public class ListEntryFriend extends ScreenListEntry
     {
         super(screenList);
         this.friendsListScreen = friendsListScreen;
-        friend = new Friend(profile.friendName, profile.friendCode, true);
         this.profile = profile;
     }
 
@@ -46,10 +44,10 @@ public class ListEntryFriend extends ScreenListEntry
             if (transparency >= 0.5F) transparency -= 0.04;
         }
 
-        this.mc.font.draw(matrixStack, friend.getName(), x + 5, y + 5, 16777215);
+        this.mc.font.draw(matrixStack, profile.getFriendName(), x + 5, y + 5, 16777215);
         if(profile != null) {
             this.mc.font.draw(matrixStack, ChatFormatting.DARK_GRAY + profile.getUserDisplay(), x + listWidth - this.mc.font.width(profile.getUserDisplay()) - 20, y + 7, 16777215);
-            this.mc.font.draw(matrixStack, new TranslatableComponent(ChatFormatting.GRAY + (friend.isAccepted() ? (profile != null && profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline") : "Pending")).getString(), x + 5, y + 17, 16777215);
+            this.mc.font.draw(matrixStack, new TranslatableComponent(ChatFormatting.GRAY + (profile.isFriend() ? (profile != null && profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline") : "Pending")).getString(), x + 5, y + 17, 16777215);
         }
         int transparentString = (int) (transparency * 254) << 24;
 
@@ -83,11 +81,6 @@ public class ListEntryFriend extends ScreenListEntry
         }
     }
 
-    public Friend getFriend()
-    {
-        return friend;
-    }
-
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int p_mouseClicked_5_)
     {
@@ -97,13 +90,13 @@ public class ListEntryFriend extends ScreenListEntry
 
         if (mouseX >= listWidth - crossWidth - 4 && mouseX <= listWidth - 5 && mouseY - yTop >= 0 && mouseY - yTop <= 7)
         {
-            friendsListScreen.removeFriend(friend);
+            friendsListScreen.removeFriend(profile);
             wasHovering = false;
             friendsListScreen.setHoveringText(null);
             return true;
         } else if ((profile != null && profile.isOnline()) && mouseX >= listWidth - crossWidth - 4 && mouseX <= listWidth - 2 && mouseY - yTop >= 0 && mouseY - yTop <= 27)
         {
-            friendsListScreen.inviteGroupChat(friend);
+//            friendsListScreen.inviteGroupChat(profile);
             wasHovering = false;
             friendsListScreen.setHoveringText(null);
             return true;

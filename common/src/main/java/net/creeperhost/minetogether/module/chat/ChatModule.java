@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.mixin.ChatComponentInvoker;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
+import net.creeperhost.minetogether.threads.FriendUpdateThread;
 import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
@@ -49,6 +50,7 @@ public class ChatModule
     {
         buildChat();
         loadMutedList();
+        FriendUpdateThread.init();
     }
 
     public static void buildChat()

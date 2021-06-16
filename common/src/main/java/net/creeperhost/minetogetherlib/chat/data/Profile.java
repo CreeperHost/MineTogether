@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.creeperhost.minetogether.threads.FriendUpdateThread;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
@@ -36,6 +37,7 @@ public class Profile
     private long profileAge;
     private boolean hasAccount = false;
     private boolean muted = false;
+    private boolean isPartyMember = false;
 
     public Profile(String serverNick)
     {
@@ -84,15 +86,29 @@ public class Profile
         this.premium = premium;
         this.userDisplay = userDisplay;
     }
-    public String getLongHash() {
+    /**
+     * The name for a user on the api.                           (1)
+     *
+     * @return 128 chars.
+     */
+    public String getLongHash()
+    {
         return longHash;
     }
 
-    public String getShortHash() {
+    @Deprecated
+    public String getShortHash()
+    {
         return shortHash;
     }
 
-    public String getMediumHash() {
+    /**
+     * The name for a user on the IRC server.                           (1)
+     *
+     * @return MT 28 chars.
+     */
+    public String getMediumHash()
+    {
         return mediumHash;
     }
 
@@ -129,9 +145,24 @@ public class Profile
         return isOnline;
     }
 
+    public boolean isPartyMember()
+    {
+        return isPartyMember;
+    }
+
+    public void setPartyMember(boolean partyMember)
+    {
+        isPartyMember = partyMember;
+    }
+
     public void setOnline(boolean online)
     {
+        boolean oldOnline = this.isOnline;
         this.isOnline = online;
+        if(oldOnline != online)
+        {
+            if(isFriend()) FriendUpdateThread.runFriendUpdate();
+        }
     }
 
     public boolean hasAccount()
@@ -192,6 +223,14 @@ public class Profile
 
     public void setFriend(boolean friend) {
         this.friend = friend;
+    }
+
+    public String getFriendName() {
+        return friendName;
+    }
+
+    public void setFriendName(String friendName) {
+        this.friendName = friendName;
     }
 
     public boolean isMuted()

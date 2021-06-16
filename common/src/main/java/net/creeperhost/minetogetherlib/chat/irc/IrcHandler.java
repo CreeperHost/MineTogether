@@ -220,6 +220,11 @@ public class IrcHandler
         sendString("JOIN " + channel, true);
     }
 
+    public static void partChannel(String channel)
+    {
+        sendString("PART " + channel, true);
+    }
+
     public static String toCtcp(String message)
     {
         StringBuilder builder = new StringBuilder(message.length());
@@ -394,7 +399,7 @@ public class IrcHandler
                     } else {
                         ChatHandler.curseSync.put(nick, json);
                     }
-                    CompletableFuture.runAsync(() -> ChatHandler.updateFriends(ChatHandler.knownUsers.getFriends()), MineTogetherChat.profileExecutor);
+//                    CompletableFuture.runAsync(() -> ChatHandler.updateFriends(ChatHandler.knownUsers.getFriends()), MineTogetherChat.profileExecutor);
 
                     Profile profile = ChatHandler.knownUsers.findByNick(nick);
                     if (profile != null) {
