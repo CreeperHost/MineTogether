@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.threads.FriendUpdateThread;
+import net.creeperhost.minetogethergui.widgets.Target;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
@@ -139,7 +140,7 @@ public class Profile
         }
         if(isFriend())
         {
-//            Target.updateCache();
+            Target.updateCache();
             //Add them to DM list
         }
         return isOnline;

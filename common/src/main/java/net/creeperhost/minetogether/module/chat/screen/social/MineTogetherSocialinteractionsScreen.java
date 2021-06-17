@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
@@ -73,13 +74,15 @@ public class MineTogetherSocialinteractionsScreen extends Screen
             if(!ChatHandler.hasParty)
             {
                 ChatHandler.createPartyChannel(channelName);
-                System.out.println(channelName);
                 MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Joining Group channel " + channelName), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+                return;
             }
             else
             {
-                ChatHandler.leaveChannel(channelName);
-                MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Leaving channel " + channelName), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+                Profile profile = ChatHandler.knownUsers.findByNick(ChatHandler.getPartyOwner());
+                if(profile != null) profile.setPartyMember(false);
+                MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Leaving Group " + ChatHandler.currentParty), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+                ChatHandler.leaveChannel(ChatHandler.currentParty);
             }
             showPage(page);
         }));
@@ -120,7 +123,9 @@ public class MineTogetherSocialinteractionsScreen extends Screen
 
         if(createParty != null)
         {
-            String buttonText = ChatHandler.hasParty ? "Disband Party" : "Create Party";
+            String buttonText = ChatHandler.hasParty ? "Leave Party" : "Create Party";
+            if(ChatHandler.isPartyOwner()) buttonText = "Disband Party";
+
             createParty.setMessage(new TranslatableComponent(buttonText));
         }
 

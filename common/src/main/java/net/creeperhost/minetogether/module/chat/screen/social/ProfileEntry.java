@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
+import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
@@ -74,9 +75,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
             {
                 case FRIENDS:
                     MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Adding " + profile.getUserDisplay() + " to Party"), mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
-                    profile.setPartyMember(true);
-                    ChatHandler.knownUsers.update(profile);
-                    ChatHandler.sendChannelInvite(profile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
+                    ChatHandler.sendPartyInvite(profile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
                     refreshPage();
                     break;
             }
@@ -90,7 +89,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
         this.openDMButton = new ImageButton(0, 0, 20, 20, 0, 38, 20, resourceLocation, 256, 256, (button) ->
         {
-
+            Minecraft.getInstance().setScreen(new ChatScreen(mineTogetherSocialinteractionsScreen, profile.getMediumHash()));
         });
 
         this.children = ImmutableList.of(removeButton, addToPartyButton, muteButton, openDMButton);
@@ -129,7 +128,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
         if(this.mineTogetherSocialinteractionsScreen.getPage() == MineTogetherSocialinteractionsScreen.Page.FRIENDS)
         {
             this.addToPartyButton.x = k + (l - this.addToPartyButton.getWidth() - 4);
-            this.addToPartyButton.y = j + ((m - this.addToPartyButton.getHeight()) / 2);
+            this.addToPartyButton.y = j + ((m - this.addToPartyButton.getHeight()) / 2 + 10);
             this.addToPartyButton.render(poseStack, n, o, f);
             this.addToPartyButton.active = true;
         }
@@ -141,9 +140,12 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
         if (this.removeButton != null && this.mineTogetherSocialinteractionsScreen.getPage() != MineTogetherSocialinteractionsScreen.Page.ALL)
         {
-            this.removeButton.x = k + (l - this.removeButton.getWidth() - 4 - 40);
-            this.removeButton.y = j + ((m - this.removeButton.getHeight()) / 2);
+            this.removeButton.x = k + (l - this.removeButton.getWidth() - 4);
+            this.removeButton.y = j + ((m - this.removeButton.getHeight()) / 2 - 10);
             this.removeButton.render(poseStack, n, o, f);
+            this.openDMButton.x = k + (l - this.openDMButton.getWidth() - 4 - 15);
+            this.openDMButton.y = j + (m - this.openDMButton.getHeight()) / 2;
+            this.openDMButton.render(poseStack, n, o, f);
         }
         else
         {
@@ -166,12 +168,30 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
         if(removeButton.isHovered())
         {
-            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Remove Friend"), n, o);
+            Component component1 = new TranslatableComponent("");
+            switch (mineTogetherSocialinteractionsScreen.getPage())
+            {
+                case PARTY:
+                    component1 = new TranslatableComponent("Remove from party");
+                    break;
+                case FRIENDS:
+                    component1 = new TranslatableComponent("Remove Friend");
+                    break;
+                case BLOCKED:
+                    component1 = new TranslatableComponent("Unblock");
+                    break;
+            }
+            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, component1, n, o);
         }
         if(addToPartyButton.isHovered())
         {
             mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Add to party"), n, o);
         }
+        if(openDMButton.isHovered())
+        {
+            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Direct messages"), n, o);
+        }
+        if(muteButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Block"), n, o);
     }
 
     @Override

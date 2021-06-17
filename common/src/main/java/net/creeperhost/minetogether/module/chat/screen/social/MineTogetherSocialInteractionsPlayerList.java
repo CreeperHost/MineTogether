@@ -54,7 +54,6 @@ public class MineTogetherSocialInteractionsPlayerList extends ContainerObjectSel
                 break;
             case PARTY:
                 copy = ChatHandler.knownUsers.getPartyMembers();
-                copy.forEach(profile -> System.out.println(profile.getUserDisplay()));
                 break;
         }
 

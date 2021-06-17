@@ -3,7 +3,6 @@ package net.creeperhost.minetogetherlib.chat.irc;
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.PrivateChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -384,27 +383,32 @@ public class IrcHandler
         {
             CompletableFuture.runAsync(() ->
             {
-                Pattern pattern = Pattern.compile(":(MT.{28})!.*JOIN (#\\w+) . \\:(\\{.*\\})");
+                Pattern pattern = Pattern.compile("\\:(MT.{28})!.*JOIN \\:(#\\w+)(?:.*\\:(\\{.*\\}))?");
                 Matcher matcher = pattern.matcher(s);
                 if (matcher.matches()) {
                     String nick = matcher.group(1);
                     String channel = matcher.group(2);
                     String json = matcher.group(3);
-                    if(ChatHandler.curseSync.containsKey(nick)) {
-                        if(!ChatHandler.curseSync.get(nick).equals(json))
+                    if(json != null)
+                    {
+                        if(ChatHandler.curseSync.containsKey(nick))
                         {
-                            ChatHandler.curseSync.remove(nick);
+                            if(!ChatHandler.curseSync.get(nick).equals(json))
+                            {
+                                ChatHandler.curseSync.remove(nick);
+                                ChatHandler.curseSync.put(nick, json);
+                            }
+                        } else
+                        {
                             ChatHandler.curseSync.put(nick, json);
                         }
-                    } else {
-                        ChatHandler.curseSync.put(nick, json);
                     }
-//                    CompletableFuture.runAsync(() -> ChatHandler.updateFriends(ChatHandler.knownUsers.getFriends()), MineTogetherChat.profileExecutor);
 
                     Profile profile = ChatHandler.knownUsers.findByNick(nick);
                     if (profile != null) {
                         profile.setOnline(true);
-                        profile.setPackID(json);
+                        if(json != null) profile.setPackID(json);
+                        profile.setPartyMember(channel.equals(ChatHandler.currentParty));
                         ChatHandler.knownUsers.update(profile);
                     }
                 }
@@ -458,13 +462,21 @@ public class IrcHandler
         }
         else if(s.contains("QUIT") || s.contains("LEAVE") || s.contains("PART"))
         {
-            Pattern pattern = Pattern.compile("\\:(MT\\w{28})!");
+            Pattern pattern = Pattern.compile("\\:(MT\\w{28})!(?:.*(\\#.*))?");
             Matcher matcher = pattern.matcher(s);
             if(matcher.matches())
             {
                 String name = matcher.group(1);
-                if (ChatHandler.privateChatList != null && ChatHandler.privateChatList.getOwner().equals(name)) {
-//                    ChatHandler.host.closeGroupChat();
+                String channel = matcher.group(2);
+
+                if(channel != null && ChatHandler.currentParty.equals(channel))
+                {
+                    Profile profile = ChatHandler.knownUsers.findByNick(name);
+                    if(profile != null) profile.setPartyMember(false);
+                }
+                else
+                {
+                    ChatHandler.knownUsers.removeByNick(name, true);
                 }
             }
         }
@@ -476,9 +488,7 @@ public class IrcHandler
             if(matcher.matches())
             {
                 String from = matcher.group(1);
-                String channel = matcher.group(3);
-                PrivateChat pc = new PrivateChat(channel, from);
-                ChatHandler.acceptPrivateChatInvite(pc);
+                ChatHandler.acceptPartyInvite(from);
             }
             else
             {

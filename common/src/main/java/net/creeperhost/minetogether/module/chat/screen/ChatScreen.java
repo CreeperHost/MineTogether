@@ -73,6 +73,13 @@ public class ChatScreen extends Screen
         this.parent = parent;
     }
 
+    public ChatScreen(Screen parent, String currentTarget)
+    {
+        super(new TranslatableComponent("MineTogether Chat"));
+        this.parent = parent;
+        this.currentTarget = currentTarget;
+    }
+
     @Override
     public void init()
     {
@@ -91,12 +98,13 @@ public class ChatScreen extends Screen
     {
         addButton(targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, new TranslatableComponent("Chat: %s"), Target.getMainTarget(), true, p ->
         {
-            if (targetDropdownButton.getMessage().getString().contains("new channel"))
-            {
-//                PrivateChat privateChat = new PrivateChat("#" + MineTogether.instance.ourNick, MineTogether.instance.ourNick);
-//                ChatHandler.privateChatList = privateChat;
-//                IrcHandler.sendString("JOIN " + privateChat.getChannelname(), true);
-            }
+            if(!targetDropdownButton.dropdownOpen) return;
+            if(!targetDropdownButton.getSelected().getInternalTarget().equals(currentTarget)) currentTarget = targetDropdownButton.getSelected().getInternalTarget();
+
+            chat.updateLines(currentTarget);
+
+            targetDropdownButton.wasJustClosed = false;
+            targetDropdownButton.dropdownOpen = false;
         }));
         targetDropdownButton.setSelected(Target.getMainTarget());
         List<String> strings = new ArrayList<>();
@@ -120,10 +128,6 @@ public class ChatScreen extends Screen
             {
                 this.send.setFocus(true);
                 this.send.setValue(this.send.getValue() + " " + activeDropdown + " ");
-            }
-            else if (ChatHandler.privateChatInvite != null)
-            {
-//                confirmInvite();
             }
             menuDropdownButton.x = menuDropdownButton.y = -10000;
             menuDropdownButton.wasJustClosed = false;
@@ -306,8 +310,6 @@ public class ChatScreen extends Screen
             return false;
         }
 
-//        boolean friends = false;
-
         if (event.getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
             String eventValue = event.getValue();
@@ -331,35 +333,16 @@ public class ChatScreen extends Screen
                 Profile targetProfile = knownUsers.findByNick(chatInternalName);
                 if(targetProfile == null) targetProfile = knownUsers.add(chatInternalName);
 
-//                friends = targetProfile.isFriend();
-
                 Minecraft.getInstance().setScreen(new FriendRequestScreen(this, Minecraft.getInstance().getUser().getName(), targetProfile, friendCode, friendName, true));
                 return true;
             }
 
-//            List<Friend> friends1 = ChatCallbacks.getFriendsList(false, MineTogetherClient.getUUID());
-//
-//            //Added null check as friends list can take some time to come back when its huge...
-//            if(friends1 != null) {
-//                for (Friend f : friends1) {
-//                    if (f.getProfile() != null) {
-//                        if (eventValue.startsWith(f.getProfile().getShortHash())) {
-//                            friends = true;
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//
-//            if(!friends)
-//            {
-                menuDropdownButton.x = (int) mouseX;
-                menuDropdownButton.y = (int) mouseY;
-                menuDropdownButton.flipped = mouseY > 150;
-                menuDropdownButton.dropdownOpen = true;
-                activeDropdown = event.getValue();
-                return true;
-//            }
+            menuDropdownButton.x = (int) mouseX;
+            menuDropdownButton.y = (int) mouseY;
+            menuDropdownButton.flipped = mouseY > 150;
+            menuDropdownButton.dropdownOpen = true;
+            activeDropdown = event.getValue();
+            return true;
         }
         if (event.getAction() == ClickEvent.Action.OPEN_URL)
         {

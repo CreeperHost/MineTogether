@@ -6,6 +6,7 @@ import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.mixin.ChatComponentInvoker;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;

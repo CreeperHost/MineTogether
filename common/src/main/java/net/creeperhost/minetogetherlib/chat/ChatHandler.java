@@ -3,7 +3,6 @@ package net.creeperhost.minetogetherlib.chat;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogetherlib.chat.data.Message;
-import net.creeperhost.minetogetherlib.chat.data.PrivateChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.chat.irc.IRCServer;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
@@ -30,13 +29,9 @@ public class ChatHandler
     public static AtomicBoolean isInitting = new AtomicBoolean(false);
     public static AtomicInteger tries = new AtomicInteger(0);
     static AtomicBoolean inited = new AtomicBoolean(false);
-    public static String currentGroup = "";
     public static String initedString = null;
     public static String nick;
     static String realName;
-    public static PrivateChat privateChatList = null;
-    public static PrivateChat privateChatInvite = null;
-    public static boolean hasParty = false;
     public static AtomicBoolean isInChannel = new AtomicBoolean(false);
     public static Logger logger = LogManager.getLogger();
     private static int serverId = -1;
@@ -44,6 +39,8 @@ public class ChatHandler
     public static boolean rebuildChat = false;
     public static AtomicReference<List<String>> backupBan = new AtomicReference<>(new ArrayList<>());
     public static CompletableFuture isBannedFuture;
+    public static String currentParty = "";
+    public static boolean hasParty = false;
 
     public static void init(String nickIn, String realNameIn, boolean onlineIn)
     {
@@ -90,46 +87,12 @@ public class ChatHandler
     public static final KnownUsers knownUsers = new KnownUsers();
 
     public static ArrayList<String> autocompleteNames = new ArrayList<>();
-    public static Random random = new Random();
-    
+
     public static String getNameForUser(String nick)
     {
         return "";//host.getNameForUser(nick);
     }
-    
-//    public static void updateFriends(List<Profile> users)
-//    {
-//        List<Friend> friendsCall = ChatCallbacks.getFriendsList(false, MineTogetherClient.getUUID());
-//        HashMap<String, String> oldFriends = friends;
-//        friends = new HashMap<>();
-//        for (Friend friend : friendsCall)
-//        {
-//            if (friend.isAccepted()) // why did I never do this before?
-//            {
-//                String friendCode = "MT" + friend.getCode().substring(0, 28);
-//                for (Profile user : users)
-//                {
-//                    if (user.friendCode.equals(friendCode))
-//                        friends.put(friendCode, friend.getName());
-//                }
-//            }
-//        }
-//
-//        for (Map.Entry<String, String> friend : friends.entrySet())
-//        {
-//            if (!oldFriends.containsKey(friend.getKey()))
-//            {
-//                CompletableFuture.runAsync(() ->
-//                {
-//                    Profile profile = knownUsers.findByNick(friend.getKey());
-//                    if(profile == null) knownUsers.add(friend.getKey());
-//                    if(profile != null) profile.isOnline();
-//                }, MineTogetherChat.profileExecutor);
-//
-////                host.friendEvent(friend.getKey(), false);
-//            }
-//        }
-//    }
+
     
     public static void sendMessage(String currentTarget, String text)
     {
@@ -147,36 +110,24 @@ public class ChatHandler
 
     public static void createPartyChannel(String owner)
     {
-        //Reset the
-        privateChatList = null;
-
         IrcHandler.joinChannel("#" + owner);
         IrcHandler.sendString("MODE #" + owner + " +i", true);
-        privateChatList = new PrivateChat("#" + owner, owner);
         ChatHandler.hasParty = true;
-        ChatHandler.currentGroup = "#" + owner;
+        ChatHandler.currentParty = "#" + owner;
     }
 
-    public static void leaveChannel(String owner)
+    public static void leaveChannel(String channel)
     {
         if(!hasParty) return;
-        IrcHandler.partChannel("#" + owner);
+        IrcHandler.partChannel(channel);
         ChatHandler.hasParty = false;
+        ChatHandler.currentParty = "";
     }
 
-    public static void sendChannelInvite(String target, String owner)
+    public static void sendPartyInvite(String user, String owner)
     {
-        privateChatList = null;
-
-        if(privateChatList == null)
-        {
-            IrcHandler.joinChannel("#" + owner);
-            IrcHandler.sendString("MODE #" + owner + " +i", true);
-            privateChatList = new PrivateChat("#" + owner, owner);
-            ChatHandler.hasParty = true;
-            ChatHandler.currentGroup = "#" + owner;
-        }
-        IrcHandler.sendString("INVITE " + target + " #" + owner, true);
+        if(!hasParty) createPartyChannel(owner);
+        IrcHandler.sendString("INVITE " + user + " #" + owner, true);
     }
 
     public static boolean isOnline()
@@ -199,15 +150,16 @@ public class ChatHandler
         IrcHandler.sendCTCPMessagePrivate(chatInternalName, "FRIENDACC", MineTogetherChat.profile.get().getFriendCode() + " " + desiredName);
         addMessageToChat(CHANNEL, "System", "Friend request accepted.");
     }
-    
-    public static void acceptPrivateChatInvite(PrivateChat invite)
+
+    public static void acceptPartyInvite(String owner)
     {
-        if (hasParty) closePrivateChat();
-        privateChatList = invite;
-        IrcHandler.joinChannel(invite.getChannelname());
-        currentGroup = invite.getChannelname();
-        hasParty = true;
-        privateChatInvite = null;
+        Profile profile = knownUsers.findByNick(owner);
+        if(profile != null) profile.setPartyMember(true);
+
+        IrcHandler.joinChannel("#" + owner);
+        IrcHandler.sendString("MODE #" + owner + " +i", true);
+        ChatHandler.hasParty = true;
+        ChatHandler.currentParty = "#" + owner;
     }
 
     public static void startCleanThread()
@@ -225,11 +177,21 @@ public class ChatHandler
         }, MineTogetherChat.profileExecutor);
     }
     
-    public static void closePrivateChat()
+    public static void leaveGroupChat()
     {
-        IrcHandler.sendString("PART " + privateChatList.getChannelname(), true);
-        privateChatList = null;
+        leaveChannel(currentParty);
         ChatHandler.hasParty = false;
+        ChatHandler.currentParty = "";
+    }
+
+    public static String getPartyOwner()
+    {
+        return currentParty.replace("#", "");
+    }
+
+    public static boolean isPartyOwner()
+    {
+        return getPartyOwner().equals(MineTogetherChat.profile.get().getMediumHash());
     }
 
     public static void onChannelNotice(String user, String message)

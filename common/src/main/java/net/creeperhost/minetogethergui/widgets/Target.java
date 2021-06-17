@@ -128,7 +128,7 @@ public class Target implements DropdownButton.IDropdownOption
             {
                 if (target.getInternalTarget().equals(chat))
                 {
-                    if (target.targetName.equals("Group Chat") && (ChatHandler.privateChatList == null || !ChatHandler.privateChatList.getChannelname().equals(target.internalTarget)))
+                    if (target.targetName.equals("Group Chat") && (ChatHandler.currentParty.isEmpty() || !ChatHandler.currentParty.equals(target.internalTarget)))
                         continue;
                     tempSet.add(target);
                     break;
@@ -136,11 +136,11 @@ public class Target implements DropdownButton.IDropdownOption
             }
         }
         
-        if (ChatHandler.privateChatList != null)
+        if (ChatHandler.hasParty)
         {
-            Target p = new Target("Group Chat", ChatHandler.privateChatList.getChannelname(), true);
-            privateChannel = p;
-            tempSet.add(p);
+            Target target = new Target("Group Chat", ChatHandler.currentParty, true);
+            privateChannel = target;
+            tempSet.add(target);
         }
 
         possibleValsCache = new ArrayList<>(tempSet);
@@ -161,6 +161,19 @@ public class Target implements DropdownButton.IDropdownOption
             }
         }
         return possibleValsCache.size() > 0 ? possibleValsCache.get(0) : new Target("Main", ChatHandler.CHANNEL, true);
+    }
+
+    public static Target getTargetFromString(String targetName)
+    {
+        updateCache();
+        for (Target defTar : possibleValsCache)
+        {
+            if (defTar.getInternalTarget().equals(targetName))
+            {
+                return defTar;
+            }
+        }
+        return null;
     }
     
     @Override

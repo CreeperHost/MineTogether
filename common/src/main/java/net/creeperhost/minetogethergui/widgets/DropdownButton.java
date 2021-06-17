@@ -57,13 +57,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
             this.blit(matrixStack, this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
             int j = 14737632;
 
-            //TODO look into this, This might not be needed anymore
-//            if (getFGColor() != 0)
-//            {
-//                j = getFGColor();
-//            }
-//            else
-                if (!this.active)
+            if (!this.active)
             {
                 j = 10526880;
             } else if (this.isHovered())
@@ -71,7 +65,7 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                 j = 16777120;
             }
 
-            this.drawCenteredString(matrixStack, fontrenderer, this.baseButtonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
+            drawCenteredString(matrixStack, fontrenderer, this.baseButtonText, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
             
             if (dropdownOpen)
             {
@@ -96,15 +90,8 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                     
                     String name = I18n.get(e.getTranslate(selected, true));
                     int textColour = 14737632;
-                    
-//                    if (getFGColor() != 0)
-//                    {
-//                        textColour = getFGColor();
-//                    } else if (ourHovered)
-//                    {
-                        textColour = 16777120;
-//                    }
-                    this.drawCenteredString(matrixStack, fontrenderer, name, this.x + this.width / 2, drawY + (this.height - 10) / 2, textColour);
+
+                    drawCenteredString(matrixStack, fontrenderer, name, this.x + this.width / 2, drawY + (this.height - 10) / 2, textColour);
                 }
             }
         }

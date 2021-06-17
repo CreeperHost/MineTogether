@@ -3,9 +3,13 @@ package net.creeperhost.minetogether.module.chat.screen.listentries;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
+import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.lists.ScreenListEntry;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -95,7 +99,8 @@ public class ListEntryFriend extends ScreenListEntry
             return true;
         } else if ((profile != null && profile.isOnline()) && mouseX >= listWidth - crossWidth - 4 && mouseX <= listWidth - 2 && mouseY - yTop >= 0 && mouseY - yTop <= 27)
         {
-//            friendsListScreen.inviteGroupChat(profile);
+            ChatHandler.sendPartyInvite(profile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
+            MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Invited " + profile.getFriendName() + " to party chat"), friendsListScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
             wasHovering = false;
             friendsListScreen.setHoveringText(null);
             return true;
