@@ -1,15 +1,11 @@
 package net.creeperhost.minetogetherlib.chat;
 
-import com.google.gson.*;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
-import net.creeperhost.minetogetherlib.util.WebUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;

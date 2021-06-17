@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryMuted;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
@@ -11,7 +10,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MutedListScreen extends Screen

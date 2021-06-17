@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryFriend;
-import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
@@ -16,8 +15,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
