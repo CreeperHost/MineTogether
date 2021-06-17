@@ -113,109 +113,6 @@ public class ScreenHelpers
         RenderSystem.popMatrix();
     }
 
-    public static void renderTooltip(PoseStack poseStack, Font font, Component component, int i, int j, int screenWidth, int screenHeight)
-    {
-        renderTooltip(poseStack, font, Arrays.asList(component.getVisualOrderText()), screenHeight / 2, screenHeight / 2, screenWidth, screenHeight);
-    }
-
-    //Copy pasta from Vanilla
-    public static void renderTooltip(PoseStack poseStack, Font font, List<? extends FormattedCharSequence> list, int i, int j, int screenWidth, int screenHeight)
-    {
-        if (!list.isEmpty())
-        {
-            int k = 0;
-            Iterator var6 = list.iterator();
-
-            while(var6.hasNext())
-            {
-                FormattedCharSequence formattedCharSequence = (FormattedCharSequence)var6.next();
-                int l = font.width(formattedCharSequence);
-                if (l > k) {
-                    k = l;
-                }
-            }
-
-            int m = i + 12;
-            int n = j - 12;
-            int p = 8;
-            if (list.size() > 1)
-            {
-                p += 2 + (list.size() - 1) * 10;
-            }
-            if (m + k > screenWidth)
-            {
-                m -= 28 + k;
-            }
-            if (n + p + 6 > screenHeight)
-            {
-                n = screenHeight - p - 6;
-            }
-
-            poseStack.pushPose();
-            int q = -267386864;
-            int r = 1347420415;
-            int s = 1344798847;
-//            int t = true;
-            Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder bufferBuilder = tesselator.getBuilder();
-            bufferBuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
-            Matrix4f matrix4f = poseStack.last().pose();
-            fillGradient(matrix4f, bufferBuilder, m - 3, n - 4, m + k + 3, n - 3, 400, -267386864, -267386864);
-            fillGradient(matrix4f, bufferBuilder, m - 3, n + p + 3, m + k + 3, n + p + 4, 400, -267386864, -267386864);
-            fillGradient(matrix4f, bufferBuilder, m - 3, n - 3, m + k + 3, n + p + 3, 400, -267386864, -267386864);
-            fillGradient(matrix4f, bufferBuilder, m - 4, n - 3, m - 3, n + p + 3, 400, -267386864, -267386864);
-            fillGradient(matrix4f, bufferBuilder, m + k + 3, n - 3, m + k + 4, n + p + 3, 400, -267386864, -267386864);
-            fillGradient(matrix4f, bufferBuilder, m - 3, n - 3 + 1, m - 3 + 1, n + p + 3 - 1, 400, 1347420415, 1344798847);
-            fillGradient(matrix4f, bufferBuilder, m + k + 2, n - 3 + 1, m + k + 3, n + p + 3 - 1, 400, 1347420415, 1344798847);
-            fillGradient(matrix4f, bufferBuilder, m - 3, n - 3, m + k + 3, n - 3 + 1, 400, 1347420415, 1347420415);
-            fillGradient(matrix4f, bufferBuilder, m - 3, n + p + 2, m + k + 3, n + p + 3, 400, 1344798847, 1344798847);
-            RenderSystem.enableDepthTest();
-            RenderSystem.disableTexture();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.shadeModel(7425);
-            bufferBuilder.end();
-            BufferUploader.end(bufferBuilder);
-            RenderSystem.shadeModel(7424);
-            RenderSystem.disableBlend();
-            RenderSystem.enableTexture();
-            MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            poseStack.translate(0.0D, 0.0D, 400.0D);
-
-            for(int u = 0; u < list.size(); ++u) {
-                FormattedCharSequence formattedCharSequence2 = (FormattedCharSequence)list.get(u);
-                if (formattedCharSequence2 != null) {
-                    font.drawInBatch(formattedCharSequence2, (float)m, (float)n, -1, true, matrix4f, bufferSource, false, 0, 15728880);
-                }
-
-                if (u == 0) {
-                    n += 2;
-                }
-
-                n += 10;
-            }
-
-            bufferSource.endBatch();
-            poseStack.popPose();
-        }
-    }
-
-    protected static void fillGradient(Matrix4f matrix4f, BufferBuilder bufferBuilder, int i, int j, int k, int l, int m, int n, int o)
-    {
-        float f = (float)(n >> 24 & 255) / 255.0F;
-        float g = (float)(n >> 16 & 255) / 255.0F;
-        float h = (float)(n >> 8 & 255) / 255.0F;
-        float p = (float)(n & 255) / 255.0F;
-        float q = (float)(o >> 24 & 255) / 255.0F;
-        float r = (float)(o >> 16 & 255) / 255.0F;
-        float s = (float)(o >> 8 & 255) / 255.0F;
-        float t = (float)(o & 255) / 255.0F;
-        bufferBuilder.vertex(matrix4f, (float)k, (float)j, (float)m).color(g, h, p, f).endVertex();
-        bufferBuilder.vertex(matrix4f, (float)i, (float)j, (float)m).color(g, h, p, f).endVertex();
-        bufferBuilder.vertex(matrix4f, (float)i, (float)l, (float)m).color(r, s, t, q).endVertex();
-        bufferBuilder.vertex(matrix4f, (float)k, (float)l, (float)m).color(r, s, t, q).endVertex();
-    }
-
     public static void drawModalRectWithCustomSizedTextureFloat(Matrix4f matrix, float x, float y, float u, float v, int width, int height, float textureWidth, float textureHeight)
     {
         float f = 1.0F / textureWidth;
@@ -231,11 +128,6 @@ public class ScreenHelpers
         bufferbuilder.end();
         RenderSystem.enableAlphaTest();
         BufferUploader.end(bufferbuilder);
-    }
-
-    public static void drawContinuousTexturedBox(PoseStack matrixStack, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight, int borderSize, float zLevel)
-    {
-        drawContinuousTexturedBox(matrixStack, x, y, u, v, width, height, textureWidth, textureHeight, borderSize, borderSize, borderSize, borderSize, zLevel);
     }
 
     public static void drawContinuousTexturedBox(PoseStack matrixStack, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight, int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel)
