@@ -35,7 +35,6 @@ public class ListEntryFriend extends ScreenListEntry
 
     private float transparency = 0.5F;
 
-
     @Override
     public void render(PoseStack matrixStack, int slotIndex, int y, int x, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_render_9_)
     {
@@ -49,7 +48,7 @@ public class ListEntryFriend extends ScreenListEntry
 
         this.mc.font.draw(matrixStack, profile.getFriendName(), x + 5, y + 5, 16777215);
         if(profile != null) {
-            this.mc.font.draw(matrixStack, ChatFormatting.DARK_GRAY + profile.getUserDisplay(), x + listWidth - this.mc.font.width(profile.getUserDisplay()) - 20, y + 7, 16777215);
+//            this.mc.font.draw(matrixStack, ChatFormatting.DARK_GRAY + profile.getUserDisplay(), x + listWidth - this.mc.font.width(profile.getUserDisplay()) - 20, y + 7, 16777215);
             this.mc.font.draw(matrixStack, new TranslatableComponent(ChatFormatting.GRAY + (profile.isFriend() ? (profile != null && profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline") : "Pending")).getString(), x + 5, y + 17, 16777215);
         }
         int transparentString = (int) (transparency * 254) << 24;

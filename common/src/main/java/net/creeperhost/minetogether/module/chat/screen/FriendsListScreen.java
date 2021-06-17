@@ -10,8 +10,10 @@ import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -24,6 +26,9 @@ public class FriendsListScreen extends Screen
 {
     private Screen parent;
     private ScreenList<ListEntryFriend> list;
+    private ScrollingChat chat;
+
+    private EditBox chatBox;
 
     private String friendCode = "";
     private String hoveringText = null;
@@ -45,33 +50,30 @@ public class FriendsListScreen extends Screen
         super.init();
         if (list == null)
         {
-            list = new ScreenList(this, minecraft, width, height, 32, this.height - 64, 36);
+            list = new ScreenList(this, minecraft, 100, height, 32, this.height - 64, 28, 100);
         } else
         {
-            list.updateSize(width, height, 32, this.height - 64);
+            list.updateSize(100, height, 28, this.height - 64);
         }
+
+        chat = new ScrollingChat(width - list.getRowWidth() + 20, list.getHeight() - 40);
+        chat.setLeftPos(list.getRowRight());
+
+        chatBox = new EditBox(this.font, list.getRowRight() + 2, this.height -86, width - list.getRowWidth() - 7, 20, new TranslatableComponent(""));
+
 
         addButtons();
         searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height -32, 160, 20, new TranslatableComponent(""));
         searchEntry.setSuggestion("Search");
         children.add(list);
         children.add(searchEntry);
+        children.add(chatBox);
         refreshFriendsList(true);
     }
 
     public void addButtons()
     {
-        addButton(new Button(5, height - 60, 100, 20, new TranslatableComponent("Cancel"), p ->
-        {
-//            if (!addFriend)
-                minecraft.setScreen(parent);
-//            else
-//            {
-//                addFriend = false;
-//                buttonInvite.visible = true;
-//                codeEntry.setText("");
-//            }
-        }));
+        addButton(new Button(5, height - 60, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
 
         addButton(new ButtonString( 5, height - 26, 60, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
@@ -94,7 +96,8 @@ public class FriendsListScreen extends Screen
             //TODO
         }));
 
-        addButton(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Muted list"), button -> minecraft.setScreen(new MutedListScreen(parent))));
+        //TODO bring this back, Currently its in the way
+//        addButton(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Muted list"), button -> minecraft.setScreen(new MutedListScreen(parent))));
     }
 
     @Override
@@ -103,6 +106,8 @@ public class FriendsListScreen extends Screen
         renderDirtBackground(1);
         list.render(poseStack, i, j, f);
         searchEntry.render(poseStack, i, j, f);
+        chatBox.render(poseStack, i, j, f);
+        chat.render(poseStack, i, j, f);
         super.render(poseStack, i, j, f);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
         drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.multiplayer.friendcode"), 40, this.height - 35, -1);
@@ -220,5 +225,13 @@ public class FriendsListScreen extends Screen
             return flag;
         }
         return super.keyPressed(i, j, k);
+    }
+
+    public class ScrollingChat extends ObjectSelectionList
+    {
+        public ScrollingChat(int width, int height)
+        {
+            super(Minecraft.getInstance(), width, height, 30, height, 10);
+        }
     }
 }

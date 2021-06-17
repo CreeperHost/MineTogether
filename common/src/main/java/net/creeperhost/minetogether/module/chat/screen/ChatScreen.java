@@ -439,7 +439,7 @@ public class ChatScreen extends Screen
         return text;
     }
 
-    private class ScrollingChat extends ObjectSelectionList
+    public class ScrollingChat extends ObjectSelectionList
     {
         private ArrayList<FormattedCharSequence> lines;
         private int height;
