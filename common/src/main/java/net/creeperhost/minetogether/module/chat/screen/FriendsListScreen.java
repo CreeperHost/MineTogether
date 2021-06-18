@@ -34,6 +34,9 @@ public class FriendsListScreen extends MineTogetherScreen
     private EditBox searchEntry;
     private int ticks;
     private Profile targetProfile = null;
+    private Button removeFriend;
+    private Button blockButton;
+    private Button partyButton;
 
     public FriendsListScreen(Screen parent)
     {
@@ -79,16 +82,16 @@ public class FriendsListScreen extends MineTogetherScreen
             MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
         }));
 
-        addButton(new ButtonMultiple(width - 20, 32, 5, (button) ->
+        addButton(removeFriend = new ButtonMultiple(width - 20, 32, 2, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
         {
 
         }));
 
-        addButton(new ButtonMultiple(width - 20, 52, 5, (button) ->
+        addButton(blockButton = new ButtonMultiple(width - 20, 52, 3, new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
         {
         }));
 
-        addButton(new ButtonMultiple(width - 20, 72, 5, (button) ->
+        addButton(partyButton = new ButtonMultiple(width - 20, 72, 4, new TranslatableComponent("minetogether.friendscreen.tooltip.partytime"), (button) ->
         {
         }));
     }
@@ -130,6 +133,14 @@ public class FriendsListScreen extends MineTogetherScreen
                 ChatHandler.setMessagesRead(targetProfile.getMediumHash());
             }
         }
+        toggleInteractionButtons(list.getCurrSelected() != null);
+    }
+
+    public void toggleInteractionButtons(boolean value)
+    {
+        removeFriend.active = value;
+        blockButton.active = value;
+        partyButton.active = value;
     }
 
     public static ArrayList<Profile> removedFriends = new ArrayList<>();

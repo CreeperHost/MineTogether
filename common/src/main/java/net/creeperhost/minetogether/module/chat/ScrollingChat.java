@@ -26,13 +26,13 @@ import static net.creeperhost.minetogetherlib.chat.ChatHandler.ircLock;
 public class ScrollingChat extends ObjectSelectionList
 {
     private ArrayList<FormattedCharSequence> lines;
-    private int height;
+    private final int height;
     private int Width;
-    private int top;
-    private int bottom;
-    private int itemHeight;
-    private MineTogetherScreen screen;
-    private int chatOffset;
+    private final int top;
+    private final int bottom;
+    private final int itemHeight;
+    private final MineTogetherScreen screen;
+    private final int chatOffset;
 
     public ScrollingChat(MineTogetherScreen screen, int width, int height, int chatOffset)
     {
