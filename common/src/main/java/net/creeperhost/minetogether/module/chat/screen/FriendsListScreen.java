@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryFriend;
+import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
@@ -23,7 +24,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class FriendsListScreen extends Screen
+public class FriendsListScreen extends MineTogetherScreen
 {
     private final Screen parent;
     private ScreenList<ListEntryFriend> list;
@@ -50,7 +51,7 @@ public class FriendsListScreen extends Screen
         {
             list.updateSize(100, height - 90, 28, this.height - 55);
         }
-        chat = new ScrollingChat(this, width - list.getRowWidth() - 22, this.height - 90, 32, this.height - 55);
+        chat = new ScrollingChat(this, width - list.getRowWidth() - 22, this.height - 90, 32, this.height - 55, 110);
         chat.setLeftPos(list.getRowRight());
 
         chatBox = new EditBox(this.font, list.getRowRight() + 2, this.height -50, width - list.getRowWidth() - 7, 20, new TranslatableComponent(""));

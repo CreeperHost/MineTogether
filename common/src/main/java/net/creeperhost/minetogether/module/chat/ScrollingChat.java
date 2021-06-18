@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
@@ -30,9 +31,11 @@ public class ScrollingChat extends ObjectSelectionList
     private int top;
     private int bottom;
     private int itemHeight;
-    private Screen screen;
+    private MineTogetherScreen screen;
+    private int chatOffset;
 
-    public ScrollingChat(Screen screen, int width, int height)
+
+    public ScrollingChat(MineTogetherScreen screen, int width, int height, int chatOffset)
     {
         super(Minecraft.getInstance(), width - 20, height - 50, 30, height - 50, 10);
         this.height = height - 50;
@@ -40,20 +43,22 @@ public class ScrollingChat extends ObjectSelectionList
         this.top = 30;
         this.bottom = height - 50;
         this.itemHeight = 10;
+        this.chatOffset = chatOffset;
         this.screen = screen;
         lines = new ArrayList<>();
     }
 
-    public ScrollingChat(Screen screen, int widthIn, int heightIn, int topIn, int bottomIn)
+    public ScrollingChat(MineTogetherScreen screen, int widthIn, int heightIn, int topIn, int bottomIn, int chatOffset)
     {
         super(Minecraft.getInstance(), widthIn, heightIn, topIn, bottomIn, 10);
-        this.height = height;
-        this.width = width;
+        this.height = heightIn;
+        this.width = widthIn;
         this.top = 30;
         this.bottom = height;
         this.itemHeight = 10;
         this.screen = screen;
         lines = new ArrayList<>();
+        this.chatOffset = chatOffset;
     }
 
     public void renderEntry(PoseStack poseStack, int index, int mouseX, int mouseY, float partialTicks)
@@ -61,7 +66,7 @@ public class ScrollingChat extends ObjectSelectionList
         try
         {
             FormattedCharSequence component = lines.get(index);
-            int totalWidth = 110;
+            int totalWidth = chatOffset;
 
             int oldTotal = totalWidth;
             totalWidth += minecraft.font.width(component);
@@ -75,8 +80,7 @@ public class ScrollingChat extends ObjectSelectionList
                 RenderSystem.enableBlend();
                 RenderSystem.color4f(1, 1, 1, 0.90F);
                 minecraft.font.draw(poseStack, component, oldTotal, getRowTop(index), 0xBBFFFFFF);
-                //TODO
-//                screen.renderComponentHoverEffect(poseStack, style , mouseX, mouseY);
+                screen.renderComponentHoverEffect(poseStack, style , mouseX, mouseY);
                 RenderSystem.color4f(1, 1, 1, 1);
             }
             else
@@ -242,5 +246,26 @@ public class ScrollingChat extends ObjectSelectionList
                 }
             }
         }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int p_mouseClicked_5_)
+    {
+        for (int i = 0; i < lines.size(); i++)
+        {
+            FormattedCharSequence component = lines.get(i);
+            int totalWidth = 5;
+            int oldTotal = totalWidth;
+            totalWidth += minecraft.font.width(component);
+            boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(i) && mouseY < getRowTop(i) + itemHeight;
+
+            if (hovering)
+            {
+                Style style = minecraft.font.getSplitter().componentStyleAtWidth(component, (int) mouseX);
+                screen.handleComponentClicked(style, mouseX, mouseY);
+                return true;
+            }
+        }
+        return false;
     }
 }
