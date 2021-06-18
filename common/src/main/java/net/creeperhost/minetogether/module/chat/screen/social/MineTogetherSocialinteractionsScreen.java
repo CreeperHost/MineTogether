@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.fabricmc.api.EnvType;
@@ -79,7 +80,7 @@ public class MineTogetherSocialinteractionsScreen extends Screen
             }
             else
             {
-                Profile profile = ChatHandler.knownUsers.findByNick(ChatHandler.getPartyOwner());
+                Profile profile = KnownUsers.findByNick(ChatHandler.getPartyOwner());
                 if(profile != null) profile.setPartyMember(false);
                 MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Leaving Group " + ChatHandler.currentParty), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
                 ChatHandler.leaveChannel(ChatHandler.currentParty);

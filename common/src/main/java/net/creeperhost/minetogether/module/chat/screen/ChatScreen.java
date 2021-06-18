@@ -17,10 +17,7 @@ import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogethergui.widgets.Target;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.*;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
@@ -52,7 +49,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.creeperhost.minetogetherlib.chat.ChatHandler.ircLock;
-import static net.creeperhost.minetogetherlib.chat.ChatHandler.knownUsers;
 
 public class ChatScreen extends Screen
 {
@@ -117,12 +113,12 @@ public class ChatScreen extends Screen
 
             if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mute")))
             {
-                ChatModule.muteUser(knownUsers.findByDisplay(activeDropdown).longHash);
+                ChatModule.muteUser(KnownUsers.findByDisplay(activeDropdown).longHash);
                 ChatHandler.addStatusMessage("Locally muted " + currentTarget);
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.addfriend")))
             {
-                minecraft.setScreen(new FriendRequestScreen(new ChatScreen(parent), Minecraft.getInstance().getUser().getName(), knownUsers.findByDisplay(activeDropdown), ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
+                minecraft.setScreen(new FriendRequestScreen(new ChatScreen(parent), Minecraft.getInstance().getUser().getName(), KnownUsers.findByDisplay(activeDropdown), ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mention")))
             {
@@ -330,8 +326,8 @@ public class ChatScreen extends Screen
 
                 String friendName = builder.toString().trim();
 
-                Profile targetProfile = knownUsers.findByNick(chatInternalName);
-                if(targetProfile == null) targetProfile = knownUsers.add(chatInternalName);
+                Profile targetProfile = KnownUsers.findByNick(chatInternalName);
+                if(targetProfile == null) targetProfile = KnownUsers.add(chatInternalName);
 
                 Minecraft.getInstance().setScreen(new FriendRequestScreen(this, Minecraft.getInstance().getUser().getName(), targetProfile, friendCode, friendName, true));
                 return true;
@@ -414,7 +410,7 @@ public class ChatScreen extends Screen
                 } else {
                     justNick = result.replaceAll("[^A-Za-z0-9#]", "");
                 }
-                Profile profile = knownUsers.findByDisplay(justNick);
+                Profile profile = KnownUsers.findByDisplay(justNick);
                 if(profile == null)
                 {
                     continue;
@@ -478,8 +474,7 @@ public class ChatScreen extends Screen
                 {
                     RenderSystem.enableBlend();
                     RenderSystem.color4f(1, 1, 1, 0.90F);
-                    renderHead(poseStack, 10 + oldTotal, getRowTop(index));
-                    minecraft.font.draw(poseStack, component, 24 + oldTotal, getRowTop(index), 0xBBFFFFFF);
+                    minecraft.font.draw(poseStack, component, 8 + oldTotal, getRowTop(index), 0xBBFFFFFF);
                     renderComponentHoverEffect(poseStack, style , mouseX, mouseY);
                     if(style.getHoverEvent() != null && style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
                     {
@@ -501,20 +496,9 @@ public class ChatScreen extends Screen
                 }
                 else
                 {
-                    renderHead(poseStack, 10 + oldTotal, getRowTop(index));
-                    minecraft.font.draw(poseStack, component, 24 + oldTotal, getRowTop(index), 0xFFFFFF);
+                    minecraft.font.draw(poseStack, component, 8 + oldTotal, getRowTop(index), 0xFFFFFF);
                 }
             } catch (Exception ignored) {}
-        }
-
-        public void renderHead(PoseStack poseStack, int x, int y)
-        {
-            this.minecraft.getTextureManager().bind(new ResourceLocation("textures/entity/steve.png"));
-
-            GuiComponent.blit(poseStack, x, y - 2, 9, 9, 8.0F, 8.0F, 8, 8, 64, 64);
-            RenderSystem.enableBlend();
-            GuiComponent.blit(poseStack, x, y - 2, 9, 9, 40.0F, 8.0F, 8, 8, 64, 64);
-            RenderSystem.disableBlend();
         }
 
         @Override

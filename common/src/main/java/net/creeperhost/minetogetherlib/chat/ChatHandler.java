@@ -87,7 +87,7 @@ public class ChatHandler
     }
     
     public static HashMap<String, String> friends = new HashMap<>();
-    public static final KnownUsers knownUsers = new KnownUsers();
+//    public static final KnownUsers knownUsers = new KnownUsers();
 
     public static ArrayList<String> autocompleteNames = new ArrayList<>();
 
@@ -156,7 +156,7 @@ public class ChatHandler
 
     public static void acceptPartyInvite(String owner)
     {
-        Profile profile = knownUsers.findByNick(owner);
+        Profile profile = KnownUsers.findByNick(owner);
         if(profile != null) profile.setPartyMember(true);
 
         IrcHandler.joinChannel("#" + owner);
@@ -171,7 +171,7 @@ public class ChatHandler
         {
             while (true)
             {
-                knownUsers.clean();
+                KnownUsers.clean();
                 try
                 {
                     Thread.sleep(30000);
@@ -297,16 +297,16 @@ public class ChatHandler
             } else
             {
                 ChatModule.hasNewMessage = true;
-                Profile profile = knownUsers.findByNick(nick);
+                Profile profile = KnownUsers.findByNick(nick);
                 if (profile == null)
                 {
                     //Banned on their first message? Oops.
-                    profile = knownUsers.add(nick);
+                    profile = KnownUsers.add(nick);
                 }
                 if (profile != null)
                 {
                     profile.setBanned(true);
-                    knownUsers.update(profile);
+                    KnownUsers.update(profile);
                 }
                 backupBan.getAndUpdate((bans) -> {
                     bans.add(nick);

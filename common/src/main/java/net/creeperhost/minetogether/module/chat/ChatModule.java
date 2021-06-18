@@ -16,6 +16,7 @@ import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
@@ -47,15 +48,15 @@ public class ChatModule
 
     public static void init()
     {
-        buildChat();
-        loadMutedList();
+        String ourNick = "MT" + ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()).substring(0, 28);
         FriendUpdateThread.init();
+        buildChat(ourNick);
+        loadMutedList();
     }
 
-    public static void buildChat()
+    public static void buildChat(String ourNick)
     {
         MineTogether.logger.info("Building MineTogether chat");
-        String ourNick = "MT" + ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()).substring(0, 28);
         UUID uuid = MineTogetherClient.getUUID();
         boolean online = MineTogetherClient.isOnlineUUID;
         String realName = new ModPackVerifier().verify();
@@ -100,11 +101,11 @@ public class ChatModule
 
         mutedUsers.add(user);
         CompletableFuture.runAsync(() -> {
-            Profile profile = ChatHandler.knownUsers.findByHash(user);
-            if(profile == null) profile = ChatHandler.knownUsers.add(user);
+            Profile profile = KnownUsers.findByHash(user);
+            if(profile == null) profile = KnownUsers.add(user);
             profile.loadProfile();
             profile.setMuted(true);
-            ChatHandler.knownUsers.update(profile);
+            KnownUsers.update(profile);
         }, MineTogetherChat.profileExecutor);
 
         Gson gson = new Gson();
@@ -121,11 +122,11 @@ public class ChatModule
         {
             mutedUsers.remove(longhash);
             CompletableFuture.runAsync(() -> {
-                Profile profile = ChatHandler.knownUsers.findByHash(longhash);
-                if(profile == null) profile = ChatHandler.knownUsers.add(longhash);
+                Profile profile = KnownUsers.findByHash(longhash);
+                if(profile == null) profile = KnownUsers.add(longhash);
                 profile.loadProfile();
                 profile.setMuted(false);
-                ChatHandler.knownUsers.update(profile);
+                KnownUsers.update(profile);
             }, MineTogetherChat.profileExecutor);
         } catch (Exception ignored) {}
         Gson gson = new Gson();
@@ -146,11 +147,11 @@ public class ChatModule
             for(String s : mutedUsers)
             {
                 CompletableFuture.runAsync(() -> {
-                    Profile profile = ChatHandler.knownUsers.findByHash(s);
-                    if(profile == null) profile = ChatHandler.knownUsers.add(s);
+                    Profile profile = KnownUsers.findByHash(s);
+                    if(profile == null) profile = KnownUsers.add(s);
                     profile.loadProfile();
                     profile.setMuted(true);
-                    ChatHandler.knownUsers.update(profile);
+                    KnownUsers.update(profile);
                 }, MineTogetherChat.profileExecutor);
             }
         } catch (Exception ignored)

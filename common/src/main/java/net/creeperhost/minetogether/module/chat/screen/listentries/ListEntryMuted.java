@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.module.chat.screen.MutedListScreen;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.lists.ScreenListEntry;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 
@@ -73,7 +74,7 @@ public class ListEntryMuted extends ScreenListEntry
         {
             ChatModule.unmuteUser(profile.getLongHash());
             profile.setMuted(false);
-            ChatHandler.knownUsers.update(profile);
+            KnownUsers.update(profile);
             mutedListScreen.refreshMutedList();
             wasHovering = false;
             mutedListScreen.setHoveringText(null);

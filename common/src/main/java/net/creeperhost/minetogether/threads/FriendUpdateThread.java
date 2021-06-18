@@ -1,7 +1,10 @@
 package net.creeperhost.minetogether.threads;
 
 import com.google.gson.*;
+import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.WebUtils;
@@ -38,7 +41,7 @@ public class FriendUpdateThread
     {
         Map<String, String> sendMap = new HashMap<String, String>();
         {
-            sendMap.put("hash", MineTogetherChat.profile.get().getLongHash());
+            sendMap.put("hash", ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()));
         }
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
         JsonElement el = new JsonParser().parse(resp);
@@ -58,11 +61,11 @@ public class FriendUpdateThread
                     boolean accepted = friend.get("accepted").getAsBoolean();
                     if(accepted)
                     {
-                        Profile friendProfile = ChatHandler.knownUsers.findByHash(code);
-                        if(friendProfile == null) friendProfile = ChatHandler.knownUsers.add(code);
+                        Profile friendProfile = KnownUsers.findByHash(code);
+                        if(friendProfile == null) friendProfile = KnownUsers.add(code);
                         friendProfile.setFriendName(name);
                         friendProfile.setFriend(true);
-                        ChatHandler.knownUsers.update(friendProfile);
+                        KnownUsers.update(friendProfile);
                     }
                 }
             }

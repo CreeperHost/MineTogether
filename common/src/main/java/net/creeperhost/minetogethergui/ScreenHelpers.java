@@ -95,6 +95,16 @@ public class ScreenHelpers
         RenderSystem.popMatrix();
     }
 
+    public void renderHead(PoseStack poseStack, int x, int y)
+    {
+        Minecraft.getInstance().getTextureManager().bind(new ResourceLocation("textures/entity/steve.png"));
+
+        GuiComponent.blit(poseStack, x, y - 2, 9, 9, 8.0F, 8.0F, 8, 8, 64, 64);
+        RenderSystem.enableBlend();
+        GuiComponent.blit(poseStack, x, y - 2, 9, 9, 40.0F, 8.0F, 8, 8, 64, 64);
+        RenderSystem.disableBlend();
+    }
+
     public static void loadingSpin(float partialTicks, int ticks, int x, int y, ItemStack stack)
     {
         int rotateTickMax = 30;

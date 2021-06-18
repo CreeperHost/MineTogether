@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
@@ -43,16 +44,16 @@ public class MineTogetherSocialInteractionsPlayerList extends ContainerObjectSel
         switch (page)
         {
             case ALL:
-                copy = ChatHandler.knownUsers.getProfiles().get();
+                copy = KnownUsers.getProfiles().get();
                 break;
             case FRIENDS:
-                copy = ChatHandler.knownUsers.getFriends();
+                copy = KnownUsers.getFriends();
                 break;
             case BLOCKED:
-                copy = ChatHandler.knownUsers.getMuted();
+                copy = KnownUsers.getMuted();
                 break;
             case PARTY:
-                copy = ChatHandler.knownUsers.getPartyMembers();
+                copy = KnownUsers.getPartyMembers();
                 break;
         }
 

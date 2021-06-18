@@ -1,47 +1,62 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
+import com.google.common.collect.Ordering;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.module.chat.ChatFormatter;
+import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryFriend;
+import net.creeperhost.minetogether.module.multiplayer.data.PublicServerEntry;
+import net.creeperhost.minetogether.module.multiplayer.sort.ServerNameComparator;
 import net.creeperhost.minetogethergui.lists.ScreenList;
+import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
+import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+import static net.creeperhost.minetogetherlib.chat.ChatHandler.ircLock;
 
 public class FriendsListScreen extends Screen
 {
-    private Screen parent;
+    private final Screen parent;
     private ScreenList<ListEntryFriend> list;
     private ScrollingChat chat;
-
     private EditBox chatBox;
-
-    private String friendCode = "";
-    private String hoveringText = null;
     private EditBox searchEntry;
     private int ticks;
-
-    private boolean first = true;
+    private Profile targetProfile = null;
 
     public FriendsListScreen(Screen parent)
     {
         super(new TranslatableComponent("minetogether.friendscreen.title"));
         this.parent = parent;
-        this.friendCode = ChatCallbacks.getFriendCode(MineTogetherClient.getUUID());
+        String friendCode = ChatCallbacks.getFriendCode(MineTogetherClient.getUUID());
     }
 
     @Override
@@ -50,54 +65,50 @@ public class FriendsListScreen extends Screen
         super.init();
         if (list == null)
         {
-            list = new ScreenList(this, minecraft, 100, height, 32, this.height - 64, 28, 100);
+            list = new ScreenList(this, minecraft, 100, height - 90, 32, this.height - 55, 28, 100);
         } else
         {
-            list.updateSize(100, height, 28, this.height - 64);
+            list.updateSize(100, height - 90, 28, this.height - 55);
         }
-
-        chat = new ScrollingChat(width - list.getRowWidth() + 20, list.getHeight() - 40);
+        chat = new ScrollingChat(width - list.getRowWidth() - 22, this.height - 90, 32, this.height - 55);
         chat.setLeftPos(list.getRowRight());
 
-        chatBox = new EditBox(this.font, list.getRowRight() + 2, this.height -86, width - list.getRowWidth() - 7, 20, new TranslatableComponent(""));
+        chatBox = new EditBox(this.font, list.getRowRight() + 2, this.height -50, width - list.getRowWidth() - 7, 20, new TranslatableComponent(""));
+        chatBox.setMaxLength(256);
 
+        searchEntry = new EditBox(this.font, 1, this.height -50, list.width, 20, new TranslatableComponent(""));
+        searchEntry.setSuggestion("Search");
 
         addButtons();
-        searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height -32, 160, 20, new TranslatableComponent(""));
-        searchEntry.setSuggestion("Search");
         children.add(list);
         children.add(searchEntry);
         children.add(chatBox);
-        refreshFriendsList(true);
+        children.add(chat);
+        refreshFriendsList();
     }
 
     public void addButtons()
     {
-        addButton(new Button(5, height - 60, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
+        addButton(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
 
-        addButton(new ButtonString( 5, height - 26, 60, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
+        addButton(new ButtonString( width - 105, 5, 120, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
             minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
             MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
         }));
 
-        addButton(new Button(width - 105, height - 26, 100, 20,
-                 new TranslatableComponent("minetogether.button.refresh"), p -> refreshFriendsList(false)));
-
-        Button inviteButton;
-        addButton(inviteButton = new Button(width - 105, height - 60, 100, 20, new TranslatableComponent("minetogether.button.invite"), p ->
+        addButton(new ButtonMultiple(width - 20, 32, 5, (button) ->
         {
-            //TODO
-        }));
-        inviteButton.active = false;
 
-        addButton(new Button(width / 2 - 50, height - 60, 100, 20, new TranslatableComponent("multiplayer.button.addfriend"), p ->
-        {
-            //TODO
         }));
 
-        //TODO bring this back, Currently its in the way
-//        addButton(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Muted list"), button -> minecraft.setScreen(new MutedListScreen(parent))));
+        addButton(new ButtonMultiple(width - 20, 52, 5, (button) ->
+        {
+        }));
+
+        addButton(new ButtonMultiple(width - 20, 72, 5, (button) ->
+        {
+        }));
     }
 
     @Override
@@ -109,10 +120,7 @@ public class FriendsListScreen extends Screen
         chatBox.render(poseStack, i, j, f);
         chat.render(poseStack, i, j, f);
         super.render(poseStack, i, j, f);
-        drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
-        drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.multiplayer.friendcode"), 40, this.height - 35, -1);
-
-//        if(!ChatCallback.friendFuture.isDone() && list.children().isEmpty()) ScreenHelpers.loadingSpin(f, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+        drawCenteredString(poseStack, font, this.getTitle(), width / 2, 12, 0xFFFFFF);
         if(list.children().isEmpty()) drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
     }
 
@@ -120,20 +128,40 @@ public class FriendsListScreen extends Screen
     public void tick()
     {
         ticks++;
-//        if(ChatCallbacks.friendFuture != null && ChatCallbacks.friendFuture.isDone())
-//        {
-//            if(first)
-//            {
-//                first = false;
-//                refreshFriendsList(false);
-//            }
-//        }
+        if(ticks % 600 == 0)
+        {
+            refreshFriendsList();
+        }
+        if(list.getCurrSelected() != null && targetProfile != null && !targetProfile.equals(list.getCurrSelected().getProfile()))
+        {
+            targetProfile = list.getCurrSelected().getProfile();
+            chat.updateLines(targetProfile.getMediumHash());
+        }
+
+        if(targetProfile != null)
+        {
+            chatBox.setSuggestion(targetProfile.isOnline() ? "" : "Friend is offline");
+            chatBox.setEditable(targetProfile.isOnline());
+            if (ChatHandler.hasNewMessages(targetProfile.getMediumHash()))
+            {
+                chat.updateLines(targetProfile.getMediumHash());
+                ChatHandler.setMessagesRead(targetProfile.getMediumHash());
+            }
+        }
     }
 
     public static ArrayList<Profile> removedFriends = new ArrayList<>();
-    protected boolean refreshFriendsList(boolean force)
+    protected boolean refreshFriendsList()
     {
-        List<Profile> friends = ChatHandler.knownUsers.getFriends();
+        List<Profile> friends = new ArrayList<Profile>();
+        List<Profile> onlineFriends = KnownUsers.getFriends().stream().filter(Profile::isOnline).collect(Collectors.toList());
+        onlineFriends.sort(NameComparator.INSTANCE);
+        List<Profile> offlineFriends = KnownUsers.getFriends().stream().filter(profile -> !profile.isOnline()).collect(Collectors.toList());
+        offlineFriends.sort(NameComparator.INSTANCE);
+
+        friends.addAll(onlineFriends);
+        friends.addAll(offlineFriends);
+
         list.clearList();
         if (friends != null)
         {
@@ -152,6 +180,7 @@ public class FriendsListScreen extends Screen
                 {
                     if(!removedFriends.contains(friendProfile)) list.add(friendEntry);
                 }
+                if(targetProfile != null && friendProfile.getFriendName().equals(targetProfile.getFriendName())) list.setSelected(friendEntry);
             }
             List<Profile> removedCopy = new ArrayList<Profile>(removedFriends);
             for(Profile removed : removedCopy)
@@ -174,11 +203,6 @@ public class FriendsListScreen extends Screen
         return true;
     }
 
-    public void setHoveringText(String hoveringText)
-    {
-        this.hoveringText = hoveringText;
-    }
-
     @SuppressWarnings("all")
     public void removeFriend(Profile profile)
     {
@@ -189,11 +213,11 @@ public class FriendsListScreen extends Screen
                 CompletableFuture.runAsync(() ->
                 {
                    removedFriends.add(profile);
-                   refreshFriendsList(true);
+                   refreshFriendsList();
                    if(!ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getUUID()))
                    {
                        profile.setFriend(false);
-                       refreshFriendsList(true);
+                       refreshFriendsList();
                    }
                 });
             }
@@ -208,8 +232,12 @@ public class FriendsListScreen extends Screen
         if(searchEntry.isFocused())
         {
             boolean flag = searchEntry.charTyped(c, i);
-            refreshFriendsList(false);
+            refreshFriendsList();
             return flag;
+        }
+        if(chatBox.isFocused())
+        {
+            return chatBox.charTyped(c, i);
         }
         return super.charTyped(c, i);
     }
@@ -221,17 +249,278 @@ public class FriendsListScreen extends Screen
         {
             searchEntry.setSuggestion("");
             boolean flag = searchEntry.keyPressed(i, j, k);
-            refreshFriendsList(false);
+            refreshFriendsList();
             return flag;
+        }
+        if(targetProfile != null && chatBox.isFocused())
+        {
+            if ((i == GLFW.GLFW_KEY_ENTER || i == GLFW.GLFW_KEY_KP_ENTER) && !chatBox.getValue().trim().isEmpty())
+            {
+                ChatHandler.sendMessage(targetProfile.getMediumHash(), ChatScreen.getStringForSending(chatBox.getValue()));
+                chatBox.setValue("");
+            }
+            return chatBox.keyPressed(i, j, k);
         }
         return super.keyPressed(i, j, k);
     }
 
+    @Override
+    public boolean mouseClicked(double d, double e, int i)
+    {
+        if(list.getCurrSelected() != null)
+        {
+            boolean flag = targetProfile == null || !targetProfile.equals(list.getCurrSelected().getProfile());
+            if (flag) {
+                Profile profile = list.getCurrSelected().getProfile();
+                if (profile != null && profile.isFriend()) {
+                    targetProfile = profile;
+                    chat.updateLines(profile.getMediumHash());
+                }
+                return flag;
+            }
+        }
+        return super.mouseClicked(d, e, i);
+    }
+
+    public static class NameComparator implements Comparator<Profile>
+    {
+        public static final NameComparator INSTANCE = new NameComparator();
+
+        @Override
+        public int compare(Profile profile1, Profile profile2)
+        {
+            String str1 = profile1.friendName;
+            String str2 = profile2.friendName;
+
+            int res = String.CASE_INSENSITIVE_ORDER.compare(str1, str2);
+            if (res == 0)
+            {
+                res = str1.compareTo(str2);
+            }
+            return res;
+        }
+    }
+
     public class ScrollingChat extends ObjectSelectionList
     {
+        private ArrayList<FormattedCharSequence> lines;
+        private int height;
+        private int Width;
+        private int top;
+        private int bottom;
+        private int itemHeight;
+
         public ScrollingChat(int width, int height)
         {
             super(Minecraft.getInstance(), width, height, 30, height, 10);
+            this.height = height;
+            this.width = width;
+            this.top = 30;
+            this.bottom = height;
+            this.itemHeight = 10;
+            lines = new ArrayList<>();
+            if(targetProfile != null) updateLines(targetProfile.getMediumHash());
+        }
+
+        public ScrollingChat(int widthIn, int heightIn, int topIn, int bottomIn)
+        {
+            super(Minecraft.getInstance(), widthIn, heightIn, topIn, bottomIn, 10);
+            this.height = height;
+            this.width = width;
+            this.top = 30;
+            this.bottom = height;
+            this.itemHeight = 10;
+            lines = new ArrayList<>();
+            if(targetProfile != null) updateLines(targetProfile.getMediumHash());
+        }
+
+        public void renderEntry(PoseStack poseStack, int index, int mouseX, int mouseY, float partialTicks)
+        {
+            try
+            {
+                FormattedCharSequence component = lines.get(index);
+                int totalWidth = 110;
+
+                int oldTotal = totalWidth;
+                totalWidth += minecraft.font.width(component);
+
+                boolean hovering = mouseX > oldTotal && mouseX < totalWidth && mouseY > getRowTop(index) && mouseY < getRowTop(index) + itemHeight;
+
+                Style style = minecraft.font.getSplitter().componentStyleAtWidth(component, (int) mouseX);
+
+                if(hovering)
+                {
+                    RenderSystem.enableBlend();
+                    RenderSystem.color4f(1, 1, 1, 0.90F);
+                    minecraft.font.draw(poseStack, component, oldTotal, getRowTop(index), 0xBBFFFFFF);
+                    renderComponentHoverEffect(poseStack, style , mouseX, mouseY);
+                    RenderSystem.color4f(1, 1, 1, 1);
+                }
+                else
+                {
+                    minecraft.font.draw(poseStack, component, oldTotal, getRowTop(index), 0xFFFFFF);
+                }
+            } catch (Exception ignored) {}
+        }
+
+        @Override
+        protected int getItemCount()
+        {
+            return lines.size();
+        }
+
+        protected void updateLines(String key)
+        {
+            LimitedSizeQueue<Message> tempMessages;
+            int oldMaxScroll = this.getMaxScroll();
+            synchronized (ircLock)
+            {
+                if (ChatHandler.messages == null || ChatHandler.messages.size() == 0) return;
+                tempMessages = ChatHandler.messages.get(key);
+            }
+
+            ArrayList<FormattedCharSequence> oldLines = lines;
+            int listHeight = this.height - (this.bottom - this.top - 4);
+            lines = new ArrayList<>();
+            if (tempMessages == null)
+                return;
+            try {
+                for (Message message : tempMessages) {
+                    Component display = ChatFormatter.formatLine(message);
+                    if (display == null)
+                        continue;
+                    lines.addAll(ComponentRenderUtils.wrapComponents(display, width - 10, font));
+                }
+            } catch (Exception ignored) {}
+            if (lines.size() > oldLines.size() && this.getScrollAmount() == oldMaxScroll) ;
+            {
+                this.setScrollAmount(this.getMaxScroll());
+            }
+        }
+
+        private int getRowBottom(int p_getRowBottom_1_)
+        {
+            return this.getRowTop(p_getRowBottom_1_) + this.itemHeight;
+        }
+
+        @Override
+        protected boolean isSelectedItem(int i)
+        {
+            return false;
+        }
+
+        @Override
+        protected int getScrollbarPosition()
+        {
+            return 0;
+        }
+
+        @Override
+        public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+        {
+            this.renderBackground(matrixStack);
+            int i = this.getScrollbarPosition();
+            int j = i + 6;
+            Tesselator tessellator = Tesselator.getInstance();
+            BufferBuilder bufferbuilder = tessellator.getBuilder();
+            this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            float f = 32.0F;
+            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.vertex((double)this.x0, (double)this.y1, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)this.y1, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)this.y0, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.y0, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            tessellator.end();
+            int k = this.getRowLeft();
+            int l = this.y0 + 4 - (int)this.getScrollAmount();
+
+//            ScreenHelpers.drawLogo(matrixStack, font, width - 20, height + 18, 20, 30, 0.75F);
+            this.renderList(matrixStack, k, l, mouseX, mouseY, partialTicks);
+            this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthFunc(519);
+            float f1 = 32.0F;
+            int i1 = -100;
+            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.vertex((double)this.x0, (double)this.y0, -100.0D).uv(0.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.y0, -100.0D).uv((float)this.width / 32.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)(this.x0 + this.width), 0.0D, -100.0D).uv((float)this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, 0.0D, -100.0D).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.height, -100.0D).uv(0.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.height, -100.0D).uv((float)this.width / 32.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.y1, -100.0D).uv((float)this.width / 32.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.y1, -100.0D).uv(0.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            tessellator.end();
+            RenderSystem.depthFunc(515);
+            RenderSystem.disableDepthTest();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+            RenderSystem.disableAlphaTest();
+            RenderSystem.shadeModel(7425);
+            RenderSystem.disableTexture();
+            int j1 = 4;
+            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.vertex((double)this.x0, (double)(this.y0 + 4), 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)(this.y0 + 4), 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)this.y0, 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.y0, 0.0D).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.y1, 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)this.y1, 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)(this.y1 - 4), 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)(this.y1 - 4), 0.0D).uv(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+            tessellator.end();
+
+            this.renderDecorations(matrixStack, mouseX, mouseY);
+            RenderSystem.enableTexture();
+            RenderSystem.shadeModel(7424);
+            RenderSystem.enableAlphaTest();
+            RenderSystem.disableBlend();
+        }
+
+        @Override
+        protected void renderList(PoseStack poseStack, int p_renderList_1_, int p_renderList_2_, int mouseX, int mouseY, float p_renderList_5_)
+        {
+            int i = lines.size();
+            Tesselator tessellator = Tesselator.getInstance();
+            BufferBuilder bufferbuilder = tessellator.getBuilder();
+
+            if(!lines.isEmpty())
+                for (int j = 0; j < i; ++j)
+                {
+                    int k = this.getRowTop(j);
+                    int l = this.getRowBottom(j);
+                    if (l >= this.y0 && k <= this.y1)
+                    {
+                        int i1 = p_renderList_2_ + j * this.itemHeight + this.headerHeight;
+                        int j1 = this.itemHeight - 4;
+                        int k1 = this.getRowWidth();
+                        //this.renderSelection &&
+                        if (this.isSelectedItem(j))
+                        {
+                            int l1 = this.x0 + this.width / 2 - k1 / 2;
+                            int i2 = this.x0 + this.width / 2 + k1 / 2;
+                            RenderSystem.disableTexture();
+                            float f = this.isFocused() ? 1.0F : 0.5F;
+                            RenderSystem.color4f(f, f, f, 1.0F);
+                            bufferbuilder.begin(7, DefaultVertexFormat.POSITION);
+                            bufferbuilder.vertex((double) l1, (double) (i1 + j1 + 2), 0.0D).endVertex();
+                            bufferbuilder.vertex((double) i2, (double) (i1 + j1 + 2), 0.0D).endVertex();
+                            bufferbuilder.vertex((double) i2, (double) (i1 - 2), 0.0D).endVertex();
+                            bufferbuilder.vertex((double) l1, (double) (i1 - 2), 0.0D).endVertex();
+                            tessellator.end();
+                            RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
+                            bufferbuilder.begin(7, DefaultVertexFormat.POSITION);
+                            bufferbuilder.vertex((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
+                            bufferbuilder.vertex((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
+                            bufferbuilder.vertex((double) (i2 - 1), (double) (i1 - 1), 0.0D).endVertex();
+                            bufferbuilder.vertex((double) (l1 + 1), (double) (i1 - 1), 0.0D).endVertex();
+                            tessellator.end();
+                            RenderSystem.enableTexture();
+                        }
+                        renderEntry(poseStack, j, mouseX, mouseY, p_renderList_5_);
+                    }
+                }
         }
     }
 }

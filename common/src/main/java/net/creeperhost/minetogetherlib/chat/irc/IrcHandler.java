@@ -2,6 +2,7 @@ package net.creeperhost.minetogetherlib.chat.irc;
 
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import org.apache.logging.log4j.LogManager;
@@ -354,10 +355,10 @@ public class IrcHandler
                     }
                     if(modify.equals("-"))
                     {
-                        Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                        Profile profile = KnownUsers.findByNick(nick);
                         if(profile != null) {
                             profile.setBanned(false);
-                            ChatHandler.knownUsers.update(profile);
+                            KnownUsers.update(profile);
                             ChatHandler.rebuildChat = true;
                         }
                         if(ChatHandler.backupBan.get().contains(nick)) {
@@ -404,12 +405,12 @@ public class IrcHandler
                         }
                     }
 
-                    Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                    Profile profile = KnownUsers.findByNick(nick);
                     if (profile != null) {
                         profile.setOnline(true);
                         if(json != null) profile.setPackID(json);
                         profile.setPartyMember(channel.equals(ChatHandler.currentParty));
-                        ChatHandler.knownUsers.update(profile);
+                        KnownUsers.update(profile);
                     }
                 }
             }, MineTogetherChat.ircEventExecutor);
@@ -431,13 +432,13 @@ public class IrcHandler
                     } else {
                         ChatHandler.curseSync.put(nick, json);
                     }
-                    Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                    Profile profile = KnownUsers.findByNick(nick);
                     if (profile != null) {
                         if(profile.isFriend()) {
                             profile.setOnline(true);
                         }
                         profile.setPackID(json);
-                        ChatHandler.knownUsers.update(profile);
+                        KnownUsers.update(profile);
                     }
                 }
             }, MineTogetherChat.ircEventExecutor);
@@ -450,11 +451,11 @@ public class IrcHandler
                 Matcher matcher = pattern.matcher(s);
                 if (matcher.matches()) {
                     String nick = matcher.group(1);
-                    Profile profile = ChatHandler.knownUsers.findByNick(nick);
+                    Profile profile = KnownUsers.findByNick(nick);
                     if (profile != null) {
                         if(profile.isFriend()) {
                             profile.setOnline(false);
-                            ChatHandler.knownUsers.update(profile);
+                            KnownUsers.update(profile);
                         }
                     }
                 }
@@ -471,12 +472,12 @@ public class IrcHandler
 
                 if(channel != null && ChatHandler.currentParty.equals(channel))
                 {
-                    Profile profile = ChatHandler.knownUsers.findByNick(name);
+                    Profile profile = KnownUsers.findByNick(name);
                     if(profile != null) profile.setPartyMember(false);
                 }
                 else
                 {
-                    ChatHandler.knownUsers.removeByNick(name, true);
+                    KnownUsers.removeByNick(name, true);
                 }
             }
         }

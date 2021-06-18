@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.module.chat;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
@@ -18,7 +19,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.creeperhost.minetogetherlib.chat.ChatHandler.knownUsers;
 
 public class ChatFormatter
 {
@@ -81,8 +81,8 @@ public class ChatFormatter
             Profile profile = null;
 
             if (inputNick.startsWith("MT") && inputNick.length() >= 16) {
-                profile = knownUsers.findByNick(inputNick);
-                if (profile == null) profile = knownUsers.add(inputNick);
+                profile = KnownUsers.findByNick(inputNick);
+                if (profile == null) profile = KnownUsers.add(inputNick);
                 if (profile != null) {
                     premium.set(profile.isPremium());
                     outputNick = profile.getUserDisplay();
@@ -131,7 +131,7 @@ public class ChatFormatter
                     } else if(justNick.length() >= 16)
                     {
                         String userName = "User#" + justNick.substring(2, 5);
-                        Profile mentionProfile = knownUsers.findByNick(justNick);
+                        Profile mentionProfile = KnownUsers.findByNick(justNick);
                         if (mentionProfile != null) {
                             userName = mentionProfile.getUserDisplay();
                         }

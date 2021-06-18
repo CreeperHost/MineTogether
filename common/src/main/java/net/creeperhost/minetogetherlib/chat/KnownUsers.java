@@ -1,5 +1,7 @@
 package net.creeperhost.minetogetherlib.chat;
 
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
@@ -12,14 +14,14 @@ import java.util.stream.Collectors;
 
 public class KnownUsers
 {
-    private AtomicReference<List<Profile>> profiles = new AtomicReference<List<Profile>>();
+    private static AtomicReference<List<Profile>> profiles = new AtomicReference<List<Profile>>();
 
-    public KnownUsers()
+    static
     {
-        this.profiles.set(new ArrayList<Profile>());
+        profiles.set(new ArrayList<Profile>());
     }
 
-    public void clean()
+    public static void clean()
     {
         List<String> remove = new ArrayList<>();
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
@@ -59,9 +61,9 @@ public class KnownUsers
         }
     }
 
-    public Profile add(String hash)
+    public static Profile add(String hash)
     {
-        if(MineTogetherChat.profile.get().getLongHash().startsWith(hash.substring(2))) return null;
+        if(ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()).startsWith(hash.substring(2))) return null;
 
         Profile profile = new Profile(hash);
         if(findByNick(hash) == null)
@@ -83,7 +85,7 @@ public class KnownUsers
         }
         return null;
     }
-    public boolean update(Profile updatedProfile)
+    public static boolean update(Profile updatedProfile)
     {
         Profile finalProfile = null;
         if(updatedProfile.getLongHash().length() > 0) {
@@ -109,7 +111,7 @@ public class KnownUsers
         return (finalProfile != null && finalProfile == updatedProfile);
     }
 
-    public void removeByHash(String hash, boolean ignoreFriend)
+    public static void removeByHash(String hash, boolean ignoreFriend)
     {
         profiles.updateAndGet(profiles1 ->
         {
@@ -123,7 +125,7 @@ public class KnownUsers
             return profiles1;
         });
     }
-    public void removeByNick(String nick, boolean ignoreFriend)
+    public static void removeByNick(String nick, boolean ignoreFriend)
     {
         profiles.updateAndGet(profiles1 ->
         {
@@ -138,7 +140,7 @@ public class KnownUsers
         });
     }
 
-    public Profile findByHash(String search)
+    public static Profile findByHash(String search)
     {
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
         Profile returnProfile = null;
@@ -153,7 +155,7 @@ public class KnownUsers
         return returnProfile;
     }
 
-    public Profile findByDisplay(String search)
+    public static Profile findByDisplay(String search)
     {
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
         Profile returnProfile = null;
@@ -169,7 +171,7 @@ public class KnownUsers
         return returnProfile;
     }
 
-    public Profile findByNick(String search)
+    public static Profile findByNick(String search)
     {
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
         Profile returnProfile = null;
@@ -185,14 +187,14 @@ public class KnownUsers
         return returnProfile;
     }
 
-    public List<String> getNames()
+    public static List<String> getNames()
     {
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
         return profilesCopy.stream().map(Profile::getUserDisplay).collect(Collectors.toList());
     }
-    private long lastFriendsUpdate = 0;
+    private static long lastFriendsUpdate = 0;
 
-    public List<Profile> getFriends()
+    public static List<Profile> getFriends()
     {
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
         List<Profile> returnList = new ArrayList<>();
@@ -206,7 +208,7 @@ public class KnownUsers
         return returnList;
     }
 
-    public List<Profile> getMuted()
+    public static List<Profile> getMuted()
     {
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
         List<Profile> returnList = new ArrayList<>();
@@ -220,7 +222,7 @@ public class KnownUsers
         return returnList;
     }
 
-    public List<Profile> getPartyMembers()
+    public static List<Profile> getPartyMembers()
     {
         List<Profile> profilesCopy = new ArrayList<Profile>(profiles.get());
         List<Profile> returnList = new ArrayList<>();
@@ -234,7 +236,7 @@ public class KnownUsers
         return returnList;
     }
 
-    public AtomicReference<List<Profile>> getProfiles()
+    public static AtomicReference<List<Profile>> getProfiles()
     {
         return profiles;
     }

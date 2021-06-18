@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.module.chat.screen.social;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
@@ -10,6 +11,7 @@ import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.ChatFormatting;
@@ -29,7 +31,6 @@ import java.util.List;
 
 public class ProfileEntry extends Entry<ProfileEntry>
 {
-    private final ResourceLocation resourceLocation = new ResourceLocation("textures/gui/social_interactions.png");
     private final Profile profile;
     private final List<GuiEventListener> children;
     private final Minecraft minecraft = Minecraft.getInstance();
@@ -57,12 +58,12 @@ public class ProfileEntry extends Entry<ProfileEntry>
                 case FRIENDS:
                     ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getUUID());
                     profile.setFriend(false);
-                    ChatHandler.knownUsers.update(profile);
+                    KnownUsers.update(profile);
                     refreshPage();
                     break;
                 case PARTY:
                     profile.setPartyMember(false);
-                    ChatHandler.knownUsers.update(profile);
+                    KnownUsers.update(profile);
                     refreshPage();
                     break;
             }
@@ -80,13 +81,13 @@ public class ProfileEntry extends Entry<ProfileEntry>
             }
         });
 
-        this.muteButton = new ImageButton(0, 0, 20, 20, 20, 38, 20, resourceLocation, 256, 256, (button) ->
+        this.muteButton = new ImageButton(0, 0, 20, 20, 20, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
         {
             ChatModule.muteUser(profile.getLongHash());
             refreshPage();
         });
 
-        this.openDMButton = new ImageButton(0, 0, 20, 20, 0, 38, 20, resourceLocation, 256, 256, (button) ->
+        this.openDMButton = new ImageButton(0, 0, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
         {
             Minecraft.getInstance().setScreen(new ChatScreen(mineTogetherSocialinteractionsScreen, profile.getMediumHash()));
         });
