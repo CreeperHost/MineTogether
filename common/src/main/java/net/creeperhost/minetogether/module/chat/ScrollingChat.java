@@ -34,7 +34,6 @@ public class ScrollingChat extends ObjectSelectionList
     private MineTogetherScreen screen;
     private int chatOffset;
 
-
     public ScrollingChat(MineTogetherScreen screen, int width, int height, int chatOffset)
     {
         super(Minecraft.getInstance(), width - 20, height - 50, 30, height - 50, 10);

@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.module.chat.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryFriend;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
@@ -238,7 +239,7 @@ public class FriendsListScreen extends MineTogetherScreen
         {
             if ((i == GLFW.GLFW_KEY_ENTER || i == GLFW.GLFW_KEY_KP_ENTER) && !chatBox.getValue().trim().isEmpty())
             {
-                ChatHandler.sendMessage(targetProfile.getMediumHash(), ChatScreen.getStringForSending(chatBox.getValue()));
+                ChatHandler.sendMessage(targetProfile.getMediumHash(), ChatFormatter.getStringForSending(chatBox.getValue()));
                 chatBox.setValue("");
             }
             return chatBox.keyPressed(i, j, k);

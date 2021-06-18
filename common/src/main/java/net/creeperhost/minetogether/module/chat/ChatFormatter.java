@@ -19,10 +19,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class ChatFormatter
 {
     private static final Pattern nameRegex = Pattern.compile("^(\\w+?):");
+    private final static Pattern patternA = Pattern.compile("((?:user)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private final static Pattern patternB = Pattern.compile("((?:@)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private final static Pattern patternC = Pattern.compile("((?:@user)([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private final static Pattern patternD = Pattern.compile("((?:@user)#([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private final static Pattern patternE = Pattern.compile("((?:user)#([a-zA-Z0-9]+))", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private final static Pattern patternF = Pattern.compile("([a-zA-Z0-9]+)#([a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private final static Pattern patternG = Pattern.compile("(@[a-zA-Z0-9]+)#([a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
     public static Component formatLine(Message message)
     {
@@ -227,6 +233,85 @@ public class ChatFormatter
             e.printStackTrace();
         }
         return new TranslatableComponent("Error formatting line, Please report this to the issue tracker");
+    }
+
+    public static String getStringForSending(String text)
+    {
+        String[] split = text.split(" ");
+        boolean replaced = false;
+        for (int i = 0; i < split.length; i++)
+        {
+            String word = split[i].toLowerCase();
+            final String subst = "User#$2";
+            final String substr2 = "$1#$2";
+
+            final Matcher matcher  = patternA.matcher(word);
+            final Matcher matcherb = patternB.matcher(word);
+            final Matcher matcherc = patternC.matcher(word);
+            final Matcher matcherd = patternD.matcher(word);
+            final Matcher matchere = patternE.matcher(word);
+            final Matcher matcherf = patternF.matcher(word);
+            final Matcher matcherg = patternG.matcher(word);
+
+            String justNick = word;
+            String result = word;
+            String result2 = "";
+            if(matcher.matches())
+            {
+                result = matcher.replaceAll(subst);
+            } else if(matcherb.matches())
+            {
+                result = matcherb.replaceAll(subst);
+            } else if(matcherc.matches())
+            {
+                result = matcherc.replaceAll(subst);
+            }
+            else if(matcherd.matches())
+            {
+                result = matcherd.replaceAll(subst);
+            }
+            else if(matchere.matches())
+            {
+                result = matchere.replaceAll(subst);
+            }
+            else if(matcherg.matches())
+            {
+                result2 = matcherg.replaceAll(substr2);
+            } else if(matcherf.matches())
+            {
+                result2 = matcherf.replaceAll(substr2);
+            }
+            if(result.startsWith("User") || result2.length() > 0)
+            {
+                if(result2.length() > 0)
+                {
+                    justNick = result2.replaceAll("[^A-Za-z0-9#]", "");
+                } else {
+                    justNick = result.replaceAll("[^A-Za-z0-9#]", "");
+                }
+                Profile profile = KnownUsers.findByDisplay(justNick);
+                if(profile == null)
+                {
+                    continue;
+                }
+                String tempWord = profile.getShortHash();
+                if (tempWord != null)
+                {
+                    split[i] = result.replaceAll(justNick, tempWord);
+                    replaced = true;
+                }
+                else if (justNick.toLowerCase().equals(Minecraft.getInstance().getUser().getName()))
+                {
+                    split[i] = result.replaceAll(justNick, MineTogetherChat.INSTANCE.ourNick);
+                    replaced = true;
+                }
+            }
+        }
+        if(replaced)
+        {
+            text = String.join(" ", split);
+        }
+        return text;
     }
 
     public static Component newChatWithLinksOurs(String string)
