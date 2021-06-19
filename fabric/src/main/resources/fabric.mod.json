@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.creeperhost.minetogether.fabric.MinetogetherModFabric"
+      "net.creeperhost.minetogether.fabric.MineTogetherModFabric"
     ]
   },
   "depends": {

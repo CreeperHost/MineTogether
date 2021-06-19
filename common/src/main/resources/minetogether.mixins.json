@@ -3,17 +3,23 @@
   "package": "net.creeperhost.minetogether.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ChatComponentInvoker",
-    "MixinChatComponent",
-    "MixinChatScreen",
-    "MixinIntegratedServer",
-    "MixinJoinMultiplayerScreen",
-    "MixinMinecraftTitle",
-    "MixinSelectionList",
-    "MixinServerSelectionList",
-    "MixinShareToLanScreen"
+
   ],
-  "injectors": {
+    "client": [
+      "MixinIntegratedServer",
+      "MixinJoinMultiplayerScreen",
+      "MixinMinecraftTitle",
+      "MixinSelectionList",
+      "MixinServerSelectionList",
+      "MixinShareToLanScreen",
+      "ChatComponentInvoker",
+      "MixinChatComponent",
+      "MixinChatScreen"
+    ],
+    "server": [
+      "MixinDedicatedServerProperties"
+    ],
+    "injectors": {
     "defaultRequire": 1
   }
 }

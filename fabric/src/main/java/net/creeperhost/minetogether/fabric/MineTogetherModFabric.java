@@ -3,11 +3,13 @@ package net.creeperhost.minetogether.fabric;
 import net.creeperhost.minetogether.MineTogether;
 import net.fabricmc.api.ModInitializer;
 
-public class MinetogetherModFabric implements ModInitializer {
+public class MineTogetherModFabric implements ModInitializer
+{
     @Override
-    public void onInitialize() {
+    public void onInitialize()
+    {
         MineTogether.init();
-        MineTogether.clientInit();
         MineTogether.serverInit();
+        MineTogether.clientInit();
     }
 }

@@ -7,6 +7,9 @@ public class MineTogetherServer
     public static boolean serverOn = false;
     public static String secret = "";
     public static int updateID;
+    public static String discoverability = "";
+    public static String displayName = "";
+    public static String server_ip = "";
 
     public static void init()
     {
