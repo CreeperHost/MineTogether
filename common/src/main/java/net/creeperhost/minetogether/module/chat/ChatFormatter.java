@@ -9,10 +9,8 @@ import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -154,7 +152,7 @@ public class ChatFormatter
             Component messageComp = newChatWithLinksOurs(messageStr);
 
             if((profile != null && profile.isBanned()) || ChatHandler.backupBan.get().contains(inputNick)) {
-                messageComp = new TranslatableComponent("<Message Deleted>").copy().withStyle(style -> style.withItalic(true).withColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY)));
+                messageComp = new TranslatableComponent(ChatFormatting.OBFUSCATED + "<Message Deleted>").copy().withStyle(style -> style.withColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY)));
                 messageColour = ChatFormatting.DARK_GRAY;
             }
 
