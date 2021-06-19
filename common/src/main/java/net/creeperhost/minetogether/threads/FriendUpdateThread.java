@@ -3,7 +3,6 @@ package net.creeperhost.minetogether.threads;
 import com.google.gson.*;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;

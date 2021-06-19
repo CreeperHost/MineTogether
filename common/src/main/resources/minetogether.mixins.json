@@ -6,15 +6,15 @@
 
   ],
     "client": [
+      "ChatComponentInvoker",
+      "MixinChatComponent",
+      "MixinChatScreen",
       "MixinIntegratedServer",
       "MixinJoinMultiplayerScreen",
       "MixinMinecraftTitle",
       "MixinSelectionList",
       "MixinServerSelectionList",
-      "MixinShareToLanScreen",
-      "ChatComponentInvoker",
-      "MixinChatComponent",
-      "MixinChatScreen"
+      "MixinShareToLanScreen"
     ],
     "server": [
       "MixinDedicatedServerProperties"
