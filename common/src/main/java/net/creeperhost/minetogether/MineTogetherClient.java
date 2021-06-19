@@ -10,14 +10,19 @@ import me.shedaniel.architectury.event.events.GuiEvent;
 import me.shedaniel.architectury.event.events.client.ClientTickEvent;
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import me.shedaniel.architectury.registry.KeyBindings;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
+import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
+import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
 import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialinteractionsScreen;
 import net.creeperhost.minetogether.module.connect.ConnectModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
 import net.creeperhost.minetogether.screen.OfflineScreen;
+import net.creeperhost.minetogether.screen.SettingsScreen;
+import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -134,11 +139,6 @@ public class MineTogetherClient
                 firstOpen = false;
                 Minecraft.getInstance().setScreen(new OfflineScreen());
             }
-        }
-        if(screen instanceof PauseScreen)
-        {
-            ScreenHooks.addButton(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("TEST"), p ->
-                    Minecraft.getInstance().setScreen(new MineTogetherSocialinteractionsScreen())));
         }
         MultiPlayerModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
         ServerOrderModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
