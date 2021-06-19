@@ -12,6 +12,7 @@ import java.nio.file.Path;
 public class MineTogether
 {
     public static Logger logger = LogManager.getLogger();
+    public static String base64 = "";
 
     public static void init()
     {

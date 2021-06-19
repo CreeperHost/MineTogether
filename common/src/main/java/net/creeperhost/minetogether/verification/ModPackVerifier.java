@@ -46,7 +46,7 @@ public class ModPackVerifier
         {
             jsonObj.put("p", ftbPackID);
             jsonObj.put("b", base64);
-            MineTogetherClient.base64 = base64;
+            MineTogether.base64 = base64;
         }
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         try

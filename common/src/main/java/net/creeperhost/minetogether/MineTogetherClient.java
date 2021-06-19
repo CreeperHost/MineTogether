@@ -36,7 +36,6 @@ public class MineTogetherClient
 {
     public static ToastHandler toastHandler;
     public static boolean isOnlineUUID = false;
-    public static String base64 = "";
 
     public static void init()
     {

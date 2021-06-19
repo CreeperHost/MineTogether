@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.multiplayer.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.multiplayer.data.PublicServerEntry;
@@ -67,7 +68,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
     {
         loadingSevers = true;
         ServerList serverList = new ServerList(Minecraft.getInstance());
-        List<Server> list = ServerListCallbacks.getServerList(serverListType, MineTogetherClient.getUUID(), MineTogetherClient.base64, Config.getInstance().getCurseProjectID());
+        List<Server> list = ServerListCallbacks.getServerList(serverListType, MineTogetherClient.getUUID(), MineTogether.base64, Config.getInstance().getCurseProjectID());
         for(Server server : list)
         {
             serverList.add(new ServerDataPublic(server));
