@@ -148,5 +148,7 @@
   "minetogether.chat.message.disconnect": "Unable to send messages while client is disconnect",
   "minetogether.chat.message.connecting": "Unable to send messages while client is connecting",
   "minetogether.socialInteractions.tab_friends": "Friends",
-  "minetogether.socialInteractions.tab_party": "Party"
+  "minetogether.socialInteractions.tab_party": "Party",
+  "minetogether.keybindings.social": "Social Screen",
+  "minetogether.keybindings.category": "MineTogether"
 }

@@ -4,9 +4,12 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.architectury.event.events.GuiEvent;
+import me.shedaniel.architectury.event.events.client.ClientTickEvent;
 import me.shedaniel.architectury.hooks.ScreenHooks;
+import me.shedaniel.architectury.registry.KeyBindings;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
@@ -15,6 +18,7 @@ import net.creeperhost.minetogether.module.connect.ConnectModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
 import net.creeperhost.minetogether.screen.OfflineScreen;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -23,6 +27,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -36,16 +41,36 @@ public class MineTogetherClient
 {
     public static ToastHandler toastHandler;
     public static boolean isOnlineUUID = false;
+    public static final KeyMapping mtSocialKey = new KeyMapping(I18n.get("minetogether.keybindings.social"), InputConstants.Type.KEYSYM, 80, I18n.get("minetogether.keybindings.category"));
 
     public static void init()
     {
         toastHandler = new ToastHandler();
         GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
         GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
+        ClientTickEvent.CLIENT_PRE.register(MineTogetherClient::onClientTick);
         ConnectModule.init();
         getUUID();
         if(!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
         ChatModule.init();
+        registerKeybindings();
+    }
+
+    public static void onClientTick(Minecraft minecraft)
+    {
+        //Make sure the client does not have a gui open
+        if(minecraft.screen == null)
+        {
+            if(mtSocialKey.isDown())
+            {
+                minecraft.setScreen(new MineTogetherSocialinteractionsScreen());
+            }
+        }
+    }
+
+    public static void registerKeybindings()
+    {
+        KeyBindings.registerKeyBinding(mtSocialKey);
     }
 
     public static UUID getUUID()
@@ -99,6 +124,9 @@ public class MineTogetherClient
     {
         if(firstOpen && screen instanceof TitleScreen)
         {
+            Minecraft.getInstance().options.keySocialInteractions.setKey(InputConstants.UNKNOWN);
+            KeyMapping.resetMapping();
+
             File offline = new File("local/minetogether/offline.txt");
 
             if(!MineTogetherClient.isOnlineUUID && !offline.exists())
