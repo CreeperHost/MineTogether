@@ -58,7 +58,7 @@ public class FriendsListScreen extends MineTogetherScreen
         {
             list.updateSize(100, height - 90, 28, this.height - 55);
         }
-        chat = new ScrollingChat(this, width - list.getRowWidth() - 22, this.height - 90, 32, this.height - 55, 110);
+        chat = new ScrollingChat(this, width - list.getRowWidth() - 22, this.height - 90, 32, this.height - 55, 110, true);
         chat.setLeftPos(list.getRowRight());
 
         chatBox = new EditBox(this.font, list.getRowRight() + 2, this.height -50, width - list.getRowWidth() - 7, 20, new TranslatableComponent(""));

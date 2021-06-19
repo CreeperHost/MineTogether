@@ -46,10 +46,11 @@ public class MineTogetherClient
         GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
         ClientTickEvent.CLIENT_PRE.register(MineTogetherClient::onClientTick);
         ConnectModule.init();
-        getUUID();
-        if(!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
+        MineTogetherClient.getUUID();
         ChatModule.init();
         registerKeybindings();
+
+        if(!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
     }
 
     public static void onClientTick(Minecraft minecraft)
@@ -67,6 +68,12 @@ public class MineTogetherClient
     public static void registerKeybindings()
     {
         KeyBindings.registerKeyBinding(mtSocialKey);
+    }
+
+    public static void removeVanillaSocialKeybinding()
+    {
+        Minecraft.getInstance().options.keySocialInteractions.setKey(InputConstants.UNKNOWN);
+        KeyMapping.resetMapping();
     }
 
     public static UUID getUUID()
@@ -120,8 +127,7 @@ public class MineTogetherClient
     {
         if(firstOpen && screen instanceof TitleScreen)
         {
-            Minecraft.getInstance().options.keySocialInteractions.setKey(InputConstants.UNKNOWN);
-            KeyMapping.resetMapping();
+            removeVanillaSocialKeybinding();
 
             File offline = new File("local/minetogether/offline.txt");
 

@@ -89,7 +89,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
         this.openDMButton = new ImageButton(0, 0, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
         {
-            Minecraft.getInstance().setScreen(new ChatScreen(mineTogetherSocialinteractionsScreen, profile.getMediumHash()));
+            Minecraft.getInstance().setScreen(new MineTogetherSocialChatScreen(mineTogetherSocialinteractionsScreen, profile));
         });
 
         this.children = ImmutableList.of(removeButton, addToPartyButton, muteButton, openDMButton);

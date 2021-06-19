@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.chat.screen.social;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
@@ -18,7 +19,6 @@ import net.minecraft.resources.ResourceLocation;
 
 public class MineTogetherSocialinteractionsScreen extends Screen
 {
-    public static final ResourceLocation SOCIAL_INTERACTIONS_LOCATION = new ResourceLocation("textures/gui/social_interactions.png");
     private MineTogetherSocialInteractionsPlayerList socialInteractionsPlayerList;
     private Button allButton;
     private Button friendsButton;
@@ -183,7 +183,7 @@ public class MineTogetherSocialinteractionsScreen extends Screen
     {
         int i = marginX() + 3;
         super.renderBackground(poseStack);
-        minecraft.getTextureManager().bind(SOCIAL_INTERACTIONS_LOCATION);
+        minecraft.getTextureManager().bind(Constants.SOCIAL_INTERACTIONS_LOCATION);
         blit(poseStack, i, 64, 1, 1, 236, 8);
         int j = backgroundUnits();
 
