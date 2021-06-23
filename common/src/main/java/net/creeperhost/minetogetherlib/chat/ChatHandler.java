@@ -26,7 +26,6 @@ public class ChatHandler
     static IRCServer IRC_SERVER;
     public static String CHANNEL = "#MineTogether";
     public static ChatConnectionStatus connectionStatus = ChatConnectionStatus.DISCONNECTED;
-    public static HashMap<String, String> curseSync = new HashMap<>();
     public static TreeMap<String, LimitedSizeQueue<Message>> messages = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     static boolean online = false;
     public static AtomicBoolean isInitting = new AtomicBoolean(false);

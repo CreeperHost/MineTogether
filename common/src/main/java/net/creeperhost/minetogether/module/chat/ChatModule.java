@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.chat;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
@@ -129,7 +130,7 @@ public class ChatModule
                 KnownUsers.update(profile);
             }, MineTogetherChat.profileExecutor);
         } catch (Exception ignored) {}
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         try
         {
             if(!mutedUsersPath.getParent().toFile().exists()) mutedUsersPath.getParent().toFile().mkdirs();

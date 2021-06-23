@@ -43,14 +43,6 @@ public class KnownUsers
             }
             if(!skip)
             {
-                //Cleanup legacy code curseSync list...
-                if(ChatHandler.curseSync.containsKey(profile.getMediumHash()))
-                {
-                    ChatHandler.curseSync.remove(profile.getMediumHash());
-                } else if(ChatHandler.curseSync.containsKey(profile.getShortHash()))
-                {
-                    ChatHandler.curseSync.remove(profile.getShortHash());
-                }
                 if(profile.getLongHash().length() > 0) remove.add(profile.getLongHash());
             }
         }

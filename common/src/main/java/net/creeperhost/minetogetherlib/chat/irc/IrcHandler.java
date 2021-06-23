@@ -386,24 +386,26 @@ public class IrcHandler
             {
                 Pattern pattern = Pattern.compile("\\:(MT.{28})!.*JOIN \\:(#\\w+)(?:.*\\:(\\{.*\\}))?");
                 Matcher matcher = pattern.matcher(s);
-                if (matcher.matches()) {
+                if (matcher.matches())
+                {
+//                    System.out.println(s);
                     String nick = matcher.group(1);
                     String channel = matcher.group(2);
                     String json = matcher.group(3);
-                    if(json != null)
-                    {
-                        if(ChatHandler.curseSync.containsKey(nick))
-                        {
-                            if(!ChatHandler.curseSync.get(nick).equals(json))
-                            {
-                                ChatHandler.curseSync.remove(nick);
-                                ChatHandler.curseSync.put(nick, json);
-                            }
-                        } else
-                        {
-                            ChatHandler.curseSync.put(nick, json);
-                        }
-                    }
+//                    if(json != null)
+//                    {
+//                        if(ChatHandler.curseSync.containsKey(nick))
+//                        {
+//                            if(!ChatHandler.curseSync.get(nick).equals(json))
+//                            {
+//                                ChatHandler.curseSync.remove(nick);
+//                                ChatHandler.curseSync.put(nick, json);
+//                            }
+//                        } else
+//                        {
+//                            ChatHandler.curseSync.put(nick, json);
+//                        }
+//                    }
 
                     Profile profile = KnownUsers.findByNick(nick);
                     if (profile != null) {
@@ -423,15 +425,17 @@ public class IrcHandler
                 if (matcher.matches()) {
                     String nick = matcher.group(1);
                     String json = matcher.group(2);
-                    if(ChatHandler.curseSync.containsKey(nick)) {
-                        if(!ChatHandler.curseSync.get(nick).equals(json))
-                        {
-                            ChatHandler.curseSync.remove(nick);
-                            ChatHandler.curseSync.put(nick, json);
-                        }
-                    } else {
-                        ChatHandler.curseSync.put(nick, json);
-                    }
+//                    System.out.println(s);
+//                    System.out.println("JSON: " + json);
+//                    if(ChatHandler.curseSync.containsKey(nick)) {
+//                        if(!ChatHandler.curseSync.get(nick).equals(json))
+//                        {
+//                            ChatHandler.curseSync.remove(nick);
+//                            ChatHandler.curseSync.put(nick, json);
+//                        }
+//                    } else {
+//                        ChatHandler.curseSync.put(nick, json);
+//                    }
                     Profile profile = KnownUsers.findByNick(nick);
                     if (profile != null) {
                         if(profile.isFriend()) {

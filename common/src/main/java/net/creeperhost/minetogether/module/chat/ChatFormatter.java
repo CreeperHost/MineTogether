@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.module.chat;
 
+import com.google.gson.*;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
@@ -160,25 +161,13 @@ public class ChatFormatter
 
             messageComp.getStyle().withColor(TextColor.fromLegacyFormat(ChatFormatting.WHITE));
 
-            if (ChatHandler.curseSync.containsKey(inputNick)) {
-                String realname = ChatHandler.curseSync.get(inputNick).trim();
-                String[] splitString = realname.split(":");
+            if(profile != null && !profile.getPackID().isEmpty())
+            {
+                if(profilePackMatcher(profile))
+                {
+                    nickColour = ChatFormatting.DARK_PURPLE;
 
-                if (splitString.length >= 2) {
-                    String name2 = splitString[1];
-
-//                    if ((name2.contains(MineTogether.instance.ftbPackID) && !MineTogether.instance.ftbPackID.isEmpty())
-//                            || (name2.contains(Config.getInstance().curseProjectID) && !Config.getInstance().curseProjectID.isEmpty() && !Config.getInstance().curseProjectID.equalsIgnoreCase("Insert curse project ID here")))
-//                    {
-//                        nickColour = ChatFormatting.DARK_PURPLE;
-//                        if(profile != null)
-//                        {
-//                            if(profile.isFriend())
-//                            {
-//                                nickColour = ChatFormatting.GOLD;
-//                            }
-//                        }
-//                    }
+                    if(profile.isFriend()) nickColour = ChatFormatting.GOLD;
                 }
             }
 
@@ -187,7 +176,7 @@ public class ChatFormatter
                 nickColour = ChatFormatting.GRAY;
                 arrowColour = premium.get() ? ChatFormatting.GREEN : ChatFormatting.GRAY;
                 messageColour = ChatFormatting.GRAY;
-                outputNick = MineTogetherChat.profile.get().getUserDisplay();//Minecraft.getInstance().getUser().getName();//player.getName().toString();
+                outputNick = MineTogetherChat.profile.get().getUserDisplay();
                 userComp = new TranslatableComponent(outputNick);
             }
 
@@ -233,6 +222,32 @@ public class ChatFormatter
             e.printStackTrace();
         }
         return new TranslatableComponent("Error formatting line, Please report this to the issue tracker");
+    }
+
+    public static boolean profilePackMatcher(Profile profile)
+    {
+        if(profile == null) return false;
+        if(profile.getPackID().isEmpty()) return false;
+        if(MineTogetherChat.profile.get().getPackID().isEmpty()) return false;
+
+        String profilePack = getCleanedPackID(profile);
+        String ourID = getCleanedPackID(MineTogetherChat.profile.get());
+
+        if(profilePack.isEmpty()) return false;
+        if(ourID.isEmpty()) return false;
+
+        return profilePack.equals(ourID);
+    }
+
+    public static String getCleanedPackID(Profile profile)
+    {
+        if(profile == null) return "";
+        String json = profile.getPackID();
+        JsonElement jElement = new JsonParser().parse(json);
+        JsonObject jObject = jElement.getAsJsonObject();
+        String id = jObject.get("p").getAsString();
+        if(id == null) return "";
+        return id;
     }
 
     public static String getStringForSending(String text)
