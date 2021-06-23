@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.util;
+package net.creeperhost.minetogetherlib.util;
 
 public class MathHelper
 {

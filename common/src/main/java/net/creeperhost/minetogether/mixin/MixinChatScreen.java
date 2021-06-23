@@ -6,7 +6,7 @@ import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
 import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.ComponentUtils;
-import net.creeperhost.minetogether.util.MathHelper;
+import net.creeperhost.minetogetherlib.util.MathHelper;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
