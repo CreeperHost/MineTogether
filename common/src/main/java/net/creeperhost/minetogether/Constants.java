@@ -6,4 +6,5 @@ public class Constants
 {
     public static final String MOD_ID = "minetogether";
     public static final ResourceLocation SOCIAL_INTERACTIONS_LOCATION = new ResourceLocation("textures/gui/social_interactions.png");
+    public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation(Constants.MOD_ID, "textures/widgets.png");
 }

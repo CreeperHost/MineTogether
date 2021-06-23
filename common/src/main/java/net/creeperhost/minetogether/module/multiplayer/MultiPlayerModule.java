@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.multiplayer;
 
 import me.shedaniel.architectury.hooks.ScreenHooks;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
@@ -36,7 +37,7 @@ public class MultiPlayerModule
                 ScreenHooks.addButton(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.serverlist"),
                         p -> Minecraft.getInstance().setScreen(new ServerTypeScreen(screen))));
 
-                ScreenHooks.addButton(screen, new ButtonMultiple(screen.width - 125, 5, 1, p ->
+                ScreenHooks.addButton(screen, new ButtonMultiple(screen.width - 125, 5, 1, Constants.WIDGETS_LOCATION, p ->
                 {
                     if (Config.getInstance().isChatEnabled())
                     {
@@ -86,7 +87,7 @@ public class MultiPlayerModule
 
             if(!(multiplayerScreen instanceof JoinMultiplayerScreenPublic))
             {
-                ScreenHooks.addButton(multiplayerScreen, new ButtonMultiple(multiplayerScreen.width / 2 + 134, multiplayerScreen.height - 52, 2,
+                ScreenHooks.addButton(multiplayerScreen, new ButtonMultiple(multiplayerScreen.width / 2 + 134, multiplayerScreen.height - 52, 2, Constants.WIDGETS_LOCATION,
                         p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
             }
 

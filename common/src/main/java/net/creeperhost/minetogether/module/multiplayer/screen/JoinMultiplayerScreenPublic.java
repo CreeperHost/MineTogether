@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.multiplayer.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
@@ -128,7 +129,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
         ScreenHelpers.findButton("selectServer.add", buttons).active = false;
 
 
-        addButton(new ButtonMultiple(width / 2 + 134, height - 52, 2,
+        addButton(new ButtonMultiple(width / 2 + 134, height - 52, 2, Constants.WIDGETS_LOCATION,
                 p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(new TitleScreen(), serverListType, sortOrder))));
     }
 

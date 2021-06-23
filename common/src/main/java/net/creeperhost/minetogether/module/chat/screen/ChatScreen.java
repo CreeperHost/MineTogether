@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
@@ -128,7 +129,7 @@ public class ChatScreen extends MineTogetherScreen
         {
             this.minecraft.setScreen(new FriendsListScreen(this));
         }));
-        addButton(new ButtonMultiple(width - 124, 5, 3, p ->
+        addButton(new ButtonMultiple(width - 124, 5, 3, Constants.WIDGETS_LOCATION, p ->
         {
             this.minecraft.setScreen(new SettingsScreen(this));
         }));

@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
@@ -85,16 +86,16 @@ public class FriendsListScreen extends MineTogetherScreen
             MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
         }));
 
-        addButton(removeFriend = new ButtonMultiple(width - 20, 32, 2, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
+        addButton(removeFriend = new ButtonMultiple(width - 20, 32, 2, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
         {
 
         }));
 
-        addButton(blockButton = new ButtonMultiple(width - 20, 52, 3, new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
+        addButton(blockButton = new ButtonMultiple(width - 20, 52, 3, Constants.WIDGETS_LOCATION,  new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
         {
         }));
 
-        addButton(partyButton = new ButtonMultiple(width - 20, 72, 4, new TranslatableComponent("minetogether.friendscreen.tooltip.partytime"), (button) ->
+        addButton(partyButton = new ButtonMultiple(width - 20, 72, 4, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.partytime"), (button) ->
         {
         }));
     }
