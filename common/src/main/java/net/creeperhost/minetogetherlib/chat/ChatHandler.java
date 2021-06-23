@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 public class ChatHandler
 {
@@ -87,7 +88,6 @@ public class ChatHandler
     }
     
     public static HashMap<String, String> friends = new HashMap<>();
-//    public static final KnownUsers knownUsers = new KnownUsers();
 
     public static ArrayList<String> autocompleteNames = new ArrayList<>();
 
@@ -96,7 +96,6 @@ public class ChatHandler
         return "";//host.getNameForUser(nick);
     }
 
-    
     public static void sendMessage(String currentTarget, String text)
     {
         if(IrcHandler.sendMessage(currentTarget, text)) {

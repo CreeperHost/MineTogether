@@ -19,14 +19,18 @@ public class ChatUtil
 {
     private static List<String> cookies;
     private static boolean logHide;
+    private static IRCServer cachedIrcServer;
     
     public static IRCServer getIRCServerDetails()
     {
+        if(cachedIrcServer != null) return cachedIrcServer;
+
         String resp = WebUtils.getWebResponse("https://api.creeper.host/serverlist/chatserver");
         
         if (resp.equals("error"))
         {
-            return new IRCServer("irc.minetogether.io", 6667, false, "#public");
+            MineTogetherChat.logger.error("error while attempting to get ChatServer from url");
+            return getFallbackIrcServer();
         }
         JsonParser parser = new JsonParser();
         JsonObject parse = parser.parse(resp).getAsJsonObject();
@@ -37,11 +41,20 @@ public class ChatUtil
             String address = server.get("address").getAsString();
             int port = server.get("port").getAsInt();
             boolean ssl = server.get("ssl").getAsBoolean();
-            return new IRCServer(address, port, ssl, channel);
+            IRCServer ircServer = new IRCServer(address, port, ssl, channel);
+            cachedIrcServer = ircServer;
+            return ircServer;
         } else
         {
-            return new IRCServer("irc.minetogether.io", 6667, false, "#public");
+            return getFallbackIrcServer();
         }
+    }
+
+    public static IRCServer getFallbackIrcServer()
+    {
+        IRCServer ircServer = new IRCServer("irc.minetogether.io", 6667, false, "#public");
+        cachedIrcServer = ircServer;
+        return ircServer;
     }
     
     private static String mapToFormString(Map<String, String> map)

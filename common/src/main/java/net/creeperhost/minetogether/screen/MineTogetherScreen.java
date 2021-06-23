@@ -42,7 +42,8 @@ public class MineTogetherScreen extends Screen
                 if(abstractWidget.isHovered() && abstractWidget instanceof ButtonMultiple)
                 {
                     ButtonMultiple buttonMultiple = (ButtonMultiple) abstractWidget;
-                    renderTooltip(poseStack, buttonMultiple.getTooltip(), mouseX, mouseY);
+                    if(buttonMultiple.getTooltip() != null && !buttonMultiple.getTooltip().getString().isEmpty())
+                        renderTooltip(poseStack, buttonMultiple.getTooltip(), mouseX, mouseY);
                 }
             }
         }
