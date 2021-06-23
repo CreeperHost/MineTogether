@@ -1,11 +1,14 @@
 package net.creeperhost.minetogether.handler;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -91,7 +94,7 @@ public class ToastHandler
 
                 RenderSystem.disableLighting();
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-                Minecraft.getInstance().getTextureManager().bind(MineTogetherClient.toastHandler.TEXTURE_TOASTS);
+                Minecraft.getInstance().getTextureManager().bind(TEXTURE_TOASTS);
                 List<FormattedCharSequence> s = ComponentRenderUtils.wrapComponents(MineTogetherClient.toastHandler.toastText, 140, Minecraft.getInstance().font);
 
                 int toastHeight = 32 + (s.size() * 8);
@@ -103,7 +106,10 @@ public class ToastHandler
                 int start = (MineTogetherClient.toastHandler.getY());
                 for(FormattedCharSequence properties : s)
                 {
-                    Minecraft.getInstance().font.drawShadow(poseStack, properties, MineTogetherClient.toastHandler.getX() + 6, start +=9, textColour);
+                    int x = getX() + 6;
+                    if(toastType == EnumToastType.WARNING) x = getX() + 16;
+
+                    Minecraft.getInstance().font.drawShadow(poseStack, properties, x, start +=9, textColour);
                 }
 
             } else

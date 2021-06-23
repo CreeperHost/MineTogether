@@ -76,8 +76,15 @@ public class ProfileEntry extends Entry<ProfileEntry>
                 case FRIENDS:
                     String name = profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
 
-                    MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Adding " + name + " to Party"), mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
-                    ChatHandler.sendPartyInvite(profile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
+                    if(profile.isOnline())
+                    {
+                        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Adding " + name + " to Party"), mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+                        ChatHandler.sendPartyInvite(profile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
+                    }
+                    else
+                    {
+                        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Unable to send invite      " + name + " is offline"), mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.WARNING, null);
+                    }
                     refreshPage();
                     break;
             }

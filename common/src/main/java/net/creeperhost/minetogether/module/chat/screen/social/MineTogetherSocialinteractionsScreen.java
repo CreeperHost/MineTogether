@@ -14,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -26,7 +27,7 @@ public class MineTogetherSocialinteractionsScreen extends Screen
     private Button partyButton;
     private Button createParty;
     private EditBox searchBox;
-    private String lastSearch = "";
+    private final String lastSearch = "";
     private Page page;
 
     private boolean initialized;
@@ -234,7 +235,6 @@ public class MineTogetherSocialinteractionsScreen extends Screen
         PARTY,
         BLOCKED;
 
-        private Page() {
-        }
+        private Page() {}
     }
 }
