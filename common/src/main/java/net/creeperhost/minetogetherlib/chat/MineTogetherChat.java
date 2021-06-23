@@ -1,6 +1,7 @@
 package net.creeperhost.minetogetherlib.chat;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import net.creeperhost.minetogether.module.chat.screen.ChatListener;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,6 +68,6 @@ public class MineTogetherChat
                 }
             }, profileExecutor);
         }
-        chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, MineTogetherChat.INSTANCE.online), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
+        chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, ChatListener.INSTANCE, MineTogetherChat.INSTANCE.online), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
     }
 }

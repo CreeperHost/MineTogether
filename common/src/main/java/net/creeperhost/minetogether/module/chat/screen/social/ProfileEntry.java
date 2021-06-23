@@ -74,7 +74,9 @@ public class ProfileEntry extends Entry<ProfileEntry>
             switch (this.mineTogetherSocialinteractionsScreen.getPage())
             {
                 case FRIENDS:
-                    MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Adding " + profile.getUserDisplay() + " to Party"), mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+                    String name = profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
+
+                    MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Adding " + name + " to Party"), mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
                     ChatHandler.sendPartyInvite(profile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
                     refreshPage();
                     break;

@@ -18,7 +18,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 public class ChatHandler
 {
@@ -45,9 +44,12 @@ public class ChatHandler
     public static CompletableFuture isBannedFuture;
     public static String currentParty = "";
     public static boolean hasParty = false;
+    public static Profile pendingPartyInvite;
+    public static IChatListener iChatListener;
 
-    public static void init(String nickIn, String realNameIn, boolean onlineIn)
+    public static void init(String nickIn, String realNameIn, IChatListener iChatListenerIn, boolean onlineIn)
     {
+        ChatHandler.iChatListener = iChatListenerIn;
         ChatConnectionHandler.INSTANCE.setup(nickIn, realNameIn, onlineIn);
         ChatConnectionHandler.INSTANCE.connect();
         startCleanThread();
@@ -59,7 +61,7 @@ public class ChatHandler
         {
             inited.set(false);
             connectionStatus = ChatConnectionStatus.CONNECTING;
-            init(initedString, realName, online);
+            init(initedString, realName, iChatListener, online);
         }
     }
 
@@ -153,15 +155,21 @@ public class ChatHandler
         addMessageToChat(CHANNEL, "System", "Friend request accepted.");
     }
 
-    public static void acceptPartyInvite(String owner)
+    public static void onPartyInvite(Profile profile)
     {
-        Profile profile = KnownUsers.findByNick(owner);
-        if(profile != null) profile.setPartyMember(true);
+        pendingPartyInvite = profile;
+        if(iChatListener != null) iChatListener.onPartyInvite(profile);
+    }
 
-        IrcHandler.joinChannel("#" + owner);
-        IrcHandler.sendString("MODE #" + owner + " +i", true);
+    public static void acceptPartyInvite(Profile profile)
+    {
+        IrcHandler.joinChannel("#" + profile.getMediumHash());
+        IrcHandler.sendString("MODE #" + profile.getMediumHash() + " +i", true);
         ChatHandler.hasParty = true;
-        ChatHandler.currentParty = "#" + owner;
+        ChatHandler.currentParty = "#" + profile.getMediumHash();
+        profile.setPartyMember(true);
+        KnownUsers.update(profile);
+        pendingPartyInvite = null;
     }
 
     public static void startCleanThread()

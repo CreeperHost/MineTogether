@@ -435,6 +435,7 @@ public class IrcHandler
                     Profile profile = KnownUsers.findByNick(nick);
                     if (profile != null) {
                         if(profile.isFriend()) {
+                            if(ChatHandler.iChatListener != null) ChatHandler.iChatListener.onFriendOnline(profile);
                             profile.setOnline(true);
                         }
                         profile.setPackID(json);
@@ -489,7 +490,10 @@ public class IrcHandler
             if(matcher.matches())
             {
                 String from = matcher.group(1);
-                ChatHandler.acceptPartyInvite(from);
+                Profile profile = KnownUsers.findByNick(from);
+                if(profile == null) profile = KnownUsers.add(from);
+                ChatHandler.onPartyInvite(profile);
+//                ChatHandler.acceptPartyInvite(profile);
             }
             else
             {
