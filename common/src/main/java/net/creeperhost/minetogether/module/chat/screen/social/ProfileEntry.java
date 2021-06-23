@@ -118,15 +118,10 @@ public class ProfileEntry extends Entry<ProfileEntry>
         } else {
             GuiComponent.fill(poseStack, k, j, k + l, j + m, FastColor.ARGB32.color(255, 48, 48, 48));
             t = j + (m - (9 + 9)) / 2;
-            this.minecraft.font.draw(poseStack, component, (float)r, (float)(t + 12), FastColor.ARGB32.color(140, 255, 255, 255));
+            this.minecraft.font.draw(poseStack, component, (float)p, (float)(t + 12), FastColor.ARGB32.color(140, 255, 255, 255));
         }
 
-        this.minecraft.getTextureManager().bind(new ResourceLocation("textures/entity/steve.png"));
-        GuiComponent.blit(poseStack, p, q, 24, 24, 8.0F, 8.0F, 8, 8, 64, 64);
-        RenderSystem.enableBlend();
-        GuiComponent.blit(poseStack, p, q, 24, 24, 40.0F, 8.0F, 8, 8, 64, 64);
-        RenderSystem.disableBlend();
-        this.minecraft.font.draw(poseStack, profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay(), (float)r, (float)t, FastColor.ARGB32.color(255, 255, 255, 255));
+        this.minecraft.font.draw(poseStack, profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay(), (float)p, (float)t, FastColor.ARGB32.color(255, 255, 255, 255));
 
         if(this.mineTogetherSocialinteractionsScreen.getPage() == MineTogetherSocialinteractionsScreen.Page.FRIENDS)
         {

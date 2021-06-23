@@ -108,7 +108,7 @@ public class ToastHandler
 
             } else
             {
-                MineTogetherClient.toastHandler.clearToast(false);
+                MineTogetherClient.toastHandler.clearToast(true);
             }
         }
     }
