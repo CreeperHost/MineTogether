@@ -34,6 +34,17 @@ public class ToastHandler
         this.toastMethod = method;
     }
 
+    public void displayToast(Component text, int duration, EnumToastType toastType, Runnable method)
+    {
+        this.toastText = text;
+        this.x = Minecraft.getInstance().getWindow().getGuiScaledWidth() - 160;
+        this.y = 0;
+        this.endTime = System.currentTimeMillis() + duration;
+        this.fadeTime = endTime + 500;
+        this.toastType = toastType;
+        this.toastMethod = method;
+    }
+
     public void clearToast(boolean fade)
     {
         this.toastText = null;
@@ -67,10 +78,8 @@ public class ToastHandler
         return y;
     }
 
-    public void onScreenRender(Screen screen, PoseStack poseStack, int i, int i1, float part)
+    public void render(PoseStack poseStack)
     {
-        if(screen == null) return;
-
         if (MineTogetherClient.toastHandler != null && MineTogetherClient.toastHandler.toastText != null)
         {
             long curTime = System.currentTimeMillis();
@@ -91,10 +100,10 @@ public class ToastHandler
                 RenderSystem.enableBlend();
                 int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
 
-                int start = (MineTogetherClient.toastHandler.getY() + 2);
+                int start = (MineTogetherClient.toastHandler.getY());
                 for(FormattedCharSequence properties : s)
                 {
-                    Minecraft.getInstance().font.drawShadow(poseStack, properties, MineTogetherClient.toastHandler.getX() + 15, start +=8, textColour);
+                    Minecraft.getInstance().font.drawShadow(poseStack, properties, MineTogetherClient.toastHandler.getX() + 6, start +=9, textColour);
                 }
 
             } else

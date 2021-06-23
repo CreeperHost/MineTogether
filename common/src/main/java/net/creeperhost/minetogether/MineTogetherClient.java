@@ -44,6 +44,7 @@ public class MineTogetherClient
         toastHandler = new ToastHandler();
         GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
         GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
+        GuiEvent.RENDER_HUD.register(MineTogetherClient::onHudRender);
         ClientTickEvent.CLIENT_PRE.register(MineTogetherClient::onClientTick);
         ConnectModule.init();
         MineTogetherClient.getUUID();
@@ -58,10 +59,15 @@ public class MineTogetherClient
         //Make sure the client does not have a gui open
         if(minecraft.screen == null)
         {
-            if(mtSocialKey.isDown())
+            if(!MineTogetherClient.toastHandler.isActiveToast() && mtSocialKey.isDown())
             {
                 minecraft.setScreen(new MineTogetherSocialinteractionsScreen());
             }
+        }
+
+        if(MineTogetherClient.toastHandler.toastMethod != null && mtSocialKey.isDown())
+        {
+            MineTogetherClient.toastHandler.toastMethod.run();
         }
     }
 
@@ -116,9 +122,14 @@ public class MineTogetherClient
         return false;
     }
 
+    public static void onHudRender(PoseStack poseStack, float partialticks)
+    {
+        if(toastHandler != null) toastHandler.render(poseStack);
+    }
+
     private static void onScreenRender(Screen screen, PoseStack poseStack, int i, int i1, float part)
     {
-        if(toastHandler != null) toastHandler.onScreenRender(screen, poseStack, i, i1, part);
+        if(toastHandler != null) toastHandler.render(poseStack);
     }
 
     static boolean firstOpen = true;
