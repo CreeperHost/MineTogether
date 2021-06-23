@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.threads.MineTogetherServerThread;
 import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
 
 public class MineTogetherServer
 {
@@ -30,7 +31,10 @@ public class MineTogetherServer
     public static void serverStarted(MinecraftServer minecraftServer)
     {
         MineTogetherServer.minecraftServer = minecraftServer;
-        buildMineTogetherServerThread();
+        if(minecraftServer instanceof DedicatedServer)
+        {
+            buildMineTogetherServerThread();
+        }
     }
 
     public static void buildMineTogetherServerThread()
