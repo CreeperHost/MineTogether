@@ -69,7 +69,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
             }
         });
 
-        addToPartyButton = new ButtonString(0, 0, 10, 10, new TranslatableComponent(ChatFormatting.GREEN + "+"),button ->
+        addToPartyButton = new ButtonString(0, 0, 10, 10, new TranslatableComponent(ChatFormatting.GREEN + new String(Character.toChars(10010))),button ->
         {
             switch (this.mineTogetherSocialinteractionsScreen.getPage())
             {
