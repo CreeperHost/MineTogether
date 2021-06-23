@@ -1,4 +1,4 @@
-package net.creeperhost.minetogethergui.widgets;
+package net.creeperhost.minetogether.module.serverorder.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

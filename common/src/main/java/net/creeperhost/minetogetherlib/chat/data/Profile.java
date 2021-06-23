@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.threads.FriendUpdateThread;
-import net.creeperhost.minetogethergui.widgets.Target;
+import net.creeperhost.minetogether.module.chat.Target;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;

@@ -12,7 +12,7 @@ import net.creeperhost.minetogethergui.gif.AnimatedGif;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
-import net.creeperhost.minetogethergui.widgets.Target;
+import net.creeperhost.minetogether.module.chat.Target;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;

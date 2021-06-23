@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.module.serverorder.screen.listentries.ListEntryCountry;
 import net.creeperhost.minetogethergui.lists.ScreenList;
-import net.creeperhost.minetogethergui.widgets.TextFieldDetails;
+import net.creeperhost.minetogether.module.serverorder.widget.TextFieldDetails;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.serverorder.DefferedValidation;
 import net.creeperhost.minetogetherlib.serverorder.IOrderValidation;
