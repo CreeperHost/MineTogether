@@ -57,6 +57,9 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
     @Override
     public void tick()
     {
+        chatBox.setEditable(profile.isOnline());
+        chatBox.setSuggestion(profile.isOnline() ? "" : "Friend is offline");
+
         if (ChatHandler.hasNewMessages(profile.getMediumHash()))
         {
             chat.updateLines(profile.getMediumHash());

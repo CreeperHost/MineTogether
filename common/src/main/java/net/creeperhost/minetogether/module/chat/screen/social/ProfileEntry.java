@@ -89,7 +89,8 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
         this.openDMButton = new ImageButton(0, 0, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
         {
-            Minecraft.getInstance().setScreen(new MineTogetherSocialChatScreen(mineTogetherSocialinteractionsScreen, profile));
+            if(profile != null && profile.isOnline())
+                Minecraft.getInstance().setScreen(new MineTogetherSocialChatScreen(mineTogetherSocialinteractionsScreen, profile));
         });
 
         this.children = ImmutableList.of(removeButton, addToPartyButton, muteButton, openDMButton);
@@ -154,6 +155,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
                 this.removeButton.x = 0;
                 this.removeButton.y = 0;
             }
+
             if(this.openDMButton != null && this.muteButton != null)
             {
                 this.muteButton.x = k + (l - this.muteButton.getWidth() - 4) - 20;
@@ -183,14 +185,9 @@ public class ProfileEntry extends Entry<ProfileEntry>
             }
             mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, component1, n, o);
         }
-        if(addToPartyButton.isHovered())
-        {
-            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Add to party"), n, o);
-        }
-        if(openDMButton.isHovered())
-        {
-            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Direct messages"), n, o);
-        }
+
+        if(addToPartyButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Add to party"), n, o);
+        if(openDMButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Direct messages"), n, o);
         if(muteButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Block"), n, o);
     }
 
