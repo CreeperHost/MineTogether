@@ -63,15 +63,22 @@ public class MineTogetherSocialInteractionsPlayerList extends ContainerObjectSel
                 break;
         }
 
-        if(!copy.isEmpty()) {
-            for (Profile profile : copy) {
+        if(!copy.isEmpty())
+        {
+            for (Profile profile : copy)
+            {
                 ProfileEntry profileEntry = new ProfileEntry(profile, socialInteractionsScreen);
-                if (filter != null && !filter.isEmpty()) {
-                    if (profile.getUserDisplay().toLowerCase().contains(filter) || profile.getUserDisplay().contains(filter)) {
+                if (filter != null && !filter.isEmpty())
+                {
+                    String searchName = profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
+                    if (searchName.toLowerCase().contains(filter) || searchName.contains(filter))
+                    {
                         addEntry(profileEntry);
                         list.add(profileEntry);
                     }
-                } else {
+                }
+                else
+                {
                     addEntry(profileEntry);
                     list.add(profileEntry);
                 }
