@@ -19,10 +19,15 @@ public class WebUtils
 
     public static String getWebResponse(String urlString)
     {
-        return getWebResponse(urlString, 0);
+        return getWebResponse(urlString, 0, false);
     }
 
     public static String getWebResponse(String urlString, int timeout)
+    {
+        return getWebResponse(urlString, timeout, false);
+    }
+
+    public static String getWebResponse(String urlString, int timeout, boolean print)
     {
         try
         {
@@ -68,7 +73,9 @@ public class WebUtils
             
             rd.close();
             return respData.toString();
-        } catch (Throwable ignored) {
+        } catch (Throwable throwable)
+        {
+            if(print) MineTogetherChat.logger.error(throwable);
         }
         return "error";
     }

@@ -553,7 +553,7 @@ public final class ChatCallbacks
     {
         if(cachedIrcServer != null) return cachedIrcServer;
 
-        String resp = WebUtils.getWebResponse("https://api.creeper.host/serverlist/chatserver");
+        String resp = WebUtils.getWebResponse("https://api.creeper.host/serverlist/chatserver", 120000, true);
 
         if (resp.equals("error"))
         {
