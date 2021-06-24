@@ -6,8 +6,10 @@ import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
+import net.creeperhost.minetogetherlib.util.MathHelper;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
@@ -32,6 +34,9 @@ public abstract class MixinChatComponent
 
     @Shadow protected abstract void addMessage(Component component, int i, int j, boolean bl);
 
+    @Shadow protected abstract boolean isChatFocused();
+
+    @Shadow @Final private Minecraft minecraft;
     private final List<GuiMessage<FormattedCharSequence>> mtChatMessages = new ArrayList<>();
     private final List<GuiMessage<Component>> mtAllMessages = new ArrayList<>();
 
@@ -45,13 +50,30 @@ public abstract class MixinChatComponent
         }
     }
 
-    @Inject(at=@At("HEAD"), method="render", cancellable = true)
-    public void render(PoseStack poseStack, int i, CallbackInfo ci) {}
+    @Inject(at = @At("HEAD"), method = "render")
+    public void render(PoseStack poseStack, int i, CallbackInfo ci)
+    {
+        if(isChatFocused())
+        {
+            ChatComponent chatComponent = Minecraft.getInstance().gui.getChat();
+            int y = chatComponent.getHeight() - 175 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
+            GuiComponent.fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, minecraft.options.getBackgroundColor(-2147483648));
+        }
+    }
 
     @Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<FormattedCharSequence>> trimmedMessages(ChatComponent chatComponent)
     {
         return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
+    }
+
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;fill(Lcom/mojang/blaze3d/vertex/PoseStack;IIIII)V"))
+    private void fill(PoseStack poseStack, int i, int j, int k, int l, int m)
+    {
+        if(!isChatFocused())
+        {
+            GuiComponent.fill(poseStack, i, j, k, l, m);
+        }
     }
 
     @Redirect(method = "addMessage(Lnet/minecraft/network/chat/Component;IIZ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
@@ -65,6 +87,7 @@ public abstract class MixinChatComponent
     {
         return ChatModule.showMTChat ? mtAllMessages : allMessages;
     }
+
     @Redirect(method = "scrollChat(D)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<FormattedCharSequence>> scrollChat(ChatComponent chatComponent)
     {

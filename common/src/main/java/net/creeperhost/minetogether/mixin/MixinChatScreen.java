@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.mixin;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.module.chat.ChatModule;
@@ -21,6 +22,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -104,10 +106,6 @@ public abstract class MixinChatScreen extends Screen
         int z = MathHelper.ceil((float) minecraft.gui.getChat().getHeight() / (float) minecraft.options.chatScale);
 
         if(ChatModule.showMTChat) ScreenHelpers.drawLogo(poseStack, font, k + 6, z + 6, -2, height - 200, 0.75F);
-        ChatComponent chatComponent = minecraft.gui.getChat();
-        int y = height - 40 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
-        //TODO bring this back when I can remove fill from the components
-        //fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + y, 0x99000000);
 
         setFocused(input);
         input.setFocus(true);
@@ -215,11 +213,18 @@ public abstract class MixinChatScreen extends Screen
         if(dropdownButton == null) return false;
         //If the dropdown is already open lets not do anything or this could lead to issues
         if(dropdownButton.dropdownOpen) return false;
+        //Still allow openurl click event
+        if(style.getClickEvent().getAction() == ClickEvent.Action.OPEN_URL) return super.handleComponentClicked(style);
 
-        dropdownButton.x = mouseX;
-        dropdownButton.y = mouseY;
-        dropdownButton.dropdownOpen = true;
-        currentDropdown = style.getClickEvent().getValue();
-        return true;
+        //Don't bother with suggestions in our tab as we replace it with the dropdown
+        if(style.getClickEvent().getAction() == ClickEvent.Action.SUGGEST_COMMAND)
+        {
+            dropdownButton.x = mouseX;
+            dropdownButton.y = mouseY;
+            dropdownButton.dropdownOpen = true;
+            currentDropdown = style.getClickEvent().getValue();
+            return true;
+        }
+        return false;
     }
 }
