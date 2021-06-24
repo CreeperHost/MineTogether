@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -33,15 +34,12 @@ public class SettingsScreen extends Screen
             {
                 MineTogether.logger.info("Disabling in-game chat");
                 Config.getInstance().setChatEnabled(false);
-                //TODO
                 IrcHandler.stop(true);
             }
             else
             {
                 MineTogether.logger.info("Enabling in-game chat");
                 Config.getInstance().setChatEnabled(true);
-                //TODO
-//                MineTogether.proxy.enableIngameChat();
                 IrcHandler.reconnect();
                 ChatModule.getMineTogetherChat().startChat();
             }
@@ -62,12 +60,12 @@ public class SettingsScreen extends Screen
         addButton(new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("Link Account")), p ->
         {
             //TODO
-//            minecraft.displayGuiScreen(new ConfirmScreen(e -> {
-//                if (e) {
-//                    KeycloakOAuth.main(new String[]{});
-//                }
-//                minecraft.setScreen(this);
-//            }, new TranslatableComponent(I18n.get("minetogether.linkaccount1")), new TranslatableComponent(I18n.get("minetogether.linkaccount2"))));
+            minecraft.setScreen(new ConfirmScreen(e -> {
+                if (e) {
+                    KeycloakOAuth.main(new String[]{});
+                }
+                minecraft.setScreen(this);
+            }, new TranslatableComponent(I18n.get("minetogether.linkaccount1")), new TranslatableComponent(I18n.get("minetogether.linkaccount2"))));
         }));
 
         //Done button
