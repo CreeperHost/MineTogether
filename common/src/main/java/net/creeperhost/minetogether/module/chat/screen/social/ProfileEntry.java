@@ -171,7 +171,10 @@ public class ProfileEntry extends Entry<ProfileEntry>
                 this.openDMButton.render(poseStack, n, o, f);
             }
         }
+    }
 
+    public void renderTooltips(PoseStack poseStack, int mouseX, int mouseY)
+    {
         if(removeButton.isHovered())
         {
             Component component1 = new TranslatableComponent("");
@@ -187,12 +190,16 @@ public class ProfileEntry extends Entry<ProfileEntry>
                     component1 = new TranslatableComponent("Unblock");
                     break;
             }
-            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, component1, n, o);
+            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, component1, mouseX, mouseY);
         }
 
-        if(addToPartyButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Add to party"), n, o);
-        if(openDMButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Direct messages"), n, o);
-        if(muteButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Block"), n, o);
+        if(addToPartyButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Add to party"), mouseX, mouseY);
+        if(openDMButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Direct messages"), mouseX, mouseY);
+        if(muteButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Block"), mouseX, mouseY);
+    }
+
+    public List<GuiEventListener> getChildren() {
+        return children;
     }
 
     @Override

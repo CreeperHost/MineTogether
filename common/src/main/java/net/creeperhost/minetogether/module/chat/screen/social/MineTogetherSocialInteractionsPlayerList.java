@@ -33,6 +33,13 @@ public class MineTogetherSocialInteractionsPlayerList extends ContainerObjectSel
         RenderSystem.enableScissor((int)((double)this.getRowLeft() * d), (int)((double)(this.height - this.y1) * d), (int)((double)(this.getScrollbarPosition() + 6) * d), (int)((double)(this.height - (this.height - this.y1) - this.y0 - 4) * d));
         super.render(poseStack, i, j, f);
         RenderSystem.disableScissor();
+        if(list != null)
+        {
+            list.forEach(profileEntry ->
+            {
+                if (profileEntry != null) profileEntry.renderTooltips(poseStack, i, j);
+            });
+        }
     }
 
     public void updateList(String filter, MineTogetherSocialinteractionsScreen.Page page)

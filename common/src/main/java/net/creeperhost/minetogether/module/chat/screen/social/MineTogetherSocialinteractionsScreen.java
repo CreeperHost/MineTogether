@@ -108,7 +108,6 @@ public class MineTogetherSocialinteractionsScreen extends Screen
     {
         renderBackground(poseStack);
 
-        if(!socialInteractionsPlayerList.list.isEmpty()) socialInteractionsPlayerList.render(poseStack, i, j, f);
         if(createParty != null)
         {
             if (page == Page.PARTY)
@@ -139,6 +138,7 @@ public class MineTogetherSocialinteractionsScreen extends Screen
         {
             searchBox.render(poseStack, i, j, f);
         }
+        if(!socialInteractionsPlayerList.list.isEmpty()) socialInteractionsPlayerList.render(poseStack, i, j, f);
         super.render(poseStack, i, j, f);
     }
 
