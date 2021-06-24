@@ -18,14 +18,14 @@ public class ChatConnectionHandler
         ChatHandler.realName = realNameIn;
         ChatHandler.initedString = nickIn;
         ChatHandler.nick = nickIn;
-        ChatHandler.IRC_SERVER = ChatUtil.getIRCServerDetails();
+        ChatHandler.IRC_SERVER = ChatCallbacks.getIRCServerDetails();
         ChatHandler.CHANNEL = ChatHandler.online ? ChatHandler.IRC_SERVER.channel : "#SuperSpecialPirateClub";
         ChatHandler.tries.set(0);
     }
 
     public synchronized void connect()
     {
-        IrcHandler.start(ChatUtil.getIRCServerDetails());
+        IrcHandler.start(ChatCallbacks.getIRCServerDetails());
         logger.info("Attempting to connect to irc channel " + ChatHandler.CHANNEL);
     }
 

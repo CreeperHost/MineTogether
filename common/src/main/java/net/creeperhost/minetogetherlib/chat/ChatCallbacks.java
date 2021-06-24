@@ -3,6 +3,7 @@ package net.creeperhost.minetogetherlib.chat;
 import com.google.common.hash.Hashing;
 import com.google.gson.*;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.chat.irc.IRCServer;
 import net.creeperhost.minetogetherlib.serverlists.EnumFlag;
 import net.creeperhost.minetogetherlib.serverlists.FriendStatusResponse;
 import net.creeperhost.minetogetherlib.serverlists.ModPack;
@@ -17,7 +18,7 @@ public final class ChatCallbacks
 {
     private static Map<UUID, String> hashCache = new HashMap<UUID, String>();
     private static String friendCode;
-//    private static Util.CachedValue<ArrayList<Friend>> friendsList = null;
+    private static IRCServer cachedIrcServer;
 
     public static boolean inviteFriend(Profile profile, UUID uuid, String ourServerID)
     {
@@ -635,6 +636,42 @@ public final class ChatCallbacks
             }
         } catch (Exception ignored) {}
         return null;
+    }
+
+    public static IRCServer getIRCServerDetails()
+    {
+        if(cachedIrcServer != null) return cachedIrcServer;
+
+        String resp = WebUtils.getWebResponse("https://api.creeper.host/serverlist/chatserver");
+
+        if (resp.equals("error"))
+        {
+            MineTogetherChat.logger.error("error while attempting to get ChatServer from url");
+            return getFallbackIrcServer();
+        }
+        JsonParser parser = new JsonParser();
+        JsonObject parse = parser.parse(resp).getAsJsonObject();
+        if (parse.get("status").getAsString().equals("success"))
+        {
+            String channel = parse.get("channel").getAsString();
+            JsonObject server = parse.getAsJsonObject("server");
+            String address = server.get("address").getAsString();
+            int port = server.get("port").getAsInt();
+            boolean ssl = server.get("ssl").getAsBoolean();
+            IRCServer ircServer = new IRCServer(address, port, ssl, channel);
+            cachedIrcServer = ircServer;
+            return ircServer;
+        } else
+        {
+            return getFallbackIrcServer();
+        }
+    }
+
+    public static IRCServer getFallbackIrcServer()
+    {
+        IRCServer ircServer = new IRCServer("irc.minetogether.io", 6667, false, "#public");
+        cachedIrcServer = ircServer;
+        return ircServer;
     }
 
     public static String getSafe(JsonObject jsonObject, String value, String defaultString)
