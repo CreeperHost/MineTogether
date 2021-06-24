@@ -124,10 +124,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
                     button -> minecraft.setScreen(new TitleScreen())));
         }
 
-        //TODO make cancelbutton return to main menu
-
         ScreenHelpers.findButton("selectServer.add", buttons).active = false;
-
 
         addButton(new ButtonMultiple(width / 2 + 134, height - 52, 2, Constants.WIDGETS_LOCATION,
                 p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(new TitleScreen(), serverListType, sortOrder))));
@@ -160,12 +157,11 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
         ticks++;
     }
 
-    //TODO, Maybe move this to a Mixin?
     @Override
     public void joinSelectedServer()
     {
         ServerSelectionList.Entry entry = this.serverSelectionList.getSelected();
-        if(entry instanceof PublicServerEntry)
+        if(entry != null && entry instanceof PublicServerEntry)
         {
             join(((PublicServerEntry) entry).getServerData());
             return;
