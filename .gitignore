@@ -19,3 +19,4 @@ classes/
 *.launch
 forge_client.launch
 forge_server.launch
+logs/latest.log

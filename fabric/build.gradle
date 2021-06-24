@@ -17,10 +17,6 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "me.shedaniel:architectury-fabric:${rootProject.architectury_version}"
 
-    shadow 'org.nanohttpd:nanohttpd:2.3.1'
-    shadow 'com.github.scribejava:scribejava-apis:6.9.0'
-    shadow 'com.github.scribejava:scribejava-core:6.9.0'
-
     implementation(project(path: ":common")) {
         transitive = false
     }
@@ -30,6 +26,10 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) {
         transitive = false
     }
+
+    shadowCommon 'org.nanohttpd:nanohttpd:2.3.1'
+    shadowCommon 'com.github.scribejava:scribejava-apis:6.9.0'
+    shadowCommon 'com.github.scribejava:scribejava-core:6.9.0'
 }
 
 processResources {
@@ -43,14 +43,6 @@ processResources {
 shadowJar {
     configurations = [project.configurations.shadowCommon]
     // Don't shadow netty, we already have it.
-    dependencies {
-        exclude(dependency("io.netty::"))
-    }
-
-    // Relocate fluent-hc to prevent conflicts with other mods that include it
-    relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
-    relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
-    relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
 
     classifier '' // Replace the default JAR
 //    classifier "dev-shadow"
@@ -99,3 +91,4 @@ publishing {
 loom {
     mixinConfig 'mixins.minetogether.json'
 }
+

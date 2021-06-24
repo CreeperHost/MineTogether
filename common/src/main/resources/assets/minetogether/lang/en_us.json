@@ -150,5 +150,8 @@
   "minetogether.socialInteractions.tab_friends": "Friends",
   "minetogether.socialInteractions.tab_party": "Party",
   "minetogether.keybindings.social": "Social Screen",
-  "minetogether.keybindings.category": "MineTogether"
+  "minetogether.keybindings.category": "MineTogether",
+
+  "minetogether.linkaccount1":"Link your Minecraft account to your MineTogether account.",
+  "minetogether.linkaccount2":"Linking your accounts will unlock abilities like being able to set your own nickname.\n\nThis will open a web-browser for you to sign in securely.,"
 }
