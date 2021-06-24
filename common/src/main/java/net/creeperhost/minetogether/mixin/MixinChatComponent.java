@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
+import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
@@ -58,6 +59,10 @@ public abstract class MixinChatComponent
             ChatComponent chatComponent = Minecraft.getInstance().gui.getChat();
             int y = chatComponent.getHeight() - 175 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
             GuiComponent.fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, minecraft.options.getBackgroundColor(-2147483648));
+            int k = MathHelper.ceil((float) minecraft.gui.getChat().getWidth() / (float) minecraft.options.chatScale);
+            int z = MathHelper.ceil((float) minecraft.gui.getChat().getHeight() / (float) minecraft.options.chatScale);
+
+            if(ChatModule.showMTChat) ScreenHelpers.drawLogo(poseStack, minecraft.font, k + 6, z + 6, -2, minecraft.gui.getChat().getHeight() - 340, 0.75F);
         }
     }
 

@@ -102,11 +102,6 @@ public abstract class MixinChatScreen extends Screen
         mouseX = i;
         mouseY = j;
 
-        int k = MathHelper.ceil((float) minecraft.gui.getChat().getWidth() / (float) minecraft.options.chatScale);
-        int z = MathHelper.ceil((float) minecraft.gui.getChat().getHeight() / (float) minecraft.options.chatScale);
-
-        if(ChatModule.showMTChat) ScreenHelpers.drawLogo(poseStack, font, k + 6, z + 6, -2, height - 200, 0.75F);
-
         setFocused(input);
         input.setFocus(true);
         fill(poseStack, 2, this.height - 14, this.width - 2, this.height - 2, minecraft.options.getBackgroundColor(-2147483648));
@@ -127,6 +122,9 @@ public abstract class MixinChatScreen extends Screen
         ci.cancel();
     }
 
+    /*
+     * Used to update suggestions
+     */
     @Inject(at=@At("TAIL"), method="tick")
     public void tick(CallbackInfo ci)
     {
@@ -163,7 +161,7 @@ public abstract class MixinChatScreen extends Screen
         }
         else
         {
-            //Set these back just incase the tab is switched
+            //Set these back when the tab is switched
             input.active = true;
             input.setEditable(true);
             input.setSuggestion("");
