@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogethergui.ScreenHelpers;
@@ -44,6 +45,8 @@ public abstract class MixinChatComponent
     @Inject(at=@At("RETURN"), method="processPendingMessages", cancellable = true)
     public void getProcessPendingMessages(CallbackInfo ci)
     {
+        if(!Config.getInstance().isChatEnabled()) return;
+
         if(ChatModule.showMTChat && ChatModule.hasNewMessage)
         {
             ChatModule.hasNewMessage = false;
@@ -54,6 +57,8 @@ public abstract class MixinChatComponent
     @Inject(at = @At("HEAD"), method = "render")
     public void render(PoseStack poseStack, int i, CallbackInfo ci)
     {
+        if(!Config.getInstance().isChatEnabled()) return;
+
         if(isChatFocused())
         {
             ChatComponent chatComponent = Minecraft.getInstance().gui.getChat();
@@ -69,12 +74,16 @@ public abstract class MixinChatComponent
     @Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<FormattedCharSequence>> trimmedMessages(ChatComponent chatComponent)
     {
+        if(!Config.getInstance().isChatEnabled()) return trimmedMessages;
+
         return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
     }
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;fill(Lcom/mojang/blaze3d/vertex/PoseStack;IIIII)V"))
     private void fill(PoseStack poseStack, int i, int j, int k, int l, int m)
     {
+        if(!Config.getInstance().isChatEnabled()) return;
+
         if(!isChatFocused())
         {
             GuiComponent.fill(poseStack, i, j, k, l, m);
@@ -84,24 +93,32 @@ public abstract class MixinChatComponent
     @Redirect(method = "addMessage(Lnet/minecraft/network/chat/Component;IIZ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<FormattedCharSequence>> addMessage(ChatComponent chatComponent)
     {
+        if(!Config.getInstance().isChatEnabled()) return trimmedMessages;
+
         return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
     }
 
     @Redirect(method = "addMessage(Lnet/minecraft/network/chat/Component;IIZ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;allMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<Component>> addMessageAll(ChatComponent chatComponent)
     {
+        if(!Config.getInstance().isChatEnabled()) return allMessages;
+
         return ChatModule.showMTChat ? mtAllMessages : allMessages;
     }
 
     @Redirect(method = "scrollChat(D)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<FormattedCharSequence>> scrollChat(ChatComponent chatComponent)
     {
+        if(!Config.getInstance().isChatEnabled()) return trimmedMessages;
+
         return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
     }
 
     @Redirect(method = "getClickedComponentStyleAt", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<FormattedCharSequence>> getClickedComponentStyleAt(ChatComponent chatComponent)
     {
+        if(!Config.getInstance().isChatEnabled()) return trimmedMessages;
+
         return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
     }
 

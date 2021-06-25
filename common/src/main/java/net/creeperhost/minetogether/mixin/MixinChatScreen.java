@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.mixin;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
 import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
@@ -58,6 +59,8 @@ public abstract class MixinChatScreen extends Screen
     @Inject(at=@At("TAIL"), method="init()V")
     public void init(CallbackInfo ci)
     {
+        if(!Config.getInstance().isChatEnabled()) return;
+
         int x = MathHelper.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;
 
         addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.showMTChat ? 1 : 0, false, false, true, p ->
@@ -96,6 +99,8 @@ public abstract class MixinChatScreen extends Screen
     @Inject(at=@At("HEAD"), method="render", cancellable = true)
     public void render(PoseStack poseStack, int i, int j, float f, CallbackInfo ci)
     {
+        if(!Config.getInstance().isChatEnabled()) return;
+
         //This is just to stop IntelliJ from complaining
         if(minecraft == null) return;
 
@@ -128,6 +133,8 @@ public abstract class MixinChatScreen extends Screen
     @Inject(at=@At("TAIL"), method="tick")
     public void tick(CallbackInfo ci)
     {
+        if(!Config.getInstance().isChatEnabled()) return;
+
         //This should never happen but better safe than sorry
         if(input == null) return;
 
@@ -174,6 +181,8 @@ public abstract class MixinChatScreen extends Screen
     @Inject(at=@At("TAIL"), method="mouseClicked", cancellable = true)
     public void mouseClicked(double d, double e, int i, CallbackInfoReturnable<Boolean> cir)
     {
+        if(!Config.getInstance().isChatEnabled()) return;
+
         if (dropdownButton != null && dropdownButton.wasJustClosed && !dropdownButton.dropdownOpen)
         {
             dropdownButton.x = dropdownButton.y = -10000;
@@ -184,6 +193,8 @@ public abstract class MixinChatScreen extends Screen
     @Override
     public void sendMessage(String string)
     {
+        if(!Config.getInstance().isChatEnabled()) return;
+
         //This is just to stop IntelliJ from complaining
         if(minecraft == null) return;
 
@@ -199,6 +210,8 @@ public abstract class MixinChatScreen extends Screen
     @Override
     public boolean handleComponentClicked(@Nullable Style style)
     {
+        if(!Config.getInstance().isChatEnabled()) return false;
+
         //This is just to stop IntelliJ from complaining
         if(minecraft == null) return false;
         //Let vanilla take over when its not using our tab
