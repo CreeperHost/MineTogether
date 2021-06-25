@@ -8,5 +8,7 @@ public interface IChatListener
 
     void onFriendOnline(Profile profile);
 
+    void onFriendAccept(String name);
+
     String onServerIdRequest();
 }

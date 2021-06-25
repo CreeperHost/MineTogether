@@ -249,7 +249,7 @@ public class ChatHandler
                         builder.append(split[i]).append(" ");
                     }
 
-//                    host.acceptFriend(split[1], builder.toString().trim());
+                    if(iChatListener != null) iChatListener.onFriendAccept(user);
                     addMessageToChat(CHANNEL, "FA:" + user, builder.toString().trim());
                     break;
                 }
