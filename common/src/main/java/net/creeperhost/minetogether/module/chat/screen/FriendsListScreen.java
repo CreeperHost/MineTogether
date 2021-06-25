@@ -43,6 +43,7 @@ public class FriendsListScreen extends MineTogetherScreen
     private Button removeFriend;
     private Button blockButton;
     private Button partyButton;
+    private Button friendCodeButton;
 
     public FriendsListScreen(Screen parent)
     {
@@ -82,7 +83,7 @@ public class FriendsListScreen extends MineTogetherScreen
     {
         addButton(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
 
-        addButton(new ButtonString( width - 105, 5, 120, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
+        addButton(friendCodeButton = new ButtonString( width - 105, 5, 120, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
             minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
             MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
@@ -115,6 +116,7 @@ public class FriendsListScreen extends MineTogetherScreen
         super.render(poseStack, i, j, f);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 12, 0xFFFFFF);
         if(list.children().isEmpty()) drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
+        if(friendCodeButton != null && friendCodeButton.isHovered()) renderTooltip(poseStack, new TranslatableComponent("minetogether.friendslist.copytoclipboard"), i, j);
     }
 
     @Override
