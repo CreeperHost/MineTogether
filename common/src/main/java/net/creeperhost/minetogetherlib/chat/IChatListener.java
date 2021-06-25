@@ -7,4 +7,6 @@ public interface IChatListener
     void onPartyInvite(Profile profile);
 
     void onFriendOnline(Profile profile);
+
+    String onServerIdRequest();
 }

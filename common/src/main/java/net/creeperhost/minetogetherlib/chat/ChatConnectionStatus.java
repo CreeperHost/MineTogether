@@ -7,6 +7,7 @@ public enum ChatConnectionStatus
     VERIFYING("Verifying", "GOLD"),
     DISCONNECTED("Disconnected", "RED"),
     BANNED("Banned", "BLACK"),
+    NICKNAME_IN_USE("Disconnected", "RED"),
     NOT_IN_CHANNEL("Not in channel", "RED");
 
     public final String display;

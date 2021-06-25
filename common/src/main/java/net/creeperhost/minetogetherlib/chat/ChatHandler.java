@@ -64,10 +64,6 @@ public class ChatHandler
         }
     }
 
-    public static void setServerId(int serverIdIn) {
-        serverId = serverIdIn;
-    }
-
     public static void addMessageToChat(String target, String user, String message)
     {
         LimitedSizeQueue<Message> tempQueue = messages.get(target);
@@ -262,7 +258,7 @@ public class ChatHandler
                     break;
                 case "VERIFY":
                     if (!user.startsWith("MT")) {
-                        String serverID = MineTogetherChat.INSTANCE.serverID;
+                        String serverID = getServerId();
                         if (serverID == null) return;
                         IrcHandler.sendCTCPMessage(user, "VERIFY", MineTogetherChat.INSTANCE.signature + ":" + MineTogetherChat.INSTANCE.uuid + ":" + serverID);
                     }
@@ -270,7 +266,9 @@ public class ChatHandler
         }, MineTogetherChat.ircEventExecutor);
     }
 
-    private static String getServerId() {
+    private static String getServerId()
+    {
+        if(iChatListener != null) return iChatListener.onServerIdRequest();
         return String.valueOf(serverId);
     }
 

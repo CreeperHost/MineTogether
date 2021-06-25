@@ -60,7 +60,8 @@ public class IrcHandler
 
             chatFuture = CompletableFuture.runAsync(() ->
             {
-                logger.info("Starting new Chat thread");
+                startReconnectionThread();
+                logger.info("Chat thread started");
 
                 String line = null;
                 final int[] verifyCount = {0};
@@ -69,33 +70,20 @@ public class IrcHandler
                     while ((line = bufferedReader.readLine()) != null)
                     {
                         ChatHandler.isInitting.set(false); // we have received data, we're obviously not initting anymore
+//                        System.out.println(line);
+                        //TODO use regex for this to make it more reliable
+                        if(line.contains(":Nickname is already in use."))
+                        {
+                            logger.info("Nickname already in use, Waiting 60 seconds and trying again");
+                            ChatHandler.connectionStatus = ChatConnectionStatus.NICKNAME_IN_USE;
+                        }
                         if (line.startsWith("PING "))
                         {
                             sendString("PONG " + line.substring(5) + "\r\n", true);
                             if(first.get()) {
                                 ChatHandler.connectionStatus = ChatConnectionStatus.VERIFYING;
-                                sendString("USER " + "MineTogether" + " 8 * :" + MineTogetherChat.INSTANCE.realName, true);//"MineTogether" + " 8 * :" + "{\"p\":\"m35\",\"b\":\"MzUxNzQ\\u003d\"}");
+                                sendString("USER " + "MineTogether" + " 8 * :" + MineTogetherChat.INSTANCE.realName, true);
                                 sendString("JOIN " + ircServer.channel, true);
-                                ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-                                executor.scheduleAtFixedRate(() -> {
-                                    if (ChatHandler.connectionStatus == ChatConnectionStatus.VERIFYING) {
-                                        if(verifyCount[0] >= 5) {
-                                            ChatHandler.onNotice("System", "Verification failed after 6 attempts");
-                                            logger.info("Tried to verify 5 times. Not trying again.");
-                                            executor.shutdownNow();
-                                        } else {
-                                            ChatHandler.onNotice("System", "Attempting verification. Please wait!");
-                                            sendString("PART " + ircServer.channel + " Hopping to try and verify", true);
-                                            try {
-                                                Thread.sleep(2000);
-                                            } catch (InterruptedException ignored) {}
-                                            sendString("JOIN " + ircServer.channel, true);
-                                            verifyCount[0]++;
-                                        }
-                                    } else {
-                                        executor.shutdownNow();
-                                    }
-                                }, 60, 60, TimeUnit.SECONDS);
                                 first.getAndSet(false);
                             }
                         } else {
@@ -103,7 +91,11 @@ public class IrcHandler
                             CompletableFuture.runAsync(() -> handleInput(finalLine), MineTogetherChat.messageHandlerExecutor);
                         }
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception ignored)
+                {
+                    ChatHandler.connectionStatus = ChatConnectionStatus.DISCONNECTED;
+//                    ignored.printStackTrace();
+                }
             });
             sendString("NICK " + nickname, true);
 
@@ -116,6 +108,24 @@ public class IrcHandler
         {
             e.printStackTrace();
         }
+    }
+
+    static ScheduledExecutorService reconnectExecutor;
+
+    public static void startReconnectionThread()
+    {
+        if(reconnectExecutor != null) return;
+        logger.info("Reconnection thread started");
+
+        reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
+        reconnectExecutor.scheduleAtFixedRate(() ->
+        {
+            if (ChatHandler.connectionStatus == ChatConnectionStatus.NICKNAME_IN_USE || ChatHandler.connectionStatus == ChatConnectionStatus.DISCONNECTED) {
+                logger.info("Restarting chat for reason: " + ChatHandler.connectionStatus.display);
+                reconnect();
+                MineTogetherChat.INSTANCE.startChat();
+            }
+        }, 60, 60, TimeUnit.SECONDS);
     }
 
     public static void stop(boolean force)
@@ -272,7 +282,6 @@ public class IrcHandler
         if(s.contains(" :Nickname is already in use") && s.contains("433"))
         {
             ChatHandler.reconnectTimer.set(30000);
-//                        ChatHandler.addStatusMessage("You appear to be connected elsewhere delaying reconnect for 30 seconds");
         }
         else if(s.contains("PRIVMSG"))
         {
@@ -388,24 +397,9 @@ public class IrcHandler
                 Matcher matcher = pattern.matcher(s);
                 if (matcher.matches())
                 {
-//                    System.out.println(s);
                     String nick = matcher.group(1);
                     String channel = matcher.group(2);
                     String json = matcher.group(3);
-//                    if(json != null)
-//                    {
-//                        if(ChatHandler.curseSync.containsKey(nick))
-//                        {
-//                            if(!ChatHandler.curseSync.get(nick).equals(json))
-//                            {
-//                                ChatHandler.curseSync.remove(nick);
-//                                ChatHandler.curseSync.put(nick, json);
-//                            }
-//                        } else
-//                        {
-//                            ChatHandler.curseSync.put(nick, json);
-//                        }
-//                    }
 
                     Profile profile = KnownUsers.findByNick(nick);
                     if (profile != null) {
@@ -416,7 +410,7 @@ public class IrcHandler
                     }
                 }
             }, MineTogetherChat.ircEventExecutor);
-        } else if(s.contains(" 352 ")||s.contains(" 311 ")) //&& s.split(" ")[1].contains("352"))//WHOIS responses
+        } else if(s.contains(" 352 ")||s.contains(" 311 "))
         {
             CompletableFuture.runAsync(() ->
             {
@@ -425,17 +419,6 @@ public class IrcHandler
                 if (matcher.matches()) {
                     String nick = matcher.group(1);
                     String json = matcher.group(2);
-//                    System.out.println(s);
-//                    System.out.println("JSON: " + json);
-//                    if(ChatHandler.curseSync.containsKey(nick)) {
-//                        if(!ChatHandler.curseSync.get(nick).equals(json))
-//                        {
-//                            ChatHandler.curseSync.remove(nick);
-//                            ChatHandler.curseSync.put(nick, json);
-//                        }
-//                    } else {
-//                        ChatHandler.curseSync.put(nick, json);
-//                    }
                     Profile profile = KnownUsers.findByNick(nick);
                     if (profile != null) {
                         if(profile.isFriend()) {

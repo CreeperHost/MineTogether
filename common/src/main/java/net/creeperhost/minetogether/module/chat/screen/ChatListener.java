@@ -41,4 +41,10 @@ public class ChatListener implements IChatListener
     {
         MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(profile.getFriendName() + " Is now online"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
     }
+
+    @Override
+    public String onServerIdRequest()
+    {
+        return MineTogetherClient.getServerIDAndVerify();
+    }
 }
