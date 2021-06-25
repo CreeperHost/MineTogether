@@ -1,22 +1,25 @@
 package net.creeperhost.minetogether.mixin;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
 import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.ComponentUtils;
+import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
+import net.creeperhost.minetogetherlib.chat.*;
 import net.creeperhost.minetogetherlib.util.MathHelper;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.util.WebUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
@@ -37,7 +40,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Mixin(ChatScreen.class)
 public abstract class MixinChatScreen extends Screen
@@ -51,6 +56,10 @@ public abstract class MixinChatScreen extends Screen
     private String currentDropdown;
     private int mouseX;
     private int mouseY;
+    private Button newUserButton;
+    private Button disableButton;
+    private String userCount = "over 2 million";
+    private String onlineCount = "thousands of";
 
     protected MixinChatScreen(Component component)
     {
@@ -95,6 +104,45 @@ public abstract class MixinChatScreen extends Screen
             }
         }));
         dropdownButton.flipped = true;
+        if(!Config.getInstance().getFirstConnect() && ChatModule.showMTChat)
+        {
+            CompletableFuture.runAsync(() -> {
+                if(onlineCount.equals("thousands of")) {
+                    String statistics = WebUtils.getWebResponse("https://minetogether.io/api/stats/all");
+                    Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                    HashMap<String, String> stats = gson.fromJson(statistics, HashMap.class);
+                    String users = stats.get("users");
+                    if (users != null && users.length() > 4) {
+                        userCount = users;
+                    }
+                    String online = stats.get("online");
+                    if(online != null && !online.equalsIgnoreCase("null"))
+                    {
+                        onlineCount = online;
+                    }
+                }
+            addButton(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + onlineCount + " online users now!"), p ->
+            {
+//                IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
+//                Config.getInstance().setFirstConnect(false);
+//                newUserButton.visible = false;
+//                disableButton.visible = false;
+//                ourChat.setBase(false);
+//                ourChat.rebuildChat(ChatHandler.CHANNEL);
+//                this.mc.displayGuiScreen(null);
+            }));
+            addButton(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
+            {
+//                Config.getInstance().setChatEnabled(false);
+//                MineTogether.proxy.disableIngameChat();
+//                disableButton.visible = false;
+//                newUserButton.visible = false;
+//                IrcHandler.stop(true);
+//                ourChat.setBase(true);
+//                buttons.clear();
+            }));
+            }, MineTogetherChat.otherExecutor);
+        }
     }
 
     private static boolean isSinglePlayer()

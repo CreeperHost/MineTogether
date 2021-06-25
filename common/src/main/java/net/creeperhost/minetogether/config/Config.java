@@ -2,6 +2,8 @@ package net.creeperhost.minetogether.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -154,31 +156,31 @@ public class Config
     }
 
     //TODO
-//    public boolean getFirstConnect() {
-//        //Explanation
-//        //If they have an account, we can safely assume they know what MineTogether is, so we won't display the welcome
-//        //We use a string for firstConnect to ensure it's the same person, and if account changes we can display again.
-//        boolean response = true;
-//        if(MineTogether.profile != null)
-//        {
-//            Profile self = MineTogether.profile.get();
-//            if(self != null) {
-//                response = (!self.hasAccount());
-//            }
-//        }
-//        if(response)
-//        {
-//            response = (!firstConnect.equalsIgnoreCase(MineTogether.instance.ourNick));
-//        }
-//        return response;
-//    }
-//
-//    public void setFirstConnect(boolean first)
-//    {
-//        firstConnect = (first) ? "" : MineTogether.instance.ourNick;
-//        //TODO: Turn transient and save to a local config instead
-//        ConfigHandler.saveConfig();
-//    }
+    public boolean getFirstConnect() {
+        //Explanation
+        //If they have an account, we can safely assume they know what MineTogether is, so we won't display the welcome
+        //We use a string for firstConnect to ensure it's the same person, and if account changes we can display again.
+        boolean response = true;
+        if(MineTogetherChat.profile != null)
+        {
+            Profile self = MineTogetherChat.profile.get();
+            if(self != null) {
+                response = (!self.hasAccount());
+            }
+        }
+        if(response)
+        {
+            response = (!firstConnect.equalsIgnoreCase(MineTogetherChat.INSTANCE.ourNick));
+        }
+        return response;
+    }
+
+    public void setFirstConnect(boolean first)
+    {
+        firstConnect = (first) ? "" : MineTogetherChat.INSTANCE.ourNick;
+        //TODO: Turn transient and save to a local config instead
+        Config.saveConfig();
+    }
 
     public boolean isFriendOnlineToastsEnabled()
     {
