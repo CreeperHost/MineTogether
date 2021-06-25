@@ -7,6 +7,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.architectury.event.events.GuiEvent;
+import me.shedaniel.architectury.event.events.client.ClientRawInputEvent;
 import me.shedaniel.architectury.event.events.client.ClientTickEvent;
 import me.shedaniel.architectury.registry.KeyBindings;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
@@ -25,6 +26,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -45,7 +47,8 @@ public class MineTogetherClient
         GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
         GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
         GuiEvent.RENDER_HUD.register(MineTogetherClient::onHudRender);
-        ClientTickEvent.CLIENT_PRE.register(MineTogetherClient::onClientTick);
+        ClientRawInputEvent.KEY_PRESSED.register(MineTogetherClient::onRawInput);
+//        ClientTickEvent.CLIENT_PRE.register(MineTogetherClient::onClientTick);
         ConnectModule.init();
         MineTogetherClient.getUUID();
         ChatModule.init();
@@ -54,21 +57,23 @@ public class MineTogetherClient
         if(!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
     }
 
-    public static void onClientTick(Minecraft minecraft)
+    private static InteractionResult onRawInput(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers)
     {
-        //Make sure the client does not have a gui open
         if(minecraft.screen == null)
         {
             if(!MineTogetherClient.toastHandler.isActiveToast() && mtSocialKey.isDown())
             {
                 minecraft.setScreen(new MineTogetherSocialinteractionsScreen());
+                return InteractionResult.SUCCESS;
             }
         }
 
         if(MineTogetherClient.toastHandler.toastMethod != null && mtSocialKey.isDown())
         {
             MineTogetherClient.toastHandler.toastMethod.run();
+            return InteractionResult.SUCCESS;
         }
+        return InteractionResult.PASS;
     }
 
     public static void registerKeybindings()
