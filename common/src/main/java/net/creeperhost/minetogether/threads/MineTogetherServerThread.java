@@ -77,7 +77,7 @@ public class MineTogetherServerThread
 
                         if (first)
                         {
-                            //TODO
+                            //TODO add back invite command / server invites
 //                            CommandInvite.reloadInvites(new String[0]);
                             first = false;
                         }

@@ -22,6 +22,7 @@ import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -67,7 +68,7 @@ public abstract class MixinChatScreen extends Screen
         {
             ChatModule.showMTChat = switchButton.activeButton == 1;
 
-        }, I18n.get("minetogether.ingame.chat.local"), I18n.get("minetogether.ingame.chat.global")));
+        }, isSinglePlayer() ? I18n.get("minetogether.ingame.chat.local") : I18n.get("minetogether.ingame.chat.server"), I18n.get("minetogether.ingame.chat.global")));
 
         List<String> strings = new ArrayList<>();
 
@@ -94,6 +95,16 @@ public abstract class MixinChatScreen extends Screen
             }
         }));
         dropdownButton.flipped = true;
+    }
+
+    private static boolean isSinglePlayer()
+    {
+        Minecraft minecraft = Minecraft.getInstance();
+        if(minecraft.getSingleplayerServer() == null) return false;
+        if(minecraft.getSingleplayerServer().isPublished()) return false;
+        if(minecraft.isLocalServer()) return true;
+
+        return false;
     }
 
     @Inject(at=@At("HEAD"), method="render", cancellable = true)
