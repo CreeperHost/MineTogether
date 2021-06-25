@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
+import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryFriend;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
@@ -16,6 +17,7 @@ import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -88,15 +90,17 @@ public class FriendsListScreen extends MineTogetherScreen
 
         addButton(removeFriend = new ButtonMultiple(width - 20, 32, 2, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
         {
-
+            minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), targetProfile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", true));
         }));
 
         addButton(blockButton = new ButtonMultiple(width - 20, 52, 3, Constants.WIDGETS_LOCATION,  new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
         {
+            ChatModule.muteUser(targetProfile.getLongHash());
         }));
 
         addButton(partyButton = new ButtonMultiple(width - 20, 72, 4, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.partytime"), (button) ->
         {
+            ChatHandler.sendPartyInvite(targetProfile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
         }));
     }
 

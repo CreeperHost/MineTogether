@@ -422,7 +422,7 @@ public class IrcHandler
                     Profile profile = KnownUsers.findByNick(nick);
                     if (profile != null) {
                         if(profile.isFriend()) {
-                            if(ChatHandler.iChatListener != null) ChatHandler.iChatListener.onFriendOnline(profile);
+                            if(ChatHandler.iChatListener != null && !profile.isOnline()) ChatHandler.iChatListener.onFriendOnline(profile);
                             profile.setOnline(true);
                         }
                         profile.setPackID(json);
