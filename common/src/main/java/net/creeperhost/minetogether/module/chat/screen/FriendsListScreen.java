@@ -88,17 +88,17 @@ public class FriendsListScreen extends MineTogetherScreen
             MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
         }));
 
-        addButton(removeFriend = new ButtonMultiple(width - 20, 32, 2, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
+        addButton(removeFriend = new ButtonMultiple(width - 20, 32, 5, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
         {
-            minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), targetProfile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", true));
+            ChatCallbacks.removeFriend(targetProfile.getFriendCode(), MineTogetherClient.getUUID());
         }));
 
-        addButton(blockButton = new ButtonMultiple(width - 20, 52, 3, Constants.WIDGETS_LOCATION,  new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
+        addButton(blockButton = new ButtonMultiple(width - 20, 52, 6, Constants.WIDGETS_LOCATION,  new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
         {
             ChatModule.muteUser(targetProfile.getLongHash());
         }));
 
-        addButton(partyButton = new ButtonMultiple(width - 20, 72, 4, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.partytime"), (button) ->
+        addButton(partyButton = new ButtonMultiple(width - 20, 72, 7, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.partytime"), (button) ->
         {
             ChatHandler.sendPartyInvite(targetProfile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
         }));
