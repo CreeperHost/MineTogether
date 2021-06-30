@@ -13,6 +13,7 @@ import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
 import net.creeperhost.minetogetherlib.chat.*;
+import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.creeperhost.minetogetherlib.util.MathHelper;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
@@ -76,6 +77,7 @@ public abstract class MixinChatScreen extends Screen
         addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.showMTChat ? 1 : 0, false, false, true, p ->
         {
             ChatModule.showMTChat = switchButton.activeButton == 1;
+            minecraft.setScreen(new ChatScreen(""));
 
         }, isSinglePlayer() ? I18n.get("minetogether.ingame.chat.local") : I18n.get("minetogether.ingame.chat.server"), I18n.get("minetogether.ingame.chat.global")));
 
@@ -107,7 +109,7 @@ public abstract class MixinChatScreen extends Screen
         if(!Config.getInstance().getFirstConnect() && ChatModule.showMTChat)
         {
             CompletableFuture.runAsync(() -> {
-                if(onlineCount.equals("thousands of")) {
+                if (onlineCount.equals("thousands of")) {
                     String statistics = WebUtils.getWebResponse("https://minetogether.io/api/stats/all");
                     Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                     HashMap<String, String> stats = gson.fromJson(statistics, HashMap.class);
@@ -116,31 +118,27 @@ public abstract class MixinChatScreen extends Screen
                         userCount = users;
                     }
                     String online = stats.get("online");
-                    if(online != null && !online.equalsIgnoreCase("null"))
-                    {
+                    if (online != null && !online.equalsIgnoreCase("null")) {
                         onlineCount = online;
                     }
                 }
-            addButton(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + onlineCount + " online users now!"), p ->
-            {
-//                IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
-//                Config.getInstance().setFirstConnect(false);
-//                newUserButton.visible = false;
-//                disableButton.visible = false;
-//                ourChat.setBase(false);
-//                ourChat.rebuildChat(ChatHandler.CHANNEL);
-//                this.mc.displayGuiScreen(null);
-            }));
-            addButton(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
-            {
-//                Config.getInstance().setChatEnabled(false);
-//                MineTogether.proxy.disableIngameChat();
-//                disableButton.visible = false;
-//                newUserButton.visible = false;
-//                IrcHandler.stop(true);
-//                ourChat.setBase(true);
-//                buttons.clear();
-            }));
+
+                addButton(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + onlineCount + " online users now!"), p ->
+                {
+                    IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
+                    Config.getInstance().setFirstConnect(false);
+                    newUserButton.visible = false;
+                    disableButton.visible = false;
+                    minecraft.setScreen(null);
+                }));
+                addButton(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
+                {
+                    Config.getInstance().setChatEnabled(false);
+                    disableButton.visible = false;
+                    newUserButton.visible = false;
+                    IrcHandler.stop(true);
+                    buttons.clear();
+                }));
             }, MineTogetherChat.otherExecutor);
         }
     }
