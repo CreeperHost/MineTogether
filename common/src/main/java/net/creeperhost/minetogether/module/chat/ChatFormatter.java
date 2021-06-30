@@ -1,7 +1,9 @@
 package net.creeperhost.minetogether.module.chat;
 
 import com.google.gson.*;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
@@ -205,11 +207,11 @@ public class ChatFormatter
             ChatFormatting finalMessageColour = messageColour;
             messageComp = messageComp.copy().withStyle(style -> style.withColor(TextColor.fromLegacyFormat(finalMessageColour)));
 
-//            if(Config.getInstance().getFirstConnect())
-//            {
-//                messageComp = new StringTextComponent(rot13(messageComp.getString()));
-//                messageComp = messageComp.deepCopy().modifyStyle(style -> style.setFontId(GALACTIC_ALT_FONT));
-//            }
+            if(Config.getInstance().getFirstConnect())
+            {
+                messageComp = new TranslatableComponent(messageComp.getString());
+                messageComp = messageComp.copy().withStyle(style -> style.withFont(Constants.GALACTIC_ALT_FONT));
+            }
 
             base.getSiblings().add(userComp);
             base.getSiblings().add(messageComp);
@@ -222,6 +224,19 @@ public class ChatFormatter
             e.printStackTrace();
         }
         return new TranslatableComponent("Error formatting line, Please report this to the issue tracker");
+    }
+
+    public static String rot13(String input) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if       (c >= 'a' && c <= 'm') c += 13;
+            else if  (c >= 'A' && c <= 'M') c += 13;
+            else if  (c >= 'n' && c <= 'z') c -= 13;
+            else if  (c >= 'N' && c <= 'Z') c -= 13;
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     public static boolean profilePackMatcher(Profile profile)

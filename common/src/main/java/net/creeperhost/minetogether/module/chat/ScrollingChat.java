@@ -6,11 +6,13 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -113,10 +115,10 @@ public class ScrollingChat extends ObjectSelectionList
         if (tempMessages == null)
             return;
         try {
-            for (Message message : tempMessages) {
+            for (Message message : tempMessages)
+            {
                 Component display = ChatFormatter.formatLine(message);
-                if (display == null)
-                    continue;
+                if (display == null) continue;
                 lines.addAll(ComponentRenderUtils.wrapComponents(display, width - 10, Minecraft.getInstance().font));
             }
         } catch (Exception ignored) {}

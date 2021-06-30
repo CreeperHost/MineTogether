@@ -155,7 +155,6 @@ public class Config
         return chatEnabled && (!argChatDisable);
     }
 
-    //TODO
     public boolean getFirstConnect() {
         //Explanation
         //If they have an account, we can safely assume they know what MineTogether is, so we won't display the welcome

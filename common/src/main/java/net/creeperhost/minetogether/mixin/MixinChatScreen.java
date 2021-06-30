@@ -20,6 +20,7 @@ import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.WebUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
@@ -106,7 +107,7 @@ public abstract class MixinChatScreen extends Screen
             }
         }));
         dropdownButton.flipped = true;
-        if(!Config.getInstance().getFirstConnect() && ChatModule.showMTChat)
+        if(Config.getInstance().getFirstConnect() && ChatModule.showMTChat)
         {
             CompletableFuture.runAsync(() -> {
                 if (onlineCount.equals("thousands of")) {
@@ -178,6 +179,23 @@ public abstract class MixinChatScreen extends Screen
                 //TODO
             }
             this.renderComponentHoverEffect(poseStack, style, i, j);
+        }
+        if(Config.getInstance().getFirstConnect() && ChatModule.showMTChat)
+        {
+            if(newUserButton != null) newUserButton.visible = true;
+            if(disableButton != null) disableButton.visible = true;
+
+            ChatComponent chatComponent = minecraft.gui.getChat();
+            if(chatComponent != null)
+            {
+                int y = height - 43 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
+                fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, 0x99000000);
+
+                drawCenteredString(poseStack, font, "Welcome to MineTogether", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2), 0xFFFFFF);
+                drawCenteredString(poseStack, font, "MineTogether is a multiplayer enhancement mod that provides", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 10, 0xFFFFFF);
+                drawCenteredString(poseStack, font, "a multitude of features like chat, friends list, server listing", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 20, 0xFFFFFF);
+                drawCenteredString(poseStack, font, "and more. Join " + userCount + " unique users.", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
+            }
         }
         super.render(poseStack, i, j, f);
 
