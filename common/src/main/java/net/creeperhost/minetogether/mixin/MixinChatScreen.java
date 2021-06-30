@@ -53,6 +53,7 @@ public abstract class MixinChatScreen extends Screen
 
     @Shadow protected EditBox input;
     @Shadow private CommandSuggestions commandSuggestions;
+    @Shadow private String initial;
     private GuiButtonPair switchButton;
     private DropdownButton<net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu> dropdownButton;
     private String currentDropdown;
@@ -72,6 +73,8 @@ public abstract class MixinChatScreen extends Screen
     public void init(CallbackInfo ci)
     {
         if(!Config.getInstance().isChatEnabled()) return;
+
+        if(initial.equalsIgnoreCase("/")) ChatModule.showMTChat = false;
 
         int x = MathHelper.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;
 
