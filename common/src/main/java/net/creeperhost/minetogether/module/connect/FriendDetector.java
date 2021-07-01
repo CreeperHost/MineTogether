@@ -54,4 +54,30 @@ public class FriendDetector extends Thread {
             }
         }
     }
+
+    public static class PendingFriend
+    {
+        private final String chosenName;
+        private final String displayName;
+        private final String address;
+
+        public PendingFriend(String chosenName, String displayName, String address)
+        {
+            this.chosenName = chosenName;
+            this.displayName = displayName;
+            this.address = address;
+        }
+
+        public String getChosenName() {
+            return chosenName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+    }
 }
