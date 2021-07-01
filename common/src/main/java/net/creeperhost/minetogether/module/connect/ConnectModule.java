@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
@@ -26,6 +27,7 @@ public class ConnectModule {
 
     public static Executor connectExecutor;
     public static boolean isInitted = false;
+    private static boolean firstMtConnect = true;
 
     public static void init() {
         isInitted = true;
@@ -42,10 +44,18 @@ public class ConnectModule {
         }
     }
 
-    private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners) {
-        if (screen instanceof PauseScreen) {
+    private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
+    {
+        if(firstMtConnect && screen instanceof TitleScreen)
+        {
+            ConnectHandler.connectToProc();
+            firstMtConnect = false;
+        }
+        if (screen instanceof PauseScreen)
+        {
             IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
-            if (integratedServer != null) {
+            if (integratedServer != null)
+            {
                 AbstractWidget feedBack = ScreenHelpers.removeButton("menu.sendFeedback", abstractWidgets);
                 AbstractWidget bugs = ScreenHelpers.removeButton("menu.reportBugs", abstractWidgets);
                 AbstractWidget openToLan = ScreenHelpers.findButton("menu.shareToLan", abstractWidgets);

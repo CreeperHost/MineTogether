@@ -79,8 +79,11 @@ public class ChatModule
 
         if (screen instanceof TitleScreen && Config.getInstance().isEnableMainMenuFriends())
         {
-            ScreenHooks.addButton(screen, friendsButton);
-            ScreenHooks.addButton(screen, chatButton);
+            if(Config.instance.isMainMenuEnabled())
+            {
+                ScreenHooks.addButton(screen, friendsButton);
+                ScreenHooks.addButton(screen, chatButton);
+            }
         }
         if(screen instanceof PauseScreen)
         {
