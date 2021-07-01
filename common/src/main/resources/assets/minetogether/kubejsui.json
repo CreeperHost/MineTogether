@@ -1,0 +1,7 @@
+{
+	"actions": {
+		"chat": "net.creeperhost.minetogether.compat.kubejs.KubeJSUIIntegration.CHAT",
+		"friends_list": "net.creeperhost.minetogether.compat.kubejs.KubeJSUIIntegration.FRIENDS_LIST",
+		"order": "net.creeperhost.minetogether.compat.kubejs.KubeJSUIIntegration.ORDER"
+	}
+}
