@@ -217,6 +217,23 @@ public class ScrollingChat extends ObjectSelectionList
     }
 
     @Override
+    public int getRowTop(int i) {
+        return super.getRowTop(i);
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth() {
+        return Width;
+    }
+
+    public int getTop() {
+        return top;
+    }
+
+    @Override
     protected void renderList(PoseStack poseStack, int p_renderList_1_, int p_renderList_2_, int mouseX, int mouseY, float p_renderList_5_)
     {
         int i = lines.size();

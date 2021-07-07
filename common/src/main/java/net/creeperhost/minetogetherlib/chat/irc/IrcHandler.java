@@ -1,5 +1,6 @@
 package net.creeperhost.minetogetherlib.chat.irc;
 
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
@@ -42,7 +43,6 @@ public class IrcHandler
     private static CompletableFuture chatFuture = null;
     private static String lastMessage;
     private static long lastMessageTime;
-    private static long startTimestamp;
 
     public static void start(IRCServer ircServer)
     {
@@ -56,21 +56,18 @@ public class IrcHandler
             outputStreamWriter = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             bufferedWriter = new BufferedWriter(outputStreamWriter);
-            startTimestamp = System.currentTimeMillis();
 
             chatFuture = CompletableFuture.runAsync(() ->
             {
                 startReconnectionThread();
                 logger.info("Chat thread started");
 
-                String line = null;
-                final int[] verifyCount = {0};
+                String line;
                 try
                 {
                     while ((line = bufferedReader.readLine()) != null)
                     {
-                        ChatHandler.isInitting.set(false); // we have received data, we're obviously not initting anymore
-//                        System.out.println(line);
+                        ChatHandler.isInitting.set(false);
                         //TODO use regex for this to make it more reliable
                         if(line.contains(":Nickname is already in use."))
                         {
@@ -94,7 +91,6 @@ public class IrcHandler
                 } catch (Exception ignored)
                 {
                     ChatHandler.connectionStatus = ChatConnectionStatus.DISCONNECTED;
-//                    ignored.printStackTrace();
                 }
             });
             sendString("NICK " + nickname, true);
@@ -120,7 +116,9 @@ public class IrcHandler
         reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
         reconnectExecutor.scheduleAtFixedRate(() ->
         {
-            if (ChatHandler.connectionStatus == ChatConnectionStatus.NICKNAME_IN_USE || ChatHandler.connectionStatus == ChatConnectionStatus.DISCONNECTED) {
+            if (ChatHandler.connectionStatus == ChatConnectionStatus.NICKNAME_IN_USE || ChatHandler.connectionStatus == ChatConnectionStatus.DISCONNECTED)
+            {
+                if(!Config.getInstance().isChatEnabled()) reconnectExecutor.shutdown();
                 logger.info("Restarting chat for reason: " + ChatHandler.connectionStatus.display);
                 reconnect();
                 MineTogetherChat.INSTANCE.startChat();
@@ -143,10 +141,7 @@ public class IrcHandler
             }
             chatFuture = null;
         }
-        catch (Exception e)
-        {
-//            e.printStackTrace();
-        }
+        catch (Exception ignored) {}
     }
     private static boolean reconnecting = false;
     public static void reconnect()
@@ -199,7 +194,9 @@ public class IrcHandler
         {
             ChatHandler.addMessageToChat(channel,"System", "Please refrain from flooding.");
             return false;
-        } else {
+        }
+        else
+        {
             sendString("PRIVMSG " + channel + " " + new String(message.getBytes(), StandardCharsets.UTF_8), true);
             lastMessage = message;
             lastMessageTime = System.currentTimeMillis();
@@ -295,10 +292,6 @@ public class IrcHandler
                     String channel = matcher.group(2);
                     String message = matcher.group(3);
                     ChatHandler.addMessageToChat(channel, name, Format.stripAll(message));
-                                /*if(channel.equalsIgnoreCase(ChatHandler.CHANNEL))
-                                {
-                                    ChatHandler.addMessageToChat(ChatHandler.CHANNEL, name, Format.stripAll(message));
-                                }*/
                 } else {
                     pattern = Pattern.compile("\\:(\\w+).*PRIVMSG.*\\:\\x01(.*)\\x01");
                     matcher = pattern.matcher(s);
@@ -480,7 +473,6 @@ public class IrcHandler
                 Profile profile = KnownUsers.findByNick(from);
                 if(profile == null) profile = KnownUsers.add(from);
                 ChatHandler.onPartyInvite(profile);
-//                ChatHandler.acceptPartyInvite(profile);
             }
             else
             {

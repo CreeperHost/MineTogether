@@ -48,7 +48,7 @@ public class ConnectModule {
     {
         if(firstMtConnect && screen instanceof TitleScreen)
         {
-            ConnectHandler.connectToProc();
+//            ConnectHandler.connectToProc();
             firstMtConnect = false;
         }
         if (screen instanceof PauseScreen)

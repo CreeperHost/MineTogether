@@ -22,13 +22,7 @@ public class FriendUpdateThread
 
     public static void init()
     {
-        Runnable runnable = FriendUpdateThread::updateFriendsList;
-        executorService.scheduleAtFixedRate(runnable, 0,30, TimeUnit.SECONDS);
-    }
-
-    public static void setFriendUpdate(Runnable runnable)
-    {
-        friendUpdate = runnable;
+        executorService.scheduleAtFixedRate(updateFriendsList(), 0,30, TimeUnit.SECONDS);
     }
 
     public static void runFriendUpdate()
@@ -36,38 +30,39 @@ public class FriendUpdateThread
         if(friendUpdate != null) CompletableFuture.runAsync(friendUpdate, MineTogetherChat.friendExecutor);
     }
 
-    public static void updateFriendsList()
+    public static Runnable updateFriendsList()
     {
-        Map<String, String> sendMap = new HashMap<String, String>();
-        {
-            sendMap.put("hash", ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()));
-        }
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
-        JsonElement el = new JsonParser().parse(resp);
-        if (el.isJsonObject()) {
+        return () -> {
+            Map<String, String> sendMap = new HashMap<String, String>();
+            {
+                sendMap.put("hash", ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()));
+            }
+            String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
+            JsonElement el = new JsonParser().parse(resp);
+            if (el.isJsonObject()) {
 
-            JsonObject obj = el.getAsJsonObject();
-            if (obj.get("status").getAsString().equals("success")) {
-                JsonArray array = obj.getAsJsonArray("friends");
-                for (JsonElement friendEl : array) {
-                    JsonObject friend = (JsonObject) friendEl;
-                    String name = "null";
+                JsonObject obj = el.getAsJsonObject();
+                if (obj.get("status").getAsString().equals("success")) {
+                    JsonArray array = obj.getAsJsonArray("friends");
+                    for (JsonElement friendEl : array) {
+                        JsonObject friend = (JsonObject) friendEl;
+                        String name = "null";
 
-                    if (!friend.get("name").isJsonNull()) {
-                        name = friend.get("name").getAsString();
-                    }
-                    String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
-                    boolean accepted = friend.get("accepted").getAsBoolean();
-                    if(accepted)
-                    {
-                        Profile friendProfile = KnownUsers.findByHash(code);
-                        if(friendProfile == null) friendProfile = KnownUsers.add(code);
-                        friendProfile.setFriendName(name);
-                        friendProfile.setFriend(true);
-                        KnownUsers.update(friendProfile);
+                        if (!friend.get("name").isJsonNull()) {
+                            name = friend.get("name").getAsString();
+                        }
+                        String code = friend.get("hash").isJsonNull() ? "" : friend.get("hash").getAsString();
+                        boolean accepted = friend.get("accepted").getAsBoolean();
+                        if (accepted) {
+                            Profile friendProfile = KnownUsers.findByHash(code);
+                            if (friendProfile == null) friendProfile = KnownUsers.add(code);
+                            friendProfile.setFriendName(name);
+                            friendProfile.setFriend(true);
+                            KnownUsers.update(friendProfile);
+                        }
                     }
                 }
             }
-        }
+        };
     }
 }

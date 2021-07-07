@@ -13,10 +13,10 @@ public class MineTogether
 {
     public static Logger logger = LogManager.getLogger();
     public static String base64 = "";
+    public static Path configFile = Platform.getConfigFolder().resolve(Constants.MOD_ID + ".json");
 
     public static void init()
     {
-        Path configFile = Platform.getConfigFolder().resolve(Constants.MOD_ID + ".json");
         Config.init(configFile.toFile());
     }
 

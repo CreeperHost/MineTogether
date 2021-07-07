@@ -61,8 +61,6 @@ public abstract class MixinChatScreen extends Screen
     private int mouseY;
     private Button newUserButton;
     private Button disableButton;
-    private String userCount = "over 2 million";
-    private String onlineCount = "thousands of";
 
     protected MixinChatScreen(Component component)
     {
@@ -112,38 +110,24 @@ public abstract class MixinChatScreen extends Screen
         dropdownButton.flipped = true;
         if(Config.getInstance().getFirstConnect() && ChatModule.showMTChat)
         {
-            CompletableFuture.runAsync(() -> {
-                if (onlineCount.equals("thousands of")) {
-                    String statistics = WebUtils.getWebResponse("https://minetogether.io/api/stats/all");
-                    Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                    HashMap<String, String> stats = gson.fromJson(statistics, HashMap.class);
-                    String users = stats.get("users");
-                    if (users != null && users.length() > 4) {
-                        userCount = users;
-                    }
-                    String online = stats.get("online");
-                    if (online != null && !online.equalsIgnoreCase("null")) {
-                        onlineCount = online;
-                    }
-                }
+            ChatCallbacks.updateOnlineCount();
 
-                addButton(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + onlineCount + " online users now!"), p ->
-                {
-                    IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
-                    Config.getInstance().setFirstConnect(false);
-                    newUserButton.visible = false;
-                    disableButton.visible = false;
-                    minecraft.setScreen(null);
-                }));
-                addButton(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
-                {
-                    Config.getInstance().setChatEnabled(false);
-                    disableButton.visible = false;
-                    newUserButton.visible = false;
-                    IrcHandler.stop(true);
-                    buttons.clear();
-                }));
-            }, MineTogetherChat.otherExecutor);
+            addButton(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
+            {
+                IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
+                Config.getInstance().setFirstConnect(false);
+                newUserButton.visible = false;
+                disableButton.visible = false;
+                minecraft.setScreen(null);
+            }));
+            addButton(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
+            {
+                Config.getInstance().setChatEnabled(false);
+                disableButton.visible = false;
+                newUserButton.visible = false;
+                IrcHandler.stop(true);
+                buttons.clear();
+            }));
         }
     }
 
@@ -197,7 +181,7 @@ public abstract class MixinChatScreen extends Screen
                 drawCenteredString(poseStack, font, "Welcome to MineTogether", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2), 0xFFFFFF);
                 drawCenteredString(poseStack, font, "MineTogether is a multiplayer enhancement mod that provides", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 10, 0xFFFFFF);
                 drawCenteredString(poseStack, font, "a multitude of features like chat, friends list, server listing", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 20, 0xFFFFFF);
-                drawCenteredString(poseStack, font, "and more. Join " + userCount + " unique users.", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
+                drawCenteredString(poseStack, font, "and more. Join " + ChatCallbacks.userCount + " unique users.", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
             }
         }
         super.render(poseStack, i, j, f);

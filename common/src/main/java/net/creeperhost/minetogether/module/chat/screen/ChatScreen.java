@@ -1,8 +1,10 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
@@ -10,6 +12,7 @@ import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
 import net.creeperhost.minetogethergui.gif.AnimatedGif;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
+import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogether.module.chat.Target;
@@ -18,6 +21,7 @@ import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -52,6 +56,8 @@ public class ChatScreen extends MineTogetherScreen
     private String activeDropdown;
     private AnimatedGif gifImage;
     private AnimatedGif.GifPlayer gifPlayer;
+    private Button newUserButton;
+    private Button disableButton;
 
     public ChatScreen(Screen parent)
     {
@@ -160,6 +166,29 @@ public class ChatScreen extends MineTogetherScreen
                 minecraft.setScreen(confirmScreen);
             }
         }));
+
+        if(Config.getInstance().getFirstConnect())
+        {
+            ChatCallbacks.updateOnlineCount();
+
+            addButton(newUserButton = new ButtonNoBlend(width / 2 - 150, 75 + (height / 4), 300, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
+            {
+                IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
+                Config.getInstance().setFirstConnect(false);
+                newUserButton.visible = false;
+                disableButton.visible = false;
+                minecraft.setScreen(this);
+            }));
+            addButton(disableButton = new ButtonNoBlend(width / 2 - 150, 95 + (height / 4), 300, 20, new TranslatableComponent("Don't ask me again"), p ->
+            {
+                Config.getInstance().setChatEnabled(false);
+                disableButton.visible = false;
+                newUserButton.visible = false;
+                IrcHandler.stop(true);
+                buttons.clear();
+                minecraft.setScreen(parent);
+            }));
+        }
     }
 
     @Override
@@ -174,6 +203,20 @@ public class ChatScreen extends MineTogetherScreen
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
 
         if(gifPlayer != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 60, 40, partialTicks);
+
+        if(Config.getInstance().getFirstConnect())
+        {
+            fill(poseStack, 10, chat.getTop(), width - 10, chat.getHeight(), 0x99000000);
+            fill(poseStack, 10, chat.getTop(), width - 10, chat.getHeight(), 0x99000000);
+
+//            fill(matrixStack, chat.getLeft(), chat.getTop(), chat.getWidth() + 5, chat.getHeight(), 0x99000000);
+
+            RenderSystem.blendColor(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
+            drawCenteredString(poseStack, font, "Welcome to MineTogether", width / 2, (height/4)+25, 0xFFFFFF);
+            drawCenteredString(poseStack, font, "MineTogether is a multiplayer enhancement mod that provides", width / 2, (height/4)+35, 0xFFFFFF);
+            drawCenteredString(poseStack, font, "a multitude of features like chat, friends list, server listing", width / 2, (height/4)+45, 0xFFFFFF);
+            drawCenteredString(poseStack, font, "and more. Join " + ChatCallbacks.userCount + " unique users.", width / 2, (height/4)+55, 0xFFFFFF);
+        }
 
         super.render(poseStack, mouseX, mouseY, partialTicks);
     }
@@ -294,6 +337,9 @@ public class ChatScreen extends MineTogetherScreen
     @Override
     public boolean handleComponentClicked(@Nullable Style style, double mouseX, double mouseY)
     {
+        //Don't allow component clicks while this button is visible
+        if(newUserButton.visible) return false;
+
         if(style == null) return false;
         if(style.getClickEvent() == null) return false;
         ClickEvent event = style.getClickEvent();

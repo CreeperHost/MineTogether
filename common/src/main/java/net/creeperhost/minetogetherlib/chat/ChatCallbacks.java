@@ -13,6 +13,7 @@ import net.creeperhost.minetogetherlib.util.WebUtils;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public final class ChatCallbacks
 {
@@ -56,6 +57,28 @@ public final class ChatCallbacks
         MineTogetherChat.logger.error("Unable to invite friend.");
         MineTogetherChat.logger.error(resp);
         return false;
+    }
+
+    public static String userCount = "over 2 million";
+    public static String onlineCount = "thousands of";
+
+    public static void updateOnlineCount()
+    {
+        CompletableFuture.runAsync(() -> {
+            if (onlineCount.equals("thousands of")) {
+                String statistics = WebUtils.getWebResponse("https://minetogether.io/api/stats/all");
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                HashMap<String, String> stats = gson.fromJson(statistics, HashMap.class);
+                String users = stats.get("users");
+                if (users != null && users.length() > 4) {
+                    userCount = users;
+                }
+                String online = stats.get("online");
+                if (online != null && !online.equalsIgnoreCase("null")) {
+                    onlineCount = online;
+                }
+            }
+        }, MineTogetherChat.otherExecutor);
     }
     
     public static String getPlayerHash(UUID uuid)

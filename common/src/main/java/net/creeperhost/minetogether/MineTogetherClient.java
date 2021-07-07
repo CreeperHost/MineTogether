@@ -1,14 +1,10 @@
 package net.creeperhost.minetogether;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.architectury.event.events.GuiEvent;
 import me.shedaniel.architectury.event.events.client.ClientRawInputEvent;
-import me.shedaniel.architectury.event.events.client.ClientTickEvent;
 import me.shedaniel.architectury.registry.KeyBindings;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
@@ -18,6 +14,7 @@ import net.creeperhost.minetogether.module.connect.ConnectModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
 import net.creeperhost.minetogether.screen.OfflineScreen;
+import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -48,7 +45,6 @@ public class MineTogetherClient
         GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
         GuiEvent.RENDER_HUD.register(MineTogetherClient::onHudRender);
         ClientRawInputEvent.KEY_PRESSED.register(MineTogetherClient::onRawInput);
-//        ClientTickEvent.CLIENT_PRE.register(MineTogetherClient::onClientTick);
         ConnectModule.init();
         MineTogetherClient.getUUID();
         ChatModule.init();
@@ -84,6 +80,7 @@ public class MineTogetherClient
     public static void removeVanillaSocialKeybinding()
     {
         Minecraft.getInstance().options.keySocialInteractions.setKey(InputConstants.UNKNOWN);
+        //This should really be called updateMappings
         KeyMapping.resetMapping();
     }
 
@@ -92,7 +89,6 @@ public class MineTogetherClient
         User session = Minecraft.getInstance().getUser();
         UUID uuid = Minecraft.getInstance().getUser().getGameProfile().getId();
         isOnlineUUID = !uuid.equals(Player.createPlayerUUID(session.getName()));
-
         return uuid;
     }
 
@@ -105,26 +101,6 @@ public class MineTogetherClient
             mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
         } catch (AuthenticationException e) { return null; }
         return serverId;
-    }
-
-    @Deprecated
-    public static boolean checkOnline()
-    {
-        YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Minecraft.getInstance().getProxy(), UUID.randomUUID().toString());
-        YggdrasilMinecraftSessionService sessionService = (YggdrasilMinecraftSessionService) authService.createMinecraftSessionService();
-        User session = Minecraft.getInstance().getUser();
-        GameProfile profile = session.getGameProfile();
-        String token = session.getAccessToken();
-        String serverId = UUID.randomUUID().toString();
-        try
-        {
-            sessionService.joinServer(profile, token, serverId);
-            GameProfile gameProfile = sessionService.hasJoinedServer(profile, serverId, null);
-            return gameProfile != null && gameProfile.isComplete();
-        } catch (AuthenticationException ignored)
-        {
-        }
-        return false;
     }
 
     public static void onHudRender(PoseStack poseStack, float partialticks)
@@ -143,15 +119,17 @@ public class MineTogetherClient
     {
         if(firstOpen && screen instanceof TitleScreen)
         {
+            //Lets get this value early so we can cache it
+            ChatCallbacks.updateOnlineCount();
             removeVanillaSocialKeybinding();
 
             File offline = new File("local/minetogether/offline.txt");
 
             if(!MineTogetherClient.isOnlineUUID && !offline.exists())
             {
-                firstOpen = false;
                 Minecraft.getInstance().setScreen(new OfflineScreen());
             }
+            firstOpen = false;
         }
         MultiPlayerModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
         ServerOrderModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
