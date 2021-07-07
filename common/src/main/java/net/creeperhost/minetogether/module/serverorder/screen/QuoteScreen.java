@@ -67,9 +67,9 @@ public class QuoteScreen extends OrderServerScreen
                 drawCenteredString(poseStack, this.font, I18n.get(summary.summaryError), this.width / 2, 60, -1);
                 return;
             }
-            wellBottom.render();
-            wellLeft.render();
-            wellRight.render();
+            wellBottom.render(poseStack);
+            wellLeft.render(poseStack);
+            wellRight.render(poseStack);
 
             drawCenteredString(poseStack, this.font, I18n.get("minetogether.quote.requirements") + " " + summary.serverHostName.toLowerCase() + " package", this.width / 2, 50, -1);
 

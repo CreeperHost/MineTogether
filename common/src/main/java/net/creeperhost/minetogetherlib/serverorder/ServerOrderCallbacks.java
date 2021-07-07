@@ -4,7 +4,6 @@ import com.google.gson.*;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.util.WebUtils;
-import net.minecraft.client.resources.language.I18n;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -384,13 +383,13 @@ public class ServerOrderCallbacks
             }
 
             List<String> vpsIncluded = new ArrayList<String>();
-            vpsIncluded.add(I18n.get("minetogether.quote.vpsincluded1"));
-            vpsIncluded.add(I18n.get("minetogether.quote.vpsincluded2"));
-            vpsIncluded.add(I18n.get("minetogether.quote.vpsincluded3"));
-            vpsIncluded.add(I18n.get("minetogether.quote.vpsincluded4"));
-            vpsIncluded.add(I18n.get("minetogether.quote.vpsincluded5"));
-            vpsIncluded.add(I18n.get("minetogether.quote.vpsincluded6"));
-            vpsIncluded.add(I18n.get("minetogether.quote.vpsincluded7"));
+            vpsIncluded.add("minetogether.quote.vpsincluded1");
+            vpsIncluded.add("minetogether.quote.vpsincluded2");
+            vpsIncluded.add("minetogether.quote.vpsincluded3");
+            vpsIncluded.add("minetogether.quote.vpsincluded4");
+            vpsIncluded.add("minetogether.quote.vpsincluded5");
+            vpsIncluded.add("minetogether.quote.vpsincluded6");
+            vpsIncluded.add("minetogether.quote.vpsincluded7");
 
             return new OrderSummary(recommended, vpsDisplay, vpsFeatures, vpsIncluded, preDiscount, subTotal, total, tax, discount, suffix, prefix, id);
 
