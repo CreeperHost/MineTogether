@@ -9,6 +9,7 @@ import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryFriend;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
+import net.creeperhost.minetogether.threads.FriendUpdateThread;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
@@ -56,6 +57,7 @@ public class FriendsListScreen extends MineTogetherScreen
     public void init()
     {
         super.init();
+        CompletableFuture.runAsync(FriendUpdateThread::updateFriendsList);
 
         list = new ScreenList(this, minecraft, 100, height - 90, 32, this.height - 55, 28, 100);
         chat = new ScrollingChat(this, width - list.getRowWidth() - 22, this.height - 90, 32, this.height - 55, 110, true);

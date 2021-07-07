@@ -28,7 +28,6 @@ public class ScrollingChat extends ObjectSelectionList
 {
     private ArrayList<FormattedCharSequence> lines;
     private final int height;
-    private int Width;
     private final int top;
     private final int bottom;
     private final int itemHeight;
@@ -217,19 +216,23 @@ public class ScrollingChat extends ObjectSelectionList
     }
 
     @Override
-    public int getRowTop(int i) {
+    public int getRowTop(int i)
+    {
         return super.getRowTop(i);
     }
 
-    public int getHeight() {
+    public int getHeight()
+    {
         return height;
     }
 
-    public int getWidth() {
-        return Width;
+    public int getWidth()
+    {
+        return width;
     }
 
-    public int getTop() {
+    public int getTop()
+    {
         return top;
     }
 
@@ -248,7 +251,6 @@ public class ScrollingChat extends ObjectSelectionList
                     int i1 = p_renderList_2_ + j * this.itemHeight + this.headerHeight;
                     int j1 = this.itemHeight - 4;
                     int k1 = this.getRowWidth();
-                    //this.renderSelection &&
                     if (this.isSelectedItem(j)) {
                         int l1 = this.x0 + this.width / 2 - k1 / 2;
                         int i2 = this.x0 + this.width / 2 + k1 / 2;
