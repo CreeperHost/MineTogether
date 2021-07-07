@@ -1,7 +1,6 @@
 package net.creeperhost.minetogetherlib.serverlists;
 
 import com.google.gson.*;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.util.Util;
 import net.creeperhost.minetogetherlib.util.WebUtils;
@@ -342,8 +341,7 @@ public class ServerListCallbacks
                     lastRequest = listType;
                     List<Server> list = new ArrayList<Server>();
 
-                    Config defaultConfig = new Config();
-                    if (defaultConfig.curseProjectID.equals(Config.getInstance().curseProjectID))
+                    if ("Insert curse project ID here".equals(curseID))
                     {
                         list.add(new Server("No project ID! Please fix the MineTogether config or ensure a version.json exists.", "127.0.0.1:25565", 0, 0, null, "Unknown", null));
                         return list;
