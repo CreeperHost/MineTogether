@@ -1,9 +1,8 @@
 package net.creeperhost.minetogetherlib.serverorder;
 
 import com.google.gson.*;
-import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.Order;
+import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.util.WebUtils;
 import net.minecraft.client.resources.language.I18n;
 
@@ -288,13 +287,13 @@ public class ServerOrderCallbacks
             return new AvailableResult(statusBool, message);
         } catch (Throwable t)
         {
-            MineTogether.logger.error("Unable to check if name available", t);
+            MineTogetherChat.logger.error("Unable to check if name available", t);
         }
 
         return new AvailableResult(false, "unknown");
     }
 
-    public static OrderSummary getSummary(Order order)
+    public static OrderSummary getSummary(Order order, String modpackVersion, String promo)
     {
         if (order.country.isEmpty())
         {
@@ -308,7 +307,7 @@ public class ServerOrderCallbacks
 
         try
         {
-            String version = Config.getInstance().getVersion();
+            String version = modpackVersion;
             if (version.equals("0"))
             {
                 //TODO
@@ -326,9 +325,9 @@ public class ServerOrderCallbacks
             JsonObject jObject = jElement.getAsJsonObject();
             String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
 
-            if(!Config.getInstance().getPromo().isEmpty() && !Config.getInstance().getPromo().equalsIgnoreCase("Insert Promo Code here"))
+            if(!promo.isEmpty() && !promo.equalsIgnoreCase("Insert Promo Code here"))
             {
-                WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + Config.getInstance().getPromo());
+                WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + promo);
             }
 
             String summary = WebUtils.getWebResponse("https://www.creeperhost.net/json/order/" + order.country + "/" + recommended + "/" + "summary");
@@ -397,7 +396,7 @@ public class ServerOrderCallbacks
 
         } catch (Throwable t)
         {
-            MineTogether.logger.error("Unable to fetch summary", t);
+            MineTogetherChat.logger.error("Unable to fetch summary", t);
             return null;
         }
     }
@@ -433,7 +432,7 @@ public class ServerOrderCallbacks
                 userCountry = jObject.getAsJsonPrimitive("country").getAsString();
             } catch (Throwable t)
             {
-                MineTogether.logger.error("Unable to get user's country automatically, assuming USA", t);
+                MineTogetherChat.logger.error("Unable to get user's country automatically, assuming USA", t);
                 userCountry = "US"; // default
             }
         return userCountry;
@@ -454,7 +453,7 @@ public class ServerOrderCallbacks
             rawMap = g.fromJson(el.getAsJsonObject().get("regionMap"), type);
         } catch (Exception e)
         {
-            MineTogether.logger.error("Unable to fetch server locations" + e);
+            MineTogetherChat.logger.error("Unable to fetch server locations" + e);
         }
         for (Map.Entry<String, String> entry : rawMap.entrySet())
         {
@@ -515,7 +514,7 @@ public class ServerOrderCallbacks
             }
         } catch (Throwable t)
         {
-            MineTogether.logger.error("Unable to check if email exists", t);
+            MineTogetherChat.logger.error("Unable to check if email exists", t);
             return false;
         }
         return true;
@@ -549,21 +548,21 @@ public class ServerOrderCallbacks
             return "Unknown Error";
         } catch (Throwable t)
         {
-            MineTogether.logger.error("Unable to do login", t);
+            MineTogetherChat.logger.error("Unable to do login", t);
             return "Unknown Error";
         }
     }
 
-    public static String createOrder(final Order order)
+    public static String createOrder(final Order order, String modpackVersion, String pregen)
     {
         try
         {
             String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + order.serverLocation, new HashMap<String, String>()
             {{
                 put("name", order.name);
-                put("swid", Config.getInstance().getVersion());
+                put("swid", modpackVersion);
                 if (order.pregen)
-                    put("pregen", String.valueOf(Config.getInstance().getPregenDiameter()));
+                    put("pregen", pregen);
             }});
 
             if (response.equals("error"))
@@ -585,19 +584,19 @@ public class ServerOrderCallbacks
             return "Unknown error";
         } catch (Throwable t)
         {
-            MineTogether.logger.error("Unable to create order");
+            MineTogetherChat.logger.error("Unable to create order");
             return "Unknown error";
         }
     }
 
-    public static String createAccount(final Order order)
+    public static String createAccount(final Order order, String modpackVersion)
     {
         try
         {
             String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>()
             {{
                 put("servername", order.name);
-                put("modpack", Config.getInstance().getVersion());
+                put("modpack", modpackVersion);
                 put("email", order.emailAddress);
                 put("password", order.password);
                 put("fname", order.firstName);
@@ -629,7 +628,7 @@ public class ServerOrderCallbacks
             return "Unknown error";
         } catch (Throwable t)
         {
-            MineTogether.logger.error("Unable to create account", t);
+            MineTogetherChat.logger.error("Unable to create account", t);
             return "Unknown error";
         }
     }
@@ -646,7 +645,7 @@ public class ServerOrderCallbacks
             String response = WebUtils.getWebResponse("https://www.creeperhost.net/json/order/" + orderNum + "/cancel");
         } catch (Throwable t)
         {
-            MineTogether.logger.error("Unable to cancel order");
+            MineTogetherChat.logger.error("Unable to cancel order");
             return false;
         }
         return true;

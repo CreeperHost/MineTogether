@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.serverorder.ServerOrderCallbacks;
@@ -86,7 +87,7 @@ public class OrderDetailsScreen extends OrderServerScreen
             creatingAccount = true;
             CompletableFuture.runAsync(() ->
             {
-                String result = ServerOrderCallbacks.createAccount(order);
+                String result = ServerOrderCallbacks.createAccount(order, Config.instance.getVersion());
                 String[] resultSplit = result.split(":");
                 if (resultSplit[0].equals("success"))
                 {
@@ -114,7 +115,7 @@ public class OrderDetailsScreen extends OrderServerScreen
             buttonNext.active = false;
             Runnable runnable = () ->
             {
-                String result = ServerOrderCallbacks.createOrder(order);
+                String result = ServerOrderCallbacks.createOrder(order, Config.getInstance().getVersion(), String.valueOf(Config.getInstance().getPregenDiameter()));
                 String[] resultSplit = result.split(":");
                 if (resultSplit[0].equals("success"))
                 {

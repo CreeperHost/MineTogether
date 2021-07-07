@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.widgets.ScreenWell;
 import net.creeperhost.minetogetherlib.Order;
@@ -142,7 +143,7 @@ public class QuoteScreen extends OrderServerScreen
 
         CompletableFuture.runAsync(() ->
         {
-            summary = ServerOrderCallbacks.getSummary(order);
+            summary = ServerOrderCallbacks.getSummary(order, Config.getInstance().getVersion(), Config.getInstance().getPromo());
 
             order.productID = summary.productID;
             order.currency = summary.currency;
