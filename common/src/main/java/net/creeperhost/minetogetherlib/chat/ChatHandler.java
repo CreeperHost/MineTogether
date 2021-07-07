@@ -1,7 +1,5 @@
 package net.creeperhost.minetogetherlib.chat;
 
-import net.creeperhost.minetogether.module.chat.ChatFormatter;
-import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.chat.irc.IRCServer;
@@ -75,7 +73,8 @@ public class ChatHandler
         Message messagePair = new Message(System.currentTimeMillis(), user, message);
         tempQueue.add(messagePair);
 
-        ChatModule.sendMessage(ChatFormatter.formatLine(messagePair));
+        if(iChatListener != null) iChatListener.sendMessage(messagePair);
+
         newMessages.put(target, Boolean.TRUE);
     }
     
@@ -300,7 +299,7 @@ public class ChatHandler
                 });
             } else
             {
-                ChatModule.hasNewMessage = true;
+                if(iChatListener != null) iChatListener.setHasNewMessage(true);
                 Profile profile = KnownUsers.findByNick(nick);
                 if (profile == null)
                 {

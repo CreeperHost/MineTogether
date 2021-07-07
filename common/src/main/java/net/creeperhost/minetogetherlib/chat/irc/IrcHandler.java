@@ -1,6 +1,5 @@
 package net.creeperhost.minetogetherlib.chat.irc;
 
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
@@ -118,7 +117,6 @@ public class IrcHandler
         {
             if (ChatHandler.connectionStatus == ChatConnectionStatus.NICKNAME_IN_USE || ChatHandler.connectionStatus == ChatConnectionStatus.DISCONNECTED)
             {
-                if(!Config.getInstance().isChatEnabled()) reconnectExecutor.shutdown();
                 logger.info("Restarting chat for reason: " + ChatHandler.connectionStatus.display);
                 reconnect();
                 MineTogetherChat.INSTANCE.startChat();

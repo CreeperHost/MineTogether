@@ -2,8 +2,11 @@ package net.creeperhost.minetogether.module.chat.screen;
 
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.module.chat.ChatFormatter;
+import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.IChatListener;
+import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -46,6 +49,18 @@ public class ChatListener implements IChatListener
     public String onServerIdRequest()
     {
         return MineTogetherClient.getServerIDAndVerify();
+    }
+
+    @Override
+    public void sendMessage(Message message)
+    {
+        ChatModule.sendMessage(ChatFormatter.formatLine(message));
+    }
+
+    @Override
+    public void setHasNewMessage(boolean value)
+    {
+        ChatModule.hasNewMessage = value;
     }
 
     @Override

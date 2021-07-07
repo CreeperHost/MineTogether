@@ -1,7 +1,6 @@
 package net.creeperhost.minetogetherlib.chat;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import net.creeperhost.minetogether.module.chat.screen.ChatListener;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,8 +35,9 @@ public class MineTogetherChat
 
     public static MineTogetherChat INSTANCE;
     public boolean online;
+    public IChatListener iChatListener;
 
-    public MineTogetherChat(String ourNick, UUID uuid, boolean online, String realName, String signature, String serverID)
+    public MineTogetherChat(String ourNick, UUID uuid, boolean online, String realName, String signature, String serverID, IChatListener iChatListener)
     {
         INSTANCE = this;
         this.ourNick = ourNick;
@@ -46,6 +46,7 @@ public class MineTogetherChat
         this.realName = realName;
         this.signature = signature;
         this.serverID = serverID;
+        this.iChatListener = iChatListener;
     }
 
     public void startChat()
@@ -69,6 +70,6 @@ public class MineTogetherChat
             }, profileExecutor);
             profile.get().setPackID(realName);
         }
-        chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, ChatListener.INSTANCE, MineTogetherChat.INSTANCE.online), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
+        chatThread = CompletableFuture.runAsync(() -> ChatHandler.init(MineTogetherChat.INSTANCE.ourNick, MineTogetherChat.INSTANCE.realName, iChatListener, MineTogetherChat.INSTANCE.online), MineTogetherChat.profileExecutor); // start in thread as can hold up the UI thread for some reason.
     }
 }

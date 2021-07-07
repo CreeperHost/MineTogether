@@ -9,6 +9,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.mixin.ChatComponentInvoker;
+import net.creeperhost.minetogether.module.chat.screen.ChatListener;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
@@ -65,7 +66,7 @@ public class ChatModule
         String signature = new SignatureVerifier().verify();
         String serverID = MineTogetherClient.getServerIDAndVerify();
 
-        mineTogetherChat = new MineTogetherChat(ourNick, uuid, online, realName, signature, serverID);
+        mineTogetherChat = new MineTogetherChat(ourNick, uuid, online, realName, signature, serverID, ChatListener.INSTANCE);
         mineTogetherChat.startChat();
     }
 

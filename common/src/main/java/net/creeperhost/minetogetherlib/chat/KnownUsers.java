@@ -1,6 +1,5 @@
 package net.creeperhost.minetogetherlib.chat;
 
-import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
@@ -54,7 +53,7 @@ public class KnownUsers
 
     public static Profile add(String hash)
     {
-        if(ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()).startsWith(hash.substring(2))) return null;
+        if(ChatCallbacks.getPlayerHash(MineTogetherChat.INSTANCE.uuid).startsWith(hash.substring(2))) return null;
 
         Profile profile = new Profile(hash);
         if(findByNick(hash) == null)
