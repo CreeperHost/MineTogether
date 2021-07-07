@@ -75,7 +75,7 @@ public class ChatModule
         Button friendsButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.friends"), p ->
                 Minecraft.getInstance().setScreen(new FriendsListScreen(screen)));
 
-        Button chatButton = new ButtonMultiple(screen.width - 125, 5, 1, Constants.WIDGETS_LOCATION, p ->
+        Button chatButton = new ButtonMultiple(screen.width - 125, 5, Config.getInstance().isChatEnabled() ? 1 : 3, Constants.WIDGETS_LOCATION, p ->
                 Minecraft.getInstance().setScreen(Config.getInstance().isChatEnabled() ? new ChatScreen(screen) : new SettingsScreen(screen)));
 
         if (screen instanceof TitleScreen && Config.getInstance().isEnableMainMenuFriends())
