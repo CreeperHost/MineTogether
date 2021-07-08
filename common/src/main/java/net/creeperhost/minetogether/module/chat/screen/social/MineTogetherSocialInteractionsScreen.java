@@ -20,7 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
-public class MineTogetherSocialinteractionsScreen extends Screen
+public class MineTogetherSocialInteractionsScreen extends Screen
 {
     private MineTogetherSocialInteractionsPlayerList socialInteractionsPlayerList;
     private Button allButton;
@@ -30,12 +30,11 @@ public class MineTogetherSocialinteractionsScreen extends Screen
     private Button chatButton;
     private Button createParty;
     private EditBox searchBox;
-    private final String lastSearch = "";
     private Page page;
 
     private boolean initialized;
 
-    public MineTogetherSocialinteractionsScreen()
+    public MineTogetherSocialInteractionsScreen()
     {
         super(new TranslatableComponent("minetogether.socialscreee.title"));
         this.page = Page.ALL;
@@ -143,8 +142,8 @@ public class MineTogetherSocialinteractionsScreen extends Screen
 
         if(createParty != null)
         {
-            String buttonText = ChatHandler.hasParty ? "Leave Party" : "Create Party";
-            if(ChatHandler.isPartyOwner()) buttonText = "Disband Party";
+            String buttonText = ChatHandler.hasParty ? "minetogether.socialInteractions.leave_party" : "minetogether.socialInteractions.create_party";
+            if(ChatHandler.isPartyOwner()) buttonText = "minetogether.socialInteractions.disband_party";
 
             createParty.setMessage(new TranslatableComponent(buttonText));
         }

@@ -13,11 +13,11 @@ import java.util.List;
 
 public class MineTogetherSocialInteractionsPlayerList extends ContainerObjectSelectionList<ProfileEntry>
 {
-    public MineTogetherSocialinteractionsScreen socialInteractionsScreen;
+    public MineTogetherSocialInteractionsScreen socialInteractionsScreen;
     public Minecraft minecraft;
     public List<ProfileEntry> list = Lists.newArrayList();
 
-    public MineTogetherSocialInteractionsPlayerList(MineTogetherSocialinteractionsScreen socialInteractionsScreen, Minecraft minecraft, int i, int j, int k, int l, int m)
+    public MineTogetherSocialInteractionsPlayerList(MineTogetherSocialInteractionsScreen socialInteractionsScreen, Minecraft minecraft, int i, int j, int k, int l, int m)
     {
         super(minecraft, i, j, k, l, m);
         this.socialInteractionsScreen = socialInteractionsScreen;
@@ -42,7 +42,7 @@ public class MineTogetherSocialInteractionsPlayerList extends ContainerObjectSel
         }
     }
 
-    public void updateList(String filter, MineTogetherSocialinteractionsScreen.Page page)
+    public void updateList(String filter, MineTogetherSocialInteractionsScreen.Page page)
     {
         list.clear();
         clearEntries();

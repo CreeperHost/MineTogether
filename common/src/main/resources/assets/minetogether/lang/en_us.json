@@ -150,6 +150,9 @@
   "minetogether.chat.message.connecting": "Unable to send messages while client is connecting",
   "minetogether.socialInteractions.tab_friends": "Friends",
   "minetogether.socialInteractions.tab_party": "Party",
+  "minetogether.socialInteractions.leave_party": "Leave Party",
+  "minetogether.socialInteractions.create_party": "Create Party",
+  "minetogether.socialInteractions.disband_party": "Disband Party",
   "minetogether.keybindings.social": "Social Screen",
   "minetogether.keybindings.category": "MineTogether",
 

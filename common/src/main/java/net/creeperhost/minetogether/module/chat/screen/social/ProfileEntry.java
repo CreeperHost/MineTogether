@@ -1,13 +1,11 @@
 package net.creeperhost.minetogether.module.chat.screen.social;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
-import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
@@ -24,7 +22,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 
 import java.util.List;
@@ -40,9 +37,9 @@ public class ProfileEntry extends Entry<ProfileEntry>
     private final Button muteButton;
     private final Button openDMButton;
 
-    private final MineTogetherSocialinteractionsScreen mineTogetherSocialinteractionsScreen;
+    private final MineTogetherSocialInteractionsScreen mineTogetherSocialinteractionsScreen;
 
-    public ProfileEntry(Profile profile, MineTogetherSocialinteractionsScreen mineTogetherSocialinteractionsScreen)
+    public ProfileEntry(Profile profile, MineTogetherSocialInteractionsScreen mineTogetherSocialinteractionsScreen)
     {
         this.profile = profile;
         this.mineTogetherSocialinteractionsScreen = mineTogetherSocialinteractionsScreen;
@@ -139,7 +136,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
         this.minecraft.font.draw(poseStack, profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay(), (float)p, (float)t, FastColor.ARGB32.color(255, 255, 255, 255));
 
-        if(this.mineTogetherSocialinteractionsScreen.getPage() == MineTogetherSocialinteractionsScreen.Page.FRIENDS)
+        if(this.mineTogetherSocialinteractionsScreen.getPage() == MineTogetherSocialInteractionsScreen.Page.FRIENDS)
         {
             this.addToPartyButton.x = k + (l - this.addToPartyButton.getWidth() - 4);
             this.addToPartyButton.y = j + ((m - this.addToPartyButton.getHeight()) / 2 + 10);
@@ -152,7 +149,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
             this.addToPartyButton.y = 0;
         }
 
-        if (this.removeButton != null && this.mineTogetherSocialinteractionsScreen.getPage() != MineTogetherSocialinteractionsScreen.Page.ALL)
+        if (this.removeButton != null && this.mineTogetherSocialinteractionsScreen.getPage() != MineTogetherSocialInteractionsScreen.Page.ALL)
         {
             this.removeButton.x = k + (l - this.removeButton.getWidth() - 4);
             this.removeButton.y = j + ((m - this.removeButton.getHeight()) / 2 - 10);

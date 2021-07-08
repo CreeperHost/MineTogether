@@ -9,7 +9,7 @@ import me.shedaniel.architectury.registry.KeyBindings;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
-import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialinteractionsScreen;
+import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialInteractionsScreen;
 import net.creeperhost.minetogether.module.connect.ConnectModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
@@ -59,7 +59,7 @@ public class MineTogetherClient
         {
             if(!MineTogetherClient.toastHandler.isActiveToast() && mtSocialKey.isDown())
             {
-                minecraft.setScreen(new MineTogetherSocialinteractionsScreen());
+                minecraft.setScreen(new MineTogetherSocialInteractionsScreen());
                 return InteractionResult.SUCCESS;
             }
         }
