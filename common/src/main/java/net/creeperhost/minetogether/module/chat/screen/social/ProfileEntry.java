@@ -98,8 +98,17 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
         this.openDMButton = new ImageButton(0, 0, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
         {
-            if(profile != null && profile.isOnline())
-                Minecraft.getInstance().setScreen(new MineTogetherSocialChatScreen(mineTogetherSocialinteractionsScreen, profile));
+            if(profile != null)
+            {
+                if(profile.isOnline())
+                {
+                    Minecraft.getInstance().setScreen(new MineTogetherSocialChatScreen(mineTogetherSocialinteractionsScreen, profile));
+                }
+                else
+                {
+                    MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("User is offline"), 1000, ToastHandler.EnumToastType.WARNING, null);
+                }
+            }
         });
 
         this.children = ImmutableList.of(removeButton, addToPartyButton, muteButton, openDMButton);
