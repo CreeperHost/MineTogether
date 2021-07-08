@@ -11,8 +11,10 @@ import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -25,6 +27,7 @@ public class MineTogetherSocialinteractionsScreen extends Screen
     private Button friendsButton;
     private Button blockedButton;
     private Button partyButton;
+    private Button chatButton;
     private Button createParty;
     private EditBox searchBox;
     private final String lastSearch = "";
@@ -89,6 +92,11 @@ public class MineTogetherSocialinteractionsScreen extends Screen
             showPage(page);
         }));
 
+        this.chatButton = addButton(new ImageButton((width / 2) + 80, m, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
+        {
+            Minecraft.getInstance().setScreen(new MineTogetherSocialChatScreen(this, ChatHandler.currentParty));
+        }));
+
         String string = searchBox != null ? searchBox.getValue() : "";
         searchBox = new EditBox(font, marginX() + 28, 78, 196, 16, (new TranslatableComponent("gui.socialInteractions.search_hint")).withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY));
         searchBox.setMaxLength(16);
@@ -120,6 +128,17 @@ public class MineTogetherSocialinteractionsScreen extends Screen
                 createParty.active = false;
                 createParty.visible = false;
             }
+        }
+
+        if(page == Page.PARTY)
+        {
+            chatButton.visible = ChatHandler.hasParty;
+            chatButton.active = ChatHandler.hasParty;
+        }
+        else
+        {
+            chatButton.visible = false;
+            chatButton.active = false;
         }
 
         if(createParty != null)

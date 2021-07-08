@@ -15,15 +15,22 @@ import org.lwjgl.glfw.GLFW;
 public class MineTogetherSocialChatScreen extends MineTogetherScreen
 {
     Screen parent;
-    Profile profile;
     private ScrollingChat chat;
     private EditBox chatBox;
+    private String channel;
 
     public MineTogetherSocialChatScreen(Screen parent, Profile profile)
     {
         super(new TranslatableComponent(""));
         this.parent = parent;
-        this.profile = profile;
+        this.channel = profile.getMediumHash();
+    }
+
+    public MineTogetherSocialChatScreen(Screen parent, String channel)
+    {
+        super(new TranslatableComponent(""));
+        this.parent = parent;
+        this.channel = channel;
     }
 
     @Override
@@ -41,7 +48,7 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
 
         children.add(chat);
         children.add(chatBox);
-        chat.updateLines(profile.getMediumHash());
+        chat.updateLines(channel);
         super.init();
     }
 
@@ -63,13 +70,10 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
     @Override
     public void tick()
     {
-        chatBox.setEditable(profile.isOnline());
-        chatBox.setSuggestion(profile.isOnline() ? "" : "Friend is offline");
-
-        if (ChatHandler.hasNewMessages(profile.getMediumHash()))
+        if (ChatHandler.hasNewMessages(channel))
         {
-            chat.updateLines(profile.getMediumHash());
-            ChatHandler.setMessagesRead(profile.getMediumHash());
+            chat.updateLines(channel);
+            ChatHandler.setMessagesRead(channel);
         }
         super.tick();
     }
@@ -87,11 +91,11 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
     @Override
     public boolean keyPressed(int i, int j, int k)
     {
-        if(profile != null && chatBox.isFocused())
+        if(chatBox.isFocused())
         {
             if ((i == GLFW.GLFW_KEY_ENTER || i == GLFW.GLFW_KEY_KP_ENTER) && !chatBox.getValue().trim().isEmpty())
             {
-                ChatHandler.sendMessage(profile.getMediumHash(), ChatFormatter.getStringForSending(chatBox.getValue()));
+                ChatHandler.sendMessage(channel, ChatFormatter.getStringForSending(chatBox.getValue()));
                 chatBox.setValue("");
             }
             return chatBox.keyPressed(i, j, k);
