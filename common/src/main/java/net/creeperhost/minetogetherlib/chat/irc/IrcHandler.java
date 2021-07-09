@@ -68,6 +68,10 @@ public class IrcHandler
                     {
                         ChatHandler.isInitting.set(false);
                         //TODO use regex for this to make it more reliable
+                        if(line.contains(":Cannot join channel (+b)"))
+                        {
+                            ChatHandler.connectionStatus = ChatConnectionStatus.BANNED;
+                        }
                         if(line.contains(":Nickname is already in use."))
                         {
                             logger.info("Nickname already in use, Waiting 60 seconds and trying again");
@@ -76,8 +80,9 @@ public class IrcHandler
                         if (line.startsWith("PING "))
                         {
                             sendString("PONG " + line.substring(5) + "\r\n", true);
-                            if(first.get()) {
-                                ChatHandler.connectionStatus = ChatConnectionStatus.VERIFYING;
+                            if(first.get())
+                            {
+                                if(ChatHandler.connectionStatus != ChatConnectionStatus.BANNED) ChatHandler.connectionStatus = ChatConnectionStatus.VERIFYING;
                                 sendString("USER " + "MineTogether" + " 8 * :" + MineTogetherChat.INSTANCE.realName, true);
                                 sendString("JOIN " + ircServer.channel, true);
                                 first.getAndSet(false);
@@ -115,6 +120,8 @@ public class IrcHandler
         reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
         reconnectExecutor.scheduleAtFixedRate(() ->
         {
+            if(ChatHandler.connectionStatus == ChatConnectionStatus.BANNED) return;
+
             if (ChatHandler.connectionStatus == ChatConnectionStatus.NICKNAME_IN_USE || ChatHandler.connectionStatus == ChatConnectionStatus.DISCONNECTED)
             {
                 logger.info("Restarting chat for reason: " + ChatHandler.connectionStatus.display);

@@ -278,6 +278,7 @@ public class ChatHandler
         {
             if (nick.equalsIgnoreCase(ChatHandler.nick)) {
                 // it be us
+                ChatHandler.connectionStatus = ChatConnectionStatus.BANNED;
                 IrcHandler.stop(true);
                 MineTogetherChat.profile.getAndUpdate(profile1 ->
                 {
