@@ -1,6 +1,8 @@
 package net.creeperhost.minetogether.mixin;
 
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.module.connect.LanServerInfoConnect;
+import net.creeperhost.minetogether.module.connect.OurServerListEntryLanDetected;
 import net.creeperhost.minetogether.module.multiplayer.data.CreeperHostServerEntry;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -24,6 +26,13 @@ public class MixinServerSelectionList
         {
             ServerSelectionList thisFake = (ServerSelectionList)(Object) this;
             thisFake.children().add(0, new CreeperHostServerEntry(thisFake));
+            int size = thisFake.children().size();
+            for (int i = 0; i < size; i++) {
+                ServerSelectionList.NetworkServerEntry realEntry = (ServerSelectionList.NetworkServerEntry) thisFake.children().get(i);
+                if(realEntry.getServerData() instanceof LanServerInfoConnect) {
+                    thisFake.children().set(i, new OurServerListEntryLanDetected(screen,(LanServerInfoConnect) realEntry.getServerData()));
+                }
+            }
         }
     }
 }

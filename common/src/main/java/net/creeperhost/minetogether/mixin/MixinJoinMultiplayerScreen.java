@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.server.LanServer;
+import net.minecraft.client.server.LanServerDetection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,6 +21,7 @@ public abstract class MixinJoinMultiplayerScreen {
     @Shadow private Button selectButton;
     @Shadow private Button deleteButton;
     @Shadow private Button editButton;
+    @Shadow private LanServerDetection.LanServerList lanServerList;
     FriendsServerList friendsServerList = null;
     private boolean applicableCache = false;
     private boolean isApplicableCached = false;
@@ -28,7 +30,7 @@ public abstract class MixinJoinMultiplayerScreen {
     public void init(CallbackInfo ci) {
         if (!isApplicable(this)) return;
         if(friendsServerList == null) {
-            friendsServerList = new FriendsServerList((JoinMultiplayerScreen)(Object) this);
+            friendsServerList = new FriendsServerList((JoinMultiplayerScreen)(Object) this, lanServerList);
         }
     }
 
@@ -47,8 +49,6 @@ public abstract class MixinJoinMultiplayerScreen {
         if (friendsServerList.isDirty()) {
             List<LanServer> list = friendsServerList.getServers();
             friendsServerList.markClean();
-            //I'm confused what you are trying to do here??
-//            (ServerSelectionListMixin)serverSelectionList;
             this.serverSelectionList.updateNetworkServers(list);
         }
     }
