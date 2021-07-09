@@ -28,9 +28,11 @@ public class MixinServerSelectionList
             thisFake.children().add(0, new CreeperHostServerEntry(thisFake));
             int size = thisFake.children().size();
             for (int i = 0; i < size; i++) {
-                ServerSelectionList.NetworkServerEntry realEntry = (ServerSelectionList.NetworkServerEntry) thisFake.children().get(i);
-                if(realEntry.getServerData() instanceof LanServerInfoConnect) {
-                    thisFake.children().set(i, new OurServerListEntryLanDetected(screen,(LanServerInfoConnect) realEntry.getServerData()));
+                if (thisFake.children().get(i) instanceof ServerSelectionList.NetworkServerEntry) {
+                    ServerSelectionList.NetworkServerEntry realEntry = (ServerSelectionList.NetworkServerEntry) thisFake.children().get(i);
+                    if (realEntry.getServerData() instanceof LanServerInfoConnect) {
+                        thisFake.children().set(i, new OurServerListEntryLanDetected(screen, (LanServerInfoConnect) realEntry.getServerData()));
+                    }
                 }
             }
         }
