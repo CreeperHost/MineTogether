@@ -37,7 +37,6 @@ public class ConnectHelper {
                     {
                         int port = 42069;
                         System.setProperty("java.net.preferIPv4Stack", "false"); // no tears, not only ipv4
-                        integratedServer.setUsesAuthentication(false); // TODO: won't work while not authed in future anyway
                         integratedServer.getConnection().startTcpServerListener(null, port); // make localhost only
                         ((MixinIntegratedServer)integratedServer).setPublishedPort(port);
                         integratedServer.setPort(port);
