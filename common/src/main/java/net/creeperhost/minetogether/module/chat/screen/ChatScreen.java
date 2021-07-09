@@ -283,7 +283,7 @@ public class ChatScreen extends MineTogetherScreen
             return true;
         }
         chat.mouseClicked(mouseX, mouseY, mouseButton);
-        return false;//super.mouseClicked(mouseX, mouseY, mouseButton);
+        return false;
     }
 
     @Override

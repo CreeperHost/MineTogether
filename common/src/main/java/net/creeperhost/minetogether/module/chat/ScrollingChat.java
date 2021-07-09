@@ -10,6 +10,8 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogethergui.gif.AnimatedGif;
+import net.creeperhost.minetogethergui.gif.ImageRenderer;
+import net.creeperhost.minetogethergui.gif.ImageUtils;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
@@ -21,8 +23,10 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -41,6 +45,8 @@ public class ScrollingChat extends ObjectSelectionList
     private final boolean renderBackground;
     private AnimatedGif gifImage;
     private AnimatedGif.GifPlayer gifPlayer;
+    private ImageRenderer.Image image;
+    private ImageRenderer imageRenderer;
 
     public ScrollingChat(MineTogetherScreen screen, int width, int height, int chatOffset)
     {
@@ -96,24 +102,42 @@ public class ScrollingChat extends ObjectSelectionList
                 {
                     Component urlComponent = (Component)style.getHoverEvent().getValue(ComponentUtils.RENDER_GIF);
                     String url = urlComponent.getString();
-                    if(gifImage == null) {
-                        CompletableFuture.runAsync(() -> {
-                            try {
-                                gifImage = AnimatedGif.fromURL(new URL("https://ss.gigabit101.net/covers.gif"));
-                            } catch (IOException exception) {
-                                exception.printStackTrace();
-                            }
-                        }, AnimatedGif.GIF_EXECUTOR);
-                    }
-                    if(gifPlayer == null)
+                    if(ImageUtils.getContentType(new URL(url)).equals("image/gif"))
                     {
-                        gifPlayer = gifImage.makeGifPlayer();
-                        gifPlayer.setAutoplay(true);
-                        gifPlayer.setLooping(true);
+                        if (gifImage == null) {
+                            CompletableFuture.runAsync(() -> {
+                                try {
+                                    gifImage = AnimatedGif.fromURL(new URL(url));
+                                } catch (IOException exception) {
+                                    exception.printStackTrace();
+                                }
+                            }, AnimatedGif.GIF_EXECUTOR);
+                        }
+                        if (gifPlayer == null) {
+                            gifPlayer = gifImage.makeGifPlayer();
+                            gifPlayer.setAutoplay(true);
+                            gifPlayer.setLooping(true);
+                        }
+                    }
+                    else
+                    {
+                        if(image == null)
+                        {
+                            CompletableFuture.runAsync(() -> {
+                                try {
+                                     image = ImageRenderer.fromURL(new URL(url));
+                                } catch (IOException exception) {
+                                    exception.printStackTrace();
+                                }
+                            }, AnimatedGif.GIF_EXECUTOR);
+                        }
+                        if(image != null && imageRenderer == null) imageRenderer = new ImageRenderer(image);
                     }
                 }
                 else
                 {
+                    imageRenderer = null;
+                    image = null;
                     gifImage = null;
                     gifPlayer = null;
                 }
@@ -248,6 +272,7 @@ public class ScrollingChat extends ObjectSelectionList
         RenderSystem.disableBlend();
 
         if(gifPlayer != null && gifImage != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
+        if(imageRenderer != null) imageRenderer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
     }
 
     public void tick()

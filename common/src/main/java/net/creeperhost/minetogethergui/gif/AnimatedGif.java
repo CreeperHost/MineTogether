@@ -19,6 +19,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -36,33 +37,30 @@ public class AnimatedGif
     private static final int MIN_MC_TICKS = MathHelper.ceil(MIN_GIF_TICKS * (float)MC_TICKS_PER_SECOND / GIF_TICKS_PER_SECOND);
     public static Executor GIF_EXECUTOR = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-friend-%d").build());
 
-    public static AnimatedGif fromPath(Path path) throws IOException
+    private final int width;
+    private final int height;
+    private final int frames;
+    private final int[] pixels;
+    private final int[] delays;
+
+    //For gifs
+    public AnimatedGif(int width, int height, int frames, int[] pixels, int[] delays)
     {
-        byte[] bytes = Files.readAllBytes(path);
-        return fromMemory(bytes);
+        this.width = width;
+        this.height = height;
+        this.frames = frames;
+        this.pixels = pixels;
+        this.delays = delays;
     }
 
     public static AnimatedGif fromURL(URL url) throws IOException
     {
-        if(isImageUrl(url))
+        if(ImageUtils.isImageUrl(url))
         {
             byte[] bytes = IOUtils.toByteArray(url);
-            return fromMemory(bytes);
+            if(ImageUtils.getContentType(url).equals("image/gif")) return fromMemory(bytes);
         }
         return null;
-    }
-
-    public static boolean isImageUrl(URL url) throws IOException
-    {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("HEAD");
-        String contentType = connection.getContentType();
-        return contentType.startsWith("image/");
-    }
-
-    public static String getBase64EncodedImage(byte[] bytes)
-    {
-        return Base64.encodeBase64String(bytes);
     }
 
     private static AnimatedGif fromMemory(byte[] fileData)
@@ -85,7 +83,8 @@ public class AnimatedGif
                 {
                     if (image == null)
                     {
-                        return new AnimatedGif(0, 0, 0, null, null, true, getBase64EncodedImage(fileData));
+//                        return new AnimatedGif(0, 0, 0, null, null, true, getBase64EncodedImage(fileData));
+                        return null;
                     }
 
                     int nch = channels.get();
@@ -106,7 +105,7 @@ public class AnimatedGif
                     int[] pixels = new int[width * height * frames];
                     pixelData.get(pixels);
 
-                    return new AnimatedGif(width, height, frames, pixels, delays, true, null);
+                    return new AnimatedGif(width, height, frames, pixels, delays);
                 }
                 finally
                 {
@@ -118,25 +117,6 @@ public class AnimatedGif
         {
             MemoryUtil.memFree(gif);
         }
-    }
-
-    private final int width;
-    private final int height;
-    private final int frames;
-    private final int[] pixels;
-    private final int[] delays;
-    private boolean isGif;
-    private String base64;
-
-    public AnimatedGif(int width, int height, int frames, int[] pixels, int[] delays, boolean isGif, String base64)
-    {
-        this.width = width;
-        this.height = height;
-        this.frames = frames;
-        this.pixels = pixels;
-        this.delays = delays;
-        this.isGif = isGif;
-        this.base64 = base64;
     }
 
     public int getWidth()
@@ -232,29 +212,11 @@ public class AnimatedGif
          */
         public void tick()
         {
-            if (isGif && playing)
-            {
-                animationProgress++;
-            }
+            animationProgress++;
         }
 
         public void render(PoseStack matrixStack, int x, int y, int w, int h, float partialTicks)
         {
-            if(!isGif)
-            {
-                try {
-
-                    NativeImage nativeImage = NativeImage.fromBase64(base64);
-                    DynamicTexture dynamicTexture = new DynamicTexture(nativeImage);
-                    ResourceLocation resourceLocation = new ResourceLocation("test");
-                    Minecraft.getInstance().getTextureManager().register(resourceLocation, dynamicTexture);
-                    
-                    Minecraft.getInstance().getTextureManager().bind(resourceLocation);
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-            }
             if (totalFrameTicks == 0) return;
 
             if (!playing && autoplay) start(partialTicks);
