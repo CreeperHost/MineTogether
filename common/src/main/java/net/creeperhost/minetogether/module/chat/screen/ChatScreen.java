@@ -229,7 +229,7 @@ public class ChatScreen extends MineTogetherScreen
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
         if (!buttonTarget.equals(currentTarget)) currentTarget = buttonTarget;
 
-        friendsList.active = Config.getInstance().getFirstConnect();
+        friendsList.active = !Config.getInstance().getFirstConnect();
 
         send.active = ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED;
         send.setEditable(ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED);
