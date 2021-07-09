@@ -1,38 +1,32 @@
 package net.creeperhost.minetogethergui.gif;
 
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogetherlib.util.MathHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.metadata.animation.AnimationFrame;
-import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class AnimatedGif
 {
@@ -40,6 +34,7 @@ public class AnimatedGif
     private static final int MC_TICKS_PER_SECOND = 20;
     private static final int MIN_GIF_TICKS = MathHelper.ceil(0.01f * GIF_TICKS_PER_SECOND); // Most browsers have approximately 0.1s minimum interval between frames. Let's respect that!
     private static final int MIN_MC_TICKS = MathHelper.ceil(MIN_GIF_TICKS * (float)MC_TICKS_PER_SECOND / GIF_TICKS_PER_SECOND);
+    public static Executor GIF_EXECUTOR = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("minetogether-friend-%d").build());
 
     public static AnimatedGif fromPath(Path path) throws IOException
     {
@@ -49,16 +44,25 @@ public class AnimatedGif
 
     public static AnimatedGif fromURL(URL url) throws IOException
     {
-        byte[] bytes = IOUtils.toByteArray(url);
-        return fromMemory(bytes);
+        if(isImageUrl(url))
+        {
+            byte[] bytes = IOUtils.toByteArray(url);
+            return fromMemory(bytes);
+        }
+        return null;
     }
 
-    public static byte[] toByteArray(BufferedImage bi, String format) throws IOException
+    public static boolean isImageUrl(URL url) throws IOException
     {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(bi, format, baos);
-        byte[] bytes = baos.toByteArray();
-        return bytes;
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("HEAD");
+        String contentType = connection.getContentType();
+        return contentType.startsWith("image/");
+    }
+
+    public static String getBase64EncodedImage(byte[] bytes)
+    {
+        return Base64.encodeBase64String(bytes);
     }
 
     private static AnimatedGif fromMemory(byte[] fileData)
@@ -76,12 +80,12 @@ public class AnimatedGif
                 final IntBuffer z = stack.mallocInt(1);
                 final IntBuffer channels = stack.mallocInt(1);
 
-                final ByteBuffer image = STBImage.stbi_load_gif_from_memory(gif, delaysBuffer, x, y, z, channels, 0);
+                ByteBuffer image = STBImage.stbi_load_gif_from_memory(gif, delaysBuffer, x, y, z, channels, 0);
                 try
                 {
                     if (image == null)
                     {
-                        throw new RuntimeException(STBImage.stbi_failure_reason()); // assumes program termination: if not, cleanup of resources is required
+                        return new AnimatedGif(0, 0, 0, null, null, true, getBase64EncodedImage(fileData));
                     }
 
                     int nch = channels.get();
@@ -102,12 +106,11 @@ public class AnimatedGif
                     int[] pixels = new int[width * height * frames];
                     pixelData.get(pixels);
 
-                    return new AnimatedGif(width, height, frames, pixels, delays);
+                    return new AnimatedGif(width, height, frames, pixels, delays, true, null);
                 }
                 finally
                 {
-                    if (image != null)
-                        STBImage.stbi_image_free(image);
+                    if (image != null) STBImage.stbi_image_free(image);
                 }
             }
         }
@@ -122,18 +125,18 @@ public class AnimatedGif
     private final int frames;
     private final int[] pixels;
     private final int[] delays;
+    private boolean isGif;
+    private String base64;
 
-    public AnimatedGif(int width, int height, int frames, int[] pixels, int[] delays)
+    public AnimatedGif(int width, int height, int frames, int[] pixels, int[] delays, boolean isGif, String base64)
     {
         this.width = width;
         this.height = height;
         this.frames = frames;
         this.pixels = pixels;
         this.delays = delays;
-        if (pixels.length != width * height * frames)
-            throw new IllegalArgumentException("Pixels array length must be == width*height*frames, was " + pixels.length);
-        if (delays.length != frames)
-            throw new IllegalArgumentException("Delays array length must be == frames, was " + delays.length);
+        this.isGif = isGif;
+        this.base64 = base64;
     }
 
     public int getWidth()
@@ -169,44 +172,6 @@ public class AnimatedGif
         return MathHelper.ceil(delay * (float)MC_TICKS_PER_SECOND / GIF_TICKS_PER_SECOND); // gif delays at in 1/100s increments, mc ticks are 1/20
     }
 
-    // UNTESTED!!!
-    public TextureAtlasSprite toAnimatedSprite(ResourceLocation location, TextureAtlas atlas, int mipmapLevels, int atlasWidth, int atlasHeight, int atlasX, int atlasY)
-    {
-        NativeImage img = toNativeImage();
-        List<AnimationFrame> frameList = Lists.newArrayList();
-        int accDelay = 0;
-        for (int i = 0; i < frames; i++)
-        {
-            frameList.add(new AnimationFrame(i, accDelay));
-            accDelay += Math.max(convertToMcTick(delays[i]), MIN_MC_TICKS);
-        }
-        AnimationMetadataSection animation = new AnimationMetadataSection(frameList, width, height, 0, false);
-        TextureAtlasSprite.Info info = new TextureAtlasSprite.Info(location, width, height * frames, animation);
-        return new TextureAtlasSprite(atlas, info, mipmapLevels, atlasWidth, atlasHeight, atlasX, atlasY, img)
-        {
-        };
-    }
-
-    public void exportToMcAnim(Path path) throws IOException
-    {
-        try (NativeImage nativeImage = toNativeImage())
-        {
-            nativeImage.writeToFile(path);
-        }
-
-        JsonObject meta = new JsonObject();
-        JsonObject anim = new JsonObject();
-        anim.addProperty("frametime", 0);
-        anim.addProperty("interpolate", false);
-        JsonArray frameTimes = new JsonArray();
-        for (int delay : delays) frameTimes.add(Math.max(convertToMcTick(delay),MIN_MC_TICKS));
-        anim.add("frames", frameTimes);
-        meta.add("animation", anim);
-        try (FileWriter writer = new FileWriter(path.toFile().getAbsolutePath() + ".mcmeta"))
-        {
-            writer.write(new Gson().toJson(meta));
-        }
-    }
 
     public GifPlayer makeGifPlayer()
     {
@@ -267,7 +232,7 @@ public class AnimatedGif
          */
         public void tick()
         {
-            if (playing)
+            if (isGif && playing)
             {
                 animationProgress++;
             }
@@ -275,11 +240,24 @@ public class AnimatedGif
 
         public void render(PoseStack matrixStack, int x, int y, int w, int h, float partialTicks)
         {
-            if (totalFrameTicks == 0)
-                return;
+            if(!isGif)
+            {
+                try {
 
-            if (!playing && autoplay)
-                start(partialTicks);
+                    NativeImage nativeImage = NativeImage.fromBase64(base64);
+                    DynamicTexture dynamicTexture = new DynamicTexture(nativeImage);
+                    ResourceLocation resourceLocation = new ResourceLocation("test");
+                    Minecraft.getInstance().getTextureManager().register(resourceLocation, dynamicTexture);
+                    
+                    Minecraft.getInstance().getTextureManager().bind(resourceLocation);
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            if (totalFrameTicks == 0) return;
+
+            if (!playing && autoplay) start(partialTicks);
 
             if (playing)
             {
@@ -343,6 +321,4 @@ public class AnimatedGif
             return looping;
         }
     }
-
-
 }

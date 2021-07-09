@@ -8,6 +8,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
+import net.creeperhost.minetogether.util.ComponentUtils;
+import net.creeperhost.minetogethergui.gif.AnimatedGif;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
@@ -20,7 +22,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 import static net.creeperhost.minetogetherlib.chat.ChatHandler.ircLock;
 
@@ -34,6 +39,8 @@ public class ScrollingChat extends ObjectSelectionList
     private final MineTogetherScreen screen;
     private final int chatOffset;
     private final boolean renderBackground;
+    private AnimatedGif gifImage;
+    private AnimatedGif.GifPlayer gifPlayer;
 
     public ScrollingChat(MineTogetherScreen screen, int width, int height, int chatOffset)
     {
@@ -84,6 +91,32 @@ public class ScrollingChat extends ObjectSelectionList
                 minecraft.font.draw(poseStack, component, oldTotal, getRowTop(index), 0xBBFFFFFF);
                 screen.renderComponentHoverEffect(poseStack, style , mouseX, mouseY);
                 RenderSystem.color4f(1, 1, 1, 1);
+
+                if(style.getHoverEvent() != null && style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
+                {
+                    Component urlComponent = (Component)style.getHoverEvent().getValue(ComponentUtils.RENDER_GIF);
+                    String url = urlComponent.getString();
+                    if(gifImage == null) {
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                gifImage = AnimatedGif.fromURL(new URL("https://ss.gigabit101.net/covers.gif"));
+                            } catch (IOException exception) {
+                                exception.printStackTrace();
+                            }
+                        }, AnimatedGif.GIF_EXECUTOR);
+                    }
+                    if(gifPlayer == null)
+                    {
+                        gifPlayer = gifImage.makeGifPlayer();
+                        gifPlayer.setAutoplay(true);
+                        gifPlayer.setLooping(true);
+                    }
+                }
+                else
+                {
+                    gifImage = null;
+                    gifPlayer = null;
+                }
             }
             else
             {
@@ -145,9 +178,9 @@ public class ScrollingChat extends ObjectSelectionList
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
     {
-        if(renderBackground) this.renderBackground(matrixStack);
+        if(renderBackground) this.renderBackground(poseStack);
         int i = this.getScrollbarPosition();
         int j = i + 6;
         Tesselator tessellator = Tesselator.getInstance();
@@ -170,7 +203,7 @@ public class ScrollingChat extends ObjectSelectionList
         int l = this.y0 + 4 - (int)this.getScrollAmount();
 
 //            ScreenHelpers.drawLogo(matrixStack, font, width - 20, height + 18, 20, 30, 0.75F);
-        this.renderList(matrixStack, k, l, mouseX, mouseY, partialTicks);
+        this.renderList(poseStack, k, l, mouseX, mouseY, partialTicks);
         if(renderBackground)
         {
             this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
@@ -208,11 +241,18 @@ public class ScrollingChat extends ObjectSelectionList
         bufferbuilder.vertex((double)this.x0, (double)(this.y1 - 4), 0.0D).uv(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
         tessellator.end();
 
-        this.renderDecorations(matrixStack, mouseX, mouseY);
+        this.renderDecorations(poseStack, mouseX, mouseY);
         RenderSystem.enableTexture();
         RenderSystem.shadeModel(7424);
         RenderSystem.enableAlphaTest();
         RenderSystem.disableBlend();
+
+        if(gifPlayer != null && gifImage != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
+    }
+
+    public void tick()
+    {
+        if(gifPlayer != null) gifPlayer.tick();
     }
 
     @Override

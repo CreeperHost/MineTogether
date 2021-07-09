@@ -14,7 +14,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,6 +41,9 @@ public abstract class MixinChatComponent
     @Shadow protected abstract boolean isChatFocused();
 
     @Shadow @Final private Minecraft minecraft;
+
+    @Shadow @Nullable public abstract Style getClickedComponentStyleAt(double d, double e);
+
     private final List<GuiMessage<FormattedCharSequence>> mtChatMessages = new ArrayList<>();
     private final List<GuiMessage<Component>> mtAllMessages = new ArrayList<>();
 

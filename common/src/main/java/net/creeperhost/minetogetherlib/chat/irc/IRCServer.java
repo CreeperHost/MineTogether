@@ -5,7 +5,7 @@ public class IRCServer
     public final String address;
     public final int port;
     public final boolean ssl;
-    public final String channel;
+    public String channel;
 
     public IRCServer(String address, int port, boolean ssl, String channel)
     {

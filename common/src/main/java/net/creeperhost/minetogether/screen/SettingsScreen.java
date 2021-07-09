@@ -13,7 +13,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
 
-public class SettingsScreen extends Screen
+public class SettingsScreen extends MineTogetherScreen
 {
     private final Screen parent;
 
@@ -58,7 +58,7 @@ public class SettingsScreen extends Screen
             Config.getInstance().setEnableMainMenuFriends(!enabled);
             saveConfig();
         }));
-        addButton(new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("Link Account")), p ->
+        addButton(new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("minetogether.settingscreen.button.linkaccount")), p ->
         {
             minecraft.setScreen(new ConfirmScreen(e -> {
                 if (e) {
@@ -69,10 +69,8 @@ public class SettingsScreen extends Screen
         }));
 
         //Done button
-        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")), p ->
-        {
-            this.minecraft.setScreen(parent);
-        }));
+        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")),
+                p -> this.minecraft.setScreen(parent)));
     }
 
     @Override

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class OfflineScreen extends Screen
+public class OfflineScreen extends MineTogetherScreen
 {
     private final String offlineText = offline0 + "\n\n\n" + offline1 + "\n\n" + offline2 + "\n\n";
     private static final String offline0 = I18n.get("minetogether.offlinetext");

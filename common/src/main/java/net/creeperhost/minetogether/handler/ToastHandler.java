@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.handler;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -17,7 +18,6 @@ import java.util.List;
 
 public class ToastHandler
 {
-    public ResourceLocation TEXTURE_TOASTS = new ResourceLocation("textures/gui/toasts.png");
     public Runnable toastMethod;
     public Component toastText;
     public long endTime;
@@ -61,10 +61,6 @@ public class ToastHandler
         return fadeTime >= System.currentTimeMillis();
     }
 
-    private ResourceLocation getToastResourceLocation()
-    {
-        return TEXTURE_TOASTS;
-    }
 
     public EnumToastType getToastType()
     {
@@ -94,7 +90,7 @@ public class ToastHandler
 
                 RenderSystem.disableLighting();
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-                Minecraft.getInstance().getTextureManager().bind(TEXTURE_TOASTS);
+                Minecraft.getInstance().getTextureManager().bind(Constants.TEXTURE_TOASTS);
                 List<FormattedCharSequence> s = ComponentRenderUtils.wrapComponents(MineTogetherClient.toastHandler.toastText, 140, Minecraft.getInstance().font);
 
                 int toastHeight = 32 + (s.size() * 8);

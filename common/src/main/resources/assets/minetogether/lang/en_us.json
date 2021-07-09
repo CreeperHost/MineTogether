@@ -161,5 +161,6 @@
   "minetogether.friendscreen.tooltip.removebutton": "Remove friend",
   "minetogether.friendscreen.tooltip.block": "Block",
   "minetogether.friendscreen.tooltip.partytime": "Invite to party",
-  "minetogether.friendslist.copytoclipboard": "Copy to clipboard"
+  "minetogether.friendslist.copytoclipboard": "Copy to clipboard",
+  "minetogether.settingscreen.button.linkaccount": "Link Account"
 }

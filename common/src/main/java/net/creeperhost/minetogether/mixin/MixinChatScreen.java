@@ -11,6 +11,7 @@ import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
 import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.ComponentUtils;
+import net.creeperhost.minetogethergui.gif.AnimatedGif;
 import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
 import net.creeperhost.minetogetherlib.chat.*;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
@@ -41,6 +42,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +64,8 @@ public abstract class MixinChatScreen extends Screen
     private int mouseY;
     private Button newUserButton;
     private Button disableButton;
+    private AnimatedGif gifImage;
+    private AnimatedGif.GifPlayer gifPlayer;
 
     protected MixinChatScreen(Component component)
     {
@@ -142,7 +147,7 @@ public abstract class MixinChatScreen extends Screen
     }
 
     @Inject(at=@At("HEAD"), method="render", cancellable = true)
-    public void render(PoseStack poseStack, int i, int j, float f, CallbackInfo ci)
+    public void render(PoseStack poseStack, int i, int j, float partialTicks, CallbackInfo ci)
     {
         if(!Config.getInstance().isChatEnabled()) return;
 
@@ -156,16 +161,39 @@ public abstract class MixinChatScreen extends Screen
         input.setFocus(true);
         fill(poseStack, 2, this.height - 14, this.width - 2, this.height - 2, minecraft.options.getBackgroundColor(-2147483648));
 
-        input.render(poseStack, i, j, f);
+        input.render(poseStack, i, j, partialTicks);
         if(!ChatModule.showMTChat) commandSuggestions.render(poseStack, i, j);
         Style style = minecraft.gui.getChat().getClickedComponentStyleAt((double)i, (double)j);
         if (style != null && style.getHoverEvent() != null)
         {
             if(style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
             {
-                //TODO
+                Component urlComponent = (Component)style.getHoverEvent().getValue(ComponentUtils.RENDER_GIF);
+                String url = urlComponent.getString();
+                if(gifImage == null)
+                {
+                    try {
+                            try {
+                                gifImage = AnimatedGif.fromURL(new URL("https://ss.gigabit101.net/Colony_Survival.png"));
+                            } catch (IOException ignored) {}
+                        if(gifImage != null && gifPlayer == null)
+                        {
+                            gifPlayer = gifImage.makeGifPlayer();
+                            gifPlayer.setLooping(true);
+                            gifPlayer.setAutoplay(true);
+                        }
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                }
+                if(gifPlayer != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
             }
             this.renderComponentHoverEffect(poseStack, style, i, j);
+        }
+        else
+        {
+            gifImage = null;
+            gifPlayer = null;
         }
         if(Config.getInstance().getFirstConnect() && ChatModule.showMTChat)
         {
@@ -184,8 +212,7 @@ public abstract class MixinChatScreen extends Screen
                 drawCenteredString(poseStack, font, "and more. Join " + ChatCallbacks.userCount + " unique users.", (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
             }
         }
-        super.render(poseStack, i, j, f);
-
+        super.render(poseStack, i, j, partialTicks);
         ci.cancel();
     }
 
@@ -196,6 +223,8 @@ public abstract class MixinChatScreen extends Screen
     public void tick(CallbackInfo ci)
     {
         if(!Config.getInstance().isChatEnabled()) return;
+
+        if(gifPlayer != null) gifPlayer.tick();
 
         //This should never happen but better safe than sorry
         if(input == null) return;
