@@ -63,10 +63,10 @@ public class FriendsListScreen extends MineTogetherScreen
         chat = new ScrollingChat(this, width - list.getRowWidth() - 22, this.height - 90, 32, this.height - 55, 110, true);
         chat.setLeftPos(list.getRowRight());
 
-        chatBox = new EditBox(this.font, list.getRowRight() + 2, this.height -50, width - list.getRowWidth() - 7, 20, new TranslatableComponent(""));
+        chatBox = new EditBox(this.font, list.getRowRight() + 1, this.height -50, chat.getWidth() - 2, 20, new TranslatableComponent(""));
         chatBox.setMaxLength(256);
 
-        searchEntry = new EditBox(this.font, 1, this.height -50, list.width, 20, new TranslatableComponent(""));
+        searchEntry = new EditBox(this.font, 1, this.height -50, list.width - 2, 20, new TranslatableComponent(""));
         searchEntry.setSuggestion("Search");
 
         addButtons();
