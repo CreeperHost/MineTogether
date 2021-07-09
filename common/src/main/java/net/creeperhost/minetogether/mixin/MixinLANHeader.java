@@ -10,11 +10,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ServerSelectionList.LANHeader.class)
-public class MixinLANHeader {
+public class MixinLANHeader
+{
     private static final Component OURSCANNING_LABEL = new TranslatableComponent("minetogether.connect.scan");
     private static final Component SCANNING_LABEL = new TranslatableComponent("minetogether.connect.scan.offline");
-    @Redirect(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;IIIIIIIZF)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/multiplayer/ServerSelectionList;SCANNING_LABEL:Lnet/minecraft/network/chat/Component;", opcode = Opcodes.GETFIELD))
-    private Component render(ServerSelectionList serverSelectionList) {
-        return ConnectHelper.isEnabled ?  OURSCANNING_LABEL : SCANNING_LABEL;
-    }
+
+    //TODO come back to this, No idea why this is breaking but it is...
+//    @Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/multiplayer/ServerSelectionList;SCANNING_LABEL:Lnet/minecraft/network/chat/Component;", opcode = Opcodes.GETFIELD))
+//    private Component render(ServerSelectionList serverSelectionList)
+//    {
+//        return ConnectHelper.isEnabled ?  OURSCANNING_LABEL : SCANNING_LABEL;
+//    }
 }
