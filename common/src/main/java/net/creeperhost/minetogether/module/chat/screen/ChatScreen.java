@@ -10,7 +10,6 @@ import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
-import net.creeperhost.minetogethergui.gif.AnimatedGif;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
@@ -54,8 +53,6 @@ public class ChatScreen extends MineTogetherScreen
     public DropdownButton<Target> targetDropdownButton;
     private DropdownButton<Menu> menuDropdownButton;
     private String activeDropdown;
-    private AnimatedGif gifImage;
-    private AnimatedGif.GifPlayer gifPlayer;
     private Button newUserButton;
     private Button disableButton;
 
@@ -201,8 +198,6 @@ public class ChatScreen extends MineTogetherScreen
         menuDropdownButton.render(poseStack, mouseX, mouseY, partialTicks);
         send.render(poseStack, mouseX, mouseY, partialTicks);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
-
-        if(gifPlayer != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 60, 40, partialTicks);
 
         if(Config.getInstance().getFirstConnect())
         {

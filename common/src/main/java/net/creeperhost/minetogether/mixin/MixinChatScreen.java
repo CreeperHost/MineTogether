@@ -1,10 +1,6 @@
 package net.creeperhost.minetogether.mixin;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.ChatModule;
@@ -16,19 +12,15 @@ import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
 import net.creeperhost.minetogetherlib.chat.*;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.creeperhost.minetogetherlib.util.MathHelper;
-import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
-import net.creeperhost.minetogetherlib.util.WebUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -45,9 +37,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Mixin(ChatScreen.class)
 public abstract class MixinChatScreen extends Screen
