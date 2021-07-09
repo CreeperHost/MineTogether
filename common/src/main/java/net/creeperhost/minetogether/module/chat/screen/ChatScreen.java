@@ -55,6 +55,7 @@ public class ChatScreen extends MineTogetherScreen
     private String activeDropdown;
     private Button newUserButton;
     private Button disableButton;
+    private Button friendsList;
 
     public ChatScreen(Screen parent)
     {
@@ -128,7 +129,7 @@ public class ChatScreen extends MineTogetherScreen
             menuDropdownButton.dropdownOpen = false;
         }));
 
-        addButton(new Button(5, 5, 100, 20, new TranslatableComponent("Friends list"), p ->
+        addButton(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("Friends list"), p ->
         {
             this.minecraft.setScreen(new FriendsListScreen(this));
         }));
@@ -227,6 +228,8 @@ public class ChatScreen extends MineTogetherScreen
         chat.tick();
         String buttonTarget = targetDropdownButton.getSelected().getInternalTarget();
         if (!buttonTarget.equals(currentTarget)) currentTarget = buttonTarget;
+
+        friendsList.active = Config.getInstance().getFirstConnect();
 
         send.active = ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED;
         send.setEditable(ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED);

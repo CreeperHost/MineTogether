@@ -84,12 +84,14 @@ public class ChatModule
             {
                 ScreenHooks.addButton(screen, friendsButton);
                 ScreenHooks.addButton(screen, chatButton);
+                friendsButton.active = !Config.getInstance().getFirstConnect();
             }
         }
         if(screen instanceof PauseScreen)
         {
             ScreenHooks.addButton(screen, friendsButton);
             ScreenHooks.addButton(screen, chatButton);
+            friendsButton.active = !Config.getInstance().getFirstConnect();
         }
     }
 
