@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.ChatModule;
+import net.creeperhost.minetogether.module.chat.ClientChatTarget;
 import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
 import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.ComponentUtils;
@@ -67,16 +68,34 @@ public abstract class MixinChatScreen extends Screen
     {
         if(!Config.getInstance().isChatEnabled()) return;
 
-        if(initial.equalsIgnoreCase("/")) ChatModule.showMTChat = false;
+        if(initial.equalsIgnoreCase("/")) ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
 
         int x = MathHelper.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;
 
-        addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.showMTChat ? 1 : 0, false, false, true, p ->
+        if(ChatHandler.hasParty)
         {
-            ChatModule.showMTChat = switchButton.activeButton == 1;
-            minecraft.setScreen(new ChatScreen(""));
+            addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
+            {
+                if(switchButton.activeButton == 2)
+                {
+                    ChatModule.clientChatTarget = ClientChatTarget.PARTY;
+                    minecraft.setScreen(new ChatScreen(""));
+                    return;
+                }
+                ChatModule.clientChatTarget = switchButton.activeButton == 1 ? ClientChatTarget.MINETOGETHER : ClientChatTarget.DEFAULT;
+                minecraft.setScreen(new ChatScreen(""));
 
-        }, isSinglePlayer() ? I18n.get("minetogether.ingame.chat.local") : I18n.get("minetogether.ingame.chat.server"), I18n.get("minetogether.ingame.chat.global")));
+            }, isSinglePlayer() ? I18n.get("minetogether.ingame.chat.local") : I18n.get("minetogether.ingame.chat.server"), I18n.get("minetogether.ingame.chat.global"), I18n.get("minetogether.ingame.chat.party")));
+        }
+        else
+        {
+            addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
+            {
+                ChatModule.clientChatTarget = switchButton.activeButton == 1 ? ClientChatTarget.MINETOGETHER : ClientChatTarget.DEFAULT;
+                minecraft.setScreen(new ChatScreen(""));
+
+            }, isSinglePlayer() ? I18n.get("minetogether.ingame.chat.local") : I18n.get("minetogether.ingame.chat.server"), I18n.get("minetogether.ingame.chat.global")));
+        }
 
         List<String> strings = new ArrayList<>();
 
@@ -103,7 +122,7 @@ public abstract class MixinChatScreen extends Screen
             }
         }));
         dropdownButton.flipped = true;
-        if(Config.getInstance().getFirstConnect() && ChatModule.showMTChat)
+        if(Config.getInstance().getFirstConnect() && ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
         {
             ChatCallbacks.updateOnlineCount();
 
@@ -152,7 +171,7 @@ public abstract class MixinChatScreen extends Screen
         fill(poseStack, 2, this.height - 14, this.width - 2, this.height - 2, minecraft.options.getBackgroundColor(-2147483648));
 
         input.render(poseStack, i, j, partialTicks);
-        if(!ChatModule.showMTChat) commandSuggestions.render(poseStack, i, j);
+        if(ChatModule.clientChatTarget == ClientChatTarget.DEFAULT) commandSuggestions.render(poseStack, i, j);
         Style style = minecraft.gui.getChat().getClickedComponentStyleAt((double)i, (double)j);
         if (style != null && style.getHoverEvent() != null)
         {
@@ -185,7 +204,7 @@ public abstract class MixinChatScreen extends Screen
             gifImage = null;
             gifPlayer = null;
         }
-        if(Config.getInstance().getFirstConnect() && ChatModule.showMTChat)
+        if(Config.getInstance().getFirstConnect() && ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
         {
             if(newUserButton != null) newUserButton.visible = true;
             if(disableButton != null) disableButton.visible = true;
@@ -214,12 +233,28 @@ public abstract class MixinChatScreen extends Screen
     {
         if(!Config.getInstance().isChatEnabled()) return;
 
+        switch (ChatModule.clientChatTarget)
+        {
+            case DEFAULT:
+                switchButton.getButtons().get(0).setActive(true);
+                return;
+            case MINETOGETHER:
+                switchButton.getButtons().get(1).setActive(true);
+                return;
+            case PARTY:
+                if(switchButton.getButtons().size() == 3)
+                {
+                    switchButton.getButtons().get(2).setActive(true);
+                }
+                return;
+        }
+
         if(gifPlayer != null) gifPlayer.tick();
 
         //This should never happen but better safe than sorry
         if(input == null) return;
 
-        if(ChatModule.showMTChat)
+        if(ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
         {
             input.active = ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED;
             input.setEditable(ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED);
@@ -280,9 +315,14 @@ public abstract class MixinChatScreen extends Screen
         if(minecraft == null) return;
 
         //If its our chat screen send the message to our chat handler for sending
-        if(ChatModule.showMTChat)
+        if(ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
         {
             ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
+            return;
+        }
+        if(ChatModule.clientChatTarget == ClientChatTarget.PARTY)
+        {
+            ChatHandler.sendMessage(ChatHandler.currentParty, string);
             return;
         }
         super.sendMessage(string);
@@ -296,7 +336,7 @@ public abstract class MixinChatScreen extends Screen
         //This is just to stop IntelliJ from complaining
         if(minecraft == null) return false;
         //Let vanilla take over when its not using our tab
-        if(!ChatModule.showMTChat) return super.handleComponentClicked(style);
+        if(ChatModule.clientChatTarget == ClientChatTarget.DEFAULT) return super.handleComponentClicked(style);
         //If the Style is null there is nothing to be done
         if(style == null) return false;
         //If the click event is null there is nothing to be done

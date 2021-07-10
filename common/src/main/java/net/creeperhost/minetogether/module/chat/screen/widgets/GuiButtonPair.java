@@ -11,6 +11,7 @@ public class GuiButtonPair extends Button
 {
     GuiButtonChat button1;
     GuiButtonChat button2;
+    GuiButtonChat button3;
     
     ArrayList<GuiButtonChat> buttons = new ArrayList<>();
     
@@ -40,7 +41,11 @@ public class GuiButtonPair extends Button
         
         setButtonDetails();
     }
-    
+
+    public ArrayList<GuiButtonChat> getButtons() {
+        return buttons;
+    }
+
     private void setButtonDetails()
     {
         int buttWidth = width / buttons.size();

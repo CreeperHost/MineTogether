@@ -18,9 +18,11 @@ import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogether.module.chat.ClientChatTarget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -43,7 +45,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class ChatModule
 {
-    public static boolean showMTChat = false;
+    public static ClientChatTarget clientChatTarget = ClientChatTarget.DEFAULT;
     public static boolean hasNewMessage = true;
     public static ArrayList<String> mutedUsers = new ArrayList<>();
     public static Path mutedUsersPath = Platform.getGameFolder().resolve("local/minetogether/mutedusers.json");
@@ -95,10 +97,24 @@ public class ChatModule
         }
     }
 
-    public static void sendMessage(Component component)
+    public static void sendMessage(String channel, Component component)
     {
-        if(ChatModule.showMTChat)
+        if(ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
+        {
+            ClientChatTarget current = ChatModule.clientChatTarget;
+            if(channel.equals(ChatHandler.CHANNEL))
+            {
+                ChatModule.clientChatTarget = ClientChatTarget.MINETOGETHER;
+            }
+            if(ChatHandler.hasParty && channel.equals(ChatHandler.currentParty))
+            {
+                ChatModule.clientChatTarget = ClientChatTarget.PARTY;
+            }
             ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
+
+            //Reset
+            ChatModule.clientChatTarget = current;
+        }
     }
 
     public static void muteUser(String user)

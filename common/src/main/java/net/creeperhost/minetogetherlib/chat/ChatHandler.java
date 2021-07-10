@@ -73,7 +73,7 @@ public class ChatHandler
         Message messagePair = new Message(System.currentTimeMillis(), user, message);
         tempQueue.add(messagePair);
 
-        if(iChatListener != null) iChatListener.sendMessage(messagePair);
+        if(iChatListener != null) iChatListener.sendMessage(target, messagePair);
 
         newMessages.put(target, Boolean.TRUE);
     }

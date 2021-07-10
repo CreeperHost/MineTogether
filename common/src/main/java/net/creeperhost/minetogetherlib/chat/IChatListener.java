@@ -13,7 +13,7 @@ public interface IChatListener
 
     String onServerIdRequest();
 
-    void sendMessage(Message message);
+    void sendMessage(String channel, Message message);
 
     void setHasNewMessage(boolean value);
 }

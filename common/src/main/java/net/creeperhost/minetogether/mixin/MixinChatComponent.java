@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
+import net.creeperhost.minetogether.module.chat.ClientChatTarget;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Message;
@@ -47,12 +48,15 @@ public abstract class MixinChatComponent
     private final List<GuiMessage<FormattedCharSequence>> mtChatMessages = new ArrayList<>();
     private final List<GuiMessage<Component>> mtAllMessages = new ArrayList<>();
 
+    private final List<GuiMessage<FormattedCharSequence>> partyChatMessages = new ArrayList<>();
+    private final List<GuiMessage<Component>> partyAllMessages = new ArrayList<>();
+
     @Inject(at=@At("RETURN"), method="processPendingMessages", cancellable = true)
     public void getProcessPendingMessages(CallbackInfo ci)
     {
         if(!Config.getInstance().isChatEnabled()) return;
 
-        if(ChatModule.showMTChat && ChatModule.hasNewMessage)
+        if(ChatModule.clientChatTarget != ClientChatTarget.DEFAULT && ChatModule.hasNewMessage)
         {
             ChatModule.hasNewMessage = false;
             updateList();
@@ -72,7 +76,7 @@ public abstract class MixinChatComponent
             int k = MathHelper.ceil((float) minecraft.gui.getChat().getWidth() / (float) minecraft.options.chatScale);
             int z = MathHelper.ceil((float) minecraft.gui.getChat().getHeight() / (float) minecraft.options.chatScale);
 
-            if(ChatModule.showMTChat) ScreenHelpers.drawLogo(poseStack, minecraft.font, k + 6, z + 6, -2, minecraft.gui.getChat().getHeight() - 340, 0.75F);
+            if(ChatModule.clientChatTarget != ClientChatTarget.DEFAULT) ScreenHelpers.drawLogo(poseStack, minecraft.font, k + 6, z + 6, -2, minecraft.gui.getChat().getHeight() - 340, 0.75F);
         }
     }
 
@@ -81,7 +85,17 @@ public abstract class MixinChatComponent
     {
         if(!Config.getInstance().isChatEnabled()) return trimmedMessages;
 
-        return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
+        switch (ChatModule.clientChatTarget)
+        {
+            case DEFAULT:
+                return trimmedMessages;
+            case PARTY:
+                return partyChatMessages;
+            case MINETOGETHER:
+                return mtChatMessages;
+        }
+
+        return trimmedMessages;
     }
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;fill(Lcom/mojang/blaze3d/vertex/PoseStack;IIIII)V"))
@@ -100,7 +114,17 @@ public abstract class MixinChatComponent
     {
         if(!Config.getInstance().isChatEnabled()) return trimmedMessages;
 
-        return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
+        switch (ChatModule.clientChatTarget)
+        {
+            case DEFAULT:
+                return trimmedMessages;
+            case PARTY:
+                return partyChatMessages;
+            case MINETOGETHER:
+                return mtChatMessages;
+        }
+
+        return trimmedMessages;
     }
 
     @Redirect(method = "addMessage(Lnet/minecraft/network/chat/Component;IIZ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;allMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
@@ -108,7 +132,17 @@ public abstract class MixinChatComponent
     {
         if(!Config.getInstance().isChatEnabled()) return allMessages;
 
-        return ChatModule.showMTChat ? mtAllMessages : allMessages;
+        switch (ChatModule.clientChatTarget)
+        {
+            case DEFAULT:
+                return allMessages;
+            case MINETOGETHER:
+                return mtAllMessages;
+            case PARTY:
+                return partyAllMessages;
+        }
+
+        return allMessages;
     }
 
     @Redirect(method = "scrollChat(D)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
@@ -116,7 +150,17 @@ public abstract class MixinChatComponent
     {
         if(!Config.getInstance().isChatEnabled()) return trimmedMessages;
 
-        return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
+        switch (ChatModule.clientChatTarget)
+        {
+            case DEFAULT:
+                return trimmedMessages;
+            case PARTY:
+                return partyChatMessages;
+            case MINETOGETHER:
+                return mtChatMessages;
+        }
+
+        return trimmedMessages;
     }
 
     @Redirect(method = "getClickedComponentStyleAt", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
@@ -124,14 +168,26 @@ public abstract class MixinChatComponent
     {
         if(!Config.getInstance().isChatEnabled()) return trimmedMessages;
 
-        return ChatModule.showMTChat ? mtChatMessages : trimmedMessages;
+        switch (ChatModule.clientChatTarget)
+        {
+            case DEFAULT:
+                return trimmedMessages;
+            case PARTY:
+                return partyChatMessages;
+            case MINETOGETHER:
+                return mtChatMessages;
+        }
+
+        return trimmedMessages;
     }
 
     public void updateList()
     {
+        String channel = ChatHandler.CHANNEL;
+        if(ChatModule.clientChatTarget == ClientChatTarget.PARTY) channel = ChatHandler.currentParty;
         try
         {
-            LimitedSizeQueue<Message> temp = ChatHandler.messages.get(ChatHandler.CHANNEL);
+            LimitedSizeQueue<Message> temp = ChatHandler.messages.get(channel);
             for (Message message : temp)
             {
                 Component component = ChatFormatter.formatLine(message);

@@ -52,9 +52,9 @@ public class ChatListener implements IChatListener
     }
 
     @Override
-    public void sendMessage(Message message)
+    public void sendMessage(String channel, Message message)
     {
-        ChatModule.sendMessage(ChatFormatter.formatLine(message));
+        ChatModule.sendMessage(channel, ChatFormatter.formatLine(message));
     }
 
     @Override
