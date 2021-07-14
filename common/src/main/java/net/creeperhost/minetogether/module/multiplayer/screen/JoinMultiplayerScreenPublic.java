@@ -117,16 +117,16 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
 
         editButton = ScreenHelpers.findButton("selectServer.edit", buttons);
         deleteButton = ScreenHelpers.findButton("selectServer.delete", buttons);
-        cancelButton = ScreenHelpers.removeButton("selectServer.cancel", buttons);
+        cancelButton = ScreenHelpers.removeButton("gui.cancel", buttons);
         if(cancelButton != null)
         {
             addButton(new Button(cancelButton.x, cancelButton.y, cancelButton.getWidth(), cancelButton.getHeight(), cancelButton.getMessage(),
-                    button -> minecraft.setScreen(new TitleScreen())));
+                    button -> minecraft.setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
         }
 
         ScreenHelpers.findButton("selectServer.add", buttons).active = false;
 
-        addButton(new ButtonMultiple(width / 2 + 134, height - 52, 2, Constants.WIDGETS_LOCATION,
+        addButton(new Button(width / 2 + 80, height - 52, 75, 20, new TranslatableComponent("selectServer.refresh"),
                 p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(new TitleScreen(), serverListType, sortOrder))));
     }
 
