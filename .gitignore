@@ -20,3 +20,7 @@ classes/
 forge_client.launch
 forge_server.launch
 logs/latest.log
+
+common/src/main/java/net/creeperhost/minetogether/Test.java
+
+logs/

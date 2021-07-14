@@ -204,30 +204,29 @@ public class PublicServerEntry extends ServerSelectionList.Entry
             }
         }
         //Our server data
-        Server server = getServerData().server;
-        EnumFlag flag = server.flag;
-        String applicationURL = server.applicationURL;
-        if (flag != null)
-        {
-            Minecraft.getInstance().getTextureManager().bind(flags);
-            int flagWidth = 16;
-            int flagHeight = flag.height / (flag.width / flagWidth);
-            ScreenHelpers.drawScaledCustomSizeModalRect(k + l - 5 - flagWidth, j + 30 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
+        if(getServerData() != null) {
+            Server server = getServerData().server;
+            EnumFlag flag = server.flag;
+            String applicationURL = server.applicationURL;
+            if (flag != null) {
+                Minecraft.getInstance().getTextureManager().bind(flags);
+                int flagWidth = 16;
+                int flagHeight = flag.height / (flag.width / flagWidth);
+                ScreenHelpers.drawScaledCustomSizeModalRect(k + l - 5 - flagWidth, j + 30 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
 
-            if (n >= k + l - 5 - flagWidth
-                    && n <= k + l - 5
-                    && o >= j - 10 - flagHeight
-                    && o <= j - flagHeight + flagHeight)
-            {
-                List<Component> tooltipList = new ArrayList<>();
+                if (n >= k + l - 5 - flagWidth
+                        && n <= k + l - 5
+                        && o >= j - 10 - flagHeight
+                        && o <= j - flagHeight + flagHeight) {
+                    List<Component> tooltipList = new ArrayList<>();
 
-                String countryName = ServerOrderCallbacks.getCountries().get(flag.name());
-                if (countryName == null)
-                {
-                    countryName = flag.name();
+                    String countryName = ServerOrderCallbacks.getCountries().get(flag.name());
+                    if (countryName == null) {
+                        countryName = flag.name();
+                    }
+                    tooltipList.add(new TranslatableComponent(countryName));
+                    joinMultiplayerScreen.setToolTip(tooltipList);
                 }
-                tooltipList.add(new TranslatableComponent(countryName));
-                joinMultiplayerScreen.setToolTip(tooltipList);
             }
         }
     }
@@ -282,7 +281,8 @@ public class PublicServerEntry extends ServerSelectionList.Entry
 
     public ServerDataPublic getServerData()
     {
-        return (ServerDataPublic) serverData;
+        if(serverData instanceof ServerDataPublic) return (ServerDataPublic) serverData;
+        return null;
     }
 
     @Override

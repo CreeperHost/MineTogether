@@ -105,13 +105,13 @@ public class ChatModule
             if(channel.equals(ChatHandler.CHANNEL))
             {
                 ChatModule.clientChatTarget = ClientChatTarget.MINETOGETHER;
+                ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
             }
             if(ChatHandler.hasParty && channel.equals(ChatHandler.currentParty))
             {
                 ChatModule.clientChatTarget = ClientChatTarget.PARTY;
+                ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
             }
-            ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
-
             //Reset
             ChatModule.clientChatTarget = current;
         }
