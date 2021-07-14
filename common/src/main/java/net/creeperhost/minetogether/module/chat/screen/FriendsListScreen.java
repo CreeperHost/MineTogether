@@ -23,6 +23,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.lwjgl.glfw.GLFW;
 
@@ -60,14 +61,16 @@ public class FriendsListScreen extends MineTogetherScreen
         CompletableFuture.runAsync(FriendUpdateThread::updateFriendsList);
 
         list = new ScreenList(this, minecraft, 100, height - 90, 32, this.height - 55, 28, 100);
-        chat = new ScrollingChat(this, width - list.getRowWidth() - 22, this.height - 90, 32, this.height - 55, 110, true);
+        list.setLeftPos(18);
+
+        chat = new ScrollingChat(this, width - list.getRowWidth() - 40, this.height - 90, 32, this.height - 55, 110, true);
         chat.setLeftPos(list.getRowRight());
 
         chatBox = new EditBox(this.font, list.getRowRight() + 1, this.height -50, chat.getWidth() - 2, 20, new TranslatableComponent(""));
         chatBox.setMaxLength(256);
 
-        searchEntry = new EditBox(this.font, 1, this.height -50, list.width - 2, 20, new TranslatableComponent(""));
-        searchEntry.setSuggestion("Search");
+        searchEntry = new EditBox(this.font, 19, this.height -50, list.width - 2, 20, new TranslatableComponent(""));
+        searchEntry.setSuggestion(I18n.get("minetogether.search"));
 
         addButtons();
         children.add(list);

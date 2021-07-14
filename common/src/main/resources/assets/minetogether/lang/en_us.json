@@ -165,5 +165,6 @@
   "minetogether.friendslist.copytoclipboard": "Copy to clipboard",
   "minetogether.settingscreen.button.linkaccount": "Link Account",
   "minetogether.connect.scan":"Scanning MineTogether Connect and LAN for available worlds",
-  "minetogether.connect.scan.offline":"Scanning LAN for available worlds"
+  "minetogether.connect.scan.offline":"Scanning LAN for available worlds",
+  "minetogether.search":"Search"
 }

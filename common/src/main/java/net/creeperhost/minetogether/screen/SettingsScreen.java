@@ -16,6 +16,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 public class SettingsScreen extends MineTogetherScreen
 {
     private final Screen parent;
+    private Button linkButton;
 
     public SettingsScreen(Screen parent)
     {
@@ -58,7 +59,7 @@ public class SettingsScreen extends MineTogetherScreen
             Config.getInstance().setEnableMainMenuFriends(!enabled);
             saveConfig();
         }));
-        addButton(new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("minetogether.settingscreen.button.linkaccount")), p ->
+        addButton(linkButton = new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("minetogether.settingscreen.button.linkaccount")), p ->
         {
             minecraft.setScreen(new ConfirmScreen(e -> {
                 if (e) {
@@ -71,6 +72,13 @@ public class SettingsScreen extends MineTogetherScreen
         //Done button
         this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")),
                 p -> this.minecraft.setScreen(parent)));
+    }
+
+    @Override
+    public void tick()
+    {
+        linkButton.active = Config.getInstance().getFirstConnect();
+        super.tick();
     }
 
     @Override
