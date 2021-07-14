@@ -15,6 +15,15 @@ public abstract class OrderServerScreen extends Screen
     protected Button buttonPrev;
     protected Button buttonNext;
     protected Button buttonCancel;
+    private Screen parent;
+
+    public OrderServerScreen(int stepId, Screen parent, Order order)
+    {
+        super(new TranslatableComponent("minetogether.screen.orderscreen"));
+        this.stepId = stepId;
+        this.order = order;
+        this.parent = parent;
+    }
 
     public OrderServerScreen(int stepId, Order order)
     {
@@ -34,7 +43,7 @@ public abstract class OrderServerScreen extends Screen
     public void addNavigationButtons()
     {
         addButton(this.buttonPrev = new Button(10, this.height - 30, 80, 20,
-                new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order))));
+                new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
 
         addButton(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20,
                 new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
@@ -43,10 +52,10 @@ public abstract class OrderServerScreen extends Screen
         {
             if ((this.stepId + 1) == STEP_AMOUNT)
             {
-                this.minecraft.setScreen(new TitleScreen());
+                this.minecraft.setScreen(parent);
             } else
             {
-                this.minecraft.setScreen(getByStep(this.stepId + 1, this.order));
+                this.minecraft.setScreen(getByStep(this.stepId + 1, this.order, parent));
             }
         }));
 
@@ -62,13 +71,13 @@ public abstract class OrderServerScreen extends Screen
     }
 
     @SuppressWarnings("Duplicates")
-    public static Screen getByStep(int step, Order order)
+    public static Screen getByStep(int step, Order order, Screen parent)
     {
         switch (step)
         {
             case 0:
             default:
-                return new GeneralServerInfoScreen(0, order);
+                return new GeneralServerInfoScreen(0, order, parent);
             case 1:
                 return new MapScreen(1, order);
             case 2:

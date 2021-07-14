@@ -13,5 +13,5 @@ public interface KubeJSUIIntegration
 {
     Consumer<Screen> CHAT = screen -> Minecraft.getInstance().setScreen(new ChatScreen(screen));
     Consumer<Screen> FRIENDS_LIST = screen -> Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
-    Consumer<Screen> ORDER = screen -> Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order()));
+    Consumer<Screen> ORDER = screen -> Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), screen));
 }

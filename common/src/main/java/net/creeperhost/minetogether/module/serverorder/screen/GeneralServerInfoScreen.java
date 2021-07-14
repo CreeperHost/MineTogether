@@ -9,6 +9,7 @@ import net.creeperhost.minetogetherlib.serverorder.AvailableResult;
 import net.creeperhost.minetogetherlib.serverorder.ServerOrderCallbacks;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -25,10 +26,12 @@ public class GeneralServerInfoScreen extends OrderServerScreen
     private boolean isAcceptable = false;
     private boolean nameChecked = false;
     private long lastKeyTyped;
+    private Screen parent;
 
-    public GeneralServerInfoScreen(int stepId, Order order)
+    public GeneralServerInfoScreen(int stepId, Order order, Screen parent)
     {
         super(stepId, order);
+        this.parent = parent;
     }
 
     @Override

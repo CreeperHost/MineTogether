@@ -27,7 +27,7 @@ public class ServerOrderModule
                 if (relms != null)
                 {
                     ScreenHooks.addButton(screen, new Button(relms.x, relms.y, relms.getWidth(), relms.getHeight(), new TranslatableComponent("minetogether.button.getserver"), p ->
-                            Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order()))));
+                            Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), screen))));
                 }
             }
         }

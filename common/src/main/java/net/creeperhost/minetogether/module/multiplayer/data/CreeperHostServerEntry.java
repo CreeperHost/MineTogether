@@ -80,7 +80,7 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             this.mc.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
             return true;
         }
-        Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order()));
+        Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), new JoinMultiplayerScreen(new TitleScreen())));
         return true;
     }
 }

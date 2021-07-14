@@ -287,7 +287,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
 
         if(loggedIn)
         {
-            this.minecraft.setScreen(getByStep(this.stepId + 1, this.order));
+            this.minecraft.setScreen(getByStep(this.stepId + 1, this.order, null));
         }
 
         for (TextFieldDetails field : this.fields)
