@@ -187,6 +187,7 @@ public class ChatScreen extends MineTogetherScreen
                 minecraft.setScreen(parent);
             }));
         }
+        IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
     }
 
     @Override
