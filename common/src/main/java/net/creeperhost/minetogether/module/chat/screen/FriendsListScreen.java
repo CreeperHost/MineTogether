@@ -125,6 +125,10 @@ public class FriendsListScreen extends MineTogetherScreen
         {
             refreshFriendsList();
         }
+        if(targetProfile != null)
+        {
+            partyButton.active = targetProfile.isOnline();
+        }
         if(list.getCurrSelected() != null && targetProfile != null && !targetProfile.equals(list.getCurrSelected().getProfile()))
         {
             targetProfile = list.getCurrSelected().getProfile();
@@ -148,7 +152,7 @@ public class FriendsListScreen extends MineTogetherScreen
     {
         removeFriend.active = value;
         blockButton.active = value;
-        partyButton.active = value;
+        if(targetProfile == null) partyButton.active = value;
     }
 
     public static ArrayList<Profile> removedFriends = new ArrayList<>();
