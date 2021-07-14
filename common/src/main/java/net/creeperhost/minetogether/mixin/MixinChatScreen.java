@@ -116,7 +116,7 @@ public abstract class MixinChatScreen extends Screen
             if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mute")))
             {
                 ChatModule.muteUser(KnownUsers.findByDisplay(currentDropdown).getLongHash());
-                ChatHandler.addStatusMessage("Locally muted " + currentDropdown);
+                ChatHandler.addStatusMessage("Locally blocked " + currentDropdown);
             }
             else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.addfriend")))
             {
