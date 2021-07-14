@@ -68,7 +68,14 @@ public abstract class MixinChatScreen extends Screen
     {
         if(!Config.getInstance().isChatEnabled()) return;
 
-        if(initial.equalsIgnoreCase("/")) ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
+        if(initial.equalsIgnoreCase("/"))
+        {
+            if(ChatModule.clientChatTarget != ClientChatTarget.DEFAULT) ChatModule.lastSelected = ChatModule.clientChatTarget;
+            ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
+        } else if (ChatModule.lastSelected != ClientChatTarget.DEFAULT)
+        {
+            ChatModule.clientChatTarget = ChatModule.lastSelected;
+        }
 
         int x = MathHelper.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;
 

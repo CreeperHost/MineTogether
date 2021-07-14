@@ -46,6 +46,7 @@ import java.util.concurrent.CompletableFuture;
 public class ChatModule
 {
     public static ClientChatTarget clientChatTarget = ClientChatTarget.DEFAULT;
+    public static ClientChatTarget lastSelected = ClientChatTarget.DEFAULT;
     public static boolean hasNewMessage = true;
     public static ArrayList<String> mutedUsers = new ArrayList<>();
     public static Path mutedUsersPath = Platform.getGameFolder().resolve("local/minetogether/mutedusers.json");
