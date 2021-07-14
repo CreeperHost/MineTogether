@@ -166,5 +166,6 @@
   "minetogether.settingscreen.button.linkaccount": "Link Account",
   "minetogether.connect.scan":"Scanning MineTogether Connect and LAN for available worlds",
   "minetogether.connect.scan.offline":"Scanning LAN for available worlds",
-  "minetogether.search":"Search"
+  "minetogether.search":"Search",
+  "minetogether.connect.friendentry.title":"MineTogether Friend Server"
 }

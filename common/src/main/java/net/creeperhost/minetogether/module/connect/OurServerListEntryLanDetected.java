@@ -19,8 +19,8 @@ public class OurServerListEntryLanDetected extends ServerSelectionList.NetworkSe
     @Override
     public void render(PoseStack poseStack, int x, int y, int listWidth, int l, int m, int n, int o, boolean bl, float f)
     {
-        this.minecraft.font.draw(poseStack, I18n.get("minetogether.connect.friendentry.title"), x + 32 + 3, y + 1, 16777215);
-        this.minecraft.font.draw(poseStack, serverData.getFriend().getChosenName(), x + 32 + 3, y + 12, 8421504);
-        this.minecraft.font.draw(poseStack, ChatFormatting.DARK_GRAY + serverData.getFriend().getDisplayName(), x + listWidth - this.minecraft.font.width(serverData.getFriend().getDisplayName()) - 20, y + 12, 16777215);
+        this.minecraft.font.draw(poseStack, I18n.get("minetogether.connect.friendentry.title"), listWidth + 32 + 3, y + 1, 16777215);
+        this.minecraft.font.draw(poseStack, serverData.getFriend().getChosenName(), listWidth + 32 + 3, y + 12, 8421504);
+        this.minecraft.font.draw(poseStack, ChatFormatting.DARK_GRAY + serverData.getFriend().getDisplayName(), listWidth + l - this.minecraft.font.width(serverData.getFriend().getDisplayName()) - 20, y + 12, 16777215);
     }
 }
