@@ -44,23 +44,24 @@ public class ChatFormatter
                 String[] split = inputNick.split(":");
                 switch (split[0]) {
                     case "FR": { // new scope because Java is stupid
-                        if (split.length < 2)
-                            return null;
+                        if (split.length < 2) return null;
+
                         String nick = split[1];
-                        String nickDisplay = ChatHandler.getNameForUser(nick);
+                        Profile profile = KnownUsers.findByNick(nick);
+                        if(profile == null) profile = KnownUsers.add(nick);
+
+                        String nickDisplay = profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
 
                         String cmdStr = message.messageStr;
                         String[] cmdSplit = cmdStr.split(" ");
 
-                        if (cmdSplit.length < 2)
-                            return null;
+                        if (cmdSplit.length < 2) return null;
 
                         String friendCode = cmdSplit[0];
 
                         StringBuilder nameBuilder = new StringBuilder();
 
-                        for (int i = 1; i < cmdSplit.length; i++)
-                            nameBuilder.append(cmdSplit[i]);
+                        for (int i = 1; i < cmdSplit.length; i++) nameBuilder.append(cmdSplit[i]);
 
                         String friendName = nameBuilder.toString();
 
@@ -73,12 +74,11 @@ public class ChatFormatter
                         return userComp;
                     }
                     case "FA":
-                        if (split.length < 2)
-                            return null;
+                        if (split.length < 2) return null;
                         String nick = split[1];
-                        String nickDisplay = ChatHandler.getNameForUser(nick);
-
-                        String friendName = message.messageStr;
+                        Profile profile = KnownUsers.findByNick(nick);
+                        if(profile == null) profile = KnownUsers.add(nick);
+                        String nickDisplay =  profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
 
                         Component userComp = new TranslatableComponent(" (" + nickDisplay + ") accepted your friend request.");
 

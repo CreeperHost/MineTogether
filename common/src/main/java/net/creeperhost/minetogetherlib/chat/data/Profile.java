@@ -295,4 +295,8 @@ public class Profile
         isLoadingProfile = false;
         return false;
     }
+
+    public long getProfileAge() {
+        return profileAge;
+    }
 }

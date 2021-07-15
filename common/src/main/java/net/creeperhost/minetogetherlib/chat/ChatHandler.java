@@ -5,6 +5,7 @@ import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.chat.irc.IRCServer;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
+import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -223,7 +224,6 @@ public class ChatHandler
     public static void onCTCP(String user, String message)
     {
         CompletableFuture.runAsync(() -> {
-//                MineTogether.instance.getLogger().error(user + " " + message);
             String[] split = message.split(" ");
             if (split.length < 1)
                 return;
