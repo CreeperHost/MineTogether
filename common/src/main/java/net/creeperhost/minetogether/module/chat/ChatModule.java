@@ -22,7 +22,6 @@ import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
-import net.creeperhost.minetogether.module.chat.ClientChatTarget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -75,22 +74,20 @@ public class ChatModule
 
     public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
     {
-        Button friendsButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.friends"), p ->
-                Minecraft.getInstance().setScreen(new FriendsListScreen(screen)));
+        Button friendsButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.friends"), p -> Minecraft.getInstance().setScreen(new FriendsListScreen(screen)));
 
-        Button chatButton = new ButtonMultiple(screen.width - 125, 5, Config.getInstance().isChatEnabled() ? 1 : 3, Constants.WIDGETS_LOCATION, p ->
-                Minecraft.getInstance().setScreen(Config.getInstance().isChatEnabled() ? new ChatScreen(screen) : new SettingsScreen(screen)));
+        Button chatButton = new ButtonMultiple(screen.width - 125, 5, Config.getInstance().isChatEnabled() ? 1 : 3, Constants.WIDGETS_LOCATION, p -> Minecraft.getInstance().setScreen(Config.getInstance().isChatEnabled() ? new ChatScreen(screen) : new SettingsScreen(screen)));
 
         if (screen instanceof TitleScreen && Config.getInstance().isEnableMainMenuFriends())
         {
-            if(Config.instance.isMainMenuEnabled())
+            if (Config.instance.isMainMenuEnabled())
             {
                 ScreenHooks.addButton(screen, friendsButton);
                 ScreenHooks.addButton(screen, chatButton);
                 friendsButton.active = !Config.getInstance().getFirstConnect();
             }
         }
-        if(screen instanceof PauseScreen)
+        if (screen instanceof PauseScreen)
         {
             ScreenHooks.addButton(screen, friendsButton);
             ScreenHooks.addButton(screen, chatButton);
@@ -100,15 +97,15 @@ public class ChatModule
 
     public static void sendMessage(String channel, Component component)
     {
-        if(ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
+        if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
         {
             ClientChatTarget current = ChatModule.clientChatTarget;
-            if(channel.equals(ChatHandler.CHANNEL))
+            if (channel.equals(ChatHandler.CHANNEL))
             {
                 ChatModule.clientChatTarget = ClientChatTarget.MINETOGETHER;
                 ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
             }
-            if(ChatHandler.hasParty && channel.equals(ChatHandler.currentParty))
+            if (ChatHandler.hasParty && channel.equals(ChatHandler.currentParty))
             {
                 ChatModule.clientChatTarget = ClientChatTarget.PARTY;
                 ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
@@ -121,12 +118,13 @@ public class ChatModule
     public static void muteUser(String user)
     {
         //Don't add the user if they are already in the list
-        if(mutedUsers.contains(user)) return;
+        if (mutedUsers.contains(user)) return;
 
         mutedUsers.add(user);
-        CompletableFuture.runAsync(() -> {
+        CompletableFuture.runAsync(() ->
+        {
             Profile profile = KnownUsers.findByHash(user);
-            if(profile == null) profile = KnownUsers.add(user);
+            if (profile == null) profile = KnownUsers.add(user);
             profile.loadProfile();
             profile.setMuted(true);
             KnownUsers.update(profile);
@@ -135,9 +133,11 @@ public class ChatModule
         Gson gson = new Gson();
         try
         {
-            if(!mutedUsersPath.getParent().toFile().exists()) mutedUsersPath.getParent().toFile().mkdirs();
+            if (!mutedUsersPath.getParent().toFile().exists()) mutedUsersPath.getParent().toFile().mkdirs();
             FileUtils.writeStringToFile(mutedUsersPath.toFile(), gson.toJson(mutedUsers), Charset.defaultCharset());
-        } catch (IOException ignored) {}
+        } catch (IOException ignored)
+        {
+        }
     }
 
     public static void unmuteUser(String longhash)
@@ -145,20 +145,25 @@ public class ChatModule
         try
         {
             mutedUsers.remove(longhash);
-            CompletableFuture.runAsync(() -> {
+            CompletableFuture.runAsync(() ->
+            {
                 Profile profile = KnownUsers.findByHash(longhash);
-                if(profile == null) profile = KnownUsers.add(longhash);
+                if (profile == null) profile = KnownUsers.add(longhash);
                 profile.loadProfile();
                 profile.setMuted(false);
                 KnownUsers.update(profile);
             }, MineTogetherChat.profileExecutor);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored)
+        {
+        }
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         try
         {
-            if(!mutedUsersPath.getParent().toFile().exists()) mutedUsersPath.getParent().toFile().mkdirs();
+            if (!mutedUsersPath.getParent().toFile().exists()) mutedUsersPath.getParent().toFile().mkdirs();
             FileUtils.writeStringToFile(mutedUsersPath.toFile(), gson.toJson(mutedUsers), Charset.defaultCharset());
-        } catch (IOException ignored) {}
+        } catch (IOException ignored)
+        {
+        }
     }
 
     public static void loadMutedList()
@@ -168,11 +173,12 @@ public class ChatModule
         {
             FileReader fileReader = new FileReader(mutedUsersPath.toFile());
             mutedUsers = gson.fromJson(fileReader, ArrayList.class);
-            for(String s : mutedUsers)
+            for (String s : mutedUsers)
             {
-                CompletableFuture.runAsync(() -> {
+                CompletableFuture.runAsync(() ->
+                {
                     Profile profile = KnownUsers.findByHash(s);
-                    if(profile == null) profile = KnownUsers.add(s);
+                    if (profile == null) profile = KnownUsers.add(s);
                     profile.loadProfile();
                     profile.setMuted(true);
                     KnownUsers.update(profile);

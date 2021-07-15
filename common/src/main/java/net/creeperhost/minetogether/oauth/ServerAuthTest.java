@@ -14,7 +14,8 @@ import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ServerAuthTest {
+public class ServerAuthTest
+{
 
     private static final AtomicInteger CONNECTION_ID = new AtomicInteger(0);
 
@@ -23,7 +24,8 @@ public class ServerAuthTest {
     private static Connection networkManager = null;
     private static BiFunction<Boolean, String, Void> callback = null;
 
-    public static void auth(BiFunction<Boolean, String, Void> callbackIn) {
+    public static void auth(BiFunction<Boolean, String, Void> callbackIn)
+    {
         callback = callbackIn;
         Minecraft mc = Minecraft.getInstance();
         final String address = "mc.auth.minetogether.io";
@@ -48,7 +50,7 @@ public class ServerAuthTest {
                     networkManager.setListener(new NetHandlerLoginClientOurs(networkManager, mc));
                     networkManager.send(new ClientIntentionPacket(address, port, ConnectionProtocol.LOGIN));
                     networkManager.send(new ServerboundHelloPacket(mc.getUser().getGameProfile()));
-                }                catch (UnknownHostException unknownhostexception)
+                } catch (UnknownHostException unknownhostexception)
                 {
                     if (ServerAuthTest.cancel)
                     {
@@ -57,8 +59,7 @@ public class ServerAuthTest {
 
                     MineTogether.logger.error("Couldn't connect to server", unknownhostexception);
                     fireCallback(false, "Unknown Host");
-                }
-                catch (Exception exception)
+                } catch (Exception exception)
                 {
                     if (ServerAuthTest.cancel)
                     {
@@ -90,18 +91,23 @@ public class ServerAuthTest {
     static final String regex = "code: (\\w{5})";
     static final Pattern pattern = Pattern.compile(regex);
 
-    public static void disconnected(String reason) {
+    public static void disconnected(String reason)
+    {
         final Matcher matcher = pattern.matcher(reason);
-        if (matcher.find()) {
+        if (matcher.find())
+        {
             String code = matcher.group(1);
             fireCallback(true, code);
-        } else {
+        }
+        else
+        {
             fireCallback(false, reason);
         }
         networkManager = null;
     }
 
-    public static void fireCallback(boolean status, String message) {
+    public static void fireCallback(boolean status, String message)
+    {
         if (callback == null) return;
         callback.apply(status, message);
         callback = null;

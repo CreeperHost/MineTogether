@@ -11,40 +11,49 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-public class ConnectHelper {
+public class ConnectHelper
+{
 
     public static boolean isEnabled = false;
 
-    public static boolean isShared() {
+    public static boolean isShared()
+    {
         IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
         return isShared(integratedServer);
     }
 
-    public static boolean isShared(IntegratedServer integratedServer) {
-        if(integratedServer == null) {
+    public static boolean isShared(IntegratedServer integratedServer)
+    {
+        if (integratedServer == null)
+        {
             return false;
         }
         return integratedServer.getPort() == 42069 && integratedServer.isPublished();
     }
 
-    public static void shareToFriends(GameType type, boolean allowCheats) {
-        CompletableFuture.runAsync(() -> {
+    public static void shareToFriends(GameType type, boolean allowCheats)
+    {
+        CompletableFuture.runAsync(() ->
+        {
             net.creeperhost.minetogether.module.connect.ConnectHandler.Response response = net.creeperhost.minetogether.module.connect.ConnectHandler.openBlocking();
-            if (response.isSuccess()) {
+            if (response.isSuccess())
+            {
                 IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
-                Objects.requireNonNull(integratedServer).submit(() -> {
+                Objects.requireNonNull(integratedServer).submit(() ->
+                {
                     try
                     {
                         int port = 42069;
                         System.setProperty("java.net.preferIPv4Stack", "false"); // no tears, not only ipv4
                         integratedServer.getConnection().startTcpServerListener(null, port); // make localhost only
-                        ((MixinIntegratedServer)integratedServer).setPublishedPort(port);
+                        ((MixinIntegratedServer) integratedServer).setPublishedPort(port);
                         integratedServer.setPort(port);
                         integratedServer.getPlayerList().setOverrideGameMode(type);
                         integratedServer.getPlayerList().setAllowCheatsForAllPlayers(allowCheats);
                         int i = integratedServer.getProfilePermissions(Minecraft.getInstance().player.getGameProfile());
                         Minecraft.getInstance().player.setPermissionLevel(i);
-                        for (ServerPlayer serverplayerentity : integratedServer.getPlayerList().getPlayers()) {
+                        for (ServerPlayer serverplayerentity : integratedServer.getPlayerList().getPlayers())
+                        {
                             integratedServer.getCommands().sendCommands(serverplayerentity);
                         }
 
@@ -54,14 +63,15 @@ public class ConnectHelper {
                         Minecraft.getInstance().updateTitle();
 
                         Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
-                    }
-                    catch (IOException var6)
+                    } catch (IOException var6)
                     {
                         TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed");
                         Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
                     }
                 });
-            } else {
+            }
+            else
+            {
                 TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed");
                 Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
             }

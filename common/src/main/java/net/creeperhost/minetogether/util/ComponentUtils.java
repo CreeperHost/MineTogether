@@ -15,8 +15,7 @@ public class ComponentUtils
     static final Pattern URL_PATTERN = Pattern.compile(
             //         schema                          ipv4            OR        namespace                 port     path         ends
             //   |-----------------|        |-------------------------|  |-------------------------|    |---------| |--|   |---------------|
-            "((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))",
-            Pattern.CASE_INSENSITIVE);
+            "((?:[a-z0-9]{2,}:\\/\\/)?(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[-\\w_]{1,}\\.[a-z]{2,}?))(?::[0-9]{1,5})?.*?(?=[!\"\u00A7 \n]|$))", Pattern.CASE_INSENSITIVE);
 
     //Copied from forge
     public static Component newChatWithLinks(String string, boolean allowMissingHeader)
@@ -38,10 +37,8 @@ public class ComponentUtils
             String part = string.substring(lastEnd, start);
             if (part.length() > 0)
             {
-                if (ichat == null)
-                    ichat = new TranslatableComponent(part);
-                else
-                    ichat.append(part);
+                if (ichat == null) ichat = new TranslatableComponent(part);
+                else ichat.append(part);
             }
             lastEnd = end;
             String url = string.substring(start, end);
@@ -54,16 +51,13 @@ public class ComponentUtils
                 {
                     if (!allowMissingHeader)
                     {
-                        if (ichat == null)
-                            ichat = new TranslatableComponent(url);
-                        else
-                            ichat.append(url);
+                        if (ichat == null) ichat = new TranslatableComponent(url);
+                        else ichat.append(url);
                         continue;
                     }
                     url = "http://" + url;
                 }
-            }
-            catch (URISyntaxException e)
+            } catch (URISyntaxException e)
             {
                 // Bad syntax bail out!
                 if (ichat == null) ichat = new TranslatableComponent(url);
@@ -75,17 +69,14 @@ public class ComponentUtils
             ClickEvent click = new ClickEvent(ClickEvent.Action.OPEN_URL, url);
             HoverEvent hoverEvent = new HoverEvent(ComponentUtils.RENDER_GIF, new TranslatableComponent(url));
             link.setStyle(link.getStyle().withClickEvent(click).withHoverEvent(hoverEvent).withUnderlined(true).withColor(TextColor.fromLegacyFormat(ChatFormatting.BLUE)));
-            if (ichat == null)
-                ichat = new TranslatableComponent("");
+            if (ichat == null) ichat = new TranslatableComponent("");
             ichat.append(link);
         }
 
         // Append the rest of the message.
         String end = string.substring(lastEnd);
-        if (ichat == null)
-            ichat = new TranslatableComponent(end);
-        else if (end.length() > 0)
-            ichat.append(new TranslatableComponent(string.substring(lastEnd)));
+        if (ichat == null) ichat = new TranslatableComponent(end);
+        else if (end.length() > 0) ichat.append(new TranslatableComponent(string.substring(lastEnd)));
         return ichat;
     }
 }

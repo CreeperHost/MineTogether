@@ -81,7 +81,7 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
     @Override
     public boolean charTyped(char c, int i)
     {
-        if(chatBox.isFocused())
+        if (chatBox.isFocused())
         {
             return chatBox.charTyped(c, i);
         }
@@ -91,7 +91,7 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
     @Override
     public boolean keyPressed(int i, int j, int k)
     {
-        if(chatBox.isFocused())
+        if (chatBox.isFocused())
         {
             if ((i == GLFW.GLFW_KEY_ENTER || i == GLFW.GLFW_KEY_KP_ENTER) && !chatBox.getValue().trim().isEmpty())
             {
@@ -111,7 +111,7 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
         blit(poseStack, i, 64, 1, 1, 236, 8);
         int j = backgroundUnits();
 
-        for(int k = 0; k < j; ++k)
+        for (int k = 0; k < j; ++k)
         {
             blit(poseStack, i, 72 + 16 * k, 1, 10, 236, 16);
         }

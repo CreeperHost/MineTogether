@@ -9,7 +9,9 @@ public class ServerNameComparator implements Comparator<ServerSelectionList.Entr
 {
     public static final ServerNameComparator INSTANCE = new ServerNameComparator();
 
-    private ServerNameComparator() {}
+    private ServerNameComparator()
+    {
+    }
 
     @Override
     public int compare(ServerSelectionList.Entry o1, ServerSelectionList.Entry o2)

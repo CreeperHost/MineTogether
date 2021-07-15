@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogetherlib.Order;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.TranslatableComponent;
 
 public abstract class OrderServerScreen extends Screen
@@ -42,18 +41,17 @@ public abstract class OrderServerScreen extends Screen
 
     public void addNavigationButtons()
     {
-        addButton(this.buttonPrev = new Button(10, this.height - 30, 80, 20,
-                new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
+        addButton(this.buttonPrev = new Button(10, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
 
-        addButton(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20,
-                new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
+        addButton(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
 
         addButton(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.next"), (button) ->
         {
             if ((this.stepId + 1) == STEP_AMOUNT)
             {
                 this.minecraft.setScreen(parent);
-            } else
+            }
+            else
             {
                 this.minecraft.setScreen(getByStep(this.stepId + 1, this.order, parent));
             }

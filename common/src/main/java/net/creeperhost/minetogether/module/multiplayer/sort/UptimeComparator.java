@@ -19,8 +19,6 @@ public class UptimeComparator implements Comparator<ServerSelectionList.Entry>
         PublicServerEntry p1 = (PublicServerEntry) o1;
         PublicServerEntry p2 = (PublicServerEntry) o2;
 
-        return p1.getServerData().server.uptime > p2.getServerData().server.uptime ? -1
-                : p1.getServerData().server.uptime < p2.getServerData().server.uptime ? 1
-                : 0;
+        return p1.getServerData().server.uptime > p2.getServerData().server.uptime ? -1 : p1.getServerData().server.uptime < p2.getServerData().server.uptime ? 1 : 0;
     }
 }

@@ -44,7 +44,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
         this.profile = profile;
         this.mineTogetherSocialinteractionsScreen = mineTogetherSocialinteractionsScreen;
 
-        removeButton = new ButtonString(0, 0, 10, 10, new TranslatableComponent(ChatFormatting.RED + new String(Character.toChars(10006))),button ->
+        removeButton = new ButtonString(0, 0, 10, 10, new TranslatableComponent(ChatFormatting.RED + new String(Character.toChars(10006))), button ->
         {
             switch (this.mineTogetherSocialinteractionsScreen.getPage())
             {
@@ -66,14 +66,14 @@ public class ProfileEntry extends Entry<ProfileEntry>
             }
         });
 
-        addToPartyButton = new ButtonString(0, 0, 10, 10, new TranslatableComponent(ChatFormatting.GREEN + new String(Character.toChars(10010))),button ->
+        addToPartyButton = new ButtonString(0, 0, 10, 10, new TranslatableComponent(ChatFormatting.GREEN + new String(Character.toChars(10010))), button ->
         {
             switch (this.mineTogetherSocialinteractionsScreen.getPage())
             {
                 case FRIENDS:
                     String name = profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
 
-                    if(profile.isOnline())
+                    if (profile.isOnline())
                     {
                         MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Adding " + name + " to Party"), mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
                         ChatHandler.sendPartyInvite(profile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
@@ -95,9 +95,9 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
         this.openDMButton = new ImageButton(0, 0, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
         {
-            if(profile != null)
+            if (profile != null)
             {
-                if(profile.isOnline())
+                if (profile.isOnline())
                 {
                     Minecraft.getInstance().setScreen(new MineTogetherSocialChatScreen(mineTogetherSocialinteractionsScreen, profile));
                 }
@@ -125,18 +125,21 @@ public class ProfileEntry extends Entry<ProfileEntry>
         Component component = new TranslatableComponent(profile.getUserDisplay());
 
         int t;
-        if (component.equals(TextComponent.EMPTY)) {
+        if (component.equals(TextComponent.EMPTY))
+        {
             GuiComponent.fill(poseStack, k, j, k + l, j + m, FastColor.ARGB32.color(255, 74, 74, 74));
             t = j + (m - 9) / 2;
-        } else {
+        }
+        else
+        {
             GuiComponent.fill(poseStack, k, j, k + l, j + m, FastColor.ARGB32.color(255, 48, 48, 48));
             t = j + (m - (9 + 9)) / 2;
-            this.minecraft.font.draw(poseStack, component, (float)p, (float)(t + 12), FastColor.ARGB32.color(140, 255, 255, 255));
+            this.minecraft.font.draw(poseStack, component, (float) p, (float) (t + 12), FastColor.ARGB32.color(140, 255, 255, 255));
         }
 
-        this.minecraft.font.draw(poseStack, profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay(), (float)p, (float)t, FastColor.ARGB32.color(255, 255, 255, 255));
+        this.minecraft.font.draw(poseStack, profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay(), (float) p, (float) t, FastColor.ARGB32.color(255, 255, 255, 255));
 
-        if(this.mineTogetherSocialinteractionsScreen.getPage() == MineTogetherSocialInteractionsScreen.Page.FRIENDS)
+        if (this.mineTogetherSocialinteractionsScreen.getPage() == MineTogetherSocialInteractionsScreen.Page.FRIENDS)
         {
             this.addToPartyButton.x = k + (l - this.addToPartyButton.getWidth() - 4);
             this.addToPartyButton.y = j + ((m - this.addToPartyButton.getHeight()) / 2 + 10);
@@ -160,17 +163,17 @@ public class ProfileEntry extends Entry<ProfileEntry>
         }
         else
         {
-            if(this.removeButton != null)
+            if (this.removeButton != null)
             {
                 this.removeButton.x = 0;
                 this.removeButton.y = 0;
             }
 
-            if(this.openDMButton != null && this.muteButton != null)
+            if (this.openDMButton != null && this.muteButton != null)
             {
                 this.muteButton.x = k + (l - this.muteButton.getWidth() - 4) - 20;
                 this.muteButton.y = j + (m - this.muteButton.getHeight()) / 2;
-                if(profile.isMuted()) muteButton.active = false;
+                if (profile.isMuted()) muteButton.active = false;
                 this.muteButton.render(poseStack, n, o, f);
                 this.openDMButton.x = k + (l - this.openDMButton.getWidth() - 4);
                 this.openDMButton.y = j + (m - this.openDMButton.getHeight()) / 2;
@@ -181,7 +184,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
     public void renderTooltips(PoseStack poseStack, int mouseX, int mouseY)
     {
-        if(removeButton.isHovered())
+        if (removeButton.isHovered())
         {
             Component component1 = new TranslatableComponent("");
             switch (mineTogetherSocialinteractionsScreen.getPage())
@@ -199,12 +202,16 @@ public class ProfileEntry extends Entry<ProfileEntry>
             mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, component1, mouseX, mouseY);
         }
 
-        if(addToPartyButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Add to party"), mouseX, mouseY);
-        if(openDMButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Direct messages"), mouseX, mouseY);
-        if(muteButton.isHovered()) mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Block"), mouseX, mouseY);
+        if (addToPartyButton.isHovered())
+            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Add to party"), mouseX, mouseY);
+        if (openDMButton.isHovered())
+            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Direct messages"), mouseX, mouseY);
+        if (muteButton.isHovered())
+            mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Block"), mouseX, mouseY);
     }
 
-    public List<GuiEventListener> getChildren() {
+    public List<GuiEventListener> getChildren()
+    {
         return children;
     }
 

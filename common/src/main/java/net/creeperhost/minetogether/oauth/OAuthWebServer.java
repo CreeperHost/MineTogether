@@ -6,26 +6,31 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class OAuthWebServer extends NanoHTTPD {
+public class OAuthWebServer extends NanoHTTPD
+{
 
     BiConsumer<String, String> codeHandler;
 
-    public OAuthWebServer(boolean daemon, int port) throws IOException {
+    public OAuthWebServer(boolean daemon, int port) throws IOException
+    {
         super(port);
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, daemon);
         System.out.println("\nRunning! Point your browsers to http://localhost:" + port + "/ \n");
     }
 
-    public void setCodeHandler(BiConsumer<String, String> handler) {
+    public void setCodeHandler(BiConsumer<String, String> handler)
+    {
         codeHandler = handler;
     }
 
     @Override
-    public Response serve(IHTTPSession session) {
+    public Response serve(IHTTPSession session)
+    {
         return realServe(session);
     }
 
-    private Response realServe(IHTTPSession session) {
+    private Response realServe(IHTTPSession session)
+    {
         Map<String, String> parms = session.getParms();
 
         String location = "https://minetogether.io/wut";

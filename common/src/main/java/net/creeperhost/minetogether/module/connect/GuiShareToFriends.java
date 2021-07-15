@@ -41,7 +41,7 @@ public class GuiShareToFriends extends ShareToLanScreen
         addButton(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, new TranslatableComponent("minetogether.connect.open.start"), (button1) ->
         {
             this.minecraft.setScreen(null);
-            MixinShareToLanScreen thisMixin = (MixinShareToLanScreen)this;
+            MixinShareToLanScreen thisMixin = (MixinShareToLanScreen) this;
             net.creeperhost.minetogether.module.connect.ConnectHelper.shareToFriends(GameType.byName(thisMixin.getGameModeName()), thisMixin.getCommands());
         }));
     }

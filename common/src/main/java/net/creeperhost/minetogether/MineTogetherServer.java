@@ -1,14 +1,12 @@
 package net.creeperhost.minetogether;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.shedaniel.architectury.event.events.CommandRegistrationEvent;
 import net.creeperhost.minetogether.commands.CommandInvite;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.threads.MineTogetherServerThread;
 import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
-import net.creeperhost.minetogetherlib.util.WebUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
@@ -16,9 +14,7 @@ import net.minecraft.server.dedicated.DedicatedServer;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Base64;
 
 public class MineTogetherServer
@@ -52,7 +48,7 @@ public class MineTogetherServer
     public static void serverStarted(MinecraftServer minecraftServer)
     {
         MineTogetherServer.minecraftServer = minecraftServer;
-        if(minecraftServer instanceof DedicatedServer)
+        if (minecraftServer instanceof DedicatedServer)
         {
             buildMineTogetherServerThread();
 
@@ -69,21 +65,20 @@ public class MineTogetherServer
             MineTogether.logger.info("Current discoverability: " + discoverability);
 
             discover = MineTogetherServerThread.Discoverability.valueOf(discoverability.toUpperCase());
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             MineTogether.logger.error("Failed read discoverability from server.properties");
             return;
         }
 
-        if(projectID.isEmpty())
+        if (projectID.isEmpty())
         {
             MineTogether.logger.info("Unable to find version.json, Assuming Curse pack");
             projectID = Config.getInstance().curseProjectID;
         }
 
         Config defaultConfig = new Config();
-        if(projectID.isEmpty() || projectID.equals(defaultConfig.getCurseProjectID()))
+        if (projectID.isEmpty() || projectID.equals(defaultConfig.getCurseProjectID()))
         {
             MineTogether.logger.error("Unable to find project ID, Not adding to server list");
             return;
@@ -104,21 +99,23 @@ public class MineTogetherServer
 
             String packID = MineTogetherServer.packID;
 
-//            System.out.println(ipaddress);
-//            System.out.println(packID);
+            //            System.out.println(ipaddress);
+            //            System.out.println(packID);
 
             String base64 = Base64.getEncoder().encodeToString((String.valueOf(ipaddress) + String.valueOf(packID)).getBytes());
-//            System.out.println(base64);
+            //            System.out.println(base64);
             return base64;
 
-        } catch (Exception ignored) {}
+        } catch (Exception ignored)
+        {
+        }
         return "";
     }
 
     public static void killWatchDog()
     {
         Thread watchdogThread = getThreadByName("Server Watchdog");
-        if(watchdogThread == null)
+        if (watchdogThread == null)
         {
             MineTogether.logger.info("Watchdog thread not found");
             return;
@@ -128,7 +125,9 @@ public class MineTogetherServer
         {
             MineTogether.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
             watchdogThread.interrupt();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored)
+        {
+        }
     }
 
     public static Thread getThreadByName(String threadName)

@@ -16,19 +16,22 @@ import java.util.List;
 public class AutoServerConnectHandler
 {
     static boolean first = true;
+
     //This is Aaron code and was copy pasta
     public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
     {
-        if(screen instanceof TitleScreen && first)
+        if (screen instanceof TitleScreen && first)
         {
             first = false;
             String server = System.getProperty("mt.server");
             int serverId = -1;
             if (server != null)
             {
-                try {
+                try
+                {
                     serverId = Integer.parseInt(server);
-                } catch (Throwable t) {
+                } catch (Throwable t)
+                {
                     MineTogether.logger.error("Unable to auto connect to server as unable to parse server ID");
                 }
 
@@ -39,13 +42,15 @@ public class AutoServerConnectHandler
                     String[] serverSplit = serverObj.host.split(":");
 
                     int realPort = -1;
-                    try {
+                    try
+                    {
                         realPort = Integer.parseInt(serverSplit[1]);
-                    } catch (Throwable t) {
+                    } catch (Throwable t)
+                    {
                         MineTogether.logger.error("Unable to auto connect to server as unable to parse server port for ID " + serverId);
                     }
 
-                    if(realPort != -1)
+                    if (realPort != -1)
                     {
                         ServerData serverData = new ServerData(serverSplit[0], String.valueOf(realPort), false);
                         Minecraft.getInstance().setScreen(new ConnectScreen(screen, Minecraft.getInstance(), serverData));

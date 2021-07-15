@@ -32,7 +32,7 @@ public class SettingsScreen extends MineTogetherScreen
 
         addButton(new Button(this.width / 2 - 123, 40, 120, 20, new TranslatableComponent(I18n.get("Chat Enabled: " + format(Config.getInstance().isChatEnabled()))), p ->
         {
-            if(Config.getInstance().isChatEnabled())
+            if (Config.getInstance().isChatEnabled())
             {
                 MineTogether.logger.info("Disabling in-game chat");
                 Config.getInstance().setChatEnabled(false);
@@ -61,8 +61,10 @@ public class SettingsScreen extends MineTogetherScreen
         }));
         addButton(linkButton = new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("minetogether.settingscreen.button.linkaccount")), p ->
         {
-            minecraft.setScreen(new ConfirmScreen(e -> {
-                if (e) {
+            minecraft.setScreen(new ConfirmScreen(e ->
+            {
+                if (e)
+                {
                     KeycloakOAuth.main(new String[]{});
                 }
                 minecraft.setScreen(this);
@@ -70,8 +72,7 @@ public class SettingsScreen extends MineTogetherScreen
         }));
 
         //Done button
-        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")),
-                p -> this.minecraft.setScreen(parent)));
+        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")), p -> this.minecraft.setScreen(parent)));
     }
 
     @Override

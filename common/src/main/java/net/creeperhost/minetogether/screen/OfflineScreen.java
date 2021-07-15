@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.*;
@@ -57,10 +56,8 @@ public class OfflineScreen extends MineTogetherScreen
             String part = currentText.substring(lastEnd, start);
             if (part.length() > 0)
             {
-                if (component == null)
-                    component = new TranslatableComponent(part);
-                else
-                    component = component.copy().append(new TranslatableComponent(part));
+                if (component == null) component = new TranslatableComponent(part);
+                else component = component.copy().append(new TranslatableComponent(part));
             }
 
             lastEnd = end;
@@ -88,16 +85,20 @@ public class OfflineScreen extends MineTogetherScreen
         addButton(new Button((width / 2) - 40, height - 40, 80, 20, new TranslatableComponent("Continue"), (b) ->
         {
             File offline = new File(Platform.getGameFolder() + "/local/minetogether/offline.txt");
-            if(checkBox.selected())
+            if (checkBox.selected())
             {
-                try {
+                try
+                {
                     offline.getParentFile().mkdirs();
                     offline.createNewFile();
-                } catch (IOException e) { e.printStackTrace(); }
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
             }
             Minecraft.getInstance().setScreen(new TitleScreen());
         }));
-        addButton(checkBox = new Checkbox( (width / 2) - (font.width("Do not show this screen again") / 2), height - 80, 150, 20, new TranslatableComponent("Do not show this screen again"), true));
+        addButton(checkBox = new Checkbox((width / 2) - (font.width("Do not show this screen again") / 2), height - 80, 150, 20, new TranslatableComponent("Do not show this screen again"), true));
     }
 
     @Override

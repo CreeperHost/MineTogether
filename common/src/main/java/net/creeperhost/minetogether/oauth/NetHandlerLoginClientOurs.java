@@ -8,14 +8,19 @@ import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
 
-public class NetHandlerLoginClientOurs extends ClientHandshakePacketListenerImpl {
+public class NetHandlerLoginClientOurs extends ClientHandshakePacketListenerImpl
+{
 
-    public NetHandlerLoginClientOurs(Connection connection, Minecraft mcIn) {
-        super(connection, mcIn, null, e -> {});
+    public NetHandlerLoginClientOurs(Connection connection, Minecraft mcIn)
+    {
+        super(connection, mcIn, null, e ->
+        {
+        });
     }
 
     @Override
-    public void onDisconnect(Component reason) {
+    public void onDisconnect(Component reason)
+    {
         ServerAuthTest.disconnected(reason.getString());
         // NO-OP
     }

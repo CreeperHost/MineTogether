@@ -23,22 +23,27 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class ConnectModule {
+public class ConnectModule
+{
 
     public static Executor connectExecutor;
     public static boolean isInitted = false;
     private static boolean firstMtConnect = true;
 
-    public static void init() {
+    public static void init()
+    {
         isInitted = true;
         Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("minetogether-connect-%d").build());
         GuiEvent.INIT_POST.register(ConnectModule::onScreenOpen);
         LifecycleEvent.SERVER_STOPPING.register(ConnectModule::onServerStopping);
     }
 
-    private static void onServerStopping(MinecraftServer server) {
-        if(server instanceof IntegratedServer) {
-            if(ConnectHelper.isShared((IntegratedServer)server)) {
+    private static void onServerStopping(MinecraftServer server)
+    {
+        if (server instanceof IntegratedServer)
+        {
+            if (ConnectHelper.isShared((IntegratedServer) server))
+            {
                 ConnectHandler.close();
             }
         }
@@ -46,7 +51,7 @@ public class ConnectModule {
 
     private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
     {
-        if(firstMtConnect && screen instanceof TitleScreen)
+        if (firstMtConnect && screen instanceof TitleScreen)
         {
             ConnectHandler.connectToProc();
             firstMtConnect = false;
@@ -61,7 +66,7 @@ public class ConnectModule {
                 AbstractWidget openToLan = ScreenHelpers.findButton("menu.shareToLan", abstractWidgets);
                 AbstractWidget options = ScreenHelpers.findButton("menu.options", abstractWidgets);
 
-                if(openToLan != null && feedBack != null)
+                if (openToLan != null && feedBack != null)
                 {
                     openToLan.y = feedBack.y;
                 }
@@ -71,14 +76,16 @@ public class ConnectModule {
                 guiButton.active = ConnectHelper.isEnabled && !integratedServer.isPublished();
                 ScreenHooks.addButton(screen, guiButton);
 
-                if(bugs == null || feedBack == null) return;
+                if (bugs == null || feedBack == null) return;
 
                 //TODO: move this to somewhere else, as not really relevant to the connect module
                 Button ourFeedback = new Button(bugs.x, options.y, feedBack.getWidth(), 20, new TranslatableComponent("menu.reportBugs"), (button) ->
                 {
                     String s = Config.getInstance().getIssueTrackerUrl();
-                    Minecraft.getInstance().setScreen(new ConfirmLinkScreen((p_213069_2_) -> {
-                        if (p_213069_2_) {
+                    Minecraft.getInstance().setScreen(new ConfirmLinkScreen((p_213069_2_) ->
+                    {
+                        if (p_213069_2_)
+                        {
                             Util.getPlatform().openUri(s);
                         }
 

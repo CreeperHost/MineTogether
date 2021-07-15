@@ -17,20 +17,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerSelectionList.class)
 public class MixinServerSelectionList
 {
-    @Shadow @Final private JoinMultiplayerScreen screen;
+    @Shadow
+    @Final
+    private JoinMultiplayerScreen screen;
 
-    @Inject(at=@At("RETURN"), method= "refreshEntries()V")
+    @Inject(at = @At("RETURN"), method = "refreshEntries()V")
     private void afterRefreshEntries(CallbackInfo info)
     {
-        if(Config.getInstance().isMpMenuEnabled() && !(screen instanceof JoinMultiplayerScreenPublic))
+        if (Config.getInstance().isMpMenuEnabled() && !(screen instanceof JoinMultiplayerScreenPublic))
         {
-            ServerSelectionList thisFake = (ServerSelectionList)(Object) this;
+            ServerSelectionList thisFake = (ServerSelectionList) (Object) this;
             thisFake.children().add(0, new CreeperHostServerEntry(thisFake));
             int size = thisFake.children().size();
-            for (int i = 0; i < size; i++) {
-                if (thisFake.children().get(i) instanceof ServerSelectionList.NetworkServerEntry) {
+            for (int i = 0; i < size; i++)
+            {
+                if (thisFake.children().get(i) instanceof ServerSelectionList.NetworkServerEntry)
+                {
                     ServerSelectionList.NetworkServerEntry realEntry = (ServerSelectionList.NetworkServerEntry) thisFake.children().get(i);
-                    if (realEntry.getServerData() instanceof LanServerInfoConnect) {
+                    if (realEntry.getServerData() instanceof LanServerInfoConnect)
+                    {
                         thisFake.children().set(i, new OurServerListEntryLanDetected(screen, (LanServerInfoConnect) realEntry.getServerData()));
                     }
                 }

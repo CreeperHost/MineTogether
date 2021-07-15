@@ -43,11 +43,11 @@ public class QuoteScreen extends OrderServerScreen
         this.wellBottom = new ScreenWell(this.minecraft, this.width, this.height - 83, this.height - 36, "", new ArrayList<String>(), true, 0);
 
         String name = ServerOrderCallbacks.getCountries().get(order.country);
-        if(name == null || name.isEmpty()) name = "Failed to load";
+        if (name == null || name.isEmpty()) name = "Failed to load";
 
-        if(summary == null)
+        if (summary == null)
         {
-            if(!refreshing) updateSummary();
+            if (!refreshing) updateSummary();
         }
         this.buttonNext.setMessage(new TranslatableComponent("minetogether.button.order"));
     }
@@ -58,7 +58,7 @@ public class QuoteScreen extends OrderServerScreen
         renderDirtBackground(1);
         fill(poseStack, 0, this.height - 20, width, 20, 0x99000000);
 
-        if(!refreshing)
+        if (!refreshing)
         {
             if (!summary.summaryError.isEmpty())
             {
@@ -96,25 +96,26 @@ public class QuoteScreen extends OrderServerScreen
             int offset = maxStringSize / 2;
             int otherOffset = ((this.width / 2 - 10) / 2) - offset;
 
-            drawString(poseStack,this.font, subTotalString, otherOffset, this.height - 80, 0xFFFFFF);
-            drawString(poseStack,this.font, String.format(formatString, summary.preDiscount), otherOffset + headerSize, this.height - 80, 0xFFFFFF);
-            drawString(poseStack,this.font, discountString, otherOffset, this.height - 70, 0xFFFFFF);
-            drawString(poseStack,this.font, String.format(formatString, summary.discount), otherOffset + headerSize, this.height - 70, 0xFFFFFF);
-            drawString(poseStack,this.font, taxString, otherOffset, this.height - 60, 0xFFFFFF);
-            drawString(poseStack,this.font, String.format(formatString, summary.tax), otherOffset + headerSize, this.height - 60, 0xFFFFFF);
-            drawString(poseStack,this.font, totalString, otherOffset, this.height - 50, 0xFFFFFF);
-            drawString(poseStack,this.font, String.format(formatString, summary.total), otherOffset + headerSize, this.height - 50, 0xFFFFFF);
+            drawString(poseStack, this.font, subTotalString, otherOffset, this.height - 80, 0xFFFFFF);
+            drawString(poseStack, this.font, String.format(formatString, summary.preDiscount), otherOffset + headerSize, this.height - 80, 0xFFFFFF);
+            drawString(poseStack, this.font, discountString, otherOffset, this.height - 70, 0xFFFFFF);
+            drawString(poseStack, this.font, String.format(formatString, summary.discount), otherOffset + headerSize, this.height - 70, 0xFFFFFF);
+            drawString(poseStack, this.font, taxString, otherOffset, this.height - 60, 0xFFFFFF);
+            drawString(poseStack, this.font, String.format(formatString, summary.tax), otherOffset + headerSize, this.height - 60, 0xFFFFFF);
+            drawString(poseStack, this.font, totalString, otherOffset, this.height - 50, 0xFFFFFF);
+            drawString(poseStack, this.font, String.format(formatString, summary.total), otherOffset + headerSize, this.height - 50, 0xFFFFFF);
 
             int start = (this.width / 2) + 10;
             int end = this.width;
             int middle = (end - start) / 2;
             int stringStart = this.font.width(I18n.get("minetogether.quote.figures")) / 2;
 
-            drawString(poseStack,this.font, I18n.get("minetogether.quote.figures"), start + middle - stringStart, this.height - 80, 0xFFFFFF);
-            drawCenteredString(poseStack,this.font, ChatFormatting.BOLD + I18n.get(ServerOrderCallbacks.getCountries().get(order.country)), start + middle, this.height - 65, 0xFFFFFF);
-        } else
+            drawString(poseStack, this.font, I18n.get("minetogether.quote.figures"), start + middle - stringStart, this.height - 80, 0xFFFFFF);
+            drawCenteredString(poseStack, this.font, ChatFormatting.BOLD + I18n.get(ServerOrderCallbacks.getCountries().get(order.country)), start + middle, this.height - 65, 0xFFFFFF);
+        }
+        else
         {
-            drawCenteredString(poseStack,this.font, I18n.get("minetogether.quote.refreshing"), this.width / 2, 50, -1);
+            drawCenteredString(poseStack, this.font, I18n.get("minetogether.quote.refreshing"), this.width / 2, 50, -1);
             ScreenHelpers.loadingSpin(partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
         }
         super.render(poseStack, mouseX, mouseY, partialTicks);

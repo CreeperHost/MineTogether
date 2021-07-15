@@ -2,18 +2,24 @@ package net.creeperhost.minetogether.module.connect;
 
 import java.util.ArrayList;
 
-public class FriendDetector implements Runnable {
+public class FriendDetector implements Runnable
+{
     private FriendsServerList owner;
-    public FriendDetector(FriendsServerList owner) {
+
+    public FriendDetector(FriendsServerList owner)
+    {
         this.owner = owner;
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         ConnectHandler.FriendsResponse friendsResp = ConnectHandler.getFriendsBlocking();
-        if (friendsResp != null && friendsResp.getFriends() != null) {
+        if (friendsResp != null && friendsResp.getFriends() != null)
+        {
             ArrayList<ConnectHandler.FriendsResponse.Friend> friends = friendsResp.getFriends();
-            for (ConnectHandler.FriendsResponse.Friend friend : friends) {
+            for (ConnectHandler.FriendsResponse.Friend friend : friends)
+            {
                 PendingFriend server = new PendingFriend(friend.getChosenName(), friend.getDisplayName(), friend.getAddress());
                 owner.addPendingServer(server);
             }
@@ -33,15 +39,18 @@ public class FriendDetector implements Runnable {
             this.address = address;
         }
 
-        public String getChosenName() {
+        public String getChosenName()
+        {
             return chosenName;
         }
 
-        public String getDisplayName() {
+        public String getDisplayName()
+        {
             return displayName;
         }
 
-        public String getAddress() {
+        public String getAddress()
+        {
             return address;
         }
     }

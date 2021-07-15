@@ -7,12 +7,7 @@ import java.util.List;
 
 public enum ServerSortOrder implements DropdownButton.IDropdownOption
 {
-    RANDOM("random"),
-    PLAYER("player"),
-    NAME("name"),
-    UPTIME("uptime"),
-    LOCATION("location"),
-    PING("ping", true);
+    RANDOM("random"), PLAYER("player"), NAME("name"), UPTIME("uptime"), LOCATION("location"), PING("ping", true);
 
     public final boolean constant;
 
@@ -40,8 +35,7 @@ public enum ServerSortOrder implements DropdownButton.IDropdownOption
     @Override
     public List<DropdownButton.IDropdownOption> getPossibleVals()
     {
-        if (enumCache == null)
-            enumCache = Arrays.asList(ServerSortOrder.values());
+        if (enumCache == null) enumCache = Arrays.asList(ServerSortOrder.values());
 
         return enumCache;
     }

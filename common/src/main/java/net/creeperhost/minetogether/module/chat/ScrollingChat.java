@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogethergui.gif.AnimatedGif;
@@ -16,17 +15,14 @@ import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -90,30 +86,35 @@ public class ScrollingChat extends ObjectSelectionList
 
             Style style = minecraft.font.getSplitter().componentStyleAtWidth(component, (int) mouseX);
 
-            if(hovering)
+            if (hovering)
             {
                 RenderSystem.enableBlend();
                 RenderSystem.color4f(1, 1, 1, 0.90F);
                 minecraft.font.draw(poseStack, component, oldTotal, getRowTop(index), 0xBBFFFFFF);
-                screen.renderComponentHoverEffect(poseStack, style , mouseX, mouseY);
+                screen.renderComponentHoverEffect(poseStack, style, mouseX, mouseY);
                 RenderSystem.color4f(1, 1, 1, 1);
 
-                if(style.getHoverEvent() != null && style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
+                if (style.getHoverEvent() != null && style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
                 {
-                    Component urlComponent = (Component)style.getHoverEvent().getValue(ComponentUtils.RENDER_GIF);
+                    Component urlComponent = (Component) style.getHoverEvent().getValue(ComponentUtils.RENDER_GIF);
                     String url = urlComponent.getString();
-                    if(ImageUtils.getContentType(new URL(url)).equals("image/gif"))
+                    if (ImageUtils.getContentType(new URL(url)).equals("image/gif"))
                     {
-                        if (gifImage == null) {
-                            CompletableFuture.runAsync(() -> {
-                                try {
+                        if (gifImage == null)
+                        {
+                            CompletableFuture.runAsync(() ->
+                            {
+                                try
+                                {
                                     gifImage = AnimatedGif.fromURL(new URL(url));
-                                } catch (IOException exception) {
+                                } catch (IOException exception)
+                                {
                                     exception.printStackTrace();
                                 }
                             }, AnimatedGif.GIF_EXECUTOR);
                         }
-                        if (gifPlayer == null) {
+                        if (gifPlayer == null)
+                        {
                             gifPlayer = gifImage.makeGifPlayer();
                             gifPlayer.setAutoplay(true);
                             gifPlayer.setLooping(true);
@@ -121,17 +122,20 @@ public class ScrollingChat extends ObjectSelectionList
                     }
                     else
                     {
-                        if(image == null)
+                        if (image == null)
                         {
-                            CompletableFuture.runAsync(() -> {
-                                try {
-                                     image = ImageRenderer.fromURL(new URL(url));
-                                } catch (IOException exception) {
+                            CompletableFuture.runAsync(() ->
+                            {
+                                try
+                                {
+                                    image = ImageRenderer.fromURL(new URL(url));
+                                } catch (IOException exception)
+                                {
                                     exception.printStackTrace();
                                 }
                             }, AnimatedGif.GIF_EXECUTOR);
                         }
-                        if(image != null && imageRenderer == null) imageRenderer = new ImageRenderer(image);
+                        if (image != null && imageRenderer == null) imageRenderer = new ImageRenderer(image);
                     }
                 }
                 else
@@ -146,7 +150,9 @@ public class ScrollingChat extends ObjectSelectionList
             {
                 minecraft.font.draw(poseStack, component, oldTotal, getRowTop(index), 0xFFFFFF);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored)
+        {
+        }
     }
 
     @Override
@@ -168,16 +174,18 @@ public class ScrollingChat extends ObjectSelectionList
         ArrayList<FormattedCharSequence> oldLines = lines;
         int listHeight = this.height - (this.bottom - this.top - 4);
         lines = new ArrayList<>();
-        if (tempMessages == null)
-            return;
-        try {
+        if (tempMessages == null) return;
+        try
+        {
             for (Message message : tempMessages)
             {
                 Component display = ChatFormatter.formatLine(message);
                 if (display == null) continue;
                 lines.addAll(ComponentRenderUtils.wrapComponents(display, width - 10, Minecraft.getInstance().font));
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored)
+        {
+        }
         if (lines.size() > oldLines.size() && this.getScrollAmount() == oldMaxScroll) ;
         {
             this.setScrollAmount(this.getMaxScroll());
@@ -204,31 +212,31 @@ public class ScrollingChat extends ObjectSelectionList
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
     {
-        if(renderBackground) this.renderBackground(poseStack);
+        if (renderBackground) this.renderBackground(poseStack);
         int i = this.getScrollbarPosition();
         int j = i + 6;
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
 
-        if(renderBackground)
+        if (renderBackground)
         {
             this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             float f = 32.0F;
             bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-            bufferbuilder.vertex((double)this.x0, (double)this.y1, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-            bufferbuilder.vertex((double)this.x1, (double)this.y1, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-            bufferbuilder.vertex((double)this.x1, (double)this.y0, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-            bufferbuilder.vertex((double)this.x0, (double)this.y0, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.y1, 0.0D).uv((float) this.x0 / 32.0F, (float) (this.y1 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double) this.x1, (double) this.y1, 0.0D).uv((float) this.x1 / 32.0F, (float) (this.y1 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double) this.x1, (double) this.y0, 0.0D).uv((float) this.x1 / 32.0F, (float) (this.y0 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.y0, 0.0D).uv((float) this.x0 / 32.0F, (float) (this.y0 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
             tessellator.end();
         }
 
         int k = this.getRowLeft();
-        int l = this.y0 + 4 - (int)this.getScrollAmount();
+        int l = this.y0 + 4 - (int) this.getScrollAmount();
 
-//            ScreenHelpers.drawLogo(matrixStack, font, width - 20, height + 18, 20, 30, 0.75F);
+        //            ScreenHelpers.drawLogo(matrixStack, font, width - 20, height + 18, 20, 30, 0.75F);
         this.renderList(poseStack, k, l, mouseX, mouseY, partialTicks);
-        if(renderBackground)
+        if (renderBackground)
         {
             this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.enableDepthTest();
@@ -236,14 +244,14 @@ public class ScrollingChat extends ObjectSelectionList
             float f1 = 32.0F;
             int i1 = -100;
             bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-            bufferbuilder.vertex((double)this.x0, (double)this.y0, -100.0D).uv(0.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.y0, -100.0D).uv((float)this.width / 32.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double)(this.x0 + this.width), 0.0D, -100.0D).uv((float)this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double)this.x0, 0.0D, -100.0D).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double)this.x0, (double)this.height, -100.0D).uv(0.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.height, -100.0D).uv((float)this.width / 32.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.y1, -100.0D).uv((float)this.width / 32.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double)this.x0, (double)this.y1, -100.0D).uv(0.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.y0, -100.0D).uv(0.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.y0, -100.0D).uv((float) this.width / 32.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) (this.x0 + this.width), 0.0D, -100.0D).uv((float) this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, 0.0D, -100.0D).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.height, -100.0D).uv(0.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.height, -100.0D).uv((float) this.width / 32.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.y1, -100.0D).uv((float) this.width / 32.0F, (float) this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double) this.x0, (double) this.y1, -100.0D).uv(0.0F, (float) this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
             tessellator.end();
         }
         RenderSystem.depthFunc(515);
@@ -255,14 +263,14 @@ public class ScrollingChat extends ObjectSelectionList
         RenderSystem.disableTexture();
         int j1 = 4;
         bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex((double)this.x0, (double)(this.y0 + 4), 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
-        bufferbuilder.vertex((double)this.x1, (double)(this.y0 + 4), 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
-        bufferbuilder.vertex((double)this.x1, (double)this.y0, 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-        bufferbuilder.vertex((double)this.x0, (double)this.y0, 0.0D).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-        bufferbuilder.vertex((double)this.x0, (double)this.y1, 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-        bufferbuilder.vertex((double)this.x1, (double)this.y1, 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-        bufferbuilder.vertex((double)this.x1, (double)(this.y1 - 4), 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
-        bufferbuilder.vertex((double)this.x0, (double)(this.y1 - 4), 0.0D).uv(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+        bufferbuilder.vertex((double) this.x0, (double) (this.y0 + 4), 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+        bufferbuilder.vertex((double) this.x1, (double) (this.y0 + 4), 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+        bufferbuilder.vertex((double) this.x1, (double) this.y0, 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+        bufferbuilder.vertex((double) this.x0, (double) this.y0, 0.0D).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+        bufferbuilder.vertex((double) this.x0, (double) this.y1, 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+        bufferbuilder.vertex((double) this.x1, (double) this.y1, 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+        bufferbuilder.vertex((double) this.x1, (double) (this.y1 - 4), 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+        bufferbuilder.vertex((double) this.x0, (double) (this.y1 - 4), 0.0D).uv(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
         tessellator.end();
 
         this.renderDecorations(poseStack, mouseX, mouseY);
@@ -271,13 +279,14 @@ public class ScrollingChat extends ObjectSelectionList
         RenderSystem.enableAlphaTest();
         RenderSystem.disableBlend();
 
-        if(gifPlayer != null && gifImage != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
-        if(imageRenderer != null) imageRenderer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
+        if (gifPlayer != null && gifImage != null)
+            gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
+        if (imageRenderer != null) imageRenderer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
     }
 
     public void tick()
     {
-        if(gifPlayer != null) gifPlayer.tick();
+        if (gifPlayer != null) gifPlayer.tick();
     }
 
     @Override
@@ -308,15 +317,19 @@ public class ScrollingChat extends ObjectSelectionList
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
 
-        if(!lines.isEmpty()) {
-            for (int j = 0; j < i; ++j) {
+        if (!lines.isEmpty())
+        {
+            for (int j = 0; j < i; ++j)
+            {
                 int k = this.getRowTop(j);
                 int l = this.getRowBottom(j);
-                if (l >= this.y0 && k <= this.y1) {
+                if (l >= this.y0 && k <= this.y1)
+                {
                     int i1 = p_renderList_2_ + j * this.itemHeight + this.headerHeight;
                     int j1 = this.itemHeight - 4;
                     int k1 = this.getRowWidth();
-                    if (this.isSelectedItem(j)) {
+                    if (this.isSelectedItem(j))
+                    {
                         int l1 = this.x0 + this.width / 2 - k1 / 2;
                         int i2 = this.x0 + this.width / 2 + k1 / 2;
                         RenderSystem.disableTexture();

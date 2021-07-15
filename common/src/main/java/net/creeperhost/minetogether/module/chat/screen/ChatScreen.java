@@ -8,13 +8,13 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
+import net.creeperhost.minetogether.module.chat.Target;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
-import net.creeperhost.minetogether.module.chat.Target;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
@@ -89,8 +89,9 @@ public class ChatScreen extends MineTogetherScreen
     {
         addButton(targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, new TranslatableComponent("Chat: %s"), Target.getMainTarget(), true, p ->
         {
-            if(!targetDropdownButton.dropdownOpen) return;
-            if(!targetDropdownButton.getSelected().getInternalTarget().equals(currentTarget)) currentTarget = targetDropdownButton.getSelected().getInternalTarget();
+            if (!targetDropdownButton.dropdownOpen) return;
+            if (!targetDropdownButton.getSelected().getInternalTarget().equals(currentTarget))
+                currentTarget = targetDropdownButton.getSelected().getInternalTarget();
 
             chat.updateLines(currentTarget);
 
@@ -104,12 +105,12 @@ public class ChatScreen extends MineTogetherScreen
         strings.add(I18n.get("minetogether.chat.button.mention"));
         addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new Menu(strings), false, p ->
         {
-            if(!menuDropdownButton.dropdownOpen) return;
+            if (!menuDropdownButton.dropdownOpen) return;
 
             if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mute")))
             {
                 Profile profile = KnownUsers.findByDisplay(activeDropdown);
-                if(profile != null)
+                if (profile != null)
                 {
                     ChatModule.muteUser(KnownUsers.findByDisplay(activeDropdown).longHash);
                     KnownUsers.findByDisplay(activeDropdown).setMuted(true);
@@ -148,16 +149,19 @@ public class ChatScreen extends MineTogetherScreen
             return new TranslatableComponent(ChatFormatting.getByName(status.colour) + "\u2022" + " " + ChatFormatting.WHITE + status.display);
         }, ButtonString.RenderPlace.EXACT, button ->
         {
-            if(ChatHandler.connectionStatus == ChatConnectionStatus.BANNED)
+            if (ChatHandler.connectionStatus == ChatConnectionStatus.BANNED)
             {
                 ConfirmScreen confirmScreen = new ConfirmScreen(t ->
                 {
-                    if(t)
+                    if (t)
                     {
                         try
                         {
                             Util.getPlatform().openUrl(new URL("https://minetogether.io/profile/standing"));
-                        } catch (MalformedURLException e) { e.printStackTrace(); }
+                        } catch (MalformedURLException e)
+                        {
+                            e.printStackTrace();
+                        }
                     }
                     minecraft.setScreen(this);
                 }, new TranslatableComponent("minetogether.bannedscreen.line1"), new TranslatableComponent("minetogether.bannedscreen.line2"));
@@ -166,7 +170,7 @@ public class ChatScreen extends MineTogetherScreen
             }
         }));
 
-        if(Config.getInstance().getFirstConnect())
+        if (Config.getInstance().getFirstConnect())
         {
             ChatCallbacks.updateOnlineCount();
 
@@ -202,16 +206,16 @@ public class ChatScreen extends MineTogetherScreen
         send.render(poseStack, mouseX, mouseY, partialTicks);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
 
-        if(Config.getInstance().getFirstConnect())
+        if (Config.getInstance().getFirstConnect())
         {
             fill(poseStack, 10, chat.getTop(), width - 10, chat.getHeight(), 0x99000000);
             fill(poseStack, 10, chat.getTop(), width - 10, chat.getHeight(), 0x99000000);
 
             RenderSystem.blendColor(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
-            drawCenteredString(poseStack, font, "Welcome to MineTogether", width / 2, (height/4)+25, 0xFFFFFF);
-            drawCenteredString(poseStack, font, "MineTogether is a multiplayer enhancement mod that provides", width / 2, (height/4)+35, 0xFFFFFF);
-            drawCenteredString(poseStack, font, "a multitude of features like chat, friends list, server listing", width / 2, (height/4)+45, 0xFFFFFF);
-            drawCenteredString(poseStack, font, "and more. Join " + ChatCallbacks.userCount + " unique users.", width / 2, (height/4)+55, 0xFFFFFF);
+            drawCenteredString(poseStack, font, "Welcome to MineTogether", width / 2, (height / 4) + 25, 0xFFFFFF);
+            drawCenteredString(poseStack, font, "MineTogether is a multiplayer enhancement mod that provides", width / 2, (height / 4) + 35, 0xFFFFFF);
+            drawCenteredString(poseStack, font, "a multitude of features like chat, friends list, server listing", width / 2, (height / 4) + 45, 0xFFFFFF);
+            drawCenteredString(poseStack, font, "and more. Join " + ChatCallbacks.userCount + " unique users.", width / 2, (height / 4) + 55, 0xFFFFFF);
         }
 
         super.render(poseStack, mouseX, mouseY, partialTicks);
@@ -237,7 +241,7 @@ public class ChatScreen extends MineTogetherScreen
         send.active = ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED;
         send.setEditable(ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED);
         //Remove focus if the client is not verified
-        if(send.isFocused() && ChatHandler.connectionStatus != ChatConnectionStatus.VERIFIED)
+        if (send.isFocused() && ChatHandler.connectionStatus != ChatConnectionStatus.VERIFIED)
         {
             send.setFocus(false);
         }
@@ -274,9 +278,10 @@ public class ChatScreen extends MineTogetherScreen
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
-        if(super.mouseClicked(mouseX, mouseY, mouseButton)) return true;
+        if (super.mouseClicked(mouseX, mouseY, mouseButton)) return true;
 
-        if (send.mouseClicked(mouseX, mouseY, mouseButton)) {
+        if (send.mouseClicked(mouseX, mouseY, mouseButton))
+        {
             menuDropdownButton.x = menuDropdownButton.y = -10000;
             menuDropdownButton.wasJustClosed = false;
             menuDropdownButton.dropdownOpen = false;
@@ -337,10 +342,10 @@ public class ChatScreen extends MineTogetherScreen
     public boolean handleComponentClicked(@Nullable Style style, double mouseX, double mouseY)
     {
         //Don't allow component clicks while this button is visible
-        if(newUserButton != null && newUserButton.visible) return false;
+        if (newUserButton != null && newUserButton.visible) return false;
 
-        if(style == null) return false;
-        if(style.getClickEvent() == null) return false;
+        if (style == null) return false;
+        if (style.getClickEvent() == null) return false;
         ClickEvent event = style.getClickEvent();
         if (event == null) return false;
 
@@ -350,8 +355,7 @@ public class ChatScreen extends MineTogetherScreen
             if (eventValue.contains(":"))
             {
                 String[] split = eventValue.split(":");
-                if (split.length < 3)
-                    return false;
+                if (split.length < 3) return false;
 
                 String chatInternalName = split[1];
 
@@ -365,7 +369,7 @@ public class ChatScreen extends MineTogetherScreen
                 String friendName = builder.toString().trim();
 
                 Profile targetProfile = KnownUsers.findByNick(chatInternalName);
-                if(targetProfile == null) targetProfile = KnownUsers.add(chatInternalName);
+                if (targetProfile == null) targetProfile = KnownUsers.add(chatInternalName);
 
                 Minecraft.getInstance().setScreen(new FriendRequestScreen(this, Minecraft.getInstance().getUser().getName(), targetProfile, friendCode, friendName, true));
                 return true;

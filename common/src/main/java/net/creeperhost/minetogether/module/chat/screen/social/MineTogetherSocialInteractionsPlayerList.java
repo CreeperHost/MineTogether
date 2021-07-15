@@ -30,10 +30,10 @@ public class MineTogetherSocialInteractionsPlayerList extends ContainerObjectSel
     public void render(PoseStack poseStack, int i, int j, float f)
     {
         double d = this.minecraft.getWindow().getGuiScale();
-        RenderSystem.enableScissor((int)((double)this.getRowLeft() * d), (int)((double)(this.height - this.y1) * d), (int)((double)(this.getScrollbarPosition() + 6) * d), (int)((double)(this.height - (this.height - this.y1) - this.y0 - 4) * d));
+        RenderSystem.enableScissor((int) ((double) this.getRowLeft() * d), (int) ((double) (this.height - this.y1) * d), (int) ((double) (this.getScrollbarPosition() + 6) * d), (int) ((double) (this.height - (this.height - this.y1) - this.y0 - 4) * d));
         super.render(poseStack, i, j, f);
         RenderSystem.disableScissor();
-        if(list != null)
+        if (list != null)
         {
             list.forEach(profileEntry ->
             {
@@ -63,7 +63,7 @@ public class MineTogetherSocialInteractionsPlayerList extends ContainerObjectSel
                 break;
         }
 
-        if(!copy.isEmpty())
+        if (!copy.isEmpty())
         {
             for (Profile profile : copy)
             {

@@ -16,7 +16,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.UserWhiteList;
 import net.minecraft.server.players.UserWhiteListEntry;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -27,21 +26,20 @@ public class CommandInvite
 {
     public static LiteralArgumentBuilder<CommandSourceStack> register()
     {
-        return Commands.literal("invite")
-                .requires(cs -> cs.hasPermission(3))
-                .then(Commands.argument("username", StringArgumentType.string())
-                        .executes(cs -> execute(cs, StringArgumentType.getString(cs, "username"))));
+        return Commands.literal("invite").requires(cs -> cs.hasPermission(3)).then(Commands.argument("username", StringArgumentType.string()).executes(cs -> execute(cs, StringArgumentType.getString(cs, "username"))));
     }
 
     private static int execute(CommandContext<CommandSourceStack> cs, String username)
     {
         MinecraftServer minecraftServer = cs.getSource().getServer();
-        if(username.isEmpty()) throw new CommandRuntimeException(new TranslatableComponent("Invalid username"));
+        if (username.isEmpty()) throw new CommandRuntimeException(new TranslatableComponent("Invalid username"));
 
         GameProfile gameProfile = minecraftServer.getProfileCache().get(username);
-        if(gameProfile == null) throw new CommandRuntimeException(new TranslatableComponent("Failed to load GameProfile, Username is not valid"));
+        if (gameProfile == null)
+            throw new CommandRuntimeException(new TranslatableComponent("Failed to load GameProfile, Username is not valid"));
 
-        if(minecraftServer.getPlayerList().getWhiteList().isWhiteListed(gameProfile)) throw new CommandRuntimeException(new TranslatableComponent(username + " Is already whitelisted"));
+        if (minecraftServer.getPlayerList().getWhiteList().isWhiteListed(gameProfile))
+            throw new CommandRuntimeException(new TranslatableComponent(username + " Is already whitelisted"));
 
         UserWhiteListEntry userWhiteListEntry = new UserWhiteListEntry(gameProfile);
         minecraftServer.getPlayerList().getWhiteList().add(userWhiteListEntry);

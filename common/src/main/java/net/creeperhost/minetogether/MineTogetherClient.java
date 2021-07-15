@@ -50,21 +50,21 @@ public class MineTogetherClient
         ChatModule.init();
         registerKeybindings();
 
-        if(!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
+        if (!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
     }
 
     private static InteractionResult onRawInput(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers)
     {
-        if(minecraft.screen == null)
+        if (minecraft.screen == null)
         {
-            if(!MineTogetherClient.toastHandler.isActiveToast() && mtSocialKey.isDown())
+            if (!MineTogetherClient.toastHandler.isActiveToast() && mtSocialKey.isDown())
             {
                 minecraft.setScreen(new MineTogetherSocialInteractionsScreen());
                 return InteractionResult.SUCCESS;
             }
         }
 
-        if(MineTogetherClient.toastHandler.toastMethod != null && mtSocialKey.isDown())
+        if (MineTogetherClient.toastHandler.toastMethod != null && mtSocialKey.isDown())
         {
             MineTogetherClient.toastHandler.toastMethod.run();
             return InteractionResult.SUCCESS;
@@ -99,25 +99,28 @@ public class MineTogetherClient
         try
         {
             mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
-        } catch (AuthenticationException e) { return null; }
+        } catch (AuthenticationException e)
+        {
+            return null;
+        }
         return serverId;
     }
 
     public static void onHudRender(PoseStack poseStack, float partialticks)
     {
-        if(toastHandler != null) toastHandler.render(poseStack);
+        if (toastHandler != null) toastHandler.render(poseStack);
     }
 
     private static void onScreenRender(Screen screen, PoseStack poseStack, int i, int i1, float part)
     {
-        if(toastHandler != null) toastHandler.render(poseStack);
+        if (toastHandler != null) toastHandler.render(poseStack);
     }
 
     static boolean firstOpen = true;
 
     private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
     {
-        if(firstOpen && screen instanceof TitleScreen)
+        if (firstOpen && screen instanceof TitleScreen)
         {
             //Lets get this value early so we can cache it
             ChatCallbacks.updateOnlineCount();
@@ -125,7 +128,7 @@ public class MineTogetherClient
 
             File offline = new File("local/minetogether/offline.txt");
 
-            if(!MineTogetherClient.isOnlineUUID && !offline.exists())
+            if (!MineTogetherClient.isOnlineUUID && !offline.exists())
             {
                 Minecraft.getInstance().setScreen(new OfflineScreen());
             }

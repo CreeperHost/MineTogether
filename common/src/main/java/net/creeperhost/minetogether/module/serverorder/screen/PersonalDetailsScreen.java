@@ -3,8 +3,8 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.module.serverorder.screen.listentries.ListEntryCountry;
-import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogether.module.serverorder.widget.TextFieldDetails;
+import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogetherlib.Order;
 import net.creeperhost.minetogetherlib.serverorder.DefferedValidation;
 import net.creeperhost.minetogetherlib.serverorder.IOrderValidation;
@@ -66,7 +66,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
         super.init();
 
         addWidget(this.list = new ScreenList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36));
-        addWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height -32, 160, 20, new TranslatableComponent("")));
+        addWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent("")));
 
         updateList();
 
@@ -94,7 +94,8 @@ public class PersonalDetailsScreen extends OrderServerScreen
                     loggedIn = true;
                     loggingInError = "";
                     loginButton.setMessage(new TranslatableComponent("minetogether.button.done"));
-                } else
+                }
+                else
                 {
                     loggingIn = false;
                     loggedIn = false;
@@ -114,15 +115,18 @@ public class PersonalDetailsScreen extends OrderServerScreen
             loginButton.active = true;
             loginButton.visible = true;
             buttonNext.visible = false;
-        } else if (loggingIn)
+        }
+        else if (loggingIn)
         {
             loginButton.setMessage(new TranslatableComponent("button.logging"));
             loginButton.active = false;
-        } else if (loggedIn)
+        }
+        else if (loggedIn)
         {
             loginButton.setMessage(new TranslatableComponent("button.done"));
             loginButton.active = false;
-        } else if (!loggingInError.isEmpty())
+        }
+        else if (!loggingInError.isEmpty())
         {
             loginButton.setMessage(new TranslatableComponent("button.logintryagain"));
         }
@@ -213,7 +217,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
         this.fields.add(new TextFieldDetails(this, 7, I18n.get("minetogether.info.state"), this.order.state, x + 5, 135, fieldWidths, 20, defaultValidators));
 
         String buttonName = ServerOrderCallbacks.getCountries().get(this.order.country);
-        if(buttonName == null || buttonName.isEmpty()) buttonName = "Invalid";
+        if (buttonName == null || buttonName.isEmpty()) buttonName = "Invalid";
 
         addButton(buttonList = new Button(x - 205, 165, fieldWidths, 20, new TranslatableComponent(buttonName), p -> renderList = true));
 
@@ -285,7 +289,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
         this.loginButton.visible = loginMode || (orderPressed && !isSure);
 
 
-        if(loggedIn)
+        if (loggedIn)
         {
             this.minecraft.setScreen(getByStep(this.stepId + 1, this.order, null));
         }
@@ -314,7 +318,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
         fill(matrixStack, 0, this.height - 20, width, 20, 0x99000000);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
 
-        if(renderList)
+        if (renderList)
         {
             list.render(matrixStack, mouseX, mouseY, partialTicks);
             searchEntry.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -322,33 +326,50 @@ public class PersonalDetailsScreen extends OrderServerScreen
         }
         else
         {
-            if ((!orderPressed || !isSure) && !loginMode) {
+            if ((!orderPressed || !isSure) && !loginMode)
+            {
                 drawCenteredString(matrixStack, font, "No data will be sent until you complete the order.", this.width / 2, this.height - 45, 0xFFFFFF);
             }
 
-            if (!orderPressed || isSure) {
-                for (TextFieldDetails field : this.fields) {
-                    if (loginMode) {
-                        if (field.getId() < 2) {
+            if (!orderPressed || isSure)
+            {
+                for (TextFieldDetails field : this.fields)
+                {
+                    if (loginMode)
+                    {
+                        if (field.getId() < 2)
+                        {
                             field.render(matrixStack, mouseX, mouseY, partialTicks);
                         }
-                    } else {
+                    }
+                    else
+                    {
                         field.render(matrixStack, mouseX, mouseY, partialTicks);
                     }
                 }
 
-                if (loginMode) {
-                    if (loggingIn) {
+                if (loginMode)
+                {
+                    if (loggingIn)
+                    {
                         drawCenteredString(matrixStack, font, I18n.get("minetogether.details.login"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-                    } else if (!loggingInError.isEmpty()) {
+                    }
+                    else if (!loggingInError.isEmpty())
+                    {
                         drawCenteredString(matrixStack, font, I18n.get("minetogether.details.loginerror") + loggingInError, this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-                    } else if (loggedIn) {
+                    }
+                    else if (loggedIn)
+                    {
                         drawCenteredString(matrixStack, font, I18n.get("minetogether.details.loginsuccess"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
-                    } else {
+                    }
+                    else
+                    {
                         drawCenteredString(matrixStack, font, I18n.get("minetogether.details.accountexists"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
                     }
                 }
-            } else {
+            }
+            else
+            {
                 int info2Start = (this.height / 2) - 50;
 
                 drawCenteredString(matrixStack, font, I18n.get("order.info1"), this.width / 2, (this.height / 2) - 60, 0xFFFFFF);
@@ -356,13 +377,17 @@ public class PersonalDetailsScreen extends OrderServerScreen
                 drawCenteredString(matrixStack, font, I18n.get("order.info3"), this.width / 2, (this.height / 2) - 30, 0xFFFFFF);
                 drawCenteredString(matrixStack, font, I18n.get("order.info4"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
 
-                if (mouseY >= info2Start && mouseY <= info2Start + font.lineHeight) {
+                if (mouseY >= info2Start && mouseY <= info2Start + font.lineHeight)
+                {
                     Component component = getComponent(mouseX, mouseY);
 
-                    if (component != null) {
+                    if (component != null)
+                    {
                         HoverEvent event = component.getStyle().getHoverEvent();
-                        if (event != null) {
-                            if (event.getAction() == HoverEvent.Action.SHOW_TEXT) {
+                        if (event != null)
+                        {
+                            if (event.getAction() == HoverEvent.Action.SHOW_TEXT)
+                            {
                                 this.renderTooltip(matrixStack, new TranslatableComponent(event.toString()), mouseX, mouseY);
                             }
                         }
@@ -375,7 +400,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
     @Override
     public boolean charTyped(char typedChar, int keyCode)
     {
-        if(searchEntry.isFocused())
+        if (searchEntry.isFocused())
         {
             boolean flag = searchEntry.charTyped(typedChar, keyCode);
             updateList();
@@ -430,7 +455,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
     @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_)
     {
-        if(searchEntry.isFocused())
+        if (searchEntry.isFocused())
         {
             boolean flag = searchEntry.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
             updateList();
@@ -477,7 +502,9 @@ public class PersonalDetailsScreen extends OrderServerScreen
                         break;
                 }
                 return true;
-            } else if (p_keyPressed_1_ == 258) {
+            }
+            else if (p_keyPressed_1_ == 258)
+            {
                 TextFieldDetails field = this.focusedField;
                 int adjustAm = 1;
 
@@ -486,8 +513,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
                 field.setFocused(false);
 
                 int newField = (field.getId() + adjustAm) % fieldsSize;
-                if (newField == -1)
-                    newField = fieldsSize - 1;
+                if (newField == -1) newField = fieldsSize - 1;
 
                 TextFieldDetails newF = null;
                 while (newF == null)
@@ -496,11 +522,11 @@ public class PersonalDetailsScreen extends OrderServerScreen
                     if (tempField.canBeFocused())
                     {
                         newF = tempField;
-                    } else
+                    }
+                    else
                     {
                         newField = (newField + adjustAm) % fieldsSize;
-                        if (newField == -1)
-                            newField = fieldsSize - 1;
+                        if (newField == -1) newField = fieldsSize - 1;
                     }
                 }
 
@@ -545,7 +571,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
         {
             if (field.mouseClicked(mouseX, mouseY, mouseButton))
             {
-                if(focusedField != null) focusedField.setFocused(false);
+                if (focusedField != null) focusedField.setFocused(false);
                 focusedField = field;
                 field.setFocused(true);
                 return true;
@@ -595,13 +621,15 @@ public class PersonalDetailsScreen extends OrderServerScreen
             {
                 isEmailValid = false;
                 loginMode = true;
-            } else
+            }
+            else
             {
                 loginMode = false;
                 if (phase.equals(IOrderValidation.ValidationPhase.FOCUSLOST))
                 {
                     isEmailValid = true;
-                } else
+                }
+                else
                 {
                     isEmailValid = false;
                 }
@@ -614,7 +642,8 @@ public class PersonalDetailsScreen extends OrderServerScreen
         if (!pendingValidation.isValid(""))
         {
             validationChanged(textFieldDetails, false, pendingValidation, pendingValidation.getPhase());
-        } else
+        }
+        else
         {
             validationChanged(textFieldDetails, true, null, pendingValidation.getPhase());
         }
@@ -628,12 +657,13 @@ public class PersonalDetailsScreen extends OrderServerScreen
         Map<String, String> locations = ServerOrderCallbacks.getCountries();
         for (Map.Entry<String, String> entry : locations.entrySet())
         {
-            if(searchEntry.getValue().isEmpty() || entry.getValue().toLowerCase().contains(searchEntry.getValue().toLowerCase()))
+            if (searchEntry.getValue().isEmpty() || entry.getValue().toLowerCase().contains(searchEntry.getValue().toLowerCase()))
             {
                 ListEntryCountry listEntry = new ListEntryCountry(list, entry.getKey(), entry.getValue());
                 list.add(listEntry);
 
-                if (order.country.equals(listEntry.countryID)) {
+                if (order.country.equals(listEntry.countryID))
+                {
                     list.setSelected(listEntry);
                 }
             }

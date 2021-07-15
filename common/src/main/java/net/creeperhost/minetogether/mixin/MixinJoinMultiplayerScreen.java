@@ -16,45 +16,59 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(JoinMultiplayerScreen.class)
-public abstract class MixinJoinMultiplayerScreen {
-    @Shadow protected ServerSelectionList serverSelectionList;
-    @Shadow private Button selectButton;
-    @Shadow private Button deleteButton;
-    @Shadow private Button editButton;
-    @Shadow private LanServerDetection.LanServerList lanServerList;
+public abstract class MixinJoinMultiplayerScreen
+{
+    @Shadow
+    protected ServerSelectionList serverSelectionList;
+    @Shadow
+    private Button selectButton;
+    @Shadow
+    private Button deleteButton;
+    @Shadow
+    private Button editButton;
+    @Shadow
+    private LanServerDetection.LanServerList lanServerList;
     FriendsServerList friendsServerList = null;
     private boolean applicableCache = false;
     private boolean isApplicableCached = false;
 
-    @Inject(at=@At("TAIL"), method="init()V")
-    public void init(CallbackInfo ci) {
+    @Inject(at = @At("TAIL"), method = "init()V")
+    public void init(CallbackInfo ci)
+    {
         if (!isApplicable(this)) return;
-        if(friendsServerList == null) {
-            friendsServerList = new FriendsServerList((JoinMultiplayerScreen)(Object) this, lanServerList);
+        if (friendsServerList == null)
+        {
+            friendsServerList = new FriendsServerList((JoinMultiplayerScreen) (Object) this, lanServerList);
         }
     }
 
-    @Inject(at=@At("TAIL"), method="removed()V") // closed
-    public void removed(CallbackInfo ci) {
-        if(this.getClass().getSimpleName().equals(JoinMultiplayerScreenPublic.class.getSimpleName())) {
+    @Inject(at = @At("TAIL"), method = "removed()V") // closed
+    public void removed(CallbackInfo ci)
+    {
+        if (this.getClass().getSimpleName().equals(JoinMultiplayerScreenPublic.class.getSimpleName()))
+        {
             return;
         }
-        if(friendsServerList != null) {
+        if (friendsServerList != null)
+        {
             friendsServerList.removed();
         }
     }
 
-    @Inject(at=@At("TAIL"), method="tick()V")
-    public void tick(CallbackInfo ci) {
-        if (friendsServerList.isDirty()) {
+    @Inject(at = @At("TAIL"), method = "tick()V")
+    public void tick(CallbackInfo ci)
+    {
+        if (friendsServerList.isDirty())
+        {
             List<LanServer> list = friendsServerList.getServers();
             friendsServerList.markClean();
             this.serverSelectionList.updateNetworkServers(list);
         }
     }
 
-    private boolean isApplicable(Object screen) {
-        if(isApplicableCached) return applicableCache;
+    private boolean isApplicable(Object screen)
+    {
+        if (isApplicableCached) return applicableCache;
         applicableCache = !screen.getClass().getSimpleName().equals(JoinMultiplayerScreenPublic.class.getSimpleName());
         isApplicableCached = true;
         return applicableCache;

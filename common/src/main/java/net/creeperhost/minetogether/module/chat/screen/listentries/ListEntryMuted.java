@@ -33,12 +33,11 @@ public class ListEntryMuted extends ScreenListEntry
     {
         if (isSelected)
         {
-            if (transparency <= 1.0F)
-                transparency += 0.04;
-        } else
+            if (transparency <= 1.0F) transparency += 0.04;
+        }
+        else
         {
-            if (transparency >= 0.5F)
-                transparency -= 0.04;
+            if (transparency >= 0.5F) transparency -= 0.04;
         }
 
         this.mc.font.draw(matrixStack, profile.getUserDisplay(), x + 5, y + 5, 16777215);
@@ -55,7 +54,8 @@ public class ListEntryMuted extends ScreenListEntry
         {
             wasHovering = true;
             mutedListScreen.setHoveringText("Click here to unmute");
-        } else if (wasHovering)
+        }
+        else if (wasHovering)
         {
             wasHovering = false;
             mutedListScreen.setHoveringText(null);

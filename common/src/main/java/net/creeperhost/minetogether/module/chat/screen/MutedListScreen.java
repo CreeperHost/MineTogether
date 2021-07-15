@@ -34,13 +34,14 @@ public class MutedListScreen extends Screen
         if (list == null)
         {
             list = new ScreenList(this, minecraft, width, height, 32, this.height - 64, 36);
-        } else
+        }
+        else
         {
             list.updateSize(width, height, 32, this.height - 64);
         }
 
         addButtons();
-        searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height -32, 160, 20, new TranslatableComponent(""));
+        searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent(""));
         searchEntry.setSuggestion("Search");
         children.add(list);
         children.add(searchEntry);
@@ -65,7 +66,8 @@ public class MutedListScreen extends Screen
         super.render(poseStack, i, j, f);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
 
-        if(list.children().isEmpty()) drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.mutedlist.empty"), width / 2, (this.height / 2) - 20, -1);
+        if (list.children().isEmpty())
+            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.mutedlist.empty"), width / 2, (this.height / 2) - 20, -1);
     }
 
     public void setHoveringText(String hoveringText)
@@ -102,7 +104,7 @@ public class MutedListScreen extends Screen
     @Override
     public boolean charTyped(char c, int i)
     {
-        if(searchEntry.isFocused())
+        if (searchEntry.isFocused())
         {
             boolean flag = searchEntry.charTyped(c, i);
             refreshMutedList();
@@ -114,7 +116,7 @@ public class MutedListScreen extends Screen
     @Override
     public boolean keyPressed(int i, int j, int k)
     {
-        if(searchEntry.isFocused())
+        if (searchEntry.isFocused())
         {
             searchEntry.setSuggestion("");
             boolean flag = searchEntry.keyPressed(i, j, k);

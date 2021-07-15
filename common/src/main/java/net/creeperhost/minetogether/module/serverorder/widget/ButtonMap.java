@@ -24,7 +24,7 @@ public class ButtonMap extends Button
 
     public ButtonMap(float x, float y, int width, int height, int imageWidth, int imageHeight, String title, boolean active, Button.OnPress pressedAction)
     {
-        super((int)x, (int)y, width, height, new TranslatableComponent(title), pressedAction);
+        super((int) x, (int) y, width, height, new TranslatableComponent(title), pressedAction);
         this.buttonText = title;
         this.x = x;
         this.y = y;
@@ -50,15 +50,15 @@ public class ButtonMap extends Button
         ResourceLocation map = new ResourceLocation(Constants.MOD_ID, "textures/map/" + buttonText + ".png");
         minecraft.getTextureManager().bind(map);
 
-        if(isHovered())
+        if (isHovered())
         {
             RenderSystem.color4f(0F, 1F, 0F, alpha);
         }
-        if(isFocused())
+        if (isFocused())
         {
             RenderSystem.color4f(0F, 0.6F, 0F, alpha);
         }
-        if(!active)
+        if (!active)
         {
             RenderSystem.color4f(0.4F, 0.4F, 0.4F, alpha);
         }

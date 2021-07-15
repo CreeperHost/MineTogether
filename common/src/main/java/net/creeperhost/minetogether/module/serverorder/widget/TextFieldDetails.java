@@ -28,37 +28,37 @@ public class TextFieldDetails extends EditBox
     private final ArrayList<IOrderValidation> validators;
     private boolean doNotValidate = false;
     private DefferedValidation pendingValidation = null;
-    
+
     public TextFieldDetails(PersonalDetailsScreen gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators, boolean canBeFocused)
     {
         super(Minecraft.getInstance().font, x, y, width, height, new TranslatableComponent(""));
-        
+
         this.ourID = id;
-        
+
         this.validators = validators;
         this.gui = gui;
         this.canBeFocused = canBeFocused;
         this.displayString = displayString;
-        
+
         this.setValue(def);
-        
+
         setFocused(true);
         setFocused(false);
-        
+
         this.setMaxLength(64);
     }
-    
+
     public TextFieldDetails(PersonalDetailsScreen gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators, String censorText)
     {
         this(gui, id, displayString, def, x, y, width, height, validators);
         this.censorText = censorText;
     }
-    
+
     public TextFieldDetails(PersonalDetailsScreen gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators)
     {
         this(gui, id, displayString, def, x, y, width, height, validators, true);
     }
-    
+
     @SuppressWarnings("Duplicates")
     public void checkPendingValidations()
     {
@@ -71,13 +71,13 @@ public class TextFieldDetails extends EditBox
             pendingValidation = null;
         }
     }
-    
+
     public int getId()
     {
         return ourID;
     }
-    
-    
+
+
     @SuppressWarnings("Duplicates")
     @Override
     public void render(PoseStack matrixStack, int p_render_1_, int p_render_2_, float p_render_3_)
@@ -85,62 +85,63 @@ public class TextFieldDetails extends EditBox
         if (!this.censorText.isEmpty())
         {
             String text = this.getValue();
-            
+
             double censorLength = censorText.length();
-            
+
             double mainLength = text.length();
-            
+
             double timesRaw = mainLength / censorLength;
-            
+
             int times = (int) Math.ceil(timesRaw);
-            
+
             String obscure = new String(new char[times]).replace("\0", censorText).substring(0, (int) mainLength);
             boolean oldNotValidate = doNotValidate;
             doNotValidate = true;
             this.setValue(obscure);
             super.render(matrixStack, p_render_1_, p_render_2_, p_render_3_);
-            
+
             this.setValue(text);
             doNotValidate = oldNotValidate;
-        } else
+        }
+        else
         {
             super.render(matrixStack, p_render_1_, p_render_2_, p_render_3_);
         }
-        
+
         int startX = (this.x + this.width + 3) / 2;
         int startY = (this.y + 4) / 2;
-        
+
         RenderSystem.scalef(2.0F, 2.0F, 2.0F);
-        
+
         if (isValidated)
         {
             drawString(matrixStack, Minecraft.getInstance().font, acceptString, startX, startY, 0x00FF00);
-        } else
+        }
+        else
         {
             drawString(matrixStack, Minecraft.getInstance().font, denyString, startX, startY, 0xFF0000);
         }
-        
+
         GL11.glScalef(0.5F, 0.5F, 0.5F);
-        
+
         if (!this.isFocused() && this.getValue().trim().isEmpty())
         {
             int x = this.x + 4;
             int y = this.y + (this.height - 8) / 2;
-            
+
             Minecraft.getInstance().font.drawShadow(matrixStack, "\u00A7o" + this.displayString, x, y, 14737632);
         }
     }
-    
+
     public boolean canBeFocused()
     {
         return canBeFocused;
     }
-    
+
     @SuppressWarnings("Duplicates")
     private Pair<Boolean, IOrderValidation> validateAtPhase(IOrderValidation.ValidationPhase phase, String string, boolean ignoreAsync)
     {
-        if (pendingValidation != null || doNotValidate)
-            return new Pair(false, null);
+        if (pendingValidation != null || doNotValidate) return new Pair(false, null);
         boolean validatorsExist = false;
         for (IOrderValidation validator : validators)
         {
@@ -156,7 +157,7 @@ public class TextFieldDetails extends EditBox
                     {
                         continue;
                     }
-//                    this.setEnabled(false);
+                    //                    this.setEnabled(false);
                     pendingValidation = (DefferedValidation) validator;
                     pendingValidation.setPhase(phase);
                     pendingValidation.doAsync(string);
@@ -165,7 +166,8 @@ public class TextFieldDetails extends EditBox
                 if (validator.isValid(string))
                 {
                     continue;
-                } else
+                }
+                else
                 {
                     gui.validationChanged(this, false, validator, phase);
                     return new Pair(true, validator);
@@ -178,12 +180,12 @@ public class TextFieldDetails extends EditBox
         }
         return new Pair(validatorsExist, null);
     }
-    
+
     private Pair<Boolean, IOrderValidation> validateAtPhase(IOrderValidation.ValidationPhase phase, String string)
     {
         return validateAtPhase(phase, string, false);
     }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public void setFocused(boolean focused)
@@ -191,9 +193,9 @@ public class TextFieldDetails extends EditBox
         if (focused)
         {
             gui.focusedField = this;
-            if (!canBeFocused)
-                return; // to prevent weirdness, we set focused anyway so that tab works as expected
-        } else if (this.isFocused())
+            if (!canBeFocused) return; // to prevent weirdness, we set focused anyway so that tab works as expected
+        }
+        else if (this.isFocused())
         {
             Pair<Boolean, IOrderValidation> validatorPair = validateAtPhase(IOrderValidation.ValidationPhase.FOCUSLOST, getValue());
             if (validatorPair.getLeft())
@@ -203,7 +205,8 @@ public class TextFieldDetails extends EditBox
                 {
                     validationError = validator.getValidationMessage();
                     isValidated = false;
-                } else
+                }
+                else
                 {
                     validationError = "This is fine";
                     isValidated = true;
@@ -237,38 +240,42 @@ public class TextFieldDetails extends EditBox
         }
     }
 
-//    @SuppressWarnings("Duplicates")
-//    @Override
-//    public void deleteFromCursor ( int num)
-//    {
-//        super.deleteFromCursor(num);
-//        Pair<Boolean, IOrderValidation> validatorPair = validateAtPhase(IOrderValidation.ValidationPhase.CHANGED, getText());
-//        if (validatorPair.getLeft()) {
-//            IOrderValidation validator = validatorPair.getRight();
-//            if (validator != null) {
-//                validationError = validator.getValidationMessage();
-//                isValidated = false;
-//                isChangeValidated = false;
-//            } else {
-//                validationError = "This is fine";
-//                isValidated = true;
-//                isChangeValidated = true;
-//            }
-//        }
-//    }
+    //    @SuppressWarnings("Duplicates")
+    //    @Override
+    //    public void deleteFromCursor ( int num)
+    //    {
+    //        super.deleteFromCursor(num);
+    //        Pair<Boolean, IOrderValidation> validatorPair = validateAtPhase(IOrderValidation.ValidationPhase.CHANGED, getText());
+    //        if (validatorPair.getLeft()) {
+    //            IOrderValidation validator = validatorPair.getRight();
+    //            if (validator != null) {
+    //                validationError = validator.getValidationMessage();
+    //                isValidated = false;
+    //                isChangeValidated = false;
+    //            } else {
+    //                validationError = "This is fine";
+    //                isValidated = true;
+    //                isChangeValidated = true;
+    //            }
+    //        }
+    //    }
 
     @SuppressWarnings("Duplicates")
     public void setValue(String string)
     {
         super.setValue(string);
         Pair<Boolean, IOrderValidation> validatorPair = validateAtPhase(IOrderValidation.ValidationPhase.CHANGED, getValue());
-        if (validatorPair.getLeft()) {
+        if (validatorPair.getLeft())
+        {
             IOrderValidation validator = validatorPair.getRight();
-            if (validator != null) {
+            if (validator != null)
+            {
                 validationError = validator.getValidationMessage();
                 isValidated = false;
                 isChangeValidated = false;
-            } else {
+            }
+            else
+            {
                 validationError = "This is fine";
                 isValidated = true;
                 isChangeValidated = true;

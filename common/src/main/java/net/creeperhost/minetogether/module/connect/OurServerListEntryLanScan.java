@@ -18,7 +18,7 @@ public class OurServerListEntryLanScan extends ServerSelectionList.LANHeader
         this.mc.font.draw(matrixStack, locString, this.mc.screen.width / 2 - this.mc.font.width(locString) / 2, i, 16777215);
         String s;
 
-        switch ((int)(Util.getMillis() / 300L % 4L))
+        switch ((int) (Util.getMillis() / 300L % 4L))
         {
             case 0:
             default:

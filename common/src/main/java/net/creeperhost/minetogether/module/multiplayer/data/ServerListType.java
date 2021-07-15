@@ -14,8 +14,7 @@ public enum ServerListType implements DropdownButton.IDropdownOption
     @Override
     public List<DropdownButton.IDropdownOption> getPossibleVals()
     {
-        if (enumCache == null)
-            enumCache = Arrays.asList(ServerListType.values());
+        if (enumCache == null) enumCache = Arrays.asList(ServerListType.values());
 
         return enumCache;
     }

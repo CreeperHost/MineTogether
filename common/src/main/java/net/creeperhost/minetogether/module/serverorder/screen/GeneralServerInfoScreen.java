@@ -77,7 +77,8 @@ public class GeneralServerInfoScreen extends OrderServerScreen
         if (nameChecked && isAcceptable)
         {
             colour = 0x00FF00;
-        } else
+        }
+        else
         {
             colour = 0xFF0000;
         }
@@ -105,7 +106,8 @@ public class GeneralServerInfoScreen extends OrderServerScreen
             {
                 message = "Name cannot be blank";
                 isAcceptable = false;
-            } else
+            }
+            else
             {
 
                 CompletableFuture.runAsync(() ->
@@ -125,7 +127,8 @@ public class GeneralServerInfoScreen extends OrderServerScreen
         if (!this.nameField.charTyped(typedChar, keyCode))
         {
             super.charTyped(typedChar, keyCode);
-        } else
+        }
+        else
         {
             if (!nameFieldOldValue.equals(nameField.getValue()))
             {

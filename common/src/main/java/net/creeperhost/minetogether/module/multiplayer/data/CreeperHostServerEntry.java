@@ -37,12 +37,11 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
     {
         if (isHovering)
         {
-            if (transparency <= 1.0F)
-                transparency += 0.04;
-        } else
+            if (transparency <= 1.0F) transparency += 0.04;
+        }
+        else
         {
-            if (transparency >= 0.5F)
-                transparency -= 0.04;
+            if (transparency >= 0.5F) transparency -= 0.04;
         }
 
         this.mc.getTextureManager().bind(serverIcon);
@@ -69,7 +68,7 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button)
     {
-        int listWidth = ((((MixinSelectionList)serverSelectionList).getWidth() - serverSelectionList.getRowWidth()) / 2) + serverSelectionList.getRowWidth();
+        int listWidth = ((((MixinSelectionList) serverSelectionList).getWidth() - serverSelectionList.getRowWidth()) / 2) + serverSelectionList.getRowWidth();
 
         int y = ((MixinSelectionList) serverSelectionList).invokeRowTop(serverSelectionList.children().indexOf(this));
 

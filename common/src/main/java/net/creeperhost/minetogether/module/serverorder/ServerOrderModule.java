@@ -26,8 +26,7 @@ public class ServerOrderModule
                 AbstractWidget relms = ScreenHelpers.removeButton("menu.online", abstractWidgets);
                 if (relms != null)
                 {
-                    ScreenHooks.addButton(screen, new Button(relms.x, relms.y, relms.getWidth(), relms.getHeight(), new TranslatableComponent("minetogether.button.getserver"), p ->
-                            Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), screen))));
+                    ScreenHooks.addButton(screen, new Button(relms.x, relms.y, relms.getWidth(), relms.getHeight(), new TranslatableComponent("minetogether.button.getserver"), p -> Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), screen))));
                 }
             }
         }

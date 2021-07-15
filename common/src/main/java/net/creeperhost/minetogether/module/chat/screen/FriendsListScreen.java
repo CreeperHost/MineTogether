@@ -18,7 +18,6 @@ import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -66,10 +65,10 @@ public class FriendsListScreen extends MineTogetherScreen
         chat = new ScrollingChat(this, width - list.getRowWidth() - 40, this.height - 90, 32, this.height - 55, 110, true);
         chat.setLeftPos(list.getRowRight());
 
-        chatBox = new EditBox(this.font, list.getRowRight() + 1, this.height -50, chat.getWidth() - 2, 20, new TranslatableComponent(""));
+        chatBox = new EditBox(this.font, list.getRowRight() + 1, this.height - 50, chat.getWidth() - 2, 20, new TranslatableComponent(""));
         chatBox.setMaxLength(256);
 
-        searchEntry = new EditBox(this.font, 19, this.height -50, list.width - 2, 20, new TranslatableComponent(""));
+        searchEntry = new EditBox(this.font, 19, this.height - 50, list.width - 2, 20, new TranslatableComponent(""));
         searchEntry.setSuggestion(I18n.get("minetogether.search"));
 
         addButtons();
@@ -84,7 +83,7 @@ public class FriendsListScreen extends MineTogetherScreen
     {
         addButton(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
 
-        addButton(friendCodeButton = new ButtonString( width - 105, 5, 120, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
+        addButton(friendCodeButton = new ButtonString(width - 105, 5, 120, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
             minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
             MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
@@ -95,7 +94,7 @@ public class FriendsListScreen extends MineTogetherScreen
             ChatCallbacks.removeFriend(targetProfile.getFriendCode(), MineTogetherClient.getUUID());
         }));
 
-        addButton(blockButton = new ButtonMultiple(width - 20, 52, 6, Constants.WIDGETS_LOCATION,  new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
+        addButton(blockButton = new ButtonMultiple(width - 20, 52, 6, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
         {
             ChatModule.muteUser(targetProfile.getLongHash());
         }));
@@ -116,29 +115,31 @@ public class FriendsListScreen extends MineTogetherScreen
         chat.render(poseStack, i, j, f);
         super.render(poseStack, i, j, f);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 12, 0xFFFFFF);
-        if(list.children().isEmpty()) drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
-        if(friendCodeButton != null && friendCodeButton.isHovered()) renderTooltip(poseStack, new TranslatableComponent("minetogether.friendslist.copytoclipboard"), i, j);
+        if (list.children().isEmpty())
+            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
+        if (friendCodeButton != null && friendCodeButton.isHovered())
+            renderTooltip(poseStack, new TranslatableComponent("minetogether.friendslist.copytoclipboard"), i, j);
     }
 
     @Override
     public void tick()
     {
         ticks++;
-        if(ticks % 600 == 0)
+        if (ticks % 600 == 0)
         {
             refreshFriendsList();
         }
-        if(targetProfile != null)
+        if (targetProfile != null)
         {
             partyButton.active = targetProfile.isOnline();
         }
-        if(list.getCurrSelected() != null && targetProfile != null && !targetProfile.equals(list.getCurrSelected().getProfile()))
+        if (list.getCurrSelected() != null && targetProfile != null && !targetProfile.equals(list.getCurrSelected().getProfile()))
         {
             targetProfile = list.getCurrSelected().getProfile();
             chat.updateLines(targetProfile.getMediumHash());
         }
 
-        if(targetProfile != null)
+        if (targetProfile != null)
         {
             chatBox.setSuggestion(targetProfile.isOnline() ? "" : "Friend is offline");
             chatBox.setEditable(targetProfile.isOnline());
@@ -155,7 +156,7 @@ public class FriendsListScreen extends MineTogetherScreen
     {
         removeFriend.active = value;
         blockButton.active = value;
-        if(targetProfile == null) partyButton.active = value;
+        if (targetProfile == null) partyButton.active = value;
     }
 
     public static ArrayList<Profile> removedFriends = new ArrayList<>();
@@ -177,33 +178,34 @@ public class FriendsListScreen extends MineTogetherScreen
             for (Profile friendProfile : friends)
             {
                 ListEntryFriend friendEntry = new ListEntryFriend(this, list, friendProfile);
-                if(searchEntry != null && !searchEntry.getValue().isEmpty())
+                if (searchEntry != null && !searchEntry.getValue().isEmpty())
                 {
                     String s = searchEntry.getValue();
-                    if(friendProfile.friendName.toLowerCase().contains(s.toLowerCase()))
+                    if (friendProfile.friendName.toLowerCase().contains(s.toLowerCase()))
                     {
-                        if(!removedFriends.contains(friendProfile)) list.add(friendEntry);
+                        if (!removedFriends.contains(friendProfile)) list.add(friendEntry);
                     }
                 }
                 else
                 {
-                    if(!removedFriends.contains(friendProfile)) list.add(friendEntry);
+                    if (!removedFriends.contains(friendProfile)) list.add(friendEntry);
                 }
-                if(targetProfile != null && friendProfile.getFriendName().equals(targetProfile.getFriendName())) list.setSelected(friendEntry);
+                if (targetProfile != null && friendProfile.getFriendName().equals(targetProfile.getFriendName()))
+                    list.setSelected(friendEntry);
             }
             List<Profile> removedCopy = new ArrayList<Profile>(removedFriends);
-            for(Profile removed : removedCopy)
+            for (Profile removed : removedCopy)
             {
                 boolean isInList = false;
-                for(Profile friend : friends)
+                for (Profile friend : friends)
                 {
-                    if(friend.friendCode.equalsIgnoreCase(removed.friendCode))
+                    if (friend.friendCode.equalsIgnoreCase(removed.friendCode))
                     {
-                        isInList=true;
+                        isInList = true;
                         break;
                     }
                 }
-                if(!isInList)
+                if (!isInList)
                 {
                     removedFriends.remove(removed);
                 }
@@ -217,17 +219,17 @@ public class FriendsListScreen extends MineTogetherScreen
     {
         ConfirmScreen confirmScreen = new ConfirmScreen(t ->
         {
-            if(t)
+            if (t)
             {
                 CompletableFuture.runAsync(() ->
                 {
-                   removedFriends.add(profile);
-                   refreshFriendsList();
-                   if(!ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getUUID()))
-                   {
-                       profile.setFriend(false);
-                       refreshFriendsList();
-                   }
+                    removedFriends.add(profile);
+                    refreshFriendsList();
+                    if (!ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getUUID()))
+                    {
+                        profile.setFriend(false);
+                        refreshFriendsList();
+                    }
                 });
             }
             minecraft.setScreen(new FriendsListScreen(parent));
@@ -238,13 +240,13 @@ public class FriendsListScreen extends MineTogetherScreen
     @Override
     public boolean charTyped(char c, int i)
     {
-        if(searchEntry.isFocused())
+        if (searchEntry.isFocused())
         {
             boolean flag = searchEntry.charTyped(c, i);
             refreshFriendsList();
             return flag;
         }
-        if(chatBox.isFocused())
+        if (chatBox.isFocused())
         {
             return chatBox.charTyped(c, i);
         }
@@ -254,14 +256,14 @@ public class FriendsListScreen extends MineTogetherScreen
     @Override
     public boolean keyPressed(int i, int j, int k)
     {
-        if(searchEntry.isFocused())
+        if (searchEntry.isFocused())
         {
             searchEntry.setSuggestion("");
             boolean flag = searchEntry.keyPressed(i, j, k);
             refreshFriendsList();
             return flag;
         }
-        if(targetProfile != null && chatBox.isFocused())
+        if (targetProfile != null && chatBox.isFocused())
         {
             if ((i == GLFW.GLFW_KEY_ENTER || i == GLFW.GLFW_KEY_KP_ENTER) && !chatBox.getValue().trim().isEmpty())
             {
@@ -276,12 +278,14 @@ public class FriendsListScreen extends MineTogetherScreen
     @Override
     public boolean mouseClicked(double d, double e, int i)
     {
-        if(list.getCurrSelected() != null)
+        if (list.getCurrSelected() != null)
         {
             boolean flag = targetProfile == null || !targetProfile.equals(list.getCurrSelected().getProfile());
-            if (flag) {
+            if (flag)
+            {
                 Profile profile = list.getCurrSelected().getProfile();
-                if (profile != null && profile.isFriend()) {
+                if (profile != null && profile.isFriend())
+                {
                     targetProfile = profile;
                     chat.updateLines(profile.getMediumHash());
                 }

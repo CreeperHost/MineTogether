@@ -16,9 +16,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 public class MineTogetherSocialInteractionsScreen extends Screen
 {
@@ -58,16 +56,20 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         int k = socialInteractionsPlayerList.getRowRight();
         int m = 64 + 16 * this.backgroundUnits();
 
-        allButton = addButton(new Button(j, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_all"), (button) -> {
+        allButton = addButton(new Button(j, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_all"), (button) ->
+        {
             showPage(Page.ALL);
         }));
-        friendsButton = addButton(new Button(j + allButton.getWidth(), 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_friends"), (button) -> {
+        friendsButton = addButton(new Button(j + allButton.getWidth(), 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_friends"), (button) ->
+        {
             showPage(Page.FRIENDS);
         }));
-        blockedButton = addButton(new Button(k - i, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_blocked"), (button) -> {
+        blockedButton = addButton(new Button(k - i, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_blocked"), (button) ->
+        {
             showPage(Page.BLOCKED);
         }));
-        partyButton = addButton(new Button(j + allButton.getWidth() * 2, 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_party"), (button) -> {
+        partyButton = addButton(new Button(j + allButton.getWidth() * 2, 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_party"), (button) ->
+        {
             showPage(Page.PARTY);
         }));
 
@@ -75,7 +77,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         {
             String channelName = MineTogetherChat.profile.get().getMediumHash();
 
-            if(!ChatHandler.hasParty)
+            if (!ChatHandler.hasParty)
             {
                 ChatHandler.createPartyChannel(channelName);
                 MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Joining Group channel " + channelName), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
@@ -84,7 +86,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
             else
             {
                 Profile profile = KnownUsers.findByNick(ChatHandler.getPartyOwner());
-                if(profile != null) profile.setPartyMember(false);
+                if (profile != null) profile.setPartyMember(false);
                 MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Leaving Group " + ChatHandler.currentParty), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
                 ChatHandler.leaveChannel(ChatHandler.currentParty);
             }
@@ -115,7 +117,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
     {
         renderBackground(poseStack);
 
-        if(createParty != null)
+        if (createParty != null)
         {
             if (page == Page.PARTY)
             {
@@ -129,7 +131,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
             }
         }
 
-        if(page == Page.PARTY)
+        if (page == Page.PARTY)
         {
             chatButton.visible = ChatHandler.hasParty;
             chatButton.active = ChatHandler.hasParty;
@@ -140,10 +142,10 @@ public class MineTogetherSocialInteractionsScreen extends Screen
             chatButton.active = false;
         }
 
-        if(createParty != null)
+        if (createParty != null)
         {
             String buttonText = ChatHandler.hasParty ? "minetogether.socialInteractions.leave_party" : "minetogether.socialInteractions.create_party";
-            if(ChatHandler.isPartyOwner()) buttonText = "minetogether.socialInteractions.disband_party";
+            if (ChatHandler.isPartyOwner()) buttonText = "minetogether.socialInteractions.disband_party";
 
             createParty.setMessage(new TranslatableComponent(buttonText));
         }
@@ -156,7 +158,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         {
             searchBox.render(poseStack, i, j, f);
         }
-        if(!socialInteractionsPlayerList.list.isEmpty()) socialInteractionsPlayerList.render(poseStack, i, j, f);
+        if (!socialInteractionsPlayerList.list.isEmpty()) socialInteractionsPlayerList.render(poseStack, i, j, f);
         super.render(poseStack, i, j, f);
     }
 
@@ -176,7 +178,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
     @Override
     public boolean keyPressed(int i, int j, int k)
     {
-        if(searchBox.isFocused())
+        if (searchBox.isFocused())
         {
             boolean flag = searchBox.keyPressed(i, j, k);
             socialInteractionsPlayerList.updateList(searchBox.getValue(), page);
@@ -188,7 +190,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
     @Override
     public boolean charTyped(char c, int i)
     {
-        if(searchBox.isFocused())
+        if (searchBox.isFocused())
         {
             boolean flag = searchBox.charTyped(c, i);
             socialInteractionsPlayerList.updateList(searchBox.getValue(), page);
@@ -212,7 +214,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         blit(poseStack, i, 64, 1, 1, 236, 8);
         int j = backgroundUnits();
 
-        for(int k = 0; k < j; ++k)
+        for (int k = 0; k < j; ++k)
         {
             blit(poseStack, i, 72 + 16 * k, 1, 10, 236, 16);
         }
@@ -247,12 +249,12 @@ public class MineTogetherSocialInteractionsScreen extends Screen
     }
 
     @Environment(EnvType.CLIENT)
-    public static enum Page {
-        ALL,
-        FRIENDS,
-        PARTY,
-        BLOCKED;
+    public static enum Page
+    {
+        ALL, FRIENDS, PARTY, BLOCKED;
 
-        private Page() {}
+        private Page()
+        {
+        }
     }
 }

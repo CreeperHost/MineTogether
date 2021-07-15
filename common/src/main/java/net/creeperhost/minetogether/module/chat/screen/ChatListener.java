@@ -8,14 +8,10 @@ import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.IChatListener;
 import net.creeperhost.minetogetherlib.chat.data.Message;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class ChatListener implements IChatListener
 {
@@ -29,7 +25,7 @@ public class ChatListener implements IChatListener
             Screen currentScreen = Minecraft.getInstance().screen;
             ConfirmScreen confirmScreen = new ConfirmScreen(accepted ->
             {
-                if(accepted) ChatHandler.acceptPartyInvite(profile);
+                if (accepted) ChatHandler.acceptPartyInvite(profile);
 
                 MineTogetherClient.toastHandler.clearToast(true);
                 Minecraft.getInstance().setScreen(currentScreen);

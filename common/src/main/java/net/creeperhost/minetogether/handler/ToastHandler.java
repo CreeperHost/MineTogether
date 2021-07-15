@@ -1,17 +1,13 @@
 package net.creeperhost.minetogether.handler;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
@@ -100,15 +96,16 @@ public class ToastHandler
                 int textColour = (0xFFFFFF << 32) | ((int) (alpha * 255) << 24);
 
                 int start = (MineTogetherClient.toastHandler.getY());
-                for(FormattedCharSequence properties : s)
+                for (FormattedCharSequence properties : s)
                 {
                     int x = getX() + 6;
-                    if(toastType == EnumToastType.WARNING) x = getX() + 16;
+                    if (toastType == EnumToastType.WARNING) x = getX() + 16;
 
-                    Minecraft.getInstance().font.drawShadow(poseStack, properties, x, start +=9, textColour);
+                    Minecraft.getInstance().font.drawShadow(poseStack, properties, x, start += 9, textColour);
                 }
 
-            } else
+            }
+            else
             {
                 MineTogetherClient.toastHandler.clearToast(true);
             }
@@ -117,9 +114,7 @@ public class ToastHandler
 
     public enum EnumToastType
     {
-        DEFAULT(0, 0),
-        WHITE(0, 32),
-        WARNING(0, 64);
+        DEFAULT(0, 0), WHITE(0, 32), WARNING(0, 64);
 
         int x;
         int y;
@@ -130,11 +125,13 @@ public class ToastHandler
             this.y = y;
         }
 
-        public int getX() {
+        public int getX()
+        {
             return x;
         }
 
-        public int getY() {
+        public int getY()
+        {
             return y;
         }
     }

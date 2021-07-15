@@ -23,9 +23,10 @@ public class SignatureVerifier
 
     public String verify()
     {
-        if(jarFile == null) return "Development";
+        if (jarFile == null) return "Development";
         MessageDigest messageDigest;
-        try {
+        try
+        {
             messageDigest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e)
         {
@@ -37,7 +38,8 @@ public class SignatureVerifier
         try
         {
             fileBytes = FileUtils.readFileToByteArray(jarFile);
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             e.printStackTrace();
             return "Development";
         }
@@ -64,7 +66,7 @@ public class SignatureVerifier
                     if (jarFile == null) continue;
 
                     MineTogether.logger.info("JARFILE " + jarFile.getName());
-                    if(jarFile.getManifest() == null) continue;
+                    if (jarFile.getManifest() == null) continue;
                     Map<String, Attributes> attributesMap = jarFile.getManifest().getEntries();
 
                     if (attributesMap == null) continue;
@@ -86,7 +88,10 @@ public class SignatureVerifier
                             return file;
                         }
                     }
-                } catch (IOException e) { e.printStackTrace(); }
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
             }
             return null;
         } catch (Throwable e)

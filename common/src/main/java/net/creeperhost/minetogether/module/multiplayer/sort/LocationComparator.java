@@ -23,31 +23,38 @@ public class LocationComparator implements Comparator<ServerSelectionList.Entry>
         if (p1.getServerData().server.flag == null)
         {
             return 1;
-        } else if (p2.getServerData().server.flag == null)
+        }
+        else if (p2.getServerData().server.flag == null)
         {
             return -1;
-        } else if (p1.getServerData().server.flag == p2.getServerData().server.flag)
+        }
+        else if (p1.getServerData().server.flag == p2.getServerData().server.flag)
         {
-//            return super.compare(o1, o2);
-        } else if (p1.getServerData().server.flag.name().equals(ServerOrderCallbacks.getUserCountry()))
+            //            return super.compare(o1, o2);
+        }
+        else if (p1.getServerData().server.flag.name().equals(ServerOrderCallbacks.getUserCountry()))
         {
             if (p2.getServerData().server.flag.name().equals(ServerOrderCallbacks.getUserCountry()))
             {
-//                return super.compare(o1, o2);
-            } else
+                //                return super.compare(o1, o2);
+            }
+            else
             {
                 return -1;
             }
-        } else if (p2.getServerData().server.flag.name().equals(ServerOrderCallbacks.getUserCountry()))
+        }
+        else if (p2.getServerData().server.flag.name().equals(ServerOrderCallbacks.getUserCountry()))
         {
             if (p1.getServerData().server.flag.name().equals(ServerOrderCallbacks.getUserCountry()))
             {
-//                return super.compare(o1, o2);
-            } else
+                //                return super.compare(o1, o2);
+            }
+            else
             {
                 return 1;
             }
-        } else
+        }
+        else
         {
             String str1 = p1.getServerData().server.flag.name();
             String str2 = p2.getServerData().server.flag.name();

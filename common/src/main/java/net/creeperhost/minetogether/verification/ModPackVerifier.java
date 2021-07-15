@@ -30,7 +30,7 @@ public class ModPackVerifier
         int packID;
         String realName;
         HashMap<String, String> jsonObj = new HashMap<>();
-        if(ftbPackID.length() <= 1)
+        if (ftbPackID.length() <= 1)
         {
             try
             {
@@ -52,14 +52,16 @@ public class ModPackVerifier
         {
             realName = gson.toJson(jsonObj);
             return realName;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored)
+        {
+        }
         return "{\"p\": \"-1\"}";
     }
 
     public void updateFtbPackID()
     {
         File versions = new File(Platform.getGameFolder() + File.separator + "version.json");
-        if(versions.exists())
+        if (versions.exists())
         {
             try (InputStream stream = new FileInputStream(versions))
             {

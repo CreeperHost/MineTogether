@@ -12,7 +12,8 @@ public class LanServerInfoConnect extends LanServer
         this.friend = friend;
     }
 
-    public FriendDetector.PendingFriend getFriend() {
+    public FriendDetector.PendingFriend getFriend()
+    {
         return friend;
     }
 }

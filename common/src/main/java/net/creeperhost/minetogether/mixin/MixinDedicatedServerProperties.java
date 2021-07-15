@@ -13,7 +13,7 @@ import java.util.Properties;
 @Mixin(DedicatedServerProperties.class)
 public class MixinDedicatedServerProperties
 {
-    @Inject(at=@At("TAIL"), method="<init>")
+    @Inject(at = @At("TAIL"), method = "<init>")
     public void DedicatedServerProperties(Properties properties, RegistryAccess registryAccess, CallbackInfo ci)
     {
         properties.putIfAbsent("discoverability", "unlisted");

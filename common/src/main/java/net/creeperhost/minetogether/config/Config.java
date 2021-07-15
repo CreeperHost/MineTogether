@@ -155,19 +155,21 @@ public class Config
         return chatEnabled && (!argChatDisable);
     }
 
-    public boolean getFirstConnect() {
+    public boolean getFirstConnect()
+    {
         //Explanation
         //If they have an account, we can safely assume they know what MineTogether is, so we won't display the welcome
         //We use a string for firstConnect to ensure it's the same person, and if account changes we can display again.
         boolean response = true;
-        if(MineTogetherChat.profile != null)
+        if (MineTogetherChat.profile != null)
         {
             Profile self = MineTogetherChat.profile.get();
-            if(self != null) {
+            if (self != null)
+            {
                 response = (!self.hasAccount());
             }
         }
-        if(response)
+        if (response)
         {
             response = (!firstConnect.equalsIgnoreCase(MineTogetherChat.INSTANCE.ourNick));
         }
@@ -201,7 +203,10 @@ public class Config
         return enableMainMenuFriends;
     }
 
-    public boolean getReplaceRealms() { return replaceRealms; }
+    public boolean getReplaceRealms()
+    {
+        return replaceRealms;
+    }
 
     public void setEnableMainMenuFriends(boolean enableMainMenuFriends)
     {
@@ -240,7 +245,9 @@ public class Config
         try (FileOutputStream configOut = new FileOutputStream(file))
         {
             IOUtils.write(Config.saveConfig(), configOut, Charset.defaultCharset());
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored)
+        {
+        }
     }
 
     public static String saveConfig()
@@ -260,10 +267,13 @@ public class Config
                 FileWriter tileWriter = new FileWriter(file);
                 tileWriter.write(Config.saveConfig());
                 tileWriter.close();
-            } else
+            }
+            else
             {
                 Config.loadFromFile(file);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored)
+        {
+        }
     }
 }

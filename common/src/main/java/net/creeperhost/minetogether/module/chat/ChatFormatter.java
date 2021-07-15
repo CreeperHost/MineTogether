@@ -1,6 +1,8 @@
 package net.creeperhost.minetogether.module.chat;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
@@ -40,15 +42,18 @@ public class ChatFormatter
             String inputNick = message.sender;
             String outputNick = inputNick;
 
-            if (inputNick.contains(":")) {
+            if (inputNick.contains(":"))
+            {
                 String[] split = inputNick.split(":");
-                switch (split[0]) {
-                    case "FR": { // new scope because Java is stupid
+                switch (split[0])
+                {
+                    case "FR":
+                    { // new scope because Java is stupid
                         if (split.length < 2) return null;
 
                         String nick = split[1];
                         Profile profile = KnownUsers.findByNick(nick);
-                        if(profile == null) profile = KnownUsers.add(nick);
+                        if (profile == null) profile = KnownUsers.add(nick);
 
                         String nickDisplay = profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
 
@@ -77,8 +82,8 @@ public class ChatFormatter
                         if (split.length < 2) return null;
                         String nick = split[1];
                         Profile profile = KnownUsers.findByNick(nick);
-                        if(profile == null) profile = KnownUsers.add(nick);
-                        String nickDisplay =  profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
+                        if (profile == null) profile = KnownUsers.add(nick);
+                        String nickDisplay = profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
 
                         Component userComp = new TranslatableComponent(" (" + nickDisplay + ") accepted your friend request.");
 
@@ -89,20 +94,30 @@ public class ChatFormatter
 
             Profile profile = null;
 
-            if (inputNick.startsWith("MT") && inputNick.length() >= 16) {
+            if (inputNick.startsWith("MT") && inputNick.length() >= 16)
+            {
                 profile = KnownUsers.findByNick(inputNick);
                 if (profile == null) profile = KnownUsers.add(inputNick);
-                if (profile != null) {
+                if (profile != null)
+                {
                     premium.set(profile.isPremium());
                     outputNick = profile.getUserDisplay();
                 }
-                if (inputNick.equals(MineTogetherChat.profile.get().getShortHash()) || inputNick.equals(MineTogetherChat.profile.get().getMediumHash())) {
+                if (inputNick.equals(MineTogetherChat.profile.get().getShortHash()) || inputNick.equals(MineTogetherChat.profile.get().getMediumHash()))
+                {
                     outputNick = MineTogetherChat.profile.get().getUserDisplay();
-                } else {
-                    //Should probably check mutedUsers against their shortHash...
-                    if(profile.isMuted()) { return null; }
                 }
-            } else if (!inputNick.equals("System")) {
+                else
+                {
+                    //Should probably check mutedUsers against their shortHash...
+                    if (profile.isMuted())
+                    {
+                        return null;
+                    }
+                }
+            }
+            else if (!inputNick.equals("System"))
+            {
                 return null;
             }
 
@@ -112,10 +127,12 @@ public class ChatFormatter
             ChatFormatting arrowColour = ChatFormatting.WHITE;
             ChatFormatting messageColour = ChatFormatting.WHITE;
 
-            if (profile != null && profile.isFriend()) {
+            if (profile != null && profile.isFriend())
+            {
                 nickColour = ChatFormatting.YELLOW;
                 outputNick = profile.friendName;
-                if (!ChatHandler.autocompleteNames.contains(outputNick)) {
+                if (!ChatHandler.autocompleteNames.contains(outputNick))
+                {
                     ChatHandler.autocompleteNames.add(outputNick);
                 }
             }
@@ -128,22 +145,28 @@ public class ChatFormatter
 
             boolean highlight = false;
 
-            for (int i = 0; i < split.length; i++) {
+            for (int i = 0; i < split.length; i++)
+            {
                 String splitStr = split[i];
                 String justNick = splitStr.replaceAll("[^A-Za-z0-9#]", "");
-                if (justNick.startsWith("MT") && justNick.length() >= 16) {
-                    if ((MineTogetherChat.profile.get() != null && (justNick.equals(MineTogetherChat.profile.get().getShortHash()) || justNick.equals(MineTogetherChat.profile.get().getMediumHash()))) || justNick.equals(MineTogetherChat.INSTANCE.ourNick)) {
+                if (justNick.startsWith("MT") && justNick.length() >= 16)
+                {
+                    if ((MineTogetherChat.profile.get() != null && (justNick.equals(MineTogetherChat.profile.get().getShortHash()) || justNick.equals(MineTogetherChat.profile.get().getMediumHash()))) || justNick.equals(MineTogetherChat.INSTANCE.ourNick))
+                    {
                         splitStr = splitStr.replaceAll(justNick, ChatFormatting.RED + Minecraft.getInstance().player.getName().toString() + messageColour);
                         split[i] = splitStr;
                         highlight = true;
-                    } else if(justNick.length() >= 16)
+                    }
+                    else if (justNick.length() >= 16)
                     {
                         String userName = "User#" + justNick.substring(2, 5);
                         Profile mentionProfile = KnownUsers.findByNick(justNick);
-                        if (mentionProfile != null) {
+                        if (mentionProfile != null)
+                        {
                             userName = mentionProfile.getUserDisplay();
                         }
-                        if (userName != null) {
+                        if (userName != null)
+                        {
                             splitStr = splitStr.replaceAll(justNick, userName);
                             split[i] = splitStr;
                         }
@@ -155,20 +178,21 @@ public class ChatFormatter
 
             Component messageComp = newChatWithLinksOurs(messageStr);
 
-            if((profile != null && profile.isBanned()) || ChatHandler.backupBan.get().contains(inputNick)) {
+            if ((profile != null && profile.isBanned()) || ChatHandler.backupBan.get().contains(inputNick))
+            {
                 messageComp = new TranslatableComponent(ChatFormatting.OBFUSCATED + "<Message Deleted>").copy().withStyle(style -> style.withColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY)));
                 messageColour = ChatFormatting.DARK_GRAY;
             }
 
             messageComp.getStyle().withColor(TextColor.fromLegacyFormat(ChatFormatting.WHITE));
 
-            if(profile != null && !profile.getPackID().isEmpty())
+            if (profile != null && !profile.getPackID().isEmpty())
             {
-                if(profilePackMatcher(profile))
+                if (profilePackMatcher(profile))
                 {
                     nickColour = ChatFormatting.DARK_PURPLE;
 
-                    if(profile.isFriend()) nickColour = ChatFormatting.GOLD;
+                    if (profile.isFriend()) nickColour = ChatFormatting.GOLD;
                 }
             }
 
@@ -181,11 +205,15 @@ public class ChatFormatter
                 userComp = new TranslatableComponent(outputNick);
             }
 
-            if (premium.get()) {
+            if (premium.get())
+            {
                 arrowColour = ChatFormatting.GREEN;
-            } else if (outputNick.equals("System")) {
+            }
+            else if (outputNick.equals("System"))
+            {
                 Matcher matcher = nameRegex.matcher(messageStr);
-                if (matcher.find()) {
+                if (matcher.find())
+                {
                     outputNick = matcher.group();
                     messageStr = messageStr.substring(outputNick.length() + 1);
                     outputNick = outputNick.substring(0, outputNick.length() - 1);
@@ -198,7 +226,8 @@ public class ChatFormatter
             //Resetting the colour back to default as this causes an issue for the message
             userComp = new TranslatableComponent(arrowColour + "<" + nickColour + userComp.getString() + arrowColour + "> ");
 
-            if (!inputNick.equals(MineTogetherChat.INSTANCE.ourNick) && inputNick.startsWith("MT")) {
+            if (!inputNick.equals(MineTogetherChat.INSTANCE.ourNick) && inputNick.startsWith("MT"))
+            {
                 String finalOutputNick = outputNick;
                 userComp = userComp.copy().withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, finalOutputNick)));
             }
@@ -206,7 +235,7 @@ public class ChatFormatter
             ChatFormatting finalMessageColour = messageColour;
             messageComp = messageComp.copy().withStyle(style -> style.withColor(TextColor.fromLegacyFormat(finalMessageColour)));
 
-            if(Config.getInstance().getFirstConnect())
+            if (Config.getInstance().getFirstConnect())
             {
                 messageComp = new TranslatableComponent(messageComp.getString());
                 messageComp = messageComp.copy().withStyle(style -> style.withFont(Constants.GALACTIC_ALT_FONT));
@@ -225,14 +254,16 @@ public class ChatFormatter
         return new TranslatableComponent("Error formatting line, Please report this to the issue tracker");
     }
 
-    public static String rot13(String input) {
+    public static String rot13(String input)
+    {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < input.length(); i++) {
+        for (int i = 0; i < input.length(); i++)
+        {
             char c = input.charAt(i);
-            if       (c >= 'a' && c <= 'm') c += 13;
-            else if  (c >= 'A' && c <= 'M') c += 13;
-            else if  (c >= 'n' && c <= 'z') c -= 13;
-            else if  (c >= 'N' && c <= 'Z') c -= 13;
+            if (c >= 'a' && c <= 'm') c += 13;
+            else if (c >= 'A' && c <= 'M') c += 13;
+            else if (c >= 'n' && c <= 'z') c -= 13;
+            else if (c >= 'N' && c <= 'Z') c -= 13;
             sb.append(c);
         }
         return sb.toString();
@@ -240,27 +271,27 @@ public class ChatFormatter
 
     public static boolean profilePackMatcher(Profile profile)
     {
-        if(profile == null) return false;
-        if(profile.getPackID().isEmpty()) return false;
-        if(MineTogetherChat.profile.get().getPackID().isEmpty()) return false;
+        if (profile == null) return false;
+        if (profile.getPackID().isEmpty()) return false;
+        if (MineTogetherChat.profile.get().getPackID().isEmpty()) return false;
 
         String profilePack = getCleanedPackID(profile);
         String ourID = getCleanedPackID(MineTogetherChat.profile.get());
 
-        if(profilePack.isEmpty()) return false;
-        if(ourID.isEmpty()) return false;
+        if (profilePack.isEmpty()) return false;
+        if (ourID.isEmpty()) return false;
 
         return profilePack.equals(ourID);
     }
 
     public static String getCleanedPackID(Profile profile)
     {
-        if(profile == null) return "";
+        if (profile == null) return "";
         String json = profile.getPackID();
         JsonElement jElement = new JsonParser().parse(json);
         JsonObject jObject = jElement.getAsJsonObject();
         String id = jObject.get("p").getAsString();
-        if(id == null) return "";
+        if (id == null) return "";
         return id;
     }
 
@@ -274,7 +305,7 @@ public class ChatFormatter
             final String subst = "User#$2";
             final String substr2 = "$1#$2";
 
-            final Matcher matcher  = patternA.matcher(word);
+            final Matcher matcher = patternA.matcher(word);
             final Matcher matcherb = patternB.matcher(word);
             final Matcher matcherc = patternC.matcher(word);
             final Matcher matcherd = patternD.matcher(word);
@@ -285,41 +316,46 @@ public class ChatFormatter
             String justNick = word;
             String result = word;
             String result2 = "";
-            if(matcher.matches())
+            if (matcher.matches())
             {
                 result = matcher.replaceAll(subst);
-            } else if(matcherb.matches())
+            }
+            else if (matcherb.matches())
             {
                 result = matcherb.replaceAll(subst);
-            } else if(matcherc.matches())
+            }
+            else if (matcherc.matches())
             {
                 result = matcherc.replaceAll(subst);
             }
-            else if(matcherd.matches())
+            else if (matcherd.matches())
             {
                 result = matcherd.replaceAll(subst);
             }
-            else if(matchere.matches())
+            else if (matchere.matches())
             {
                 result = matchere.replaceAll(subst);
             }
-            else if(matcherg.matches())
+            else if (matcherg.matches())
             {
                 result2 = matcherg.replaceAll(substr2);
-            } else if(matcherf.matches())
+            }
+            else if (matcherf.matches())
             {
                 result2 = matcherf.replaceAll(substr2);
             }
-            if(result.startsWith("User") || result2.length() > 0)
+            if (result.startsWith("User") || result2.length() > 0)
             {
-                if(result2.length() > 0)
+                if (result2.length() > 0)
                 {
                     justNick = result2.replaceAll("[^A-Za-z0-9#]", "");
-                } else {
+                }
+                else
+                {
                     justNick = result.replaceAll("[^A-Za-z0-9#]", "");
                 }
                 Profile profile = KnownUsers.findByDisplay(justNick);
-                if(profile == null)
+                if (profile == null)
                 {
                     continue;
                 }
@@ -336,7 +372,7 @@ public class ChatFormatter
                 }
             }
         }
-        if(replaced)
+        if (replaced)
         {
             text = String.join(" ", split);
         }

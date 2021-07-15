@@ -30,7 +30,6 @@ public class PlayerComparator implements Comparator<ServerSelectionList.Entry>
         {
             o2Players = p2.getServerData().playerList.size();
         }
-        return o1Players > p2.getServerData().server.uptime ? -1
-                : o1Players < o2Players ? 1 : 0;
+        return o1Players > p2.getServerData().server.uptime ? -1 : o1Players < o2Players ? 1 : 0;
     }
 }

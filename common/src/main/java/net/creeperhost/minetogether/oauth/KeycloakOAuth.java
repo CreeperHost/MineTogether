@@ -26,9 +26,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
-public class KeycloakOAuth {
+public class KeycloakOAuth
+{
     static OAuthWebServer server;
-    public static void main(String[] args) {
+
+    public static void main(String[] args)
+    {
         Random random = new Random();
         final String apiKey = "mt-ingame";
         final String baseUrl = "https://auth.minetogether.io/";
@@ -46,98 +49,116 @@ public class KeycloakOAuth {
         server = null;
         for (int i = 0; i < 5 && server == null; i++)
         {
-            try {
+            try
+            {
                 port = 1000 + random.nextInt(64535);
                 server = new OAuthWebServer(false, port);
-            } catch (IOException ignored) {}
+            } catch (IOException ignored)
+            {
+            }
         }
 
-        if (server == null) {
+        if (server == null)
+        {
             // handle error here
             return;
         }
 
         final String callback = "http://localhost:" + port;
 
-        final OAuth20Service service = new ServiceBuilder(apiKey)
-                .apiSecret("d3b0c03e-4447-400b-ba48-e08902cd95d6")
+        final OAuth20Service service = new ServiceBuilder(apiKey).apiSecret("d3b0c03e-4447-400b-ba48-e08902cd95d6")
                 // Yes, we use a secret - because public doesn't work in Keycloak for some reason. But we use PKCE aswell. So no downside over public with PKCE.
-                .defaultScope("openid")
-                .callback(callback)
-                .responseType("code")
-                .build(KeycloakApi.instance(baseUrl, realm));
+                .defaultScope("openid").callback(callback).responseType("code").build(KeycloakApi.instance(baseUrl, realm));
 
 
-        final AuthorizationUrlBuilder authorizationUrlBuilder = service.createAuthorizationUrlBuilder()
-                .state(secretState)
-                .initPKCE();
+        final AuthorizationUrlBuilder authorizationUrlBuilder = service.createAuthorizationUrlBuilder().state(secretState).initPKCE();
 
-        try {
+        try
+        {
             openURL(new URL(authorizationUrlBuilder.build()));
-        } catch (MalformedURLException ignored) {
+        } catch (MalformedURLException ignored)
+        {
             server.stop();
             //ERROR, handle gui side
         }
 
 
-        server.setCodeHandler((code, state) -> {
-            try {
-                if (!state.equals(secretState)) {
+        server.setCodeHandler((code, state) ->
+        {
+            try
+            {
+                if (!state.equals(secretState))
+                {
                     // error or something
                     return;
                 }
 
                 final OAuth2AccessToken accessToken;
-                accessToken = service.getAccessToken(AccessTokenRequestParams.create(code)
-                        .pkceCodeVerifier(authorizationUrlBuilder.getPkce().getCodeVerifier()));
+                accessToken = service.getAccessToken(AccessTokenRequestParams.create(code).pkceCodeVerifier(authorizationUrlBuilder.getPkce().getCodeVerifier()));
 
                 final OAuthRequest request = new OAuthRequest(Verb.GET, protectedResourceUrl);
                 service.signRequest(accessToken, request);
                 com.github.scribejava.core.model.Response response = service.execute(request);
-                if (response.getCode() != 200) {
+                if (response.getCode() != 200)
+                {
                     // errorrrrrr
                     return;
                 }
                 JsonParser parser = new JsonParser();
                 JsonElement parse;
-                try {
+                try
+                {
                     parse = parser.parse(response.getBody());
-                } catch (JsonParseException e) {
+                } catch (JsonParseException e)
+                {
                     // errrorrrrrrrr
                     return;
                 }
-                if (parse.isJsonObject()) {
+                if (parse.isJsonObject())
+                {
                     boolean doAuth = true;
-                    try {
+                    try
+                    {
                         JsonObject profile = parse.getAsJsonObject();
-                        if (profile.has("federatedIdentities")) {
+                        if (profile.has("federatedIdentities"))
+                        {
                             JsonArray identities = profile.getAsJsonArray("federatedIdentities");
-                            for(JsonElement identity: identities)
+                            for (JsonElement identity : identities)
                             {
-                                if (identity.isJsonObject() && identity.getAsJsonObject().has("identityProvider") && identity.getAsJsonObject().getAsJsonPrimitive("identityProvider").getAsString().equals("mcauth")) {
+                                if (identity.isJsonObject() && identity.getAsJsonObject().has("identityProvider") && identity.getAsJsonObject().getAsJsonPrimitive("identityProvider").getAsString().equals("mcauth"))
+                                {
                                     // already have existing
-                                    if (identity.getAsJsonObject().get("userId").getAsString().equals(Minecraft.getInstance().player.getStringUUID())) {
+                                    if (identity.getAsJsonObject().get("userId").getAsString().equals(Minecraft.getInstance().player.getStringUUID()))
+                                    {
                                         doAuth = false;
                                     }
                                 }
                             }
                         }
-                    } catch (Throwable e) {
+                    } catch (Throwable e)
+                    {
                         doAuth = true;
                     }
 
-                    if (doAuth) {
-                        ServerAuthTest.auth((authed, mcauthcode) -> {
-                            if (authed) {
+                    if (doAuth)
+                    {
+                        ServerAuthTest.auth((authed, mcauthcode) ->
+                        {
+                            if (authed)
+                            {
                                 OAuthRequest request2 = new OAuthRequest(Verb.POST, "https://auth.minetogether.io/auth/realms/MineTogether/linksearch/linkmc/" + mcauthcode);
                                 service.signRequest(accessToken, request2);
-                                try {
+                                try
+                                {
                                     com.github.scribejava.core.model.Response response2 = service.execute(request2);
-                                } catch (InterruptedException e) {
+                                } catch (InterruptedException e)
+                                {
                                     e.printStackTrace();
-                                } catch (ExecutionException e) {
+                                } catch (ExecutionException e)
+                                {
                                     e.printStackTrace();
-                                } catch (IOException e) {
+                                } catch (IOException e)
+                                {
                                     e.printStackTrace();
                                 }
                             }
@@ -146,7 +167,8 @@ public class KeycloakOAuth {
                     }
                 }
                 closeServer();
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 e.printStackTrace();
                 closeServer();
                 // errorrrrr
@@ -154,12 +176,14 @@ public class KeycloakOAuth {
         });
     }
 
-    public static boolean openURL(URL url) {
+    public static boolean openURL(URL url)
+    {
         String[] cmdLine;
 
         Util.OS os = Util.getPlatform();
 
-        switch(os) {
+        switch (os)
+        {
             case WINDOWS:
                 cmdLine = new String[]{"rundll32", "url.dll,FileProtocolHandler", url.toString()};
                 break;
@@ -170,12 +194,14 @@ public class KeycloakOAuth {
                 cmdLine = new String[]{"xdg-open", url.toString()};
         }
 
-        try {
+        try
+        {
             Process browserProcess = AccessController.doPrivileged((PrivilegedExceptionAction<Process>) () -> Runtime.getRuntime().exec(cmdLine));
             Iterator errorIterator = IOUtils.readLines(browserProcess.getErrorStream()).iterator();
 
-            while(errorIterator.hasNext()) {
-                String errorLine = (String)errorIterator.next();
+            while (errorIterator.hasNext())
+            {
+                String errorLine = (String) errorIterator.next();
                 MineTogether.logger.error(errorLine);
             }
 
@@ -183,17 +209,21 @@ public class KeycloakOAuth {
             browserProcess.getErrorStream().close();
             browserProcess.getOutputStream().close();
             return true;
-        } catch (IOException | PrivilegedActionException var5) {
+        } catch (IOException | PrivilegedActionException var5)
+        {
             MineTogether.logger.error("Couldn't open url '{}'", url, var5);
             return false;
         }
     }
 
-    public static void closeServer() {
+    public static void closeServer()
+    {
         Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+        timer.schedule(new TimerTask()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 server.stop();
                 timer.cancel();
             }

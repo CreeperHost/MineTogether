@@ -59,8 +59,8 @@ public class PublicServerEntry extends ServerSelectionList.Entry
     private DynamicTexture icon;
     private ResourceLocation flags = new ResourceLocation(Constants.MOD_ID, "textures/flags/flags.png");
 
-//    private ResourceLocation flags = new ResourceLocation(Constants.MOD_ID, "textures/flags/flags.png");
-//    private ResourceLocation applicationGui = new ResourceLocation(Constants.MOD_ID, "textures/gui.png");
+    //    private ResourceLocation flags = new ResourceLocation(Constants.MOD_ID, "textures/flags/flags.png");
+    //    private ResourceLocation applicationGui = new ResourceLocation(Constants.MOD_ID, "textures/gui.png");
 
     public PublicServerEntry(JoinMultiplayerScreenPublic joinMultiplayerScreen, ServerSelectionList serverSelectionList, ServerData serverData)
     {
@@ -68,7 +68,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry
         this.joinMultiplayerScreen = joinMultiplayerScreen;
         this.serverSelectionList = serverSelectionList;
         this.iconLocation = new ResourceLocation("servers/" + Hashing.sha1().hashUnencodedChars(serverData.ip) + "/icon");
-        this.icon = (DynamicTexture)this.minecraft.getTextureManager().getTexture(this.iconLocation);
+        this.icon = (DynamicTexture) this.minecraft.getTextureManager().getTexture(this.iconLocation);
     }
 
     @Override
@@ -80,15 +80,20 @@ public class PublicServerEntry extends ServerSelectionList.Entry
             this.serverData.ping = -2L;
             this.serverData.motd = TextComponent.EMPTY;
             this.serverData.status = TextComponent.EMPTY;
-            THREAD_POOL.submit(() -> {
-                try {
-                    this.joinMultiplayerScreen.getPinger().pingServer(this.serverData, () -> {
+            THREAD_POOL.submit(() ->
+            {
+                try
+                {
+                    this.joinMultiplayerScreen.getPinger().pingServer(this.serverData, () ->
+                    {
                         this.minecraft.execute(this::updateServerList);
                     });
-                } catch (UnknownHostException var2) {
+                } catch (UnknownHostException var2)
+                {
                     this.serverData.ping = -1L;
                     this.serverData.motd = CANT_RESOLVE_TEXT;
-                } catch (Exception var3) {
+                } catch (Exception var3)
+                {
                     this.serverData.ping = -1L;
                     this.serverData.motd = CANT_CONNECT_TEXT;
                 }
@@ -97,56 +102,77 @@ public class PublicServerEntry extends ServerSelectionList.Entry
         }
         //Kill off not compatable version check
         boolean bl2 = false;//this.serverData.protocol != SharedConstants.getCurrentVersion().getProtocolVersion();
-        this.minecraft.font.draw(poseStack, this.serverData.name, (float)(k + 32 + 3), (float)(j + 1), 16777215);
+        this.minecraft.font.draw(poseStack, this.serverData.name, (float) (k + 32 + 3), (float) (j + 1), 16777215);
         List<FormattedCharSequence> list = this.minecraft.font.split(this.serverData.motd, l - 32 - 2);
 
-        for(int p = 0; p < Math.min(list.size(), 2); ++p) {
+        for (int p = 0; p < Math.min(list.size(), 2); ++p)
+        {
             Font var10000 = this.minecraft.font;
-            FormattedCharSequence var10002 = (FormattedCharSequence)list.get(p);
-            float var10003 = (float)(k + 32 + 3);
+            FormattedCharSequence var10002 = (FormattedCharSequence) list.get(p);
+            float var10003 = (float) (k + 32 + 3);
             int var10004 = j + 12;
             this.minecraft.font.getClass();
-            var10000.draw(poseStack, var10002, var10003, (float)(var10004 + 9 * p), 8421504);
+            var10000.draw(poseStack, var10002, var10003, (float) (var10004 + 9 * p), 8421504);
         }
 
         Component component = bl2 ? this.serverData.version.copy().withStyle(ChatFormatting.RED) : this.serverData.status;
-        int q = this.minecraft.font.width((FormattedText)component);
-        this.minecraft.font.draw(poseStack, (Component)component, (float)(k + l - q - 15 - 2), (float)(j + 1), 8421504);
+        int q = this.minecraft.font.width((FormattedText) component);
+        this.minecraft.font.draw(poseStack, (Component) component, (float) (k + l - q - 15 - 2), (float) (j + 1), 8421504);
         int r = 0;
         int z;
         List list5;
         Component component5;
-        if (bl2) {
+        if (bl2)
+        {
             z = 5;
             component5 = new TranslatableComponent("");
-//            component5 = INCOMPATIBLE_TOOLTIP;
+            //            component5 = INCOMPATIBLE_TOOLTIP;
             list5 = this.serverData.playerList;
-        } else if (this.serverData.pinged && this.serverData.ping != -2L) {
-            if (this.serverData.ping < 0L) {
+        }
+        else if (this.serverData.pinged && this.serverData.ping != -2L)
+        {
+            if (this.serverData.ping < 0L)
+            {
                 z = 5;
-            } else if (this.serverData.ping < 150L) {
+            }
+            else if (this.serverData.ping < 150L)
+            {
                 z = 0;
-            } else if (this.serverData.ping < 300L) {
+            }
+            else if (this.serverData.ping < 300L)
+            {
                 z = 1;
-            } else if (this.serverData.ping < 600L) {
+            }
+            else if (this.serverData.ping < 600L)
+            {
                 z = 2;
-            } else if (this.serverData.ping < 1000L) {
+            }
+            else if (this.serverData.ping < 1000L)
+            {
                 z = 3;
-            } else {
+            }
+            else
+            {
                 z = 4;
             }
 
-            if (this.serverData.ping < 0L) {
+            if (this.serverData.ping < 0L)
+            {
                 component5 = NO_CONNECTION_TOOLTIP;
                 list5 = Collections.emptyList();
-            } else {
+            }
+            else
+            {
                 component5 = new TranslatableComponent("multiplayer.status.ping", new Object[]{this.serverData.ping});
                 list5 = this.serverData.playerList;
             }
-        } else {
+        }
+        else
+        {
             r = 1;
-            z = (int)(Util.getMillis() / 100L + (long)(i * 2) & 7L);
-            if (z > 4) {
+            z = (int) (Util.getMillis() / 100L + (long) (i * 2) & 7L);
+            if (z > 4)
+            {
                 z = 8 - z;
             }
 
@@ -156,72 +182,92 @@ public class PublicServerEntry extends ServerSelectionList.Entry
 
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
-        GuiComponent.blit(poseStack, k + l - 15, j, (float)(r * 10), (float)(176 + z * 8), 10, 8, 256, 256);
+        GuiComponent.blit(poseStack, k + l - 15, j, (float) (r * 10), (float) (176 + z * 8), 10, 8, 256, 256);
         String string = this.serverData.getIconB64();
-        if (!Objects.equals(string, this.lastIconB64)) {
-            if (this.uploadServerIcon(string)) {
+        if (!Objects.equals(string, this.lastIconB64))
+        {
+            if (this.uploadServerIcon(string))
+            {
                 this.lastIconB64 = string;
-            } else {
-                this.serverData.setIconB64((String)null);
+            }
+            else
+            {
+                this.serverData.setIconB64((String) null);
                 this.updateServerList();
             }
         }
 
-        if (this.icon != null) {
+        if (this.icon != null)
+        {
             this.drawIcon(poseStack, k, j, this.iconLocation);
-        } else {
+        }
+        else
+        {
             this.drawIcon(poseStack, k, j, ICON_MISSING);
         }
 
         int aa = n - k;
         int ab = o - j;
-        if (aa >= l - 15 && aa <= l - 5 && ab >= 0 && ab <= 8) {
+        if (aa >= l - 15 && aa <= l - 5 && ab >= 0 && ab <= 8)
+        {
             this.joinMultiplayerScreen.setToolTip(Collections.singletonList(component5));
-        } else if (aa >= l - q - 15 - 2 && aa <= l - 15 - 2 && ab >= 0 && ab <= 8) {
+        }
+        else if (aa >= l - q - 15 - 2 && aa <= l - 15 - 2 && ab >= 0 && ab <= 8)
+        {
             this.joinMultiplayerScreen.setToolTip(list5);
         }
 
-        if (this.minecraft.options.touchscreen || bl) {
+        if (this.minecraft.options.touchscreen || bl)
+        {
             this.minecraft.getTextureManager().bind(ICON_OVERLAY_LOCATION);
             GuiComponent.fill(poseStack, k, j, k + 32, j + 32, -1601138544);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             int ac = n - k;
             int ad = o - j;
-            if (this.canJoin()) {
-                if (ac < 32 && ac > 16) {
+            if (this.canJoin())
+            {
+                if (ac < 32 && ac > 16)
+                {
                     GuiComponent.blit(poseStack, k, j, 0.0F, 32.0F, 32, 32, 256, 256);
-                } else {
+                }
+                else
+                {
                     GuiComponent.blit(poseStack, k, j, 0.0F, 0.0F, 32, 32, 256, 256);
                 }
             }
 
-            if (i < this.joinMultiplayerScreen.getServers().size() - 1) {
-                if (ac < 16 && ad > 16) {
+            if (i < this.joinMultiplayerScreen.getServers().size() - 1)
+            {
+                if (ac < 16 && ad > 16)
+                {
                     GuiComponent.blit(poseStack, k, j, 64.0F, 32.0F, 32, 32, 256, 256);
-                } else {
+                }
+                else
+                {
                     GuiComponent.blit(poseStack, k, j, 64.0F, 0.0F, 32, 32, 256, 256);
                 }
             }
         }
         //Our server data
-        if(getServerData() != null) {
+        if (getServerData() != null)
+        {
             Server server = getServerData().server;
             EnumFlag flag = server.flag;
             String applicationURL = server.applicationURL;
-            if (flag != null) {
+            if (flag != null)
+            {
                 Minecraft.getInstance().getTextureManager().bind(flags);
                 int flagWidth = 16;
                 int flagHeight = flag.height / (flag.width / flagWidth);
                 ScreenHelpers.drawScaledCustomSizeModalRect(k + l - 5 - flagWidth, j + 30 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
 
-                if (n >= k + l - 5 - flagWidth
-                        && n <= k + l - 5
-                        && o >= j - 10 - flagHeight
-                        && o <= j - flagHeight + flagHeight) {
+                if (n >= k + l - 5 - flagWidth && n <= k + l - 5 && o >= j - 10 - flagHeight && o <= j - flagHeight + flagHeight)
+                {
                     List<Component> tooltipList = new ArrayList<>();
 
                     String countryName = ServerOrderCallbacks.getCountries().get(flag.name());
-                    if (countryName == null) {
+                    if (countryName == null)
+                    {
                         countryName = flag.name();
                     }
                     tooltipList.add(new TranslatableComponent(countryName));
@@ -231,28 +277,38 @@ public class PublicServerEntry extends ServerSelectionList.Entry
         }
     }
 
-    private boolean uploadServerIcon(@Nullable String string) {
-        if (string == null) {
+    private boolean uploadServerIcon(@Nullable String string)
+    {
+        if (string == null)
+        {
             this.minecraft.getTextureManager().release(this.iconLocation);
-            if (this.icon != null && this.icon.getPixels() != null) {
+            if (this.icon != null && this.icon.getPixels() != null)
+            {
                 this.icon.getPixels().close();
             }
 
             this.icon = null;
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 NativeImage nativeImage = NativeImage.fromBase64(string);
                 Validate.validState(nativeImage.getWidth() == 64, "Must be 64 pixels wide", new Object[0]);
                 Validate.validState(nativeImage.getHeight() == 64, "Must be 64 pixels high", new Object[0]);
-                if (this.icon == null) {
+                if (this.icon == null)
+                {
                     this.icon = new DynamicTexture(nativeImage);
-                } else {
+                }
+                else
+                {
                     this.icon.setPixels(nativeImage);
                     this.icon.upload();
                 }
 
                 this.minecraft.getTextureManager().register(this.iconLocation, this.icon);
-            } catch (Throwable var3) {
+            } catch (Throwable var3)
+            {
                 MineTogether.logger.error("Invalid icon for server {} ({})", this.serverData.name, this.serverData.ip, var3);
                 return false;
             }
@@ -281,14 +337,14 @@ public class PublicServerEntry extends ServerSelectionList.Entry
 
     public ServerDataPublic getServerData()
     {
-        if(serverData instanceof ServerDataPublic) return (ServerDataPublic) serverData;
+        if (serverData instanceof ServerDataPublic) return (ServerDataPublic) serverData;
         return null;
     }
 
     @Override
     public boolean mouseClicked(double d, double e, int i)
     {
-        double f = d - (double)serverSelectionList.getRowLeft();
+        double f = d - (double) serverSelectionList.getRowLeft();
         double g = e - ((MixinSelectionList) serverSelectionList).invokeRowTop(serverSelectionList.children().indexOf(this));
         if (f <= 32.0D)
         {
@@ -301,7 +357,8 @@ public class PublicServerEntry extends ServerSelectionList.Entry
         }
 
         this.joinMultiplayerScreen.setSelected(this);
-        if (Util.getMillis() - this.lastClickTime < 250L) {
+        if (Util.getMillis() - this.lastClickTime < 250L)
+        {
             this.joinMultiplayerScreen.joinSelectedServer();
         }
 

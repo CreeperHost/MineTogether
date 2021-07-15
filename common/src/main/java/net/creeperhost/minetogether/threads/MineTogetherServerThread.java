@@ -30,8 +30,7 @@ public class MineTogetherServerThread
                     send.put("ip", serverIP);
                 }
 
-                if (MineTogetherServer.secret != null)
-                    send.put("secret", MineTogetherServer.secret);
+                if (MineTogetherServer.secret != null) send.put("secret", MineTogetherServer.secret);
                 send.put("name", displayName);
                 send.put("projectid", projectid);
                 send.put("port", String.valueOf(port));
@@ -57,17 +56,18 @@ public class MineTogetherServerThread
                         {
                             tries = 0;
                             MineTogetherServer.updateID = jObject.get("id").getAsNumber().intValue();
-                            if (jObject.has("secret"))
-                                MineTogetherServer.secret = jObject.get("secret").getAsString();
+                            if (jObject.has("secret")) MineTogetherServer.secret = jObject.get("secret").getAsString();
                             isActive = true;
-                        } else
+                        }
+                        else
                         {
                             if (tries >= 4)
                             {
                                 MineTogether.logger.error("Unable to do call to server list - disabling for 45 minutes. Reason: " + jObject.get("message").getAsString());
                                 tries = 0;
                                 sleepTime = 60 * 1000 * 45;
-                            } else
+                            }
+                            else
                             {
                                 MineTogether.logger.error("Unable to do call to server list - will try again in 90 seconds. Reason: " + jObject.get("message").getAsString());
                                 tries++;
@@ -78,16 +78,20 @@ public class MineTogetherServerThread
                         if (first)
                         {
                             //TODO add back invite command / server invites
-//                            CommandInvite.reloadInvites(new String[0]);
+                            //                            CommandInvite.reloadInvites(new String[0]);
                             first = false;
                         }
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception ignored)
+                {
+                }
 
                 try
                 {
                     Thread.sleep(sleepTime);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored)
+                {
+                }
             }
         });
         mtThread.setDaemon(true);
@@ -101,8 +105,6 @@ public class MineTogetherServerThread
 
     public enum Discoverability
     {
-        UNLISTED,
-        PUBLIC,
-        INVITE
+        UNLISTED, PUBLIC, INVITE
     }
 }

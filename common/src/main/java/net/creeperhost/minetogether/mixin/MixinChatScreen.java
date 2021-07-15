@@ -10,11 +10,14 @@ import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogethergui.gif.AnimatedGif;
 import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
-import net.creeperhost.minetogetherlib.chat.*;
+import net.creeperhost.minetogethergui.widgets.DropdownButton;
+import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
+import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
+import net.creeperhost.minetogetherlib.chat.ChatHandler;
+import net.creeperhost.minetogetherlib.chat.KnownUsers;
+import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
 import net.creeperhost.minetogetherlib.util.MathHelper;
-import net.creeperhost.minetogethergui.widgets.DropdownButton;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -43,11 +46,15 @@ import java.util.List;
 @Mixin(ChatScreen.class)
 public abstract class MixinChatScreen extends Screen
 {
-    @Shadow public abstract void render(PoseStack poseStack, int i, int j, float f);
+    @Shadow
+    public abstract void render(PoseStack poseStack, int i, int j, float f);
 
-    @Shadow protected EditBox input;
-    @Shadow private CommandSuggestions commandSuggestions;
-    @Shadow private String initial;
+    @Shadow
+    protected EditBox input;
+    @Shadow
+    private CommandSuggestions commandSuggestions;
+    @Shadow
+    private String initial;
     private GuiButtonPair switchButton;
     private DropdownButton<net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu> dropdownButton;
     private String currentDropdown;
@@ -63,27 +70,29 @@ public abstract class MixinChatScreen extends Screen
         super(component);
     }
 
-    @Inject(at=@At("TAIL"), method="init()V")
+    @Inject(at = @At("TAIL"), method = "init()V")
     public void init(CallbackInfo ci)
     {
-        if(!Config.getInstance().isChatEnabled()) return;
+        if (!Config.getInstance().isChatEnabled()) return;
 
-        if(initial.equalsIgnoreCase("/"))
+        if (initial.equalsIgnoreCase("/"))
         {
-            if(ChatModule.clientChatTarget != ClientChatTarget.DEFAULT) ChatModule.lastSelected = ChatModule.clientChatTarget;
+            if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
+                ChatModule.lastSelected = ChatModule.clientChatTarget;
             ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
-        } else if (ChatModule.lastSelected != ClientChatTarget.DEFAULT)
+        }
+        else if (ChatModule.lastSelected != ClientChatTarget.DEFAULT)
         {
             ChatModule.clientChatTarget = ChatModule.lastSelected;
         }
 
         int x = MathHelper.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;
 
-        if(ChatHandler.hasParty)
+        if (ChatHandler.hasParty)
         {
             addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
             {
-                if(switchButton.activeButton == 2)
+                if (switchButton.activeButton == 2)
                 {
                     ChatModule.clientChatTarget = ClientChatTarget.PARTY;
                     minecraft.setScreen(new ChatScreen(""));
@@ -99,7 +108,7 @@ public abstract class MixinChatScreen extends Screen
             addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
             {
                 ChatModule.clientChatTarget = switchButton.activeButton == 1 ? ClientChatTarget.MINETOGETHER : ClientChatTarget.DEFAULT;
-                if(switchButton.activeButton == 1) IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
+                if (switchButton.activeButton == 1) IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                 minecraft.setScreen(new ChatScreen(""));
 
             }, isSinglePlayer() ? I18n.get("minetogether.ingame.chat.local") : I18n.get("minetogether.ingame.chat.server"), I18n.get("minetogether.ingame.chat.global")));
@@ -122,7 +131,8 @@ public abstract class MixinChatScreen extends Screen
             else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.addfriend")))
             {
                 Profile profile = KnownUsers.findByDisplay(currentDropdown);
-                if(profile != null) minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
+                if (profile != null)
+                    minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
             }
             else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mention")))
             {
@@ -131,11 +141,11 @@ public abstract class MixinChatScreen extends Screen
             }
         }));
         dropdownButton.flipped = true;
-        if(Config.getInstance().getFirstConnect() && ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
+        if (Config.getInstance().getFirstConnect() && ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
         {
             ChatCallbacks.updateOnlineCount();
 
-            addButton(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
+            addButton(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
             {
                 IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                 Config.getInstance().setFirstConnect(false);
@@ -143,7 +153,7 @@ public abstract class MixinChatScreen extends Screen
                 disableButton.visible = false;
                 minecraft.setScreen(null);
             }));
-            addButton(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight()+80)/2)+70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
+            addButton(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
             {
                 Config.getInstance().setChatEnabled(false);
                 disableButton.visible = false;
@@ -157,20 +167,20 @@ public abstract class MixinChatScreen extends Screen
     private static boolean isSinglePlayer()
     {
         Minecraft minecraft = Minecraft.getInstance();
-        if(minecraft.getSingleplayerServer() == null) return false;
-        if(minecraft.getSingleplayerServer().isPublished()) return false;
-        if(minecraft.isLocalServer()) return true;
+        if (minecraft.getSingleplayerServer() == null) return false;
+        if (minecraft.getSingleplayerServer().isPublished()) return false;
+        if (minecraft.isLocalServer()) return true;
 
         return false;
     }
 
-    @Inject(at=@At("HEAD"), method="render", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "render", cancellable = true)
     public void render(PoseStack poseStack, int i, int j, float partialTicks, CallbackInfo ci)
     {
-        if(!Config.getInstance().isChatEnabled()) return;
+        if (!Config.getInstance().isChatEnabled()) return;
 
         //This is just to stop IntelliJ from complaining
-        if(minecraft == null) return;
+        if (minecraft == null) return;
 
         mouseX = i;
         mouseY = j;
@@ -180,31 +190,36 @@ public abstract class MixinChatScreen extends Screen
         fill(poseStack, 2, this.height - 14, this.width - 2, this.height - 2, minecraft.options.getBackgroundColor(-2147483648));
 
         input.render(poseStack, i, j, partialTicks);
-        if(ChatModule.clientChatTarget == ClientChatTarget.DEFAULT) commandSuggestions.render(poseStack, i, j);
-        Style style = minecraft.gui.getChat().getClickedComponentStyleAt((double)i, (double)j);
+        if (ChatModule.clientChatTarget == ClientChatTarget.DEFAULT) commandSuggestions.render(poseStack, i, j);
+        Style style = minecraft.gui.getChat().getClickedComponentStyleAt((double) i, (double) j);
         if (style != null && style.getHoverEvent() != null)
         {
-            if(style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
+            if (style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
             {
-                Component urlComponent = (Component)style.getHoverEvent().getValue(ComponentUtils.RENDER_GIF);
+                Component urlComponent = (Component) style.getHoverEvent().getValue(ComponentUtils.RENDER_GIF);
                 String url = urlComponent.getString();
-                if(gifImage == null)
+                if (gifImage == null)
                 {
-                    try {
-                            try {
-                                gifImage = AnimatedGif.fromURL(new URL("https://ss.gigabit101.net/Colony_Survival.png"));
-                            } catch (IOException ignored) {}
-                        if(gifImage != null && gifPlayer == null)
+                    try
+                    {
+                        try
+                        {
+                            gifImage = AnimatedGif.fromURL(new URL("https://ss.gigabit101.net/Colony_Survival.png"));
+                        } catch (IOException ignored)
+                        {
+                        }
+                        if (gifImage != null && gifPlayer == null)
                         {
                             gifPlayer = gifImage.makeGifPlayer();
                             gifPlayer.setLooping(true);
                             gifPlayer.setAutoplay(true);
                         }
-                    } catch (Exception exception) {
+                    } catch (Exception exception)
+                    {
                         exception.printStackTrace();
                     }
                 }
-                if(gifPlayer != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
+                if (gifPlayer != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
             }
             this.renderComponentHoverEffect(poseStack, style, i, j);
         }
@@ -213,13 +228,13 @@ public abstract class MixinChatScreen extends Screen
             gifImage = null;
             gifPlayer = null;
         }
-        if(Config.getInstance().getFirstConnect() && ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
+        if (Config.getInstance().getFirstConnect() && ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
         {
-            if(newUserButton != null) newUserButton.visible = true;
-            if(disableButton != null) disableButton.visible = true;
+            if (newUserButton != null) newUserButton.visible = true;
+            if (disableButton != null) disableButton.visible = true;
 
             ChatComponent chatComponent = minecraft.gui.getChat();
-            if(chatComponent != null)
+            if (chatComponent != null)
             {
                 int y = height - 43 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
                 fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, 0x99000000);
@@ -237,10 +252,10 @@ public abstract class MixinChatScreen extends Screen
     /*
      * Used to update suggestions
      */
-    @Inject(at=@At("TAIL"), method="tick")
+    @Inject(at = @At("TAIL"), method = "tick")
     public void tick(CallbackInfo ci)
     {
-        if(!Config.getInstance().isChatEnabled()) return;
+        if (!Config.getInstance().isChatEnabled()) return;
 
         switch (ChatModule.clientChatTarget)
         {
@@ -251,24 +266,24 @@ public abstract class MixinChatScreen extends Screen
                 switchButton.getButtons().get(1).setActive(true);
                 return;
             case PARTY:
-                if(switchButton.getButtons().size() == 3)
+                if (switchButton.getButtons().size() == 3)
                 {
                     switchButton.getButtons().get(2).setActive(true);
                 }
                 return;
         }
 
-        if(gifPlayer != null) gifPlayer.tick();
+        if (gifPlayer != null) gifPlayer.tick();
 
         //This should never happen but better safe than sorry
-        if(input == null) return;
+        if (input == null) return;
 
-        if(ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
+        if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
         {
             input.active = ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED;
             input.setEditable(ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED);
             //Remove focus if the client is not verified
-            if(input.isFocused() && ChatHandler.connectionStatus != ChatConnectionStatus.VERIFIED)
+            if (input.isFocused() && ChatHandler.connectionStatus != ChatConnectionStatus.VERIFIED)
             {
                 input.setFocus(false);
             }
@@ -303,10 +318,10 @@ public abstract class MixinChatScreen extends Screen
     /*
      * Used to remove any left over open dropdowns, Called at the tail of mouseClicked to avoid it interfering with handleComponentClicked
      */
-    @Inject(at=@At("TAIL"), method="mouseClicked", cancellable = true)
+    @Inject(at = @At("TAIL"), method = "mouseClicked", cancellable = true)
     public void mouseClicked(double d, double e, int i, CallbackInfoReturnable<Boolean> cir)
     {
-        if(!Config.getInstance().isChatEnabled()) return;
+        if (!Config.getInstance().isChatEnabled()) return;
 
         if (dropdownButton != null && dropdownButton.wasJustClosed && !dropdownButton.dropdownOpen)
         {
@@ -318,18 +333,18 @@ public abstract class MixinChatScreen extends Screen
     @Override
     public void sendMessage(String string)
     {
-        if(!Config.getInstance().isChatEnabled()) return;
+        if (!Config.getInstance().isChatEnabled()) return;
 
         //This is just to stop IntelliJ from complaining
-        if(minecraft == null) return;
+        if (minecraft == null) return;
 
         //If its our chat screen send the message to our chat handler for sending
-        if(ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
+        if (ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
         {
             ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
             return;
         }
-        if(ChatModule.clientChatTarget == ClientChatTarget.PARTY)
+        if (ChatModule.clientChatTarget == ClientChatTarget.PARTY)
         {
             ChatHandler.sendMessage(ChatHandler.currentParty, string);
             return;
@@ -340,25 +355,25 @@ public abstract class MixinChatScreen extends Screen
     @Override
     public boolean handleComponentClicked(@Nullable Style style)
     {
-        if(!Config.getInstance().isChatEnabled()) return false;
+        if (!Config.getInstance().isChatEnabled()) return false;
 
         //This is just to stop IntelliJ from complaining
-        if(minecraft == null) return false;
+        if (minecraft == null) return false;
         //Let vanilla take over when its not using our tab
-        if(ChatModule.clientChatTarget == ClientChatTarget.DEFAULT) return super.handleComponentClicked(style);
+        if (ChatModule.clientChatTarget == ClientChatTarget.DEFAULT) return super.handleComponentClicked(style);
         //If the Style is null there is nothing to be done
-        if(style == null) return false;
+        if (style == null) return false;
         //If the click event is null there is nothing to be done
-        if(style.getClickEvent() == null) return false;
+        if (style.getClickEvent() == null) return false;
         //This should never be null but lets be safe
-        if(dropdownButton == null) return false;
+        if (dropdownButton == null) return false;
         //If the dropdown is already open lets not do anything or this could lead to issues
-        if(dropdownButton.dropdownOpen) return false;
+        if (dropdownButton.dropdownOpen) return false;
         //Still allow openurl click event
-        if(style.getClickEvent().getAction() == ClickEvent.Action.OPEN_URL) return super.handleComponentClicked(style);
+        if (style.getClickEvent().getAction() == ClickEvent.Action.OPEN_URL) return super.handleComponentClicked(style);
 
         //Don't bother with suggestions in our tab as we replace it with the dropdown
-        if(style.getClickEvent().getAction() == ClickEvent.Action.SUGGEST_COMMAND)
+        if (style.getClickEvent().getAction() == ClickEvent.Action.SUGGEST_COMMAND)
         {
             dropdownButton.x = mouseX;
             dropdownButton.y = mouseY;

@@ -94,7 +94,8 @@ public class OrderDetailsScreen extends OrderServerScreen
                     order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
                     order.clientID = resultSplit[2] != null ? resultSplit[2] : "0"; // random test account fallback
 
-                } else
+                }
+                else
                 {
                     createdAccountError = result;
                     createdAccount = true;
@@ -102,14 +103,17 @@ public class OrderDetailsScreen extends OrderServerScreen
                 creatingAccount = false;
                 createdAccount = true;
             });
-        } else if (creatingAccount)
+        }
+        else if (creatingAccount)
         {
             return;
-        } else if (!createdAccountError.isEmpty())
+        }
+        else if (!createdAccountError.isEmpty())
         {
             buttonCancel.active = true;
             return;
-        } else if (!placingOrder && !placedOrder)
+        }
+        else if (!placingOrder && !placedOrder)
         {
             placingOrder = true;
             buttonNext.active = false;
@@ -121,7 +125,8 @@ public class OrderDetailsScreen extends OrderServerScreen
                 {
                     invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
                     orderNumber = Integer.parseInt(resultSplit[2]);
-                } else
+                }
+                else
                 {
                     placedOrderError = result;
                 }
@@ -131,10 +136,12 @@ public class OrderDetailsScreen extends OrderServerScreen
             Thread thread = new Thread(runnable);
             thread.start();
             buttonCancel.active = false;
-        } else if (placingOrder)
+        }
+        else if (placingOrder)
         {
             return;
-        } else if (placedOrderError.isEmpty())
+        }
+        else if (placedOrderError.isEmpty())
         {
             if (!serverAdded) serverAdded = addServerEntry();
 
@@ -142,7 +149,8 @@ public class OrderDetailsScreen extends OrderServerScreen
             buttonNext.visible = true;
             buttonCancel.active = false;
             buttonNext.active = true;
-        } else
+        }
+        else
         {
             buttonNext.active = true;
         }
@@ -173,7 +181,8 @@ public class OrderDetailsScreen extends OrderServerScreen
         if (creatingAccount)
         {
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.accountcreating"), this.width / 2, this.height / 2, 0xFFFFFF);
-        } else if (!createdAccountError.isEmpty())
+        }
+        else if (!createdAccountError.isEmpty())
         {
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
             List<FormattedCharSequence> list = ComponentRenderUtils.wrapComponents(new TranslatableComponent(createdAccountError), width - 30, font);
@@ -184,11 +193,13 @@ public class OrderDetailsScreen extends OrderServerScreen
                 offset += 10;
             }
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.accounterrorgoback"), this.width / 2, this.height / 2 + offset, 0xFFFFFF);
-        } else if (placingOrder)
+        }
+        else if (placingOrder)
         {
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.orderplacing"), this.width / 2, this.height / 2, 0xFFFFFF);
             ScreenHelpers.loadingSpin(partialTicks, ticks, width / 2, height / 2 + 20, new ItemStack(Items.BEEF));
-        } else if (!placedOrderError.isEmpty())
+        }
+        else if (!placedOrderError.isEmpty())
         {
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
             List<FormattedCharSequence> list = ComponentRenderUtils.wrapComponents(new TranslatableComponent(placedOrderError), width - 30, font);
@@ -199,7 +210,8 @@ public class OrderDetailsScreen extends OrderServerScreen
                 offset += 10;
             }
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.ordererrorsupport"), this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
-        } else
+        }
+        else
         {
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.ordermodpack"), (this.width / 2) + 10, (this.height / 2) + 10, 0xFFFFFF);
@@ -210,7 +222,7 @@ public class OrderDetailsScreen extends OrderServerScreen
     //Copy paste but allow FormattedCharSequence to be used, Might be better in ScreenUtils
     public void drawCenteredString(PoseStack matrixStack, FormattedCharSequence text, int x, int y, int color)
     {
-        Minecraft.getInstance().font.drawShadow(matrixStack, text, (float)(x - Minecraft.getInstance().font.width(text) / 2), (float)y, color);
+        Minecraft.getInstance().font.drawShadow(matrixStack, text, (float) (x - Minecraft.getInstance().font.width(text) / 2), (float) y, color);
     }
 
     @Override

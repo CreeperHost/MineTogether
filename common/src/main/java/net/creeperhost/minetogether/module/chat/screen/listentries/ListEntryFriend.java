@@ -33,7 +33,8 @@ public class ListEntryFriend extends ScreenListEntry
         if (isSelected)
         {
             if (transparency <= 1.0F) transparency += 0.04;
-        } else
+        }
+        else
         {
             if (transparency >= 0.5F) transparency -= 0.04;
         }
@@ -45,10 +46,11 @@ public class ListEntryFriend extends ScreenListEntry
             friendName = friendName.substring(0, friendName.length() - 1);
             ellipsis = true;
         }
-        if(ellipsis) friendName += "...";
+        if (ellipsis) friendName += "...";
 
         this.mc.font.draw(matrixStack, friendName, x + 5, y + 4, 16777215);
-        if(profile != null) this.mc.font.draw(matrixStack, new TranslatableComponent(ChatFormatting.GRAY + (profile.isFriend() ? (profile != null && profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline") : "Pending")).getString(), x + 5, y + 15, 16777215);
+        if (profile != null)
+            this.mc.font.draw(matrixStack, new TranslatableComponent(ChatFormatting.GRAY + (profile.isFriend() ? (profile != null && profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline") : "Pending")).getString(), x + 5, y + 15, 16777215);
 
         RenderSystem.enableAlphaTest();
         RenderSystem.enableBlend();

@@ -41,23 +41,24 @@ public class FriendRequestScreen extends Screen
         this.friendName = friendName;
         this.profile = friendTarget;
     }
-    
+
     @Override
     public void init()
     {
         super.init();
         buttons.clear();
         mc.keyboardHandler.setSendRepeatsToGui(true);
-        
+
         this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, new TranslatableComponent("Cancel"), (button) -> Minecraft.getInstance().setScreen(parent)));
-        
+
         this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? new TranslatableComponent("Accept") : new TranslatableComponent("Send request"), (buttons) ->
         {
             if (accept)
             {
                 ChatHandler.acceptFriendRequest(chatInternalName, friendName);
                 CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getUUID()), MineTogetherChat.otherExecutor);
-            } else
+            }
+            else
             {
                 ChatHandler.sendFriendRequest(chatInternalName, nameEntry.getValue().trim());
             }
@@ -71,12 +72,12 @@ public class FriendRequestScreen extends Screen
             nameEntry.setValue(profile.getUserDisplay()); // default to player name
             first = false;
         }
-        
+
         acceptBtn.active = nameEntry.getValue().trim().length() >= 3;
         nameEntry.setFocus(true);
         nameEntry.setCanLoseFocus(false);
     }
-    
+
     @Override
     public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
