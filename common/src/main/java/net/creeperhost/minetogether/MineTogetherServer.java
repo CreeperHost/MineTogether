@@ -1,11 +1,25 @@
 package net.creeperhost.minetogether;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import me.shedaniel.architectury.event.events.CommandRegistrationEvent;
+import net.creeperhost.minetogether.commands.CommandInvite;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.threads.MineTogetherServerThread;
 import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
+import net.creeperhost.minetogetherlib.util.WebUtils;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Base64;
 
 public class MineTogetherServer
 {
@@ -16,16 +30,23 @@ public class MineTogetherServer
     public static String displayName = "";
     public static String server_ip = "";
     public static MinecraftServer minecraftServer = null;
+    public static String packID = "-1";
 
     public static void init()
     {
         serverOn = true;
         SignatureVerifier signatureVerifier = new SignatureVerifier();
         ModPackVerifier modPackVerifier = new ModPackVerifier();
-        modPackVerifier.verify();
+        packID = modPackVerifier.verify();
         secret = signatureVerifier.verify();
         //This is just a test and needs to be moved
         killWatchDog();
+        CommandRegistrationEvent.EVENT.register(MineTogetherServer::registerCommand);
+    }
+
+    private static void registerCommand(CommandDispatcher<CommandSourceStack> commandSourceStackCommandDispatcher, Commands.CommandSelection commandSelection)
+    {
+        commandSourceStackCommandDispatcher.register(CommandInvite.register());
     }
 
     public static void serverStarted(MinecraftServer minecraftServer)
@@ -34,6 +55,8 @@ public class MineTogetherServer
         if(minecraftServer instanceof DedicatedServer)
         {
             buildMineTogetherServerThread();
+
+            createHash(minecraftServer);
         }
     }
 
@@ -67,6 +90,29 @@ public class MineTogetherServer
         }
 
         MineTogetherServerThread.startMineTogetherServerThread(server_ip, displayName, projectID, minecraftServer.getPort(), discover);
+    }
+
+    public static String createHash(MinecraftServer server)
+    {
+        try
+        {
+            URL url = new URL("https://api.callbacks.io/ip");
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
+
+            String ipaddress = bufferedReader.readLine();
+            bufferedReader.close();
+
+            String packID = MineTogetherServer.packID;
+
+//            System.out.println(ipaddress);
+//            System.out.println(packID);
+
+            String base64 = Base64.getEncoder().encodeToString((String.valueOf(ipaddress) + String.valueOf(packID)).getBytes());
+//            System.out.println(base64);
+            return base64;
+
+        } catch (Exception ignored) {}
+        return "";
     }
 
     public static void killWatchDog()
