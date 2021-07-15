@@ -17,9 +17,11 @@ import net.minecraft.server.players.UserWhiteList;
 import net.minecraft.server.players.UserWhiteListEntry;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class CommandInvite
 {
@@ -54,15 +56,15 @@ public class CommandInvite
     {
         Gson gson = new Gson();
         UserWhiteList whitelistedPlayers = server.getPlayerList().getWhiteList();
-        final ArrayList<String> tempHash = new ArrayList<String>();
+        final ArrayList<String> tempHash = new ArrayList<>();
 
         try
         {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
-            byte[] hash = digest.digest(whitelistedPlayers.get(profile).toString().getBytes(Charset.forName("UTF-8")));
+            byte[] hash = digest.digest(whitelistedPlayers.get(profile).toString().getBytes(StandardCharsets.UTF_8));
 
-            tempHash.add(digest.digest(hash).toString());
+            tempHash.add(Arrays.toString(digest.digest(hash)));
 
         } catch (NoSuchAlgorithmException e)
         {
