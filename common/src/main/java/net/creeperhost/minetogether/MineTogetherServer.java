@@ -2,8 +2,11 @@ package net.creeperhost.minetogether;
 
 import com.mojang.brigadier.CommandDispatcher;
 import me.shedaniel.architectury.event.events.CommandRegistrationEvent;
+import me.shedaniel.architectury.event.events.TickEvent;
 import net.creeperhost.minetogether.commands.CommandInvite;
+import net.creeperhost.minetogether.commands.CommandPregen;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.handler.PregenHandler;
 import net.creeperhost.minetogether.threads.MineTogetherServerThread;
 import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
@@ -11,6 +14,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.ServerLevel;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -38,11 +42,18 @@ public class MineTogetherServer
         //This is just a test and needs to be moved
         killWatchDog();
         CommandRegistrationEvent.EVENT.register(MineTogetherServer::registerCommand);
+        TickEvent.ServerWorld.SERVER_POST.register(MineTogetherServer::onServerTick);
+    }
+
+    private static void onServerTick(MinecraftServer minecraftServer)
+    {
+        PregenHandler.onWorldTick(minecraftServer);
     }
 
     private static void registerCommand(CommandDispatcher<CommandSourceStack> commandSourceStackCommandDispatcher, Commands.CommandSelection commandSelection)
     {
         commandSourceStackCommandDispatcher.register(CommandInvite.register());
+        commandSourceStackCommandDispatcher.register(CommandPregen.register());
     }
 
     public static void serverStarted(MinecraftServer minecraftServer)
@@ -51,6 +62,7 @@ public class MineTogetherServer
         if (minecraftServer instanceof DedicatedServer)
         {
             buildMineTogetherServerThread();
+            System.out.println(ServerLevel.OVERWORLD);
 
             createHash(minecraftServer);
         }
