@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class PregenHandler
 {
     public static HashMap<ResourceKey<Level>, PregenTask> pregenTasks = new HashMap<ResourceKey<Level>, PregenTask>();
+    public static boolean shouldKickPlayer;
+    @Nullable private static PregenTask activeTask;
 
     public static void addTask(ResourceKey<Level> dimension, int minX, int maxX, int minZ, int maxZ, int chunksPerTick, boolean preventJoin)
     {
@@ -43,10 +46,15 @@ public class PregenHandler
 
             if(pregenTask == null) return;
 
+            shouldKickPlayer = pregenTask.preventJoin;
+            activeTask = pregenTask;
+
             if (pregenTask.chunksToGen.isEmpty())
             {
                 MineTogether.logger.info("No more chunks to generate for dimension " + pregenTask.dimension + " - removing task!");
                 pregenTasks.remove(pregenTask.dimension);
+                shouldKickPlayer = false;
+                activeTask = null;
                 if (pregenTasks.isEmpty())
                 {
                     MineTogetherServer.resuscitateWatchdog();
@@ -80,28 +88,7 @@ public class PregenHandler
                 pregenTask.lastChunksDone = pregenTask.chunksDone;
                 int chunksDelta = pregenTask.chunksDone - lastChunks;
 
-                long deltaTime = curTime - pregenTask.startTime;
-
-                double timePerChunk = (double) deltaTime / (double) pregenTask.chunksDone;
-
-                long chunksRemaining = pregenTask.totalChunks - pregenTask.chunksDone;
-
-                long estimatedTime = (long) (chunksRemaining * timePerChunk);
-
-                long days = TimeUnit.MILLISECONDS.toDays(estimatedTime);
-                estimatedTime -= TimeUnit.DAYS.toMillis(days);
-
-                long hours = TimeUnit.MILLISECONDS.toHours(estimatedTime);
-                estimatedTime -= TimeUnit.HOURS.toMillis(hours);
-
-                long minutes = TimeUnit.MILLISECONDS.toMinutes(estimatedTime);
-                estimatedTime -= TimeUnit.MINUTES.toMillis(minutes);
-
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(estimatedTime);
-
-                String time = days + " day(s) " + hours + " hour(s) " + minutes + " minute(s) " + seconds + " second(s)";
-
-                pregenTask.lastPregenString = "Pre-generating chunks for dimension " + pregenTask.dimension.location() + ", current speed " + chunksDelta + " every 10 seconds." + "\n" + pregenTask.chunksDone + "/" + pregenTask.totalChunks + " " + time + " remaining";
+                pregenTask.lastPregenString = "Pre-generating chunks for dimension " + pregenTask.dimension.location() + ", current speed " + chunksDelta + " every 10 seconds." + "\n" + pregenTask.chunksDone + "/" + pregenTask.totalChunks + " " + getTimeRemaining(pregenTask) + " remaining";
 
                 MineTogether.logger.info(pregenTask.lastPregenString);
                 long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
@@ -159,6 +146,42 @@ public class PregenHandler
             }
             pregenTask.chunksToGen.removeAll(chunkToGen);
         }
+    }
+
+    public static boolean isPreGenerating()
+    {
+        return !pregenTasks.isEmpty();
+    }
+
+    public static PregenTask getActiveTask()
+    {
+        return activeTask;
+    }
+
+    public static String getTimeRemaining(PregenTask pregenTask)
+    {
+        long curTime = System.currentTimeMillis();
+
+        long deltaTime = curTime - pregenTask.startTime;
+
+        double timePerChunk = (double) deltaTime / (double) pregenTask.chunksDone;
+
+        long chunksRemaining = pregenTask.totalChunks - pregenTask.chunksDone;
+
+        long estimatedTime = (long) (chunksRemaining * timePerChunk);
+
+        long days = TimeUnit.MILLISECONDS.toDays(estimatedTime);
+        estimatedTime -= TimeUnit.DAYS.toMillis(days);
+
+        long hours = TimeUnit.MILLISECONDS.toHours(estimatedTime);
+        estimatedTime -= TimeUnit.HOURS.toMillis(hours);
+
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(estimatedTime);
+        estimatedTime -= TimeUnit.MINUTES.toMillis(minutes);
+
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(estimatedTime);
+
+        return days + " day(s) " + hours + " hour(s) " + minutes + " minute(s) " + seconds + " second(s)";
     }
 
     private static void serializePreload()

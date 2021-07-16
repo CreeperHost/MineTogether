@@ -2,6 +2,7 @@ package net.creeperhost.minetogether;
 
 import com.mojang.brigadier.CommandDispatcher;
 import me.shedaniel.architectury.event.events.CommandRegistrationEvent;
+import me.shedaniel.architectury.event.events.PlayerEvent;
 import me.shedaniel.architectury.event.events.TickEvent;
 import net.creeperhost.minetogether.commands.CommandInvite;
 import net.creeperhost.minetogether.commands.CommandPregen;
@@ -13,9 +14,11 @@ import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.ServerWatchdog;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -43,7 +46,19 @@ public class MineTogetherServer
         secret = signatureVerifier.verify();
         CommandRegistrationEvent.EVENT.register(MineTogetherServer::registerCommand);
         TickEvent.ServerWorld.SERVER_POST.register(MineTogetherServer::onServerTick);
+        PlayerEvent.PLAYER_JOIN.register(MineTogetherServer::onPlayerJoin);
         PregenHandler.deserializePreload();
+    }
+
+    private static void onPlayerJoin(ServerPlayer serverPlayer)
+    {
+        if(serverPlayer != null && PregenHandler.isPreGenerating() && PregenHandler.shouldKickPlayer)
+        {
+            String remainingTime = PregenHandler.getActiveTask() != null ? PregenHandler.getTimeRemaining(PregenHandler.getActiveTask()) : "";
+
+            serverPlayer.connection.disconnect(new TranslatableComponent("Server is still pre-generating!\n" + remainingTime + " Remaining"));
+            MineTogether.logger.error("Kicked player " + serverPlayer.getName() + " as still pre-generating");
+        }
     }
 
     private static void onServerTick(MinecraftServer minecraftServer)

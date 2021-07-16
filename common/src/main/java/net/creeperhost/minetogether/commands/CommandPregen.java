@@ -57,5 +57,5 @@ public class CommandPregen
         return 0;
     }
 
-//    /pregen minecraft:overworld 500 500 500 500 1 false
+//    /pregen minecraft:overworld 500 500 500 500 1 true
 }
