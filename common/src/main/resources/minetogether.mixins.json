@@ -10,11 +10,12 @@
     "MixinChatScreen",
     "MixinIntegratedServer",
     "MixinJoinMultiplayerScreen",
+    "MixinLANHeader",
     "MixinMinecraftTitle",
     "MixinSelectionList",
     "MixinServerSelectionList",
     "MixinShareToLanScreen",
-    "MixinLANHeader"
+    "MixinDisconnectedScreen"
   ],
   "server": [
     "MixinDedicatedServerProperties"

@@ -6,9 +6,11 @@ import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogetherlib.serverorder.Pair;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +59,7 @@ public class PregenHandler
                 activeTask = null;
                 if (pregenTasks.isEmpty())
                 {
-                    MineTogetherServer.resuscitateWatchdog();
+                    WatchDogHandler.resuscitateWatchdog();
                 }
                 serializePreload();
                 return;
@@ -130,7 +132,7 @@ public class PregenHandler
                 }
                 serializePreload();
             }
-            MineTogetherServer.killWatchDog();
+            WatchDogHandler.killWatchDog();
 
             for (Pair<Integer, Integer> pair : chunkToGen)
             {
@@ -145,6 +147,17 @@ public class PregenHandler
                 serverLevel.getChunkSource().save(true);
             }
             pregenTask.chunksToGen.removeAll(chunkToGen);
+        }
+    }
+
+    public static void onPlayerJoin(ServerPlayer serverPlayer)
+    {
+        if(serverPlayer != null && PregenHandler.isPreGenerating() && PregenHandler.shouldKickPlayer)
+        {
+            String remainingTime = PregenHandler.getActiveTask() != null ? PregenHandler.getTimeRemaining(PregenHandler.getActiveTask()) : "";
+
+            serverPlayer.connection.disconnect(new TranslatableComponent("MineTogether: Server is still pre-generating!\n" + remainingTime + " Remaining"));
+            MineTogether.logger.error("Kicked player " + serverPlayer.getName() + " as still pre-generating");
         }
     }
 

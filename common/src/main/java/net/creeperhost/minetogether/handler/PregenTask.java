@@ -4,7 +4,6 @@ import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogetherlib.serverorder.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
