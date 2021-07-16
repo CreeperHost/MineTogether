@@ -10,11 +10,12 @@ import net.creeperhost.minetogether.handler.PregenHandler;
 import net.creeperhost.minetogether.threads.MineTogetherServerThread;
 import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
+import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.dedicated.ServerWatchdog;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -31,6 +32,7 @@ public class MineTogetherServer
     public static String server_ip = "";
     public static MinecraftServer minecraftServer = null;
     public static String packID = "-1";
+    public static boolean watchDogActive = true;
 
     public static void init()
     {
@@ -39,8 +41,6 @@ public class MineTogetherServer
         ModPackVerifier modPackVerifier = new ModPackVerifier();
         packID = modPackVerifier.verify();
         secret = signatureVerifier.verify();
-        //This is just a test and needs to be moved
-        killWatchDog();
         CommandRegistrationEvent.EVENT.register(MineTogetherServer::registerCommand);
         TickEvent.ServerWorld.SERVER_POST.register(MineTogetherServer::onServerTick);
     }
@@ -62,8 +62,6 @@ public class MineTogetherServer
         if (minecraftServer instanceof DedicatedServer)
         {
             buildMineTogetherServerThread();
-            System.out.println(ServerLevel.OVERWORLD);
-
             createHash(minecraftServer);
         }
     }
@@ -111,11 +109,7 @@ public class MineTogetherServer
 
             String packID = MineTogetherServer.packID;
 
-            //            System.out.println(ipaddress);
-            //            System.out.println(packID);
-
             String base64 = Base64.getEncoder().encodeToString((String.valueOf(ipaddress) + String.valueOf(packID)).getBytes());
-            //            System.out.println(base64);
             return base64;
 
         } catch (Exception ignored)
@@ -126,6 +120,8 @@ public class MineTogetherServer
 
     public static void killWatchDog()
     {
+        if(!watchDogActive) return;
+
         Thread watchdogThread = getThreadByName("Server Watchdog");
         if (watchdogThread == null)
         {
@@ -135,10 +131,29 @@ public class MineTogetherServer
 
         try
         {
-            MineTogether.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
-            watchdogThread.interrupt();
+            if(watchdogThread != null && watchdogThread.isAlive())
+            {
+                MineTogether.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
+                watchDogActive = false;
+                watchdogThread.interrupt();
+            }
         } catch (Exception ignored)
         {
+        }
+    }
+
+    public static void resuscitateWatchdog()
+    {
+        if((minecraftServer instanceof DedicatedServer)) return;
+        DedicatedServer server = (DedicatedServer) minecraftServer;
+        if (server.getMaxTickLength() > 0L)
+        {
+            Thread thread2 = new Thread(new ServerWatchdog(server));
+            thread2.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(MineTogether.logger));
+            thread2.setName("Server Watchdog");
+            thread2.setDaemon(true);
+            thread2.start();
+            watchDogActive = true;
         }
     }
 

@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.handler;
 
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogetherlib.serverorder.Pair;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -43,7 +44,7 @@ public class PregenHandler
                 pregenTasks.remove(pregenTask.dimension);
                 if (pregenTasks.isEmpty())
                 {
-//                    resuscitateWatchdog();
+                    MineTogetherServer.resuscitateWatchdog();
                 }
 //                serializePreload();
                 return;
@@ -137,8 +138,7 @@ public class PregenHandler
                 }
 //                serializePreload();
             }
-
-//            killWatchdog();
+            MineTogetherServer.killWatchDog();
 
             for (Pair<Integer, Integer> pair : chunkToGen)
             {
