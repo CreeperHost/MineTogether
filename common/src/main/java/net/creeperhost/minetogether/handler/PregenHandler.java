@@ -142,7 +142,7 @@ public class PregenHandler
 
             for (Pair<Integer, Integer> pair : chunkToGen)
             {
-                serverLevel.getChunkSource().getChunkNow(pair.getLeft(), pair.getRight());
+                serverLevel.getChunkSource().getChunk(pair.getLeft(), pair.getRight(), true);
                 pregenTask.storedCurX = pair.getLeft();
                 pregenTask.storedCurZ = pair.getRight();
                 pregenTask.chunksDone++;
@@ -152,9 +152,7 @@ public class PregenHandler
             {
                 serverLevel.getChunkSource().save(true);
             }
-
             pregenTask.chunksToGen.removeAll(chunkToGen);
-
         }
     }
 
