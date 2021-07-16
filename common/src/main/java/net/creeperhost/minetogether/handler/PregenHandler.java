@@ -1,5 +1,8 @@
 package net.creeperhost.minetogether.handler;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogetherlib.serverorder.Pair;
@@ -7,10 +10,14 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import org.apache.commons.io.IOUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PregenHandler
@@ -19,9 +26,7 @@ public class PregenHandler
 
     public static void addTask(ResourceKey<Level> dimension, int minX, int maxX, int minZ, int maxZ, int chunksPerTick, boolean preventJoin)
     {
-        //TODO send feedback
         if(pregenTasks.get(dimension) != null) return;
-
         pregenTasks.put(dimension, new PregenTask(dimension, minX, maxX, minZ, maxZ, chunksPerTick, preventJoin));
     }
 
@@ -46,7 +51,7 @@ public class PregenHandler
                 {
                     MineTogetherServer.resuscitateWatchdog();
                 }
-//                serializePreload();
+                serializePreload();
                 return;
             }
 
@@ -136,7 +141,7 @@ public class PregenHandler
                 {
                     pregenTask.curChunksPerTick++; // things seem ok for now. Lets raise it back up
                 }
-//                serializePreload();
+                serializePreload();
             }
             MineTogetherServer.killWatchDog();
 
@@ -153,6 +158,47 @@ public class PregenHandler
                 serverLevel.getChunkSource().save(true);
             }
             pregenTask.chunksToGen.removeAll(chunkToGen);
+        }
+    }
+
+    private static void serializePreload()
+    {
+        FileOutputStream pregenOut = null;
+        Type listOfPregenTask = new TypeToken<HashMap<Integer, PregenTask>>()
+        {
+        }.getType();
+        try
+        {
+            pregenOut = new FileOutputStream(new File(MineTogetherServer.minecraftServer.getServerDirectory(), "pregenData.json"));
+            Gson gson = new GsonBuilder().create();
+            String output = gson.toJson(pregenTasks, listOfPregenTask);
+            IOUtils.write(output, pregenOut);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deserializePreload()
+    {
+        MineTogether.logger.info("Attempting to load pregenData.json");
+        Gson gson = new GsonBuilder().create();
+        HashMap output = null;
+        Type listOfPregenTask = new TypeToken<HashMap<Integer, PregenTask>>()
+        {
+        }.getType();
+        try
+        {
+            output = gson.fromJson(IOUtils.toString(new File(MineTogetherServer.minecraftServer.getServerDirectory(), "pregenData.json").toURI()), listOfPregenTask);
+        } catch (Exception ignored) {}
+        if (output == null) pregenTasks = new HashMap<ResourceKey<Level>, PregenTask>();
+        else pregenTasks = output;
+
+        Collection<PregenTask> tasks = pregenTasks.values();
+
+        for (PregenTask task : tasks)
+        {
+            task.init();
         }
     }
 

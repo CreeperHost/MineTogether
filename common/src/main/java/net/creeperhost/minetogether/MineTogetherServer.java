@@ -43,6 +43,7 @@ public class MineTogetherServer
         secret = signatureVerifier.verify();
         CommandRegistrationEvent.EVENT.register(MineTogetherServer::registerCommand);
         TickEvent.ServerWorld.SERVER_POST.register(MineTogetherServer::onServerTick);
+        PregenHandler.deserializePreload();
     }
 
     private static void onServerTick(MinecraftServer minecraftServer)
@@ -144,7 +145,7 @@ public class MineTogetherServer
 
     public static void resuscitateWatchdog()
     {
-        if((minecraftServer instanceof DedicatedServer)) return;
+        if(!(minecraftServer instanceof DedicatedServer)) return;
         DedicatedServer server = (DedicatedServer) minecraftServer;
         if (server.getMaxTickLength() > 0L)
         {
