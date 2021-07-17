@@ -8,6 +8,7 @@
     "ChatComponentInvoker",
     "MixinChatComponent",
     "MixinChatScreen",
+    "MixinDisconnectedScreen",
     "MixinIntegratedServer",
     "MixinJoinMultiplayerScreen",
     "MixinLANHeader",
@@ -15,7 +16,7 @@
     "MixinSelectionList",
     "MixinServerSelectionList",
     "MixinShareToLanScreen",
-    "MixinDisconnectedScreen"
+    "MixinPlayerRender"
   ],
   "server": [
     "MixinDedicatedServerProperties"
