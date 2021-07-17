@@ -89,8 +89,11 @@ public class PregenHandler
                 int lastChunks = pregenTask.lastChunksDone;
                 pregenTask.lastChunksDone = pregenTask.chunksDone;
                 int chunksDelta = pregenTask.chunksDone - lastChunks;
+                int chunkProgress = percentage(pregenTask.totalChunks, pregenTask.chunksDone);
 
-                pregenTask.lastPregenString = "Pre-generating chunks for dimension " + pregenTask.dimension.location() + ", current speed " + chunksDelta + " every 10 seconds." + "\n" + pregenTask.chunksDone + "/" + pregenTask.totalChunks + " " + getTimeRemaining(pregenTask) + " remaining";
+                pregenTask.lastPregenString = "Pre-generating chunks for dimension " + pregenTask.dimension.location() + ", current speed " + chunksDelta + " every 10 seconds." + "\n" + pregenTask.chunksDone + "/" +
+                        pregenTask.totalChunks + " " + getTimeRemaining(pregenTask) + " remaining " + ":";
+
 
                 MineTogether.logger.info(pregenTask.lastPregenString);
                 long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
@@ -156,9 +159,15 @@ public class PregenHandler
         {
             String remainingTime = PregenHandler.getActiveTask() != null ? PregenHandler.getTimeRemaining(PregenHandler.getActiveTask()) : "";
 
-            serverPlayer.connection.disconnect(new TranslatableComponent("MineTogether: Server is still pre-generating!\n" + remainingTime + " Remaining"));
+            serverPlayer.connection.disconnect(new TranslatableComponent("MineTogether Server is still pre-generating!\n" + remainingTime + " Remaining" + ":" + PregenHandler.getActiveTask().totalChunks + ":" + PregenHandler.getActiveTask().chunksDone));
             MineTogether.logger.error("Kicked player " + serverPlayer.getName() + " as still pre-generating");
         }
+    }
+
+    public static int percentage(int MaxValue, int CurrentValue)
+    {
+        if (CurrentValue == 0) return 0;
+        return (int) ((CurrentValue * 100.0f) / MaxValue);
     }
 
     public static boolean isPreGenerating()
