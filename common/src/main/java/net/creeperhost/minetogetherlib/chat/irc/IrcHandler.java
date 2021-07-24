@@ -161,6 +161,7 @@ public class IrcHandler
 
     public static void sendString(String str, boolean errorCount)
     {
+        if(socket == null) return;
         if(socket.isClosed() || !socket.isConnected()) return;
         if(str.isEmpty()) return;
 

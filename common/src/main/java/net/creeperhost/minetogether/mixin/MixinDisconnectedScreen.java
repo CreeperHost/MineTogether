@@ -16,8 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Arrays;
-
 @Mixin(DisconnectedScreen.class)
 public class MixinDisconnectedScreen extends Screen
 {

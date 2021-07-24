@@ -5,6 +5,8 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
+import net.creeperhost.minetogethergui.ScreenHelpers;
+import net.creeperhost.minetogethergui.screenbuilder.ScreenBuilder;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.gui.components.EditBox;
@@ -18,6 +20,7 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
     private ScrollingChat chat;
     private EditBox chatBox;
     private String channel;
+    ScreenBuilder screenBuilder = new ScreenBuilder(Constants.SOCIAL_SHEET_LOCATION);
 
     public MineTogetherSocialChatScreen(Screen parent, Profile profile)
     {

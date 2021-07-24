@@ -2,18 +2,10 @@ package net.creeperhost.minetogethergui.screenbuilder;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.Constants;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ScreenBuilder
 {
@@ -24,7 +16,7 @@ public class ScreenBuilder
         this.resourceLocation = resourceLocation;
     }
 
-    public void drawDefaultBackground(ContainerScreen screen, PoseStack poseStack, int x, int y, int width, int height, int textureXSize, int textureYSize)
+    public void drawDefaultBackground(Screen screen, PoseStack poseStack, int x, int y, int width, int height, int textureXSize, int textureYSize)
     {
         GlStateManager._color4f(1.0F, 1.0F, 1.0F, 1.0F);
         Minecraft.getInstance().getTextureManager().bind(resourceLocation);
@@ -34,7 +26,7 @@ public class ScreenBuilder
         GuiComponent.blit(poseStack, x + width / 2, y + height / 2, 150 - width / 2, 150 - height / 2, width / 2, height / 2, textureXSize, textureYSize);
     }
 
-    public void drawPlayerSlots(ContainerScreen screen, PoseStack poseStack, int posX, int posY, boolean center, int textureXSize, int textureYSize)
+    public void drawPlayerSlots(Screen screen, PoseStack poseStack, int posX, int posY, boolean center, int textureXSize, int textureYSize)
     {
         Minecraft.getInstance().getTextureManager().bind(resourceLocation);
         if (center)
@@ -54,7 +46,7 @@ public class ScreenBuilder
         }
     }
 
-    public void drawSlot(ContainerScreen gui, PoseStack poseStack, int posX, int posY, int textureXSize, int textureYSize)
+    public void drawSlot(Screen gui, PoseStack poseStack, int posX, int posY, int textureXSize, int textureYSize)
     {
         Minecraft.getInstance().getTextureManager().bind(resourceLocation);
         GuiComponent.blit(poseStack, posX, posY, 150, 0, 18, 18, textureXSize, textureYSize);
