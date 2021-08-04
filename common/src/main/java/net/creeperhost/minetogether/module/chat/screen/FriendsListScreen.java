@@ -18,6 +18,7 @@ import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -45,6 +46,7 @@ public class FriendsListScreen extends MineTogetherScreen
     private Button blockButton;
     private Button partyButton;
     private Button friendCodeButton;
+    private Button editButton;
 
     public FriendsListScreen(Screen parent)
     {
@@ -103,6 +105,11 @@ public class FriendsListScreen extends MineTogetherScreen
         {
             ChatHandler.sendPartyInvite(targetProfile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
         }));
+
+        addButton(editButton = new ButtonMultiple(width - 20, 92, 8, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.editbutton"), (button) ->
+        {
+            minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), targetProfile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), targetProfile.getFriendName(), false, true));
+        }));
     }
 
     @Override
@@ -156,6 +163,7 @@ public class FriendsListScreen extends MineTogetherScreen
     {
         removeFriend.active = value;
         blockButton.active = value;
+        editButton.active = value;
         if (targetProfile == null) partyButton.active = value;
     }
 

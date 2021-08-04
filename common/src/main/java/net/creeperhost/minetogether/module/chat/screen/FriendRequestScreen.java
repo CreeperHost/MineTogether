@@ -21,6 +21,7 @@ public class FriendRequestScreen extends Screen
     private final String chatInternalName;
     private final String friendCode;
     private final boolean accept;
+    private final boolean update;
     private final String friendName;
     private final Screen parent;
     private Profile profile;
@@ -30,7 +31,7 @@ public class FriendRequestScreen extends Screen
     private EditBox nameEntry;
     Minecraft mc = Minecraft.getInstance();
 
-    public FriendRequestScreen(Screen parent, String playerName, Profile friendTarget, String friendCode, String friendName, boolean accept)
+    public FriendRequestScreen(Screen parent, String playerName, Profile friendTarget, String friendCode, String friendName, boolean accept, boolean update)
     {
         super(new TranslatableComponent(""));
         this.playerName = playerName;
@@ -40,6 +41,7 @@ public class FriendRequestScreen extends Screen
         this.parent = parent;
         this.friendName = friendName;
         this.profile = friendTarget;
+        this.update = update;
     }
 
     @Override
@@ -53,6 +55,13 @@ public class FriendRequestScreen extends Screen
 
         this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? new TranslatableComponent("Accept") : new TranslatableComponent("Send request"), (buttons) ->
         {
+            if(update)
+            {
+                ChatCallbacks.removeFriend(friendCode, MineTogetherClient.getUUID());
+                CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getUUID()), MineTogetherChat.otherExecutor);
+                return;
+            }
+
             if (accept)
             {
                 ChatHandler.acceptFriendRequest(chatInternalName, friendName);
@@ -69,7 +78,8 @@ public class FriendRequestScreen extends Screen
 
         if (first)
         {
-            nameEntry.setValue(profile.getUserDisplay()); // default to player name
+            String name = !profile.getFriendName().isEmpty() ? profile.getFriendName() : profile.getUserDisplay();
+            nameEntry.setValue(name); // default to player name
             first = false;
         }
 

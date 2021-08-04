@@ -132,7 +132,7 @@ public abstract class MixinChatScreen extends Screen
             {
                 Profile profile = KnownUsers.findByDisplay(currentDropdown);
                 if (profile != null)
-                    minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
+                    minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false, false));
             }
             else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mention")))
             {

@@ -119,7 +119,7 @@ public class ChatScreen extends MineTogetherScreen
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.addfriend")))
             {
-                minecraft.setScreen(new FriendRequestScreen(new ChatScreen(parent), Minecraft.getInstance().getUser().getName(), KnownUsers.findByDisplay(activeDropdown), ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false));
+                minecraft.setScreen(new FriendRequestScreen(new ChatScreen(parent), Minecraft.getInstance().getUser().getName(), KnownUsers.findByDisplay(activeDropdown), ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false, false));
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mention")))
             {
@@ -371,7 +371,7 @@ public class ChatScreen extends MineTogetherScreen
                 Profile targetProfile = KnownUsers.findByNick(chatInternalName);
                 if (targetProfile == null) targetProfile = KnownUsers.add(chatInternalName);
 
-                Minecraft.getInstance().setScreen(new FriendRequestScreen(this, Minecraft.getInstance().getUser().getName(), targetProfile, friendCode, friendName, true));
+                Minecraft.getInstance().setScreen(new FriendRequestScreen(this, Minecraft.getInstance().getUser().getName(), targetProfile, friendCode, friendName, true, false));
                 return true;
             }
 
