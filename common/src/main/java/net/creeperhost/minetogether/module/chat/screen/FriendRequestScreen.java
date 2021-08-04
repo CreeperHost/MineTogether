@@ -59,6 +59,7 @@ public class FriendRequestScreen extends Screen
             {
                 ChatCallbacks.removeFriend(friendCode, MineTogetherClient.getUUID());
                 CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getUUID()), MineTogetherChat.otherExecutor);
+                Minecraft.getInstance().setScreen(parent);
                 return;
             }
 
