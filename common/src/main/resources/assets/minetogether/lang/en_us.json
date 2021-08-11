@@ -167,5 +167,6 @@
   "minetogether.connect.scan":"Scanning MineTogether Connect and LAN for available worlds",
   "minetogether.connect.scan.offline":"Scanning LAN for available worlds",
   "minetogether.search":"Search",
-  "minetogether.connect.friendentry.title":"MineTogether Friend Server"
+  "minetogether.connect.friendentry.title":"MineTogether Friend Server",
+  "minetogether.friendscreen.tooltip.editbutton":"Edit friend's name"
 }
