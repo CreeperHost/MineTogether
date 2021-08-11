@@ -1,10 +1,12 @@
 package net.creeperhost.minetogether.mixin;
 
 import net.creeperhost.minetogether.module.connect.FriendsServerList;
+import net.creeperhost.minetogether.module.multiplayer.data.CreeperHostServerEntry;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.client.server.LanServerDetection;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,6 +30,9 @@ public abstract class MixinJoinMultiplayerScreen
     private Button editButton;
     @Shadow
     private LanServerDetection.LanServerList lanServerList;
+
+    @Shadow protected abstract void join(ServerData serverData);
+
     FriendsServerList friendsServerList = null;
     private boolean applicableCache = false;
     private boolean isApplicableCached = false;
@@ -55,6 +60,17 @@ public abstract class MixinJoinMultiplayerScreen
         }
     }
 
+    @Inject(at = @At("HEAD"), method = "joinSelectedServer", cancellable = true)
+    public void joinSelectedServer(CallbackInfo ci)
+    {
+        ServerSelectionList.Entry entry = (ServerSelectionList.Entry)this.serverSelectionList.getSelected();
+        if(entry instanceof CreeperHostServerEntry)
+        {
+            ci.cancel();
+        }
+    }
+
+
     @Inject(at = @At("TAIL"), method = "tick()V")
     public void tick(CallbackInfo ci)
     {
@@ -65,6 +81,7 @@ public abstract class MixinJoinMultiplayerScreen
             this.serverSelectionList.updateNetworkServers(list);
         }
     }
+
 
     private boolean isApplicable(Object screen)
     {
