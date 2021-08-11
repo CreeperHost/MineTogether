@@ -98,6 +98,11 @@ public class MineTogetherServerThread
         mtThread.start();
     }
 
+    public static void stopThread()
+    {
+        if(mtThread != null) mtThread.start();
+    }
+
     public static Thread getMtThread()
     {
         return mtThread;

@@ -24,7 +24,6 @@ public class MinetogetherModForge
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         eventBus.addListener(this::clientSetup);
         eventBus.addListener(this::serverSetup);
-        MinecraftForge.EVENT_BUS.addListener(this::serverStarted);
     }
 
     public void clientSetup(FMLClientSetupEvent event)
@@ -35,10 +34,5 @@ public class MinetogetherModForge
     public void serverSetup(FMLDedicatedServerSetupEvent event)
     {
         MineTogether.serverInit();
-    }
-
-    public void serverStarted(FMLServerStartedEvent event)
-    {
-        MineTogetherServer.serverStarted(event.getServer());
     }
 }

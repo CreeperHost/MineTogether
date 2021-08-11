@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether;
 
 import me.shedaniel.architectury.event.events.CommandRegistrationEvent;
+import me.shedaniel.architectury.event.events.LifecycleEvent;
 import me.shedaniel.architectury.event.events.PlayerEvent;
 import me.shedaniel.architectury.event.events.TickEvent;
 import net.creeperhost.minetogether.commands.MTCommands;
@@ -38,7 +39,14 @@ public class MineTogetherServer
         CommandRegistrationEvent.EVENT.register(MTCommands::registerCommand);
         TickEvent.ServerWorld.SERVER_POST.register(PregenHandler::onWorldTick);
         PlayerEvent.PLAYER_JOIN.register(PregenHandler::onPlayerJoin);
+        LifecycleEvent.SERVER_STARTED.register(MineTogetherServer::serverStarted);
+        LifecycleEvent.SERVER_STOPPING.register(MineTogetherServer::serverStopped);
         PregenHandler.deserializePreload();
+    }
+
+    private static void serverStopped(MinecraftServer minecraftServer)
+    {
+        MineTogetherServerThread.stopThread();
     }
 
     public static void serverStarted(MinecraftServer minecraftServer)

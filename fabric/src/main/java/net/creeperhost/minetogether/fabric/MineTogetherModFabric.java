@@ -14,6 +14,5 @@ public class MineTogetherModFabric implements ModInitializer
         MineTogether.init();
         MineTogether.serverInit();
         MineTogether.clientInit();
-        ServerLifecycleEvents.SERVER_STARTED.register(MineTogetherServer::serverStarted);
     }
 }
