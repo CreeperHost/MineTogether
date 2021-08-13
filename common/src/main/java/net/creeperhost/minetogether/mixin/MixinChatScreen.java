@@ -90,7 +90,7 @@ public abstract class MixinChatScreen extends Screen
 
         if (ChatHandler.hasParty)
         {
-            addWidget(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
+            addRenderableWidget(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
             {
                 if (switchButton.activeButton == 2)
                 {
@@ -105,7 +105,7 @@ public abstract class MixinChatScreen extends Screen
         }
         else
         {
-            addWidget(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
+            addRenderableWidget(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
             {
                 ChatModule.clientChatTarget = switchButton.activeButton == 1 ? ClientChatTarget.MINETOGETHER : ClientChatTarget.DEFAULT;
                 if (switchButton.activeButton == 1) IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
@@ -120,7 +120,7 @@ public abstract class MixinChatScreen extends Screen
         strings.add(I18n.get("minetogether.chat.button.addfriend"));
         strings.add(I18n.get("minetogether.chat.button.mention"));
 
-        addWidget(dropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu(strings), true, p ->
+        addRenderableWidget(dropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu(strings), true, p ->
         {
             if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mute")))
             {
@@ -145,7 +145,7 @@ public abstract class MixinChatScreen extends Screen
         {
             ChatCallbacks.updateOnlineCount();
 
-            addWidget(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
+            addRenderableWidget(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
             {
                 IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                 Config.getInstance().setFirstConnect(false);
@@ -153,7 +153,7 @@ public abstract class MixinChatScreen extends Screen
                 disableButton.visible = false;
                 minecraft.setScreen(null);
             }));
-            addWidget(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
+            addRenderableWidget(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
             {
                 Config.getInstance().setChatEnabled(false);
                 disableButton.visible = false;

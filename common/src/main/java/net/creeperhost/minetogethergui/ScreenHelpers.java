@@ -48,7 +48,7 @@ public class ScreenHelpers
 
     public static void drawLogo(PoseStack matrixStack, Font fontRendererObj, int containerWidth, int containerHeight, int containerX, int containerY, float scale)
     {
-//        RenderSystem.color4f(1F, 1F, 1F, 1F); // reset alpha
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F); // reset alpha
         float adjust = (1 / scale);
         int width = (int) (containerWidth * adjust);
         int height = (int) (containerHeight * adjust);
@@ -57,8 +57,8 @@ public class ScreenHelpers
         ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(Constants.MOD_ID, "textures/creeperhost_logo_1-25.png");
         ResourceLocation resourceLocationMineTogetherLogo = new ResourceLocation(Constants.MOD_ID, "textures/minetogether25.png");
 
-//        RenderSystem.pushMatrix();
-//        RenderSystem.scaled(scale, scale, scale);
+        matrixStack.pushPose();
+        matrixStack.scale(scale, scale, scale);
 
         int mtHeight = (int) (318 / 2.5);
         int mtWidth = (int) (348 / 2.5);
@@ -72,7 +72,7 @@ public class ScreenHelpers
         totalHeight *= adjust;
         totalWidth *= adjust;
 
-        Minecraft.getInstance().getTextureManager().bindForSetup(resourceLocationMineTogetherLogo);
+        RenderSystem.setShaderTexture(0, resourceLocationMineTogetherLogo);
         RenderSystem.enableBlend();
         GuiComponent.blit(matrixStack, x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
 
@@ -81,14 +81,14 @@ public class ScreenHelpers
 
         int creeperTotalWidth = creeperWidth + stringWidth;
         fontRendererObj.drawShadow(matrixStack, created, x + (width / 2 - (creeperTotalWidth / 2)), y + (height / 2 - (totalHeight / 2) + mtHeight + 7), 0x40FFFFFF);
-//        RenderSystem.color4f(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
 
-        Minecraft.getInstance().getTextureManager().bindForSetup(resourceLocationCreeperLogo);
+        RenderSystem.setShaderTexture(0, resourceLocationCreeperLogo);
         RenderSystem.enableBlend();
         GuiComponent.blit(matrixStack, x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
 
         RenderSystem.disableBlend();
-//        RenderSystem.popMatrix();
+        matrixStack.popPose();
     }
 
     public void renderHead(PoseStack poseStack, int x, int y)

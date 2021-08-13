@@ -39,17 +39,20 @@ public class MineTogetherScreen extends Screen
     public void renderTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
     {
         List<AbstractWidget> buttons = MineTogetherClient.getWidgetList(this);
-        if (buttons != null && !buttons.isEmpty())
+        try
         {
-            for (AbstractWidget abstractWidget : buttons)
+            if (buttons != null && !buttons.isEmpty())
             {
-                if (abstractWidget.isHovered() && abstractWidget instanceof ButtonMultiple)
+                for (AbstractWidget abstractWidget : buttons)
                 {
-                    ButtonMultiple buttonMultiple = (ButtonMultiple) abstractWidget;
-                    if (buttonMultiple.getTooltip() != null && !buttonMultiple.getTooltip().getString().isEmpty())
-                        renderTooltip(poseStack, buttonMultiple.getTooltip(), mouseX, mouseY);
+                    if (abstractWidget.isHovered() && abstractWidget instanceof ButtonMultiple)
+                    {
+                        ButtonMultiple buttonMultiple = (ButtonMultiple) abstractWidget;
+                        if (buttonMultiple.getTooltip() != null && !buttonMultiple.getTooltip().getString().isEmpty())
+                            renderTooltip(poseStack, buttonMultiple.getTooltip(), mouseX, mouseY);
+                    }
                 }
             }
-        }
+        } catch (Exception e){}
     }
 }
