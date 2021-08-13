@@ -41,8 +41,8 @@ public class ButtonMultiple extends Button
     {
         if (this.visible)
         {
-            Minecraft.getInstance().getTextureManager().bind(resourceLocation);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, resourceLocation);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
             this.blit(poseStack, this.x, this.y, index * 20, getY(), this.width, this.height);
         }
     }

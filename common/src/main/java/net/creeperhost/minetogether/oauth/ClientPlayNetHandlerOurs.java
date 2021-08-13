@@ -48,6 +48,12 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener
     }
 
     @Override
+    public void handleAddVibrationSignal(ClientboundAddVibrationSignalPacket clientboundAddVibrationSignalPacket)
+    {
+
+    }
+
+    @Override
     public void handleAddMob(ClientboundAddMobPacket clientboundAddMobPacket)
     {
 
@@ -133,12 +139,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener
 
     @Override
     public void handleMapItemData(ClientboundMapItemDataPacket clientboundMapItemDataPacket)
-    {
-
-    }
-
-    @Override
-    public void handleContainerAck(ClientboundContainerAckPacket clientboundContainerAckPacket)
     {
 
     }
@@ -258,6 +258,12 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener
     }
 
     @Override
+    public void handlePing(ClientboundPingPacket clientboundPingPacket)
+    {
+
+    }
+
+    @Override
     public void handlePlayerAbilities(ClientboundPlayerAbilitiesPacket clientboundPlayerAbilitiesPacket)
     {
 
@@ -270,7 +276,7 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener
     }
 
     @Override
-    public void handleRemoveEntity(ClientboundRemoveEntitiesPacket clientboundRemoveEntitiesPacket)
+    public void handleRemoveEntities(ClientboundRemoveEntitiesPacket clientboundRemoveEntitiesPacket)
     {
 
     }
@@ -408,7 +414,19 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener
     }
 
     @Override
-    public void handlePlayerCombat(ClientboundPlayerCombatPacket clientboundPlayerCombatPacket)
+    public void handlePlayerCombatEnd(ClientboundPlayerCombatEndPacket clientboundPlayerCombatEndPacket)
+    {
+
+    }
+
+    @Override
+    public void handlePlayerCombatEnter(ClientboundPlayerCombatEnterPacket clientboundPlayerCombatEnterPacket)
+    {
+
+    }
+
+    @Override
+    public void handlePlayerCombatKill(ClientboundPlayerCombatKillPacket clientboundPlayerCombatKillPacket)
     {
 
     }
@@ -426,13 +444,37 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener
     }
 
     @Override
-    public void handleSetBorder(ClientboundSetBorderPacket clientboundSetBorderPacket)
+    public void handleInitializeBorder(ClientboundInitializeBorderPacket clientboundInitializeBorderPacket)
     {
 
     }
 
     @Override
-    public void handleSetTitles(ClientboundSetTitlesPacket clientboundSetTitlesPacket)
+    public void handleSetBorderLerpSize(ClientboundSetBorderLerpSizePacket clientboundSetBorderLerpSizePacket)
+    {
+
+    }
+
+    @Override
+    public void handleSetBorderSize(ClientboundSetBorderSizePacket clientboundSetBorderSizePacket)
+    {
+
+    }
+
+    @Override
+    public void handleSetBorderWarningDelay(ClientboundSetBorderWarningDelayPacket clientboundSetBorderWarningDelayPacket)
+    {
+
+    }
+
+    @Override
+    public void handleSetBorderWarningDistance(ClientboundSetBorderWarningDistancePacket clientboundSetBorderWarningDistancePacket)
+    {
+
+    }
+
+    @Override
+    public void handleSetBorderCenter(ClientboundSetBorderCenterPacket clientboundSetBorderCenterPacket)
     {
 
     }
@@ -559,6 +601,36 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener
 
     @Override
     public void handleBlockBreakAck(ClientboundBlockBreakAckPacket clientboundBlockBreakAckPacket)
+    {
+
+    }
+
+    @Override
+    public void setActionBarText(ClientboundSetActionBarTextPacket clientboundSetActionBarTextPacket)
+    {
+
+    }
+
+    @Override
+    public void setSubtitleText(ClientboundSetSubtitleTextPacket clientboundSetSubtitleTextPacket)
+    {
+
+    }
+
+    @Override
+    public void setTitleText(ClientboundSetTitleTextPacket clientboundSetTitleTextPacket)
+    {
+
+    }
+
+    @Override
+    public void setTitlesAnimation(ClientboundSetTitlesAnimationPacket clientboundSetTitlesAnimationPacket)
+    {
+
+    }
+
+    @Override
+    public void handleTitlesClear(ClientboundClearTitlesPacket clientboundClearTitlesPacket)
     {
 
     }

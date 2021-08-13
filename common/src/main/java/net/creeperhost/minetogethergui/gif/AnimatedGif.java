@@ -252,7 +252,7 @@ public class AnimatedGif
             }
 
             RenderSystem.enableTexture();
-            RenderSystem.enableAlphaTest();
+//            RenderSystem.enableAlphaTest();
             RenderSystem.disableBlend();
             RenderSystem.bindTexture(glTexture);
             Screen.blit(matrixStack, x, y, w, h, 0, lastFrame * height, width, height, width, height * frames);

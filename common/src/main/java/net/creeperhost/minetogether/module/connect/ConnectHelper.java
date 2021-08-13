@@ -48,7 +48,8 @@ public class ConnectHelper
                         integratedServer.getConnection().startTcpServerListener(null, port); // make localhost only
                         ((MixinIntegratedServer) integratedServer).setPublishedPort(port);
                         integratedServer.setPort(port);
-                        integratedServer.getPlayerList().setOverrideGameMode(type);
+                        //TODO
+//                        integratedServer.getPlayerList().setOverrideGameMode(type);
                         integratedServer.getPlayerList().setAllowCheatsForAllPlayers(allowCheats);
                         int i = integratedServer.getProfilePermissions(Minecraft.getInstance().player.getGameProfile());
                         Minecraft.getInstance().player.setPermissionLevel(i);

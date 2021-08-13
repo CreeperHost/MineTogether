@@ -43,18 +43,20 @@ public class MutedListScreen extends Screen
         addButtons();
         searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent(""));
         searchEntry.setSuggestion("Search");
-        children.add(list);
-        children.add(searchEntry);
+        addWidget(list);
+        addWidget(searchEntry);
+//        children.add(list);
+//        children.add(searchEntry);
         refreshMutedList();
     }
 
     public void addButtons()
     {
-        addButton(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
+        addWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
 
-        addButton(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether.button.refresh"), p -> refreshMutedList()));
+        addWidget(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether.button.refresh"), p -> refreshMutedList()));
 
-        addButton(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Friends List"), button -> minecraft.setScreen(new FriendsListScreen(parent))));
+        addWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Friends List"), button -> minecraft.setScreen(new FriendsListScreen(parent))));
     }
 
     @Override

@@ -87,7 +87,7 @@ public class ChatScreen extends MineTogetherScreen
 
     public void addButtons()
     {
-        addButton(targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, new TranslatableComponent("Chat: %s"), Target.getMainTarget(), true, p ->
+        addRenderableWidget(targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, new TranslatableComponent("Chat: %s"), Target.getMainTarget(), true, p ->
         {
             if (!targetDropdownButton.dropdownOpen) return;
             if (!targetDropdownButton.getSelected().getInternalTarget().equals(currentTarget))
@@ -103,7 +103,7 @@ public class ChatScreen extends MineTogetherScreen
         strings.add(I18n.get("minetogether.chat.button.mute"));
         strings.add(I18n.get("minetogether.chat.button.addfriend"));
         strings.add(I18n.get("minetogether.chat.button.mention"));
-        addButton(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new Menu(strings), false, p ->
+        addRenderableWidget(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new Menu(strings), false, p ->
         {
             if (!menuDropdownButton.dropdownOpen) return;
 
@@ -131,19 +131,19 @@ public class ChatScreen extends MineTogetherScreen
             menuDropdownButton.dropdownOpen = false;
         }));
 
-        addButton(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("Friends list"), p ->
+        addRenderableWidget(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("Friends list"), p ->
         {
             this.minecraft.setScreen(new FriendsListScreen(this));
         }));
-        addButton(new ButtonMultiple(width - 124, 5, 3, Constants.WIDGETS_LOCATION, p ->
+        addRenderableWidget(new ButtonMultiple(width - 124, 5, 3, Constants.WIDGETS_LOCATION, p ->
         {
             this.minecraft.setScreen(new SettingsScreen(this));
         }));
-        addButton(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TranslatableComponent("Cancel"), p ->
+        addRenderableWidget(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TranslatableComponent("Cancel"), p ->
         {
             this.minecraft.setScreen(parent);
         }));
-        addButton(connectionStatus = new ButtonString(8, height - 20, 70, 20, () ->
+        addRenderableWidget(connectionStatus = new ButtonString(8, height - 20, 70, 20, () ->
         {
             ChatConnectionStatus status = ChatHandler.connectionStatus;
             return new TranslatableComponent(ChatFormatting.getByName(status.colour) + "\u2022" + " " + ChatFormatting.WHITE + status.display);
@@ -174,7 +174,7 @@ public class ChatScreen extends MineTogetherScreen
         {
             ChatCallbacks.updateOnlineCount();
 
-            addButton(newUserButton = new ButtonNoBlend(width / 2 - 150, 75 + (height / 4), 300, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
+            addRenderableWidget(newUserButton = new ButtonNoBlend(width / 2 - 150, 75 + (height / 4), 300, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
             {
                 IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                 Config.getInstance().setFirstConnect(false);
@@ -182,13 +182,13 @@ public class ChatScreen extends MineTogetherScreen
                 disableButton.visible = false;
                 minecraft.setScreen(this);
             }));
-            addButton(disableButton = new ButtonNoBlend(width / 2 - 150, 95 + (height / 4), 300, 20, new TranslatableComponent("Don't ask me again"), p ->
+            addRenderableWidget(disableButton = new ButtonNoBlend(width / 2 - 150, 95 + (height / 4), 300, 20, new TranslatableComponent("Don't ask me again"), p ->
             {
                 Config.getInstance().setChatEnabled(false);
                 disableButton.visible = false;
                 newUserButton.visible = false;
                 IrcHandler.stop(true);
-                buttons.clear();
+//                buttons.clear();
                 minecraft.setScreen(parent);
             }));
         }
@@ -211,7 +211,7 @@ public class ChatScreen extends MineTogetherScreen
             fill(poseStack, 10, chat.getTop(), width - 10, chat.getHeight(), 0x99000000);
             fill(poseStack, 10, chat.getTop(), width - 10, chat.getHeight(), 0x99000000);
 
-            RenderSystem.blendColor(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
+            RenderSystem.setShaderColor(1F, 1F, 1F, 1F); // reset alpha as font renderer isn't nice like that
             drawCenteredString(poseStack, font, "Welcome to MineTogether", width / 2, (height / 4) + 25, 0xFFFFFF);
             drawCenteredString(poseStack, font, "MineTogether is a multiplayer enhancement mod that provides", width / 2, (height / 4) + 35, 0xFFFFFF);
             drawCenteredString(poseStack, font, "a multitude of features like chat, friends list, server listing", width / 2, (height / 4) + 45, 0xFFFFFF);

@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.module.multiplayer;
 
-import me.shedaniel.architectury.hooks.ScreenHooks;
+import dev.architectury.hooks.client.screen.ScreenHooks;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
@@ -12,7 +12,6 @@ import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -23,7 +22,7 @@ import java.util.List;
 
 public class MultiPlayerModule
 {
-    public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
+    public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets)
     {
         if (screen instanceof JoinMultiplayerScreen)
         {
@@ -36,10 +35,10 @@ public class MultiPlayerModule
             {
                 Button serverListButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.serverlist"), p -> Minecraft.getInstance().setScreen(new ServerTypeScreen(screen)));
 
-                ScreenHooks.addButton(screen, serverListButton);
+                ScreenHooks.addRenderableWidget(screen, serverListButton);
                 serverListButton.active = !Config.getInstance().getFirstConnect();
 
-                ScreenHooks.addButton(screen, new ButtonMultiple(screen.width - 125, 5, 1, Constants.WIDGETS_LOCATION, p ->
+                ScreenHooks.addRenderableWidget(screen, new ButtonMultiple(screen.width - 125, 5, 1, Constants.WIDGETS_LOCATION, p ->
                 {
                     if (Config.getInstance().isChatEnabled())
                     {
@@ -100,7 +99,7 @@ public class MultiPlayerModule
 
             if (!(multiplayerScreen instanceof JoinMultiplayerScreenPublic))
             {
-                ScreenHooks.addButton(multiplayerScreen, new Button(multiplayerScreen.width / 2 + 80, multiplayerScreen.height - 52, 74, 20, new TranslatableComponent("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
+                ScreenHooks.addRenderableWidget(multiplayerScreen, new Button(multiplayerScreen.width / 2 + 80, multiplayerScreen.height - 52, 74, 20, new TranslatableComponent("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
             }
         } catch (Exception ignored)
         {

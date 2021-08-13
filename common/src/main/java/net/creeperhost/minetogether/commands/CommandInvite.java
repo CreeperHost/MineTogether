@@ -34,7 +34,7 @@ public class CommandInvite
         MinecraftServer minecraftServer = cs.getSource().getServer();
         if (username.isEmpty()) throw new CommandRuntimeException(new TranslatableComponent("Invalid username"));
 
-        GameProfile gameProfile = minecraftServer.getProfileCache().get(username);
+        GameProfile gameProfile = minecraftServer.getProfileCache().get(username).get();
         if (gameProfile == null)
             throw new CommandRuntimeException(new TranslatableComponent("Failed to load GameProfile, Username is not valid"));
 

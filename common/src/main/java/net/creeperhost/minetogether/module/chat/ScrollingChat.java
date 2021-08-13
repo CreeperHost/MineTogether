@@ -2,10 +2,7 @@ package net.creeperhost.minetogether.module.chat;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.*;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogethergui.gif.AnimatedGif;
@@ -18,9 +15,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
@@ -89,10 +90,10 @@ public class ScrollingChat extends ObjectSelectionList
             if (hovering)
             {
                 RenderSystem.enableBlend();
-                RenderSystem.color4f(1, 1, 1, 0.90F);
+                RenderSystem.setShaderColor(1, 1, 1, 0.90F);
                 minecraft.font.draw(poseStack, component, oldTotal, getRowTop(index), 0xBBFFFFFF);
                 screen.renderComponentHoverEffect(poseStack, style, mouseX, mouseY);
-                RenderSystem.color4f(1, 1, 1, 1);
+                RenderSystem.setShaderColor(1, 1, 1, 1);
 
                 if (style.getHoverEvent() != null && style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
                 {
@@ -212,76 +213,107 @@ public class ScrollingChat extends ObjectSelectionList
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
     {
-        if (renderBackground) this.renderBackground(poseStack);
-        int i = this.getScrollbarPosition();
-        int j = i + 6;
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuilder();
-
-        if (renderBackground)
-        {
-            this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            float f = 32.0F;
-            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-            bufferbuilder.vertex((double) this.x0, (double) this.y1, 0.0D).uv((float) this.x0 / 32.0F, (float) (this.y1 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-            bufferbuilder.vertex((double) this.x1, (double) this.y1, 0.0D).uv((float) this.x1 / 32.0F, (float) (this.y1 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-            bufferbuilder.vertex((double) this.x1, (double) this.y0, 0.0D).uv((float) this.x1 / 32.0F, (float) (this.y0 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-            bufferbuilder.vertex((double) this.x0, (double) this.y0, 0.0D).uv((float) this.x0 / 32.0F, (float) (this.y0 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-            tessellator.end();
+        if(renderBackground) this.renderBackground(poseStack);
+        int k = this.getScrollbarPosition();
+        int l = k + 6;
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        if (this.renderBackground) {
+            RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            float g = 32.0F;
+            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferBuilder.vertex((double)this.x0, (double)this.y1, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferBuilder.vertex((double)this.x1, (double)this.y1, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferBuilder.vertex((double)this.x1, (double)this.y0, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferBuilder.vertex((double)this.x0, (double)this.y0, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            tesselator.end();
         }
 
-        int k = this.getRowLeft();
-        int l = this.y0 + 4 - (int) this.getScrollAmount();
+        int m = this.getRowLeft();
+        int n = this.y0 + 4 - (int)this.getScrollAmount();
 
-        //            ScreenHelpers.drawLogo(matrixStack, font, width - 20, height + 18, 20, 30, 0.75F);
-        this.renderList(poseStack, k, l, mouseX, mouseY, partialTicks);
-        if (renderBackground)
-        {
-            this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
-            RenderSystem.enableDepthTest();
-            RenderSystem.depthFunc(519);
-            float f1 = 32.0F;
-            int i1 = -100;
-            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-            bufferbuilder.vertex((double) this.x0, (double) this.y0, -100.0D).uv(0.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.y0, -100.0D).uv((float) this.width / 32.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double) (this.x0 + this.width), 0.0D, -100.0D).uv((float) this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double) this.x0, 0.0D, -100.0D).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double) this.x0, (double) this.height, -100.0D).uv(0.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.height, -100.0D).uv((float) this.width / 32.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.y1, -100.0D).uv((float) this.width / 32.0F, (float) this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
-            bufferbuilder.vertex((double) this.x0, (double) this.y1, -100.0D).uv(0.0F, (float) this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
-            tessellator.end();
-        }
+        this.renderList(poseStack, m, n, mouseX, mouseY, partialTicks);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(519);
+        float h = 32.0F;
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferBuilder.vertex((double)this.x0, (double)this.y0, -100.0D).uv(0.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferBuilder.vertex((double)(this.x0 + this.width), (double)this.y0, -100.0D).uv((float)this.width / 32.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferBuilder.vertex((double)(this.x0 + this.width), 0.0D, -100.0D).uv((float)this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+        bufferBuilder.vertex((double)this.x0, 0.0D, -100.0D).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+        bufferBuilder.vertex((double)this.x0, (double)this.height, -100.0D).uv(0.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferBuilder.vertex((double)(this.x0 + this.width), (double)this.height, -100.0D).uv((float)this.width / 32.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferBuilder.vertex((double)(this.x0 + this.width), (double)this.y1, -100.0D).uv((float)this.width / 32.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+        bufferBuilder.vertex((double)this.x0, (double)this.y1, -100.0D).uv(0.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+        tesselator.end();
         RenderSystem.depthFunc(515);
         RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
-        RenderSystem.disableAlphaTest();
-        RenderSystem.shadeModel(7425);
         RenderSystem.disableTexture();
-        int j1 = 4;
-        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex((double) this.x0, (double) (this.y0 + 4), 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
-        bufferbuilder.vertex((double) this.x1, (double) (this.y0 + 4), 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
-        bufferbuilder.vertex((double) this.x1, (double) this.y0, 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-        bufferbuilder.vertex((double) this.x0, (double) this.y0, 0.0D).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-        bufferbuilder.vertex((double) this.x0, (double) this.y1, 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-        bufferbuilder.vertex((double) this.x1, (double) this.y1, 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
-        bufferbuilder.vertex((double) this.x1, (double) (this.y1 - 4), 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
-        bufferbuilder.vertex((double) this.x0, (double) (this.y1 - 4), 0.0D).uv(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
-        tessellator.end();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        bufferBuilder.vertex((double)this.x0, (double)(this.y0 + 4), 0.0D).color(0, 0, 0, 0).endVertex();
+        bufferBuilder.vertex((double)this.x1, (double)(this.y0 + 4), 0.0D).color(0, 0, 0, 0).endVertex();
+        bufferBuilder.vertex((double)this.x1, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+        bufferBuilder.vertex((double)this.x0, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+        bufferBuilder.vertex((double)this.x0, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+        bufferBuilder.vertex((double)this.x1, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+        bufferBuilder.vertex((double)this.x1, (double)(this.y1 - 4), 0.0D).color(0, 0, 0, 0).endVertex();
+        bufferBuilder.vertex((double)this.x0, (double)(this.y1 - 4), 0.0D).color(0, 0, 0, 0).endVertex();
+        tesselator.end();
+
+//        ScreenHelpers.drawLogo(matrixStack, font, width - 20, height + 18, 20, 30, 0.75F);
+
+        int q = this.getMaxScroll();
+        if (q > 0) {
+            RenderSystem.disableTexture();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            int r = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
+            r = Mth.clamp(r, 32, this.y1 - this.y0 - 8);
+            int s = (int)this.getScrollAmount() * (this.y1 - this.y0 - r) / q + this.y0;
+            if (s < this.y0) {
+                s = this.y0;
+            }
+
+            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            bufferBuilder.vertex((double)k, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferBuilder.vertex((double)l, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferBuilder.vertex((double)l, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferBuilder.vertex((double)k, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferBuilder.vertex((double)k, (double)(s + r), 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferBuilder.vertex((double)l, (double)(s + r), 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferBuilder.vertex((double)l, (double)s, 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferBuilder.vertex((double)k, (double)s, 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferBuilder.vertex((double)k, (double)(s + r - 1), 0.0D).color(192, 192, 192, 255).endVertex();
+            bufferBuilder.vertex((double)(l - 1), (double)(s + r - 1), 0.0D).color(192, 192, 192, 255).endVertex();
+            bufferBuilder.vertex((double)(l - 1), (double)s, 0.0D).color(192, 192, 192, 255).endVertex();
+            bufferBuilder.vertex((double)k, (double)s, 0.0D).color(192, 192, 192, 255).endVertex();
+            tesselator.end();
+        }
 
         this.renderDecorations(poseStack, mouseX, mouseY);
         RenderSystem.enableTexture();
-        RenderSystem.shadeModel(7424);
-        RenderSystem.enableAlphaTest();
         RenderSystem.disableBlend();
 
-        if (gifPlayer != null && gifImage != null)
-            gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
+        if (gifPlayer != null && gifImage != null) gifPlayer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
         if (imageRenderer != null) imageRenderer.render(poseStack, mouseX + 5, mouseY + 5, 80, 60, partialTicks);
+    }
+
+    @Override
+    public void setInitialFocus(@Nullable GuiEventListener guiEventListener)
+    {
+
+    }
+
+    @Override
+    public void setFocused(@Nullable GuiEventListener guiEventListener)
+    {
+
     }
 
     public void tick()
@@ -334,15 +366,15 @@ public class ScrollingChat extends ObjectSelectionList
                         int i2 = this.x0 + this.width / 2 + k1 / 2;
                         RenderSystem.disableTexture();
                         float f = this.isFocused() ? 1.0F : 0.5F;
-                        RenderSystem.color4f(f, f, f, 1.0F);
-                        bufferbuilder.begin(7, DefaultVertexFormat.POSITION);
+                        RenderSystem.setShaderColor(f, f, f, 1.0F);
+                        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
                         bufferbuilder.vertex((double) l1, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.vertex((double) i2, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.vertex((double) i2, (double) (i1 - 2), 0.0D).endVertex();
                         bufferbuilder.vertex((double) l1, (double) (i1 - 2), 0.0D).endVertex();
                         tessellator.end();
-                        RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
-                        bufferbuilder.begin(7, DefaultVertexFormat.POSITION);
+                        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
+                        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
                         bufferbuilder.vertex((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.vertex((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.vertex((double) (i2 - 1), (double) (i1 - 1), 0.0D).endVertex();

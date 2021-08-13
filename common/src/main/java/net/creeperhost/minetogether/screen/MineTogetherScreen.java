@@ -1,12 +1,15 @@
 package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class MineTogetherScreen extends Screen
 {
@@ -35,6 +38,7 @@ public class MineTogetherScreen extends Screen
 
     public void renderTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
     {
+        List<AbstractWidget> buttons = MineTogetherClient.getWidgetList(this);
         if (buttons != null && !buttons.isEmpty())
         {
             for (AbstractWidget abstractWidget : buttons)

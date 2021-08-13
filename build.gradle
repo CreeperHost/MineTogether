@@ -1,6 +1,6 @@
 plugins {
-    id "architectury-plugin" version "3.1-SNAPSHOT"
-    id "forgified-fabric-loom" version "0.6-SNAPSHOT" apply false
+    id "architectury-plugin" version "3.3-SNAPSHOT"
+    id "dev.architectury.loom" version "0.7.4-SNAPSHOT" apply false
 }
 
 architectury {
@@ -8,7 +8,7 @@ architectury {
 }
 
 subprojects {
-    apply plugin: "forgified-fabric-loom"
+    apply plugin: "dev.architectury.loom"
 
     loom {
         silentMojangMappingsLicense()
@@ -40,16 +40,12 @@ allprojects {
         // for more information about repositories.
     }
 
-    tasks.withType(JavaCompile) {
-        options.encoding = "UTF-8"
-
         // The Minecraft launcher currently installs Java 8 for users, so your mod probably wants to target Java 8 too
         // JDK 9 introduced a new way of specifying this that will make sure no newer classes or methods are used.
         // We'll use that if it's available, but otherwise we'll use the older option.
-        def targetVersion = 8
-        if (JavaVersion.current().isJava9Compatible()) {
-            options.release = targetVersion
-        }
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+        options.release = 16
     }
 
     java {

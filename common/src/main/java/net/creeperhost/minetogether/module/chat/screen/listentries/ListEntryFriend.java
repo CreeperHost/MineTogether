@@ -52,11 +52,11 @@ public class ListEntryFriend extends ScreenListEntry
         if (profile != null)
             this.mc.font.draw(matrixStack, new TranslatableComponent(ChatFormatting.GRAY + (profile.isFriend() ? (profile != null && profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline") : "Pending")).getString(), x + 5, y + 15, 16777215);
 
-        RenderSystem.enableAlphaTest();
+//        RenderSystem.enableAlphaTest();
         RenderSystem.enableBlend();
-        Minecraft.getInstance().getTextureManager().bind(resourceLocationCreeperLogo);
+        Minecraft.getInstance().getTextureManager().bindForSetup(resourceLocationCreeperLogo);
 
-        RenderSystem.disableAlphaTest();
+//        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
     }
 

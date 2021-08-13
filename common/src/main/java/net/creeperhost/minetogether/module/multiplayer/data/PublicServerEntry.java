@@ -180,8 +180,8 @@ public class PublicServerEntry extends ServerSelectionList.Entry
             list5 = Collections.emptyList();
         }
 
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        this.minecraft.getTextureManager().bindForSetup(GuiComponent.GUI_ICONS_LOCATION);
         GuiComponent.blit(poseStack, k + l - 15, j, (float) (r * 10), (float) (176 + z * 8), 10, 8, 256, 256);
         String string = this.serverData.getIconB64();
         if (!Objects.equals(string, this.lastIconB64))
@@ -219,9 +219,9 @@ public class PublicServerEntry extends ServerSelectionList.Entry
 
         if (this.minecraft.options.touchscreen || bl)
         {
-            this.minecraft.getTextureManager().bind(ICON_OVERLAY_LOCATION);
+            this.minecraft.getTextureManager().bindForSetup(ICON_OVERLAY_LOCATION);
             GuiComponent.fill(poseStack, k, j, k + 32, j + 32, -1601138544);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             int ac = n - k;
             int ad = o - j;
             if (this.canJoin())
@@ -256,7 +256,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry
             String applicationURL = server.applicationURL;
             if (flag != null)
             {
-                Minecraft.getInstance().getTextureManager().bind(flags);
+                Minecraft.getInstance().getTextureManager().bindForSetup(flags);
                 int flagWidth = 16;
                 int flagHeight = flag.height / (flag.width / flagWidth);
                 ScreenHelpers.drawScaledCustomSizeModalRect(k + l - 5 - flagWidth, j + 30 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
@@ -329,7 +329,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry
 
     protected void drawIcon(PoseStack poseStack, int i, int j, ResourceLocation resourceLocation)
     {
-        this.minecraft.getTextureManager().bind(resourceLocation);
+        this.minecraft.getTextureManager().bindForSetup(resourceLocation);
         RenderSystem.enableBlend();
         GuiComponent.blit(poseStack, i, j, 0.0F, 0.0F, 32, 32, 32, 32);
         RenderSystem.disableBlend();
@@ -364,5 +364,11 @@ public class PublicServerEntry extends ServerSelectionList.Entry
 
         this.lastClickTime = Util.getMillis();
         return false;
+    }
+
+    @Override
+    public Component getNarration()
+    {
+        return null;
     }
 }

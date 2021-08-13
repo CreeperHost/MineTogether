@@ -46,8 +46,8 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
         {
             int drawY = y;
             Font fontrenderer = minecraft.font;
-            minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
             this.isHovered = mouseX >= this.x && mouseY >= drawY && mouseX < this.x + this.width && mouseY < drawY + this.height;
             int i = this.getHoverState(this.isHovered);
             RenderSystem.enableBlend();
@@ -82,9 +82,9 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                     boolean ourHovered = mouseX >= this.x && mouseY >= drawY && mouseX < this.x + this.width && mouseY < drawY + this.height - 2;
                     
                     int subHovered = ourHovered ? 2 : 0;
-                    
-                    minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+                    RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
                     this.blit(matrixStack, this.x, drawY, 0, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
                     this.blit(matrixStack, this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
                     

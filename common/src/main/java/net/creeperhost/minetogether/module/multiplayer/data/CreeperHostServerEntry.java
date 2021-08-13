@@ -15,6 +15,8 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -53,9 +55,9 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             if (transparency >= 0.5F) transparency -= 0.04;
         }
 
-        this.mc.getTextureManager().bind(serverIcon);
+        RenderSystem.setShaderTexture(0, serverIcon);
         RenderSystem.enableBlend();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, transparency);
         Screen.blit(matrixStack, x, y, 0.0F, 0.0F, 32, 32, 32, 32);
         int transparentString = (int) (transparency * 254) << 24;
         this.mc.font.draw(matrixStack, I18n.get("minetogether.multiplayerscreen.partner"), x + 35, y, 16777215 + transparentString);
@@ -72,10 +74,10 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
 
             if (removeButton.isHovered())
             {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 final int tooltipY = mouseY + ((mc.screen.width / 2 >= mouseY) ? 11 : -11);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
-                mc.getTextureManager().bind(BUTTON_TEXTURES);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, transparency);
+                RenderSystem.setShaderTexture(0, BUTTON_TEXTURES);
                 Screen.blit(matrixStack, mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
             }
         }
@@ -96,4 +98,9 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
         return true;
     }
 
+    @Override
+    public Component getNarration()
+    {
+        return new TextComponent("");
+    }
 }

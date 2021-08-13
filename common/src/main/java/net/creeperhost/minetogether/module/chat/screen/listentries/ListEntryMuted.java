@@ -44,10 +44,8 @@ public class ListEntryMuted extends ScreenListEntry
 
         int transparentString = (int) (transparency * 254) << 24;
 
-        RenderSystem.enableAlphaTest();
         RenderSystem.enableBlend();
         this.mc.font.drawShadow(matrixStack, cross, listWidth + x - crossWidth - 4, y, 0xFF0000 + transparentString);
-        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
 
         if (mouseX >= listWidth + x - crossWidth - 4 && mouseX <= listWidth - 5 + x && mouseY >= y && mouseY <= y + 7)

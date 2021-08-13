@@ -2,6 +2,7 @@ package net.creeperhost.minetogethergui.lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 
 public class ScreenList<T extends ScreenListEntry> extends AbstractSelectionList
@@ -60,5 +61,11 @@ public class ScreenList<T extends ScreenListEntry> extends AbstractSelectionList
 
     public int getHeight() {
         return height;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput narrationElementOutput)
+    {
+
     }
 }

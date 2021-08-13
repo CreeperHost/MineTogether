@@ -84,9 +84,9 @@ public class ToastHandler
                 long curFade = Math.min(MineTogetherClient.toastHandler.fadeTime - curTime, fadeDiff);
                 float alpha = (float) curFade / (float) fadeDiff;
 
-                RenderSystem.disableLighting();
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-                Minecraft.getInstance().getTextureManager().bind(Constants.TEXTURE_TOASTS);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
+
+                RenderSystem.setShaderTexture(0, Constants.TEXTURE_TOASTS);
                 List<FormattedCharSequence> s = ComponentRenderUtils.wrapComponents(MineTogetherClient.toastHandler.toastText, 140, Minecraft.getInstance().font);
 
                 int toastHeight = 32 + (s.size() * 8);

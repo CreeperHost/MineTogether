@@ -111,7 +111,7 @@ public class TextFieldDetails extends EditBox
         int startX = (this.x + this.width + 3) / 2;
         int startY = (this.y + 4) / 2;
 
-        RenderSystem.scalef(2.0F, 2.0F, 2.0F);
+        matrixStack.scale(2.0F, 2.0F, 2.0F);
 
         if (isValidated)
         {
@@ -122,7 +122,7 @@ public class TextFieldDetails extends EditBox
             drawString(matrixStack, Minecraft.getInstance().font, denyString, startX, startY, 0xFF0000);
         }
 
-        GL11.glScalef(0.5F, 0.5F, 0.5F);
+        matrixStack.scale(0.5F, 0.5F, 0.5F);
 
         if (!this.isFocused() && this.getValue().trim().isEmpty())
         {

@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.verification;
 
 import com.google.gson.*;
-import me.shedaniel.architectury.platform.Platform;
+import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.chat.ChatCallbacks;

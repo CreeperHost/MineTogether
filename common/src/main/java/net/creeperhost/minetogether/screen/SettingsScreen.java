@@ -28,9 +28,9 @@ public class SettingsScreen extends MineTogetherScreen
     public void init()
     {
         super.init();
-        buttons.clear();
+//        buttons.clear();
 
-        addButton(new Button(this.width / 2 - 123, 40, 120, 20, new TranslatableComponent(I18n.get("Chat Enabled: " + format(Config.getInstance().isChatEnabled()))), p ->
+        addRenderableWidget(new Button(this.width / 2 - 123, 40, 120, 20, new TranslatableComponent(I18n.get("Chat Enabled: " + format(Config.getInstance().isChatEnabled()))), p ->
         {
             if (Config.getInstance().isChatEnabled())
             {
@@ -47,19 +47,19 @@ public class SettingsScreen extends MineTogetherScreen
             }
             saveConfig();
         }));
-        this.addButton(new Button(this.width / 2 + 3, 40, 120, 20, new TranslatableComponent(I18n.get("Friend Toasts: " + format(Config.getInstance().isFriendOnlineToastsEnabled()))), p ->
+        this.addRenderableWidget(new Button(this.width / 2 + 3, 40, 120, 20, new TranslatableComponent(I18n.get("Friend Toasts: " + format(Config.getInstance().isFriendOnlineToastsEnabled()))), p ->
         {
             boolean enabled = Config.getInstance().isFriendOnlineToastsEnabled();
             Config.getInstance().setEnableFriendOnlineToasts(!enabled);
             saveConfig();
         }));
-        this.addButton(new Button(this.width / 2 - 123, 60, 120, 20, new TranslatableComponent(I18n.get("Menu Buttons: " + format(Config.getInstance().isEnableMainMenuFriends()))), p ->
+        this.addRenderableWidget(new Button(this.width / 2 - 123, 60, 120, 20, new TranslatableComponent(I18n.get("Menu Buttons: " + format(Config.getInstance().isEnableMainMenuFriends()))), p ->
         {
             boolean enabled = Config.getInstance().isEnableMainMenuFriends();
             Config.getInstance().setEnableMainMenuFriends(!enabled);
             saveConfig();
         }));
-        addButton(linkButton = new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("minetogether.settingscreen.button.linkaccount")), p ->
+        addRenderableWidget(linkButton = new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("minetogether.settingscreen.button.linkaccount")), p ->
         {
             minecraft.setScreen(new ConfirmScreen(e ->
             {
@@ -72,7 +72,7 @@ public class SettingsScreen extends MineTogetherScreen
         }));
 
         //Done button
-        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")), p -> this.minecraft.setScreen(parent)));
+        this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")), p -> this.minecraft.setScreen(parent)));
     }
 
     @Override

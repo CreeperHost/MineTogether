@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class AutoServerConnectHandler
     static boolean first = true;
 
     //This is Aaron code and was copy pasta
-    public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
+    public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets)
     {
         if (screen instanceof TitleScreen && first)
         {
@@ -53,7 +54,7 @@ public class AutoServerConnectHandler
                     if (realPort != -1)
                     {
                         ServerData serverData = new ServerData(serverSplit[0], String.valueOf(realPort), false);
-                        Minecraft.getInstance().setScreen(new ConnectScreen(screen, Minecraft.getInstance(), serverData));
+                        ConnectScreen.startConnecting(screen, Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
                     }
                 }
             }

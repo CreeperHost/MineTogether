@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.verification;
 
-import me.shedaniel.architectury.platform.Platform;
+import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.MineTogether;
 import org.apache.commons.io.FileUtils;
 

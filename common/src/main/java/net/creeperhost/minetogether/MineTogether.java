@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether;
 
-import me.shedaniel.architectury.platform.Platform;
-import me.shedaniel.architectury.utils.EnvExecutor;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.EnvExecutor;
 import net.creeperhost.minetogether.config.Config;
 import net.fabricmc.api.EnvType;
 import org.apache.logging.log4j.LogManager;

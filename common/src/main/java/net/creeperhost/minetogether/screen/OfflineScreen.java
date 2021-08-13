@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.shedaniel.architectury.platform.Platform;
+import dev.architectury.platform.Platform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -82,7 +82,7 @@ public class OfflineScreen extends MineTogetherScreen
 
     public void addButtons()
     {
-        addButton(new Button((width / 2) - 40, height - 40, 80, 20, new TranslatableComponent("Continue"), (b) ->
+        addRenderableWidget(new Button((width / 2) - 40, height - 40, 80, 20, new TranslatableComponent("Continue"), (b) ->
         {
             File offline = new File(Platform.getGameFolder() + "/local/minetogether/offline.txt");
             if (checkBox.selected())
@@ -98,7 +98,7 @@ public class OfflineScreen extends MineTogetherScreen
             }
             Minecraft.getInstance().setScreen(new TitleScreen());
         }));
-        addButton(checkBox = new Checkbox((width / 2) - (font.width("Do not show this screen again") / 2), height - 80, 150, 20, new TranslatableComponent("Do not show this screen again"), true));
+        addRenderableWidget(checkBox = new Checkbox((width / 2) - (font.width("Do not show this screen again") / 2), height - 80, 150, 20, new TranslatableComponent("Do not show this screen again"), true));
     }
 
     @Override

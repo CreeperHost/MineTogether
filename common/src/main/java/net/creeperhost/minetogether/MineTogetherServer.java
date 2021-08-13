@@ -1,9 +1,9 @@
 package net.creeperhost.minetogether;
 
-import me.shedaniel.architectury.event.events.CommandRegistrationEvent;
-import me.shedaniel.architectury.event.events.LifecycleEvent;
-import me.shedaniel.architectury.event.events.PlayerEvent;
-import me.shedaniel.architectury.event.events.TickEvent;
+import dev.architectury.event.events.common.CommandRegistrationEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.event.events.common.TickEvent;
 import net.creeperhost.minetogether.commands.MTCommands;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.PregenHandler;
@@ -37,7 +37,7 @@ public class MineTogetherServer
         packID = modPackVerifier.verify();
         secret = signatureVerifier.verify();
         CommandRegistrationEvent.EVENT.register(MTCommands::registerCommand);
-        TickEvent.ServerWorld.SERVER_POST.register(PregenHandler::onWorldTick);
+        TickEvent.SERVER_LEVEL_POST.register(PregenHandler::onWorldTick);
         PlayerEvent.PLAYER_JOIN.register(PregenHandler::onPlayerJoin);
         LifecycleEvent.SERVER_STARTED.register(MineTogetherServer::serverStarted);
         LifecycleEvent.SERVER_STOPPING.register(MineTogetherServer::serverStopped);

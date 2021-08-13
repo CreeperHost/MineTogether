@@ -2,8 +2,8 @@ package net.creeperhost.minetogether.module.chat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import me.shedaniel.architectury.hooks.ScreenHooks;
-import me.shedaniel.architectury.platform.Platform;
+import dev.architectury.hooks.client.screen.ScreenHooks;
+import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
@@ -72,7 +72,7 @@ public class ChatModule
         mineTogetherChat.startChat();
     }
 
-    public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
+    public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets)
     {
         Button friendsButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.friends"), p -> Minecraft.getInstance().setScreen(new FriendsListScreen(screen)));
 
@@ -82,15 +82,15 @@ public class ChatModule
         {
             if (Config.instance.isMainMenuEnabled())
             {
-                ScreenHooks.addButton(screen, friendsButton);
-                ScreenHooks.addButton(screen, chatButton);
+                ScreenHooks.addRenderableWidget(screen, friendsButton);
+                ScreenHooks.addRenderableWidget(screen, chatButton);
                 friendsButton.active = !Config.getInstance().getFirstConnect();
             }
         }
         if (screen instanceof PauseScreen)
         {
-            ScreenHooks.addButton(screen, friendsButton);
-            ScreenHooks.addButton(screen, chatButton);
+            ScreenHooks.addRenderableWidget(screen, friendsButton);
+            ScreenHooks.addRenderableWidget(screen, chatButton);
             friendsButton.active = !Config.getInstance().getFirstConnect();
         }
     }

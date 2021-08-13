@@ -35,7 +35,7 @@ public class PregenHandler
         pregenTasks.put(dimension, new PregenTask(dimension, minX, maxX, minZ, maxZ, chunksPerTick, preventJoin));
     }
 
-    public static void onWorldTick(MinecraftServer minecraftServer)
+    public static void onWorldTick(ServerLevel serverLevel)
     {
         //No point doing anything if the list is empty
         if(pregenTasks.isEmpty()) return;
@@ -43,7 +43,6 @@ public class PregenHandler
         if(pregenTasks.containsKey(ServerLevel.OVERWORLD))
         {
             //TODO more than just the overworld
-            ServerLevel serverLevel = minecraftServer.getLevel(ServerLevel.OVERWORLD);
             PregenTask pregenTask = pregenTasks.get(ServerLevel.OVERWORLD);
 
             if(pregenTask == null) return;

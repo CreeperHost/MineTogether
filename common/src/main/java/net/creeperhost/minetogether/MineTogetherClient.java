@@ -3,11 +3,14 @@ package net.creeperhost.minetogether;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.shedaniel.architectury.event.events.GuiEvent;
-import me.shedaniel.architectury.event.events.client.ClientRawInputEvent;
-import me.shedaniel.architectury.registry.KeyBindings;
+import dev.architectury.event.EventResult;
+import dev.architectury.event.events.client.ClientGuiEvent;
+import dev.architectury.event.events.client.ClientRawInputEvent;
+import dev.architectury.hooks.client.screen.ScreenAccess;
+import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.mixin.MixinScreen;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialInteractionsScreen;
 import net.creeperhost.minetogether.module.connect.ConnectModule;
@@ -41,9 +44,9 @@ public class MineTogetherClient
     public static void init()
     {
         toastHandler = new ToastHandler();
-        GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
-        GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
-        GuiEvent.RENDER_HUD.register(MineTogetherClient::onHudRender);
+        ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
+        ClientGuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
+        ClientGuiEvent.RENDER_HUD.register(MineTogetherClient::onHudRender);
         ClientRawInputEvent.KEY_PRESSED.register(MineTogetherClient::onRawInput);
         ConnectModule.init();
         MineTogetherClient.getUUID();
@@ -53,28 +56,29 @@ public class MineTogetherClient
         if (!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
     }
 
-    private static InteractionResult onRawInput(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers)
+
+    private static EventResult onRawInput(Minecraft minecraft, int i, int i1, int i2, int i3)
     {
         if (minecraft.screen == null)
         {
             if (!MineTogetherClient.toastHandler.isActiveToast() && mtSocialKey.isDown())
             {
                 minecraft.setScreen(new MineTogetherSocialInteractionsScreen());
-                return InteractionResult.SUCCESS;
+                return EventResult.pass();
             }
         }
 
         if (MineTogetherClient.toastHandler.toastMethod != null && mtSocialKey.isDown())
         {
             MineTogetherClient.toastHandler.toastMethod.run();
-            return InteractionResult.SUCCESS;
+            return EventResult.pass();
         }
-        return InteractionResult.PASS;
+        return EventResult.pass();
     }
 
     public static void registerKeybindings()
     {
-        KeyBindings.registerKeyBinding(mtSocialKey);
+        KeyMappingRegistry.register(mtSocialKey);
     }
 
     public static void removeVanillaSocialKeybinding()
@@ -118,7 +122,7 @@ public class MineTogetherClient
 
     static boolean firstOpen = true;
 
-    private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
+    private static void onScreenOpen(Screen screen, ScreenAccess screenAccess)
     {
         if (firstOpen && screen instanceof TitleScreen)
         {
@@ -134,9 +138,14 @@ public class MineTogetherClient
             }
             firstOpen = false;
         }
-        MultiPlayerModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
-        ServerOrderModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
-        ChatModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
-        AutoServerConnectHandler.onScreenOpen(screen, abstractWidgets, guiEventListeners);
+        MultiPlayerModule.onScreenOpen(screen, getWidgetList(screen));
+        ServerOrderModule.onScreenOpen(screen, getWidgetList(screen));
+        ChatModule.onScreenOpen(screen, getWidgetList(screen));
+        AutoServerConnectHandler.onScreenOpen(screen, getWidgetList(screen));
+    }
+
+    public static List<AbstractWidget> getWidgetList(Screen screen)
+    {
+        return ((MixinScreen) screen).getRenderables();
     }
 }

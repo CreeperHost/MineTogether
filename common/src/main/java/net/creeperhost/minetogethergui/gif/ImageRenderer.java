@@ -40,7 +40,7 @@ public class ImageRenderer
     public void render(PoseStack matrixStack, int x, int y, int width, int height, float partialTicks)
     {
         RenderSystem.enableTexture();
-        RenderSystem.enableAlphaTest();
+//        RenderSystem.enableAlphaTest();
         RenderSystem.disableBlend();
         RenderSystem.bindTexture(glTexture);
         GuiComponent.blit(matrixStack, x, y, 0.0F, 0.0F, width, height, width, height);
