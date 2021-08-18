@@ -286,8 +286,16 @@ public class FriendsListScreen extends MineTogetherScreen
     @Override
     public boolean mouseClicked(double d, double e, int i)
     {
-        if (list.getCurrSelected() != null)
+        return super.mouseClicked(d, e, i);
+    }
+
+    @Override
+    public boolean mouseReleased(double d, double e, int i)
+    {
+        if (list.isMouseOver(d, e) && list.getCurrSelected() != null)
         {
+            if(list.getCurrSelected() == null) return super.mouseReleased(d, e, i);
+
             boolean flag = targetProfile == null || !targetProfile.equals(list.getCurrSelected().getProfile());
             if (flag)
             {
@@ -300,7 +308,7 @@ public class FriendsListScreen extends MineTogetherScreen
                 return flag;
             }
         }
-        return super.mouseClicked(d, e, i);
+        return super.mouseReleased(d, e, i);
     }
 
     public static class NameComparator implements Comparator<Profile>
