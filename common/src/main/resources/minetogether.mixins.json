@@ -15,8 +15,7 @@
     "MixinMinecraftTitle",
     "MixinSelectionList",
     "MixinServerSelectionList",
-    "MixinShareToLanScreen",
-    "MixinPlayerRender"
+    "MixinShareToLanScreen"
   ],
   "server": [
     "MixinDedicatedServerProperties"

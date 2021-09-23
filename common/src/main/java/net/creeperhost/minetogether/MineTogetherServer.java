@@ -88,7 +88,7 @@ public class MineTogetherServer
         }
 
         if(discover == MineTogetherServerThread.Discoverability.UNLISTED) return;
-        
+
         MineTogetherServerThread.startMineTogetherServerThread(server_ip, displayName, projectID, minecraftServer.getPort(), discover);
     }
 
