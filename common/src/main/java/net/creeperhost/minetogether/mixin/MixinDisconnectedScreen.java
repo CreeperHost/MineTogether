@@ -20,10 +20,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinDisconnectedScreen extends Screen
 {
     @Shadow @Final private Component reason;
-    private boolean isPregenMessage;
+    private boolean isPregenMessage = false;
     String chunksDone = "";
     String totalChunks = "";
-    int ticks;
+    int ticks = 0;
     ScreenBuilder screenBuilder = new ScreenBuilder(Constants.GUI_SHEET_LOCATION);
 
     protected MixinDisconnectedScreen(Component component) { super(component); }
@@ -31,10 +31,13 @@ public class MixinDisconnectedScreen extends Screen
     @Inject(at = @At("TAIL"), method = "init")
     public void init(CallbackInfo ci)
     {
-        isPregenMessage = reason.getString().startsWith("MineTogether");
-        String[] strings = reason.getString().split(":");
-        totalChunks = strings[1];
-        chunksDone = strings[2];
+        if(reason != null) isPregenMessage = reason.getString().startsWith("MineTogether");
+        if(isPregenMessage)
+        {
+            String[] strings = reason.getString().split(":");
+            totalChunks = strings[1];
+            chunksDone = strings[2];
+        }
     }
 
     @Inject(at = @At("TAIL"), method = "render")
