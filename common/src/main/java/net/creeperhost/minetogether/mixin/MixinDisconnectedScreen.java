@@ -34,9 +34,15 @@ public class MixinDisconnectedScreen extends Screen
         if(reason != null) isPregenMessage = reason.getString().startsWith("MineTogether");
         if(isPregenMessage)
         {
-            String[] strings = reason.getString().split(":");
-            totalChunks = strings[1];
-            chunksDone = strings[2];
+            try
+            {
+                String[] strings = reason.getString().split(":");
+                totalChunks = strings[1];
+                chunksDone = strings[2];
+            } catch (Exception e)
+            {
+                isPregenMessage = false;
+            }
         }
     }
 
