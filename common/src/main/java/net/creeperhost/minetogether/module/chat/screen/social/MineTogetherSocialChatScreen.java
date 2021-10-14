@@ -2,13 +2,12 @@ package net.creeperhost.minetogether.module.chat.screen.social;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
-import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.screenbuilder.ScreenBuilder;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;

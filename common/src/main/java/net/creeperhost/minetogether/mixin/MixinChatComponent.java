@@ -2,14 +2,14 @@ package net.creeperhost.minetogether.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
+import net.creeperhost.minetogether.lib.chat.data.Message;
+import net.creeperhost.minetogether.lib.util.LimitedSizeQueue;
+import net.creeperhost.minetogether.lib.util.MathHelper;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ClientChatTarget;
 import net.creeperhost.minetogethergui.ScreenHelpers;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.data.Message;
-import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
-import net.creeperhost.minetogetherlib.util.MathHelper;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;

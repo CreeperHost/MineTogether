@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.threads;
 import com.google.gson.*;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherServer;
-import net.creeperhost.minetogetherlib.util.WebUtils;
+import net.creeperhost.minetogether.lib.util.WebUtils;
 
 import java.util.HashMap;
 import java.util.Map;

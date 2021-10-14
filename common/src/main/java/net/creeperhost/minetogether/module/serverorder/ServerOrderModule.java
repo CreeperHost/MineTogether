@@ -2,9 +2,9 @@ package net.creeperhost.minetogether.module.serverorder;
 
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.module.serverorder.screen.OrderServerScreen;
 import net.creeperhost.minetogethergui.ScreenHelpers;
-import net.creeperhost.minetogetherlib.Order;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;

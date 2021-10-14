@@ -2,10 +2,10 @@ package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
+import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -57,8 +57,8 @@ public class FriendRequestScreen extends Screen
         {
             if(update)
             {
-                ChatCallbacks.removeFriend(friendCode, MineTogetherClient.getUUID());
-                CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getUUID()), MineTogetherChat.otherExecutor);
+                ChatCallbacks.removeFriend(friendCode, MineTogetherClient.getPlayerHash());
+                CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getPlayerHash()), MineTogetherChat.otherExecutor);
                 Minecraft.getInstance().setScreen(parent);
                 return;
             }
@@ -66,7 +66,7 @@ public class FriendRequestScreen extends Screen
             if (accept)
             {
                 ChatHandler.acceptFriendRequest(chatInternalName, friendName);
-                CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getUUID()), MineTogetherChat.otherExecutor);
+                CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getPlayerHash()), MineTogetherChat.otherExecutor);
             }
             else
             {

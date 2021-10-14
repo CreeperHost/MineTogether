@@ -2,12 +2,12 @@ package net.creeperhost.minetogether.module.chat.screen.listentries;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.lib.chat.KnownUsers;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.MutedListScreen;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.lists.ScreenListEntry;
-import net.creeperhost.minetogetherlib.chat.KnownUsers;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 
 public class ListEntryMuted extends ScreenListEntry

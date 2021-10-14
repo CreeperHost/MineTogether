@@ -5,13 +5,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
+import net.creeperhost.minetogether.lib.chat.KnownUsers;
+import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.KnownUsers;
-import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -53,7 +53,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
                     refreshPage();
                     break;
                 case FRIENDS:
-                    ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getUUID());
+                    ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getPlayerHash());
                     profile.setFriend(false);
                     KnownUsers.update(profile);
                     refreshPage();

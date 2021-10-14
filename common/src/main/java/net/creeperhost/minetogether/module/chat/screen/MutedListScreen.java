@@ -1,10 +1,10 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.lib.chat.KnownUsers;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryMuted;
 import net.creeperhost.minetogethergui.lists.ScreenList;
-import net.creeperhost.minetogetherlib.chat.KnownUsers;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -78,7 +78,6 @@ public class MutedListScreen extends Screen
     public void refreshMutedList()
     {
         List<Profile> mutedUsers = KnownUsers.getMuted();
-        System.out.println(mutedUsers.size());
         list.clearList();
         if (mutedUsers != null)
         {

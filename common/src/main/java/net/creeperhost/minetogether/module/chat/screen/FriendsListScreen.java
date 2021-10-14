@@ -4,6 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
+import net.creeperhost.minetogether.lib.chat.KnownUsers;
+import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
@@ -13,12 +18,6 @@ import net.creeperhost.minetogether.threads.FriendUpdateThread;
 import net.creeperhost.minetogethergui.lists.ScreenList;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.creeperhost.minetogethergui.widgets.ButtonString;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.KnownUsers;
-import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -93,7 +92,7 @@ public class FriendsListScreen extends MineTogetherScreen
 
         addButton(removeFriend = new ButtonMultiple(width - 20, 32, 5, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
         {
-            ChatCallbacks.removeFriend(targetProfile.getFriendCode(), MineTogetherClient.getUUID());
+            ChatCallbacks.removeFriend(targetProfile.getFriendCode(), MineTogetherClient.getPlayerHash());
         }));
 
         addButton(blockButton = new ButtonMultiple(width - 20, 52, 6, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
@@ -108,7 +107,7 @@ public class FriendsListScreen extends MineTogetherScreen
 
         addButton(editButton = new ButtonMultiple(width - 20, 92, 8, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.editbutton"), (button) ->
         {
-            minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), targetProfile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), targetProfile.getFriendName(), false, true));
+            minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), targetProfile, ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), targetProfile.getFriendName(), false, true));
         }));
     }
 
@@ -233,7 +232,7 @@ public class FriendsListScreen extends MineTogetherScreen
                 {
                     removedFriends.add(profile);
                     refreshFriendsList();
-                    if (!ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getUUID()))
+                    if (!ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getPlayerHash()))
                     {
                         profile.setFriend(false);
                         refreshFriendsList();

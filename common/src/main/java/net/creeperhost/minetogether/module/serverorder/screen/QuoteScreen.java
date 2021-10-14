@@ -2,11 +2,11 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.Order;
+import net.creeperhost.minetogether.lib.serverorder.OrderSummary;
+import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.minetogethergui.widgets.ScreenWell;
-import net.creeperhost.minetogetherlib.Order;
-import net.creeperhost.minetogetherlib.serverorder.OrderSummary;
-import net.creeperhost.minetogetherlib.serverorder.ServerOrderCallbacks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;

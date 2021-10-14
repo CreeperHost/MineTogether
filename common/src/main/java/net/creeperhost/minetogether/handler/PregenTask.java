@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.handler;
 
 import net.creeperhost.minetogether.MineTogetherServer;
-import net.creeperhost.minetogetherlib.serverorder.Pair;
+import net.creeperhost.minetogether.lib.serverorder.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;

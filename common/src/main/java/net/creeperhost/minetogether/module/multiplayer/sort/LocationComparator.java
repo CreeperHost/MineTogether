@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.module.multiplayer.sort;
 
+import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
 import net.creeperhost.minetogether.module.multiplayer.data.PublicServerEntry;
-import net.creeperhost.minetogetherlib.serverorder.ServerOrderCallbacks;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 
 import java.util.Comparator;

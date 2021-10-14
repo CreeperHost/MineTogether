@@ -2,12 +2,13 @@ package net.creeperhost.minetogether.module.chat.screen;
 
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
+import net.creeperhost.minetogether.lib.chat.IChatListener;
+import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.data.Message;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.IChatListener;
-import net.creeperhost.minetogetherlib.chat.data.Message;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -42,6 +43,12 @@ public class ChatListener implements IChatListener
     }
 
     @Override
+    public void onFriendAccept(String name, String data)
+    {
+        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(name + " Has accepted your friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
+    }
+
+    @Override
     public String onServerIdRequest()
     {
         return MineTogetherClient.getServerIDAndVerify();
@@ -60,8 +67,15 @@ public class ChatListener implements IChatListener
     }
 
     @Override
-    public void onFriendAccept(String name)
+    public String getVerifyOutput()
     {
-        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(name + " Has accepted your friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
+        return MineTogetherChat.INSTANCE.signature + ":" + MineTogetherClient.getUUID() + ":" + MineTogetherClient.getServerIDAndVerify();
+    }
+
+    //TODO
+    @Override
+    public void onFriendRequest(String user, String data)
+    {
+
     }
 }

@@ -30,10 +30,12 @@ dependencies {
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
     implementation 'com.github.scribejava:scribejava-apis:6.9.0'
     implementation 'com.github.scribejava:scribejava-core:6.9.0'
+    implementation 'net.creeperhost.minetogether:minetogether-api:1.0.7'
 
     shadowCommon 'org.nanohttpd:nanohttpd:2.3.1'
     shadowCommon 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowCommon 'com.github.scribejava:scribejava-core:6.9.0'
+    shadowCommon 'net.creeperhost.minetogether:minetogether-api:1.0.7'
 }
 
 processResources {

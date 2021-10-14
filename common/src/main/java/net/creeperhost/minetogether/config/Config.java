@@ -3,8 +3,8 @@ package net.creeperhost.minetogether.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
+import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;

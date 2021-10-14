@@ -2,10 +2,10 @@ package net.creeperhost.minetogether.threads;
 
 import com.google.gson.*;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.KnownUsers;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
-import net.creeperhost.minetogetherlib.util.WebUtils;
+import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.lib.chat.KnownUsers;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
+import net.creeperhost.minetogether.lib.util.WebUtils;
 
 import java.util.HashMap;
 import java.util.Map;

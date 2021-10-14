@@ -3,6 +3,13 @@ package net.creeperhost.minetogether.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.lib.chat.ChatConnectionStatus;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
+import net.creeperhost.minetogether.lib.chat.KnownUsers;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
+import net.creeperhost.minetogether.lib.chat.irc.IrcHandler;
+import net.creeperhost.minetogether.lib.util.MathHelper;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ClientChatTarget;
 import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
@@ -11,13 +18,6 @@ import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogethergui.gif.AnimatedGif;
 import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
 import net.creeperhost.minetogethergui.widgets.DropdownButton;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.KnownUsers;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
-import net.creeperhost.minetogetherlib.chat.irc.IrcHandler;
-import net.creeperhost.minetogetherlib.util.MathHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -132,7 +132,7 @@ public abstract class MixinChatScreen extends Screen
             {
                 Profile profile = KnownUsers.findByDisplay(currentDropdown);
                 if (profile != null)
-                    minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getUUID()), "", false, false));
+                    minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), "", false, false));
             }
             else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mention")))
             {

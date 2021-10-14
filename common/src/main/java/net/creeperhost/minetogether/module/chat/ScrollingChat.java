@@ -6,14 +6,14 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
+import net.creeperhost.minetogether.lib.chat.data.Message;
+import net.creeperhost.minetogether.lib.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.minetogether.util.ComponentUtils;
 import net.creeperhost.minetogethergui.gif.AnimatedGif;
 import net.creeperhost.minetogethergui.gif.ImageRenderer;
 import net.creeperhost.minetogethergui.gif.ImageUtils;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.data.Message;
-import net.creeperhost.minetogetherlib.util.LimitedSizeQueue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-
-import static net.creeperhost.minetogetherlib.chat.ChatHandler.ircLock;
 
 public class ScrollingChat extends ObjectSelectionList
 {
@@ -165,7 +163,7 @@ public class ScrollingChat extends ObjectSelectionList
     {
         LimitedSizeQueue<Message> tempMessages;
         int oldMaxScroll = this.getMaxScroll();
-        synchronized (ircLock)
+        synchronized (ChatHandler.ircLock)
         {
             if (ChatHandler.messages == null || ChatHandler.messages.size() == 0) return;
             tempMessages = ChatHandler.messages.get(key);

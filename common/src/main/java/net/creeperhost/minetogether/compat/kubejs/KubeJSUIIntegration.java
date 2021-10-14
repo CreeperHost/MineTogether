@@ -1,9 +1,9 @@
 package net.creeperhost.minetogether.compat.kubejs;
 
+import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
 import net.creeperhost.minetogether.module.serverorder.screen.OrderServerScreen;
-import net.creeperhost.minetogetherlib.Order;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 

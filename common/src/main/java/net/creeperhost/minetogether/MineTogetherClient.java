@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether;
 
+import com.google.common.hash.Hashing;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,13 +9,13 @@ import me.shedaniel.architectury.event.events.client.ClientRawInputEvent;
 import me.shedaniel.architectury.registry.KeyBindings;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
+import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialInteractionsScreen;
 import net.creeperhost.minetogether.module.connect.ConnectModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
 import net.creeperhost.minetogether.screen.OfflineScreen;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -28,6 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -90,6 +92,11 @@ public class MineTogetherClient
         UUID uuid = Minecraft.getInstance().getUser().getGameProfile().getId();
         isOnlineUUID = !uuid.equals(Player.createPlayerUUID(session.getName()));
         return uuid;
+    }
+
+    public static String getPlayerHash()
+    {
+        return ChatCallbacks.getPlayerHash(getUUID());
     }
 
     public static String getServerIDAndVerify()

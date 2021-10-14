@@ -8,6 +8,8 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.chat.*;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.mixin.ChatComponentInvoker;
 import net.creeperhost.minetogether.module.chat.screen.ChatListener;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
@@ -17,11 +19,6 @@ import net.creeperhost.minetogether.threads.FriendUpdateThread;
 import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
-import net.creeperhost.minetogetherlib.chat.ChatCallbacks;
-import net.creeperhost.minetogetherlib.chat.ChatHandler;
-import net.creeperhost.minetogetherlib.chat.KnownUsers;
-import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
-import net.creeperhost.minetogetherlib.chat.data.Profile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -32,6 +29,7 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.commons.io.FileUtils;
+import org.checkerframework.checker.units.qual.m;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -62,13 +60,12 @@ public class ChatModule
     public static void buildChat(String ourNick)
     {
         MineTogether.logger.info("Building MineTogether chat");
-        UUID uuid = MineTogetherClient.getUUID();
         boolean online = MineTogetherClient.isOnlineUUID;
         String realName = new ModPackVerifier().verify();
         String signature = new SignatureVerifier().verify();
         String serverID = MineTogetherClient.getServerIDAndVerify();
 
-        mineTogetherChat = new MineTogetherChat(ourNick, uuid, online, realName, signature, serverID, ChatListener.INSTANCE);
+        mineTogetherChat = new MineTogetherChat(ourNick, MineTogetherClient.getPlayerHash(), online, realName, signature, serverID, ChatListener.INSTANCE);
         mineTogetherChat.startChat();
     }
 
