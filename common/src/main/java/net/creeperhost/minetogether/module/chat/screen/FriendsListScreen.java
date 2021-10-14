@@ -46,6 +46,7 @@ public class FriendsListScreen extends MineTogetherScreen
     private Button partyButton;
     private Button friendCodeButton;
     private Button editButton;
+    private Button mutedList;
 
     public FriendsListScreen(Screen parent)
     {
@@ -108,6 +109,11 @@ public class FriendsListScreen extends MineTogetherScreen
         addButton(editButton = new ButtonMultiple(width - 20, 92, 8, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.editbutton"), (button) ->
         {
             minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), targetProfile, ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), targetProfile.getFriendName(), false, true));
+        }));
+
+        addButton(mutedList = new Button(5, 5, 100, 20, new TranslatableComponent("Muted List"), p ->
+        {
+            this.minecraft.setScreen(new MutedListScreen(this));
         }));
     }
 
