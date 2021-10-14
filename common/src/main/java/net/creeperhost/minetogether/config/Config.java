@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogetherlib.chat.MineTogetherChat;
 import net.creeperhost.minetogetherlib.chat.data.Profile;
 import org.apache.commons.io.IOUtils;
@@ -180,7 +181,7 @@ public class Config
     {
         firstConnect = (first) ? "" : MineTogetherChat.INSTANCE.ourNick;
         //TODO: Turn transient and save to a local config instead
-        Config.saveConfig();
+        Config.saveConfigToFile(MineTogether.configFile.toFile());
     }
 
     public boolean isFriendOnlineToastsEnabled()
@@ -216,16 +217,6 @@ public class Config
     public String getIssueTrackerUrl()
     {
         return issueTrackerUrl;
-    }
-
-    public static void makeConfig(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
-    {
-        if (instance != null)
-        {
-            return;
-        }
-
-        instance = new Config(version, promoCode, creeperhostEnabled, mpMenuEnabled, mainMenuEnabled, serverHostButtonImage, serverHostMenuImage);
     }
 
     public static void loadFromFile(File file)

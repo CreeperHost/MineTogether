@@ -79,7 +79,7 @@ public class ModPackVerifier
                         if (requestedID.isEmpty()) requestedID = "-1";
 
                         Config.instance.curseProjectID = requestedID;
-                        Config.saveConfig();
+                        Config.saveConfigToFile(MineTogether.configFile.toFile());
                         this.ftbPackID = "m" + ftbPackID;
                     }
                 } catch (Exception MalformedJsonException)
