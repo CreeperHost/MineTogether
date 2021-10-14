@@ -49,6 +49,12 @@ public class ChatListener implements IChatListener
     }
 
     @Override
+    public void onFriendRequest(String user, String data)
+    {
+        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(user + " Has sent you a friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
+    }
+
+    @Override
     public String onServerIdRequest()
     {
         return MineTogetherClient.getServerIDAndVerify();
@@ -70,12 +76,5 @@ public class ChatListener implements IChatListener
     public String getVerifyOutput()
     {
         return MineTogetherChat.INSTANCE.signature + ":" + MineTogetherClient.getUUID() + ":" + MineTogetherClient.getServerIDAndVerify();
-    }
-
-    //TODO
-    @Override
-    public void onFriendRequest(String user, String data)
-    {
-
     }
 }
