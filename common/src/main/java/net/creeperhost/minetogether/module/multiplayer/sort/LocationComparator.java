@@ -30,13 +30,13 @@ public class LocationComparator implements Comparator<ServerSelectionList.Entry>
         }
         else if (p1.getServerData().server.flag == p2.getServerData().server.flag)
         {
-            //            return super.compare(o1, o2);
+            return 1;
         }
         else if (p1.getServerData().server.flag.name().equals(ServerOrderCallbacks.getUserCountry()))
         {
             if (p2.getServerData().server.flag.name().equals(ServerOrderCallbacks.getUserCountry()))
             {
-                //                return super.compare(o1, o2);
+                return 1;
             }
             else
             {
@@ -47,7 +47,7 @@ public class LocationComparator implements Comparator<ServerSelectionList.Entry>
         {
             if (p1.getServerData().server.flag.name().equals(ServerOrderCallbacks.getUserCountry()))
             {
-                //                return super.compare(o1, o2);
+               return -1;
             }
             else
             {
@@ -65,6 +65,5 @@ public class LocationComparator implements Comparator<ServerSelectionList.Entry>
             }
             return res;
         }
-        return -1;
     }
 }
