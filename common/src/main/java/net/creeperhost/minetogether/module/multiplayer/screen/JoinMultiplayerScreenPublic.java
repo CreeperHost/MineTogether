@@ -67,6 +67,15 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
     {
         loadingSevers = true;
         ServerList serverList = new ServerList(Minecraft.getInstance());
+        //Remove vanilla entries
+        if(serverList.size() > 0)
+        {
+            for (int i = 0; i < serverList.size(); i++)
+            {
+                ServerData serverData = serverList.get(i);
+                serverList.remove(serverData);
+            }
+        }
         List<Server> list = ServerListCallbacks.getServerList(serverListType, MineTogetherClient.getUUID(), MineTogether.base64, Config.getInstance().getCurseProjectID());
         for (Server server : list)
         {
@@ -74,8 +83,6 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
         }
 
         updateServers(serverList);
-
-        //        serverSelectionList.updateOnlineServers(serverList);
         loadingSevers = false;
     }
 
