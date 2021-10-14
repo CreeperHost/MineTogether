@@ -67,4 +67,15 @@ public class FriendUpdateThread
         {
         }
     }
+
+    public static void stop()
+    {
+        try
+        {
+            executorService.shutdownNow();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
 }

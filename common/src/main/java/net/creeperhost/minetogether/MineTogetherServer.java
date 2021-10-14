@@ -42,6 +42,8 @@ public class MineTogetherServer
         LifecycleEvent.SERVER_STARTED.register(MineTogetherServer::serverStarted);
         LifecycleEvent.SERVER_STOPPING.register(MineTogetherServer::serverStopped);
         PregenHandler.deserializePreload();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(MineTogetherServerThread::stopThread));
     }
 
     private static void serverStopped(MinecraftServer minecraftServer)

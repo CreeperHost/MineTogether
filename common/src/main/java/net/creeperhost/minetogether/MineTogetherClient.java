@@ -10,12 +10,14 @@ import me.shedaniel.architectury.registry.KeyBindings;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.lib.chat.irc.IrcHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialInteractionsScreen;
 import net.creeperhost.minetogether.module.connect.ConnectModule;
 import net.creeperhost.minetogether.module.multiplayer.MultiPlayerModule;
 import net.creeperhost.minetogether.module.serverorder.ServerOrderModule;
 import net.creeperhost.minetogether.screen.OfflineScreen;
+import net.creeperhost.minetogether.threads.FriendUpdateThread;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -29,7 +31,6 @@ import net.minecraft.world.entity.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -53,6 +54,14 @@ public class MineTogetherClient
         registerKeybindings();
 
         if (!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+        {
+            //Kill the IRC Thread
+            IrcHandler.stop(true);
+            //Kill Friend Thread
+            FriendUpdateThread.stop();
+        }));
     }
 
     private static InteractionResult onRawInput(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers)
