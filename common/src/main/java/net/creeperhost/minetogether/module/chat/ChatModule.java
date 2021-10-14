@@ -8,7 +8,10 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.lib.chat.*;
+import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
+import net.creeperhost.minetogether.lib.chat.KnownUsers;
+import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.mixin.ChatComponentInvoker;
 import net.creeperhost.minetogether.module.chat.screen.ChatListener;
@@ -29,7 +32,6 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.commons.io.FileUtils;
-import org.checkerframework.checker.units.qual.m;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -37,7 +39,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class ChatModule

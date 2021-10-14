@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether;
 
-import com.google.common.hash.Hashing;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
