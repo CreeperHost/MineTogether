@@ -97,7 +97,7 @@ public class SettingsScreen extends MineTogetherScreen
 
     private void saveConfig()
     {
-        Config.saveConfig();
+        Config.saveConfigToFile(MineTogether.configFile.toFile());
         this.minecraft.setScreen(new SettingsScreen(parent));
     }
 }

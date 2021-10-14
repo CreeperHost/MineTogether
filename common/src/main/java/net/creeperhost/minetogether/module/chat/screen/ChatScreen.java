@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.module.chat.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
@@ -178,6 +179,7 @@ public class ChatScreen extends MineTogetherScreen
             {
                 IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                 Config.getInstance().setFirstConnect(false);
+                Config.saveConfigToFile(MineTogether.configFile.toFile());
                 newUserButton.visible = false;
                 disableButton.visible = false;
                 minecraft.setScreen(this);
@@ -185,6 +187,7 @@ public class ChatScreen extends MineTogetherScreen
             addButton(disableButton = new ButtonNoBlend(width / 2 - 150, 95 + (height / 4), 300, 20, new TranslatableComponent("Don't ask me again"), p ->
             {
                 Config.getInstance().setChatEnabled(false);
+                Config.saveConfigToFile(MineTogether.configFile.toFile());
                 disableButton.visible = false;
                 newUserButton.visible = false;
                 IrcHandler.stop(true);
