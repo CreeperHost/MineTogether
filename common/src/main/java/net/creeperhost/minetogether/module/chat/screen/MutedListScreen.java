@@ -67,7 +67,7 @@ public class MutedListScreen extends Screen
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
 
         if (list.children().isEmpty())
-            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.mutedlist.empty"), width / 2, (this.height / 2) - 20, -1);
+            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.mutedscreen.empty"), width / 2, (this.height / 2) - 20, -1);
     }
 
     public void setHoveringText(String hoveringText)
