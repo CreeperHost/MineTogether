@@ -77,12 +77,14 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
             }
         }
         List<Server> list = ServerListCallbacks.getServerList(serverListType, MineTogetherClient.getUUID(), MineTogether.base64, Config.getInstance().getCurseProjectID());
-        for (Server server : list)
+        if(list != null && !list.isEmpty())
         {
-            serverList.add(new ServerDataPublic(server));
+            for (Server server : list)
+            {
+                serverList.add(new ServerDataPublic(server));
+            }
+            updateServers(serverList);
         }
-
-        updateServers(serverList);
         loadingSevers = false;
     }
 
