@@ -1,5 +1,6 @@
 package net.creeperhost.minetogetherlib.chat.irc;
 
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogetherlib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogetherlib.chat.ChatHandler;
 import net.creeperhost.minetogetherlib.chat.KnownUsers;
@@ -120,6 +121,7 @@ public class IrcHandler
         reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
         reconnectExecutor.scheduleAtFixedRate(() ->
         {
+            if(!Config.getInstance().isChatEnabled()) return;
             if(ChatHandler.connectionStatus == ChatConnectionStatus.BANNED) return;
 
             if (ChatHandler.connectionStatus == ChatConnectionStatus.NICKNAME_IN_USE || ChatHandler.connectionStatus == ChatConnectionStatus.DISCONNECTED)
