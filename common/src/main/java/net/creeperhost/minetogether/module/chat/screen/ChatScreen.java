@@ -115,7 +115,7 @@ public class ChatScreen extends MineTogetherScreen
                 {
                     ChatModule.muteUser(KnownUsers.findByDisplay(activeDropdown).longHash);
                     KnownUsers.findByDisplay(activeDropdown).setMuted(true);
-                    ChatHandler.addStatusMessage("Locally blocked " + currentTarget);
+                    ChatHandler.addStatusMessage("Locally blocked " + activeDropdown);
                 }
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.addfriend")))
