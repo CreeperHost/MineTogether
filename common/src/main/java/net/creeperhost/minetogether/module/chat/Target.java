@@ -108,19 +108,6 @@ public class Target implements DropdownButton.IDropdownOption
 
         if (current != null && !tempSet.contains(current)) tempSet.add(current);
 
-        for (Map.Entry<String, String> friend : ChatHandler.friends.entrySet())
-        {
-            Target tempTarget = new Target(friend.getValue(), friend.getKey());
-            if (!tempSet.contains(tempTarget))
-            {
-                if (oldVals.contains(tempTarget))
-                {
-                    tempTarget = oldVals.get(oldVals.indexOf(tempTarget));
-                }
-                tempSet.add(tempTarget);
-            }
-        }
-
         for (String chat : ChatHandler.messages.keySet())
         {
             if (chat.equals(ChatHandler.CHANNEL)) continue;
