@@ -191,6 +191,7 @@ public class GuiButtonPair extends Button
                 button.setActive(true);
                 onPress();
                 pressed = true;
+                break;
             }
         }
         return pressed;

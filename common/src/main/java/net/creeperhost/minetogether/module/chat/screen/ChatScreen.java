@@ -42,6 +42,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.creeperhost.minetogether.lib.chat.ChatHandler.ircLock;
+
 public class ChatScreen extends MineTogetherScreen
 {
     private final Screen parent;
@@ -265,8 +267,9 @@ public class ChatScreen extends MineTogetherScreen
                 send.setSuggestion("");
                 break;
         }
+        chat.updateLines(currentTarget);
 
-        synchronized (ChatHandler.ircLock)
+        synchronized (ircLock)
         {
             if (ChatHandler.hasNewMessages(currentTarget))
             {

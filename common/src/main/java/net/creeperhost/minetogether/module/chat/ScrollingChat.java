@@ -27,6 +27,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
+import static net.creeperhost.minetogether.lib.chat.ChatHandler.ircLock;
+
 public class ScrollingChat extends ObjectSelectionList
 {
     private ArrayList<FormattedCharSequence> lines;
@@ -163,7 +165,7 @@ public class ScrollingChat extends ObjectSelectionList
     {
         LimitedSizeQueue<Message> tempMessages;
         int oldMaxScroll = this.getMaxScroll();
-        synchronized (ChatHandler.ircLock)
+        synchronized (ircLock)
         {
             if (ChatHandler.messages == null || ChatHandler.messages.size() == 0) return;
             tempMessages = ChatHandler.messages.get(key);

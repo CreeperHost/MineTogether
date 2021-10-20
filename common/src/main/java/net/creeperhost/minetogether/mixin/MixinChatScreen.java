@@ -77,8 +77,7 @@ public abstract class MixinChatScreen extends Screen
 
         if (initial.equalsIgnoreCase("/"))
         {
-            if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
-                ChatModule.lastSelected = ChatModule.clientChatTarget;
+            if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT) ChatModule.lastSelected = ChatModule.clientChatTarget;
             ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
         }
         else if (ChatModule.lastSelected != ClientChatTarget.DEFAULT)
@@ -95,11 +94,9 @@ public abstract class MixinChatScreen extends Screen
                 if (switchButton.activeButton == 2)
                 {
                     ChatModule.clientChatTarget = ClientChatTarget.PARTY;
-                    minecraft.setScreen(new ChatScreen(""));
                     return;
                 }
                 ChatModule.clientChatTarget = switchButton.activeButton == 1 ? ClientChatTarget.MINETOGETHER : ClientChatTarget.DEFAULT;
-                minecraft.setScreen(new ChatScreen(""));
 
             }, isSinglePlayer() ? I18n.get("minetogether.ingame.chat.local") : I18n.get("minetogether.ingame.chat.server"), I18n.get("minetogether.ingame.chat.global"), I18n.get("minetogether.ingame.chat.party")));
         }
@@ -109,7 +106,6 @@ public abstract class MixinChatScreen extends Screen
             {
                 ChatModule.clientChatTarget = switchButton.activeButton == 1 ? ClientChatTarget.MINETOGETHER : ClientChatTarget.DEFAULT;
                 if (switchButton.activeButton == 1) IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
-                minecraft.setScreen(new ChatScreen(""));
 
             }, isSinglePlayer() ? I18n.get("minetogether.ingame.chat.local") : I18n.get("minetogether.ingame.chat.server"), I18n.get("minetogether.ingame.chat.global")));
         }

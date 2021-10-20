@@ -56,6 +56,7 @@ public class MineTogetherClient
 
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
         {
+            MineTogether.logger.info("Shutdown called, Stopping our threads");
             //Kill the IRC Thread
             IrcHandler.stop(true);
             //Kill Friend Thread
