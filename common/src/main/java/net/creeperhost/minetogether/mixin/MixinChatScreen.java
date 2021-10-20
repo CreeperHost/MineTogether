@@ -348,9 +348,16 @@ public abstract class MixinChatScreen extends Screen
         //This is just to stop IntelliJ from complaining
         if (minecraft == null) return;
 
-        //If its our chat screen send the message to our chat handler for sending
+        //If it's our chat screen send the message to our chat handler for sending
         if (ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
         {
+            //Force commands to the "default" tab
+            if(string.startsWith("/"))
+            {
+                ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
+                super.sendMessage(string);
+                return;
+            }
             ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
             return;
         }
