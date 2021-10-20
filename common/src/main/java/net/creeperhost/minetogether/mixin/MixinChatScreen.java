@@ -75,6 +75,11 @@ public abstract class MixinChatScreen extends Screen
     {
         if (!Config.getInstance().isChatEnabled()) return;
 
+        if(ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
+        {
+            commandSuggestions.setAllowSuggestions(false);
+        }
+
         if (initial.equalsIgnoreCase("/"))
         {
             if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT) ChatModule.lastSelected = ChatModule.clientChatTarget;
@@ -323,6 +328,15 @@ public abstract class MixinChatScreen extends Screen
         {
             dropdownButton.x = dropdownButton.y = -10000;
             dropdownButton.wasJustClosed = false;
+        }
+    }
+
+    @Inject(at = @At("HEAD"), method = "onEdited", cancellable = true)
+    private void onEdited(String string, CallbackInfo ci)
+    {
+        if(ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
+        {
+            ci.cancel();
         }
     }
 
