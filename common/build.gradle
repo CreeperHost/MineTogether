@@ -7,7 +7,7 @@ dependencies {
     modApi 'org.nanohttpd:nanohttpd:2.3.1'
     modApi 'com.github.scribejava:scribejava-apis:6.9.0'
     modApi 'com.github.scribejava:scribejava-core:6.9.0'
-    modApi 'net.creeperhost.minetogether:minetogether-api:1.0.7'
+    modApi "net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}"
 }
 
 architectury {

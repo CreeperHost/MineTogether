@@ -267,11 +267,10 @@ public class ChatScreen extends MineTogetherScreen
                 send.setSuggestion("");
                 break;
         }
-        chat.updateLines(currentTarget);
 
         synchronized (ircLock)
         {
-            if (ChatHandler.hasNewMessages(currentTarget))
+            if(ChatHandler.hasNewMessages(currentTarget))
             {
                 chat.updateLines(currentTarget);
                 ChatHandler.setMessagesRead(currentTarget);
