@@ -62,10 +62,13 @@ public class SignatureVerifier
             {
                 try
                 {
+                    //Don't check directories
+                    if(file.isDirectory()) continue;
+                    if(!file.getName().endsWith(".jar")) continue;
+
                     JarFile jarFile = new JarFile(file);
                     if (jarFile == null) continue;
 
-                    MineTogether.logger.info("JARFILE " + jarFile.getName());
                     if (jarFile.getManifest() == null) continue;
                     Map<String, Attributes> attributesMap = jarFile.getManifest().getEntries();
 
