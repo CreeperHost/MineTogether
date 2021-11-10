@@ -334,6 +334,8 @@ public abstract class MixinChatScreen extends Screen
     @Inject(at = @At("HEAD"), method = "onEdited", cancellable = true)
     private void onEdited(String string, CallbackInfo ci)
     {
+        if (!Config.getInstance().isChatEnabled()) return;
+
         if(ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
         {
             ci.cancel();
@@ -343,7 +345,11 @@ public abstract class MixinChatScreen extends Screen
     @Override
     public void sendMessage(String string)
     {
-        if (!Config.getInstance().isChatEnabled()) return;
+        if (!Config.getInstance().isChatEnabled())
+        {
+            super.sendMessage(string);
+            return;
+        }
 
         //This is just to stop IntelliJ from complaining
         if (minecraft == null) return;
@@ -372,7 +378,10 @@ public abstract class MixinChatScreen extends Screen
     @Override
     public boolean handleComponentClicked(@Nullable Style style)
     {
-        if (!Config.getInstance().isChatEnabled()) return false;
+        if (!Config.getInstance().isChatEnabled())
+        {
+            return super.handleComponentClicked(style);
+        }
 
         //This is just to stop IntelliJ from complaining
         if (minecraft == null) return false;
