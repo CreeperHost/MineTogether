@@ -100,7 +100,13 @@ public class MineTogetherServerThread
 
     public static void stopThread()
     {
-        if(mtThread != null && mtThread.isAlive()) mtThread.stop();
+        try
+        {
+            if (mtThread != null && mtThread.isAlive()) mtThread.stop();
+        } catch (Exception e)
+        {
+
+        }
     }
 
     public static Thread getMtThread()
