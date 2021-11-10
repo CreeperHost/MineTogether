@@ -27,7 +27,6 @@ public class MixinServerSelectionList
         if (Config.getInstance().isMpMenuEnabled() && !(screen instanceof JoinMultiplayerScreenPublic))
         {
             ServerSelectionList thisFake = (ServerSelectionList) (Object) this;
-            thisFake.children().add(0, new CreeperHostServerEntry(thisFake));
             int size = thisFake.children().size();
             for (int i = 0; i < size; i++)
             {
@@ -39,6 +38,13 @@ public class MixinServerSelectionList
                         thisFake.children().set(i, new OurServerListEntryLanDetected(screen, (LanServerInfoConnect) realEntry.getServerData()));
                     }
                 }
+            }
+            try
+            {
+                thisFake.children().add(size, new CreeperHostServerEntry(thisFake));
+            } catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }
     }
