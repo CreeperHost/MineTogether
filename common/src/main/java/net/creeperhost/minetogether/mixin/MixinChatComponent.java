@@ -114,11 +114,16 @@ public abstract class MixinChatComponent
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;fill(Lcom/mojang/blaze3d/vertex/PoseStack;IIIII)V"))
     private void fill(PoseStack poseStack, int i, int j, int k, int l, int m)
     {
-        if (!Config.getInstance().isChatEnabled()) return;
-
-        if (!isChatFocused())
+        if (Config.getInstance().isChatEnabled())
         {
-            GuiComponent.fill(poseStack, i, j, k, l, m);
+            if(!isChatFocused())
+            {
+                GuiComponent.fill(poseStack, i, j, k, l, m);
+            }
+        }
+        else
+        {
+            ChatComponent.fill(poseStack, i, j, k, l, m);
         }
     }
 

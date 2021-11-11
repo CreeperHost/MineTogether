@@ -33,6 +33,7 @@ public class Config
     private transient boolean argChatDisable;
     private String issueTrackerUrl;
     private String firstConnect = "";
+    private boolean debugMode;
 
     private int pregenDiameter = 120;
 
@@ -56,6 +57,7 @@ public class Config
         enableMainMenuFriends = true;
         replaceRealms = true;
         issueTrackerUrl = "https://pste.ch/";
+        debugMode = false;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
@@ -175,6 +177,11 @@ public class Config
             response = (!firstConnect.equalsIgnoreCase(MineTogetherChat.INSTANCE.ourNick));
         }
         return response;
+    }
+
+    public boolean isDebugMode()
+    {
+        return debugMode;
     }
 
     public void setFirstConnect(boolean first)

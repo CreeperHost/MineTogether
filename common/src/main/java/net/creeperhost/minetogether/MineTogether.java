@@ -3,6 +3,7 @@ package net.creeperhost.minetogether;
 import me.shedaniel.architectury.platform.Platform;
 import me.shedaniel.architectury.utils.EnvExecutor;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.fabricmc.api.EnvType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,7 @@ public class MineTogether
     public static void init()
     {
         Config.init(configFile.toFile());
+        MineTogetherChat.DEBUG_MODE = Config.getInstance().isDebugMode();
     }
 
     public static void clientInit()

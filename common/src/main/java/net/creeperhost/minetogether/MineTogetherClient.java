@@ -9,6 +9,7 @@ import me.shedaniel.architectury.registry.KeyBindings;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.irc.IrcHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialInteractionsScreen;
@@ -57,6 +58,8 @@ public class MineTogetherClient
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
         {
             MineTogether.logger.info("Shutdown called, Stopping our threads");
+            IrcHandler.sendString("PART " + ChatHandler.CHANNEL, false);
+            IrcHandler.sendString("QUIT ", false);
             //Kill the IRC Thread
             IrcHandler.stop(true);
             //Kill Friend Thread
@@ -117,8 +120,10 @@ public class MineTogetherClient
             mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
         } catch (AuthenticationException e)
         {
+            e.printStackTrace();
             return null;
         }
+        MineTogether.logger.info("new ServerID requested");
         return serverId;
     }
 
