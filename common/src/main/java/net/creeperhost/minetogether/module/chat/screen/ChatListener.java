@@ -46,12 +46,14 @@ public class ChatListener implements IChatListener
     public void onFriendAccept(String name, String data)
     {
         MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(name + " Has accepted your friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
+        ChatHandler.addMessageToChat(ChatHandler.CHANNEL, "FA:" + name, data);
     }
 
     @Override
     public void onFriendRequest(String user, String data)
     {
         MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(user + " Has sent you a friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
+        ChatHandler.addMessageToChat(ChatHandler.CHANNEL, "FR:" + user, data);
     }
 
     @Override
