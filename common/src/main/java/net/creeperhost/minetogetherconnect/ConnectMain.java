@@ -21,6 +21,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.module.connect.ConnectHandler;
 import net.creeperhost.minetogetherconnect.LibraryHacks.WebUtils;
 
 public class ConnectMain {
@@ -47,6 +49,7 @@ public class ConnectMain {
     }
 
     public static BackendServer getBackendServer() {
+        if (true) return BackendServer.getLocal();
         if (backendServer != null) return backendServer;
         String webResponse = WebUtils.getWebResponse("https://minetogether.io/connect.json");
         if (webResponse.equals("error")) {
@@ -92,7 +95,7 @@ public class ConnectMain {
 
     public static class BackendServer {
         private String name;
-        private String address;
+        public String address;
         private String httpProtocol;
         private int httpPort;
         private String baseURL = null;
@@ -104,11 +107,39 @@ public class ConnectMain {
             this.httpPort = httpPort;
         }
 
+        private static BackendServer getLocal() {
+            return new BackendServer("localhost", "127.0.0.1", "http", 8080);
+        }
+
         private static BackendServer getDefault() {
-            return new BackendServer("Grantham", "ghm.connect.minetogether.ch.tools", "http", 8080);
+            return new BackendServer("Grantham", "connect.ghm.minetogether.ch.tools", "https", 443);
+        }
+
+        private boolean doAuth() {
+            if (!authStr.isEmpty()) return true;
+            String auth = buildUrl("auth");
+            HashMap<String, String> bodyArr = new HashMap<>();
+            bodyArr.put("auth", MineTogetherClient.getUUID() + ":" + MineTogetherClient.getServerIDAndVerify());
+            bodyArr.put("type", "minecraft");
+            String bodyString = gson.toJson(bodyArr);
+            String response = WebUtils.putWebResponse(auth, bodyString, true, false);
+            if (response.equals("error")) {
+                return false;
+            }
+            AuthResponse authResponse = fromJsonWrapper(response, AuthResponse.class);
+            if (authResponse == null || !authResponse.success) {
+                return false;
+            }
+
+            authStr = authResponse.authSecret;
+            return true;
         }
 
         public void openToOthers(BiConsumer<Boolean, String> callback) {
+            if (!doAuth()) {
+                callback.accept(false, "failed auth");
+                return;
+            }
             String register = buildUrl("register");
             HashMap<String, String> bodyArr = new HashMap<>();
             bodyArr.put("auth", authStr);
@@ -117,10 +148,12 @@ public class ConnectMain {
             if (response.equals("error")) {
                 callback.accept(false, "unknown");
             }
-            RegisterResponse registerResponse = gson.fromJson(response, RegisterResponse.class);
-            if (!registerResponse.success) {
-                callback.accept(false, registerResponse.message);
+            RegisterResponse registerResponse = fromJsonWrapper(response, RegisterResponse.class);
+            if (registerResponse == null || !registerResponse.success) {
+                callback.accept(false, registerResponse == null ? "unknown" : registerResponse.message);
             }
+
+            System.out.println("Register to server succeeded");
 
             int readBytes = 0;
 
@@ -138,6 +171,8 @@ public class ConnectMain {
                 socket = localSocketChannel.socket();
                 inputStream = socket.getInputStream();
                 inputReader = new InputStreamReader(inputStream);
+
+                System.out.println("Connected to control socket");
 
                 outputStream = socket.getOutputStream();
                 outputStream.write((registerResponse.secret + "\n").getBytes(StandardCharsets.UTF_8));
@@ -163,6 +198,7 @@ public class ConnectMain {
                     if (line.equals("PING")) {
                         outputStream.write("PONG\n".getBytes(StandardCharsets.UTF_8));
                     } else if (line.equals("OK")) {
+                        System.out.println("Authed to control socket successfully");
                         success = true;
                         break;
                     } else {
@@ -182,8 +218,10 @@ public class ConnectMain {
                 return;
             }
 
+            callback.accept(true, ""); // READY
+            System.out.println("Now handling control loop, ready for connections");
 
-            // TODO: continue with managing control socket
+
             try {
                 socket.setSoTimeout(20000);
                 while (socket.isConnected()) {
@@ -198,6 +236,7 @@ public class ConnectMain {
                             outputStream.write("PONG\n".getBytes(StandardCharsets.UTF_8));
                             break;
                         case "Connect":
+                            System.out.println("Connect message received");
                             ProxyHandler.Start(42069, this.address, registerResponse.port - 1, registerResponse.secret, callback);
                     }
                 }
@@ -205,7 +244,26 @@ public class ConnectMain {
                 callback.accept(false, "closed");
                 ConnectUtil.CloseMultiple(inputReader, inputStream, outputStream, socket);
             }
+        }
 
+        public ConnectHandler.FriendsResponse getFriends() {
+            if (!doAuth()) {
+                return null;
+            }
+            String register = buildUrl("getFriendsPorts");
+            HashMap<String, String> bodyArr = new HashMap<>();
+            bodyArr.put("auth", authStr);
+            String bodyString = gson.toJson(bodyArr);
+            String response = WebUtils.putWebResponse(register, bodyString, true, false);
+            if (response.equals("error")) {
+                return null;
+            }
+            ConnectHandler.FriendsResponse friendsResponse = gson.fromJson(response, ConnectHandler.FriendsResponse.class);
+            if (!friendsResponse.isSuccess()) {
+                return null;
+            }
+
+            return friendsResponse;
         }
 
         private String buildUrl(String method) {
@@ -228,6 +286,14 @@ public class ConnectMain {
         }
     }
 
+    private static <T> T fromJsonWrapper(String data, Class<T> clazz) {
+        try {
+            return gson.fromJson(data, clazz);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static class ClosestResponse {
         private Datacentre datacentre;
 
@@ -236,10 +302,17 @@ public class ConnectMain {
         }
     }
 
-    public static class RegisterResponse {
-        private boolean success;
-        private String message;
+    public static class BaseResponse {
+        boolean success;
+        String message;
+    }
+
+    public static class RegisterResponse extends BaseResponse {
         private int port;
         private String secret;
+    }
+
+    public static class AuthResponse extends BaseResponse {
+        private String authSecret;
     }
 }

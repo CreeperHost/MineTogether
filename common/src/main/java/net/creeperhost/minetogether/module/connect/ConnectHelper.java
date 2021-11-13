@@ -72,7 +72,7 @@ public class ConnectHelper
             }
             else
             {
-                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed");
+                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed", response.getMessage());
                 Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
             }
         });

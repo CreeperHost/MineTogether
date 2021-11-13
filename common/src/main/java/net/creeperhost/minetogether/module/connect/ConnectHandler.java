@@ -111,7 +111,8 @@ public class ConnectHandler
 
     public static FriendsResponse getFriendsBlocking()
     {
-        return blocking(ConnectHandler::getFriends);
+        return ConnectMain.getBackendServer().getFriends();
+        //return blocking(ConnectHandler::getFriends);
     }
 
     static class Response extends Message
@@ -130,10 +131,9 @@ public class ConnectHandler
         }
     }
 
-    static class FriendsResponse extends Response
+    public static class FriendsResponse extends Response
     {
         private ArrayList<Friend> friends;
-
         public ArrayList<Friend> getFriends()
         {
             return friends;
@@ -141,13 +141,13 @@ public class ConnectHandler
 
         static class Friend
         {
-            private String address;
+            private String hash;
             private String displayName;
-            private String chosenName;
+            private int port;
 
-            public String getAddress()
+            public String getHash()
             {
-                return address;
+                return hash;
             }
 
             public String getDisplayName()
@@ -155,9 +155,9 @@ public class ConnectHandler
                 return displayName;
             }
 
-            public String getChosenName()
+            public int getPort()
             {
-                return chosenName;
+                return port;
             }
         }
     }

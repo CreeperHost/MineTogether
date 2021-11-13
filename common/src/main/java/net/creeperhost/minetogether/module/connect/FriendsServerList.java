@@ -34,14 +34,14 @@ public class FriendsServerList extends LanServerDetection.LanServerList
         if (ConnectHelper.isEnabled)
         {
             detectorExecutor = Executors.newSingleThreadScheduledExecutor();
-            detectorExecutor.scheduleAtFixedRate(new FriendDetector(this), 0, 10, TimeUnit.SECONDS);
+            detectorExecutor.scheduleAtFixedRate(new FriendDetector(this), 0, 5, TimeUnit.SECONDS);
         }
     }
 
     public synchronized void addOurServer(FriendDetector.PendingFriend friend)
     {
         LanServerInfoConnect lanServerInfo = new LanServerInfoConnect(friend);
-        //TODO: Use MineTogether connect logo as icon for server?
+        //TODO: Use friend face with MT logo in corner
         ourLanServers.add(lanServerInfo);
         oursWasUpdated = true;
     }

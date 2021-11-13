@@ -2,9 +2,7 @@ package net.creeperhost.minetogether.module.chat.screen;
 
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.handler.ToastHandler;
-import net.creeperhost.minetogether.lib.chat.ChatHandler;
-import net.creeperhost.minetogether.lib.chat.IChatListener;
-import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.*;
 import net.creeperhost.minetogether.lib.chat.data.Message;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
@@ -13,6 +11,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
+
+import java.util.concurrent.CompletableFuture;
 
 public class ChatListener implements IChatListener
 {
@@ -47,6 +47,10 @@ public class ChatListener implements IChatListener
     {
         MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(name + " Has accepted your friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
         ChatHandler.addMessageToChat(ChatHandler.CHANNEL, "FA:" + name, data);
+        Profile profile = KnownUsers.findByNick(name);
+        if (profile != null) {
+            CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(profile.getFriendCode(), data, MineTogetherClient.getPlayerHash()), MineTogetherChat.otherExecutor);
+        }
     }
 
     @Override

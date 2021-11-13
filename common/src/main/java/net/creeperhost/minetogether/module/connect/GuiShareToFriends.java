@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.module.connect;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.mixin.MixinShareToLanScreen;
 import net.creeperhost.minetogethergui.ScreenHelpers;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
@@ -43,6 +44,8 @@ public class GuiShareToFriends extends ShareToLanScreen
             this.minecraft.setScreen(null);
             MixinShareToLanScreen thisMixin = (MixinShareToLanScreen) this;
             net.creeperhost.minetogether.module.connect.ConnectHelper.shareToFriends(GameType.byName(thisMixin.getGameModeName()), thisMixin.getCommands());
+            TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.attempting");
+            Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
         }));
     }
 }

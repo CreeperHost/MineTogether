@@ -1,5 +1,9 @@
 package net.creeperhost.minetogether.module.connect;
 
+import net.creeperhost.minetogether.lib.chat.KnownUsers;
+import net.creeperhost.minetogether.lib.chat.data.Profile;
+import net.creeperhost.minetogetherconnect.ConnectMain;
+
 import java.util.ArrayList;
 
 public class FriendDetector implements Runnable
@@ -14,39 +18,46 @@ public class FriendDetector implements Runnable
     @Override
     public void run()
     {
-        ConnectHandler.FriendsResponse friendsResp = ConnectHandler.getFriendsBlocking();
-        if (friendsResp != null && friendsResp.getFriends() != null)
-        {
-            ArrayList<ConnectHandler.FriendsResponse.Friend> friends = friendsResp.getFriends();
-            for (ConnectHandler.FriendsResponse.Friend friend : friends)
-            {
-                PendingFriend server = new PendingFriend(friend.getChosenName(), friend.getDisplayName(), friend.getAddress());
-                owner.addPendingServer(server);
+        try {
+            ConnectHandler.FriendsResponse friendsResp = ConnectHandler.getFriendsBlocking();
+            if (friendsResp != null && friendsResp.getFriends() != null) {
+                ArrayList<ConnectHandler.FriendsResponse.Friend> friends = friendsResp.getFriends();
+                for (ConnectHandler.FriendsResponse.Friend friend : friends) {
+                    // get profile
+                    String address = ConnectMain.getBackendServer().address + ":" + friend.getPort();
+                    Profile profile = KnownUsers.findByHash(friend.getHash());
+                    if (profile == null) {
+                        profile = KnownUsers.add(friend.getHash());
+                    }
+
+                    PendingFriend server = new PendingFriend(profile, address);
+                    owner.addPendingServer(server);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public static class PendingFriend
     {
-        private final String chosenName;
-        private final String displayName;
+        private final Profile profile;
         private final String address;
 
-        public PendingFriend(String chosenName, String displayName, String address)
+        public PendingFriend(Profile profile, String address)
         {
-            this.chosenName = chosenName;
-            this.displayName = displayName;
+            this.profile = profile;
             this.address = address;
         }
 
         public String getChosenName()
         {
-            return chosenName;
+            return profile.getFriendName();
         }
 
         public String getDisplayName()
         {
-            return displayName;
+            return profile.getUserDisplay();
         }
 
         public String getAddress()
