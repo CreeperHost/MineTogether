@@ -49,7 +49,6 @@ public class ConnectMain {
     }
 
     public static BackendServer getBackendServer() {
-        if (true) return BackendServer.getLocal();
         if (backendServer != null) return backendServer;
         String webResponse = WebUtils.getWebResponse("https://minetogether.io/connect.json");
         if (webResponse.equals("error")) {
