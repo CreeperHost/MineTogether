@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.connect;
 
 import com.google.gson.Gson;
+import net.creeperhost.minetogetherconnect.ConnectMain;
 
 import java.io.*;
 import java.net.Socket;
@@ -21,76 +22,13 @@ public class ConnectHandler
 
     public static void connectToProc()
     {
-        try
-        {
-            socket = new Socket("127.0.0.1", 42068);
-            ConnectHelper.isEnabled = true;
-            CompletableFuture.runAsync(() ->
-            {
-                InputStream inputStream = null;
-                InputStreamReader ir = null;
-                BufferedReader in = null;
-                try
-                {
-                    inputStream = socket.getInputStream();
-                    ir = new InputStreamReader(inputStream);
-                    in = new BufferedReader(ir);
-
-                    while (socket.isConnected())
-                    {
-                        String str = in.readLine();
-                        Response msg = gson.fromJson(str, Response.class);
-                        synchronized (lock)
-                        {
-                            int msgId = msg.getId();
-                            if (awaiting.containsKey(msgId))
-                            {
-                                ResponseInfo<Response> responseInfo = awaiting.get(msgId);
-                                Response newMsg = gson.fromJson(str, responseInfo.getClazz());
-                                responseInfo.getCallback().apply(newMsg);
-                                awaiting.remove(msgId);
-                            }
-                            else
-                            {
-                                // unexpected message
-                            }
-                        }
-                    }
-                } catch (Throwable ignored)
-                {
-                } finally
-                {
-                    try
-                    {
-                        if (inputStream != null) inputStream.close();
-                        if (ir != null) ir.close();
-                        if (in != null) ir.close();
-                        socket.close();
-                        socket = null;
-                        ConnectHelper.isEnabled = false;
-                    } catch (IOException ignored)
-                    {
-
-                    }
-                }
-            });
-        } catch (IOException e)
-        {
-            try
-            {
-                if (socket != null) socket.close();
-                socket = null;
-            } catch (IOException ignored)
-            {
-            }
-            //e.printStackTrace();
-            ConnectHelper.isEnabled = false;
-        }
+        ConnectHelper.isEnabled = true;
     }
 
     public static boolean sendMessage(Message message, Function<Response, Void> callback)
     {
-        return sendMessage(message, new ResponseInfo(Response.class, callback));
+        return true;
+        //return sendMessage(message, new ResponseInfo(Response.class, callback));
     }
 
     public static boolean sendMessage(Message message, ResponseInfo callback)
@@ -121,13 +59,14 @@ public class ConnectHandler
 
     public static Response openBlocking()
     {
-        return blocking(ConnectHandler::open);
-    }
-
-    public static Void open(Function<Response, Void> callback)
-    {
-        sendMessage(new Message("OPEN"), callback);
-        return null;
+        CompletableFuture<Response> responseCompletableFuture = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> ConnectMain.listen((success, message) -> {
+            Response response = new Response();
+            response.success = success;
+            response.message = message;
+            responseCompletableFuture.complete(response);
+        }));
+        return responseCompletableFuture.join();
     }
 
     public static <E extends Response> E blocking(Function<Function<E, Void>, Void> func)
