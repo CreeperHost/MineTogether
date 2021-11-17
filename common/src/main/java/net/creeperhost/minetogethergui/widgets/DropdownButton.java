@@ -37,8 +37,6 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
     {
         this(x, y, widthIn, heightIn, buttonText, def, dynamic, onPress, true);
     }
-
-
     
     public DropdownButton(int x, int y, Component buttonText, E def, boolean dynamic, Button.OnPress onPress)
     {

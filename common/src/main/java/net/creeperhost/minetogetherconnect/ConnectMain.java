@@ -3,14 +3,12 @@ package net.creeperhost.minetogetherconnect;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -19,32 +17,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.module.connect.ConnectHandler;
 import net.creeperhost.minetogetherconnect.LibraryHacks.WebUtils;
 
 public class ConnectMain {
+    public static int maxPlayerCount = 3;
     static BackendServer backendServer;
     static Gson gson = new Gson();
     static String authStr = "";
-    public static void main(String[] args) {
-        // for now pass it in, in the future we'll make the server do Mojang auth, hand us a value
-        authStr = args[0];
-        listen((success, msg) -> {
-            if (!success) {
-                System.out.println("Error whilst opening to friends: " + msg);
-            } else {
-                System.out.println("Opened to friends successfully!");
-            }
-        });
-    }
+    public static String authError = "";
+    static String messageStr = new String(Character.toChars(0x1F4A9));
 
-    public static boolean listen(BiConsumer<Boolean, String> callback)
+    public static boolean listen(BiConsumer<Boolean, String> callback, Consumer<String> messageRelayer)
     {
         BackendServer backendServer = getBackendServer();
-        backendServer.openToOthers(callback);
+        backendServer.openToOthers(callback, messageRelayer);
         return true;
     }
 
@@ -92,6 +82,11 @@ public class ConnectMain {
         return chosenServer;
     }
 
+    public static boolean doAuth() {
+        BackendServer backendServer = getBackendServer();
+        return backendServer.doAuth();
+    }
+
     public static class BackendServer {
         private String name;
         public String address;
@@ -122,19 +117,28 @@ public class ConnectMain {
             bodyArr.put("type", "minecraft");
             String bodyString = gson.toJson(bodyArr);
             String response = WebUtils.putWebResponse(auth, bodyString, true, false);
+            authError = "Unknown";
             if (response.equals("error")) {
                 return false;
             }
             AuthResponse authResponse = fromJsonWrapper(response, AuthResponse.class);
-            if (authResponse == null || !authResponse.success) {
+            if (authResponse == null) {
                 return false;
             }
+
+             if (!authResponse.success)
+             {
+                 authError = authResponse.message;
+                 return false;
+             }
+
+             authError = "";
 
             authStr = authResponse.authSecret;
             return true;
         }
 
-        public void openToOthers(BiConsumer<Boolean, String> callback) {
+        public void openToOthers(BiConsumer<Boolean, String> callback, Consumer<String> messageRelayer) {
             if (!doAuth()) {
                 callback.accept(false, "failed auth");
                 return;
@@ -152,7 +156,7 @@ public class ConnectMain {
                 callback.accept(false, registerResponse == null ? "unknown" : registerResponse.message);
             }
 
-            System.out.println("Register to server succeeded");
+            MineTogether.logger.info("MineTogether Connect: Register to server succeeded");
 
             int readBytes = 0;
 
@@ -167,11 +171,12 @@ public class ConnectMain {
 
             try {
                 SocketChannel localSocketChannel = SocketChannel.open(new InetSocketAddress(this.address, registerResponse.port - 1));
+                if (registerResponse.maxPlayers != -1) maxPlayerCount = registerResponse.maxPlayers;
                 socket = localSocketChannel.socket();
                 inputStream = socket.getInputStream();
                 inputReader = new InputStreamReader(inputStream);
 
-                System.out.println("Connected to control socket");
+                MineTogether.logger.info("MineTogether Connect: Connected to control socket");
 
                 outputStream = socket.getOutputStream();
                 outputStream.write((registerResponse.secret + "\n").getBytes(StandardCharsets.UTF_8));
@@ -197,7 +202,7 @@ public class ConnectMain {
                     if (line.equals("PING")) {
                         outputStream.write("PONG\n".getBytes(StandardCharsets.UTF_8));
                     } else if (line.equals("OK")) {
-                        System.out.println("Authed to control socket successfully");
+                        MineTogether.logger.info("MineTogether Connect: Authed to control socket successfully");
                         success = true;
                         break;
                     } else {
@@ -218,7 +223,7 @@ public class ConnectMain {
             }
 
             callback.accept(true, ""); // READY
-            System.out.println("Now handling control loop, ready for connections");
+            MineTogether.logger.info("MineTogether Connect: Now handling control loop, ready for connections");
 
 
             try {
@@ -235,8 +240,13 @@ public class ConnectMain {
                             outputStream.write("PONG\n".getBytes(StandardCharsets.UTF_8));
                             break;
                         case "Connect":
-                            System.out.println("Connect message received");
                             ProxyHandler.Start(42069, this.address, registerResponse.port - 1, registerResponse.secret, callback);
+                        default:
+                            if (line.startsWith(messageStr)) {
+                                messageStr = line.substring(messageStr.length());
+                                messageRelayer.accept(messageStr);
+                                // print message to chat
+                            }
                     }
                 }
             } catch (Exception e) {
@@ -307,6 +317,7 @@ public class ConnectMain {
     }
 
     public static class RegisterResponse extends BaseResponse {
+        public int maxPlayers = -1;
         private int port;
         private String secret;
     }

@@ -14,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.concurrent.ThreadPoolExecutor;
+
 @Mixin(ServerSelectionList.class)
 public class MixinServerSelectionList
 {
@@ -35,7 +37,7 @@ public class MixinServerSelectionList
                     ServerSelectionList.NetworkServerEntry realEntry = (ServerSelectionList.NetworkServerEntry) thisFake.children().get(i);
                     if (realEntry.getServerData() instanceof LanServerInfoConnect)
                     {
-                        thisFake.children().set(i, new OurServerListEntryLanDetected(screen, (LanServerInfoConnect) realEntry.getServerData()));
+                        thisFake.children().set(i, new OurServerListEntryLanDetected(screen, (LanServerInfoConnect) realEntry.getServerData(), thisFake));
                     }
                 }
             }

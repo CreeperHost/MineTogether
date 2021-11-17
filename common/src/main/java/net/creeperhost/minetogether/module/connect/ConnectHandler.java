@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.connect;
 
 import com.google.gson.Gson;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogetherconnect.ConnectMain;
 
 import java.io.*;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ConnectHandler
@@ -22,7 +24,10 @@ public class ConnectHandler
 
     public static void connectToProc()
     {
-        ConnectHelper.isEnabled = true;
+        ConnectHelper.isEnabled = ConnectMain.doAuth();
+        if (!ConnectHelper.isEnabled) {
+            MineTogether.logger.info("MineTogether Connect not enabled: " + ConnectMain.authError);
+        }
     }
 
     public static boolean sendMessage(Message message, Function<Response, Void> callback)
@@ -57,7 +62,7 @@ public class ConnectHandler
 
     }
 
-    public static Response openBlocking()
+    public static Response openBlocking(Consumer<String> messageRelayer)
     {
         CompletableFuture<Response> responseCompletableFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> ConnectMain.listen((success, message) -> {
@@ -65,7 +70,7 @@ public class ConnectHandler
             response.success = success;
             response.message = message;
             responseCompletableFuture.complete(response);
-        }));
+        }, messageRelayer));
         return responseCompletableFuture.join();
     }
 

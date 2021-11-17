@@ -135,6 +135,9 @@
   "minetogether.connect.open.attempting":"Attempting to open world to friends",
   "minetogether.connect.open.success":"Opened local game world to your MineTogether friends.",
   "minetogether.connect.open.failed":"Failed to open local game to MineTogether friends: %s",
+  "minetogether.connect.join.full":"MineTogether friends' server is full. Please contact your friend!",
+  "minetogether.connect.unavailable":"MineTogether connect is unavailable: %s",
+  "minetogether.connect.unavailable.upgrade":"MineTogether connect is unavailable: %s\n\nDo you wish to upgrade now?",
   "minetogether.connect.title": "Multiplayer (MineTogether Connect)",
 
   "minetogether.ingame.chat.global":"MineTogether",
