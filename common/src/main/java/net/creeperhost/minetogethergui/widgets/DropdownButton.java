@@ -85,18 +85,19 @@ public class DropdownButton<E extends DropdownButton.IDropdownOption> extends Bu
                     yOffset = -yOffset;
                     drawY -= 1;
                 }
-                for (E e : possibleVals)
-                {
+                for (int j = 0, possibleValsSize = possibleVals.size(); j < possibleValsSize; j++) {
+                    E e = possibleVals.get(j);
                     drawY += yOffset;
                     boolean ourHovered = mouseX >= this.x && mouseY >= drawY && mouseX < this.x + this.width && mouseY < drawY + this.height - 2;
-                    
+
                     int subHovered = ourHovered ? 2 : 0;
-                    
+
                     minecraft.getTextureManager().bind(WIDGETS_LOCATION);
                     RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    // TODO: Fix rendering being dodgy, but it is "good enough" to avoid spending too much time on right now
                     this.blit(matrixStack, this.x, drawY, 0, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
                     this.blit(matrixStack, this.x + this.width / 2, drawY, 200 - this.width / 2, 46 + subHovered * 20 + 1, this.width / 2, this.height - 1);
-                    
+
                     String name = I18n.get(e.getTranslate(selected, true));
                     int textColour = 14737632;
 
