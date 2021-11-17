@@ -140,7 +140,7 @@ public abstract class MixinChatScreen extends Screen
                 input.setFocus(true);
                 input.setValue(input.getValue() + " " + currentDropdown + " ");
             }
-        }));
+        }, false));
         dropdownButton.flipped = true;
         if (Config.getInstance().getFirstConnect() && ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
         {

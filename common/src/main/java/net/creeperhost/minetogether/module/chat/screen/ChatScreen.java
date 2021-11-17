@@ -130,7 +130,7 @@ public class ChatScreen extends MineTogetherScreen
             menuDropdownButton.x = menuDropdownButton.y = -10000;
             menuDropdownButton.wasJustClosed = false;
             menuDropdownButton.dropdownOpen = false;
-        }));
+        }, false));
 
         addButton(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("Friends list"), p ->
         {
@@ -294,7 +294,6 @@ public class ChatScreen extends MineTogetherScreen
         {
             menuDropdownButton.x = menuDropdownButton.y = -10000;
             menuDropdownButton.wasJustClosed = false;
-            return true;
         }
         chat.mouseClicked(mouseX, mouseY, mouseButton);
         return false;
@@ -381,6 +380,10 @@ public class ChatScreen extends MineTogetherScreen
             menuDropdownButton.x = (int) mouseX;
             menuDropdownButton.y = (int) mouseY;
             menuDropdownButton.flipped = mouseY > 150;
+            if (!menuDropdownButton.flipped) {
+                menuDropdownButton.y -= menuDropdownButton.getHeight() - 1;
+                menuDropdownButton.x++;
+            }
             menuDropdownButton.dropdownOpen = true;
             activeDropdown = event.getValue();
             return true;

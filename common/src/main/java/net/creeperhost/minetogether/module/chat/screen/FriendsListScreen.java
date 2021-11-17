@@ -93,7 +93,7 @@ public class FriendsListScreen extends MineTogetherScreen
 
         addButton(removeFriend = new ButtonMultiple(width - 20, 32, 5, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
         {
-            ChatCallbacks.removeFriend(targetProfile.getFriendCode(), MineTogetherClient.getPlayerHash());
+            removeFriend(targetProfile);
         }));
 
         addButton(blockButton = new ButtonMultiple(width - 20, 52, 6, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
