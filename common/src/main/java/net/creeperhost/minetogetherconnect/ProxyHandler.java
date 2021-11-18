@@ -39,14 +39,14 @@ public class ProxyHandler {
             while(remoteSocket.isConnected()) {
                 long now = System.currentTimeMillis();
                 if(now - startTime > 3000) { // only wait a few seconds for ready
-                    callback.accept(false, "timeout");
+                    //callback.accept(false, "timeout");
                     return;
                 }
                 String line = connectUtil.readLine();
                 if (line == null) continue;
 
                 if (!line.equals("Ready")) {
-                    callback.accept(false, line);
+                    //callback.accept(false, line);
                     return;
                 }
                 break;
@@ -55,9 +55,9 @@ public class ProxyHandler {
             //ConnectUtil.CloseMultiple(localInputReader, localInput, localOutput, remoteInputReader, remoteInput, remoteOutput);
 
             startProxying(localChannel, remoteChannel, socket, remoteSocket);
-            callback.accept(true, "");
+            //callback.accept(true, "");
         } catch (Exception e) {
-            callback.accept(false, "closed");
+            //callback.accept(false, "closed");
             ConnectUtil.CloseMultiple(localInputReader, localInput, localOutput, remoteInputReader, remoteInput, remoteOutput, socket, remoteSocket);
         }
     }

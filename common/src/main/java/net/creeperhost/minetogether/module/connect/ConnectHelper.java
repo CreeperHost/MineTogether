@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.connect;
 
 import net.creeperhost.minetogether.mixin.MixinIntegratedServer;
+import net.creeperhost.minetogetherconnect.ConnectMain;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.TextComponent;
@@ -41,6 +42,7 @@ public class ConnectHelper
                 net.creeperhost.minetogether.module.connect.ConnectHandler.openCallback((message) -> {
                     if (message.equals("CLOSED123")) {
                         Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open to friends again to fix this!"));
+                        ConnectMain.close();
                     } else {
                         Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: " + message));
                     }

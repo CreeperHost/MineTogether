@@ -176,10 +176,12 @@ public class FriendsListScreen extends MineTogetherScreen
 
     protected boolean refreshFriendsList()
     {
+        List<Profile> friendsRet = KnownUsers.getFriends();
+        if (friendsRet == null) return false;
         List<Profile> friends = new ArrayList<Profile>();
-        List<Profile> onlineFriends = KnownUsers.getFriends().stream().filter(Profile::isOnline).collect(Collectors.toList());
+        List<Profile> onlineFriends = friendsRet.stream().filter(Profile::isOnline).collect(Collectors.toList());
         onlineFriends.sort(NameComparator.INSTANCE);
-        List<Profile> offlineFriends = KnownUsers.getFriends().stream().filter(profile -> !profile.isOnline()).collect(Collectors.toList());
+        List<Profile> offlineFriends = friendsRet.stream().filter(profile -> !profile.isOnline()).collect(Collectors.toList());
         offlineFriends.sort(NameComparator.INSTANCE);
 
         friends.addAll(onlineFriends);

@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.connect;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import net.creeperhost.minetogether.MineTogether;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.client.server.LanServerDetection;

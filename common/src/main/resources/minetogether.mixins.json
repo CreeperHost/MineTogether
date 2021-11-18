@@ -3,7 +3,6 @@
   "package": "net.creeperhost.minetogether.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinIntegratedServerStopping"
   ],
   "client": [
     "ChatComponentInvoker",
@@ -18,7 +17,8 @@
     "MixinSelectionList",
     "MixinServerSelectionList",
     "MixinServerSelectionListAccessor",
-    "MixinShareToLanScreen"
+    "MixinShareToLanScreen",
+    "MixinIntegratedServerStopping"
   ],
   "server": [
     "MixinDedicatedServerProperties"

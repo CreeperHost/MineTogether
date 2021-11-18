@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.mixin;
 
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.connect.LanServerInfoConnect;
 import net.creeperhost.minetogether.module.connect.OurServerListEntryLanDetected;
@@ -27,6 +28,7 @@ public class MixinServerSelectionList
     private void afterRefreshEntries(CallbackInfo info)
     {
         if (Config.getInstance().isMpMenuEnabled() && !(screen instanceof JoinMultiplayerScreenPublic))
+        if (!(screen instanceof JoinMultiplayerScreenPublic))
         {
             ServerSelectionList thisFake = (ServerSelectionList) (Object) this;
             int size = thisFake.children().size();
@@ -41,12 +43,12 @@ public class MixinServerSelectionList
                     }
                 }
             }
-            try
-            {
-                thisFake.children().add(size, new CreeperHostServerEntry(thisFake));
-            } catch (Exception e)
-            {
-                e.printStackTrace();
+            if (Config.getInstance().isMpMenuEnabled()) {
+                try {
+                    thisFake.children().add(size, new CreeperHostServerEntry(thisFake));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
