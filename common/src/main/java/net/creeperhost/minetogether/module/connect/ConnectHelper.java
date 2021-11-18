@@ -39,7 +39,7 @@ public class ConnectHelper
         {
             net.creeperhost.minetogether.module.connect.ConnectHandler.Response response = net.creeperhost.minetogether.module.connect.ConnectHandler.openBlocking((message) -> {
                 if(message.equals("CLOSED123")) {
-                    Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open again to fix this!"));
+                    Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open to friends again to fix this!"));
                 } else {
                     Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: " + message));
                 }
