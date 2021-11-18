@@ -30,6 +30,12 @@ public class ConnectMain {
     static String authStr = "";
     public static String authError = "";
     static String messageStr = new String(Character.toChars(0x1F4A9));
+    private static SocketChannel localSocketChannel;
+    private static Socket socket;
+    private static InputStream inputStream;
+    private static InputStreamReader inputReader;
+    private static OutputStream outputStream;
+
 
     public static boolean listen(BiConsumer<Boolean, String> callback, Consumer<String> messageRelayer)
     {
@@ -85,6 +91,10 @@ public class ConnectMain {
     public static boolean doAuth() {
         BackendServer backendServer = getBackendServer();
         return backendServer.doAuth();
+    }
+
+    public static void close() {
+        ConnectUtil.CloseMultiple(localSocketChannel, socket, inputReader, inputStream, outputStream);
     }
 
     public static class BackendServer {
@@ -162,15 +172,10 @@ public class ConnectMain {
 
             boolean success = false;
 
-            Socket socket = null;
-            InputStream inputStream = null;
-            InputStreamReader inputReader = null;
-            OutputStream outputStream = null;
-
             ConnectUtil connectUtil;
 
             try {
-                SocketChannel localSocketChannel = SocketChannel.open(new InetSocketAddress(this.address, registerResponse.port - 1));
+                localSocketChannel = SocketChannel.open(new InetSocketAddress(this.address, registerResponse.port - 1));
                 if (registerResponse.maxPlayers != -1) maxPlayerCount = registerResponse.maxPlayers;
                 socket = localSocketChannel.socket();
                 inputStream = socket.getInputStream();
@@ -194,7 +199,7 @@ public class ConnectMain {
                     }
                     String line = connectUtil.readLine();
                     if (line == null) {
-                        ConnectUtil.CloseMultiple(inputReader, inputStream, outputStream, socket);
+                        close();
                         callback.accept(false, "closed");
                         return;
                     }
@@ -211,13 +216,13 @@ public class ConnectMain {
                     }
                 }
             } catch (Exception e) {
-                ConnectUtil.CloseMultiple(inputReader, inputStream, outputStream, socket);
+                close();
                 callback.accept(false, "timeout");
                 return;
             }
 
             if (!success) {
-                ConnectUtil.CloseMultiple(inputReader, inputStream, outputStream, socket);
+                close();
                 callback.accept(false, "unknown");
                 return;
             }
@@ -231,7 +236,7 @@ public class ConnectMain {
                 while (socket.isConnected()) {
                     String line = connectUtil.readLine();
                     if (line == null) {
-                        ConnectUtil.CloseMultiple(inputReader, inputStream, outputStream, socket);
+                        close();
                         return;
                     }
 
@@ -252,7 +257,7 @@ public class ConnectMain {
             } catch (Exception e) {
                 messageRelayer.accept("CLOSED123");
                 callback.accept(false, "closed");
-                ConnectUtil.CloseMultiple(inputReader, inputStream, outputStream, socket);
+                ConnectMain.close();
             }
         }
 

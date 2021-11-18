@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.module.connect;
 import com.google.gson.Gson;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogetherconnect.ConnectMain;
+import net.creeperhost.minetogetherconnect.ConnectUtil;
 
 import java.io.*;
 import java.net.Socket;
@@ -36,42 +37,13 @@ public class ConnectHandler
         //return sendMessage(message, new ResponseInfo(Response.class, callback));
     }
 
-    public static boolean sendMessage(Message message, ResponseInfo callback)
-    {
-        if (socket == null) return false;
-        synchronized (lock)
-        {
-            OutputStream outputStream = null;
-            try
-            {
-                outputStream = socket.getOutputStream();
-                String s = gson.toJson(message);
-                byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
-                outputStream.write(bytes);
-                outputStream.write('\n');
-                if (callback != null)
-                {
-                    awaiting.put(message.id, callback);
-                }
-                return true;
-            } catch (Throwable t)
-            {
-                return false;
-            }
-        }
-
-    }
-
-    public static Response openBlocking(Consumer<String> messageRelayer)
-    {
-        CompletableFuture<Response> responseCompletableFuture = new CompletableFuture<>();
-        CompletableFuture.runAsync(() -> ConnectMain.listen((success, message) -> {
+    public static void openCallback(Consumer<String> messageRelayer, Consumer<Response> responseConsumer) {
+        ConnectMain.listen((success, message) -> {
             Response response = new Response();
             response.success = success;
             response.message = message;
-            responseCompletableFuture.complete(response);
-        }, messageRelayer));
-        return responseCompletableFuture.join();
+            responseConsumer.accept(response);
+        }, messageRelayer);
     }
 
     public static <E extends Response> E blocking(Function<Function<E, Void>, Void> func)
@@ -105,19 +77,12 @@ public class ConnectHandler
 
     public static void close()
     {
-        sendMessage(new Message("CLOSE"), (ResponseInfo) null);
-    }
-
-    public static Void getFriends(Function<FriendsResponse, Void> callback)
-    {
-        sendMessage(new Message("FRIENDS"), new ResponseInfo<>(FriendsResponse.class, callback));
-        return null;
+        ConnectMain.close();
     }
 
     public static FriendsResponse getFriendsBlocking()
     {
         return ConnectMain.getBackendServer().getFriends();
-        //return blocking(ConnectHandler::getFriends);
     }
 
     static class Response extends Message

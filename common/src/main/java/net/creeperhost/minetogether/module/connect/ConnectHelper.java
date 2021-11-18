@@ -37,52 +37,50 @@ public class ConnectHelper
     {
         CompletableFuture.runAsync(() ->
         {
-            net.creeperhost.minetogether.module.connect.ConnectHandler.Response response = net.creeperhost.minetogether.module.connect.ConnectHandler.openBlocking((message) -> {
-                if(message.equals("CLOSED123")) {
-                    Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open to friends again to fix this!"));
-                } else {
-                    Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: " + message));
-                }
-            });
-            if (response.isSuccess())
-            {
-                IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
-                Objects.requireNonNull(integratedServer).submit(() ->
-                {
-                    try
-                    {
-                        int port = 42069;
-                        System.setProperty("java.net.preferIPv4Stack", "false"); // no tears, not only ipv4
-                        integratedServer.getConnection().startTcpServerListener(null, port); // make localhost only
-                        ((MixinIntegratedServer) integratedServer).setPublishedPort(port);
-                        integratedServer.getPlayerList().getMaxPlayers();
-                        integratedServer.setPort(port);
-                        integratedServer.getPlayerList().setOverrideGameMode(type);
-                        integratedServer.getPlayerList().setAllowCheatsForAllPlayers(allowCheats);
-                        int i = integratedServer.getProfilePermissions(Minecraft.getInstance().player.getGameProfile());
-                        Minecraft.getInstance().player.setPermissionLevel(i);
-                        for (ServerPlayer serverplayerentity : integratedServer.getPlayerList().getPlayers())
+            try {
+                net.creeperhost.minetogether.module.connect.ConnectHandler.openCallback((message) -> {
+                    if (message.equals("CLOSED123")) {
+                        Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open to friends again to fix this!"));
+                    } else {
+                        Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: " + message));
+                    }
+                }, (response) -> {
+                    if (response.isSuccess()) {
+                        IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
+                        Objects.requireNonNull(integratedServer).submit(() ->
                         {
-                            integratedServer.getCommands().sendCommands(serverplayerentity);
-                        }
+                            try {
+                                int port = 42069;
+                                System.setProperty("java.net.preferIPv4Stack", "false"); // no tears, not only ipv4
+                                integratedServer.getConnection().startTcpServerListener(null, port); // make localhost only
+                                ((MixinIntegratedServer) integratedServer).setPublishedPort(port);
+                                integratedServer.getPlayerList().getMaxPlayers();
+                                integratedServer.setPort(port);
+                                integratedServer.getPlayerList().setOverrideGameMode(type);
+                                integratedServer.getPlayerList().setAllowCheatsForAllPlayers(allowCheats);
+                                int i = integratedServer.getProfilePermissions(Minecraft.getInstance().player.getGameProfile());
+                                Minecraft.getInstance().player.setPermissionLevel(i);
+                                for (ServerPlayer serverplayerentity : integratedServer.getPlayerList().getPlayers()) {
+                                    integratedServer.getCommands().sendCommands(serverplayerentity);
+                                }
 
+                                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.success");
 
-                        TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.success");
+                                Minecraft.getInstance().updateTitle();
 
-                        Minecraft.getInstance().updateTitle();
-
-                        Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
-                    } catch (IOException var6)
-                    {
-                        TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed");
+                                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+                            } catch (IOException var6) {
+                                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed");
+                                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+                            }
+                        });
+                    } else {
+                        TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed", response.getMessage());
                         Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
                     }
                 });
-            }
-            else
-            {
-                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed", response.getMessage());
-                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
