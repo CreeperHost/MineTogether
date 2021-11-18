@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.mixin;
 
 import net.creeperhost.minetogether.module.connect.FriendsServerList;
+import net.creeperhost.minetogether.module.connect.OurServerListEntryLanDetected;
 import net.creeperhost.minetogether.module.multiplayer.data.CreeperHostServerEntry;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
 import net.minecraft.client.gui.components.Button;
@@ -24,10 +25,6 @@ public abstract class MixinJoinMultiplayerScreen
     protected ServerSelectionList serverSelectionList;
     @Shadow
     private Button selectButton;
-    @Shadow
-    private Button deleteButton;
-    @Shadow
-    private Button editButton;
     @Shadow
     private LanServerDetection.LanServerList lanServerList;
 
@@ -63,10 +60,14 @@ public abstract class MixinJoinMultiplayerScreen
     @Inject(at = @At("HEAD"), method = "joinSelectedServer", cancellable = true)
     public void joinSelectedServer(CallbackInfo ci)
     {
-        ServerSelectionList.Entry entry = (ServerSelectionList.Entry)this.serverSelectionList.getSelected();
+        ServerSelectionList.Entry entry = this.serverSelectionList.getSelected();
         if(entry instanceof CreeperHostServerEntry)
         {
             ci.cancel();
+        } else if (entry instanceof OurServerListEntryLanDetected) {
+            if (!((OurServerListEntryLanDetected)entry).canBeJoined()) {
+                //ci.cancel();
+            }
         }
     }
 
@@ -79,6 +80,15 @@ public abstract class MixinJoinMultiplayerScreen
             List<LanServer> list = friendsServerList.getServers();
             friendsServerList.markClean();
             this.serverSelectionList.updateNetworkServers(list);
+        }
+    }
+
+    @Inject(at = @At("TAIL"), method = "onSelectedChange()V")
+    public void selectedChangeHook(CallbackInfo ci)
+    {
+        ServerSelectionList.Entry entry = this.serverSelectionList.getSelected();
+        if (entry instanceof OurServerListEntryLanDetected && !((OurServerListEntryLanDetected) entry).canBeJoined()) {
+            //this.selectButton.active = false;
         }
     }
 

@@ -250,6 +250,7 @@ public class ConnectMain {
                     }
                 }
             } catch (Exception e) {
+                messageRelayer.accept("CLOSED123");
                 callback.accept(false, "closed");
                 ConnectUtil.CloseMultiple(inputReader, inputStream, outputStream, socket);
             }

@@ -135,9 +135,12 @@
   "minetogether.connect.open.attempting":"Attempting to open world to friends",
   "minetogether.connect.open.success":"Opened local game world to your MineTogether friends.",
   "minetogether.connect.open.failed":"Failed to open local game to MineTogether friends: %s",
+  "minetogether.connect.join.full.descript":"FULL",
   "minetogether.connect.join.full":"MineTogether friends' server is full. Please contact your friend!",
+  "minetogether.connect.join.tried.name":"Your friend %s tried to join but was unable to do so as the player limit has been reached :(\nFor more information, please see https://minetogether.io/full/%s",
+  "minetogether.connect.join.notfriend":"You cannot join as you are not MineTogether friends with this user!",
   "minetogether.connect.unavailable":"MineTogether connect is unavailable: %s",
-  "minetogether.connect.unavailable.upgrade":"MineTogether connect is unavailable: %s\n\nDo you wish to upgrade now?",
+  "minetogether.connect.unavailable.website":"MineTogether connect is unavailable: %s\n\nDo you wish to visit the MineTogether website now?",
   "minetogether.connect.title": "Multiplayer (MineTogether Connect)",
 
   "minetogether.ingame.chat.global":"MineTogether",

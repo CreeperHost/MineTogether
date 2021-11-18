@@ -108,7 +108,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry
         for (int p = 0; p < Math.min(list.size(), 2); ++p)
         {
             Font var10000 = this.minecraft.font;
-            FormattedCharSequence var10002 = (FormattedCharSequence) list.get(p);
+            FormattedCharSequence var10002 = list.get(p);
             float var10003 = (float) (k + 32 + 3);
             int var10004 = j + 12;
             this.minecraft.font.getClass();

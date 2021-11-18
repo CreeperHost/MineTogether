@@ -24,6 +24,7 @@ import java.util.List;
 public class GuiShareToFriends extends ShareToLanScreen
 {
     final Screen ourLastScreen;
+    private static final String findStr = "website:";
     public GuiShareToFriends(Screen lastScreenIn)
     {
         super(lastScreenIn);
@@ -39,8 +40,10 @@ public class GuiShareToFriends extends ShareToLanScreen
             drawCenteredString(matrixStack, this.font, new TranslatableComponent("minetogether.connect.open.settings"), this.width / 2, 82, 16777215);
         } else {
             FormattedText renderComponent;
-            if (ConnectMain.authError.contains("upgrade")) {
-                renderComponent = new TranslatableComponent("minetogether.connect.unavailable.upgrade", ConnectMain.authError);
+            String findStr = "website:";
+            String sanitisedAuthError = ConnectMain.authError.substring(findStr.length());
+            if (ConnectMain.authError.contains(findStr)) {
+                renderComponent = new TranslatableComponent("minetogether.connect.unavailable.website", sanitisedAuthError);
             } else {
                 renderComponent = new TranslatableComponent("minetogether.connect.unavailable", ConnectMain.authError);
             }
@@ -53,7 +56,7 @@ public class GuiShareToFriends extends ShareToLanScreen
             }
         }
 
-        //Super should render these
+        //Super would usually render these, but we don't want to call super
         for (Widget b : this.buttons) {
             b.render(matrixStack, mouseX, mouseY, partialTicks);
         }
@@ -79,7 +82,7 @@ public class GuiShareToFriends extends ShareToLanScreen
             cancelButton.active = true;
             cancelButton.visible = true;
             buttons.clear();
-            if(ConnectMain.authError.contains("upgrade")) {
+            if(ConnectMain.authError.startsWith(findStr)) {
                 addButton(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
             } else {
                 cancelButton.x = (this.width / 2) - (cancelButton.getWidth() / 2);

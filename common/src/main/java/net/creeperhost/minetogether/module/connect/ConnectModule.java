@@ -3,13 +3,8 @@ package net.creeperhost.minetogether.module.connect;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import me.shedaniel.architectury.event.events.GuiEvent;
 import me.shedaniel.architectury.event.events.LifecycleEvent;
-import me.shedaniel.architectury.event.events.PlayerEvent;
 import me.shedaniel.architectury.hooks.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
-import net.creeperhost.minetogether.lib.chat.KnownUsers;
-import net.creeperhost.minetogether.lib.chat.data.Profile;
-import net.creeperhost.minetogetherconnect.ConnectMain;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -22,7 +17,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -42,30 +36,13 @@ public class ConnectModule
         Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("minetogether-connect-%d").build());
         GuiEvent.INIT_POST.register(ConnectModule::onScreenOpen);
         LifecycleEvent.SERVER_STOPPING.register(ConnectModule::onServerStopping);
-        PlayerEvent.PLAYER_JOIN.register(ConnectModule::onPlayerJoin);
     }
 
-    private static void onPlayerJoin(ServerPlayer serverPlayer) {
-        IntegratedServer singleplayerServer = Minecraft.getInstance().getSingleplayerServer();
-        if (singleplayerServer != null && singleplayerServer.isPublished() && singleplayerServer.getPort() == 42069) {
-            String playerHash = ChatCallbacks.getPlayerHash(serverPlayer.getUUID());
-            Profile byHash = KnownUsers.findByHash(playerHash);
-            if (!byHash.isFriend()) {
-                serverPlayer.connection.disconnect(new TranslatableComponent("minetogether.connect.join.notfriend"));
-            } else if (singleplayerServer.getPlayerCount() == ConnectMain.maxPlayerCount) {
-                serverPlayer.connection.disconnect(new TranslatableComponent("minetogether.connect.join.full"));
-            }
-        }
-    }
-
-    private static void onServerStopping(MinecraftServer server)
+    public static void onServerStopping(MinecraftServer server)
     {
-        if (server instanceof IntegratedServer)
+        if (ConnectHelper.isShared(server))
         {
-            if (ConnectHelper.isShared((IntegratedServer) server))
-            {
-                ConnectHandler.close();
-            }
+            ConnectHandler.close();
         }
     }
 

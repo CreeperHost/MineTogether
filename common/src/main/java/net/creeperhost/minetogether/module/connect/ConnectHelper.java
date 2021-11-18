@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 
@@ -23,20 +24,26 @@ public class ConnectHelper
         return isShared(integratedServer);
     }
 
-    public static boolean isShared(IntegratedServer integratedServer)
+    public static boolean isShared(MinecraftServer integratedServer)
     {
         if (integratedServer == null)
         {
             return false;
         }
-        return integratedServer.getPort() == 42069 && integratedServer.isPublished();
+        return !integratedServer.isDedicatedServer() && integratedServer.getPort() == 42069 && integratedServer.isPublished();
     }
 
     public static void shareToFriends(GameType type, boolean allowCheats)
     {
         CompletableFuture.runAsync(() ->
         {
-            net.creeperhost.minetogether.module.connect.ConnectHandler.Response response = net.creeperhost.minetogether.module.connect.ConnectHandler.openBlocking((message) -> Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: " + message)));
+            net.creeperhost.minetogether.module.connect.ConnectHandler.Response response = net.creeperhost.minetogether.module.connect.ConnectHandler.openBlocking((message) -> {
+                if(message.equals("CLOSED123")) {
+                    Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open again to fix this!"));
+                } else {
+                    Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: " + message));
+                }
+            });
             if (response.isSuccess())
             {
                 IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
