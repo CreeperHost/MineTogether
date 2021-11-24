@@ -1,0 +1,62 @@
+name: Bug report
+description: Create a report to help us improve
+title: '[Bug]: '
+body:
+  - type: input
+    id: describeBug
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behaviour
+      placeholder: 1. Go to '...' 2. Click on '....' 3. Scroll down to '....' 4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your problem.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The version of MineTogether you are having the issue with
+    validations:
+      required: true
+  - type: input
+    id: mcVersion
+    attributes:
+      label: Minecraft Version
+      description: What Minecraft version are you having the issue with?
+    validations:
+      required: true
+  - type: input
+    id: forgeVersion
+    attributes:
+      label: Forge Version
+      description: What Forge version are you using?
+    validations:
+      required: true
+  - type: textarea
+    id: additionalInfo
+    attributes:
+      label: Additional Information
+      description: Add any additional information about the problem here
+  - type: markdown
+    attributes:
+      value: >-
+        This template was generated with [Issue Forms
+        Creator](https://www.issue-forms-creator.app/)
