@@ -7,6 +7,7 @@ import dev.architectury.event.EventResult;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientRawInputEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
+import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
@@ -85,8 +86,7 @@ public class MineTogetherClient
 
     public static void registerKeybindings()
     {
-        //TODO register keybinding
-//        KeyBindings.registerKeyBinding(mtSocialKey);
+        KeyMappingRegistry.register(mtSocialKey);
     }
 
     public static void removeVanillaSocialKeybinding()

@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.module.chat.screen.social;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
@@ -109,7 +110,7 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
     {
         int i = marginX() + 3;
         super.renderBackground(poseStack);
-        minecraft.getTextureManager().bindForSetup(Constants.SOCIAL_INTERACTIONS_LOCATION);
+        RenderSystem.setShaderTexture(0, Constants.SOCIAL_INTERACTIONS_LOCATION);
         blit(poseStack, i, 64, 1, 1, 236, 8);
         int j = backgroundUnits();
 

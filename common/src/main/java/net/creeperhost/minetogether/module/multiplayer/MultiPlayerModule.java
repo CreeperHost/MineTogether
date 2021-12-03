@@ -29,18 +29,17 @@ public class MultiPlayerModule
         {
             JoinMultiplayerScreen multiplayerScreen = (JoinMultiplayerScreen) screen;
             //Clean up the buttons in the screen to allow us to add ours
-            //TODO
-//            updateMultiPlayerScreenButtons(multiplayerScreen, screenAccess.getRenderables());
+            updateMultiPlayerScreenButtons(multiplayerScreen);
 
             //Don't add the serverlist button if the multiplayer screen is ours
             if (!(screen instanceof JoinMultiplayerScreenPublic))
             {
                 Button serverListButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.serverlist"), p -> Minecraft.getInstance().setScreen(new ServerTypeScreen(screen)));
 
-                ScreenHooks.addWidget(screen, serverListButton);
+                ScreenHooks.addRenderableWidget(screen, serverListButton);
                 serverListButton.active = !Config.getInstance().getFirstConnect();
 
-                ScreenHooks.addWidget(screen, new ButtonMultiple(screen.width - 125, 5, 1, Constants.WIDGETS_LOCATION, p ->
+                ScreenHooks.addRenderableWidget(screen, new ButtonMultiple(screen.width - 125, 5, 1, Constants.WIDGETS_LOCATION, p ->
                 {
                     if (Config.getInstance().isChatEnabled())
                     {
@@ -55,37 +54,35 @@ public class MultiPlayerModule
         }
     }
 
-    public static void updateMultiPlayerScreenButtons(JoinMultiplayerScreen multiplayerScreen, List<AbstractWidget> abstractWidgets)
+    public static void updateMultiPlayerScreenButtons(JoinMultiplayerScreen multiplayerScreen)
     {
         try
         {
-            ScreenHelpers.findButton(I18n.get("selectServer.select"), abstractWidgets).x += 1;
+            ScreenHelpers.findButton(I18n.get("selectServer.select"), multiplayerScreen).x += 1;
+            ScreenHelpers.removeButton(I18n.get("selectServer.refresh"), multiplayerScreen);
 
-            //TODO
-//            ScreenHelpers.removeButton(I18n.get("selectServer.refresh"), abstractWidgets);
-
-            AbstractWidget addButton = ScreenHelpers.findButton(I18n.get("selectServer.add"), abstractWidgets);
+            AbstractWidget addButton = ScreenHelpers.findButton(I18n.get("selectServer.add"), multiplayerScreen);
             if (addButton != null)
             {
                 addButton.x -= 104;
                 addButton.setWidth(addButton.getWidth() + 27);
             }
 
-            AbstractWidget edit = ScreenHelpers.findButton(I18n.get("selectServer.edit"), abstractWidgets);
+            AbstractWidget edit = ScreenHelpers.findButton(I18n.get("selectServer.edit"), multiplayerScreen);
             if (edit != null)
             {
                 edit.setWidth(edit.getWidth() - 9);
                 edit.x += 1;
             }
 
-            AbstractWidget delete = ScreenHelpers.findButton(I18n.get("selectServer.delete"), abstractWidgets);
+            AbstractWidget delete = ScreenHelpers.findButton(I18n.get("selectServer.delete"), multiplayerScreen);
             if (delete != null)
             {
                 delete.x -= 16;
                 delete.setWidth(delete.getWidth() - 6);
             }
 
-            AbstractWidget direct = ScreenHelpers.findButton(I18n.get("selectServer.direct"), abstractWidgets);
+            AbstractWidget direct = ScreenHelpers.findButton(I18n.get("selectServer.direct"), multiplayerScreen);
             if (direct != null)
             {
                 direct.x = (multiplayerScreen.width / 2) - 23;
@@ -93,7 +90,7 @@ public class MultiPlayerModule
                 direct.setWidth(direct.getWidth());
             }
 
-            AbstractWidget cancel = ScreenHelpers.findButton(I18n.get("selectServer.cancel"), abstractWidgets);
+            AbstractWidget cancel = ScreenHelpers.findButton(I18n.get("selectServer.cancel"), multiplayerScreen);
             if (cancel != null)
             {
                 cancel.x += 1;
@@ -102,7 +99,7 @@ public class MultiPlayerModule
 
             if (!(multiplayerScreen instanceof JoinMultiplayerScreenPublic))
             {
-                ScreenHooks.addWidget(multiplayerScreen, new Button(multiplayerScreen.width / 2 + 80, multiplayerScreen.height - 52, 74, 20, new TranslatableComponent("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
+                ScreenHooks.addRenderableWidget(multiplayerScreen, new Button(multiplayerScreen.width / 2 + 80, multiplayerScreen.height - 52, 74, 20, new TranslatableComponent("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
             }
         } catch (Exception ignored)
         {

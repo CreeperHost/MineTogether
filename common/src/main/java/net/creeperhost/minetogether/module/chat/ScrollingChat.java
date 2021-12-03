@@ -217,7 +217,7 @@ public class ScrollingChat extends ObjectSelectionList
 
         if (renderBackground)
         {
-            this.minecraft.getTextureManager().bindForSetup(GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.setShaderTexture(0,GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             float f = 32.0F;
             bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
@@ -235,7 +235,7 @@ public class ScrollingChat extends ObjectSelectionList
         this.renderList(poseStack, k, l, mouseX, mouseY, partialTicks);
         if (renderBackground)
         {
-            this.minecraft.getTextureManager().bindForSetup(GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.setShaderTexture(0,GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.enableDepthTest();
             RenderSystem.depthFunc(519);
             float f1 = 32.0F;

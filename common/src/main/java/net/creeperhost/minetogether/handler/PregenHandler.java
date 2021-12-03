@@ -42,7 +42,6 @@ public class PregenHandler
 
         if(pregenTasks.containsKey(ServerLevel.OVERWORLD))
         {
-            //TODO more than just the overworld
             ServerLevel serverLevel = minecraftServer.getLevel(ServerLevel.OVERWORLD);
             PregenTask pregenTask = pregenTasks.get(ServerLevel.OVERWORLD);
 

@@ -50,11 +50,11 @@ public class MutedListScreen extends Screen
 
     public void addButtons()
     {
-        addWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
+        addRenderableWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
 
-        addWidget(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether.button.refresh"), p -> refreshMutedList()));
+        addRenderableWidget(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether.button.refresh"), p -> refreshMutedList()));
 
-        addWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Friends List"), button -> minecraft.setScreen(new FriendsListScreen(parent))));
+        addRenderableWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Friends List"), button -> minecraft.setScreen(new FriendsListScreen(parent))));
     }
 
     @Override

@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.ShareToLanScreen;
 import net.minecraft.network.chat.CommonComponents;
@@ -57,10 +58,13 @@ public class GuiShareToFriends extends ShareToLanScreen
         }
 
         //Super would usually render these, but we don't want to call super
-        //TODO private
-//        for (Widget b : this.buttons) {
-//            b.render(matrixStack, mouseX, mouseY, partialTicks);
-//        }
+        for (GuiEventListener listener : this.children())
+        {
+            if(listener instanceof Widget widget)
+            {
+                widget.render(matrixStack, mouseX, mouseY, partialTicks);
+            }
+        }
     }
 
     @Override
@@ -68,28 +72,28 @@ public class GuiShareToFriends extends ShareToLanScreen
     {
         super.init();
 
-        //TODO
-//        AbstractWidget startButton = ScreenHelpers.removeButton("lanServer.start", this.buttons);
-//        if (ConnectHelper.isEnabled) {
-//            addWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, new TranslatableComponent("minetogether.connect.open.start"), (button1) ->
-//            {
-//                this.minecraft.setScreen(null);
-//                MixinShareToLanScreen thisMixin = (MixinShareToLanScreen) this;
+        AbstractWidget startButton = ScreenHelpers.removeButton("lanServer.start", this);
+        if (ConnectHelper.isEnabled) {
+            addWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, new TranslatableComponent("minetogether.connect.open.start"), (button1) ->
+            {
+                this.minecraft.setScreen(null);
+                MixinShareToLanScreen thisMixin = (MixinShareToLanScreen) this;
+                //TODO
 //                net.creeperhost.minetogether.module.connect.ConnectHelper.shareToFriends(GameType.byName(thisMixin.getGameModeName()), thisMixin.getCommands());
-//                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.attempting");
-//                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
-//            }));
-//        } else {
-//            AbstractWidget cancelButton = ScreenHelpers.removeButton(CommonComponents.GUI_CANCEL.getString(), this.buttons);
-//            cancelButton.active = true;
-//            cancelButton.visible = true;
-//            buttons.clear();
-//            if(ConnectMain.authError.startsWith(findStr)) {
-//                addButton(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
-//            } else {
-//                cancelButton.x = (this.width / 2) - (cancelButton.getWidth() / 2);
-//            }
-//            addButton(cancelButton);
-//        }
+                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.attempting");
+                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+            }));
+        } else {
+            AbstractWidget cancelButton = ScreenHelpers.removeButton(CommonComponents.GUI_CANCEL.getString(), this);
+            cancelButton.active = true;
+            cancelButton.visible = true;
+            clearWidgets();
+            if(ConnectMain.authError.startsWith(findStr)) {
+                addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
+            } else {
+                cancelButton.x = (this.width / 2) - (cancelButton.getWidth() / 2);
+            }
+            addRenderableWidget(cancelButton);
+        }
     }
 }

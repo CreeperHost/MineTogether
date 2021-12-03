@@ -64,10 +64,8 @@ public class ScreenHelpers
         ResourceLocation resourceLocationCreeperLogo = new ResourceLocation(Constants.MOD_ID, "textures/creeperhost_logo_1-25.png");
         ResourceLocation resourceLocationMineTogetherLogo = new ResourceLocation(Constants.MOD_ID, "textures/minetogether25.png");
 
-//        RenderSystem.pushMatrix();
         matrixStack.pushPose();
         matrixStack.scale(scale, scale, scale);
-//        RenderSystem.scaled(scale, scale, scale);
 
         int mtHeight = (int) (318 / 2.5);
         int mtWidth = (int) (348 / 2.5);
@@ -98,12 +96,11 @@ public class ScreenHelpers
 
         RenderSystem.disableBlend();
         matrixStack.popPose();
-//        RenderSystem.popMatrix();
     }
 
     public void renderHead(PoseStack poseStack, int x, int y)
     {
-        Minecraft.getInstance().getTextureManager().bindForSetup(new ResourceLocation("textures/entity/steve.png"));
+        RenderSystem.setShaderTexture(0,new ResourceLocation("textures/entity/steve.png"));
 
         GuiComponent.blit(poseStack, x, y - 2, 9, 9, 8.0F, 8.0F, 8, 8, 64, 64);
         RenderSystem.enableBlend();
@@ -146,7 +143,6 @@ public class ScreenHelpers
         bufferbuilder.vertex(matrix, (float)(x + width), (float)y, 0.0F).uv((float)((u + (float)width) * f), (float)(v * f1)).endVertex();
         bufferbuilder.vertex(matrix, (float)x, (float)y, 0.0F).uv((float)(u * f), (float)(v * f1)).endVertex();
         bufferbuilder.end();
-//        RenderSystem.enableAlphaTest();
         BufferUploader.end(bufferbuilder);
     }
 

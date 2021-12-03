@@ -57,7 +57,7 @@ public class OrderDetailsScreen extends OrderServerScreen
         buttonCancel.active = false;
         buttonPrev.active = false;
         buttonPrev.visible = false;
-        buttonInvoice = addWidget(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, new TranslatableComponent("minetogether.button.invoice"), p ->
+        buttonInvoice = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, new TranslatableComponent("minetogether.button.invoice"), p ->
         {
             try
             {

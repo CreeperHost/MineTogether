@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.module.chat.screen.social;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
@@ -56,24 +57,24 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         int k = socialInteractionsPlayerList.getRowRight();
         int m = 64 + 16 * this.backgroundUnits();
 
-        allButton = addWidget(new Button(j, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_all"), (button) ->
+        allButton = addRenderableWidget(new Button(j, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_all"), (button) ->
         {
             showPage(Page.ALL);
         }));
-        friendsButton = addWidget(new Button(j + allButton.getWidth(), 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_friends"), (button) ->
+        friendsButton = addRenderableWidget(new Button(j + allButton.getWidth(), 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_friends"), (button) ->
         {
             showPage(Page.FRIENDS);
         }));
-        blockedButton = addWidget(new Button(k - i, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_blocked"), (button) ->
+        blockedButton = addRenderableWidget(new Button(k - i, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_blocked"), (button) ->
         {
             showPage(Page.BLOCKED);
         }));
-        partyButton = addWidget(new Button(j + allButton.getWidth() * 2, 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_party"), (button) ->
+        partyButton = addRenderableWidget(new Button(j + allButton.getWidth() * 2, 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_party"), (button) ->
         {
             showPage(Page.PARTY);
         }));
 
-        createParty = addWidget(new Button((width / 2) - 80, m, 160, 20, new TranslatableComponent("Create Party?"), button ->
+        createParty = addRenderableWidget(new Button((width / 2) - 80, m, 160, 20, new TranslatableComponent("Create Party?"), button ->
         {
             String channelName = MineTogetherChat.profile.get().getMediumHash();
 
@@ -93,7 +94,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
             showPage(page);
         }));
 
-        this.chatButton = addWidget(new ImageButton((width / 2) + 80, m, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
+        this.chatButton = addRenderableWidget(new ImageButton((width / 2) + 80, m, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
         {
             Minecraft.getInstance().setScreen(new MineTogetherSocialChatScreen(this, ChatHandler.currentParty));
         }));
@@ -210,7 +211,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
     {
         int i = marginX() + 3;
         super.renderBackground(poseStack);
-        minecraft.getTextureManager().bindForSetup(Constants.SOCIAL_INTERACTIONS_LOCATION);
+        RenderSystem.setShaderTexture(0, Constants.SOCIAL_INTERACTIONS_LOCATION);
         blit(poseStack, i, 64, 1, 1, 236, 8);
         int j = backgroundUnits();
 

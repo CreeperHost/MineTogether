@@ -54,7 +54,7 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             if (transparency >= 0.5F) transparency -= 0.04;
         }
 
-        this.mc.getTextureManager().bindForSetup(serverIcon);
+        RenderSystem.setShaderTexture(0, serverIcon);
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, transparency);
         Screen.blit(matrixStack, x, y, 0.0F, 0.0F, 32, 32, 32, 32);
@@ -71,15 +71,14 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             removeButton.x = listWidth + x - Minecraft.getInstance().font.width(new String(Character.toChars(10006))) - 4;
             removeButton.y = y;
 
-            //TODO isHovered is protected
-//            if (removeButton.isHovered())
-//            {
-//                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-//                final int tooltipY = mouseY + ((mc.screen.width / 2 >= mouseY) ? 11 : -11);
-//                RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
-//                mc.getTextureManager().bind(BUTTON_TEXTURES);
-//                Screen.blit(matrixStack, mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
-//            }
+            if (removeButton.isHoveredOrFocused())
+            {
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                final int tooltipY = mouseY + ((mc.screen.width / 2 >= mouseY) ? 11 : -11);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, transparency);
+                RenderSystem.setShaderTexture(0, BUTTON_TEXTURES);
+                Screen.blit(matrixStack, mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
+            }
         }
     }
 

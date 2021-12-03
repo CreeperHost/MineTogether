@@ -65,12 +65,12 @@ public class PersonalDetailsScreen extends OrderServerScreen
     {
         super.init();
 
-        addWidget(this.list = new ScreenList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36));
-        addWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent("")));
+        addRenderableWidget(this.list = new ScreenList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36));
+        addRenderableWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent("")));
 
         updateList();
 
-        this.loginButton = addWidget(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, new TranslatableComponent("minetogether.button.login"), p ->
+        this.loginButton = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, new TranslatableComponent("minetogether.button.login"), p ->
         {
             if (orderPressed && !isSure)
             {
@@ -219,9 +219,9 @@ public class PersonalDetailsScreen extends OrderServerScreen
         String buttonName = ServerOrderCallbacks.getCountries().get(this.order.country);
         if (buttonName == null || buttonName.isEmpty()) buttonName = "Invalid";
 
-        addWidget(buttonList = new Button(x - 205, 165, fieldWidths, 20, new TranslatableComponent(buttonName), p -> renderList = true));
+        addRenderableWidget(buttonList = new Button(x - 205, 165, fieldWidths, 20, new TranslatableComponent(buttonName), p -> renderList = true));
 
-        addWidget(selectCountry = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.select"), (button) ->
+        addRenderableWidget(selectCountry = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.select"), (button) ->
         {
             renderList = false;
             ListEntryCountry listEntryCountry = (ListEntryCountry) list.getCurrSelected();

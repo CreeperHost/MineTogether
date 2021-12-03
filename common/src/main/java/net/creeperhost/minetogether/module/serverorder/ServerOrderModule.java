@@ -23,10 +23,10 @@ public class ServerOrderModule
         {
             if (Config.getInstance().getReplaceRealms())
             {
-                AbstractWidget relms = ScreenHelpers.removeButton("menu.online", screenAccess.getRenderables());
+                AbstractWidget relms = ScreenHelpers.removeButton("menu.online", screen);
                 if (relms != null)
                 {
-                    ScreenHooks.addWidget(screen, new Button(relms.x, relms.y, relms.getWidth(), relms.getHeight(), new TranslatableComponent("minetogether.button.getserver"), p -> Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), screen))));
+                    ScreenHooks.addRenderableWidget(screen, new Button(relms.x, relms.y, relms.getWidth(), relms.getHeight(), new TranslatableComponent("minetogether.button.getserver"), p -> Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), screen))));
                 }
             }
         }
