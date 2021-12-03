@@ -5,7 +5,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogether.lib.util.WebUtils;
 import net.minecraft.commands.CommandRuntimeException;
@@ -34,7 +34,7 @@ public class CommandInvite
         MinecraftServer minecraftServer = cs.getSource().getServer();
         if (username.isEmpty()) throw new CommandRuntimeException(new TranslatableComponent("Invalid username"));
 
-        GameProfile gameProfile = minecraftServer.getProfileCache().get(username);
+        GameProfile gameProfile = minecraftServer.getProfileCache().get(username).get();
         if (gameProfile == null)
             throw new CommandRuntimeException(new TranslatableComponent("Failed to load GameProfile, Username is not valid"));
 
@@ -72,9 +72,9 @@ public class CommandInvite
         InviteClass invite = new InviteClass();
         invite.hash = tempHash;
         invite.id = MineTogetherServer.updateID;
-        MineTogether.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
+        MineTogetherCommon.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
         String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
-        MineTogether.logger.debug("Response from add endpoint " + resp);
+        MineTogetherCommon.logger.debug("Response from add endpoint " + resp);
     }
 
     public static class InviteClass

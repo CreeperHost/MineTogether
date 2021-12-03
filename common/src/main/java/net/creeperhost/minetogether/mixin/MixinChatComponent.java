@@ -5,7 +5,6 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.data.Message;
 import net.creeperhost.minetogether.lib.util.LimitedSizeQueue;
-import net.creeperhost.minetogether.lib.util.MathHelper;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ClientChatTarget;
@@ -17,6 +16,7 @@ import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
@@ -85,8 +85,8 @@ public abstract class MixinChatComponent
             ChatComponent chatComponent = Minecraft.getInstance().gui.getChat();
             int y = chatComponent.getHeight() - 175 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
             GuiComponent.fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, minecraft.options.getBackgroundColor(-2147483648));
-            int k = MathHelper.ceil((float) minecraft.gui.getChat().getWidth() / (float) minecraft.options.chatScale);
-            int z = MathHelper.ceil((float) minecraft.gui.getChat().getHeight() / (float) minecraft.options.chatScale);
+            int k = Mth.ceil((float) minecraft.gui.getChat().getWidth() / (float) minecraft.options.chatScale);
+            int z = Mth.ceil((float) minecraft.gui.getChat().getHeight() / (float) minecraft.options.chatScale);
 
             if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
                 ScreenHelpers.drawLogo(poseStack, minecraft.font, k + 6, z + 6, -2, minecraft.gui.getChat().getHeight() - 340, 0.75F);

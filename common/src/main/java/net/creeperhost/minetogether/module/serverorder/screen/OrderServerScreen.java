@@ -41,11 +41,11 @@ public abstract class OrderServerScreen extends Screen
 
     public void addNavigationButtons()
     {
-        addButton(this.buttonPrev = new Button(10, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
+        addWidget(this.buttonPrev = new Button(10, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
 
-        addButton(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
+        addWidget(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
 
-        addButton(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.next"), (button) ->
+        addWidget(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.next"), (button) ->
         {
             if ((this.stepId + 1) == STEP_AMOUNT)
             {

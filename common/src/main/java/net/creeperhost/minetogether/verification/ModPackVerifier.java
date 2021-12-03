@@ -1,8 +1,8 @@
 package net.creeperhost.minetogether.verification;
 
 import com.google.gson.*;
-import me.shedaniel.architectury.platform.Platform;
-import net.creeperhost.minetogether.MineTogether;
+import dev.architectury.platform.Platform;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 
@@ -45,7 +45,7 @@ public class ModPackVerifier
         {
             jsonObj.put("p", ftbPackID);
             jsonObj.put("b", base64);
-            MineTogether.base64 = base64;
+            MineTogetherCommon.base64 = base64;
         }
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         try
@@ -79,16 +79,16 @@ public class ModPackVerifier
                         if (requestedID.isEmpty()) requestedID = "-1";
 
                         Config.instance.curseProjectID = requestedID;
-                        Config.saveConfigToFile(MineTogether.configFile.toFile());
+                        Config.saveConfigToFile(MineTogetherCommon.configFile.toFile());
                         this.ftbPackID = "m" + ftbPackID;
                     }
                 } catch (Exception MalformedJsonException)
                 {
-                    MineTogether.logger.error("version.json is not valid returning to curse ID");
+                    MineTogetherCommon.logger.error("version.json is not valid returning to curse ID");
                 }
             } catch (IOException ignored)
             {
-                MineTogether.logger.info("version.json not found returning to curse ID");
+                MineTogetherCommon.logger.info("version.json not found returning to curse ID");
             }
         }
     }

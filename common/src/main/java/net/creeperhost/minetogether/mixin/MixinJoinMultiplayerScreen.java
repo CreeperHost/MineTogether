@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.mixin;
 
-import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.module.connect.FriendsServerList;
 import net.creeperhost.minetogether.module.connect.OurServerListEntryLanDetected;
 import net.creeperhost.minetogether.module.multiplayer.data.CreeperHostServerEntry;

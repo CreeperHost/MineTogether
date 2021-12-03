@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.irc.IrcHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
@@ -28,38 +28,38 @@ public class SettingsScreen extends MineTogetherScreen
     public void init()
     {
         super.init();
-        buttons.clear();
+        clearWidgets();
 
-        addButton(new Button(this.width / 2 - 123, 40, 120, 20, new TranslatableComponent(I18n.get("Chat Enabled: " + format(Config.getInstance().isChatEnabled()))), p ->
+        addRenderableWidget(new Button(this.width / 2 - 123, 40, 120, 20, new TranslatableComponent(I18n.get("Chat Enabled: " + format(Config.getInstance().isChatEnabled()))), p ->
         {
             if (Config.getInstance().isChatEnabled())
             {
-                MineTogether.logger.info("Disabling in-game chat");
+                MineTogetherCommon.logger.info("Disabling in-game chat");
                 Config.getInstance().setChatEnabled(false);
                 IrcHandler.stop(true);
             }
             else
             {
-                MineTogether.logger.info("Enabling in-game chat");
+                MineTogetherCommon.logger.info("Enabling in-game chat");
                 Config.getInstance().setChatEnabled(true);
                 IrcHandler.reconnect();
                 ChatModule.getMineTogetherChat().startChat();
             }
             saveConfig();
         }));
-        this.addButton(new Button(this.width / 2 + 3, 40, 120, 20, new TranslatableComponent(I18n.get("Friend Toasts: " + format(Config.getInstance().isFriendOnlineToastsEnabled()))), p ->
+        addRenderableWidget(new Button(this.width / 2 + 3, 40, 120, 20, new TranslatableComponent(I18n.get("Friend Toasts: " + format(Config.getInstance().isFriendOnlineToastsEnabled()))), p ->
         {
             boolean enabled = Config.getInstance().isFriendOnlineToastsEnabled();
             Config.getInstance().setEnableFriendOnlineToasts(!enabled);
             saveConfig();
         }));
-        this.addButton(new Button(this.width / 2 - 123, 60, 120, 20, new TranslatableComponent(I18n.get("Menu Buttons: " + format(Config.getInstance().isEnableMainMenuFriends()))), p ->
+        addRenderableWidget(new Button(this.width / 2 - 123, 60, 120, 20, new TranslatableComponent(I18n.get("Menu Buttons: " + format(Config.getInstance().isEnableMainMenuFriends()))), p ->
         {
             boolean enabled = Config.getInstance().isEnableMainMenuFriends();
             Config.getInstance().setEnableMainMenuFriends(!enabled);
             saveConfig();
         }));
-        addButton(linkButton = new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("minetogether.settingscreen.button.linkaccount")), p ->
+        addRenderableWidget(linkButton = new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("minetogether.settingscreen.button.linkaccount")), p ->
         {
             minecraft.setScreen(new ConfirmScreen(e ->
             {
@@ -72,7 +72,7 @@ public class SettingsScreen extends MineTogetherScreen
         }));
 
         //Done button
-        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")), p -> this.minecraft.setScreen(parent)));
+        addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")), p -> this.minecraft.setScreen(parent)));
     }
 
     @Override
@@ -97,7 +97,7 @@ public class SettingsScreen extends MineTogetherScreen
 
     private void saveConfig()
     {
-        Config.saveConfigToFile(MineTogether.configFile.toFile());
+        Config.saveConfigToFile(MineTogetherCommon.configFile.toFile());
         this.minecraft.setScreen(new SettingsScreen(parent));
     }
 }

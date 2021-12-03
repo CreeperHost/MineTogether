@@ -57,9 +57,10 @@ public class GuiShareToFriends extends ShareToLanScreen
         }
 
         //Super would usually render these, but we don't want to call super
-        for (Widget b : this.buttons) {
-            b.render(matrixStack, mouseX, mouseY, partialTicks);
-        }
+        //TODO private
+//        for (Widget b : this.buttons) {
+//            b.render(matrixStack, mouseX, mouseY, partialTicks);
+//        }
     }
 
     @Override
@@ -67,27 +68,28 @@ public class GuiShareToFriends extends ShareToLanScreen
     {
         super.init();
 
-        AbstractWidget startButton = ScreenHelpers.removeButton("lanServer.start", this.buttons);
-        if (ConnectHelper.isEnabled) {
-            addButton(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, new TranslatableComponent("minetogether.connect.open.start"), (button1) ->
-            {
-                this.minecraft.setScreen(null);
-                MixinShareToLanScreen thisMixin = (MixinShareToLanScreen) this;
-                net.creeperhost.minetogether.module.connect.ConnectHelper.shareToFriends(GameType.byName(thisMixin.getGameModeName()), thisMixin.getCommands());
-                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.attempting");
-                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
-            }));
-        } else {
-            AbstractWidget cancelButton = ScreenHelpers.removeButton(CommonComponents.GUI_CANCEL.getString(), this.buttons);
-            cancelButton.active = true;
-            cancelButton.visible = true;
-            buttons.clear();
-            if(ConnectMain.authError.startsWith(findStr)) {
-                addButton(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
-            } else {
-                cancelButton.x = (this.width / 2) - (cancelButton.getWidth() / 2);
-            }
-            addButton(cancelButton);
-        }
+        //TODO
+//        AbstractWidget startButton = ScreenHelpers.removeButton("lanServer.start", this.buttons);
+//        if (ConnectHelper.isEnabled) {
+//            addWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, new TranslatableComponent("minetogether.connect.open.start"), (button1) ->
+//            {
+//                this.minecraft.setScreen(null);
+//                MixinShareToLanScreen thisMixin = (MixinShareToLanScreen) this;
+//                net.creeperhost.minetogether.module.connect.ConnectHelper.shareToFriends(GameType.byName(thisMixin.getGameModeName()), thisMixin.getCommands());
+//                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.attempting");
+//                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+//            }));
+//        } else {
+//            AbstractWidget cancelButton = ScreenHelpers.removeButton(CommonComponents.GUI_CANCEL.getString(), this.buttons);
+//            cancelButton.active = true;
+//            cancelButton.visible = true;
+//            buttons.clear();
+//            if(ConnectMain.authError.startsWith(findStr)) {
+//                addButton(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
+//            } else {
+//                cancelButton.x = (this.width / 2) - (cancelButton.getWidth() / 2);
+//            }
+//            addButton(cancelButton);
+//        }
     }
 }

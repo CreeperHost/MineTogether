@@ -62,7 +62,7 @@ public class MixinDisconnectedScreen extends Screen
             } catch (Exception ignored) {}
 
             ticks++;
-            ScreenHelpers.loadingSpin(partialTicks, ticks, width / 2, height / 2 - 80 , new ItemStack(Items.COOKED_BEEF));
+            ScreenHelpers.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2 - 80 , new ItemStack(Items.COOKED_BEEF));
         }
     }
 

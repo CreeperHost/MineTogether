@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.threads;
 
 import com.google.gson.*;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogether.lib.util.WebUtils;
 
@@ -19,7 +19,7 @@ public class MineTogetherServerThread
     {
         mtThread = new Thread(() ->
         {
-            MineTogether.logger.info("Enabling server list. Servers found to be breaking Mojang's EULA may be removed if complaints are received.");
+            MineTogetherCommon.logger.info("Enabling server list. Servers found to be breaking Mojang's EULA may be removed if complaints are received.");
             boolean first = true;
             while (MineTogetherServer.serverOn)
             {
@@ -63,13 +63,13 @@ public class MineTogetherServerThread
                         {
                             if (tries >= 4)
                             {
-                                MineTogether.logger.error("Unable to do call to server list - disabling for 45 minutes. Reason: " + jObject.get("message").getAsString());
+                                MineTogetherCommon.logger.error("Unable to do call to server list - disabling for 45 minutes. Reason: " + jObject.get("message").getAsString());
                                 tries = 0;
                                 sleepTime = 60 * 1000 * 45;
                             }
                             else
                             {
-                                MineTogether.logger.error("Unable to do call to server list - will try again in 90 seconds. Reason: " + jObject.get("message").getAsString());
+                                MineTogetherCommon.logger.error("Unable to do call to server list - will try again in 90 seconds. Reason: " + jObject.get("message").getAsString());
                                 tries++;
                             }
                             failed = true;

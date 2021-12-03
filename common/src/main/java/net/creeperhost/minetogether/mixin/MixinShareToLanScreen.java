@@ -7,8 +7,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(ShareToLanScreen.class)
 public interface MixinShareToLanScreen
 {
-    @Accessor
-    String getGameModeName();
+    //TODO
+//    @Accessor
+//    String getGameModeName();
 
     @Accessor
     boolean getCommands();

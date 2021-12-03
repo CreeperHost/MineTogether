@@ -2,10 +2,11 @@ package net.creeperhost.minetogether.module.chat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import me.shedaniel.architectury.hooks.ScreenHooks;
-import me.shedaniel.architectury.platform.Platform;
+import dev.architectury.hooks.client.screen.ScreenAccess;
+import dev.architectury.hooks.client.screen.ScreenHooks;
+import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
@@ -23,9 +24,7 @@ import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -38,7 +37,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ChatModule
@@ -60,7 +58,7 @@ public class ChatModule
 
     public static void buildChat(String ourNick)
     {
-        MineTogether.logger.info("Building MineTogether chat");
+        MineTogetherCommon.logger.info("Building MineTogether chat");
         boolean online = MineTogetherClient.isOnlineUUID;
         String realName = new ModPackVerifier().verify();
         String signature = new SignatureVerifier().verify();
@@ -70,7 +68,7 @@ public class ChatModule
         mineTogetherChat.startChat();
     }
 
-    public static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
+    public static void onScreenOpen(Screen screen, ScreenAccess screenAccess)
     {
         Button friendsButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.friends"), p -> Minecraft.getInstance().setScreen(new FriendsListScreen(screen)));
 
@@ -80,15 +78,15 @@ public class ChatModule
         {
             if (Config.instance.isMainMenuEnabled())
             {
-                ScreenHooks.addButton(screen, friendsButton);
-                ScreenHooks.addButton(screen, chatButton);
+                ScreenHooks.addRenderableWidget(screen, friendsButton);
+                ScreenHooks.addRenderableWidget(screen, chatButton);
                 friendsButton.active = !Config.getInstance().getFirstConnect();
             }
         }
         if (screen instanceof PauseScreen)
         {
-            ScreenHooks.addButton(screen, friendsButton);
-            ScreenHooks.addButton(screen, chatButton);
+            ScreenHooks.addRenderableWidget(screen, friendsButton);
+            ScreenHooks.addRenderableWidget(screen, chatButton);
             friendsButton.active = !Config.getInstance().getFirstConnect();
         }
     }

@@ -111,7 +111,8 @@ public class TextFieldDetails extends EditBox
         int startX = (this.x + this.width + 3) / 2;
         int startY = (this.y + 4) / 2;
 
-        RenderSystem.scalef(2.0F, 2.0F, 2.0F);
+        //TODO
+//        RenderSystem.scalef(2.0F, 2.0F, 2.0F);
 
         if (isValidated)
         {

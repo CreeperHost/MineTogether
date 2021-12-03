@@ -1,9 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "5.0.0"
-}
-
-configurations {
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    id "com.github.johnrengelman.shadow" version "7.1.0"
 }
 
 architectury {
@@ -11,39 +7,38 @@ architectury {
     forge()
 }
 
-loom {
-    useFabricMixin = true
-}
-
-loom {
-    mixinConfig "minetogether.mixins.json"
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
-    // Remove the next line if you don't want to depend on the API
-    modApi "me.shedaniel:architectury-forge:${rootProject.architectury_version}"
+//    minecraft("com.mojang:minecraft:${rootProject.architectury.minecraft}")
+//    mappings(minecraft.officialMojangMappings())
 
-    implementation(project(path: ":common")) {
-        transitive = false
-    }
-    developmentForge(project(path: ":common")) {
-        transitive = false
-    }
-    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) {
-        transitive = false
-    }
+    forge("net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}")
+    modImplementation("dev.architectury:architectury-forge:${rootProject.architectury_version}")
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
     implementation 'com.github.scribejava:scribejava-apis:6.9.0'
     implementation 'com.github.scribejava:scribejava-core:6.9.0'
-    implementation "net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}"
-
+//    implementation("net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}")
+    implementation("net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}")
+    {
+        exclude group: 'com.google.guava', module: 'failureaccess'
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
 
     shadowCommon 'org.nanohttpd:nanohttpd:2.3.1'
     shadowCommon 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowCommon 'com.github.scribejava:scribejava-core:6.9.0'
-    shadowCommon "net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}"
+    shadowCommon("net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}")
 }
 
 processResources {
@@ -61,29 +56,27 @@ shadowJar {
     // Don't shadow netty, we already have it.
     dependencies {
         exclude(dependency("io.netty::"))
+//        exclude(dependency("com.google.guava::"))
     }
 
     // Relocate fluent-hc to prevent conflicts with other mods that include it
     relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
     relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
     relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
+//    relocate 'net.creeperhost.minetogether.lib', 'net.creeperhost.minetogether.minetogetherlib'
 
-    classifier '' // Replace the default JAR
-//    classifier "dev-shadow"
+//    classifier '' // Replace the default JAR
+    classifier "dev-shadow"
 }
 
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier "forge"
+    classifier null
 }
 
 jar {
     classifier "dev"
-}
-
-java {
-    withSourcesJar()
 }
 
 sourcesJar {
@@ -92,17 +85,17 @@ sourcesJar {
     from commonSources.archiveFile.map { zipTree(it) }
 }
 
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
 publishing {
     publications {
         mavenForge(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                classifier null
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
+            from components.java
         }
     }
 

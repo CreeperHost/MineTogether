@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.lib.serverorder.DefferedValidation;
 import net.creeperhost.minetogether.lib.serverorder.IOrderValidation;
@@ -70,7 +70,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
 
         updateList();
 
-        this.loginButton = addButton(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, new TranslatableComponent("minetogether.button.login"), p ->
+        this.loginButton = addWidget(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, new TranslatableComponent("minetogether.button.login"), p ->
         {
             if (orderPressed && !isSure)
             {
@@ -219,9 +219,9 @@ public class PersonalDetailsScreen extends OrderServerScreen
         String buttonName = ServerOrderCallbacks.getCountries().get(this.order.country);
         if (buttonName == null || buttonName.isEmpty()) buttonName = "Invalid";
 
-        addButton(buttonList = new Button(x - 205, 165, fieldWidths, 20, new TranslatableComponent(buttonName), p -> renderList = true));
+        addWidget(buttonList = new Button(x - 205, 165, fieldWidths, 20, new TranslatableComponent(buttonName), p -> renderList = true));
 
-        addButton(selectCountry = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.select"), (button) ->
+        addWidget(selectCountry = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.select"), (button) ->
         {
             renderList = false;
             ListEntryCountry listEntryCountry = (ListEntryCountry) list.getCurrSelected();
@@ -561,7 +561,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
                     return true;
                 } catch (Throwable t)
                 {
-                    MineTogether.logger.error("Can\'t open url for " + clickevent, t);
+                    MineTogetherCommon.logger.error("Can\'t open url for " + clickevent, t);
                 }
                 return false;
             }

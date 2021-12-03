@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.handler;
 
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -17,7 +17,7 @@ public class WatchDogHandler
         Thread watchdogThread = getThreadByName("Server Watchdog");
         if (watchdogThread == null)
         {
-            MineTogether.logger.info("Watchdog thread not found");
+            MineTogetherCommon.logger.info("Watchdog thread not found");
             return;
         }
 
@@ -25,7 +25,7 @@ public class WatchDogHandler
         {
             if(watchdogThread != null && watchdogThread.isAlive())
             {
-                MineTogether.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
+                MineTogetherCommon.logger.info("We're about to kill the Server Watchdog. Don't worry, we'll resuscitate it! The next error is normal.");
                 watchDogActive = false;
                 watchdogThread.interrupt();
             }
@@ -41,7 +41,7 @@ public class WatchDogHandler
         if (server.getMaxTickLength() > 0L)
         {
             Thread thread2 = new Thread(new ServerWatchdog(server));
-            thread2.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(MineTogether.logger));
+            thread2.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(MineTogetherCommon.logger));
             thread2.setName("Server Watchdog");
             thread2.setDaemon(true);
             thread2.start();

@@ -14,7 +14,7 @@ import java.util.Properties;
 public class MixinDedicatedServerProperties
 {
     @Inject(at = @At("TAIL"), method = "<init>")
-    public void DedicatedServerProperties(Properties properties, RegistryAccess registryAccess, CallbackInfo ci)
+    public void DedicatedServerProperties(Properties properties, CallbackInfo ci)
     {
         properties.putIfAbsent("discoverability", "unlisted");
         properties.putIfAbsent("displayname", "Fill this in if you have set the server to public!");

@@ -2,10 +2,7 @@ package net.creeperhost.minetogether.module.chat;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.*;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.data.Message;
 import net.creeperhost.minetogether.lib.util.LimitedSizeQueue;
@@ -89,10 +86,10 @@ public class ScrollingChat extends ObjectSelectionList
             if (hovering)
             {
                 RenderSystem.enableBlend();
-                RenderSystem.color4f(1, 1, 1, 0.90F);
+                RenderSystem.setShaderColor(1, 1, 1, 0.90F);
                 minecraft.font.draw(poseStack, component, oldTotal, getRowTop(index), 0xBBFFFFFF);
                 screen.renderComponentHoverEffect(poseStack, style, mouseX, mouseY);
-                RenderSystem.color4f(1, 1, 1, 1);
+                RenderSystem.setShaderColor(1, 1, 1, 1);
 
                 if (style.getHoverEvent() != null && style.getHoverEvent().getAction() == ComponentUtils.RENDER_GIF)
                 {
@@ -220,10 +217,10 @@ public class ScrollingChat extends ObjectSelectionList
 
         if (renderBackground)
         {
-            this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            this.minecraft.getTextureManager().bindForSetup(GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             float f = 32.0F;
-            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             bufferbuilder.vertex((double) this.x0, (double) this.y1, 0.0D).uv((float) this.x0 / 32.0F, (float) (this.y1 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
             bufferbuilder.vertex((double) this.x1, (double) this.y1, 0.0D).uv((float) this.x1 / 32.0F, (float) (this.y1 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
             bufferbuilder.vertex((double) this.x1, (double) this.y0, 0.0D).uv((float) this.x1 / 32.0F, (float) (this.y0 + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
@@ -238,12 +235,12 @@ public class ScrollingChat extends ObjectSelectionList
         this.renderList(poseStack, k, l, mouseX, mouseY, partialTicks);
         if (renderBackground)
         {
-            this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
+            this.minecraft.getTextureManager().bindForSetup(GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.enableDepthTest();
             RenderSystem.depthFunc(519);
             float f1 = 32.0F;
             int i1 = -100;
-            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             bufferbuilder.vertex((double) this.x0, (double) this.y0, -100.0D).uv(0.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
             bufferbuilder.vertex((double) (this.x0 + this.width), (double) this.y0, -100.0D).uv((float) this.width / 32.0F, (float) this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
             bufferbuilder.vertex((double) (this.x0 + this.width), 0.0D, -100.0D).uv((float) this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
@@ -258,11 +255,9 @@ public class ScrollingChat extends ObjectSelectionList
         RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
-        RenderSystem.disableAlphaTest();
-        RenderSystem.shadeModel(7425);
         RenderSystem.disableTexture();
         int j1 = 4;
-        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         bufferbuilder.vertex((double) this.x0, (double) (this.y0 + 4), 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
         bufferbuilder.vertex((double) this.x1, (double) (this.y0 + 4), 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
         bufferbuilder.vertex((double) this.x1, (double) this.y0, 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
@@ -275,8 +270,6 @@ public class ScrollingChat extends ObjectSelectionList
 
         this.renderDecorations(poseStack, mouseX, mouseY);
         RenderSystem.enableTexture();
-        RenderSystem.shadeModel(7424);
-        RenderSystem.enableAlphaTest();
         RenderSystem.disableBlend();
 
         if (gifPlayer != null && gifImage != null)
@@ -334,15 +327,15 @@ public class ScrollingChat extends ObjectSelectionList
                         int i2 = this.x0 + this.width / 2 + k1 / 2;
                         RenderSystem.disableTexture();
                         float f = this.isFocused() ? 1.0F : 0.5F;
-                        RenderSystem.color4f(f, f, f, 1.0F);
-                        bufferbuilder.begin(7, DefaultVertexFormat.POSITION);
+                        RenderSystem.setShaderColor(f, f, f, 1.0F);
+                        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
                         bufferbuilder.vertex((double) l1, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.vertex((double) i2, (double) (i1 + j1 + 2), 0.0D).endVertex();
                         bufferbuilder.vertex((double) i2, (double) (i1 - 2), 0.0D).endVertex();
                         bufferbuilder.vertex((double) l1, (double) (i1 - 2), 0.0D).endVertex();
                         tessellator.end();
-                        RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
-                        bufferbuilder.begin(7, DefaultVertexFormat.POSITION);
+                        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
+                        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
                         bufferbuilder.vertex((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.vertex((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).endVertex();
                         bufferbuilder.vertex((double) (i2 - 1), (double) (i1 - 1), 0.0D).endVertex();

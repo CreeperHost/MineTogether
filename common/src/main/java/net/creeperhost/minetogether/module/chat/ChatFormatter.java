@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.creeperhost.minetogether.Constants;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
@@ -248,7 +248,7 @@ public class ChatFormatter
 
         } catch (Throwable e)
         {
-            MineTogether.logger.error("Failed to format line: Sender " + message.sender + " Message" + message.messageStr);
+            MineTogetherCommon.logger.error("Failed to format line: Sender " + message.sender + " Message" + message.messageStr);
             e.printStackTrace();
         }
         return new TranslatableComponent("Error formatting line, Please report this to the issue tracker");

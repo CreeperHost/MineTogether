@@ -1,5 +1,6 @@
 package net.creeperhost.minetogethergui.widgets;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.minecraft.client.Minecraft;
@@ -42,7 +43,7 @@ public class GuiButtonLarge extends Button
             Minecraft mc = Minecraft.getInstance();
             this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
             int k = this.getYImage(this.isHovered);
-            Minecraft.getInstance().getTextureManager().bind(WIDGETS_LOCATION);
+            RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
             ScreenHelpers.drawContinuousTexturedBox(matrixStack, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.getBlitOffset());
             this.renderBg(matrixStack, mc, mouseX, mouseY);
             int color = 14737632;

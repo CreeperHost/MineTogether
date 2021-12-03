@@ -43,26 +43,27 @@ public class ButtonMap extends Button
     @Override
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
     {
-        RenderSystem.color4f(1F, 1F, 1F, alpha);
-
-        Minecraft minecraft = Minecraft.getInstance();
-
-        ResourceLocation map = new ResourceLocation(Constants.MOD_ID, "textures/map/" + buttonText + ".png");
-        minecraft.getTextureManager().bind(map);
-
-        if (isHovered())
-        {
-            RenderSystem.color4f(0F, 1F, 0F, alpha);
-        }
-        if (isFocused())
-        {
-            RenderSystem.color4f(0F, 0.6F, 0F, alpha);
-        }
-        if (!active)
-        {
-            RenderSystem.color4f(0.4F, 0.4F, 0.4F, alpha);
-        }
-        ScreenHelpers.drawModalRectWithCustomSizedTextureFloat(poseStack.last().pose(), x, y, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
-        RenderSystem.color4f(1F, 1F, 1F, alpha);
+        //TODO
+//        RenderSystem.color4f(1F, 1F, 1F, alpha);
+//
+//        Minecraft minecraft = Minecraft.getInstance();
+//
+//        ResourceLocation map = new ResourceLocation(Constants.MOD_ID, "textures/map/" + buttonText + ".png");
+//        minecraft.getTextureManager().bind(map);
+//
+//        if (isHovered())
+//        {
+//            RenderSystem.color4f(0F, 1F, 0F, alpha);
+//        }
+//        if (isFocused())
+//        {
+//            RenderSystem.color4f(0F, 0.6F, 0F, alpha);
+//        }
+//        if (!active)
+//        {
+//            RenderSystem.color4f(0.4F, 0.4F, 0.4F, alpha);
+//        }
+//        ScreenHelpers.drawModalRectWithCustomSizedTextureFloat(poseStack.last().pose(), x, y, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+//        RenderSystem.color4f(1F, 1F, 1F, alpha);
     }
 }

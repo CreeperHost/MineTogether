@@ -19,6 +19,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList.Entry;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -184,7 +185,7 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
     public void renderTooltips(PoseStack poseStack, int mouseX, int mouseY)
     {
-        if (removeButton.isHovered())
+        if (removeButton.isHoveredOrFocused())
         {
             Component component1 = new TranslatableComponent("");
             switch (mineTogetherSocialinteractionsScreen.getPage())
@@ -202,11 +203,11 @@ public class ProfileEntry extends Entry<ProfileEntry>
             mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, component1, mouseX, mouseY);
         }
 
-        if (addToPartyButton.isHovered())
+        if (addToPartyButton.isHoveredOrFocused())
             mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Add to party"), mouseX, mouseY);
-        if (openDMButton.isHovered())
+        if (openDMButton.isHoveredOrFocused())
             mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Direct messages"), mouseX, mouseY);
-        if (muteButton.isHovered())
+        if (muteButton.isHoveredOrFocused())
             mineTogetherSocialinteractionsScreen.renderTooltip(poseStack, new TranslatableComponent("Block"), mouseX, mouseY);
     }
 
@@ -225,5 +226,11 @@ public class ProfileEntry extends Entry<ProfileEntry>
     public Profile getProfile()
     {
         return profile;
+    }
+
+    @Override
+    public List<? extends NarratableEntry> narratables()
+    {
+        return null;
     }
 }

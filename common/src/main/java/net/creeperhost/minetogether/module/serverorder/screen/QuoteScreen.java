@@ -116,7 +116,7 @@ public class QuoteScreen extends OrderServerScreen
         else
         {
             drawCenteredString(poseStack, this.font, I18n.get("minetogether.quote.refreshing"), this.width / 2, 50, -1);
-            ScreenHelpers.loadingSpin(partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+            ScreenHelpers.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
         }
         super.render(poseStack, mouseX, mouseY, partialTicks);
     }

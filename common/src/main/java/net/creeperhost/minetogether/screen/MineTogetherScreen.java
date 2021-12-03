@@ -3,6 +3,9 @@ package net.creeperhost.minetogether.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -35,11 +38,15 @@ public class MineTogetherScreen extends Screen
 
     public void renderTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
     {
-        if (buttons != null && !buttons.isEmpty())
+        if (children() != null && !children().isEmpty())
         {
-            for (AbstractWidget abstractWidget : buttons)
+            for (GuiEventListener guiEventListener : children())
             {
-                if (abstractWidget.isHovered() && abstractWidget instanceof ButtonMultiple)
+                if(!(guiEventListener instanceof Button)) return;
+
+                Button abstractWidget = (Button) guiEventListener;
+
+                if (abstractWidget.isHoveredOrFocused() && abstractWidget instanceof ButtonMultiple)
                 {
                     ButtonMultiple buttonMultiple = (ButtonMultiple) abstractWidget;
                     if (buttonMultiple.getTooltip() != null && !buttonMultiple.getTooltip().getString().isEmpty())

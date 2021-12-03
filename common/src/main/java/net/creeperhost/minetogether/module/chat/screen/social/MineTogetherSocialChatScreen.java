@@ -48,8 +48,8 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
         chatBox = new EditBox(this.font, (width / 2) - 100, m + 10, 200, 20, new TranslatableComponent(""));
         chatBox.setMaxLength(256);
 
-        children.add(chat);
-        children.add(chatBox);
+        addRenderableWidget(chat);
+        addRenderableWidget(chatBox);
         chat.updateLines(channel);
         super.init();
     }
@@ -109,7 +109,7 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
     {
         int i = marginX() + 3;
         super.renderBackground(poseStack);
-        minecraft.getTextureManager().bind(Constants.SOCIAL_INTERACTIONS_LOCATION);
+        minecraft.getTextureManager().bindForSetup(Constants.SOCIAL_INTERACTIONS_LOCATION);
         blit(poseStack, i, 64, 1, 1, 236, 8);
         int j = backgroundUnits();
 

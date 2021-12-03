@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.verification;
 
-import me.shedaniel.architectury.platform.Platform;
-import net.creeperhost.minetogether.MineTogether;
+import dev.architectury.platform.Platform;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -54,7 +54,7 @@ public class SignatureVerifier
     {
         try
         {
-            MineTogether.logger.info("Scanning mods directory for MineTogether jar");
+            MineTogetherCommon.logger.info("Scanning mods directory for MineTogether jar");
             File[] modsDir = modsFolder.listFiles();//FMLPaths.MODSDIR.get().toFile().listFiles();
             if (modsDir == null) return null;
 
@@ -78,7 +78,7 @@ public class SignatureVerifier
                     {
                         if (s.equalsIgnoreCase("net/creeperhost/minetogether/MineTogether.class"))
                         {
-                            MineTogether.logger.error("Main class found, MineTogether Jar found");
+                            MineTogetherCommon.logger.error("Main class found, MineTogether Jar found");
                             try
                             {
                                 jarFile.close();

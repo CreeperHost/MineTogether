@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
@@ -57,14 +57,14 @@ public class OrderDetailsScreen extends OrderServerScreen
         buttonCancel.active = false;
         buttonPrev.active = false;
         buttonPrev.visible = false;
-        buttonInvoice = addButton(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, new TranslatableComponent("minetogether.button.invoice"), p ->
+        buttonInvoice = addWidget(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, new TranslatableComponent("minetogether.button.invoice"), p ->
         {
             try
             {
                 Util.getPlatform().openUri(new URI(ServerOrderCallbacks.getPaymentLink(invoiceID)));
             } catch (Throwable throwable)
             {
-                MineTogether.logger.error("Couldn't open link", throwable);
+                MineTogetherCommon.logger.error("Couldn't open link", throwable);
             }
         }));
         buttonNext.visible = true;
@@ -197,7 +197,7 @@ public class OrderDetailsScreen extends OrderServerScreen
         else if (placingOrder)
         {
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.orderplacing"), this.width / 2, this.height / 2, 0xFFFFFF);
-            ScreenHelpers.loadingSpin(partialTicks, ticks, width / 2, height / 2 + 20, new ItemStack(Items.BEEF));
+            ScreenHelpers.loadingSpin(matrixStack, partialTicks, ticks, width / 2, height / 2 + 20, new ItemStack(Items.BEEF));
         }
         else if (!placedOrderError.isEmpty())
         {

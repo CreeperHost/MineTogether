@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[35,)"
+loaderVersion = "[38,)"
 issueTrackerURL = "https://github.com/CreeperHost/MineTogether/issues"
 license = "GNU General Public License v3.0"
 
@@ -14,14 +14,14 @@ description = ''''''
 [[dependencies.minetogether]]
 modId = "forge"
 mandatory = true
-versionRange = "[35,)"
+versionRange = "[38,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.minetogether]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.16, 1.17]"
+versionRange = "[1.18, 1.19]"
 ordering = "NONE"
 side = "BOTH"
 

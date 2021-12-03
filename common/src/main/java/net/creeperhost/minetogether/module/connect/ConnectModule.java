@@ -1,15 +1,17 @@
 package net.creeperhost.minetogether.module.connect;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import me.shedaniel.architectury.event.events.GuiEvent;
-import me.shedaniel.architectury.event.events.LifecycleEvent;
-import me.shedaniel.architectury.hooks.ScreenHooks;
+import dev.architectury.event.events.client.ClientGuiEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.hooks.client.screen.ScreenAccess;
+import dev.architectury.hooks.client.screen.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -34,7 +36,7 @@ public class ConnectModule
         CompletableFuture.runAsync(ConnectHandler::connectToProc, connectExecutor);
         isInitted = true;
         Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("minetogether-connect-%d").build());
-        GuiEvent.INIT_POST.register(ConnectModule::onScreenOpen);
+        ClientGuiEvent.INIT_POST.register(ConnectModule::onScreenOpen);
         LifecycleEvent.SERVER_STOPPING.register(ConnectModule::onServerStopping);
     }
 
@@ -46,17 +48,17 @@ public class ConnectModule
         }
     }
 
-    private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
+    private static void onScreenOpen(Screen screen, ScreenAccess screenAccess)
     {
         if (screen instanceof PauseScreen)
         {
             IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
             if (integratedServer != null)
             {
-                AbstractWidget feedBack = ScreenHelpers.removeButton("menu.sendFeedback", abstractWidgets);
-                AbstractWidget bugs = ScreenHelpers.removeButton("menu.reportBugs", abstractWidgets);
-                AbstractWidget openToLan = ScreenHelpers.findButton("menu.shareToLan", abstractWidgets);
-                AbstractWidget options = ScreenHelpers.findButton("menu.options", abstractWidgets);
+                AbstractWidget feedBack = ScreenHelpers.removeButton("menu.sendFeedback", screen);
+                AbstractWidget bugs = ScreenHelpers.removeButton("menu.reportBugs", screen);
+                AbstractWidget openToLan = ScreenHelpers.findButton("menu.shareToLan", screen);
+                AbstractWidget options = ScreenHelpers.findButton("menu.options", screen);
 
                 if (openToLan != null && feedBack != null)
                 {
@@ -66,7 +68,7 @@ public class ConnectModule
                 Button guiButton = new Button(screen.width / 2 - 100, screen.height / 4 + 72 + -16, 98, 20, new TranslatableComponent("minetogether.connect.open"), (button) -> Minecraft.getInstance().setScreen(new GuiShareToFriends(screen)));
 
                 guiButton.active = !integratedServer.isPublished();
-                ScreenHooks.addButton(screen, guiButton);
+                ScreenHooks.addRenderableWidget(screen, guiButton);
 
                 if (bugs == null || feedBack == null) return;
 
@@ -84,7 +86,7 @@ public class ConnectModule
                         Minecraft.getInstance().setScreen(screen);
                     }, s, true));
                 });
-                ScreenHooks.addButton(screen, ourFeedback);
+                ScreenHooks.addRenderableWidget(screen, ourFeedback);
             }
         }
     }

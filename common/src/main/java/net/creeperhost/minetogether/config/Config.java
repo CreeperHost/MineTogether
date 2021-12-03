@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import org.apache.commons.io.IOUtils;
@@ -188,7 +188,7 @@ public class Config
     {
         firstConnect = (first) ? "" : MineTogetherChat.INSTANCE.ourNick;
         //TODO: Turn transient and save to a local config instead
-        Config.saveConfigToFile(MineTogether.configFile.toFile());
+        Config.saveConfigToFile(MineTogetherCommon.configFile.toFile());
     }
 
     public boolean isFriendOnlineToastsEnabled()

@@ -48,12 +48,12 @@ public class FriendRequestScreen extends Screen
     public void init()
     {
         super.init();
-        buttons.clear();
+        clearWidgets();
         mc.keyboardHandler.setSendRepeatsToGui(true);
 
-        this.addButton(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, new TranslatableComponent("Cancel"), (button) -> Minecraft.getInstance().setScreen(parent)));
+        this.addWidget(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, new TranslatableComponent("Cancel"), (button) -> Minecraft.getInstance().setScreen(parent)));
 
-        this.addButton(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? new TranslatableComponent("Accept") : new TranslatableComponent("Send request"), (buttons) ->
+        this.addWidget(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? new TranslatableComponent("Accept") : new TranslatableComponent("Send request"), (buttons) ->
         {
             if(update)
             {
@@ -75,7 +75,7 @@ public class FriendRequestScreen extends Screen
             Minecraft.getInstance().setScreen(parent);
         }));
 
-        addButton(nameEntry = new EditBox(mc.font, width / 2 - 100, height / 2 - 10, 200, 20, new TranslatableComponent("")));
+        addWidget(nameEntry = new EditBox(mc.font, width / 2 - 100, height / 2 - 10, 200, 20, new TranslatableComponent("")));
 
         if (first)
         {

@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.handler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogether.lib.serverorder.Pair;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -53,7 +53,7 @@ public class PregenHandler
 
             if (pregenTask.chunksToGen.isEmpty())
             {
-                MineTogether.logger.info("No more chunks to generate for dimension " + pregenTask.dimension + " - removing task!");
+                MineTogetherCommon.logger.info("No more chunks to generate for dimension " + pregenTask.dimension + " - removing task!");
                 pregenTasks.remove(pregenTask.dimension);
                 shouldKickPlayer = false;
                 activeTask = null;
@@ -95,18 +95,18 @@ public class PregenHandler
                         pregenTask.totalChunks + " " + getTimeRemaining(pregenTask) + " remaining " + ":";
 
 
-                MineTogether.logger.info(pregenTask.lastPregenString);
+                MineTogetherCommon.logger.info(pregenTask.lastPregenString);
                 long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
                 double percentage = ((double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / Runtime.getRuntime().totalMemory()) * 100;
 
-                MineTogether.logger.info("Memory usage " + formatMemory(usedMemory) + "/" + formatMemory(Runtime.getRuntime().totalMemory()) + " " + (int) percentage + "%");
-                MineTogether.logger.info(pregenTask.lastPregenString);
+                MineTogetherCommon.logger.info("Memory usage " + formatMemory(usedMemory) + "/" + formatMemory(Runtime.getRuntime().totalMemory()) + " " + (int) percentage + "%");
+                MineTogetherCommon.logger.info(pregenTask.lastPregenString);
 
                 if (pregenTask.curChunksPerTick == 0)
                 {
                     if (serverLevel.getChunkSource().getLoadedChunksCount() < pregenTask.chunkLoadCount)
                     {
-                        MineTogether.logger.info("Chunks appear to be unloading now - going to tentatively restart the pregen.");
+                        MineTogetherCommon.logger.info("Chunks appear to be unloading now - going to tentatively restart the pregen.");
                         pregenTask.curChunksPerTick = 1;
                     }
                 }
@@ -118,16 +118,16 @@ public class PregenHandler
                     pregenTask.curChunksPerTick--; // slow it down nelly
                     if(percentage >= 80)
                     {
-                        MineTogether.logger.info("Memory usage too high, Forcing Garbage collection.");
+                        MineTogetherCommon.logger.info("Memory usage too high, Forcing Garbage collection.");
                         long used = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
                         System.gc();
                         long newUsed = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
                         long freed = used - newUsed;
-                        MineTogether.logger.info("New used memory " + formatMemory(newUsed) + ", Freed memory " + formatMemory(freed));
+                        MineTogetherCommon.logger.info("New used memory " + formatMemory(newUsed) + ", Freed memory " + formatMemory(freed));
                     }
                     if (pregenTask.curChunksPerTick == 0)
                     {
-                        MineTogether.logger.info("Frozen chunk generating as it appears that chunks aren't being unloaded fast enough. Will check the status in another 10 seconds.");
+                        MineTogetherCommon.logger.info("Frozen chunk generating as it appears that chunks aren't being unloaded fast enough. Will check the status in another 10 seconds.");
                     } // not gong to log slowing down or speeding up
                 } else if (pregenTask.curChunksPerTick < pregenTask.chunksPerTick)
                 {
@@ -160,7 +160,7 @@ public class PregenHandler
             String remainingTime = PregenHandler.getActiveTask() != null ? PregenHandler.getTimeRemaining(PregenHandler.getActiveTask()) : "";
 
             serverPlayer.connection.disconnect(new TranslatableComponent("MineTogether Server is still pre-generating!\n" + remainingTime + " Remaining" + ":" + PregenHandler.getActiveTask().totalChunks + ":" + PregenHandler.getActiveTask().chunksDone));
-            MineTogether.logger.error("Kicked player " + serverPlayer.getName() + " as still pre-generating");
+            MineTogetherCommon.logger.error("Kicked player " + serverPlayer.getName() + " as still pre-generating");
         }
     }
 
@@ -226,7 +226,7 @@ public class PregenHandler
 
     public static void deserializePreload()
     {
-        MineTogether.logger.info("Attempting to load pregenData.json");
+        MineTogetherCommon.logger.info("Attempting to load pregenData.json");
         Gson gson = new GsonBuilder().create();
         HashMap output = null;
         Type listOfPregenTask = new TypeToken<HashMap<Integer, PregenTask>>()

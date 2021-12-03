@@ -74,44 +74,44 @@ public class FriendsListScreen extends MineTogetherScreen
         searchEntry.setSuggestion(I18n.get("minetogether.search"));
 
         addButtons();
-        children.add(list);
-        children.add(searchEntry);
-        children.add(chatBox);
-        children.add(chat);
+        addRenderableWidget(list);
+        addRenderableWidget(searchEntry);
+        addRenderableWidget(chatBox);
+        addRenderableWidget(chat);
         refreshFriendsList();
     }
 
     public void addButtons()
     {
-        addButton(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
+        addWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
 
-        addButton(friendCodeButton = new ButtonString(width - 105, 5, 120, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
+        addWidget(friendCodeButton = new ButtonString(width - 105, 5, 120, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
             minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
             MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
         }));
 
-        addButton(removeFriend = new ButtonMultiple(width - 20, 32, 5, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
+        addWidget(removeFriend = new ButtonMultiple(width - 20, 32, 5, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
         {
             removeFriend(targetProfile);
         }));
 
-        addButton(blockButton = new ButtonMultiple(width - 20, 52, 6, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
+        addWidget(blockButton = new ButtonMultiple(width - 20, 52, 6, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
         {
             ChatModule.muteUser(targetProfile.getLongHash());
         }));
 
-        addButton(partyButton = new ButtonMultiple(width - 20, 72, 7, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.partytime"), (button) ->
+        addWidget(partyButton = new ButtonMultiple(width - 20, 72, 7, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.partytime"), (button) ->
         {
             ChatHandler.sendPartyInvite(targetProfile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
         }));
 
-        addButton(editButton = new ButtonMultiple(width - 20, 92, 8, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.editbutton"), (button) ->
+        addWidget(editButton = new ButtonMultiple(width - 20, 92, 8, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.editbutton"), (button) ->
         {
             minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), targetProfile, ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), targetProfile.getFriendName(), false, true));
         }));
 
-        addButton(mutedList = new Button(5, 5, 100, 20, new TranslatableComponent("Muted List"), p ->
+        addWidget(mutedList = new Button(5, 5, 100, 20, new TranslatableComponent("Muted List"), p ->
         {
             this.minecraft.setScreen(new MutedListScreen(this));
         }));
@@ -129,7 +129,7 @@ public class FriendsListScreen extends MineTogetherScreen
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 12, 0xFFFFFF);
         if (list.children().isEmpty())
             drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
-        if (friendCodeButton != null && friendCodeButton.isHovered())
+        if (friendCodeButton != null && friendCodeButton.isHoveredOrFocused())
             renderTooltip(poseStack, new TranslatableComponent("minetogether.friendslist.copytoclipboard"), i, j);
     }
 

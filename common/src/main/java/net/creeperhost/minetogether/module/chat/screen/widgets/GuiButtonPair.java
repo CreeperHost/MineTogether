@@ -121,9 +121,9 @@ public class GuiButtonPair extends Button
                 button.y = 0;
             }
 
-            RenderSystem.scaled(scale, scale, scale);
+            matrixStack.scale(scale, scale, scale);
 
-            RenderSystem.pushMatrix();
+            matrixStack.pushPose();
 
             if (stack)
             {
@@ -138,9 +138,10 @@ public class GuiButtonPair extends Button
 
             tempTranslateY -= scale;
 
-            RenderSystem.translated(tempTranslateX, tempTranslateY, 0);
+            matrixStack.translate(tempTranslateX, tempTranslateY, 0);
 
-            RenderSystem.rotatef(90, 0, 0, 1);
+            //TODO
+//            matrixStack.rotatef(90, 0, 0, 1);
         }
 
         for (GuiButtonChat button : buttons)
@@ -150,10 +151,11 @@ public class GuiButtonPair extends Button
 
         if (vertical)
         {
-            RenderSystem.rotatef(90, 0, 0, -1);
-            RenderSystem.popMatrix();
+//            RenderSystem.rotatef(90, 0, 0, -1);
+            matrixStack.popPose();
+//            RenderSystem.popMatrix();
 
-            RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F / scale);
+            matrixStack.scale(1.0F / scale, 1.0F / scale, 1.0F / scale);
 
             for (int buttNum = 0; buttNum < buttonCount; buttNum++)
             {

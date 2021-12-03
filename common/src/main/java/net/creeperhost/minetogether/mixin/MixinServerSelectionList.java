@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.mixin;
 
-import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.module.connect.LanServerInfoConnect;
 import net.creeperhost.minetogether.module.connect.OurServerListEntryLanDetected;
@@ -14,8 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.concurrent.ThreadPoolExecutor;
 
 @Mixin(ServerSelectionList.class)
 public class MixinServerSelectionList

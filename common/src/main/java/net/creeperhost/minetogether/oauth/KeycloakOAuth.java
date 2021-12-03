@@ -9,7 +9,7 @@ import com.github.scribejava.core.oauth.AccessTokenRequestParams;
 import com.github.scribejava.core.oauth.AuthorizationUrlBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.gson.*;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import org.apache.commons.io.IOUtils;
@@ -202,7 +202,7 @@ public class KeycloakOAuth
             while (errorIterator.hasNext())
             {
                 String errorLine = (String) errorIterator.next();
-                MineTogether.logger.error(errorLine);
+                MineTogetherCommon.logger.error(errorLine);
             }
 
             browserProcess.getInputStream().close();
@@ -211,7 +211,7 @@ public class KeycloakOAuth
             return true;
         } catch (IOException | PrivilegedActionException var5)
         {
-            MineTogether.logger.error("Couldn't open url '{}'", url, var5);
+            MineTogetherCommon.logger.error("Couldn't open url '{}'", url, var5);
             return false;
         }
     }

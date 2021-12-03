@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.module.connect.ConnectHandler;
 import net.creeperhost.minetogetherconnect.LibraryHacks.WebUtils;
@@ -166,7 +166,7 @@ public class ConnectMain {
                 callback.accept(false, registerResponse == null ? "unknown" : registerResponse.message);
             }
 
-            MineTogether.logger.info("MineTogether Connect: Register to server succeeded");
+            MineTogetherCommon.logger.info("MineTogether Connect: Register to server succeeded");
 
             int readBytes = 0;
 
@@ -181,7 +181,7 @@ public class ConnectMain {
                 inputStream = socket.getInputStream();
                 inputReader = new InputStreamReader(inputStream);
 
-                MineTogether.logger.info("MineTogether Connect: Connected to control socket");
+                MineTogetherCommon.logger.info("MineTogether Connect: Connected to control socket");
 
                 outputStream = socket.getOutputStream();
                 outputStream.write((registerResponse.secret + "\n").getBytes(StandardCharsets.UTF_8));
@@ -207,7 +207,7 @@ public class ConnectMain {
                     if (line.equals("PING")) {
                         outputStream.write("PONG\n".getBytes(StandardCharsets.UTF_8));
                     } else if (line.equals("OK")) {
-                        MineTogether.logger.info("MineTogether Connect: Authed to control socket successfully");
+                        MineTogetherCommon.logger.info("MineTogether Connect: Authed to control socket successfully");
                         success = true;
                         break;
                     } else {
@@ -228,7 +228,7 @@ public class ConnectMain {
             }
 
             callback.accept(true, ""); // READY
-            MineTogether.logger.info("MineTogether Connect: Now handling control loop, ready for connections");
+            MineTogetherCommon.logger.info("MineTogether Connect: Now handling control loop, ready for connections");
 
 
             try {

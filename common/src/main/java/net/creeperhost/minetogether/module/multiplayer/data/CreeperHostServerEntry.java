@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.module.multiplayer.data;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.module.serverorder.screen.OrderServerScreen;
@@ -37,7 +37,7 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
         removeButton = new ButtonString(0, 0, 10, 10, new TranslatableComponent(ChatFormatting.RED + new String(Character.toChars(10006))), button ->
         {
             Config.getInstance().setMpMenuEnabled(false);
-            Config.saveConfigToFile(MineTogether.configFile.toFile());
+            Config.saveConfigToFile(MineTogetherCommon.configFile.toFile());
             this.mc.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
         });
     }
@@ -54,9 +54,9 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             if (transparency >= 0.5F) transparency -= 0.04;
         }
 
-        this.mc.getTextureManager().bind(serverIcon);
+        this.mc.getTextureManager().bindForSetup(serverIcon);
         RenderSystem.enableBlend();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, transparency);
         Screen.blit(matrixStack, x, y, 0.0F, 0.0F, 32, 32, 32, 32);
         int transparentString = (int) (transparency * 254) << 24;
         this.mc.font.draw(matrixStack, I18n.get("minetogether.multiplayerscreen.partner"), x + 35, y, 16777215 + transparentString);
@@ -71,14 +71,15 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             removeButton.x = listWidth + x - Minecraft.getInstance().font.width(new String(Character.toChars(10006))) - 4;
             removeButton.y = y;
 
-            if (removeButton.isHovered())
-            {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                final int tooltipY = mouseY + ((mc.screen.width / 2 >= mouseY) ? 11 : -11);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
-                mc.getTextureManager().bind(BUTTON_TEXTURES);
-                Screen.blit(matrixStack, mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
-            }
+            //TODO isHovered is protected
+//            if (removeButton.isHovered())
+//            {
+//                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+//                final int tooltipY = mouseY + ((mc.screen.width / 2 >= mouseY) ? 11 : -11);
+//                RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
+//                mc.getTextureManager().bind(BUTTON_TEXTURES);
+//                Screen.blit(matrixStack, mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
+//            }
         }
     }
 

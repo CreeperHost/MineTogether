@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.oauth;
 
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
@@ -30,7 +30,7 @@ public class ServerAuthTest
         Minecraft mc = Minecraft.getInstance();
         final String address = "mc.auth.minetogether.io";
         final int port = 25565;
-        MineTogether.logger.info("Connecting to {}, {}", address, port);
+        MineTogetherCommon.logger.info("Connecting to {}, {}", address, port);
         (new Thread("Server Connector #" + CONNECTION_ID.incrementAndGet())
         {
 
@@ -46,7 +46,8 @@ public class ServerAuthTest
                     }
 
                     inetaddress = InetAddress.getByName(address);
-                    networkManager = Connection.connectToServer(inetaddress, port, mc.options.useNativeTransport());
+                    //TODO
+//                    networkManager = Connection.connectToServer(inetaddress, port, mc.options.useNativeTransport());
                     networkManager.setListener(new NetHandlerLoginClientOurs(networkManager, mc));
                     networkManager.send(new ClientIntentionPacket(address, port, ConnectionProtocol.LOGIN));
                     networkManager.send(new ServerboundHelloPacket(mc.getUser().getGameProfile()));
@@ -57,7 +58,7 @@ public class ServerAuthTest
                         return;
                     }
 
-                    MineTogether.logger.error("Couldn't connect to server", unknownhostexception);
+                    MineTogetherCommon.logger.error("Couldn't connect to server", unknownhostexception);
                     fireCallback(false, "Unknown Host");
                 } catch (Exception exception)
                 {
@@ -66,7 +67,7 @@ public class ServerAuthTest
                         return;
                     }
 
-                    MineTogether.logger.error("Couldn't connect to server", exception);
+                    MineTogetherCommon.logger.error("Couldn't connect to server", exception);
                     fireCallback(false, exception.getMessage());
                 }
             }

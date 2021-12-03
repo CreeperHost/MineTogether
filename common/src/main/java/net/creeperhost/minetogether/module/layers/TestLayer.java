@@ -54,6 +54,6 @@ public class TestLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
 
     public static void renderItem(ItemStack stack, PoseStack ms, MultiBufferSource buffers, int light)
     {
-        Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.NONE, light, OverlayTexture.NO_OVERLAY, ms, buffers);
+//        Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemTransforms.TransformType.NONE, light, OverlayTexture.NO_OVERLAY, ms, buffers);
     }
 }

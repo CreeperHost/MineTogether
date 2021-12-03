@@ -56,24 +56,24 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         int k = socialInteractionsPlayerList.getRowRight();
         int m = 64 + 16 * this.backgroundUnits();
 
-        allButton = addButton(new Button(j, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_all"), (button) ->
+        allButton = addWidget(new Button(j, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_all"), (button) ->
         {
             showPage(Page.ALL);
         }));
-        friendsButton = addButton(new Button(j + allButton.getWidth(), 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_friends"), (button) ->
+        friendsButton = addWidget(new Button(j + allButton.getWidth(), 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_friends"), (button) ->
         {
             showPage(Page.FRIENDS);
         }));
-        blockedButton = addButton(new Button(k - i, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_blocked"), (button) ->
+        blockedButton = addWidget(new Button(k - i, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_blocked"), (button) ->
         {
             showPage(Page.BLOCKED);
         }));
-        partyButton = addButton(new Button(j + allButton.getWidth() * 2, 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_party"), (button) ->
+        partyButton = addWidget(new Button(j + allButton.getWidth() * 2, 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_party"), (button) ->
         {
             showPage(Page.PARTY);
         }));
 
-        createParty = addButton(new Button((width / 2) - 80, m, 160, 20, new TranslatableComponent("Create Party?"), button ->
+        createParty = addWidget(new Button((width / 2) - 80, m, 160, 20, new TranslatableComponent("Create Party?"), button ->
         {
             String channelName = MineTogetherChat.profile.get().getMediumHash();
 
@@ -93,7 +93,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
             showPage(page);
         }));
 
-        this.chatButton = addButton(new ImageButton((width / 2) + 80, m, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
+        this.chatButton = addWidget(new ImageButton((width / 2) + 80, m, 20, 20, 0, 38, 20, Constants.SOCIAL_INTERACTIONS_LOCATION, 256, 256, (button) ->
         {
             Minecraft.getInstance().setScreen(new MineTogetherSocialChatScreen(this, ChatHandler.currentParty));
         }));
@@ -105,8 +105,8 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         searchBox.setVisible(true);
         searchBox.setTextColor(16777215);
         searchBox.setValue(string);
-        children.add(searchBox);
-        children.add(socialInteractionsPlayerList);
+        addRenderableWidget(searchBox);
+        addRenderableWidget(socialInteractionsPlayerList);
         initialized = true;
 
         socialInteractionsPlayerList.updateList(searchBox.getValue(), page);
@@ -210,7 +210,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
     {
         int i = marginX() + 3;
         super.renderBackground(poseStack);
-        minecraft.getTextureManager().bind(Constants.SOCIAL_INTERACTIONS_LOCATION);
+        minecraft.getTextureManager().bindForSetup(Constants.SOCIAL_INTERACTIONS_LOCATION);
         blit(poseStack, i, 64, 1, 1, 236, 8);
         int j = backgroundUnits();
 

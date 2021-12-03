@@ -1,16 +1,12 @@
 package net.creeperhost.minetogether.module.connect;
 
 import com.google.gson.Gson;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogetherconnect.ConnectMain;
-import net.creeperhost.minetogetherconnect.ConnectUtil;
 
-import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -27,7 +23,7 @@ public class ConnectHandler
     {
         ConnectHelper.isEnabled = ConnectMain.doAuth();
         if (!ConnectHelper.isEnabled) {
-            MineTogether.logger.info("MineTogether Connect not enabled: " + ConnectMain.authError);
+            MineTogetherCommon.logger.info("MineTogether Connect not enabled: " + ConnectMain.authError);
         }
     }
 

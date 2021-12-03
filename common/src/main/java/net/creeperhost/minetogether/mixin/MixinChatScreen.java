@@ -9,7 +9,6 @@ import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.lib.chat.irc.IrcHandler;
-import net.creeperhost.minetogether.lib.util.MathHelper;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ClientChatTarget;
 import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
@@ -30,6 +29,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -90,11 +90,11 @@ public abstract class MixinChatScreen extends Screen
             ChatModule.clientChatTarget = ChatModule.lastSelected;
         }
 
-        int x = MathHelper.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;
+        int x = Mth.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 16 + 2;
 
         if (ChatHandler.hasParty)
         {
-            addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
+            addWidget(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
             {
                 if (switchButton.activeButton == 2)
                 {
@@ -107,7 +107,7 @@ public abstract class MixinChatScreen extends Screen
         }
         else
         {
-            addButton(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
+            addWidget(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
             {
                 ChatModule.clientChatTarget = switchButton.activeButton == 1 ? ClientChatTarget.MINETOGETHER : ClientChatTarget.DEFAULT;
                 if (switchButton.activeButton == 1) IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
@@ -121,7 +121,7 @@ public abstract class MixinChatScreen extends Screen
         strings.add(I18n.get("minetogether.chat.button.addfriend"));
         strings.add(I18n.get("minetogether.chat.button.mention"));
 
-        addButton(dropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu(strings), true, p ->
+        addWidget(dropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu(strings), true, p ->
         {
             if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mute")))
             {
@@ -146,7 +146,7 @@ public abstract class MixinChatScreen extends Screen
         {
             ChatCallbacks.updateOnlineCount();
 
-            addButton(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
+            addWidget(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
             {
                 IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                 Config.getInstance().setFirstConnect(false);
@@ -154,13 +154,13 @@ public abstract class MixinChatScreen extends Screen
                 disableButton.visible = false;
                 minecraft.setScreen(null);
             }));
-            addButton(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
+            addWidget(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
             {
                 Config.getInstance().setChatEnabled(false);
                 disableButton.visible = false;
                 newUserButton.visible = false;
                 IrcHandler.stop(true);
-                buttons.clear();
+                clearWidgets();
             }));
         }
     }

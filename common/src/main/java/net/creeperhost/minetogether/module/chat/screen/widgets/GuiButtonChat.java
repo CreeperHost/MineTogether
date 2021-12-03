@@ -35,7 +35,7 @@ public class GuiButtonChat extends Button
         if (this.visible)
         {
             Font fontrenderer = Minecraft.getInstance().font;
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
             int j = 0xFFFFFF;

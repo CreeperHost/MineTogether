@@ -1,9 +1,9 @@
 package net.creeperhost.minetogether;
 
-import me.shedaniel.architectury.event.events.CommandRegistrationEvent;
-import me.shedaniel.architectury.event.events.LifecycleEvent;
-import me.shedaniel.architectury.event.events.PlayerEvent;
-import me.shedaniel.architectury.event.events.TickEvent;
+import dev.architectury.event.events.common.CommandRegistrationEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.event.events.common.TickEvent;
 import net.creeperhost.minetogether.commands.MTCommands;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.handler.PregenHandler;
@@ -37,7 +37,7 @@ public class MineTogetherServer
         packID = modPackVerifier.verify();
         secret = signatureVerifier.verify();
         CommandRegistrationEvent.EVENT.register(MTCommands::registerCommand);
-        TickEvent.ServerWorld.SERVER_POST.register(PregenHandler::onWorldTick);
+        TickEvent.SERVER_POST.register(PregenHandler::onWorldTick);
         PlayerEvent.PLAYER_JOIN.register(PregenHandler::onPlayerJoin);
         LifecycleEvent.SERVER_STARTED.register(MineTogetherServer::serverStarted);
         LifecycleEvent.SERVER_STOPPING.register(MineTogetherServer::serverStopped);
@@ -63,29 +63,29 @@ public class MineTogetherServer
 
     public static void buildMineTogetherServerThread()
     {
-        String projectID = MineTogether.base64;
+        String projectID = MineTogetherCommon.base64;
         MineTogetherServerThread.Discoverability discover;
         try
         {
-            MineTogether.logger.info("Current discoverability: " + discoverability);
+            MineTogetherCommon.logger.info("Current discoverability: " + discoverability);
 
             discover = MineTogetherServerThread.Discoverability.valueOf(discoverability.toUpperCase());
         } catch (Exception e)
         {
-            MineTogether.logger.error("Failed read discoverability from server.properties");
+            MineTogetherCommon.logger.error("Failed read discoverability from server.properties");
             return;
         }
 
         if (projectID.isEmpty())
         {
-            MineTogether.logger.info("Unable to find version.json, Assuming Curse pack");
+            MineTogetherCommon.logger.info("Unable to find version.json, Assuming Curse pack");
             projectID = Config.getInstance().curseProjectID;
         }
 
         Config defaultConfig = new Config();
         if (projectID.isEmpty() || projectID.equals(defaultConfig.getCurseProjectID()))
         {
-            MineTogether.logger.error("Unable to find project ID, Not adding to server list");
+            MineTogetherCommon.logger.error("Unable to find project ID, Not adding to server list");
             return;
         }
 

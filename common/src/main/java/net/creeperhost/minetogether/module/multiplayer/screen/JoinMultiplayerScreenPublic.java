@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.module.multiplayer.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.serverlists.Server;
@@ -16,9 +16,7 @@ import net.creeperhost.minetogethergui.widgets.DropdownButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
@@ -76,7 +74,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
                 serverList.remove(serverData);
             }
         }
-        List<Server> list = ServerListCallbacks.getServerList(serverListType, MineTogetherClient.getUUID(), MineTogether.base64, Config.getInstance().getCurseProjectID());
+        List<Server> list = ServerListCallbacks.getServerList(serverListType, MineTogetherClient.getUUID(), MineTogetherCommon.base64, Config.getInstance().getCurseProjectID());
         if(list != null && !list.isEmpty())
         {
             for (Server server : list)
@@ -102,12 +100,12 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
     {
         String buttonName = "minetogether.multiplayer.title.prefix." + serverListType.name().toLowerCase();
 
-        addButton(new Button(width - 85, 5, 80, 20, new TranslatableComponent(buttonName), p ->
+        addWidget(new Button(width - 85, 5, 80, 20, new TranslatableComponent(buttonName), p ->
         {
             minecraft.setScreen(new ServerTypeScreen(this));
         }));
 
-        addButton(dropdownButton = new DropdownButton<>(width - 165, 5, 80, 20, new TranslatableComponent("minetogether.multiplayer.sort"), sortOrder, false, p ->
+        addWidget(dropdownButton = new DropdownButton<>(width - 165, 5, 80, 20, new TranslatableComponent("minetogether.multiplayer.sort"), sortOrder, false, p ->
         {
             if (sortOrder != dropdownButton.getSelected())
             {
@@ -125,17 +123,19 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
         {
         }
 
-        editButton = ScreenHelpers.findButton("selectServer.edit", buttons);
-        deleteButton = ScreenHelpers.findButton("selectServer.delete", buttons);
-        cancelButton = ScreenHelpers.removeButton("gui.cancel", buttons);
-        if (cancelButton != null)
-        {
-            addButton(new Button(cancelButton.x, cancelButton.y, cancelButton.getWidth(), cancelButton.getHeight(), cancelButton.getMessage(), button -> minecraft.setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
-        }
-
-        ScreenHelpers.findButton("selectServer.add", buttons).active = false;
-
-        addButton(new Button(width / 2 + 80, height - 52, 75, 20, new TranslatableComponent("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(new TitleScreen(), serverListType, sortOrder))));
+        //TODO
+//        editButton = ScreenHelpers.findButton("selectServer.edit", buttons);
+//        deleteButton = ScreenHelpers.findButton("selectServer.delete", buttons);
+//        cancelButton = ScreenHelpers.removeButton("gui.cancel", buttons);
+//        if (cancelButton != null)
+//        {
+//            addWidget(new Button(cancelButton.x, cancelButton.y, cancelButton.getWidth(), cancelButton.getHeight(), cancelButton.getMessage(), button -> minecraft.setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
+//        }
+//
+//        ScreenHelpers.findButton("selectServer.add", buttons).active = false;
+//
+//        addWidget(new Button(width / 2 + 80, height - 52, 75, 20, new TranslatableComponent("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(new TitleScreen(), serverListType, sortOrder))));
+//
     }
 
     @Override
@@ -147,7 +147,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
 
         if (loadingSevers)
         {
-            ScreenHelpers.loadingSpin(partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+            ScreenHelpers.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
         }
     }
 
@@ -179,7 +179,8 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
 
     public void join(ServerData serverData)
     {
-        this.minecraft.setScreen(new ConnectScreen(this, this.minecraft, serverData));
+        //TODO
+//        this.minecraft.setScreen(new ConnectScreen(this, this.minecraft, serverData));
     }
 
     public void sort()

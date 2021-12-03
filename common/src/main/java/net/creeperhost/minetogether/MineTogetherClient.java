@@ -3,9 +3,10 @@ package net.creeperhost.minetogether;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.shedaniel.architectury.event.events.GuiEvent;
-import me.shedaniel.architectury.event.events.client.ClientRawInputEvent;
-import me.shedaniel.architectury.registry.KeyBindings;
+import dev.architectury.event.EventResult;
+import dev.architectury.event.events.client.ClientGuiEvent;
+import dev.architectury.event.events.client.ClientRawInputEvent;
+import dev.architectury.hooks.client.screen.ScreenAccess;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
@@ -21,17 +22,13 @@ import net.creeperhost.minetogether.threads.FriendUpdateThread;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -44,20 +41,20 @@ public class MineTogetherClient
     public static void init()
     {
         toastHandler = new ToastHandler();
-        GuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
-        GuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
-        GuiEvent.RENDER_HUD.register(MineTogetherClient::onHudRender);
+        ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
+        ClientGuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
+        ClientGuiEvent.RENDER_HUD.register(MineTogetherClient::onHudRender);
         ClientRawInputEvent.KEY_PRESSED.register(MineTogetherClient::onRawInput);
         ConnectModule.init();
         MineTogetherClient.getUUID();
         ChatModule.init();
         registerKeybindings();
 
-        if (!isOnlineUUID) MineTogether.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
+        if (!isOnlineUUID) MineTogetherCommon.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
         {
-            MineTogether.logger.info("Shutdown called, Stopping our threads");
+            MineTogetherCommon.logger.info("Shutdown called, Stopping our threads");
             IrcHandler.sendString("PART " + ChatHandler.CHANNEL, false);
             IrcHandler.sendString("QUIT ", false);
             //Kill the IRC Thread
@@ -67,28 +64,29 @@ public class MineTogetherClient
         }));
     }
 
-    private static InteractionResult onRawInput(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers)
+    private static EventResult onRawInput(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers)
     {
         if (minecraft.screen == null)
         {
             if (!MineTogetherClient.toastHandler.isActiveToast() && mtSocialKey.isDown())
             {
                 minecraft.setScreen(new MineTogetherSocialInteractionsScreen());
-                return InteractionResult.SUCCESS;
+                return EventResult.pass();
             }
         }
 
         if (MineTogetherClient.toastHandler.toastMethod != null && mtSocialKey.isDown())
         {
             MineTogetherClient.toastHandler.toastMethod.run();
-            return InteractionResult.SUCCESS;
+            return EventResult.pass();
         }
-        return InteractionResult.PASS;
+        return EventResult.pass();
     }
 
     public static void registerKeybindings()
     {
-        KeyBindings.registerKeyBinding(mtSocialKey);
+        //TODO register keybinding
+//        KeyBindings.registerKeyBinding(mtSocialKey);
     }
 
     public static void removeVanillaSocialKeybinding()
@@ -123,7 +121,7 @@ public class MineTogetherClient
             e.printStackTrace();
             return null;
         }
-        MineTogether.logger.info("new ServerID requested");
+        MineTogetherCommon.logger.info("new ServerID requested");
         return serverId;
     }
 
@@ -139,7 +137,7 @@ public class MineTogetherClient
 
     static boolean firstOpen = true;
 
-    private static void onScreenOpen(Screen screen, List<AbstractWidget> abstractWidgets, List<GuiEventListener> guiEventListeners)
+    private static void onScreenOpen(Screen screen, ScreenAccess screenAccess)
     {
         if (firstOpen && screen instanceof TitleScreen)
         {
@@ -155,9 +153,9 @@ public class MineTogetherClient
             }
             firstOpen = false;
         }
-        MultiPlayerModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
-        ServerOrderModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
-        ChatModule.onScreenOpen(screen, abstractWidgets, guiEventListeners);
-        AutoServerConnectHandler.onScreenOpen(screen, abstractWidgets, guiEventListeners);
+        MultiPlayerModule.onScreenOpen(screen, screenAccess);
+        ServerOrderModule.onScreenOpen(screen, screenAccess);
+        ChatModule.onScreenOpen(screen, screenAccess);
+        AutoServerConnectHandler.onScreenOpen(screen, screenAccess);
     }
 }
