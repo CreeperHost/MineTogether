@@ -6,6 +6,12 @@ architectury {
     fabric()
 }
 
+loom {
+    fabric {
+        mixinConfig "minetogether.mixins.json"
+    }
+}
+
 configurations {
     common
     shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.

@@ -7,6 +7,12 @@ architectury {
     forge()
 }
 
+loom {
+    forge {
+        mixinConfig "minetogether.mixins.json"
+    }
+}
+
 configurations {
     common
     shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
@@ -35,7 +41,6 @@ dependencies {
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
     implementation 'com.github.scribejava:scribejava-apis:6.9.0'
     implementation 'com.github.scribejava:scribejava-core:6.9.0'
-//    implementation("net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}")
     implementation("net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}")
 
     shadowCommon 'org.nanohttpd:nanohttpd:2.3.1'
