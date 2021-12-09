@@ -26,11 +26,11 @@ public class MinetogetherModForge
 
     public void clientSetup(FMLClientSetupEvent event)
     {
-//        MineTogether.clientInit();
+        MineTogetherCommon.clientInit();
     }
 
     public void serverSetup(FMLDedicatedServerSetupEvent event)
     {
-//        MineTogether.serverInit();
+        MineTogetherCommon.serverInit();
     }
 }
