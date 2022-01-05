@@ -110,7 +110,7 @@ public abstract class MixinChatScreen extends Screen
             addRenderableWidget(switchButton = new GuiButtonPair(x, height - 215, 234, 16, ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER ? 1 : 0, false, false, true, p ->
             {
                 ChatModule.clientChatTarget = switchButton.activeButton == 1 ? ClientChatTarget.MINETOGETHER : ClientChatTarget.DEFAULT;
-                if (switchButton.activeButton == 1) IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
+                if (switchButton.activeButton == 1 && ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED) IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
 
             }, isSinglePlayer() ? I18n.get("minetogether.ingame.chat.local") : I18n.get("minetogether.ingame.chat.server"), I18n.get("minetogether.ingame.chat.global")));
         }
