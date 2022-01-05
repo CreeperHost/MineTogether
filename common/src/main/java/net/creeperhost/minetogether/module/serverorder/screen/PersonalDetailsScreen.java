@@ -65,7 +65,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
     {
         super.init();
 
-        addRenderableWidget(this.list = new ScreenList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36));
+        addWidget(this.list = new ScreenList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36));
         addRenderableWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent("")));
 
         updateList();

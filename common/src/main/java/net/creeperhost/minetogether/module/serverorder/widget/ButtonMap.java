@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -46,6 +47,7 @@ public class ButtonMap extends Button
         RenderSystem.setShaderColor(1F, 1F, 1F, alpha);
 
         ResourceLocation map = new ResourceLocation(Constants.MOD_ID, "textures/map/" + buttonText + ".png");
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, map);
 
         if (isHoveredOrFocused())

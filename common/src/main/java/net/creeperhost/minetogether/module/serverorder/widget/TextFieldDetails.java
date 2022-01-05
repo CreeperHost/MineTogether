@@ -123,7 +123,7 @@ public class TextFieldDetails extends EditBox
             drawString(matrixStack, Minecraft.getInstance().font, denyString, startX, startY, 0xFF0000);
         }
 
-        GL11.glScalef(0.5F, 0.5F, 0.5F);
+        matrixStack.scale(0.5F, 0.5F, 0.5F);
 
         if (!this.isFocused() && this.getValue().trim().isEmpty())
         {
