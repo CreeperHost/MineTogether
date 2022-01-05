@@ -73,11 +73,11 @@ public class FriendsListScreen extends MineTogetherScreen
         searchEntry = new EditBox(this.font, 19, this.height - 50, list.width - 2, 20, new TranslatableComponent(""));
         searchEntry.setSuggestion(I18n.get("minetogether.search"));
 
-        addButtons();
         addRenderableWidget(list);
         addRenderableWidget(searchEntry);
         addRenderableWidget(chatBox);
-        addRenderableWidget(chat);
+        addWidget(chat);
+        addButtons();
         refreshFriendsList();
     }
 

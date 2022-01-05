@@ -40,12 +40,13 @@ public class MutedListScreen extends Screen
             list.updateSize(width, height, 32, this.height - 64);
         }
 
-        addButtons();
         searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent(""));
         searchEntry.setSuggestion("Search");
         addRenderableWidget(list);
         addRenderableWidget(searchEntry);
         refreshMutedList();
+        addButtons();
+
     }
 
     public void addButtons()

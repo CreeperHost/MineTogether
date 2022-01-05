@@ -6,11 +6,11 @@ architectury {
     fabric()
 }
 
-loom {
-    fabric {
-        mixinConfig "minetogether.mixins.json"
-    }
-}
+//loom {
+//    fabric {
+//        mixinConfig "minetogether.mixins.json"
+//    }
+//}
 
 configurations {
     common
