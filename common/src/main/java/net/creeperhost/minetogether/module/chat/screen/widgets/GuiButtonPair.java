@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.chat.screen.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -140,8 +141,7 @@ public class GuiButtonPair extends Button
 
             matrixStack.translate(tempTranslateX, tempTranslateY, 0);
 
-            //TODO
-//            matrixStack.rotatef(90, 0, 0, 1);
+            matrixStack.mulPose(new Quaternion(-10, 0, 90, true));
         }
 
         for (GuiButtonChat button : buttons)
@@ -151,9 +151,8 @@ public class GuiButtonPair extends Button
 
         if (vertical)
         {
-//            RenderSystem.rotatef(90, 0, 0, -1);
+            matrixStack.mulPose(new Quaternion(-10, 0, 90, true));
             matrixStack.popPose();
-//            RenderSystem.popMatrix();
 
             matrixStack.scale(1.0F / scale, 1.0F / scale, 1.0F / scale);
 
