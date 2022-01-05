@@ -68,7 +68,10 @@ public class PublicServerEntry extends ServerSelectionList.Entry
         this.joinMultiplayerScreen = joinMultiplayerScreen;
         this.serverSelectionList = serverSelectionList;
         this.iconLocation = new ResourceLocation("servers/" + Hashing.sha1().hashUnencodedChars(serverData.ip) + "/icon");
-        this.icon = (DynamicTexture) this.minecraft.getTextureManager().getTexture(this.iconLocation);
+        if(iconLocation != null && this.minecraft.getTextureManager().getTexture(this.iconLocation) != null)
+        {
+            this.icon = (DynamicTexture) this.minecraft.getTextureManager().getTexture(this.iconLocation);
+        }
     }
 
     @Override
@@ -126,7 +129,6 @@ public class PublicServerEntry extends ServerSelectionList.Entry
         {
             z = 5;
             component5 = new TranslatableComponent("");
-            //            component5 = INCOMPATIBLE_TOOLTIP;
             list5 = this.serverData.playerList;
         }
         else if (this.serverData.pinged && this.serverData.ping != -2L)

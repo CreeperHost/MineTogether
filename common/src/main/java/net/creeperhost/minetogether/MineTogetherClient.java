@@ -118,7 +118,6 @@ public class MineTogetherClient
             mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
         } catch (AuthenticationException e)
         {
-            e.printStackTrace();
             return null;
         }
         MineTogetherCommon.logger.info("new ServerID requested");

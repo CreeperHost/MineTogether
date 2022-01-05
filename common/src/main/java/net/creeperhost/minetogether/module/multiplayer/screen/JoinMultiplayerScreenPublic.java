@@ -121,9 +121,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
         try
         {
             dropdownButton.setSelected(sortOrder);
-        } catch (Exception ignored)
-        {
-        }
+        } catch (Exception ignored) {}
 
         editButton = ScreenHelpers.findButton("selectServer.edit", this);
         deleteButton = ScreenHelpers.findButton("selectServer.delete", this);
@@ -133,7 +131,11 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
             addRenderableWidget(new Button(cancelButton.x, cancelButton.y, cancelButton.getWidth(), cancelButton.getHeight(), cancelButton.getMessage(), button -> minecraft.setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
         }
 
-        ScreenHelpers.findButton("selectServer.add", this).active = false;
+        AbstractWidget addServer = ScreenHelpers.findButton("selectServer.add", this);
+        if(addServer != null)
+        {
+            addServer.active = false;
+        }
 
         addRenderableWidget(new Button(width / 2 + 80, height - 52, 75, 20, new TranslatableComponent("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(new TitleScreen(), serverListType, sortOrder))));
     }
