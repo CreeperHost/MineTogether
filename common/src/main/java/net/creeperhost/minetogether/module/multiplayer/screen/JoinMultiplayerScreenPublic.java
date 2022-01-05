@@ -23,6 +23,7 @@ import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -181,8 +182,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
 
     public void join(ServerData serverData)
     {
-        //TODO
-//        this.minecraft.setScreen(new ConnectScreen(this, this.minecraft, serverData));
+        ConnectScreen.startConnecting(new JoinMultiplayerScreen(this), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
     }
 
     public void sort()

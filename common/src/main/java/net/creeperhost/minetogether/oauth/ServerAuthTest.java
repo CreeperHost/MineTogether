@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -36,7 +37,7 @@ public class ServerAuthTest
 
             public void run()
             {
-                InetAddress inetaddress = null;
+                InetSocketAddress inetaddress = null;
 
                 try
                 {
@@ -45,9 +46,8 @@ public class ServerAuthTest
                         return;
                     }
 
-                    inetaddress = InetAddress.getByName(address);
-                    //TODO
-//                    networkManager = Connection.connectToServer(inetaddress, port, mc.options.useNativeTransport());
+                    inetaddress = new InetSocketAddress(InetAddress.getByName(address), port);
+                    networkManager = Connection.connectToServer(inetaddress, true);
                     networkManager.setListener(new NetHandlerLoginClientOurs(networkManager, mc));
                     networkManager.send(new ClientIntentionPacket(address, port, ConnectionProtocol.LOGIN));
                     networkManager.send(new ServerboundHelloPacket(mc.getUser().getGameProfile()));

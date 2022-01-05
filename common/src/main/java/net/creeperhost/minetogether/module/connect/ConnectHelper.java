@@ -58,7 +58,7 @@ public class ConnectHelper
                                 ((MixinIntegratedServer) integratedServer).setPublishedPort(port);
                                 integratedServer.getPlayerList().getMaxPlayers();
                                 integratedServer.setPort(port);
-                                //TODO
+                                integratedServer.setDefaultGameType(type);
 //                                integratedServer.getPlayerList().setOverrideGameMode(type);
                                 integratedServer.getPlayerList().setAllowCheatsForAllPlayers(allowCheats);
                                 int i = integratedServer.getProfilePermissions(Minecraft.getInstance().player.getGameProfile());

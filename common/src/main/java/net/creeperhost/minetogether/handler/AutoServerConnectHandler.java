@@ -4,9 +4,13 @@ import dev.architectury.hooks.client.screen.ScreenAccess;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.lib.serverlists.Server;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 
 public class AutoServerConnectHandler
 {
@@ -48,8 +52,7 @@ public class AutoServerConnectHandler
                     if (realPort != -1)
                     {
                         ServerData serverData = new ServerData(serverSplit[0], String.valueOf(realPort), false);
-                        //TODO Auto server connection
-//                        Minecraft.getInstance().setScreen(new ConnectScreen(screen, Minecraft.getInstance(), serverData));
+                        ConnectScreen.startConnecting(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
                     }
                 }
             }
