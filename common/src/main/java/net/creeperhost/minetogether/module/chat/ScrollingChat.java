@@ -237,6 +237,7 @@ public class ScrollingChat extends ObjectSelectionList
         this.renderList(poseStack, k, l, mouseX, mouseY, partialTicks);
         if (renderBackground)
         {
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
             RenderSystem.setShaderTexture(0,GuiComponent.BACKGROUND_LOCATION);
             RenderSystem.enableDepthTest();
             RenderSystem.depthFunc(519);

@@ -118,6 +118,7 @@ public class MineTogetherClient
             mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
         } catch (AuthenticationException e)
         {
+            MineTogetherCommon.logger.error("Failed to get serverID from Mojang");
             return null;
         }
         MineTogetherCommon.logger.info("new ServerID requested");

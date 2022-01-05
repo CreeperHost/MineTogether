@@ -29,6 +29,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -213,8 +214,8 @@ public class ChatScreen extends MineTogetherScreen
         {
             fill(poseStack, 10, chat.getTop(), width - 10, chat.getHeight(), 0x99000000);
             fill(poseStack, 10, chat.getTop(), width - 10, chat.getHeight(), 0x99000000);
-
             RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             drawCenteredString(poseStack, font, "Welcome to MineTogether", width / 2, (height / 4) + 25, 0xFFFFFF);
             drawCenteredString(poseStack, font, "MineTogether is a multiplayer enhancement mod that provides", width / 2, (height / 4) + 35, 0xFFFFFF);
             drawCenteredString(poseStack, font, "a multitude of features like chat, friends list, server listing", width / 2, (height / 4) + 45, 0xFFFFFF);
