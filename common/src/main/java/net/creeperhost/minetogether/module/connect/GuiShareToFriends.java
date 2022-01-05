@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.ShareToLanScreen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
@@ -20,6 +21,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.GameType;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class GuiShareToFriends extends ShareToLanScreen
@@ -58,12 +60,12 @@ public class GuiShareToFriends extends ShareToLanScreen
         }
 
         //Super would usually render these, but we don't want to call super
-        for (GuiEventListener listener : this.children())
+        Iterator var5 = this.children().iterator();
+
+        while(var5.hasNext())
         {
-            if(listener instanceof Widget widget)
-            {
-                widget.render(matrixStack, mouseX, mouseY, partialTicks);
-            }
+            Widget widget = (Widget)var5.next();
+            widget.render(matrixStack, mouseX, mouseY, partialTicks);
         }
     }
 
@@ -72,9 +74,14 @@ public class GuiShareToFriends extends ShareToLanScreen
     {
         super.init();
 
-        AbstractWidget startButton = ScreenHelpers.removeButton("lanServer.start", this);
-        if (ConnectHelper.isEnabled) {
-            addWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, new TranslatableComponent("minetogether.connect.open.start"), (button1) ->
+        AbstractWidget startButton = (AbstractWidget) children().get(0);
+
+        if (ConnectHelper.isEnabled && startButton != null)
+        {
+            startButton.active = false;
+            startButton.visible = false;
+
+            addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, new TranslatableComponent("minetogether.connect.open.start"), (button1) ->
             {
                 this.minecraft.setScreen(null);
                 MixinShareToLanScreen thisMixin = (MixinShareToLanScreen) this;
@@ -83,16 +90,23 @@ public class GuiShareToFriends extends ShareToLanScreen
                 Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
             }));
         } else {
-            AbstractWidget cancelButton = ScreenHelpers.removeButton(CommonComponents.GUI_CANCEL.getString(), this);
-            cancelButton.active = true;
-            cancelButton.visible = true;
-            clearWidgets();
-            if(ConnectMain.authError.startsWith(findStr)) {
-                addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
-            } else {
-                cancelButton.x = (this.width / 2) - (cancelButton.getWidth() / 2);
+            AbstractWidget cancelButton = (AbstractWidget) children().get(1);
+
+            if(cancelButton != null)
+            {
+                cancelButton.active = true;
+                cancelButton.visible = true;
+                clearWidgets();
+                if (ConnectMain.authError.startsWith(findStr))
+                {
+                    addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
+                }
+                else
+                {
+                    cancelButton.x = (this.width / 2) - (cancelButton.getWidth() / 2);
+                }
+                addRenderableWidget(cancelButton);
             }
-            addRenderableWidget(cancelButton);
         }
     }
 }
