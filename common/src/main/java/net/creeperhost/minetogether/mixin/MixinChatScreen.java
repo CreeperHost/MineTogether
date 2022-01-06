@@ -205,7 +205,7 @@ public abstract class MixinChatScreen extends Screen
                     {
                         try
                         {
-                            gifImage = AnimatedGif.fromURL(new URL("https://ss.gigabit101.net/Colony_Survival.png"));
+                            gifImage = AnimatedGif.fromURL(new URL(url));
                         } catch (IOException ignored)
                         {
                         }
