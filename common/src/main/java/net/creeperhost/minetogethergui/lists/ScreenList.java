@@ -11,6 +11,7 @@ public class ScreenList<T extends ScreenListEntry> extends AbstractSelectionList
     public final int width;
     public final int height;
     public final int rowWidth;
+    public int scrollBarPosition = -1;
 
     public ScreenList(Screen screen, Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
     {
@@ -67,5 +68,16 @@ public class ScreenList<T extends ScreenListEntry> extends AbstractSelectionList
     public void updateNarration(NarrationElementOutput narrationElementOutput)
     {
 
+    }
+
+    public void setScrollBarPosition(int value)
+    {
+        this.scrollBarPosition = value;
+    }
+
+    @Override
+    public int getScrollbarPosition()
+    {
+        return scrollBarPosition == -1 ? super.getScrollbarPosition() : scrollBarPosition;
     }
 }

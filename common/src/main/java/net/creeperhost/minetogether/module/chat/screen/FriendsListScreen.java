@@ -63,6 +63,7 @@ public class FriendsListScreen extends MineTogetherScreen
 
         list = new ScreenList(this, minecraft, 100, height - 90, 32, this.height - 55, 28, 100);
         list.setLeftPos(18);
+//        list.setScrollBarPosition(12);
 
         chat = new ScrollingChat(this, width - list.getRowWidth() - 40, this.height - 90, 32, this.height - 55, 110, true);
         chat.setLeftPos(list.getRowRight());
@@ -73,9 +74,9 @@ public class FriendsListScreen extends MineTogetherScreen
         searchEntry = new EditBox(this.font, 19, this.height - 50, list.width - 2, 20, new TranslatableComponent(""));
         searchEntry.setSuggestion(I18n.get("minetogether.search"));
 
-        addRenderableWidget(list);
-        addRenderableWidget(searchEntry);
-        addRenderableWidget(chatBox);
+        addWidget(list);
+        addWidget(searchEntry);
+        addWidget(chatBox);
         addWidget(chat);
         addButtons();
         refreshFriendsList();
@@ -131,6 +132,8 @@ public class FriendsListScreen extends MineTogetherScreen
             drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
         if (friendCodeButton != null && friendCodeButton.isHoveredOrFocused())
             renderTooltip(poseStack, new TranslatableComponent("minetogether.friendslist.copytoclipboard"), i, j);
+
+        renderTooltips(poseStack, i, j, f);
     }
 
     @Override
