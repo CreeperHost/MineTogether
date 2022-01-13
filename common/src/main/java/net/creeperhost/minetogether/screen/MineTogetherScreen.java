@@ -42,7 +42,7 @@ public class MineTogetherScreen extends Screen
         {
             for (GuiEventListener guiEventListener : children())
             {
-                if(!(guiEventListener instanceof Button)) return;
+                if(!(guiEventListener instanceof Button)) continue;
 
                 Button abstractWidget = (Button) guiEventListener;
 
