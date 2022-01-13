@@ -21,7 +21,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
@@ -59,18 +61,16 @@ public class PublicServerEntry extends ServerSelectionList.Entry
     private DynamicTexture icon;
     private ResourceLocation flags = new ResourceLocation(Constants.MOD_ID, "textures/flags/flags.png");
 
-    //    private ResourceLocation flags = new ResourceLocation(Constants.MOD_ID, "textures/flags/flags.png");
-    //    private ResourceLocation applicationGui = new ResourceLocation(Constants.MOD_ID, "textures/gui.png");
-
     public PublicServerEntry(JoinMultiplayerScreenPublic joinMultiplayerScreen, ServerSelectionList serverSelectionList, ServerData serverData)
     {
         this.serverData = serverData;
         this.joinMultiplayerScreen = joinMultiplayerScreen;
         this.serverSelectionList = serverSelectionList;
         this.iconLocation = new ResourceLocation("servers/" + Hashing.sha1().hashUnencodedChars(serverData.ip) + "/icon");
-        if(iconLocation != null && this.minecraft.getTextureManager().getTexture(this.iconLocation) != null)
+        AbstractTexture abstractTexture = this.minecraft.getTextureManager().getTexture(this.iconLocation, MissingTextureAtlasSprite.getTexture());
+        if (abstractTexture != MissingTextureAtlasSprite.getTexture() && abstractTexture instanceof DynamicTexture)
         {
-            this.icon = (DynamicTexture) this.minecraft.getTextureManager().getTexture(this.iconLocation);
+            this.icon = (DynamicTexture)abstractTexture;
         }
     }
 
@@ -371,6 +371,6 @@ public class PublicServerEntry extends ServerSelectionList.Entry
     @Override
     public Component getNarration()
     {
-        return null;
+        return new TranslatableComponent("narrator.select", new Object[]{this.serverData.name});
     }
 }
