@@ -22,13 +22,13 @@ import java.util.List;
 
 public class ScreenHelpers
 {
-    public static AbstractWidget findButton(String buttonString, Screen screen)
+    public static Button findButton(String buttonString, Screen screen)
     {
         if(screen.children() != null && !screen.children().isEmpty())
         {
             for (GuiEventListener listener : screen.children())
             {
-                if(!(listener instanceof Button)) return null;
+                if(!(listener instanceof Button)) continue;
 
                 Button widget = (Button) listener;
 

@@ -55,6 +55,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
     public void init()
     {
         super.init();
+
         minecraft.keyboardHandler.setSendRepeatsToGui(true);
         //Clear the list before we start adding our own entries
         serverSelectionList.children().clear();
@@ -132,7 +133,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
             addRenderableWidget(new Button(cancelButton.x, cancelButton.y, cancelButton.getWidth(), cancelButton.getHeight(), cancelButton.getMessage(), button -> minecraft.setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
         }
 
-        AbstractWidget addServer = ScreenHelpers.findButton("selectServer.add", this);
+        Button addServer = ScreenHelpers.findButton("selectServer.add", this);
         if(addServer != null)
         {
             addServer.active = false;
