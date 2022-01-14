@@ -14,6 +14,7 @@ import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
+import net.creeperhost.minetogether.lib.chat.irc.IrcHandler;
 import net.creeperhost.minetogether.mixin.ChatComponentInvoker;
 import net.creeperhost.minetogether.module.chat.screen.ChatListener;
 import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
@@ -64,8 +65,12 @@ public class ChatModule
         String signature = new SignatureVerifier().verify();
         String serverID = MineTogetherClient.getServerIDAndVerify();
 
-        mineTogetherChat = new MineTogetherChat(ourNick, MineTogetherClient.getPlayerHash(), online, realName, signature, serverID, ChatListener.INSTANCE);
-        mineTogetherChat.startChat();
+        if(serverID != null && !serverID.isEmpty())
+        {
+            MineTogetherCommon.logger.info("serverIdValid? " + serverID);
+            mineTogetherChat = new MineTogetherChat(ourNick, MineTogetherClient.getPlayerHash(), online, realName, signature, serverID, ChatListener.INSTANCE);
+            mineTogetherChat.startChat();
+        }
     }
 
     public static void onScreenOpen(Screen screen, ScreenAccess screenAccess)
