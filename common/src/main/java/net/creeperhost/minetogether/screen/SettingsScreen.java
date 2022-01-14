@@ -35,6 +35,7 @@ public class SettingsScreen extends MineTogetherScreen
             if (Config.getInstance().isChatEnabled())
             {
                 MineTogetherCommon.logger.info("Disabling in-game chat");
+                IrcHandler.sendString("QUIT Game closed", false);
                 Config.getInstance().setChatEnabled(false);
                 IrcHandler.stop(true);
             }
