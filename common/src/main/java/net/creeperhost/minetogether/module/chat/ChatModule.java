@@ -65,10 +65,10 @@ public class ChatModule
         String signature = new SignatureVerifier().verify();
         String serverID = MineTogetherClient.getServerIDAndVerify();
 
+        mineTogetherChat = new MineTogetherChat(ourNick, MineTogetherClient.getPlayerHash(), online, realName, signature, serverID, ChatListener.INSTANCE);
+
         if(serverID != null && !serverID.isEmpty())
         {
-            MineTogetherCommon.logger.info("serverIdValid? " + serverID);
-            mineTogetherChat = new MineTogetherChat(ourNick, MineTogetherClient.getPlayerHash(), online, realName, signature, serverID, ChatListener.INSTANCE);
             mineTogetherChat.startChat();
         }
     }
