@@ -76,7 +76,7 @@ public class SignatureVerifier
 
                     for (String s : attributesMap.keySet())
                     {
-                        if (s.equalsIgnoreCase("net/creeperhost/minetogether/MineTogether.class"))
+                        if (s.equalsIgnoreCase("net/creeperhost/minetogether/MineTogetherCommon.class"))
                         {
                             MineTogetherCommon.logger.error("Main class found, MineTogether Jar found");
                             try

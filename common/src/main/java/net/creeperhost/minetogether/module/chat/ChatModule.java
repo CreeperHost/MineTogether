@@ -8,7 +8,9 @@ import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.MinetogetherExpectPlatform;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.MineTogether;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
@@ -51,6 +53,7 @@ public class ChatModule
 
     public static void init()
     {
+        MineTogether.init("MineTogether-mod/" + Constants.VERSION + " Launcher/" + Minecraft.getInstance().getLaunchedVersion() + " Minecraft/" + Platform.getMinecraftVersion() + " Modloader/" + MinetogetherExpectPlatform.getModLoader());
         String ourNick = "MT" + ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()).substring(0, 28);
         FriendUpdateThread.init();
         buildChat(ourNick);

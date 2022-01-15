@@ -11,4 +11,9 @@ public class MinetogetherExpectPlatformImpl {
     public static Path getConfigDirectory() {
         return FabricLoader.getInstance().getConfigDir();
     }
+
+    public static String getModLoader()
+    {
+        return "Fabric";
+    }
 }

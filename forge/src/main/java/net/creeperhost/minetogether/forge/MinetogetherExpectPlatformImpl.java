@@ -11,4 +11,9 @@ public class MinetogetherExpectPlatformImpl {
     public static Path getConfigDirectory() {
         return FMLPaths.CONFIGDIR.get();
     }
+
+    public static String getModLoader()
+    {
+        return "Forge";
+    }
 }
