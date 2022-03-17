@@ -163,7 +163,7 @@ public abstract class MixinChatComponent
         return allMessages;
     }
 
-    @Redirect(method = "scrollChat(D)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
+    @Redirect(method = "scrollChat(I)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<GuiMessage<FormattedCharSequence>> scrollChat(ChatComponent chatComponent)
     {
         if (!Config.getInstance().isChatEnabled()) return trimmedMessages;

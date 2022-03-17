@@ -1,5 +1,10 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.0"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+loom {
+    forge {
+        mixinConfig "minetogether.mixins.json"
+    }
 }
 
 architectury {
@@ -8,8 +13,11 @@ architectury {
 }
 
 loom {
+    accessWidenerPath = project(":common").loom.accessWidenerPath
+
     forge {
-        mixinConfig "minetogether.mixins.json"
+        convertAccessWideners = true
+        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
     }
 }
 
@@ -21,16 +29,11 @@ configurations {
     developmentForge.extendsFrom common
 }
 
-def depProjects = [":common"]
-
 dependencies {
-//    minecraft("com.mojang:minecraft:${rootProject.architectury.minecraft}")
-//    mappings(minecraft.officialMojangMappings())
-
-    depProjects.forEach {
-        common(project(path: it, configuration: "namedElements")) { transitive false }
-        shadowCommon(project(path: it, configuration: "transformProductionForge")) { transitive false }
-    }
+//    depProjects.forEach {
+//        common(project(path: it, configuration: "namedElements")) { transitive false }
+//        shadowCommon(project(path: it, configuration: "transformProductionForge")) { transitive false }
+//    }
 
     forge("net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}")
     modApi("dev.architectury:architectury-forge:${rootProject.architectury_version}")
@@ -59,6 +62,7 @@ processResources {
 
 shadowJar {
     exclude "fabric.mod.json"
+    exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
     // Don't shadow netty, we already have it.
