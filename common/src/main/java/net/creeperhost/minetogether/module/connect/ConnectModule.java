@@ -7,6 +7,7 @@ import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.hooks.client.screen.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogethergui.ScreenHelpers;
+import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -55,10 +56,10 @@ public class ConnectModule
             IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
             if (integratedServer != null)
             {
-                AbstractWidget feedBack = ScreenHelpers.removeButton("menu.sendFeedback", screen);
-                AbstractWidget bugs = ScreenHelpers.removeButton("menu.reportBugs", screen);
-                AbstractWidget openToLan = ScreenHelpers.findButton("menu.shareToLan", screen);
-                AbstractWidget options = ScreenHelpers.findButton("menu.options", screen);
+                AbstractWidget feedBack = ButtonHelper.removeButton("menu.sendFeedback", screen);
+                AbstractWidget bugs = ButtonHelper.removeButton("menu.reportBugs", screen);
+                AbstractWidget openToLan = ButtonHelper.findButton("menu.shareToLan", screen);
+                AbstractWidget options = ButtonHelper.findButton("menu.options", screen);
 
                 if (openToLan != null && feedBack != null)
                 {

@@ -11,7 +11,7 @@ import net.creeperhost.minetogether.lib.chat.KnownUsers;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatModule;
-import net.creeperhost.minetogethergui.widgets.ButtonString;
+import net.creeperhost.polylib.client.screen.widget.buttons.ButtonString;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;

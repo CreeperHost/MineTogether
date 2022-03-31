@@ -1,10 +1,8 @@
 package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.creeperhost.polylib.client.screen.widget.buttons.ButtonMultiple;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;

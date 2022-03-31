@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.module.multiplayer.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerListType;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerSortOrder;
-import net.creeperhost.minetogethergui.widgets.GuiButtonLarge;
+import net.creeperhost.polylib.client.screen.widget.buttons.GuiButtonLarge;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;

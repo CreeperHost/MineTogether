@@ -5,10 +5,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
-import net.creeperhost.minetogethergui.lists.ScreenList;
-import net.creeperhost.minetogethergui.lists.ScreenListEntry;
+import net.creeperhost.polylib.client.screen.widget.ScreenList;
+import net.creeperhost.polylib.client.screen.widget.ScreenListEntry;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 

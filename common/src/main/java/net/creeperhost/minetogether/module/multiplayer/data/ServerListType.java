@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.module.multiplayer.data;
 
-import net.creeperhost.minetogethergui.widgets.DropdownButton;
+import net.creeperhost.polylib.client.screen.widget.buttons.DropdownButton;
 
 import java.util.Arrays;
 import java.util.List;

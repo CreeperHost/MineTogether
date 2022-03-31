@@ -8,7 +8,7 @@ import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ScrollingChat;
 import net.creeperhost.minetogether.screen.MineTogetherScreen;
-import net.creeperhost.minetogethergui.screenbuilder.ScreenBuilder;
+import net.creeperhost.polylib.client.screenbuilder.ScreenBuilder;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;

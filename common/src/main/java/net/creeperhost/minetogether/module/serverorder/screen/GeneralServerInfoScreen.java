@@ -6,7 +6,7 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.lib.serverorder.AvailableResult;
 import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
-import net.creeperhost.minetogethergui.widgets.TextFieldValidate;
+import net.creeperhost.polylib.client.screen.widget.TextFieldValidate;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;

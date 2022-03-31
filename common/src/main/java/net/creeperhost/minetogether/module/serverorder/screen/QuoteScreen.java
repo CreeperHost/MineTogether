@@ -6,7 +6,8 @@ import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.lib.serverorder.OrderSummary;
 import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
 import net.creeperhost.minetogethergui.ScreenHelpers;
-import net.creeperhost.minetogethergui.widgets.ScreenWell;
+import net.creeperhost.polylib.client.screen.ScreenHelper;
+import net.creeperhost.polylib.client.screen.widget.ScreenWell;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -116,7 +117,8 @@ public class QuoteScreen extends OrderServerScreen
         else
         {
             drawCenteredString(poseStack, this.font, I18n.get("minetogether.quote.refreshing"), this.width / 2, 50, -1);
-            ScreenHelpers.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+            //TODO replace with LoadingSpinner
+            ScreenHelper.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
         }
         super.render(poseStack, mouseX, mouseY, partialTicks);
     }

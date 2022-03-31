@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogethergui.ScreenHelpers;
+import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
@@ -62,7 +63,7 @@ public class ButtonMap extends Button
         {
             RenderSystem.setShaderColor(0.4F, 0.4F, 0.4F, alpha);
         }
-        ScreenHelpers.drawModalRectWithCustomSizedTextureFloat(poseStack.last().pose(), x, y, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+        ScreenHelper.drawModalRectWithCustomSizedTextureFloat(poseStack.last().pose(), x, y, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
         RenderSystem.setShaderColor(1F, 1F, 1F, alpha);
     }
 }

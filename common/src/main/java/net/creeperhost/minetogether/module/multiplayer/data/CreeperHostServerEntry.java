@@ -7,7 +7,7 @@ import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.module.serverorder.screen.OrderServerScreen;
-import net.creeperhost.minetogethergui.widgets.ButtonString;
+import net.creeperhost.polylib.client.screen.widget.buttons.ButtonString;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;

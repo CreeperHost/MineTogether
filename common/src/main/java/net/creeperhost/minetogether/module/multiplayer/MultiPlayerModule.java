@@ -9,7 +9,8 @@ import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScr
 import net.creeperhost.minetogether.module.multiplayer.screen.ServerTypeScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
 import net.creeperhost.minetogethergui.ScreenHelpers;
-import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
+import net.creeperhost.polylib.client.screen.ButtonHelper;
+import net.creeperhost.polylib.client.screen.widget.buttons.ButtonMultiple;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -18,8 +19,6 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
-
-import java.util.List;
 
 public class MultiPlayerModule
 {
@@ -58,31 +57,31 @@ public class MultiPlayerModule
     {
         try
         {
-            ScreenHelpers.findButton(I18n.get("selectServer.select"), multiplayerScreen).x += 1;
-            ScreenHelpers.removeButton(I18n.get("selectServer.refresh"), multiplayerScreen);
+            ButtonHelper.findButton(I18n.get("selectServer.select"), multiplayerScreen).x += 1;
+            ButtonHelper.removeButton(I18n.get("selectServer.refresh"), multiplayerScreen);
 
-            AbstractWidget addButton = ScreenHelpers.findButton(I18n.get("selectServer.add"), multiplayerScreen);
+            AbstractWidget addButton = ButtonHelper.findButton(I18n.get("selectServer.add"), multiplayerScreen);
             if (addButton != null)
             {
                 addButton.x -= 104;
                 addButton.setWidth(addButton.getWidth() + 27);
             }
 
-            AbstractWidget edit = ScreenHelpers.findButton(I18n.get("selectServer.edit"), multiplayerScreen);
+            AbstractWidget edit = ButtonHelper.findButton(I18n.get("selectServer.edit"), multiplayerScreen);
             if (edit != null)
             {
                 edit.setWidth(edit.getWidth() - 9);
                 edit.x += 1;
             }
 
-            AbstractWidget delete = ScreenHelpers.findButton(I18n.get("selectServer.delete"), multiplayerScreen);
+            AbstractWidget delete = ButtonHelper.findButton(I18n.get("selectServer.delete"), multiplayerScreen);
             if (delete != null)
             {
                 delete.x -= 16;
                 delete.setWidth(delete.getWidth() - 6);
             }
 
-            AbstractWidget direct = ScreenHelpers.findButton(I18n.get("selectServer.direct"), multiplayerScreen);
+            AbstractWidget direct = ButtonHelper.findButton(I18n.get("selectServer.direct"), multiplayerScreen);
             if (direct != null)
             {
                 direct.x = (multiplayerScreen.width / 2) - 23;
@@ -90,7 +89,7 @@ public class MultiPlayerModule
                 direct.setWidth(direct.getWidth());
             }
 
-            AbstractWidget cancel = ScreenHelpers.findButton(I18n.get("selectServer.cancel"), multiplayerScreen);
+            AbstractWidget cancel = ButtonHelper.findButton(I18n.get("selectServer.cancel"), multiplayerScreen);
             if (cancel != null)
             {
                 cancel.x += 1;

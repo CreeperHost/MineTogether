@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
 import net.creeperhost.minetogethergui.ScreenHelpers;
+import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -197,7 +198,8 @@ public class OrderDetailsScreen extends OrderServerScreen
         else if (placingOrder)
         {
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.orderplacing"), this.width / 2, this.height / 2, 0xFFFFFF);
-            ScreenHelpers.loadingSpin(matrixStack, partialTicks, ticks, width / 2, height / 2 + 20, new ItemStack(Items.BEEF));
+            //TODO replace with LoadingSpinner.class
+            ScreenHelper.loadingSpin(matrixStack, partialTicks, ticks, width / 2, height / 2 + 20, new ItemStack(Items.BEEF));
         }
         else if (!placedOrderError.isEmpty())
         {

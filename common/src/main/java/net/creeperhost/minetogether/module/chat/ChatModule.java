@@ -25,7 +25,7 @@ import net.creeperhost.minetogether.screen.SettingsScreen;
 import net.creeperhost.minetogether.threads.FriendUpdateThread;
 import net.creeperhost.minetogether.verification.ModPackVerifier;
 import net.creeperhost.minetogether.verification.SignatureVerifier;
-import net.creeperhost.minetogethergui.widgets.ButtonMultiple;
+import net.creeperhost.polylib.client.screen.widget.buttons.ButtonMultiple;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.PauseScreen;

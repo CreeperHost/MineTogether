@@ -9,7 +9,7 @@ import net.creeperhost.minetogether.lib.serverorder.RegexValidator;
 import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
 import net.creeperhost.minetogether.module.serverorder.screen.listentries.ListEntryCountry;
 import net.creeperhost.minetogether.module.serverorder.widget.TextFieldDetails;
-import net.creeperhost.minetogethergui.lists.ScreenList;
+import net.creeperhost.polylib.client.screen.widget.ScreenList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;

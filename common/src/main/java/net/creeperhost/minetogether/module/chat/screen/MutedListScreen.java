@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.screen.listentries.ListEntryMuted;
-import net.creeperhost.minetogethergui.lists.ScreenList;
+import net.creeperhost.polylib.client.screen.widget.ScreenList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;

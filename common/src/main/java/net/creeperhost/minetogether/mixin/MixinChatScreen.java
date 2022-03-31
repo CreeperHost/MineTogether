@@ -14,9 +14,10 @@ import net.creeperhost.minetogether.module.chat.ClientChatTarget;
 import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
 import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.ComponentUtils;
-import net.creeperhost.minetogethergui.gif.AnimatedGif;
-import net.creeperhost.minetogethergui.widgets.ButtonNoBlend;
-import net.creeperhost.minetogethergui.widgets.DropdownButton;
+
+import net.creeperhost.polylib.client.gif.AnimatedGif;
+import net.creeperhost.polylib.client.screen.widget.buttons.ButtonNoBlend;
+import net.creeperhost.polylib.client.screen.widget.buttons.DropdownButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;

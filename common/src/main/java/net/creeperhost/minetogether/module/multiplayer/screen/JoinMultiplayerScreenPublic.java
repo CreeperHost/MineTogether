@@ -12,7 +12,9 @@ import net.creeperhost.minetogether.module.multiplayer.data.ServerListType;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerSortOrder;
 import net.creeperhost.minetogether.module.multiplayer.sort.*;
 import net.creeperhost.minetogethergui.ScreenHelpers;
-import net.creeperhost.minetogethergui.widgets.DropdownButton;
+import net.creeperhost.polylib.client.screen.ButtonHelper;
+import net.creeperhost.polylib.client.screen.ScreenHelper;
+import net.creeperhost.polylib.client.screen.widget.buttons.DropdownButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -125,15 +127,15 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
             dropdownButton.setSelected(sortOrder);
         } catch (Exception ignored) {}
 
-        editButton = ScreenHelpers.findButton("selectServer.edit", this);
-        deleteButton = ScreenHelpers.findButton("selectServer.delete", this);
-        cancelButton = ScreenHelpers.removeButton("gui.cancel", this);
+        editButton = ButtonHelper.findButton("selectServer.edit", this);
+        deleteButton = ButtonHelper.findButton("selectServer.delete", this);
+        cancelButton = ButtonHelper.removeButton("gui.cancel", this);
         if (cancelButton != null)
         {
             addRenderableWidget(new Button(cancelButton.x, cancelButton.y, cancelButton.getWidth(), cancelButton.getHeight(), cancelButton.getMessage(), button -> minecraft.setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
         }
 
-        Button addServer = ScreenHelpers.findButton("selectServer.add", this);
+        Button addServer = ButtonHelper.findButton("selectServer.add", this);
         if(addServer != null)
         {
             addServer.active = false;
@@ -151,7 +153,8 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
 
         if (loadingSevers)
         {
-            ScreenHelpers.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+            //TODO replace this with LoadingSpinner
+            ScreenHelper.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
         }
     }
 

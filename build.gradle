@@ -34,7 +34,10 @@ allprojects {
 
     repositories {
         mavenLocal()
-        maven { url 'https://maven.creeperhost.net' }
+        maven {
+            name "CreeperHost"
+            url 'https://maven.creeperhost.net'
+        }
     }
 
     tasks.withType(JavaCompile) {

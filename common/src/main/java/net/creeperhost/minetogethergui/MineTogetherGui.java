@@ -1,6 +1,6 @@
-package net.creeperhost.minetogethergui;
-
-public class MineTogetherGui
-{
-
-}
+//package net.creeperhost.minetogethergui;
+//
+//public class MineTogetherGui
+//{
+//
+//}

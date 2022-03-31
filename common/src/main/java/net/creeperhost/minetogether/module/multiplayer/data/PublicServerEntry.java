@@ -13,6 +13,7 @@ import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
 import net.creeperhost.minetogether.mixin.MixinSelectionList;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
 import net.creeperhost.minetogethergui.ScreenHelpers;
+import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
@@ -261,7 +262,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry
                 RenderSystem.setShaderTexture(0, flags);
                 int flagWidth = 16;
                 int flagHeight = flag.height / (flag.width / flagWidth);
-                ScreenHelpers.drawScaledCustomSizeModalRect(k + l - 5 - flagWidth, j + 30 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
+                ScreenHelper.drawScaledCustomSizeModalRect(k + l - 5 - flagWidth, j + 30 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
 
                 if (n >= k + l - 5 - flagWidth && n <= k + l - 5 && o >= j - 10 - flagHeight && o <= j - flagHeight + flagHeight)
                 {

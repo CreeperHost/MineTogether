@@ -3,7 +3,8 @@ package net.creeperhost.minetogether.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogethergui.ScreenHelpers;
-import net.creeperhost.minetogethergui.screenbuilder.ScreenBuilder;
+import net.creeperhost.polylib.client.screen.ScreenHelper;
+import net.creeperhost.polylib.client.screenbuilder.ScreenBuilder;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -57,12 +58,14 @@ public class MixinDisconnectedScreen extends Screen
                 int chunksDoneInt = Integer.parseInt(chunksDone.trim());
 
                 String string = percentage(totalChunksInt, chunksDoneInt) + "% done";
-                screenBuilder.drawBigBlueBar(poseStack, width / 2 - 128, height / 2 + 50, chunksDoneInt, totalChunksInt, i, j, string, 256, 256);
+                //TODO bring this back
+//                screenBuilder.drawBigBlueBar(poseStack, width / 2 - 128, height / 2 + 50, chunksDoneInt, totalChunksInt, i, j, string, 256, 256);
 
             } catch (Exception ignored) {}
 
             ticks++;
-            ScreenHelpers.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2 - 80 , new ItemStack(Items.COOKED_BEEF));
+            //TODO replace with LoadingSpinner.class
+            ScreenHelper.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2 - 80 , new ItemStack(Items.COOKED_BEEF));
         }
     }
 
