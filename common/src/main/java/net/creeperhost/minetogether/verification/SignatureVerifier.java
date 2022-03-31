@@ -23,6 +23,8 @@ public class SignatureVerifier
 
     public String verify()
     {
+        if(Platform.isDevelopmentEnvironment()) return "Development";
+
         if (jarFile == null) return "Development";
         MessageDigest messageDigest;
         try

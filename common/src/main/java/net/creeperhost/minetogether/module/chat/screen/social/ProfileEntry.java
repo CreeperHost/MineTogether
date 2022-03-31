@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
@@ -12,6 +11,7 @@ import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.polylib.client.screen.widget.buttons.ButtonString;
+import net.creeperhost.polylib.client.toast.SimpleToast;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -76,12 +76,20 @@ public class ProfileEntry extends Entry<ProfileEntry>
 
                     if (profile.isOnline())
                     {
-                        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Adding " + name + " to Party"), mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+                        SimpleToast simpleToast = new SimpleToast(new TextComponent("Adding " + name + " to Party"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+                        Minecraft.getInstance().getToasts().addToast(simpleToast);
+//                        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Adding " + name + " to Party"),
+//                                mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+
                         ChatHandler.sendPartyInvite(profile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
                     }
                     else
                     {
-                        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Unable to send invite      " + name + " is offline"), mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.WARNING, null);
+                        SimpleToast simpleToast = new SimpleToast(new TextComponent("Unable to send invite      " + name + " is offline"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+                        Minecraft.getInstance().getToasts().addToast(simpleToast);
+
+//                        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Unable to send invite      " + name + " is offline"),
+//                                mineTogetherSocialinteractionsScreen.width - 160, 0, 5000, ToastHandler.EnumToastType.WARNING, null);
                     }
                     refreshPage();
                     break;
@@ -104,7 +112,10 @@ public class ProfileEntry extends Entry<ProfileEntry>
                 }
                 else
                 {
-                    MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("User is offline"), 1000, ToastHandler.EnumToastType.WARNING, null);
+                    SimpleToast simpleToast = new SimpleToast(new TextComponent("User is offline"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+                    Minecraft.getInstance().getToasts().addToast(simpleToast);
+
+//                    MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("User is offline"), 1000, ToastHandler.EnumToastType.WARNING, null);
                 }
             }
         });

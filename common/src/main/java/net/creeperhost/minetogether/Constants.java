@@ -11,6 +11,7 @@ public class Constants
     public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation(Constants.MOD_ID, "textures/widgets.png");
     public static final ResourceLocation GUI_SHEET_LOCATION = new ResourceLocation(Constants.MOD_ID, "textures/gui_sheet.png");
     public static final ResourceLocation SOCIAL_SHEET_LOCATION = new ResourceLocation(Constants.MOD_ID, "textures/social_screen.png");
+    public static final ResourceLocation MINETOGETHER_LOGO_LOCATION = new ResourceLocation(Constants.MOD_ID, "textures/minetogether25.png");
 
     public static final ResourceLocation GALACTIC_ALT_FONT = new ResourceLocation("minecraft", "alt");
     public static final ResourceLocation TEXTURE_TOASTS = new ResourceLocation("textures/gui/toasts.png");

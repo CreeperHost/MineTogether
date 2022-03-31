@@ -1,15 +1,17 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.chat.*;
 import net.creeperhost.minetogether.lib.chat.data.Message;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
+import net.creeperhost.polylib.client.toast.SimpleToast;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.concurrent.CompletableFuture;
@@ -21,31 +23,42 @@ public class ChatListener implements IChatListener
     @Override
     public void onPartyInvite(Profile profile)
     {
-        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("New party invite from " + profile.getFriendName()), 5000, ToastHandler.EnumToastType.DEFAULT, () ->
-        {
-            Screen currentScreen = Minecraft.getInstance().screen;
-            ConfirmScreen confirmScreen = new ConfirmScreen(accepted ->
-            {
-                if (accepted) ChatHandler.acceptPartyInvite(profile);
+        SimpleToast simpleToast = new SimpleToast(new TextComponent("New party invite from "), new TextComponent(profile.getFriendName()), Constants.MINETOGETHER_LOGO_LOCATION);
+        Minecraft.getInstance().getToasts().addToast(simpleToast);
 
-                MineTogetherClient.toastHandler.clearToast(true);
-                Minecraft.getInstance().setScreen(currentScreen);
-            }, new TranslatableComponent("You have been invited to join a private party from " + profile.getFriendName()), new TranslatableComponent("Do you wish to accept the invite?"));
-
-            Minecraft.getInstance().setScreen(confirmScreen);
-        });
+        //TODO add a runnable to SimpleToast
+//        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("New party invite from " + profile.getFriendName()), 5000, ToastHandler.EnumToastType.DEFAULT, () ->
+//        {
+//            Screen currentScreen = Minecraft.getInstance().screen;
+//            ConfirmScreen confirmScreen = new ConfirmScreen(accepted ->
+//            {
+//                if (accepted) ChatHandler.acceptPartyInvite(profile);
+//
+//                MineTogetherClient.toastHandler.clearToast(true);
+//                Minecraft.getInstance().setScreen(currentScreen);
+//            }, new TranslatableComponent("You have been invited to join a private party from " + profile.getFriendName()), new TranslatableComponent("Do you wish to accept the invite?"));
+//
+//            Minecraft.getInstance().setScreen(confirmScreen);
+//        });
     }
 
     @Override
     public void onFriendOnline(Profile profile)
     {
-        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(profile.getFriendName() + " Is now online"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
+        SimpleToast simpleToast = new SimpleToast(new TextComponent(profile.getFriendName() + " Is now online"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+        Minecraft.getInstance().getToasts().addToast(simpleToast);
+
+//        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(profile.getFriendName() + " Is now online"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
     }
 
     @Override
     public void onFriendAccept(String name, String data)
     {
-        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(name + " Has accepted your friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
+        SimpleToast simpleToast = new SimpleToast(new TextComponent(name + " Has accepted your friend request"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+        Minecraft.getInstance().getToasts().addToast(simpleToast);
+
+//        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(name + " Has accepted your friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
+
         ChatHandler.addMessageToChat(ChatHandler.CHANNEL, "FA:" + name, data);
         Profile profile = KnownUsers.findByNick(name);
         if (profile != null) {
@@ -56,7 +69,10 @@ public class ChatListener implements IChatListener
     @Override
     public void onFriendRequest(String user, String data)
     {
-        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(user + " Has sent you a friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
+        SimpleToast simpleToast = new SimpleToast(new TextComponent(user + " Has sent you a friend request"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+        Minecraft.getInstance().getToasts().addToast(simpleToast);
+
+//        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(user + " Has sent you a friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
         ChatHandler.addMessageToChat(ChatHandler.CHANNEL, "FR:" + user, data);
     }
 

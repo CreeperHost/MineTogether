@@ -3,7 +3,6 @@ package net.creeperhost.minetogether.module.chat.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
@@ -18,11 +17,14 @@ import net.creeperhost.minetogether.threads.FriendUpdateThread;
 import net.creeperhost.polylib.client.screen.widget.ScreenList;
 import net.creeperhost.polylib.client.screen.widget.buttons.ButtonMultiple;
 import net.creeperhost.polylib.client.screen.widget.buttons.ButtonString;
+import net.creeperhost.polylib.client.toast.SimpleToast;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.lwjgl.glfw.GLFW;
 
@@ -89,7 +91,8 @@ public class FriendsListScreen extends MineTogetherScreen
         addRenderableWidget(friendCodeButton = new ButtonString(width - 105, 5, 120, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
             minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
-            MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Copied to clipboard."), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+            SimpleToast simpleToast = new SimpleToast(new TextComponent("Copied to clipboard."), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+            Minecraft.getInstance().getToasts().addToast(simpleToast);
         }));
 
         addRenderableWidget(removeFriend = new ButtonMultiple(width - 20, 32, 5, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->

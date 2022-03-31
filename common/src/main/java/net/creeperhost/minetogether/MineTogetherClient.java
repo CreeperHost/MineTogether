@@ -9,9 +9,7 @@ import dev.architectury.event.events.client.ClientRawInputEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
-import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
-import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.irc.IrcHandler;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.screen.social.MineTogetherSocialInteractionsScreen;
@@ -35,16 +33,12 @@ import java.util.UUID;
 
 public class MineTogetherClient
 {
-    public static ToastHandler toastHandler;
     public static boolean isOnlineUUID = false;
     public static final KeyMapping mtSocialKey = new KeyMapping(I18n.get("minetogether.keybindings.social"), InputConstants.Type.KEYSYM, 80, I18n.get("minetogether.keybindings.category"));
 
     public static void init()
     {
-        toastHandler = new ToastHandler();
         ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
-        ClientGuiEvent.RENDER_POST.register(MineTogetherClient::onScreenRender);
-        ClientGuiEvent.RENDER_HUD.register(MineTogetherClient::onHudRender);
         ClientRawInputEvent.KEY_PRESSED.register(MineTogetherClient::onRawInput);
         ConnectModule.init();
         MineTogetherClient.getUUID();
@@ -68,17 +62,11 @@ public class MineTogetherClient
     {
         if (minecraft.screen == null)
         {
-            if (!MineTogetherClient.toastHandler.isActiveToast() && mtSocialKey.isDown())
+            if (mtSocialKey.isDown())
             {
                 minecraft.setScreen(new MineTogetherSocialInteractionsScreen());
                 return EventResult.pass();
             }
-        }
-
-        if (MineTogetherClient.toastHandler.toastMethod != null && mtSocialKey.isDown())
-        {
-            MineTogetherClient.toastHandler.toastMethod.run();
-            return EventResult.pass();
         }
         return EventResult.pass();
     }
@@ -122,16 +110,6 @@ public class MineTogetherClient
         }
         MineTogetherCommon.logger.info("new ServerID requested");
         return serverId;
-    }
-
-    public static void onHudRender(PoseStack poseStack, float partialticks)
-    {
-        if (toastHandler != null) toastHandler.render(poseStack);
-    }
-
-    private static void onScreenRender(Screen screen, PoseStack poseStack, int i, int i1, float part)
-    {
-        if (toastHandler != null) toastHandler.render(poseStack);
     }
 
     static boolean firstOpen = true;

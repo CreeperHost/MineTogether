@@ -4,11 +4,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogether.handler.ToastHandler;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
+import net.creeperhost.polylib.client.toast.SimpleToast;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
@@ -16,7 +16,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 public class MineTogetherSocialInteractionsScreen extends Screen
@@ -77,18 +79,24 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         createParty = addRenderableWidget(new Button((width / 2) - 80, m, 160, 20, new TranslatableComponent("Create Party?"), button ->
         {
             String channelName = MineTogetherChat.profile.get().getMediumHash();
+            Profile profile = KnownUsers.findByHash(channelName);
+            if(profile == null) profile = KnownUsers.add(channelName);
 
             if (!ChatHandler.hasParty)
             {
                 ChatHandler.createPartyChannel(channelName);
-                MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Joining Group channel " + channelName), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+                SimpleToast simpleToast = new SimpleToast(new TextComponent("Joining Group channel"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+                Minecraft.getInstance().getToasts().addToast(simpleToast);
+
                 return;
             }
             else
             {
-                Profile profile = KnownUsers.findByNick(ChatHandler.getPartyOwner());
-                if (profile != null) profile.setPartyMember(false);
-                MineTogetherClient.toastHandler.displayToast(new TranslatableComponent("Leaving Group " + ChatHandler.currentParty), width - 160, 0, 5000, ToastHandler.EnumToastType.DEFAULT, null);
+                Profile ourProfile = KnownUsers.findByNick(ChatHandler.getPartyOwner());
+                if (ourProfile != null) ourProfile.setPartyMember(false);
+                SimpleToast simpleToast = new SimpleToast(new TextComponent("Leaving Group "), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+                Minecraft.getInstance().getToasts().addToast(simpleToast);
+
                 ChatHandler.leaveChannel(ChatHandler.currentParty);
             }
             showPage(page);
@@ -247,6 +255,11 @@ public class MineTogetherSocialInteractionsScreen extends Screen
     public Page getPage()
     {
         return page;
+    }
+
+    @Override
+    protected void updateNarratedWidget(NarrationElementOutput narrationElementOutput)
+    {
     }
 
     @Environment(EnvType.CLIENT)
