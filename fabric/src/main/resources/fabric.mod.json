@@ -11,7 +11,7 @@
     "homepage": "https://github.com/CreeperHost/MineTogether",
     "sources": "https://github.com/CreeperHost/MineTogether/issues"
   },
-  "license": "Insert License Here",
+  "license": "GNU General Public License v3.0",
   "icon": "",
   "environment": "*",
   "entrypoints": {
@@ -22,7 +22,7 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*",
-    "minecraft": ">=1.16.4",
+    "minecraft": ">=1.18.2",
     "architectury": ">=1.1.55"
   },
   "suggests": {
