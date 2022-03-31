@@ -46,8 +46,8 @@ body:
   - type: input
     id: forgeVersion
     attributes:
-      label: Forge Version
-      description: What Forge version are you using?
+      label: ModLoader Version
+      description: What ModLoader (Forge/Fabric) version are you using?
     validations:
       required: true
   - type: textarea
