@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherClient;
@@ -38,6 +39,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -121,7 +123,13 @@ public class ChatScreen extends MineTogetherScreen
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.addfriend")))
             {
-                minecraft.setScreen(new FriendRequestScreen(new ChatScreen(parent), Minecraft.getInstance().getUser().getName(), KnownUsers.findByDisplay(activeDropdown), ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), "", false, false));
+                try
+                {
+                    minecraft.setScreen(new FriendRequestScreen(new ChatScreen(parent), Minecraft.getInstance().getUser().getName(), KnownUsers.findByDisplay(activeDropdown), ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), "", false, false));
+                } catch (IOException e)
+                {
+                    Sentry.captureException(e);
+                }
             }
             else if (menuDropdownButton.getSelected().option.equalsIgnoreCase(I18n.get("minetogether.chat.button.mention")))
             {

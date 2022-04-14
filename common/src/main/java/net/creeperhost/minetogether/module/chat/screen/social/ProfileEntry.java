@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.chat.screen.social;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
@@ -25,6 +26,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FastColor;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ProfileEntry extends Entry<ProfileEntry>
@@ -54,7 +56,13 @@ public class ProfileEntry extends Entry<ProfileEntry>
                     refreshPage();
                     break;
                 case FRIENDS:
-                    ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getPlayerHash());
+                    try
+                    {
+                        ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getPlayerHash());
+                    } catch (IOException e)
+                    {
+                        Sentry.captureException(e);
+                    }
                     profile.setFriend(false);
                     KnownUsers.update(profile);
                     refreshPage();

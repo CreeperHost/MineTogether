@@ -10,7 +10,9 @@ dependencies {
         exclude group: 'com.google.guava', module: 'failureaccess'
         exclude group: 'commons-logging', module: 'commons-logging'
     }
+    modImplementation("net.creeperhost:polylib-fabric:${rootProject.polylib_version}")
     modApi("net.creeperhost:polylib-fabric:${rootProject.polylib_version}")
+    implementation 'io.sentry:sentry:5.7.2'
 }
 
 architectury {

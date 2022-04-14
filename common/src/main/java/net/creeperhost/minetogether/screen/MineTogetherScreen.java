@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.sentry.Sentry;
 import net.creeperhost.polylib.client.screen.widget.buttons.ButtonMultiple;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -36,21 +37,27 @@ public class MineTogetherScreen extends Screen
 
     public void renderTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
     {
-        if (children() != null && !children().isEmpty())
+        try
         {
-            for (GuiEventListener guiEventListener : children())
+            if (children() != null && !children().isEmpty())
             {
-                if(!(guiEventListener instanceof Button)) continue;
-
-                Button abstractWidget = (Button) guiEventListener;
-
-                if (abstractWidget.isHoveredOrFocused() && abstractWidget instanceof ButtonMultiple)
+                for (GuiEventListener guiEventListener : children())
                 {
-                    ButtonMultiple buttonMultiple = (ButtonMultiple) abstractWidget;
-                    if (buttonMultiple.getTooltip() != null && !buttonMultiple.getTooltip().getString().isEmpty())
-                        renderTooltip(poseStack, buttonMultiple.getTooltip(), mouseX, mouseY);
+                    if (!(guiEventListener instanceof Button)) continue;
+
+                    Button abstractWidget = (Button) guiEventListener;
+
+                    if (abstractWidget.isHoveredOrFocused() && abstractWidget instanceof ButtonMultiple)
+                    {
+                        ButtonMultiple buttonMultiple = (ButtonMultiple) abstractWidget;
+                        if (buttonMultiple.getTooltip() != null && !buttonMultiple.getTooltip().getString().isEmpty())
+                            renderTooltip(poseStack, buttonMultiple.getTooltip(), mouseX, mouseY);
+                    }
                 }
             }
+        } catch (Exception e)
+        {
+            Sentry.captureException(e);
         }
     }
 }

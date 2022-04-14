@@ -1,5 +1,7 @@
 package net.creeperhost.minetogetherconnect;
 
+import io.sentry.Sentry;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -59,6 +61,7 @@ public class ProxyHandler {
         } catch (Exception e) {
             //callback.accept(false, "closed");
             ConnectUtil.CloseMultiple(localInputReader, localInput, localOutput, remoteInputReader, remoteInput, remoteOutput, socket, remoteSocket);
+            Sentry.captureException(e);
         }
     }
 
@@ -80,6 +83,7 @@ public class ProxyHandler {
                     }
                 } catch (Exception e) {
                     ConnectUtil.CloseMultiple(firstChannel, secondChannel, firstSocket, secondSocket);
+                    Sentry.captureException(e);
                 }
             }
             ConnectUtil.CloseMultiple(firstChannel, secondChannel, firstSocket, secondSocket);

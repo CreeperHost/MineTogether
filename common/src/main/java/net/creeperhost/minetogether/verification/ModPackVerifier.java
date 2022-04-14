@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.verification;
 
 import com.google.gson.*;
 import dev.architectury.platform.Platform;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
@@ -52,8 +53,9 @@ public class ModPackVerifier
         {
             realName = gson.toJson(jsonObj);
             return realName;
-        } catch (Exception ignored)
+        } catch (Exception e)
         {
+            Sentry.captureException(e);
         }
         return "{\"p\": \"-1\"}";
     }
@@ -84,10 +86,12 @@ public class ModPackVerifier
                     }
                 } catch (Exception MalformedJsonException)
                 {
+                    Sentry.captureException(MalformedJsonException);
                     MineTogetherCommon.logger.error("version.json is not valid returning to curse ID");
                 }
-            } catch (IOException ignored)
+            } catch (IOException e)
             {
+                Sentry.captureException(e);
                 MineTogetherCommon.logger.info("version.json not found returning to curse ID");
             }
         }

@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
@@ -134,7 +135,15 @@ public abstract class MixinChatScreen extends Screen
             {
                 Profile profile = KnownUsers.findByDisplay(currentDropdown);
                 if (profile != null)
-                    minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), "", false, false));
+                {
+                    try
+                    {
+                        minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), profile, ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), "", false, false));
+                    } catch (IOException e)
+                    {
+                        Sentry.captureException(e);
+                    }
+                }
             }
             else if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mention")))
             {

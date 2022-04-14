@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 public class FriendRequestScreen extends Screen
@@ -57,8 +59,23 @@ public class FriendRequestScreen extends Screen
         {
             if(update)
             {
-                ChatCallbacks.removeFriend(friendCode, MineTogetherClient.getPlayerHash());
-                CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getPlayerHash()), MineTogetherChat.otherExecutor);
+                try
+                {
+                    ChatCallbacks.removeFriend(friendCode, MineTogetherClient.getPlayerHash());
+                } catch (IOException e)
+                {
+                    Sentry.captureException(e);
+                }
+                CompletableFuture.runAsync(() ->
+                {
+                    try
+                    {
+                        ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getPlayerHash());
+                    } catch (IOException e)
+                    {
+                        Sentry.captureException(e);
+                    }
+                }, MineTogetherChat.otherExecutor);
                 Minecraft.getInstance().setScreen(parent);
                 return;
             }
@@ -66,7 +83,16 @@ public class FriendRequestScreen extends Screen
             if (accept)
             {
                 ChatHandler.acceptFriendRequest(chatInternalName, friendName);
-                CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getPlayerHash()), MineTogetherChat.otherExecutor);
+                CompletableFuture.runAsync(() ->
+                {
+                    try
+                    {
+                        ChatCallbacks.addFriend(friendCode, nameEntry.getValue().trim(), MineTogetherClient.getPlayerHash());
+                    } catch (IOException e)
+                    {
+                        Sentry.captureException(e);
+                    }
+                }, MineTogetherChat.otherExecutor);
             }
             else
             {

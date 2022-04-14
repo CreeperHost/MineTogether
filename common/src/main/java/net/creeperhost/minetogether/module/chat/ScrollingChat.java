@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.module.chat;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.data.Message;
 import net.creeperhost.minetogether.lib.util.LimitedSizeQueue;
@@ -181,8 +182,9 @@ public class ScrollingChat extends ObjectSelectionList
                 if (display == null) continue;
                 lines.addAll(ComponentRenderUtils.wrapComponents(display, width - 10, Minecraft.getInstance().font));
             }
-        } catch (Exception ignored)
+        } catch (Exception e)
         {
+            Sentry.captureException(e);
         }
         if (lines.size() > oldLines.size() && this.getScrollAmount() == oldMaxScroll) ;
         {
@@ -233,7 +235,6 @@ public class ScrollingChat extends ObjectSelectionList
         int k = this.getRowLeft();
         int l = this.y0 + 4 - (int) this.getScrollAmount();
 
-        //            ScreenHelpers.drawLogo(matrixStack, font, width - 20, height + 18, 20, 30, 0.75F);
         this.renderList(poseStack, k, l, mouseX, mouseY, partialTicks);
         if (renderBackground)
         {

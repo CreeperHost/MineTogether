@@ -5,6 +5,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogether.lib.util.WebUtils;
@@ -16,6 +17,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.UserWhiteList;
 import net.minecraft.server.players.UserWhiteListEntry;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -73,7 +75,14 @@ public class CommandInvite
         invite.hash = tempHash;
         invite.id = MineTogetherServer.updateID;
         MineTogetherCommon.logger.debug("Sending " + gson.toJson(invite) + " to add endpoint");
-        String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
+        String resp = null;
+        try
+        {
+            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/invite", gson.toJson(invite), true, true);
+        } catch (IOException e)
+        {
+            Sentry.captureException(e);
+        }
         MineTogetherCommon.logger.debug("Response from add endpoint " + resp);
     }
 

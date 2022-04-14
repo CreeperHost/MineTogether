@@ -1,10 +1,12 @@
 package net.creeperhost.minetogether.threads;
 
 import com.google.gson.*;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogether.lib.util.WebUtils;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +44,14 @@ public class MineTogetherServerThread
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
                 String sendStr = gson.toJson(send);
-                String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
+                String resp = null;
+                try
+                {
+                    resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/update", sendStr, true, true);
+                } catch (IOException e)
+                {
+                    Sentry.captureException(e);
+                }
 
                 int sleepTime = 90000;
 
@@ -77,20 +86,20 @@ public class MineTogetherServerThread
 
                         if (first)
                         {
-                            //TODO add back invite command / server invites
-                            //                            CommandInvite.reloadInvites(new String[0]);
                             first = false;
                         }
                     }
-                } catch (Exception ignored)
+                } catch (Exception e)
                 {
+                    Sentry.captureException(e);
                 }
 
                 try
                 {
                     Thread.sleep(sleepTime);
-                } catch (InterruptedException ignored)
+                } catch (InterruptedException e)
                 {
+                    Sentry.captureException(e);
                 }
             }
         });
@@ -105,7 +114,7 @@ public class MineTogetherServerThread
             if (mtThread != null && mtThread.isAlive()) mtThread.stop();
         } catch (Exception e)
         {
-
+            Sentry.captureException(e);
         }
     }
 

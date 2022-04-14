@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.verification;
 
 import dev.architectury.platform.Platform;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import org.apache.commons.io.FileUtils;
 
@@ -42,6 +43,7 @@ public class SignatureVerifier
             fileBytes = FileUtils.readFileToByteArray(jarFile);
         } catch (IOException e)
         {
+            Sentry.captureException(e);
             e.printStackTrace();
             return "Development";
         }

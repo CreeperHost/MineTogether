@@ -1,15 +1,16 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
 }
-loom {
-    forge {
-        mixinConfig "minetogether.mixins.json"
-    }
-}
 
 architectury {
     platformSetupLoomIde()
     forge()
+}
+
+loom {
+    forge {
+        mixinConfig "minetogether.mixins.json"
+    }
 }
 
 loom {
@@ -30,11 +31,6 @@ configurations {
 }
 
 dependencies {
-//    depProjects.forEach {
-//        common(project(path: it, configuration: "namedElements")) { transitive false }
-//        shadowCommon(project(path: it, configuration: "transformProductionForge")) { transitive false }
-//    }
-
     forge("net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}")
     modApi("dev.architectury:architectury-forge:${rootProject.architectury_version}")
     modApi("net.creeperhost:polylib-forge:${rootProject.polylib_version}")

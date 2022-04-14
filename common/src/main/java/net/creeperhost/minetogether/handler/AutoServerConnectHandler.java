@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.handler;
 
 import dev.architectury.hooks.client.screen.ScreenAccess;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.lib.serverlists.Server;
@@ -11,6 +12,8 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
+
+import java.io.IOException;
 
 public class AutoServerConnectHandler
 {
@@ -34,7 +37,14 @@ public class AutoServerConnectHandler
                     MineTogetherCommon.logger.error("Unable to auto connect to server as unable to parse server ID");
                 }
 
-                Server serverObj = ChatCallbacks.getServer(serverId);
+                Server serverObj = null;
+                try
+                {
+                    serverObj = ChatCallbacks.getServer(serverId);
+                } catch (IOException e)
+                {
+                    Sentry.captureException(e);
+                }
 
                 if (serverObj != null)
                 {

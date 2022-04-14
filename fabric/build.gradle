@@ -1,6 +1,7 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
 }
+
 architectury {
     platformSetupLoomIde()
     fabric()
@@ -19,9 +20,6 @@ configurations {
 }
 
 dependencies {
-//    minecraft "com.mojang:minecraft:${rootProject.architectury.minecraft}"
-//    mappings minecraft.officialMojangMappings()
-
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
@@ -34,11 +32,13 @@ dependencies {
     implementation 'com.github.scribejava:scribejava-apis:6.9.0'
     implementation 'com.github.scribejava:scribejava-core:6.9.0'
     implementation "net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}"
+    implementation 'io.sentry:sentry:5.7.2'
 
     shadowCommon 'org.nanohttpd:nanohttpd:2.3.1'
     shadowCommon 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowCommon 'com.github.scribejava:scribejava-core:6.9.0'
     shadowCommon "net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}"
+    shadowCommon "io.sentry:sentry:5.7.2"
 }
 
 processResources {
@@ -51,6 +51,7 @@ processResources {
 
 shadowJar {
     configurations = [project.configurations.shadowCommon]
+    relocate 'io.sentry', 'net.creeperhost.resourcefulcreepers.io.sentry'
     classifier "dev-shadow"
 }
 

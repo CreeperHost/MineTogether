@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.module.serverorder.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.lib.Order;
@@ -13,6 +14,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.resources.ResourceLocation;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -35,7 +38,13 @@ public class MapScreen extends OrderServerScreen
         super.init();
         int y = (this.height / 2) + 20;
         regions = ServerOrderCallbacks.getRegionMap();
-        dataCenters = ServerOrderCallbacks.getDataCentres();
+        try
+        {
+            dataCenters = ServerOrderCallbacks.getDataCentres();
+        } catch (IOException | URISyntaxException e)
+        {
+            Sentry.captureException(e);
+        }
         if (order.country == null || order.country.isEmpty()) order.country = ServerOrderCallbacks.getUserCountry();
         if (order.serverLocation == null || order.serverLocation.isEmpty())
             order.serverLocation = ServerOrderCallbacks.getRecommendedLocation();

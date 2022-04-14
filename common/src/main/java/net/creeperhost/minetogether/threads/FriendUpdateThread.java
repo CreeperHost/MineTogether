@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.threads;
 
 import com.google.gson.*;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
@@ -63,8 +64,9 @@ public class FriendUpdateThread
                 }
             }
             //This can fail due to web request timing out it seems, Catching the exception to avoid killing the thread
-        } catch (Exception ignored)
+        } catch (Exception e)
         {
+            Sentry.captureException(e);
         }
     }
 

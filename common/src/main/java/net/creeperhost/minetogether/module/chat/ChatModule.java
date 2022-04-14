@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.hooks.client.screen.ScreenHooks;
 import dev.architectury.platform.Platform;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherClient;
@@ -69,6 +70,11 @@ public class ChatModule
         String serverID = MineTogetherClient.getServerIDAndVerify();
 
         mineTogetherChat = new MineTogetherChat(ourNick, MineTogetherClient.getPlayerHash(), online, realName, signature, serverID, ChatListener.INSTANCE);
+        Sentry.setTag("isOnline", String.valueOf(online));
+        Sentry.setTag("nick", ourNick);
+        Sentry.setTag("hash", MineTogetherClient.getPlayerHash());
+        Sentry.setTag("signature", signature);
+        Sentry.setTag("serverID", serverID != null ? serverID : "null");
 
         if(serverID != null && !serverID.isEmpty())
         {
@@ -129,7 +135,13 @@ public class ChatModule
         {
             Profile profile = KnownUsers.findByHash(user);
             if (profile == null) profile = KnownUsers.add(user);
-            profile.loadProfile();
+            try
+            {
+                profile.loadProfile();
+            } catch (IOException e)
+            {
+                Sentry.captureException(e);
+            }
             profile.setMuted(true);
             KnownUsers.update(profile);
         }, MineTogetherChat.profileExecutor);
@@ -139,8 +151,9 @@ public class ChatModule
         {
             if (!mutedUsersPath.getParent().toFile().exists()) mutedUsersPath.getParent().toFile().mkdirs();
             FileUtils.writeStringToFile(mutedUsersPath.toFile(), gson.toJson(mutedUsers), Charset.defaultCharset());
-        } catch (IOException ignored)
+        } catch (IOException e)
         {
+            Sentry.captureException(e);
         }
     }
 
@@ -153,20 +166,28 @@ public class ChatModule
             {
                 Profile profile = KnownUsers.findByHash(longhash);
                 if (profile == null) profile = KnownUsers.add(longhash);
-                profile.loadProfile();
+                try
+                {
+                    profile.loadProfile();
+                } catch (IOException e)
+                {
+                    Sentry.captureException(e);
+                }
                 profile.setMuted(false);
                 KnownUsers.update(profile);
             }, MineTogetherChat.profileExecutor);
-        } catch (Exception ignored)
+        } catch (Exception e)
         {
+            Sentry.captureException(e);
         }
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         try
         {
             if (!mutedUsersPath.getParent().toFile().exists()) mutedUsersPath.getParent().toFile().mkdirs();
             FileUtils.writeStringToFile(mutedUsersPath.toFile(), gson.toJson(mutedUsers), Charset.defaultCharset());
-        } catch (IOException ignored)
+        } catch (IOException e)
         {
+            Sentry.captureException(e);
         }
     }
 
@@ -183,13 +204,20 @@ public class ChatModule
                 {
                     Profile profile = KnownUsers.findByHash(s);
                     if (profile == null) profile = KnownUsers.add(s);
-                    profile.loadProfile();
+                    try
+                    {
+                        profile.loadProfile();
+                    } catch (IOException e)
+                    {
+                        Sentry.captureException(e);
+                    }
                     profile.setMuted(true);
                     KnownUsers.update(profile);
                 }, MineTogetherChat.profileExecutor);
             }
-        } catch (Exception ignored)
+        } catch (Exception e)
         {
+            Sentry.captureException(e);
         }
     }
 

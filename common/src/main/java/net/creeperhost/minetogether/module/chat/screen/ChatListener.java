@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.lib.chat.*;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 public class ChatListener implements IChatListener
@@ -62,7 +64,16 @@ public class ChatListener implements IChatListener
         ChatHandler.addMessageToChat(ChatHandler.CHANNEL, "FA:" + name, data);
         Profile profile = KnownUsers.findByNick(name);
         if (profile != null) {
-            CompletableFuture.runAsync(() -> ChatCallbacks.addFriend(profile.getFriendCode(), data, MineTogetherClient.getPlayerHash()), MineTogetherChat.otherExecutor);
+            CompletableFuture.runAsync(() ->
+            {
+                try
+                {
+                    ChatCallbacks.addFriend(profile.getFriendCode(), data, MineTogetherClient.getPlayerHash());
+                } catch (IOException e)
+                {
+                    Sentry.captureException(e);
+                }
+            }, MineTogetherChat.otherExecutor);
         }
     }
 

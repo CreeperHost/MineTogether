@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.multiplayer.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.config.Config;
@@ -30,6 +31,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -80,7 +82,14 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
                 serverList.remove(serverData);
             }
         }
-        List<Server> list = ServerListCallbacks.getServerList(serverListType, MineTogetherClient.getUUID(), MineTogetherCommon.base64, Config.getInstance().getCurseProjectID());
+        List<Server> list = null;
+        try
+        {
+            list = ServerListCallbacks.getServerList(serverListType, MineTogetherClient.getUUID(), MineTogetherCommon.base64, Config.getInstance().getCurseProjectID());
+        } catch (IOException e)
+        {
+            Sentry.captureException(e);
+        }
         if(list != null && !list.isEmpty())
         {
             for (Server server : list)

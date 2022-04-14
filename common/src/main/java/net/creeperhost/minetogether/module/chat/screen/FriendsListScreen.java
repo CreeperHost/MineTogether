@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.module.chat.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
@@ -28,6 +29,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -112,7 +114,13 @@ public class FriendsListScreen extends MineTogetherScreen
 
         addRenderableWidget(editButton = new ButtonMultiple(width - 20, 92, 8, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.editbutton"), (button) ->
         {
-            minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), targetProfile, ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), targetProfile.getFriendName(), false, true));
+            try
+            {
+                minecraft.setScreen(new FriendRequestScreen(this, minecraft.getUser().getName(), targetProfile, ChatCallbacks.getFriendCode(MineTogetherClient.getPlayerHash()), targetProfile.getFriendName(), false, true));
+            } catch (IOException e)
+            {
+                Sentry.captureException(e);
+            }
         }));
 
         addRenderableWidget(mutedList = new Button(5, 5, 100, 20, new TranslatableComponent("Muted List"), p ->
@@ -246,10 +254,16 @@ public class FriendsListScreen extends MineTogetherScreen
                 {
                     removedFriends.add(profile);
                     refreshFriendsList();
-                    if (!ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getPlayerHash()))
+                    try
                     {
-                        profile.setFriend(false);
-                        refreshFriendsList();
+                        if (!ChatCallbacks.removeFriend(profile.getFriendCode(), MineTogetherClient.getPlayerHash()))
+                        {
+                            profile.setFriend(false);
+                            refreshFriendsList();
+                        }
+                    } catch (IOException e)
+                    {
+                        Sentry.captureException(e);
                     }
                 });
             }

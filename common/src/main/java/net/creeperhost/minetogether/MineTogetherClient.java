@@ -8,6 +8,7 @@ import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientRawInputEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.handler.AutoServerConnectHandler;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.lib.chat.irc.IrcHandler;
@@ -38,35 +39,48 @@ public class MineTogetherClient
 
     public static void init()
     {
-        ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
-        ClientRawInputEvent.KEY_PRESSED.register(MineTogetherClient::onRawInput);
-        ConnectModule.init();
-        MineTogetherClient.getUUID();
-        ChatModule.init();
-        registerKeybindings();
-
-        if (!isOnlineUUID) MineTogetherCommon.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+        try
         {
-            MineTogetherCommon.logger.info("Shutdown called, Stopping our threads");
-            IrcHandler.sendString("QUIT Game closed", false);
-            //Kill the IRC Thread
-            IrcHandler.stop(true);
-            //Kill Friend Thread
-            FriendUpdateThread.stop();
-        }));
+            ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
+            ClientRawInputEvent.KEY_PRESSED.register(MineTogetherClient::onRawInput);
+            ConnectModule.init();
+            MineTogetherClient.getUUID();
+            ChatModule.init();
+            registerKeybindings();
+
+            if (!isOnlineUUID) MineTogetherCommon.logger.info(Constants.MOD_ID + " Has detected profile is in offline mode");
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() ->
+            {
+                MineTogetherCommon.logger.info("Shutdown called, Stopping our threads");
+                IrcHandler.sendString("QUIT Game closed", false);
+                //Kill the IRC Thread
+                IrcHandler.stop(true);
+                //Kill Friend Thread
+                FriendUpdateThread.stop();
+            }));
+        } catch (Exception e)
+        {
+            Sentry.captureException(e);
+        }
     }
 
     private static EventResult onRawInput(Minecraft minecraft, int keyCode, int scanCode, int action, int modifiers)
     {
-        if (minecraft.screen == null)
+        try
         {
-            if (mtSocialKey.isDown())
+            if (minecraft.screen == null)
             {
-                minecraft.setScreen(new MineTogetherSocialInteractionsScreen());
-                return EventResult.pass();
+                if (mtSocialKey.isDown())
+                {
+                    minecraft.setScreen(new MineTogetherSocialInteractionsScreen());
+                    return EventResult.pass();
+                }
             }
+            return EventResult.pass();
+        } catch (Exception e)
+        {
+            Sentry.captureException(e);
         }
         return EventResult.pass();
     }
@@ -116,23 +130,29 @@ public class MineTogetherClient
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess)
     {
-        if (firstOpen && screen instanceof TitleScreen)
+        try
         {
-            //Lets get this value early so we can cache it
-            ChatCallbacks.updateOnlineCount();
-            removeVanillaSocialKeybinding();
-
-            File offline = new File("local/minetogether/offline.txt");
-
-            if (!MineTogetherClient.isOnlineUUID && !offline.exists())
+            if (firstOpen && screen instanceof TitleScreen)
             {
-                Minecraft.getInstance().setScreen(new OfflineScreen());
+                //Lets get this value early so we can cache it
+                ChatCallbacks.updateOnlineCount();
+                removeVanillaSocialKeybinding();
+
+                File offline = new File("local/minetogether/offline.txt");
+
+                if (!MineTogetherClient.isOnlineUUID && !offline.exists())
+                {
+                    Minecraft.getInstance().setScreen(new OfflineScreen());
+                }
+                firstOpen = false;
             }
-            firstOpen = false;
+            MultiPlayerModule.onScreenOpen(screen, screenAccess);
+            ServerOrderModule.onScreenOpen(screen, screenAccess);
+            ChatModule.onScreenOpen(screen, screenAccess);
+            AutoServerConnectHandler.onScreenOpen(screen, screenAccess);
+        } catch (Exception e)
+        {
+            Sentry.captureException(e);
         }
-        MultiPlayerModule.onScreenOpen(screen, screenAccess);
-        ServerOrderModule.onScreenOpen(screen, screenAccess);
-        ChatModule.onScreenOpen(screen, screenAccess);
-        AutoServerConnectHandler.onScreenOpen(screen, screenAccess);
     }
 }

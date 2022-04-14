@@ -33,7 +33,7 @@ ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.minetogether]]
-modId = "polylob"
+modId = "polylib"
 mandatory = true
 versionRange = "[1801.0.2,)"
 ordering = "AFTER"

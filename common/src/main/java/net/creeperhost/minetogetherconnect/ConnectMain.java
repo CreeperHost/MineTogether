@@ -18,6 +18,7 @@ import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import io.sentry.Sentry;
 import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.module.connect.ConnectHandler;
@@ -218,6 +219,7 @@ public class ConnectMain {
             } catch (Exception e) {
                 close();
                 callback.accept(false, "timeout");
+                Sentry.captureException(e);
                 return;
             }
 
@@ -257,6 +259,7 @@ public class ConnectMain {
             } catch (Exception e) {
                 messageRelayer.accept("CLOSED123");
                 callback.accept(false, "closed");
+                Sentry.captureException(e);
                 ConnectMain.close();
             }
         }
