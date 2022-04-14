@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.module.serverorder.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.lib.serverorder.DefferedValidation;
 import net.creeperhost.minetogether.lib.serverorder.IOrderValidation;
@@ -9,7 +8,6 @@ import net.creeperhost.minetogether.module.serverorder.screen.PersonalDetailsScr
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.TranslatableComponent;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 

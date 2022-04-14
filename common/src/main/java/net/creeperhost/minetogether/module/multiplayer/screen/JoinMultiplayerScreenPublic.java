@@ -2,8 +2,8 @@ package net.creeperhost.minetogether.module.multiplayer.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.sentry.Sentry;
-import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.serverlists.Server;
 import net.creeperhost.minetogether.lib.serverlists.ServerListCallbacks;
@@ -12,7 +12,6 @@ import net.creeperhost.minetogether.module.multiplayer.data.ServerDataPublic;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerListType;
 import net.creeperhost.minetogether.module.multiplayer.data.ServerSortOrder;
 import net.creeperhost.minetogether.module.multiplayer.sort.*;
-import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.creeperhost.polylib.client.screen.widget.buttons.DropdownButton;

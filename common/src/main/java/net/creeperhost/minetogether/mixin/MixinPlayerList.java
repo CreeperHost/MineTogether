@@ -10,7 +10,6 @@ import net.creeperhost.minetogether.module.connect.OurServerListEntryLanDetected
 import net.creeperhost.minetogetherconnect.ConnectMain;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;

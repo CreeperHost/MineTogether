@@ -8,7 +8,6 @@ import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
 import net.creeperhost.minetogether.module.serverorder.widget.ButtonMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;

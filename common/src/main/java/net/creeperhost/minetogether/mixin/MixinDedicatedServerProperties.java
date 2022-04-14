@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.mixin;
 
 import net.creeperhost.minetogether.MineTogetherServer;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

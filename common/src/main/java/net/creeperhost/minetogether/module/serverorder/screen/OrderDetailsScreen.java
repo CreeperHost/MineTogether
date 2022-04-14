@@ -5,7 +5,6 @@ import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.Order;
 import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
-import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;

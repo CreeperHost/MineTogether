@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.module.connect;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.mixin.MixinServerSelectionList;
 import net.creeperhost.minetogether.mixin.MixinServerSelectionListAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

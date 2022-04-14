@@ -10,10 +10,7 @@ import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.polylib.client.toast.SimpleToast;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ConfirmScreen;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;

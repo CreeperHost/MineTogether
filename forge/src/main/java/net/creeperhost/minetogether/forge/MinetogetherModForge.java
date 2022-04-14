@@ -18,19 +18,6 @@ public class MinetogetherModForge
         // Submit our event bus to let architectury register our content on the right time
         EventBuses.registerModEventBus(Constants.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
         MineTogetherCommon.init();
-
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        eventBus.addListener(this::clientSetup);
-        eventBus.addListener(this::serverSetup);
-    }
-
-    public void clientSetup(FMLClientSetupEvent event)
-    {
-        MineTogetherCommon.clientInit();
-    }
-
-    public void serverSetup(FMLDedicatedServerSetupEvent event)
-    {
-        MineTogetherCommon.serverInit();
     }
 }

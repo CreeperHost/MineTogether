@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.module.chat.screen.widgets;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.gui.components.Button;

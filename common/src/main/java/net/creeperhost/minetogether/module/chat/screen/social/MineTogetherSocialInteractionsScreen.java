@@ -3,7 +3,6 @@ package net.creeperhost.minetogether.module.chat.screen.social;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
-import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;

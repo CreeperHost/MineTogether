@@ -1,14 +1,15 @@
 package net.creeperhost.minetogether;
 
 import com.mojang.logging.LogUtils;
+import dev.architectury.event.events.client.ClientLifecycleEvent;
 import dev.architectury.platform.Platform;
-import dev.architectury.utils.EnvExecutor;
 import io.sentry.Sentry;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
@@ -39,20 +40,13 @@ public class MineTogetherCommon
         {
             Config.init(configFile.toFile());
             MineTogetherChat.DEBUG_MODE = Config.getInstance().isDebugMode();
+            ClientLifecycleEvent.CLIENT_SETUP.register(instance -> MineTogetherClient.init());
+            ServerLifecycleEvents.SERVER_STARTING.register(instance -> MineTogetherServer.init());
+
         } catch (Exception e)
         {
             Sentry.captureException(e);
         }
-    }
-
-    public static void clientInit()
-    {
-        EnvExecutor.runInEnv(EnvType.CLIENT, () -> MineTogetherClient::init);
-    }
-
-    public static void serverInit()
-    {
-        EnvExecutor.runInEnv(EnvType.SERVER, () -> MineTogetherServer::init);
     }
 
     public static void sentryException(Throwable throwable)

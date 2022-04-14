@@ -8,7 +8,6 @@ import net.creeperhost.minetogether.module.chat.screen.ChatScreen;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
 import net.creeperhost.minetogether.module.multiplayer.screen.ServerTypeScreen;
 import net.creeperhost.minetogether.screen.SettingsScreen;
-import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.creeperhost.polylib.client.screen.widget.buttons.ButtonMultiple;
 import net.minecraft.client.Minecraft;

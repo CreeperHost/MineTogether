@@ -15,7 +15,6 @@ import net.creeperhost.minetogether.module.chat.ClientChatTarget;
 import net.creeperhost.minetogether.module.chat.screen.FriendRequestScreen;
 import net.creeperhost.minetogether.module.chat.screen.widgets.GuiButtonPair;
 import net.creeperhost.minetogether.util.ComponentUtils;
-
 import net.creeperhost.polylib.client.gif.AnimatedGif;
 import net.creeperhost.polylib.client.screen.widget.buttons.ButtonNoBlend;
 import net.creeperhost.polylib.client.screen.widget.buttons.DropdownButton;

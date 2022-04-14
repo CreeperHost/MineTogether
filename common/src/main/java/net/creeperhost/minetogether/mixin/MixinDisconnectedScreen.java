@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
-import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.creeperhost.polylib.client.screenbuilder.ScreenBuilder;
 import net.minecraft.client.gui.screens.DisconnectedScreen;

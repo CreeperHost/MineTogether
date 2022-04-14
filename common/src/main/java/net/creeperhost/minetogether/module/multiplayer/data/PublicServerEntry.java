@@ -12,7 +12,6 @@ import net.creeperhost.minetogether.lib.serverlists.Server;
 import net.creeperhost.minetogether.lib.serverorder.ServerOrderCallbacks;
 import net.creeperhost.minetogether.mixin.MixinSelectionList;
 import net.creeperhost.minetogether.module.multiplayer.screen.JoinMultiplayerScreenPublic;
-import net.creeperhost.minetogethergui.ScreenHelpers;
 import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
