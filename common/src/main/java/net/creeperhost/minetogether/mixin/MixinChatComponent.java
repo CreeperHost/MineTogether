@@ -8,7 +8,7 @@ import net.creeperhost.minetogether.lib.util.LimitedSizeQueue;
 import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.minetogether.module.chat.ClientChatTarget;
-import net.creeperhost.minetogethergui.ScreenHelpers;
+import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -89,7 +89,7 @@ public abstract class MixinChatComponent
             int z = Mth.ceil((float) minecraft.gui.getChat().getHeight() / (float) minecraft.options.chatScale);
 
             if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
-                ScreenHelpers.drawLogo(poseStack, minecraft.font, k + 6, z + 6, -2, minecraft.gui.getChat().getHeight() - 340, 0.75F);
+                MineTogetherScreen.drawLogo(poseStack, minecraft.font, k + 6, z + 6, -2, minecraft.gui.getChat().getHeight() - 340, 0.75F);
         }
     }
 
