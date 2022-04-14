@@ -19,7 +19,7 @@ public class SignatureVerifier
 
     public SignatureVerifier()
     {
-        this.jarFile = findOurJar(Platform.getGameFolder().resolve("mods").toFile());
+        this.jarFile = findOurJar(Platform.getModsFolder().toFile());
     }
 
     public String verify()
