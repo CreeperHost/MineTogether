@@ -40,8 +40,9 @@ public class MineTogetherCommon
         {
             Config.init(configFile.toFile());
             MineTogetherChat.DEBUG_MODE = Config.getInstance().isDebugMode();
-            ClientLifecycleEvent.CLIENT_SETUP.register(instance -> MineTogetherClient.init());
-            ServerLifecycleEvents.SERVER_STARTING.register(instance -> MineTogetherServer.init());
+
+            if(Platform.getEnv() == EnvType.CLIENT) MineTogetherClient.init();
+            if(Platform.getEnv() == EnvType.SERVER) MineTogetherServer.init();
 
         } catch (Exception e)
         {
