@@ -42,11 +42,13 @@ dependencies {
     implementation 'com.github.scribejava:scribejava-apis:6.9.0'
     implementation 'com.github.scribejava:scribejava-core:6.9.0'
     implementation("net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}")
+    implementation 'io.sentry:sentry:5.7.2'
 
     shadowCommon 'org.nanohttpd:nanohttpd:2.3.1'
     shadowCommon 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowCommon 'com.github.scribejava:scribejava-core:6.9.0'
     shadowCommon "net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}"
+    shadowCommon "io.sentry:sentry:5.7.2"
 }
 
 processResources {
@@ -72,7 +74,7 @@ shadowJar {
     relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
     relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
     relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
-//    relocate 'net.creeperhost.minetogether.lib', 'net.creeperhost.minetogether.minetogetherlib'
+    relocate 'io.sentry', 'net.creeperhost.minetogether.io.sentry'
 
 //    classifier '' // Replace the default JAR
     classifier "dev-shadow"
