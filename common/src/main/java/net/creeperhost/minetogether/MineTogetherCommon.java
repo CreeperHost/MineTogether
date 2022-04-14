@@ -27,7 +27,7 @@ public class MineTogetherCommon
         Sentry.init(options -> {
             options.setDsn("https://07fc3e3411eb4c44849d2eb1faa28092@sentry.creeperhost.net/7");
             options.setTracesSampleRate(Platform.isDevelopmentEnvironment() ? 1.0 : 0.025);
-            options.setEnvironment(SharedConstants.getCurrentVersion().getName());
+            options.setEnvironment(Platform.getMinecraftVersion());
             options.setRelease(Constants.VERSION);
 //            options.setTag("commit", BuildInfo.version);
             options.setTag("modloader", Minecraft.getInstance().getLaunchedVersion());
