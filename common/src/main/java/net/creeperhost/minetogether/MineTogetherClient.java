@@ -2,7 +2,6 @@ package net.creeperhost.minetogether;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientRawInputEvent;

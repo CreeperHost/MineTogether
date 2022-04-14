@@ -71,10 +71,8 @@ public class ChatModule
 
         mineTogetherChat = new MineTogetherChat(ourNick, MineTogetherClient.getPlayerHash(), online, realName, signature, serverID, ChatListener.INSTANCE);
         Sentry.setTag("isOnline", String.valueOf(online));
-        Sentry.setTag("nick", ourNick);
         Sentry.setTag("hash", MineTogetherClient.getPlayerHash());
         Sentry.setTag("signature", signature);
-        Sentry.setTag("serverID", serverID != null ? serverID : "null");
 
         if(serverID != null && !serverID.isEmpty())
         {
@@ -153,7 +151,7 @@ public class ChatModule
             FileUtils.writeStringToFile(mutedUsersPath.toFile(), gson.toJson(mutedUsers), Charset.defaultCharset());
         } catch (IOException e)
         {
-            Sentry.captureException(e);
+            MineTogetherCommon.sentryException(e);
         }
     }
 
@@ -187,7 +185,7 @@ public class ChatModule
             FileUtils.writeStringToFile(mutedUsersPath.toFile(), gson.toJson(mutedUsers), Charset.defaultCharset());
         } catch (IOException e)
         {
-            Sentry.captureException(e);
+            MineTogetherCommon.sentryException(e);
         }
     }
 
@@ -219,7 +217,7 @@ public class ChatModule
             }
         } catch (Exception e)
         {
-            Sentry.captureException(e);
+            MineTogetherCommon.sentryException(e);
         }
     }
 

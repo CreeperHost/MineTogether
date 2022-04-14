@@ -5,8 +5,11 @@ import dev.architectury.platform.Platform;
 import dev.architectury.utils.EnvExecutor;
 import io.sentry.Sentry;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.chat.ChatConnectionStatus;
+import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.fabricmc.api.EnvType;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 
@@ -23,7 +26,7 @@ public class MineTogetherCommon
         Sentry.init(options -> {
             options.setDsn("https://07fc3e3411eb4c44849d2eb1faa28092@sentry.creeperhost.net/7");
             options.setTracesSampleRate(Platform.isDevelopmentEnvironment() ? 1.0 : 0.025);
-//            options.setEnvironment(SharedConstants.getCurrentVersion().getName());
+            options.setEnvironment(SharedConstants.getCurrentVersion().getName());
             options.setRelease(Constants.VERSION);
 //            options.setTag("commit", BuildInfo.version);
             options.setTag("modloader", Minecraft.getInstance().getLaunchedVersion());
@@ -50,5 +53,12 @@ public class MineTogetherCommon
     public static void serverInit()
     {
         EnvExecutor.runInEnv(EnvType.SERVER, () -> MineTogetherServer::init);
+    }
+
+    public static void sentryException(Throwable throwable)
+    {
+        Sentry.setTag("verified", ChatHandler.connectionStatus == ChatConnectionStatus.VERIFIED ? "true" : "false");
+        Sentry.setTag("banned", ChatHandler.connectionStatus == ChatConnectionStatus.BANNED ? "true" : "false");
+        Sentry.captureException(throwable);
     }
 }

@@ -2,9 +2,12 @@ package net.creeperhost.minetogether.threads;
 
 import com.google.gson.*;
 import io.sentry.Sentry;
+import io.sentry.SentryLevel;
 import net.creeperhost.minetogether.MineTogetherClient;
+import net.creeperhost.minetogether.MineTogetherCommon;
 import net.creeperhost.minetogether.lib.chat.ChatCallbacks;
 import net.creeperhost.minetogether.lib.chat.KnownUsers;
+import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.data.Profile;
 import net.creeperhost.minetogether.lib.util.WebUtils;
 
@@ -21,18 +24,21 @@ public class FriendUpdateThread
     public static void init()
     {
         Runnable runnable = FriendUpdateThread::updateFriendsList;
-        executorService.scheduleAtFixedRate(runnable, 0, 30, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(runnable, 60, 60, TimeUnit.SECONDS);
     }
 
     public static void updateFriendsList()
     {
+        if(MineTogetherChat.INSTANCE == null) return;
+
+        String resp = "empty";
         try
         {
             Map<String, String> sendMap = new HashMap<String, String>();
             {
-                sendMap.put("hash", ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()));
+                sendMap.put("hash", MineTogetherChat.INSTANCE.hash);//ChatCallbacks.getPlayerHash(MineTogetherClient.getUUID()));
             }
-            String resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true);
+            resp = WebUtils.putWebResponse("https://api.creeper.host/serverlist/listfriend", new Gson().toJson(sendMap), true, true, 20000);
             JsonElement el = new JsonParser().parse(resp);
             if (el.isJsonObject())
             {
@@ -56,9 +62,13 @@ public class FriendUpdateThread
                         {
                             Profile friendProfile = KnownUsers.findByHash(code);
                             if (friendProfile == null) friendProfile = KnownUsers.add(code);
-                            friendProfile.setFriendName(name);
-                            friendProfile.setFriend(true);
-                            KnownUsers.update(friendProfile);
+                            //Could still be null after trying to add
+                            if(friendProfile != null)
+                            {
+                                friendProfile.setFriendName(name);
+                                friendProfile.setFriend(true);
+                                KnownUsers.update(friendProfile);
+                            }
                         }
                     }
                 }
@@ -66,7 +76,9 @@ public class FriendUpdateThread
             //This can fail due to web request timing out it seems, Catching the exception to avoid killing the thread
         } catch (Exception e)
         {
-            Sentry.captureException(e);
+            Sentry.setLevel(SentryLevel.WARNING);
+            Sentry.setExtra("resp", resp);
+            MineTogetherCommon.sentryException(e);
         }
     }
 
@@ -77,7 +89,7 @@ public class FriendUpdateThread
             executorService.shutdownNow();
         } catch (Exception e)
         {
-            e.printStackTrace();
+            MineTogetherCommon.sentryException(e);
         }
     }
 }
