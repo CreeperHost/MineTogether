@@ -193,6 +193,8 @@ public class ChatModule
 
     public static void loadMutedList()
     {
+        if(!mutedUsersPath.toFile().exists()) return;
+
         Gson gson = new Gson();
         try
         {
