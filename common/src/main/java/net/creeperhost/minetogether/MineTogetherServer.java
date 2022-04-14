@@ -57,7 +57,7 @@ public class MineTogetherServer
         if (minecraftServer instanceof DedicatedServer)
         {
             buildMineTogetherServerThread();
-            createHash(minecraftServer);
+            createHash();
         }
     }
 
@@ -94,7 +94,7 @@ public class MineTogetherServer
         MineTogetherServerThread.startMineTogetherServerThread(server_ip, displayName, projectID, minecraftServer.getPort(), discover);
     }
 
-    public static String createHash(MinecraftServer server)
+    public static String createHash()
     {
         try
         {
@@ -106,11 +106,11 @@ public class MineTogetherServer
 
             String packID = MineTogetherServer.packID;
 
-            String base64 = Base64.getEncoder().encodeToString((String.valueOf(ipaddress) + String.valueOf(packID)).getBytes());
-            return base64;
+            return Base64.getEncoder().encodeToString((String.valueOf(ipaddress) + String.valueOf(packID)).getBytes());
 
-        } catch (Exception ignored)
+        } catch (Exception e)
         {
+            MineTogetherCommon.sentryException(e);
         }
         return "";
     }
