@@ -62,7 +62,7 @@ public class ConnectModule
                     openToLan.y = feedBack.y;
                 }
 
-                Button guiButton = new Button(screen.width / 2 - 100, screen.height / 4 + 72 + -16, 98, 20, new TranslatableComponent("minetogether.connect.open"), (button) -> Minecraft.getInstance().setScreen(new GuiShareToFriends(screen)));
+                Button guiButton = new Button(screen.width / 2 - 102, screen.height / 4 + 72 + -16, 98, 20, new TranslatableComponent("minetogether.connect.open"), (button) -> Minecraft.getInstance().setScreen(new GuiShareToFriends(screen)));
 
                 guiButton.active = !integratedServer.isPublished();
                 ScreenHooks.addRenderableWidget(screen, guiButton);
