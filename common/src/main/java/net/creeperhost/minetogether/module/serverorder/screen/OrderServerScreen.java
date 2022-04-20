@@ -34,6 +34,8 @@ public abstract class OrderServerScreen extends Screen
     @Override
     public void init()
     {
+        clearWidgets();
+
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui(true);
         addNavigationButtons();

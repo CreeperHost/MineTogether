@@ -33,6 +33,8 @@ public class QuoteScreen extends OrderServerScreen
     @Override
     public void init()
     {
+        clearWidgets();
+
         int start = (this.width / 2) + 10;
         int end = this.width;
         int middle = (end - start) / 2;

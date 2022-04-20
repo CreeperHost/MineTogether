@@ -37,6 +37,8 @@ public class GeneralServerInfoScreen extends OrderServerScreen
     @Override
     public void init()
     {
+        clearWidgets();
+
         super.init();
         int halfWidth = this.width / 2;
         int halfHeight = this.height / 2;

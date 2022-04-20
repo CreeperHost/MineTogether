@@ -63,10 +63,11 @@ public class PersonalDetailsScreen extends OrderServerScreen
     @Override
     public void init()
     {
+        clearWidgets();
         super.init();
 
         addWidget(this.list = new ScreenList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36));
-        addRenderableWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent("")));
+        addWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent("")));
 
         updateList();
 
@@ -541,6 +542,13 @@ public class PersonalDetailsScreen extends OrderServerScreen
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton)
     {
+        if(buttonList != null)
+        {
+            if (buttonList.isMouseOver(mouseX, mouseY))
+            {
+                return buttonList.mouseClicked(mouseX, mouseY, mouseButton);
+            }
+        }
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
         int info2Start = (this.height / 2) - 50;

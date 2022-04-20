@@ -34,6 +34,8 @@ public class MapScreen extends OrderServerScreen
     @Override
     public void init()
     {
+        clearWidgets();
+
         super.init();
         int y = (this.height / 2) + 20;
         regions = ServerOrderCallbacks.getRegionMap();

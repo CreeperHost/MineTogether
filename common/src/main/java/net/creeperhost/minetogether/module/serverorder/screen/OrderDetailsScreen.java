@@ -50,6 +50,8 @@ public class OrderDetailsScreen extends OrderServerScreen
     @Override
     public void init()
     {
+        clearWidgets();
+
         super.init();
         this.buttonNext.setMessage(new TranslatableComponent("minetogether.button.finish"));
         this.buttonNext.visible = false;
