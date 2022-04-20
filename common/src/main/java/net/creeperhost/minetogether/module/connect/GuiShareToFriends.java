@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.module.connect;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.mixin.MixinShareToLanScreen;
 import net.creeperhost.minetogetherconnect.ConnectMain;
+import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -69,7 +70,7 @@ public class GuiShareToFriends extends ShareToLanScreen
     {
         super.init();
 
-        AbstractWidget startButton = (AbstractWidget) children().get(0);
+        AbstractWidget startButton = ButtonHelper.removeButton("lanServer.start", this);
 
         if (ConnectHelper.isEnabled && startButton != null)
         {
@@ -85,7 +86,7 @@ public class GuiShareToFriends extends ShareToLanScreen
                 Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
             }));
         } else {
-            AbstractWidget cancelButton = (AbstractWidget) children().get(1);
+            AbstractWidget cancelButton = ButtonHelper.removeButton("gui.cancel", this);
 
             if(cancelButton != null)
             {
