@@ -42,7 +42,10 @@ dependencies {
     implementation 'com.github.scribejava:scribejava-apis:6.9.0'
     implementation 'com.github.scribejava:scribejava-core:6.9.0'
     implementation("net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}")
-    implementation 'io.sentry:sentry:5.7.2'
+    implementation('io.sentry:sentry:5.7.2')
+    {
+        exclude group: 'com.google', module: 'gson'
+    }
 
     shadowCommon 'org.nanohttpd:nanohttpd:2.3.1'
     shadowCommon 'com.github.scribejava:scribejava-apis:6.9.0'
@@ -67,7 +70,7 @@ shadowJar {
     // Don't shadow netty, we already have it.
     dependencies {
         exclude(dependency("io.netty::"))
-//        exclude(dependency("com.google.guava::"))
+        exclude(dependency("com.google::"))
     }
 
     // Relocate fluent-hc to prevent conflicts with other mods that include it

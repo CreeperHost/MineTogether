@@ -12,7 +12,10 @@ dependencies {
     }
     modImplementation("net.creeperhost:polylib-fabric:${rootProject.polylib_version}")
     modApi("net.creeperhost:polylib-fabric:${rootProject.polylib_version}")
-    implementation 'io.sentry:sentry:5.7.2'
+    implementation('io.sentry:sentry:5.7.2')
+    {
+        exclude group: 'com.google', module: 'gson'
+    }
 }
 
 architectury {
