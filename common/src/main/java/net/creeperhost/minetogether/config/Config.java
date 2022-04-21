@@ -34,6 +34,7 @@ public class Config
     private String issueTrackerUrl;
     private String firstConnect = "";
     private boolean debugMode;
+    private boolean optOutSentry;
 
     private int pregenDiameter = 120;
 
@@ -58,6 +59,7 @@ public class Config
         replaceRealms = true;
         issueTrackerUrl = "https://pste.ch/";
         debugMode = false;
+        optOutSentry = true;
     }
 
     private Config(String version, String promoCode, boolean creeperhostEnabled, boolean mpMenuEnabled, boolean mainMenuEnabled, boolean serverHostButtonImage, boolean serverHostMenuImage)
@@ -156,6 +158,11 @@ public class Config
     public boolean isChatEnabled()
     {
         return chatEnabled && (!argChatDisable);
+    }
+
+    public boolean isOptOutSentry()
+    {
+        return optOutSentry;
     }
 
     public boolean getFirstConnect()
