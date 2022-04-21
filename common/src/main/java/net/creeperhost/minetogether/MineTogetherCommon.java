@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether;
 
 import com.mojang.logging.LogUtils;
-import dev.architectury.event.events.client.ClientLifecycleEvent;
 import dev.architectury.platform.Platform;
 import io.sentry.Sentry;
 import net.creeperhost.minetogether.config.Config;
@@ -9,8 +8,6 @@ import net.creeperhost.minetogether.lib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 
@@ -35,6 +32,7 @@ public class MineTogetherCommon
             options.setDist(System.getProperty("os.arch"));
             options.setServerName(Platform.getEnv() == EnvType.CLIENT ? "integrated" : "dedicated");
             options.setDebug(Platform.isDevelopmentEnvironment());
+            options.addInAppInclude("net.creeperhost.minetogether");
         });
         try
         {
