@@ -38,14 +38,17 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
+    forgeRuntimeLibrary('org.nanohttpd:nanohttpd:2.3.1')
+    forgeRuntimeLibrary('com.github.scribejava:scribejava-apis:6.9.0')
+    forgeRuntimeLibrary('com.github.scribejava:scribejava-core:6.9.0')
+    forgeRuntimeLibrary("net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}")
+    forgeRuntimeLibrary('io.sentry:sentry:5.7.2')
+
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
     implementation 'com.github.scribejava:scribejava-apis:6.9.0'
     implementation 'com.github.scribejava:scribejava-core:6.9.0'
     implementation("net.creeperhost.minetogether:minetogether-api:${rootProject.minetogether_api_version}")
     implementation('io.sentry:sentry:5.7.2')
-    {
-        exclude group: 'com.google', module: 'gson'
-    }
 
     shadowCommon 'org.nanohttpd:nanohttpd:2.3.1'
     shadowCommon 'com.github.scribejava:scribejava-apis:6.9.0'

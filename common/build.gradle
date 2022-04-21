@@ -1,3 +1,12 @@
+architectury {
+    common(rootProject.enabled_platforms.split(","))
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/minetogether.accesswidener")
+}
+
+
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
@@ -10,20 +19,12 @@ dependencies {
         exclude group: 'com.google.guava', module: 'failureaccess'
         exclude group: 'commons-logging', module: 'commons-logging'
     }
-    modImplementation("net.creeperhost:polylib-fabric:${rootProject.polylib_version}")
+    modApi("net.creeperhost:polylib-fabric:${rootProject.polylib_version}")
     modApi("net.creeperhost:polylib-fabric:${rootProject.polylib_version}")
     implementation('io.sentry:sentry:5.7.2')
     {
         exclude group: 'com.google', module: 'gson'
     }
-}
-
-architectury {
-    common()
-}
-
-loom {
-    accessWidenerPath = file("src/main/resources/minetogether.accesswidener")
 }
 
 publishing {
