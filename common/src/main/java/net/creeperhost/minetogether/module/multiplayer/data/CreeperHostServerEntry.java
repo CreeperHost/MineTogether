@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.server.LanServer;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -31,7 +32,7 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
 
     public CreeperHostServerEntry(ServerSelectionList serverSelectionList)
     {
-        super(null, null);
+        super(null, new LanServer("", ""));
         this.serverSelectionList = serverSelectionList;
 
         removeButton = new ButtonString(0, 0, 10, 10, new TranslatableComponent(ChatFormatting.RED + new String(Character.toChars(10006))), button ->
@@ -71,7 +72,7 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             removeButton.x = listWidth + x - Minecraft.getInstance().font.width(new String(Character.toChars(10006))) - 4;
             removeButton.y = y;
 
-            if (removeButton.isHoveredOrFocused())
+            if (removeButton.isMouseOver(mouseX, mouseY))
             {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 final int tooltipY = mouseY + ((mc.screen.width / 2 >= mouseY) ? 11 : -11);
