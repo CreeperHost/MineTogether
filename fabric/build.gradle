@@ -51,6 +51,15 @@ processResources {
 
 shadowJar {
     configurations = [project.configurations.shadowCommon]
+
+    dependencies {
+        exclude(dependency("io.netty::"))
+        exclude(dependency("com.google::"))
+    }
+
+    relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
+    relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
+    relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
     relocate 'io.sentry', 'net.creeperhost.minetogether.io.sentry'
     classifier "dev-shadow"
 }
