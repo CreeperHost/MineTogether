@@ -8,7 +8,6 @@ import net.creeperhost.minetogether.lib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
 import net.fabricmc.api.EnvType;
-import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -32,7 +31,7 @@ public class MineTogetherCommon
                 options.setEnvironment(Platform.getMinecraftVersion());
                 options.setRelease(Constants.VERSION);
                 //            options.setTag("commit", BuildInfo.version);
-                options.setTag("modloader", Minecraft.getInstance().getLaunchedVersion());
+                options.setTag("modloader", Platform.isForge() ? "forge" : "fabric");
                 options.setTag("ram", String.valueOf(((Runtime.getRuntime().maxMemory() / 1024) / 1024)));
                 options.setDist(System.getProperty("os.arch"));
                 options.setServerName(Platform.getEnv() == EnvType.CLIENT ? "integrated" : "dedicated");
