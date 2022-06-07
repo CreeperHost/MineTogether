@@ -39,6 +39,8 @@ public class ChatFormatter
     {
         try
         {
+            //Remove our data from the string before we parse it
+            message.messageStr = message.messageStr.replace("[!MineTogetherMessage]", "");
             String inputNick = message.sender;
             String outputNick = inputNick;
 
