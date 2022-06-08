@@ -13,7 +13,7 @@ import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -53,13 +53,13 @@ public class OrderDetailsScreen extends OrderServerScreen
         clearWidgets();
 
         super.init();
-        this.buttonNext.setMessage(new TranslatableComponent("minetogether.button.finish"));
+        this.buttonNext.setMessage(Component.translatable("minetogether.button.finish"));
         this.buttonNext.visible = false;
-        buttonCancel.setMessage(new TranslatableComponent("minetogether.order.ordercancel"));
+        buttonCancel.setMessage(Component.translatable("minetogether.order.ordercancel"));
         buttonCancel.active = false;
         buttonPrev.active = false;
         buttonPrev.visible = false;
-        buttonInvoice = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, new TranslatableComponent("minetogether.button.invoice"), p ->
+        buttonInvoice = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, Component.translatable("minetogether.button.invoice"), p ->
         {
             try
             {
@@ -164,7 +164,7 @@ public class OrderDetailsScreen extends OrderServerScreen
     {
         ServerList savedServerList = new ServerList(this.minecraft);
         savedServerList.load();
-        savedServerList.add(getServerEntry(order));
+        savedServerList.add(getServerEntry(order), false);
         savedServerList.save();
         return true;
     }
@@ -187,7 +187,7 @@ public class OrderDetailsScreen extends OrderServerScreen
         else if (!createdAccountError.isEmpty())
         {
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
-            List<FormattedCharSequence> list = ComponentRenderUtils.wrapComponents(new TranslatableComponent(createdAccountError), width - 30, font);
+            List<FormattedCharSequence> list = ComponentRenderUtils.wrapComponents(Component.translatable(createdAccountError), width - 30, font);
             int offset = 10;
             for (FormattedCharSequence str : list)
             {
@@ -205,7 +205,7 @@ public class OrderDetailsScreen extends OrderServerScreen
         else if (!placedOrderError.isEmpty())
         {
             drawCenteredString(matrixStack, font, I18n.get("minetogether.order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
-            List<FormattedCharSequence> list = ComponentRenderUtils.wrapComponents(new TranslatableComponent(placedOrderError), width - 30, font);
+            List<FormattedCharSequence> list = ComponentRenderUtils.wrapComponents(Component.translatable(placedOrderError), width - 30, font);
             int offset = 10;
             for (FormattedCharSequence str : list)
             {

@@ -26,8 +26,6 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import org.apache.commons.lang3.Validate;
@@ -51,10 +49,10 @@ public class PublicServerEntry extends ServerSelectionList.Entry
     private final ResourceLocation iconLocation;
     private static final ThreadPoolExecutor THREAD_POOL = new ScheduledThreadPoolExecutor(5, (new ThreadFactoryBuilder()).setNameFormat("Server Pinger #%d").setDaemon(true).setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(MineTogetherCommon.logger)).build());
     private final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/server_selection.png");
-    private final Component CANT_RESOLVE_TEXT = (new TranslatableComponent("multiplayer.status.cannot_resolve")).withStyle(ChatFormatting.DARK_RED);
-    private final Component NO_CONNECTION_TOOLTIP = new TranslatableComponent("multiplayer.status.no_connection");
-    private final Component CANT_CONNECT_TEXT = (new TranslatableComponent("multiplayer.status.cannot_connect")).withStyle(ChatFormatting.DARK_RED);
-    private final Component PINGING_TOOLTIP = new TranslatableComponent("multiplayer.status.pinging");
+    private final Component CANT_RESOLVE_TEXT = Component.translatable("multiplayer.status.cannot_resolve").withStyle(ChatFormatting.DARK_RED);
+    private final Component NO_CONNECTION_TOOLTIP = Component.translatable("multiplayer.status.no_connection");
+    private final Component CANT_CONNECT_TEXT = Component.translatable("multiplayer.status.cannot_connect").withStyle(ChatFormatting.DARK_RED);
+    private final Component PINGING_TOOLTIP = Component.translatable("multiplayer.status.pinging");
     private final ResourceLocation ICON_MISSING = new ResourceLocation("textures/misc/unknown_server.png");
     private long lastClickTime;
 
@@ -81,8 +79,8 @@ public class PublicServerEntry extends ServerSelectionList.Entry
         {
             this.serverData.pinged = true;
             this.serverData.ping = -2L;
-            this.serverData.motd = TextComponent.EMPTY;
-            this.serverData.status = TextComponent.EMPTY;
+            this.serverData.motd = Component.empty();
+            this.serverData.status = Component.empty();
             THREAD_POOL.submit(() ->
             {
                 try
@@ -128,7 +126,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry
         if (bl2)
         {
             z = 5;
-            component5 = new TranslatableComponent("");
+            component5 = Component.empty();
             list5 = this.serverData.playerList;
         }
         else if (this.serverData.pinged && this.serverData.ping != -2L)
@@ -165,7 +163,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry
             }
             else
             {
-                component5 = new TranslatableComponent("multiplayer.status.ping", new Object[]{this.serverData.ping});
+                component5 = Component.translatable("multiplayer.status.ping", this.serverData.ping);
                 list5 = this.serverData.playerList;
             }
         }
@@ -219,7 +217,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry
             this.joinMultiplayerScreen.setToolTip(list5);
         }
 
-        if (this.minecraft.options.touchscreen || bl)
+        if (this.minecraft.options.touchscreen().get() || bl)
         {
             RenderSystem.setShaderTexture(0, ICON_OVERLAY_LOCATION);
             GuiComponent.fill(poseStack, k, j, k + 32, j + 32, -1601138544);
@@ -272,7 +270,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry
                     {
                         countryName = flag.name();
                     }
-                    tooltipList.add(new TranslatableComponent(countryName));
+                    tooltipList.add(Component.translatable(countryName));
                     joinMultiplayerScreen.setToolTip(tooltipList);
                 }
             }
@@ -371,6 +369,6 @@ public class PublicServerEntry extends ServerSelectionList.Entry
     @Override
     public Component getNarration()
     {
-        return new TranslatableComponent("narrator.select", new Object[]{this.serverData.name});
+        return Component.translatable("narrator.select", this.serverData.name);
     }
 }

@@ -11,7 +11,6 @@ import net.creeperhost.minetogetherconnect.ConnectMain;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -40,7 +39,7 @@ public abstract class MixinPlayerList {
         }
     }
 
-    private static final Component NOT_FRIEND_COMPONENT = new TranslatableComponent("minetogether.connect.join.notfriend");
+    private static final Component NOT_FRIEND_COMPONENT = Component.translatable("minetogether.connect.join.notfriend");
 
     @Inject(at = @At("RETURN"), method = "canPlayerLogin(Ljava/net/SocketAddress;Lcom/mojang/authlib/GameProfile;)Lnet/minecraft/network/chat/Component;", cancellable = true)
     private void canPlayerJoinHook(SocketAddress socket, GameProfile profile, CallbackInfoReturnable<Component> cir)

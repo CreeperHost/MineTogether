@@ -10,7 +10,7 @@ import net.creeperhost.minetogether.module.chat.ChatFormatter;
 import net.creeperhost.minetogether.module.chat.ChatModule;
 import net.creeperhost.polylib.client.toast.SimpleToast;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -22,7 +22,7 @@ public class ChatListener implements IChatListener
     @Override
     public void onPartyInvite(Profile profile)
     {
-        SimpleToast simpleToast = new SimpleToast(new TextComponent("New party invite from "), new TextComponent(profile.getFriendName()), Constants.MINETOGETHER_LOGO_LOCATION);
+        SimpleToast simpleToast = new SimpleToast(Component.literal("New party invite from "), Component.literal(profile.getFriendName()), Constants.MINETOGETHER_LOGO_LOCATION);
         Minecraft.getInstance().getToasts().addToast(simpleToast);
 
         //TODO add a runnable to SimpleToast
@@ -44,7 +44,7 @@ public class ChatListener implements IChatListener
     @Override
     public void onFriendOnline(Profile profile)
     {
-        SimpleToast simpleToast = new SimpleToast(new TextComponent(profile.getFriendName() + " Is now online"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+        SimpleToast simpleToast = new SimpleToast(Component.literal(profile.getFriendName() + " Is now online"), Component.literal(" "), Constants.MINETOGETHER_LOGO_LOCATION);
         Minecraft.getInstance().getToasts().addToast(simpleToast);
 
 //        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(profile.getFriendName() + " Is now online"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
@@ -53,7 +53,7 @@ public class ChatListener implements IChatListener
     @Override
     public void onFriendAccept(String name, String data)
     {
-        SimpleToast simpleToast = new SimpleToast(new TextComponent(name + " Has accepted your friend request"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+        SimpleToast simpleToast = new SimpleToast(Component.literal(name + " Has accepted your friend request"), Component.literal(" "), Constants.MINETOGETHER_LOGO_LOCATION);
         Minecraft.getInstance().getToasts().addToast(simpleToast);
 
 //        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(name + " Has accepted your friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);
@@ -77,7 +77,7 @@ public class ChatListener implements IChatListener
     @Override
     public void onFriendRequest(String user, String data)
     {
-        SimpleToast simpleToast = new SimpleToast(new TextComponent(user + " Has sent you a friend request"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+        SimpleToast simpleToast = new SimpleToast(Component.literal(user + " Has sent you a friend request"), Component.literal(" "), Constants.MINETOGETHER_LOGO_LOCATION);
         Minecraft.getInstance().getToasts().addToast(simpleToast);
 
 //        MineTogetherClient.toastHandler.displayToast(new TranslatableComponent(user + " Has sent you a friend request"), 5000, ToastHandler.EnumToastType.DEFAULT, null);

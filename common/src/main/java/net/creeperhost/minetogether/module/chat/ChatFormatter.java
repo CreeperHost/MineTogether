@@ -17,7 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,10 +46,8 @@ public class ChatFormatter
             if (inputNick.contains(":"))
             {
                 String[] split = inputNick.split(":");
-                switch (split[0])
-                {
-                    case "FR":
-                    { // new scope because Java is stupid
+                switch (split[0]) {
+                    case "FR" -> { // new scope because Java is stupid
                         if (split.length < 2) return null;
 
                         String nick = split[1];
@@ -72,24 +69,22 @@ public class ChatFormatter
 
                         String friendName = nameBuilder.toString();
 
-                        Component userComp = new TranslatableComponent("(" + nickDisplay + ") would like to add you as a friend. Click to ");
+                        Component userComp = Component.literal("(" + nickDisplay + ") would like to add you as a friend. Click to ");
 
-                        Component accept = new TranslatableComponent("<Accept>");
+                        Component accept = Component.literal("<Accept>");
                         accept = accept.copy().withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "AC:" + nick + ":" + friendCode + ":" + friendName)).withColor(TextColor.fromLegacyFormat(ChatFormatting.GREEN)));
                         userComp.getSiblings().add(accept);
 
                         return userComp;
                     }
-                    case "FA":
+                    case "FA" -> {
                         if (split.length < 2) return null;
                         String nick = split[1];
                         Profile profile = KnownUsers.findByNick(nick);
                         if (profile == null) profile = KnownUsers.add(nick);
                         String nickDisplay = profile.isFriend() ? profile.getFriendName() : profile.getUserDisplay();
-
-                        Component userComp = new TranslatableComponent(" (" + nickDisplay + ") accepted your friend request.");
-
-                        return userComp;
+                        return Component.literal(" (" + nickDisplay + ") accepted your friend request.");
+                    }
                 }
             }
             AtomicBoolean premium = new AtomicBoolean(false);
@@ -123,7 +118,7 @@ public class ChatFormatter
                 return null;
             }
 
-            Component base = new TranslatableComponent("");
+            Component base = Component.empty();
 
             ChatFormatting nickColour = ChatFormatting.WHITE;
             ChatFormatting arrowColour = ChatFormatting.WHITE;
@@ -139,7 +134,7 @@ public class ChatFormatter
                 }
             }
 
-            Component userComp = new TranslatableComponent(outputNick);
+            Component userComp = Component.literal(outputNick);
 
             String messageStr = message.messageStr;
 
@@ -182,7 +177,7 @@ public class ChatFormatter
 
             if ((profile != null && profile.isBanned()) || ChatHandler.backupBan.get().contains(inputNick))
             {
-                messageComp = new TranslatableComponent(ChatFormatting.OBFUSCATED + "<Message Deleted>").copy().withStyle(style -> style.withColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY)));
+                messageComp = Component.literal(ChatFormatting.OBFUSCATED + "<Message Deleted>").copy().withStyle(style -> style.withColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY)));
                 messageColour = ChatFormatting.DARK_GRAY;
             }
 
@@ -204,7 +199,7 @@ public class ChatFormatter
                 arrowColour = premium.get() ? ChatFormatting.GREEN : ChatFormatting.GRAY;
                 messageColour = ChatFormatting.GRAY;
                 outputNick = MineTogetherChat.profile.get().getUserDisplay();
-                userComp = new TranslatableComponent(outputNick);
+                userComp = Component.literal(outputNick);
             }
 
             if (premium.get())
@@ -220,13 +215,13 @@ public class ChatFormatter
                     messageStr = messageStr.substring(outputNick.length() + 1);
                     outputNick = outputNick.substring(0, outputNick.length() - 1);
                     messageComp = newChatWithLinksOurs(messageStr);
-                    userComp = new TranslatableComponent(outputNick);
+                    userComp = Component.literal(outputNick);
                 }
                 nickColour = ChatFormatting.AQUA;
             }
 
             //Resetting the colour back to default as this causes an issue for the message
-            userComp = new TranslatableComponent(arrowColour + "<" + nickColour + userComp.getString() + arrowColour + "> ");
+            userComp = Component.literal(arrowColour + "<" + nickColour + userComp.getString() + arrowColour + "> ");
 
             if (!inputNick.equals(MineTogetherChat.INSTANCE.ourNick) && inputNick.startsWith("MT"))
             {
@@ -239,7 +234,7 @@ public class ChatFormatter
 
             if (Config.getInstance().getFirstConnect())
             {
-                messageComp = new TranslatableComponent(messageComp.getString());
+                messageComp = Component.translatable(messageComp.getString());
                 messageComp = messageComp.copy().withStyle(style -> style.withFont(Constants.GALACTIC_ALT_FONT));
             }
 
@@ -253,7 +248,7 @@ public class ChatFormatter
             MineTogetherCommon.logger.error("Failed to format line: Sender " + message.sender + " Message" + message.messageStr);
             e.printStackTrace();
         }
-        return new TranslatableComponent("Error formatting line, Please report this to the issue tracker");
+        return Component.literal("Error formatting line, Please report this to the issue tracker");
     }
 
     public static String rot13(String input)
@@ -388,7 +383,7 @@ public class ChatFormatter
         {
             Component oldcomponent = component;
             List<Component> siblings = oldcomponent.getSiblings();
-            component = new TranslatableComponent("");
+            component = Component.empty();
             component.getSiblings().add(oldcomponent);
             for (Component sibling : siblings)
             {

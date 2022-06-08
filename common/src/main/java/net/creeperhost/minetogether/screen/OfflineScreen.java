@@ -20,17 +20,13 @@ import java.util.regex.Pattern;
 
 public class OfflineScreen extends MineTogetherScreen
 {
-    private final String offlineText = offline0 + "\n\n\n" + offline1 + "\n\n" + offline2 + "\n\n";
-    private static final String offline0 = I18n.get("minetogether.offlinetext");
-    private static final String offline1 = I18n.get("minetogether.offlinetext1");
-    private static final String offline2 = I18n.get("minetogether.offlinetext2");
     private Checkbox checkBox;
 
     private List<FormattedCharSequence> gdprlines;
 
     public OfflineScreen()
     {
-        super(new TranslatableComponent("minetogether.screen.offline"));
+        super(Component.translatable("minetogether.screen.offline"));
     }
 
     @Override
@@ -39,8 +35,12 @@ public class OfflineScreen extends MineTogetherScreen
         super.init();
         final String regex = "\\((.*?)\\|(.*?)\\)";
 
+        String offline0 = I18n.get("minetogether.offlinetext");
+        String offline1 = I18n.get("minetogether.offlinetext1");
+        String offline2 = I18n.get("minetogether.offlinetext2");
+        String currentText = offline0 + "\n\n\n" + offline1 + "\n\n" + offline2 + "\n\n";
+
         final Pattern pattern = Pattern.compile(regex);
-        String currentText = offlineText;
         final Matcher matcher = pattern.matcher(currentText);
 
         int lastEnd = 0;
@@ -56,25 +56,25 @@ public class OfflineScreen extends MineTogetherScreen
             String part = currentText.substring(lastEnd, start);
             if (part.length() > 0)
             {
-                if (component == null) component = new TranslatableComponent(part);
-                else component = component.copy().append(new TranslatableComponent(part));
+                if (component == null) component = Component.translatable(part);
+                else component = component.copy().append(Component.translatable(part));
             }
 
             lastEnd = end;
-            Component link = new TranslatableComponent(matcher.group(1));
+            Component link = Component.translatable(matcher.group(1));
             Style style = link.getStyle();
             style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, matcher.group(2)));
             style.withColor(TextColor.fromLegacyFormat(ChatFormatting.BLUE));
             style.withUnderlined(true);
-            style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("order.url")));
+            style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("order.url")));
 
             if (component == null) component = link;
             else component = component.copy().append(link);
         }
 
-        if (component == null) component = new TranslatableComponent("");
+        if (component == null) component = Component.empty();
 
-        component = component.copy().append(new TranslatableComponent(currentText.substring(lastEnd)));
+        component = component.copy().append(Component.translatable(currentText.substring(lastEnd)));
 
         gdprlines = ComponentRenderUtils.wrapComponents(component, width - 10, minecraft.font);
         addButtons();
@@ -82,7 +82,7 @@ public class OfflineScreen extends MineTogetherScreen
 
     public void addButtons()
     {
-        addRenderableWidget(new Button((width / 2) - 40, height - 40, 80, 20, new TranslatableComponent("Continue"), (b) ->
+        addRenderableWidget(new Button((width / 2) - 40, height - 40, 80, 20, Component.literal("Continue"), (b) ->
         {
             File offline = new File(Platform.getGameFolder() + "/local/minetogether/offline.txt");
             if (checkBox.selected())
@@ -98,7 +98,7 @@ public class OfflineScreen extends MineTogetherScreen
             }
             Minecraft.getInstance().setScreen(new TitleScreen());
         }));
-        addRenderableWidget(checkBox = new Checkbox((width / 2) - (font.width("Do not show this screen again") / 2), height - 80, 150, 20, new TranslatableComponent("Do not show this screen again"), true));
+        addRenderableWidget(checkBox = new Checkbox((width / 2) - (font.width("Do not show this screen again") / 2), height - 80, 150, 20, Component.literal("Do not show this screen again"), true));
     }
 
     @Override

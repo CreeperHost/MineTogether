@@ -35,7 +35,6 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -63,13 +62,13 @@ public class ChatScreen extends MineTogetherScreen
 
     public ChatScreen(Screen parent)
     {
-        super(new TranslatableComponent("MineTogether Chat"));
+        super(Component.literal("MineTogether Chat"));
         this.parent = parent;
     }
 
     public ChatScreen(Screen parent, String currentTarget)
     {
-        super(new TranslatableComponent("MineTogether Chat"));
+        super(Component.literal("MineTogether Chat"));
         this.parent = parent;
         this.currentTarget = currentTarget;
     }
@@ -81,7 +80,7 @@ public class ChatScreen extends MineTogetherScreen
         chat = new ScrollingChat(this, width, height, 13);
         chat.setLeftPos(10);
         chat.updateLines(currentTarget);
-        send = new EditBox(minecraft.font, 11, this.height - 48, width - 22, 20, new TranslatableComponent(""));
+        send = new EditBox(minecraft.font, 11, this.height - 48, width - 22, 20, Component.empty());
         send.setFocus(true);
         send.setMaxLength(256);
 
@@ -91,7 +90,7 @@ public class ChatScreen extends MineTogetherScreen
 
     public void addButtons()
     {
-        addRenderableWidget(targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, new TranslatableComponent("Chat: %s"), Target.getMainTarget(), true, p ->
+        addRenderableWidget(targetDropdownButton = new DropdownButton<>(width - 5 - 100, 5, 100, 20, Component.literal("Chat: %s"), Target.getMainTarget(), true, p ->
         {
             if (!targetDropdownButton.dropdownOpen) return;
             if (!targetDropdownButton.getSelected().getInternalTarget().equals(currentTarget))
@@ -107,7 +106,7 @@ public class ChatScreen extends MineTogetherScreen
         strings.add(I18n.get("minetogether.chat.button.mute"));
         strings.add(I18n.get("minetogether.chat.button.addfriend"));
         strings.add(I18n.get("minetogether.chat.button.mention"));
-        addRenderableWidget(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new Menu(strings), false, p ->
+        addRenderableWidget(menuDropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, Component.literal("Menu"), new Menu(strings), false, p ->
         {
             if (!menuDropdownButton.dropdownOpen) return;
 
@@ -141,7 +140,7 @@ public class ChatScreen extends MineTogetherScreen
             menuDropdownButton.dropdownOpen = false;
         }, false));
 
-        addRenderableWidget(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("Friends list"), p ->
+        addRenderableWidget(friendsList = new Button(5, 5, 100, 20, Component.literal("Friends list"), p ->
         {
             this.minecraft.setScreen(new FriendsListScreen(this));
         }));
@@ -149,14 +148,14 @@ public class ChatScreen extends MineTogetherScreen
         {
             this.minecraft.setScreen(new SettingsScreen(this));
         }));
-        addRenderableWidget(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TranslatableComponent("Cancel"), p ->
+        addRenderableWidget(new Button(width - 100 - 5, height - 5 - 20, 100, 20, Component.literal("Cancel"), p ->
         {
             this.minecraft.setScreen(parent);
         }));
         addRenderableWidget(connectionStatus = new ButtonString(8, height - 20, 70, 20, () ->
         {
             ChatConnectionStatus status = ChatHandler.connectionStatus;
-            return new TranslatableComponent(ChatFormatting.getByName(status.colour) + "\u2022" + " " + ChatFormatting.WHITE + status.display);
+            return Component.translatable(ChatFormatting.getByName(status.colour) + "\u2022" + " " + ChatFormatting.WHITE + status.display);
         }, ButtonString.RenderPlace.EXACT, button ->
         {
             if (ChatHandler.connectionStatus == ChatConnectionStatus.BANNED)
@@ -174,7 +173,7 @@ public class ChatScreen extends MineTogetherScreen
                         }
                     }
                     minecraft.setScreen(this);
-                }, new TranslatableComponent("minetogether.bannedscreen.line1"), new TranslatableComponent("minetogether.bannedscreen.line2"));
+                }, Component.translatable("minetogether.bannedscreen.line1"), Component.translatable("minetogether.bannedscreen.line2"));
 
                 minecraft.setScreen(confirmScreen);
             }
@@ -184,7 +183,7 @@ public class ChatScreen extends MineTogetherScreen
         {
             ChatCallbacks.updateOnlineCount();
 
-            addRenderableWidget(newUserButton = new ButtonNoBlend(width / 2 - 150, 75 + (height / 4), 300, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
+            addRenderableWidget(newUserButton = new ButtonNoBlend(width / 2 - 150, 75 + (height / 4), 300, 20, Component.literal("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
             {
                 IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                 Config.getInstance().setFirstConnect(false);
@@ -193,7 +192,7 @@ public class ChatScreen extends MineTogetherScreen
                 disableButton.visible = false;
                 minecraft.setScreen(this);
             }));
-            addRenderableWidget(disableButton = new ButtonNoBlend(width / 2 - 150, 95 + (height / 4), 300, 20, new TranslatableComponent("Don't ask me again"), p ->
+            addRenderableWidget(disableButton = new ButtonNoBlend(width / 2 - 150, 95 + (height / 4), 300, 20, Component.literal("Don't ask me again"), p ->
             {
                 Config.getInstance().setChatEnabled(false);
                 Config.saveConfigToFile(MineTogetherCommon.configFile.toFile());
@@ -236,7 +235,7 @@ public class ChatScreen extends MineTogetherScreen
     public void renderConnectionStatus()
     {
         ChatConnectionStatus chatConnectionStatus = ChatHandler.connectionStatus;
-        Component comp = new TranslatableComponent(ChatFormatting.getByName(chatConnectionStatus.colour) + "\u2022" + " " + ChatFormatting.WHITE + chatConnectionStatus.display);
+        Component comp = Component.translatable(ChatFormatting.getByName(chatConnectionStatus.colour) + "\u2022" + " " + ChatFormatting.WHITE + chatConnectionStatus.display);
         connectionStatus.setMessage(comp);
     }
 

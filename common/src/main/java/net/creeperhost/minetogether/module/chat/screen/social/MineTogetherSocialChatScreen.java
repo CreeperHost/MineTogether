@@ -11,7 +11,7 @@ import net.creeperhost.minetogether.screen.MineTogetherScreen;
 import net.creeperhost.polylib.client.screenbuilder.ScreenBuilder;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 public class MineTogetherSocialChatScreen extends MineTogetherScreen
@@ -24,14 +24,14 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
 
     public MineTogetherSocialChatScreen(Screen parent, Profile profile)
     {
-        super(new TranslatableComponent(""));
+        super(Component.empty());
         this.parent = parent;
         this.channel = profile.getMediumHash();
     }
 
     public MineTogetherSocialChatScreen(Screen parent, String channel)
     {
-        super(new TranslatableComponent(""));
+        super(Component.empty());
         this.parent = parent;
         this.channel = channel;
     }
@@ -46,7 +46,7 @@ public class MineTogetherSocialChatScreen extends MineTogetherScreen
         chat = new ScrollingChat(this, 222, height, 70, listend, marginX() + 14, false);
         chat.setLeftPos(marginX() + 10);
 
-        chatBox = new EditBox(this.font, (width / 2) - 100, m + 10, 200, 20, new TranslatableComponent(""));
+        chatBox = new EditBox(this.font, (width / 2) - 100, m + 10, 200, 20, Component.empty());
         chatBox.setMaxLength(256);
 
         addRenderableWidget(chat);

@@ -25,8 +25,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
@@ -54,7 +53,7 @@ public class FriendsListScreen extends MineTogetherScreen
 
     public FriendsListScreen(Screen parent)
     {
-        super(new TranslatableComponent("minetogether.friendscreen.title"));
+        super(Component.translatable("minetogether.friendscreen.title"));
         this.parent = parent;
     }
 
@@ -72,10 +71,10 @@ public class FriendsListScreen extends MineTogetherScreen
         chat = new ScrollingChat(this, width - list.getRowWidth() - 40, this.height - 90, 32, this.height - 55, 125, true);
         chat.setLeftPos(list.getRowRight());
 
-        chatBox = new EditBox(this.font, list.getRowRight() + 1, this.height - 50, chat.getWidth() - 2, 20, new TranslatableComponent(""));
+        chatBox = new EditBox(this.font, list.getRowRight() + 1, this.height - 50, chat.getWidth() - 2, 20, Component.empty());
         chatBox.setMaxLength(256);
 
-        searchEntry = new EditBox(this.font, 19, this.height - 50, list.width - 2, 20, new TranslatableComponent(""));
+        searchEntry = new EditBox(this.font, 19, this.height - 50, list.width - 2, 20, Component.empty());
         searchEntry.setSuggestion(I18n.get("minetogether.search"));
 
         addWidget(list);
@@ -88,31 +87,31 @@ public class FriendsListScreen extends MineTogetherScreen
 
     public void addButtons()
     {
-        addRenderableWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
+        addRenderableWidget(new Button(5, height - 26, 100, 20, Component.literal("Cancel"), p -> minecraft.setScreen(parent)));
 
-        addRenderableWidget(friendCodeButton = new ButtonString(width - 105, 5, 120, 20, new TranslatableComponent(MineTogetherChat.profile.get().getFriendCode()), p ->
+        addRenderableWidget(friendCodeButton = new ButtonString(width - 105, 5, 120, 20, Component.literal(MineTogetherChat.profile.get().getFriendCode()), p ->
         {
             minecraft.keyboardHandler.setClipboard(MineTogetherChat.profile.get().getFriendCode());
-            SimpleToast simpleToast = new SimpleToast(new TextComponent("Copied to clipboard."), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+            SimpleToast simpleToast = new SimpleToast(Component.literal("Copied to clipboard."), Component.literal(" "), Constants.MINETOGETHER_LOGO_LOCATION);
             Minecraft.getInstance().getToasts().addToast(simpleToast);
         }));
 
-        addRenderableWidget(removeFriend = new ButtonMultiple(width - 20, 32, 5, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.removebutton"), (button) ->
+        addRenderableWidget(removeFriend = new ButtonMultiple(width - 20, 32, 5, Constants.WIDGETS_LOCATION, Component.translatable("minetogether.friendscreen.tooltip.removebutton"), (button) ->
         {
             removeFriend(targetProfile);
         }));
 
-        addRenderableWidget(blockButton = new ButtonMultiple(width - 20, 52, 6, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.block"), (button) ->
+        addRenderableWidget(blockButton = new ButtonMultiple(width - 20, 52, 6, Constants.WIDGETS_LOCATION, Component.translatable("minetogether.friendscreen.tooltip.block"), (button) ->
         {
             ChatModule.muteUser(targetProfile.getLongHash());
         }));
 
-        addRenderableWidget(partyButton = new ButtonMultiple(width - 20, 72, 7, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.partytime"), (button) ->
+        addRenderableWidget(partyButton = new ButtonMultiple(width - 20, 72, 7, Constants.WIDGETS_LOCATION, Component.translatable("minetogether.friendscreen.tooltip.partytime"), (button) ->
         {
             ChatHandler.sendPartyInvite(targetProfile.getMediumHash(), MineTogetherChat.profile.get().getMediumHash());
         }));
 
-        addRenderableWidget(editButton = new ButtonMultiple(width - 20, 92, 8, Constants.WIDGETS_LOCATION, new TranslatableComponent("minetogether.friendscreen.tooltip.editbutton"), (button) ->
+        addRenderableWidget(editButton = new ButtonMultiple(width - 20, 92, 8, Constants.WIDGETS_LOCATION, Component.translatable("minetogether.friendscreen.tooltip.editbutton"), (button) ->
         {
             try
             {
@@ -123,7 +122,7 @@ public class FriendsListScreen extends MineTogetherScreen
             }
         }));
 
-        addRenderableWidget(mutedList = new Button(5, 5, 100, 20, new TranslatableComponent("Muted List"), p ->
+        addRenderableWidget(mutedList = new Button(5, 5, 100, 20, Component.literal("Muted List"), p ->
         {
             this.minecraft.setScreen(new MutedListScreen(this));
         }));
@@ -140,9 +139,9 @@ public class FriendsListScreen extends MineTogetherScreen
         super.render(poseStack, i, j, f);
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 12, 0xFFFFFF);
         if (list.children().isEmpty())
-            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
+            drawCenteredString(poseStack, font, Component.translatable("minetogether.friendslist.empty"), width / 2, (this.height / 2) - 20, -1);
         if (friendCodeButton != null && friendCodeButton.isHoveredOrFocused())
-            renderTooltip(poseStack, new TranslatableComponent("minetogether.friendslist.copytoclipboard"), i, j);
+            renderTooltip(poseStack, Component.translatable("minetogether.friendslist.copytoclipboard"), i, j);
 
         renderTooltips(poseStack, i, j, f);
     }
@@ -268,7 +267,7 @@ public class FriendsListScreen extends MineTogetherScreen
                 });
             }
             minecraft.setScreen(new FriendsListScreen(parent));
-        }, new TranslatableComponent("minetogether.removefriend.sure1"), new TranslatableComponent("minetogether.removefriend.sure2"));
+        }, Component.translatable("minetogether.removefriend.sure1"), Component.translatable("minetogether.removefriend.sure2"));
         minecraft.setScreen(confirmScreen);
     }
 

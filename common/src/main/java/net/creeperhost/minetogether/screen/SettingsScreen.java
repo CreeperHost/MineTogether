@@ -10,8 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 public class SettingsScreen extends MineTogetherScreen
 {
@@ -20,7 +19,7 @@ public class SettingsScreen extends MineTogetherScreen
 
     public SettingsScreen(Screen parent)
     {
-        super(new TranslatableComponent("minetogether.settings.title"));
+        super(Component.translatable("minetogether.settings.title"));
         this.parent = parent;
     }
 
@@ -30,7 +29,7 @@ public class SettingsScreen extends MineTogetherScreen
         super.init();
         clearWidgets();
 
-        addRenderableWidget(new Button(this.width / 2 - 123, 40, 120, 20, new TranslatableComponent(I18n.get("Chat Enabled: " + format(Config.getInstance().isChatEnabled()))), p ->
+        addRenderableWidget(new Button(this.width / 2 - 123, 40, 120, 20, Component.literal("Chat Enabled: " + format(Config.getInstance().isChatEnabled())), p ->
         {
             if (Config.getInstance().isChatEnabled())
             {
@@ -48,19 +47,19 @@ public class SettingsScreen extends MineTogetherScreen
             }
             saveConfig();
         }));
-        addRenderableWidget(new Button(this.width / 2 + 3, 40, 120, 20, new TranslatableComponent(I18n.get("Friend Toasts: " + format(Config.getInstance().isFriendOnlineToastsEnabled()))), p ->
+        addRenderableWidget(new Button(this.width / 2 + 3, 40, 120, 20, Component.literal("Friend Toasts: " + format(Config.getInstance().isFriendOnlineToastsEnabled())), p ->
         {
             boolean enabled = Config.getInstance().isFriendOnlineToastsEnabled();
             Config.getInstance().setEnableFriendOnlineToasts(!enabled);
             saveConfig();
         }));
-        addRenderableWidget(new Button(this.width / 2 - 123, 60, 120, 20, new TranslatableComponent(I18n.get("Menu Buttons: " + format(Config.getInstance().isEnableMainMenuFriends()))), p ->
+        addRenderableWidget(new Button(this.width / 2 - 123, 60, 120, 20, Component.literal("Menu Buttons: " + format(Config.getInstance().isEnableMainMenuFriends())), p ->
         {
             boolean enabled = Config.getInstance().isEnableMainMenuFriends();
             Config.getInstance().setEnableMainMenuFriends(!enabled);
             saveConfig();
         }));
-        addRenderableWidget(linkButton = new Button(this.width / 2 - 100, this.height - 47, 200, 20, new TranslatableComponent(I18n.get("minetogether.settingscreen.button.linkaccount")), p ->
+        addRenderableWidget(linkButton = new Button(this.width / 2 - 100, this.height - 47, 200, 20, Component.translatable("minetogether.settingscreen.button.linkaccount"), p ->
         {
             minecraft.setScreen(new ConfirmScreen(e ->
             {
@@ -69,11 +68,11 @@ public class SettingsScreen extends MineTogetherScreen
                     KeycloakOAuth.main(new String[]{});
                 }
                 minecraft.setScreen(this);
-            }, new TranslatableComponent(I18n.get("minetogether.linkaccount1")), new TranslatableComponent(I18n.get("minetogether.linkaccount2"))));
+            }, Component.translatable("minetogether.linkaccount1"), Component.translatable("minetogether.linkaccount2")));
         }));
 
         //Done button
-        addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, new TranslatableComponent(I18n.get("gui.done")), p -> this.minecraft.setScreen(parent)));
+        addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, Component.translatable("gui.done"), p -> this.minecraft.setScreen(parent)));
     }
 
     @Override

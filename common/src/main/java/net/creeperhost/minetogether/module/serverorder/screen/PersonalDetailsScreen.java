@@ -67,11 +67,11 @@ public class PersonalDetailsScreen extends OrderServerScreen
         super.init();
 
         addWidget(this.list = new ScreenList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36));
-        addWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent("")));
+        addWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, Component.empty()));
 
         updateList();
 
-        this.loginButton = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, new TranslatableComponent("minetogether.button.login"), p ->
+        this.loginButton = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, Component.translatable("minetogether.button.login"), p ->
         {
             if (orderPressed && !isSure)
             {
@@ -81,7 +81,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
             }
             loggingIn = true;
             loginButton.active = false;
-            loginButton.setMessage(new TranslatableComponent("minetogether.button.logging"));
+            loginButton.setMessage(Component.translatable("minetogether.button.logging"));
 
             CompletableFuture.runAsync(() ->
             {
@@ -94,7 +94,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
                     loggingIn = false;
                     loggedIn = true;
                     loggingInError = "";
-                    loginButton.setMessage(new TranslatableComponent("minetogether.button.done"));
+                    loginButton.setMessage(Component.translatable("minetogether.button.done"));
                 }
                 else
                 {
@@ -102,7 +102,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
                     loggedIn = false;
                     loggingInError = result;
                     loginButton.active = true;
-                    loginButton.setMessage(new TranslatableComponent("minetogether.button.logintryagain"));
+                    loginButton.setMessage(Component.translatable("minetogether.button.logintryagain"));
                 }
             });
             return;
@@ -112,24 +112,24 @@ public class PersonalDetailsScreen extends OrderServerScreen
 
         if (orderPressed && !isSure)
         {
-            loginButton.setMessage(new TranslatableComponent("button.order"));
+            loginButton.setMessage(Component.translatable("button.order"));
             loginButton.active = true;
             loginButton.visible = true;
             buttonNext.visible = false;
         }
         else if (loggingIn)
         {
-            loginButton.setMessage(new TranslatableComponent("button.logging"));
+            loginButton.setMessage(Component.translatable("button.logging"));
             loginButton.active = false;
         }
         else if (loggedIn)
         {
-            loginButton.setMessage(new TranslatableComponent("button.done"));
+            loginButton.setMessage(Component.translatable("button.done"));
             loginButton.active = false;
         }
         else if (!loggingInError.isEmpty())
         {
-            loginButton.setMessage(new TranslatableComponent("button.logintryagain"));
+            loginButton.setMessage(Component.translatable("button.logintryagain"));
         }
 
         fields = new ArrayList<TextFieldDetails>();
@@ -220,14 +220,14 @@ public class PersonalDetailsScreen extends OrderServerScreen
         String buttonName = ServerOrderCallbacks.getCountries().get(this.order.country);
         if (buttonName == null || buttonName.isEmpty()) buttonName = "Invalid";
 
-        addRenderableWidget(buttonList = new Button(x - 205, 165, fieldWidths, 20, new TranslatableComponent(buttonName), p -> renderList = true));
+        addRenderableWidget(buttonList = new Button(x - 205, 165, fieldWidths, 20, Component.translatable(buttonName), p -> renderList = true));
 
-        addRenderableWidget(selectCountry = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.select"), (button) ->
+        addRenderableWidget(selectCountry = new Button(this.width - 90, this.height - 30, 80, 20, Component.translatable("minetogether.button.select"), (button) ->
         {
             renderList = false;
             ListEntryCountry listEntryCountry = (ListEntryCountry) list.getCurrSelected();
             order.country = listEntryCountry.countryID;
-            buttonList.setMessage(new TranslatableComponent(ServerOrderCallbacks.getCountries().get(listEntryCountry.countryID)));
+            buttonList.setMessage(Component.translatable(ServerOrderCallbacks.getCountries().get(listEntryCountry.countryID)));
         }));
 
         this.fields.add(new TextFieldDetails(this, 9, I18n.get("minetogether.info.phone"), this.order.phone, x + 5, 165, fieldWidths, 20, defaultValidators));
@@ -251,20 +251,20 @@ public class PersonalDetailsScreen extends OrderServerScreen
             String part = info2Text.substring(lastEnd, start);
             if (part.length() > 0)
             {
-                if (component == null) component = new TranslatableComponent(part);
-                else component.copy().append(new TranslatableComponent(part));
+                if (component == null) component = Component.translatable(part);
+                else component.copy().append(Component.translatable(part));
             }
 
             lastEnd = end;
-            Component link = new TranslatableComponent(matcher.group(1));
+            Component link = Component.translatable(matcher.group(1));
             Style style = link.getStyle();
             style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, matcher.group(2)));
             style.withColor(TextColor.fromLegacyFormat(ChatFormatting.BLUE));
             style.withUnderlined(true);
-            style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent(I18n.get("order.url"))));
+            style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("order.url")));
 
             if (component == null) component = link;
-            else component.copy().append(new TranslatableComponent(link.getString()));
+            else component.copy().append(Component.translatable(link.getString()));
         }
         info2 = component;
     }
@@ -389,7 +389,7 @@ public class PersonalDetailsScreen extends OrderServerScreen
                         {
                             if (event.getAction() == HoverEvent.Action.SHOW_TEXT)
                             {
-                                this.renderTooltip(matrixStack, new TranslatableComponent(event.toString()), mouseX, mouseY);
+                                this.renderTooltip(matrixStack, Component.translatable(event.toString()), mouseX, mouseY);
                             }
                         }
                     }
@@ -591,32 +591,26 @@ public class PersonalDetailsScreen extends OrderServerScreen
     private Component getComponent(double mouseX, double mouseY)
     {
         int stringWidth = font.width(info2.getString());
-        int begin = (width / 2) - (stringWidth / 2);
 
-        if (info2 instanceof TranslatableComponent)
+        int prevWidth = (width / 2) - (stringWidth / 2);
+
+        for (Component inner : info2.getSiblings())
         {
-            TranslatableComponent comp = (TranslatableComponent) info2;
+            StringBuilder stringbuilder = new StringBuilder();
+            String s = inner.getString();
 
-            int prevWidth = begin;
-
-            for (Component inner : comp.getSiblings())
+            if (!s.isEmpty())
             {
-                StringBuilder stringbuilder = new StringBuilder();
-                String s = inner.getString();
-
-                if (!s.isEmpty())
-                {
-                    stringbuilder.append(inner.getStyle());
-                    stringbuilder.append(s);
-                    stringbuilder.append(ChatFormatting.RESET);
-                }
-                int width = font.width(stringbuilder.toString());
-                if (mouseX >= prevWidth && mouseX <= prevWidth + width)
-                {
-                    return inner;
-                }
-                prevWidth += width;
+                stringbuilder.append(inner.getStyle());
+                stringbuilder.append(s);
+                stringbuilder.append(ChatFormatting.RESET);
             }
+            int width = font.width(stringbuilder.toString());
+            if (mouseX >= prevWidth && mouseX <= prevWidth + width)
+            {
+                return inner;
+            }
+            prevWidth += width;
         }
         return null;
     }

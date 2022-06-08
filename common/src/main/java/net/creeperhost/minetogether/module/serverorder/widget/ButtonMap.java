@@ -7,7 +7,6 @@ import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -24,13 +23,13 @@ public class ButtonMap extends Button
 
     public ButtonMap(float x, float y, int width, int height, int imageWidth, int imageHeight, String title, boolean active, Button.OnPress pressedAction)
     {
-        super((int) x, (int) y, width, height, new TranslatableComponent(title), pressedAction);
+        super((int) x, (int) y, width, height, Component.translatable(title), pressedAction);
         this.buttonText = title;
         this.x = x;
         this.y = y;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
-        tooltiplist.add(new TranslatableComponent(buttonText));
+        tooltiplist.add(Component.translatable(buttonText));
         this.active = active;
     }
 

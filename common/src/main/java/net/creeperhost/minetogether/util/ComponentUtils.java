@@ -37,12 +37,12 @@ public class ComponentUtils
             String part = string.substring(lastEnd, start);
             if (part.length() > 0)
             {
-                if (ichat == null) ichat = new TranslatableComponent(part);
+                if (ichat == null) ichat = Component.translatable(part);
                 else ichat.append(part);
             }
             lastEnd = end;
             String url = string.substring(start, end);
-            MutableComponent link = new TranslatableComponent(url);
+            MutableComponent link = Component.translatable(url);
 
             try
             {
@@ -51,7 +51,7 @@ public class ComponentUtils
                 {
                     if (!allowMissingHeader)
                     {
-                        if (ichat == null) ichat = new TranslatableComponent(url);
+                        if (ichat == null) ichat = Component.translatable(url);
                         else ichat.append(url);
                         continue;
                     }
@@ -60,23 +60,23 @@ public class ComponentUtils
             } catch (URISyntaxException e)
             {
                 // Bad syntax bail out!
-                if (ichat == null) ichat = new TranslatableComponent(url);
+                if (ichat == null) ichat = Component.translatable(url);
                 else ichat.append(url);
                 continue;
             }
 
             // Set the click event and append the link.
             ClickEvent click = new ClickEvent(ClickEvent.Action.OPEN_URL, url);
-            HoverEvent hoverEvent = new HoverEvent(ComponentUtils.RENDER_GIF, new TranslatableComponent(url));
+            HoverEvent hoverEvent = new HoverEvent(ComponentUtils.RENDER_GIF, Component.translatable(url));
             link.setStyle(link.getStyle().withClickEvent(click).withHoverEvent(hoverEvent).withUnderlined(true).withColor(TextColor.fromLegacyFormat(ChatFormatting.BLUE)));
-            if (ichat == null) ichat = new TranslatableComponent("");
+            if (ichat == null) ichat = Component.empty();
             ichat.append(link);
         }
 
         // Append the rest of the message.
         String end = string.substring(lastEnd);
-        if (ichat == null) ichat = new TranslatableComponent(end);
-        else if (end.length() > 0) ichat.append(new TranslatableComponent(string.substring(lastEnd)));
+        if (ichat == null) ichat = Component.translatable(end);
+        else if (end.length() > 0) ichat.append(Component.translatable(string.substring(lastEnd)));
         return ichat;
     }
 }

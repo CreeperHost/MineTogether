@@ -32,8 +32,6 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.commons.io.FileUtils;
 
 import java.io.FileReader;
@@ -82,7 +80,7 @@ public class ChatModule
 
     public static void onScreenOpen(Screen screen, ScreenAccess screenAccess)
     {
-        Button friendsButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.friends"), p -> Minecraft.getInstance().setScreen(new FriendsListScreen(screen)));
+        Button friendsButton = new Button(screen.width - 105, 5, 100, 20, Component.translatable("minetogether.multiplayer.friends"), p -> Minecraft.getInstance().setScreen(new FriendsListScreen(screen)));
 
         Button chatButton = new ButtonMultiple(screen.width - 125, 5, Config.getInstance().isChatEnabled() ? 1 : 3, Constants.WIDGETS_LOCATION, p -> Minecraft.getInstance().setScreen(Config.getInstance().isChatEnabled() ? new ChatScreen(screen) : new SettingsScreen(screen)));
 
@@ -107,7 +105,7 @@ public class ChatModule
     {
         if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
         {
-            Component newComp = new TextComponent("[!MineTogetherMessage]" + component.getString()).withStyle(component.getStyle());
+            Component newComp = Component.literal("[!MineTogetherMessage]" + component.getString()).withStyle(component.getStyle());
             ClientChatTarget current = ChatModule.clientChatTarget;
             if (channel.equals(ChatHandler.CHANNEL))
             {

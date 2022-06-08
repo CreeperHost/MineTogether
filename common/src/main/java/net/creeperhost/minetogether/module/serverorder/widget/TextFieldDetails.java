@@ -7,7 +7,7 @@ import net.creeperhost.minetogether.lib.serverorder.Pair;
 import net.creeperhost.minetogether.module.serverorder.screen.PersonalDetailsScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 
@@ -29,7 +29,7 @@ public class TextFieldDetails extends EditBox
 
     public TextFieldDetails(PersonalDetailsScreen gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators, boolean canBeFocused)
     {
-        super(Minecraft.getInstance().font, x, y, width, height, new TranslatableComponent(""));
+        super(Minecraft.getInstance().font, x, y, width, height, Component.empty());
 
         this.ourID = id;
 

@@ -12,7 +12,7 @@ import net.creeperhost.minetogether.lib.util.WebUtils;
 import net.minecraft.commands.CommandRuntimeException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.UserWhiteList;
 import net.minecraft.server.players.UserWhiteListEntry;
@@ -34,21 +34,21 @@ public class CommandInvite
     private static int execute(CommandContext<CommandSourceStack> cs, String username)
     {
         MinecraftServer minecraftServer = cs.getSource().getServer();
-        if (username.isEmpty()) throw new CommandRuntimeException(new TranslatableComponent("Invalid username"));
+        if (username.isEmpty()) throw new CommandRuntimeException(Component.literal("Invalid username"));
 
         GameProfile gameProfile = minecraftServer.getProfileCache().get(username).get();
         if (gameProfile == null)
-            throw new CommandRuntimeException(new TranslatableComponent("Failed to load GameProfile, Username is not valid"));
+            throw new CommandRuntimeException(Component.literal("Failed to load GameProfile, Username is not valid"));
 
         if (minecraftServer.getPlayerList().getWhiteList().isWhiteListed(gameProfile))
-            throw new CommandRuntimeException(new TranslatableComponent(username + " Is already whitelisted"));
+            throw new CommandRuntimeException(Component.literal(username + " Is already whitelisted"));
 
         UserWhiteListEntry userWhiteListEntry = new UserWhiteListEntry(gameProfile);
         minecraftServer.getPlayerList().getWhiteList().add(userWhiteListEntry);
         minecraftServer.getPlayerList().reloadWhiteList();
         sendUserInvite(gameProfile, minecraftServer);
 
-        cs.getSource().sendSuccess(new TranslatableComponent(username + " Added to whitelist"), false);
+        cs.getSource().sendSuccess(Component.literal(username + " Added to whitelist"), false);
         return 0;
     }
 

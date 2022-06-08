@@ -24,6 +24,7 @@ import net.minecraft.client.User;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -100,7 +101,7 @@ public class MineTogetherClient
     {
         User session = Minecraft.getInstance().getUser();
         UUID uuid = Minecraft.getInstance().getUser().getGameProfile().getId();
-        isOnlineUUID = !uuid.equals(Player.createPlayerUUID(session.getName()));
+        isOnlineUUID = !uuid.equals(UUIDUtil.createOfflinePlayerUUID(session.getName()));
         return uuid;
     }
 

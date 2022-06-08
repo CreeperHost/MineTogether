@@ -17,7 +17,7 @@ import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.LanServer;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEntry
@@ -35,7 +35,7 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
         super(null, new LanServer("", ""));
         this.serverSelectionList = serverSelectionList;
 
-        removeButton = new ButtonString(0, 0, 10, 10, new TranslatableComponent(ChatFormatting.RED + new String(Character.toChars(10006))), button ->
+        removeButton = new ButtonString(0, 0, 10, 10, Component.literal(ChatFormatting.RED + new String(Character.toChars(10006))), button ->
         {
             Config.getInstance().setMpMenuEnabled(false);
             Config.saveConfigToFile(MineTogetherCommon.configFile.toFile());

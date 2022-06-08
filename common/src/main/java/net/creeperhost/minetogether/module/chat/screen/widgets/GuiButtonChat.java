@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 public class GuiButtonChat extends Button
 {
@@ -14,7 +14,7 @@ public class GuiButtonChat extends Button
 
     public GuiButtonChat(int x, int y, int widthIn, int heightIn, String buttonText, Button.OnPress onPress)
     {
-        super(x, y, widthIn, heightIn, new TranslatableComponent(buttonText), onPress);
+        super(x, y, widthIn, heightIn, Component.translatable(buttonText), onPress);
         this.buttonText = buttonText;
     }
 

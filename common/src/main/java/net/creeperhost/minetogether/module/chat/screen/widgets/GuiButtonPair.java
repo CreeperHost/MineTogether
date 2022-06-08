@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.module.chat.screen.widgets;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,7 @@ public class GuiButtonPair extends Button
 
     public GuiButtonPair(int x, int y, int widthIn, int heightIn, int state, boolean stack, boolean swapOnClick, boolean vertical, Button.OnPress onPress, String... buttonTexts)
     {
-        super(x, y, widthIn, heightIn, new TranslatableComponent(buttonTexts[0]), onPress);
+        super(x, y, widthIn, heightIn, Component.translatable(buttonTexts[0]), onPress);
         activeButton = state;
         this.swapOnClick = swapOnClick;
         this.stack = stack;

@@ -8,7 +8,7 @@ import net.creeperhost.minetogether.module.chat.screen.FriendsListScreen;
 import net.creeperhost.polylib.client.screen.widget.ScreenList;
 import net.creeperhost.polylib.client.screen.widget.ScreenListEntry;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class ListEntryFriend extends ScreenListEntry
@@ -48,8 +48,7 @@ public class ListEntryFriend extends ScreenListEntry
         if (ellipsis) friendName += "...";
 
         this.mc.font.draw(matrixStack, friendName, x + 5, y + 4, 16777215);
-        if (profile != null)
-            this.mc.font.draw(matrixStack, new TranslatableComponent(ChatFormatting.GRAY + (profile.isFriend() ? (profile != null && profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline") : "Pending")).getString(), x + 5, y + 15, 16777215);
+        this.mc.font.draw(matrixStack, Component.literal(ChatFormatting.GRAY + (profile.isFriend() ? profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline" : "Pending")).getString(), x + 5, y + 15, 16777215);
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

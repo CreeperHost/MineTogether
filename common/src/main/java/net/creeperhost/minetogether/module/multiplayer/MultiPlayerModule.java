@@ -17,7 +17,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 public class MultiPlayerModule
 {
@@ -32,7 +32,7 @@ public class MultiPlayerModule
             //Don't add the serverlist button if the multiplayer screen is ours
             if (!(screen instanceof JoinMultiplayerScreenPublic))
             {
-                Button serverListButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether.multiplayer.serverlist"), p -> Minecraft.getInstance().setScreen(new ServerTypeScreen(screen)));
+                Button serverListButton = new Button(screen.width - 105, 5, 100, 20, Component.translatable("minetogether.multiplayer.serverlist"), p -> Minecraft.getInstance().setScreen(new ServerTypeScreen(screen)));
 
                 ScreenHooks.addRenderableWidget(screen, serverListButton);
                 serverListButton.active = !Config.getInstance().getFirstConnect();
@@ -97,7 +97,7 @@ public class MultiPlayerModule
 
             if (!(multiplayerScreen instanceof JoinMultiplayerScreenPublic))
             {
-                ScreenHooks.addRenderableWidget(multiplayerScreen, new Button(multiplayerScreen.width / 2 + 80, multiplayerScreen.height - 52, 74, 20, new TranslatableComponent("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
+                ScreenHooks.addRenderableWidget(multiplayerScreen, new Button(multiplayerScreen.width / 2 + 80, multiplayerScreen.height - 52, 74, 20, Component.translatable("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreen(new TitleScreen()))));
             }
         } catch (Exception ignored)
         {

@@ -29,7 +29,6 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -122,7 +121,7 @@ public abstract class MixinChatScreen extends Screen
         strings.add(I18n.get("minetogether.chat.button.addfriend"));
         strings.add(I18n.get("minetogether.chat.button.mention"));
 
-        addRenderableWidget(dropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, new TranslatableComponent("Menu"), new net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu(strings), true, p ->
+        addRenderableWidget(dropdownButton = new DropdownButton<>(-1000, -1000, 100, 20, Component.literal("Menu"), new net.creeperhost.minetogether.module.chat.screen.ChatScreen.Menu(strings), true, p ->
         {
             if (dropdownButton.getSelected().option.equals(I18n.get("minetogether.chat.button.mute")))
             {
@@ -155,7 +154,7 @@ public abstract class MixinChatScreen extends Screen
         {
             ChatCallbacks.updateOnlineCount();
 
-            addRenderableWidget(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 45, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
+            addRenderableWidget(newUserButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 45, minecraft.gui.getChat().getWidth() - 2, 20, Component.literal("Join " + ChatCallbacks.onlineCount + " online users now!"), p ->
             {
                 IrcHandler.sendCTCPMessage("Freddy", "ACTIVE", "");
                 Config.getInstance().setFirstConnect(false);
@@ -163,7 +162,7 @@ public abstract class MixinChatScreen extends Screen
                 disableButton.visible = false;
                 minecraft.setScreen(null);
             }));
-            addRenderableWidget(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 70, minecraft.gui.getChat().getWidth() - 2, 20, new TranslatableComponent("Don't ask me again"), p ->
+            addRenderableWidget(disableButton = new ButtonNoBlend(6, height - ((minecraft.gui.getChat().getHeight() + 80) / 2) + 70, minecraft.gui.getChat().getWidth() - 2, 20, Component.literal("Don't ask me again"), p ->
             {
                 Config.getInstance().setChatEnabled(false);
                 disableButton.visible = false;
@@ -352,39 +351,6 @@ public abstract class MixinChatScreen extends Screen
     }
 
     @Override
-    public void sendMessage(String string)
-    {
-        if (!Config.getInstance().isChatEnabled())
-        {
-            super.sendMessage(string);
-            return;
-        }
-
-        //This is just to stop IntelliJ from complaining
-        if (minecraft == null) return;
-
-        //If it's our chat screen send the message to our chat handler for sending
-        if (ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER)
-        {
-            //Force commands to the "default" tab
-            if(string.startsWith("/"))
-            {
-                ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
-                super.sendMessage(string);
-                return;
-            }
-            ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
-            return;
-        }
-        if (ChatModule.clientChatTarget == ClientChatTarget.PARTY)
-        {
-            ChatHandler.sendMessage(ChatHandler.currentParty, string);
-            return;
-        }
-        super.sendMessage(string);
-    }
-
-    @Override
     public boolean handleComponentClicked(@Nullable Style style)
     {
         if (!Config.getInstance().isChatEnabled())
@@ -398,24 +364,46 @@ public abstract class MixinChatScreen extends Screen
         if (ChatModule.clientChatTarget == ClientChatTarget.DEFAULT) return super.handleComponentClicked(style);
         //If the Style is null there is nothing to be done
         if (style == null) return false;
+
+        ClickEvent event = style.getClickEvent();
         //If the click event is null there is nothing to be done
-        if (style.getClickEvent() == null) return false;
+        if (event == null) return false;
         //This should never be null but lets be safe
         if (dropdownButton == null) return false;
         //If the dropdown is already open lets not do anything or this could lead to issues
         if (dropdownButton.dropdownOpen) return false;
+
+        ClickEvent.Action action = event.getAction();
+        String value = event.getValue();
         //Still allow openurl click event
-        if (style.getClickEvent().getAction() == ClickEvent.Action.OPEN_URL) return super.handleComponentClicked(style);
+        if (action == ClickEvent.Action.OPEN_URL) return super.handleComponentClicked(style);
 
         //Don't bother with suggestions in our tab as we replace it with the dropdown
-        if (style.getClickEvent().getAction() == ClickEvent.Action.SUGGEST_COMMAND)
+        if (action == ClickEvent.Action.SUGGEST_COMMAND)
         {
             dropdownButton.x = mouseX;
             dropdownButton.y = mouseY;
             dropdownButton.dropdownOpen = true;
-            currentDropdown = style.getClickEvent().getValue();
+            currentDropdown = value;
             return true;
         }
+
+        if (action == ClickEvent.Action.RUN_COMMAND) {
+            // Actual commands go to Vanilla chat.
+            if (value.startsWith("/")) {
+                ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
+                return super.handleComponentClicked(style);
+            }
+            if (ChatModule.clientChatTarget == ClientChatTarget.MINETOGETHER) {
+                ChatHandler.sendMessage(ChatHandler.CHANNEL, value);
+                return true;
+            }
+            if (ChatModule.clientChatTarget == ClientChatTarget.PARTY) {
+                ChatHandler.sendMessage(ChatHandler.currentParty, value);
+                return true;
+            }
+        }
+
         return false;
     }
 }

@@ -12,7 +12,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -35,7 +35,7 @@ public class FriendRequestScreen extends Screen
 
     public FriendRequestScreen(Screen parent, String playerName, Profile friendTarget, String friendCode, String friendName, boolean accept, boolean update)
     {
-        super(new TranslatableComponent(""));
+        super(Component.empty());
         this.playerName = playerName;
         this.chatInternalName = friendTarget == null ? "" : friendTarget.getCurrentIRCNick();
         this.friendCode = friendCode;
@@ -53,9 +53,9 @@ public class FriendRequestScreen extends Screen
         clearWidgets();
         mc.keyboardHandler.setSendRepeatsToGui(true);
 
-        this.addRenderableWidget(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, new TranslatableComponent("Cancel"), (button) -> Minecraft.getInstance().setScreen(parent)));
+        this.addRenderableWidget(cancelBtn = new Button(width / 2 - 180, height - 50, 80, 20, Component.literal("Cancel"), (button) -> Minecraft.getInstance().setScreen(parent)));
 
-        this.addRenderableWidget(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? new TranslatableComponent("Accept") : new TranslatableComponent("Send request"), (buttons) ->
+        this.addRenderableWidget(acceptBtn = new Button(width / 2 + 100, height - 50, 80, 20, accept ? Component.literal("Accept") : Component.literal("Send request"), (buttons) ->
         {
             if(update)
             {
@@ -101,7 +101,7 @@ public class FriendRequestScreen extends Screen
             Minecraft.getInstance().setScreen(parent);
         }));
 
-        addRenderableWidget(nameEntry = new EditBox(mc.font, width / 2 - 100, height / 2 - 10, 200, 20, new TranslatableComponent("")));
+        addRenderableWidget(nameEntry = new EditBox(mc.font, width / 2 - 100, height / 2 - 10, 200, 20, Component.empty()));
 
         if (first)
         {

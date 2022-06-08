@@ -15,7 +15,6 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
@@ -88,8 +87,8 @@ public abstract class MixinChatComponent
             ChatComponent chatComponent = Minecraft.getInstance().gui.getChat();
             int y = chatComponent.getHeight() - 175 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
             GuiComponent.fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, minecraft.options.getBackgroundColor(-2147483648));
-            int k = Mth.ceil((float) minecraft.gui.getChat().getWidth() / (float) minecraft.options.chatScale);
-            int z = Mth.ceil((float) minecraft.gui.getChat().getHeight() / (float) minecraft.options.chatScale);
+            int k = Mth.ceil((float) minecraft.gui.getChat().getWidth() / minecraft.options.chatScale().get().floatValue());
+            int z = Mth.ceil((float) minecraft.gui.getChat().getHeight() / minecraft.options.chatScale().get().floatValue());
 
             if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
                 MineTogetherScreen.drawLogo(poseStack, minecraft.font, k + 6, z + 6, -2, minecraft.gui.getChat().getHeight() - 340, 0.75F);
@@ -149,7 +148,7 @@ public abstract class MixinChatComponent
         else
         {
             String message = component.getString().substring(22);
-            Component newComponent = new TextComponent(message).withStyle(component.getStyle());
+            Component newComponent = Component.literal(message).withStyle(component.getStyle());
             ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(newComponent, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
             ci.cancel();
         }

@@ -8,7 +8,7 @@ import net.creeperhost.polylib.client.screen.widget.ScreenList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class MutedListScreen extends Screen
 
     public MutedListScreen(Screen parent)
     {
-        super(new TranslatableComponent("minetogether.mutedscreen.title"));
+        super(Component.translatable("minetogether.mutedscreen.title"));
         this.parent = parent;
     }
 
@@ -40,7 +40,7 @@ public class MutedListScreen extends Screen
             list.updateSize(width, height, 32, this.height - 64);
         }
 
-        searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, new TranslatableComponent(""));
+        searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, Component.empty());
         searchEntry.setSuggestion("Search");
         addRenderableWidget(list);
         addRenderableWidget(searchEntry);
@@ -51,11 +51,11 @@ public class MutedListScreen extends Screen
 
     public void addButtons()
     {
-        addRenderableWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("Cancel"), p -> minecraft.setScreen(parent)));
+        addRenderableWidget(new Button(5, height - 26, 100, 20, Component.literal("Cancel"), p -> minecraft.setScreen(parent)));
 
-        addRenderableWidget(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether.button.refresh"), p -> refreshMutedList()));
+        addRenderableWidget(new Button(width - 105, height - 26, 100, 20, Component.translatable("minetogether.button.refresh"), p -> refreshMutedList()));
 
-        addRenderableWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("Friends List"), button -> minecraft.setScreen(new FriendsListScreen(parent))));
+        addRenderableWidget(new Button(width - 105, 5, 100, 20, Component.literal("Friends List"), button -> minecraft.setScreen(new FriendsListScreen(parent))));
     }
 
     @Override
@@ -68,7 +68,7 @@ public class MutedListScreen extends Screen
         drawCenteredString(poseStack, font, this.getTitle(), width / 2, 5, 0xFFFFFF);
 
         if (list.children().isEmpty())
-            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.mutedscreen.empty"), width / 2, (this.height / 2) - 20, -1);
+            drawCenteredString(poseStack, font, Component.translatable("minetogether.mutedscreen.empty"), width / 2, (this.height / 2) - 20, -1);
     }
 
     public void setHoveringText(String hoveringText)

@@ -3,7 +3,6 @@ package net.creeperhost.minetogether.mixin;
 import net.creeperhost.minetogether.module.connect.ConnectHelper;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -15,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerSelectionList.class)
 public class MixinLANHeader
 {
-    private static final Component OURSCANNING_LABEL = new TranslatableComponent("minetogether.connect.scan");
-    private static final Component MTSCANNING_LABEL = new TranslatableComponent("minetogether.connect.scan.offline");
+    private static final Component OURSCANNING_LABEL = Component.translatable("minetogether.connect.scan");
+    private static final Component MTSCANNING_LABEL = Component.translatable("minetogether.connect.scan.offline");
 
     @Mutable
     @Shadow

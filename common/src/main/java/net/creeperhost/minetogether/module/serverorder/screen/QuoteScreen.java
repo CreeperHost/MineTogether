@@ -9,7 +9,7 @@ import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.creeperhost.polylib.client.screen.widget.ScreenWell;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -51,7 +51,7 @@ public class QuoteScreen extends OrderServerScreen
         {
             if (!refreshing) updateSummary();
         }
-        this.buttonNext.setMessage(new TranslatableComponent("minetogether.button.order"));
+        this.buttonNext.setMessage(Component.translatable("minetogether.button.order"));
     }
 
     @Override

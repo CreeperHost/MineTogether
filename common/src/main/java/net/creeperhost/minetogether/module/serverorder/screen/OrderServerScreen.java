@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.lib.Order;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 public abstract class OrderServerScreen extends Screen
 {
@@ -18,7 +18,7 @@ public abstract class OrderServerScreen extends Screen
 
     public OrderServerScreen(int stepId, Screen parent, Order order)
     {
-        super(new TranslatableComponent("minetogether.screen.orderscreen"));
+        super(Component.translatable("minetogether.screen.orderscreen"));
         this.stepId = stepId;
         this.order = order;
         this.parent = parent;
@@ -26,7 +26,7 @@ public abstract class OrderServerScreen extends Screen
 
     public OrderServerScreen(int stepId, Order order)
     {
-        super(new TranslatableComponent("minetogether.screen.orderscreen"));
+        super(Component.translatable("minetogether.screen.orderscreen"));
         this.stepId = stepId;
         this.order = order;
     }
@@ -43,11 +43,11 @@ public abstract class OrderServerScreen extends Screen
 
     public void addNavigationButtons()
     {
-        addRenderableWidget(this.buttonPrev = new Button(10, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
+        addRenderableWidget(this.buttonPrev = new Button(10, this.height - 30, 80, 20, Component.translatable("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
 
-        addRenderableWidget(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
+        addRenderableWidget(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, Component.translatable("minetogether.button.cancel"), (button) -> cancelOrder()));
 
-        addRenderableWidget(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.next"), (button) ->
+        addRenderableWidget(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, Component.translatable("minetogether.button.next"), (button) ->
         {
             if ((this.stepId + 1) == STEP_AMOUNT)
             {

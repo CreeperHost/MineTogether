@@ -5,7 +5,6 @@ import net.creeperhost.polylib.client.screen.widget.buttons.DropdownButton;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -61,9 +60,8 @@ public class Target implements DropdownButton.IDropdownOption
         }
         if (newMessages)
         {
-            Component str = new TranslatableComponent(targetName);
-            str.copy().append(new TranslatableComponent(" \u2022")).getStyle().withColor(TextColor.fromLegacyFormat(ChatFormatting.RED));
-            return str.getString();
+            Component str = Component.translatable(targetName);
+            return str.copy().append(Component.literal(" \u2022")).withStyle(style -> style.withColor(TextColor.fromLegacyFormat(ChatFormatting.RED))).getString();
         }
 
         return targetName;

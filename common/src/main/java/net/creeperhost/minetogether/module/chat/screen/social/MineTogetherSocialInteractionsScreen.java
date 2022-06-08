@@ -17,8 +17,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 public class MineTogetherSocialInteractionsScreen extends Screen
 {
@@ -36,7 +35,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
 
     public MineTogetherSocialInteractionsScreen()
     {
-        super(new TranslatableComponent("minetogether.socialscreee.title"));
+        super(Component.translatable("minetogether.socialscreee.title"));
         this.page = Page.ALL;
     }
 
@@ -58,24 +57,24 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         int k = socialInteractionsPlayerList.getRowRight();
         int m = 64 + 16 * this.backgroundUnits();
 
-        allButton = addRenderableWidget(new Button(j, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_all"), (button) ->
+        allButton = addRenderableWidget(new Button(j, 45, i, 20, Component.translatable("gui.socialInteractions.tab_all"), (button) ->
         {
             showPage(Page.ALL);
         }));
-        friendsButton = addRenderableWidget(new Button(j + allButton.getWidth(), 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_friends"), (button) ->
+        friendsButton = addRenderableWidget(new Button(j + allButton.getWidth(), 45, i, 20, Component.translatable("minetogether.socialInteractions.tab_friends"), (button) ->
         {
             showPage(Page.FRIENDS);
         }));
-        blockedButton = addRenderableWidget(new Button(k - i, 45, i, 20, new TranslatableComponent("gui.socialInteractions.tab_blocked"), (button) ->
+        blockedButton = addRenderableWidget(new Button(k - i, 45, i, 20, Component.translatable("gui.socialInteractions.tab_blocked"), (button) ->
         {
             showPage(Page.BLOCKED);
         }));
-        partyButton = addRenderableWidget(new Button(j + allButton.getWidth() * 2, 45, i, 20, new TranslatableComponent("minetogether.socialInteractions.tab_party"), (button) ->
+        partyButton = addRenderableWidget(new Button(j + allButton.getWidth() * 2, 45, i, 20, Component.translatable("minetogether.socialInteractions.tab_party"), (button) ->
         {
             showPage(Page.PARTY);
         }));
 
-        createParty = addRenderableWidget(new Button((width / 2) - 80, m, 160, 20, new TranslatableComponent("Create Party?"), button ->
+        createParty = addRenderableWidget(new Button((width / 2) - 80, m, 160, 20, Component.literal("Create Party?"), button ->
         {
             String channelName = MineTogetherChat.profile.get().getMediumHash();
             Profile profile = KnownUsers.findByHash(channelName);
@@ -84,7 +83,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
             if (!ChatHandler.hasParty)
             {
                 ChatHandler.createPartyChannel(channelName);
-                SimpleToast simpleToast = new SimpleToast(new TextComponent("Joining Group channel"), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+                SimpleToast simpleToast = new SimpleToast(Component.literal("Joining Group channel"), Component.literal(" "), Constants.MINETOGETHER_LOGO_LOCATION);
                 Minecraft.getInstance().getToasts().addToast(simpleToast);
 
                 return;
@@ -93,7 +92,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
             {
                 Profile ourProfile = KnownUsers.findByNick(ChatHandler.getPartyOwner());
                 if (ourProfile != null) ourProfile.setPartyMember(false);
-                SimpleToast simpleToast = new SimpleToast(new TextComponent("Leaving Group "), new TextComponent(" "), Constants.MINETOGETHER_LOGO_LOCATION);
+                SimpleToast simpleToast = new SimpleToast(Component.literal("Leaving Group "), Component.literal(" "), Constants.MINETOGETHER_LOGO_LOCATION);
                 Minecraft.getInstance().getToasts().addToast(simpleToast);
 
                 ChatHandler.leaveChannel(ChatHandler.currentParty);
@@ -107,7 +106,7 @@ public class MineTogetherSocialInteractionsScreen extends Screen
         }));
 
         String string = searchBox != null ? searchBox.getValue() : "";
-        searchBox = new EditBox(font, marginX() + 28, 78, 196, 16, (new TranslatableComponent("gui.socialInteractions.search_hint")).withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY));
+        searchBox = new EditBox(font, marginX() + 28, 78, 196, 16, Component.translatable("gui.socialInteractions.search_hint").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY));
         searchBox.setMaxLength(16);
         searchBox.setBordered(false);
         searchBox.setVisible(true);
@@ -155,12 +154,12 @@ public class MineTogetherSocialInteractionsScreen extends Screen
             String buttonText = ChatHandler.hasParty ? "minetogether.socialInteractions.leave_party" : "minetogether.socialInteractions.create_party";
             if (ChatHandler.isPartyOwner()) buttonText = "minetogether.socialInteractions.disband_party";
 
-            createParty.setMessage(new TranslatableComponent(buttonText));
+            createParty.setMessage(Component.translatable(buttonText));
         }
 
         if (!searchBox.isFocused() && searchBox.getValue().isEmpty())
         {
-            drawString(poseStack, minecraft.font, (new TranslatableComponent("gui.socialInteractions.search_hint")).withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY), searchBox.x, searchBox.y, -1);
+            drawString(poseStack, minecraft.font, Component.translatable("gui.socialInteractions.search_hint").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY), searchBox.x, searchBox.y, -1);
         }
         else
         {

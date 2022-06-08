@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -19,7 +19,7 @@ public class ServerTypeScreen extends Screen
 
     public ServerTypeScreen(Screen parent)
     {
-        super(new TranslatableComponent("minetogether.screen.servertype"));
+        super(Component.translatable("minetogether.screen.servertype"));
         this.parent = parent;
     }
 
@@ -40,7 +40,7 @@ public class ServerTypeScreen extends Screen
         {
             Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(parent, ServerListType.INVITE, ServerSortOrder.RANDOM));
         }));
-        addRenderableWidget(new Button((width / 2) - 110, height - 22, 220, 20, new TranslatableComponent("gui.cancel"), p ->
+        addRenderableWidget(new Button((width / 2) - 110, height - 22, 220, 20, Component.translatable("gui.cancel"), p ->
         {
             Minecraft.getInstance().setScreen(parent);
         }));

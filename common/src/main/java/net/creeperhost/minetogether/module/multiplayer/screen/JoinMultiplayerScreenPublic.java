@@ -26,7 +26,7 @@ import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -93,7 +93,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
         {
             for (Server server : list)
             {
-                serverList.add(new ServerDataPublic(server));
+                serverList.add(new ServerDataPublic(server), false);
             }
             updateServers(serverList);
         }
@@ -109,17 +109,16 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void addButtons()
     {
         String buttonName = "minetogether.multiplayer.title.prefix." + serverListType.name().toLowerCase();
 
-        addRenderableWidget(new Button(width - 85, 5, 80, 20, new TranslatableComponent(buttonName), p ->
+        addRenderableWidget(new Button(width - 85, 5, 80, 20, Component.translatable(buttonName), p ->
         {
             minecraft.setScreen(new ServerTypeScreen(this));
         }));
 
-        addRenderableWidget(dropdownButton = new DropdownButton<>(width - 165, 5, 80, 20, new TranslatableComponent("minetogether.multiplayer.sort"), sortOrder, false, p ->
+        addRenderableWidget(dropdownButton = new DropdownButton<>(width - 165, 5, 80, 20, Component.translatable("minetogether.multiplayer.sort"), sortOrder, false, p ->
         {
             if (sortOrder != dropdownButton.getSelected())
             {
@@ -149,7 +148,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
             addServer.active = false;
         }
 
-        addRenderableWidget(new Button(width / 2 + 80, height - 52, 75, 20, new TranslatableComponent("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(new TitleScreen(), serverListType, sortOrder))));
+        addRenderableWidget(new Button(width / 2 + 80, height - 52, 75, 20, Component.translatable("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(new TitleScreen(), serverListType, sortOrder))));
     }
 
     @Override
@@ -199,27 +198,13 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen
 
     public void sort()
     {
-        switch (this.sortOrder)
-        {
-            default:
-            case RANDOM:
-                Collections.shuffle(serverSelectionList.children());
-                break;
-            case PLAYER:
-                Collections.sort(serverSelectionList.children(), PlayerComparator.INSTANCE);
-                break;
-            case UPTIME:
-                Collections.sort(serverSelectionList.children(), UptimeComparator.INSTANCE);
-                break;
-            case NAME:
-                Collections.sort(serverSelectionList.children(), ServerNameComparator.INSTANCE);
-                break;
-            case LOCATION:
-                Collections.sort(serverSelectionList.children(), LocationComparator.INSTANCE);
-                break;
-            case PING:
-                Collections.sort(serverSelectionList.children(), PingComparator.INSTANCE);
-                break;
+        switch (this.sortOrder) {
+            case RANDOM -> Collections.shuffle(serverSelectionList.children());
+            case PLAYER -> serverSelectionList.children().sort(PlayerComparator.INSTANCE);
+            case UPTIME -> serverSelectionList.children().sort(UptimeComparator.INSTANCE);
+            case NAME -> serverSelectionList.children().sort(ServerNameComparator.INSTANCE);
+            case LOCATION -> serverSelectionList.children().sort(LocationComparator.INSTANCE);
+            case PING -> serverSelectionList.children().sort(PingComparator.INSTANCE);
         }
     }
 }
