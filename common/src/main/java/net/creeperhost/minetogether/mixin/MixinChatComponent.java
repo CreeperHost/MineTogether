@@ -57,7 +57,7 @@ public abstract class MixinChatComponent
     @Nullable
     public abstract Style getClickedComponentStyleAt(double d, double e);
 
-    @Shadow public abstract void addMessage(Component component);
+//    @Shadow public abstract void addMessage(Component component);
 
     private final List<GuiMessage<FormattedCharSequence>> mtChatMessages = new ArrayList<>();
     private final List<GuiMessage<Component>> mtAllMessages = new ArrayList<>();
@@ -129,30 +129,30 @@ public abstract class MixinChatComponent
         }
     }
 
-    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"), cancellable = true)
-    private void addMessage(Component component, CallbackInfo ci)
-    {
-        if(component == null) return;
-        if(!component.getString().startsWith("[!MineTogetherMessage]"))
-        {
-            //Store the last use chat
-            ClientChatTarget current = ChatModule.clientChatTarget;
-            //Set the chat back to default
-            ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
-            //Send the message
-            ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
-            //Reset the tab back to the last used tab
-            ChatModule.clientChatTarget = current;
-            ci.cancel();
-        }
-        else
-        {
-            String message = component.getString().substring(22);
-            Component newComponent = Component.literal(message).withStyle(component.getStyle());
-            ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(newComponent, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
-            ci.cancel();
-        }
-    }
+//    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"), cancellable = true)
+//    private void addMessage(Component component, CallbackInfo ci)
+//    {
+//        if(component == null) return;
+//        if(!component.getString().startsWith("[!MineTogetherMessage]"))
+//        {
+//            //Store the last use chat
+//            ClientChatTarget current = ChatModule.clientChatTarget;
+//            //Set the chat back to default
+//            ChatModule.clientChatTarget = ClientChatTarget.DEFAULT;
+//            //Send the message
+//            ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
+//            //Reset the tab back to the last used tab
+//            ChatModule.clientChatTarget = current;
+//            ci.cancel();
+//        }
+//        else
+//        {
+//            String message = component.getString().substring(22);
+//            Component newComponent = Component.literal(message).withStyle(component.getStyle());
+//            ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(newComponent, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
+//            ci.cancel();
+//        }
+//    }
 
 
     @Redirect(method = "addMessage(Lnet/minecraft/network/chat/Component;IIZ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent;trimmedMessages:Ljava/util/List;", opcode = Opcodes.GETFIELD))

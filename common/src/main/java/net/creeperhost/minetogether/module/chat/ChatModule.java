@@ -105,19 +105,19 @@ public class ChatModule
     {
         if (ChatModule.clientChatTarget != ClientChatTarget.DEFAULT)
         {
-            Component newComp = Component.literal("[!MineTogetherMessage]" + component.getString()).withStyle(component.getStyle());
+//            Component newComp = Component.literal("[!MineTogetherMessage]" + component.getString()).withStyle(component.getStyle());
             ClientChatTarget current = ChatModule.clientChatTarget;
             if (channel.equals(ChatHandler.CHANNEL))
             {
                 ChatModule.clientChatTarget = ClientChatTarget.MINETOGETHER;
-                Minecraft.getInstance().gui.getChat().addMessage(newComp);
-//                ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(newComp, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
+//                Minecraft.getInstance().gui.getChat().addMessage(newComp);
+                ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
             }
             if (ChatHandler.hasParty && channel.equals(ChatHandler.currentParty))
             {
                 ChatModule.clientChatTarget = ClientChatTarget.PARTY;
-                Minecraft.getInstance().gui.getChat().addMessage(newComp);
-//                ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(newComp, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
+//                Minecraft.getInstance().gui.getChat().addMessage(newComp);
+                ((ChatComponentInvoker) Minecraft.getInstance().gui.getChat()).invokeAddMessage(component, 0, Minecraft.getInstance().gui.getGuiTicks(), false);
             }
             //Reset
             ChatModule.clientChatTarget = current;
