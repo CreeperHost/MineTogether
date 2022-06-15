@@ -350,15 +350,21 @@ public abstract class MixinChatScreen extends Screen
         }
     }
 
-    @Inject(method = "handleChatInput", at = @At("HEAD"))
+    @Inject(method = "handleChatInput", at = @At("HEAD"), cancellable = true)
     public void handleChatInput(String string, boolean bl, CallbackInfo ci)
     {
         if(Config.getInstance().isChatEnabled())
         {
             switch (ChatModule.clientChatTarget)
             {
-                case MINETOGETHER -> ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
-                case PARTY -> ChatHandler.sendMessage(ChatHandler.currentParty, string);
+                case MINETOGETHER -> {
+                    ChatHandler.sendMessage(ChatHandler.CHANNEL, string);
+                    ci.cancel();
+                }
+                case PARTY -> {
+                    ChatHandler.sendMessage(ChatHandler.currentParty, string);
+                    ci.cancel();
+                }
             }
         }
     }
