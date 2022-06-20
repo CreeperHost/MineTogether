@@ -1,0 +1,23 @@
+# Exclude everything
+/*
+
+# Include important folders.
+!common/
+!fabric/
+!forge/
+
+# Git files
+!.github/
+!.gitignore
+
+# Gradle files
+!gradle/
+!build.gradle
+!gradle.properties
+!gradlew
+!gradlew.bat
+!settings.gradle
+
+# Other files
+!LICENSE
+!README.mc

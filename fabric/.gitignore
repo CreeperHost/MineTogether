@@ -1,0 +1,8 @@
+# Exclude everything
+/*
+
+# Include important folders.
+!src/
+
+# Git files
+!.gitignore
