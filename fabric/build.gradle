@@ -29,6 +29,8 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+
+    shadowLib "blue.endless:jankson:${jankson_version}"
 }
 
 processResources {
@@ -42,6 +44,8 @@ processResources {
 shadowJar {
     configurations = [project.configurations.shadowCommon]
     classifier "dev-shadow"
+
+    relocate 'blue.endless', 'net.creeperhost.minetogether.repack.blue.endless'
 }
 
 remapJar {

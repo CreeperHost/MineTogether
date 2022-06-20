@@ -1,0 +1,38 @@
+{
+    "schemaVersion": 1,
+    "id": "minetogether",
+    "version": "${version}",
+    "name": "MineTogether",
+    "description": "",
+    "authors": [
+        "covers1624",
+        "Gigabit101",
+        "Cloudhunter",
+        "CreeperHost!"
+    ],
+    "contact": {
+        "sources": "https://github.com/CreeperHost/MineTogether",
+        "homepage": "https://github.com/CreeperHost/MineTogether",
+        "issues": "https://github.com/CreeperHost/MineTogether/issues"
+    },
+    "license": "GNU General Public License v3.0",
+    "icon": "",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "net.creeperhost.minetogether.fabric.MineTogetherFabric"
+        ]
+    },
+    "depends": {
+        "fabricloader": ">=0.7.4",
+        "fabric": "*",
+        "minecraft": ">=1.18.2",
+        "architectury": ">=1.1.55"
+    },
+    "suggests": {
+        "flamingo": "*"
+    },
+    "mixins": [
+        "minetogether.mixins.json"
+    ]
+}

@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+issueTrackerURL = "https://github.com/CreeperHost/MineTogether/issues"
+license = "GNU General Public License v3.0"
+
+[[mods]]
+    modId = "minetogether"
+    version = "${version}"
+    displayName = "MineTogether"
+    authors = "covers1624, Gigabit101, Cloudhunter, CreeperHost!"
+    description = ''''''
+
+[[dependencies.minetogether]]
+    modId = "forge"
+    mandatory = true
+    versionRange = "[40,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.minetogether]]
+    modId = "minecraft"
+    mandatory = true
+    versionRange = "[1.18.2, 1.19]"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.minetogether]]
+    modId = "architectury"
+    mandatory = true
+    versionRange = "[1.1.55,)"
+    ordering = "AFTER"
+    side = "BOTH"
