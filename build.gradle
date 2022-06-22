@@ -1,6 +1,9 @@
+import org.jetbrains.gradle.ext.ActionDelegationConfig.TestRunner
+
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "0.11.0-SNAPSHOT" apply false
+    id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.5"
 }
 
 architectury {
@@ -12,6 +15,11 @@ subprojects {
 
     loom {
         silentMojangMappingsLicense()
+
+        // Enable Java assertions on all run configs
+        runConfigs.each {
+            it.vmArg '-ea'
+        }
     }
 
     dependencies {
@@ -45,5 +53,16 @@ allprojects {
 
     java {
         withSourcesJar()
+    }
+}
+
+// Why in gods name is Architectry forcing both these to Gradle.
+// That is the most retarded thing I have ever seen, this framework needs to die in a hole.
+afterEvaluate {
+    idea.project.settings {
+        delegateActions {
+            // Give us non retarded unit testing and proper IDE integration.
+            testRunner = TestRunner.PLATFORM
+        }
     }
 }

@@ -31,6 +31,7 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
     shadowLib "blue.endless:jankson:${jankson_version}"
+    shadowLib "net.covers1624:Quack:${quack_version}"
 }
 
 processResources {
@@ -46,6 +47,7 @@ shadowJar {
     classifier "dev-shadow"
 
     relocate 'blue.endless', 'net.creeperhost.minetogether.repack.blue.endless'
+    relocate 'net.covers1624', 'net.creeperhost.minetogether.repack.net.covers1624'
 }
 
 remapJar {
