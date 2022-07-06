@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.lib.web;
 
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.include.com.google.common.base.Charsets;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -60,7 +59,7 @@ public interface WebBody {
      * @return The {@link WebBody}.
      */
     static WebBody string(String str, @Nullable String contentType) {
-        return string(str, Charsets.UTF_8, contentType);
+        return string(str, StandardCharsets.UTF_8, contentType);
     }
 
     /**
@@ -91,7 +90,7 @@ public interface WebBody {
      * Create a {@link WebBody} form a {@code byte[]}.
      * This method assumes {@code null} {@code Content-Type}
      *
-     * @param bytes       The bytes.
+     * @param bytes The bytes.
      * @return The {@link WebBody}
      */
     static WebBody bytes(byte[] bytes) {
