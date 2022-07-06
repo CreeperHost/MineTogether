@@ -43,6 +43,7 @@ dependencies {
 
     shadowLib "blue.endless:jankson:${jankson_version}"
     shadowLib "net.covers1624:Quack:${quack_version}"
+    shadowLib "net.covers1624:pircbotx:${pircbotx_version}"
 }
 
 processResources {
@@ -61,6 +62,7 @@ shadowJar {
 
     relocate 'blue.endless', 'net.creeperhost.minetogether.repack.blue.endless'
     relocate 'net.covers1624', 'net.creeperhost.minetogether.repack.net.covers1624'
+    relocate 'org.pircbotx', 'net.creeperhost.minetogether.repack.org.pircbotx'
 }
 
 remapJar {

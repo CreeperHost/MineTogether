@@ -80,11 +80,12 @@ public class ProfileManager {
                 if (!resp.getMessage().startsWith("Profile request already ongoing")) {
                     LOGGER.warn("Unexpected error response from API: " + resp.getMessage());
                 }
+                // TODO how should we handle profile never updating? Bail completely?
             } catch (IOException ex) {
                 LOGGER.warn("IOException whilst querying profile.", ex);
             }
-            // Try again in a minute.
-            SCHEDULED_EXECUTOR.schedule(() -> scheduleUpdate(profile, onFinished, depth), depth, TimeUnit.MINUTES);
+            // Try again based on depth. 1 -> 2 -> 3 -> 4, minutes
+            SCHEDULED_EXECUTOR.schedule(() -> scheduleUpdate(profile, onFinished, depth + 1), depth + 1, TimeUnit.MINUTES);
         });
     }
 
