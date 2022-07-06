@@ -16,7 +16,7 @@ public class SignatureVerifier {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static String generateSignature() {
-        if (!Platform.isDevelopmentEnvironment()) {
+        if (!Platform.isDevelopmentEnvironment() && System.getProperty("mt.develop.signature") == null) {
             Mod mod = Platform.getMod(MineTogether.MOD_ID);
             if (mod != null && mod.getFilePath().toString().endsWith(".jar")) {
                 Path modJar = mod.getFilePath();
