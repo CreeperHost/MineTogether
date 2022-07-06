@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Locale;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -28,7 +29,7 @@ public class ChatAuthImpl implements ChatAuth {
     public ChatAuthImpl(Minecraft mc) {
         this.mc = mc;
         uuid = mc.getUser().getGameProfile().getId();
-        uuidHash = Hashing.sha256().hashString(uuid.toString(), UTF_8).toString();
+        uuidHash = Hashing.sha256().hashString(uuid.toString(), UTF_8).toString().toUpperCase(Locale.ROOT);
         isOnline = uuid.version() == 4; // Version 4 UUID's are online (fully random), Version3 UUID's are offline (generated from md5 string hash).
     }
 
