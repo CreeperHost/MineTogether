@@ -80,7 +80,8 @@ public class ModPackVerifier
                         requestedID = ChatCallbacks.getVersionFromApi(base64);
                         if (requestedID.isEmpty()) requestedID = "-1";
 
-                        Config.instance.curseProjectID = requestedID;
+                        Config.getInstance().curseProjectID = requestedID;
+                        Config.getInstance().setVersion(requestedID);
                         Config.saveConfigToFile(MineTogetherCommon.configFile.toFile());
                         this.ftbPackID = "m" + ftbPackID;
                     }
