@@ -1,5 +1,7 @@
 package net.creeperhost.minetogether.lib.chat.irc;
 
+import net.creeperhost.minetogether.lib.chat.message.Message;
+
 import java.util.List;
 
 /**
@@ -28,7 +30,7 @@ public interface IrcChannel {
     // MessageHead -> [message, ...]
     // message.append
     // message.replace(a) MessageHead.clear, MessageHead.addChild(a)
-    List<String> getMessages();
+    List<Message> getMessages();
 
     /**
      * Send a message to this channel.
@@ -62,9 +64,7 @@ public interface IrcChannel {
          * Called when a new message appears.
          *
          * @param message The message.
-         * @param index   The index of the message.
-         *                // TODO, Index may be redundant, as new messages are always at the end.
          */
-        void newMessage(String message, int index);
+        void newMessage(Message message);
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import net.covers1624.quack.collection.StreamableIterable;
 import net.creeperhost.minetogether.lib.chat.request.ProfileResponse;
 import net.creeperhost.minetogether.lib.chat.util.HashLength;
+import net.creeperhost.minetogether.lib.util.AbstractWeakNotifiable;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -11,7 +12,7 @@ import java.util.function.Consumer;
 /**
  * Created by covers1624 on 22/6/22.
  */
-public class Profile {
+public class Profile extends AbstractWeakNotifiable<Profile> {
 
     final String initialHash;
 
@@ -64,6 +65,7 @@ public class Profile {
             displayName = p.getDisplay();
             // TODO load more data.
 
+            fire(this);
             updating = false;
             stale = false;
         };

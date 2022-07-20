@@ -1,7 +1,11 @@
 package net.creeperhost.minetogether.lib.chat.irc.pircbotx;
 
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
+import net.creeperhost.minetogether.lib.chat.message.Message;
+import net.creeperhost.minetogether.lib.chat.message.MessageComponent;
+import net.creeperhost.minetogether.lib.chat.message.MessageUtils;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 import org.pircbotx.Channel;
 
@@ -21,8 +25,8 @@ public class PircBotChannel implements IrcChannel {
 
     private final List<ChatListener> listeners = new LinkedList<>();
 
-    private final List<String> messages = new ArrayList<>();
-    private final List<String> messagesView = Collections.unmodifiableList(messages);
+    private final List<Message> messages = new ArrayList<>();
+    private final List<Message> messagesView = Collections.unmodifiableList(messages);
 
     @Nullable
     private Channel channel;
@@ -38,7 +42,7 @@ public class PircBotChannel implements IrcChannel {
     }
 
     @Override
-    public List<String> getMessages() {
+    public List<Message> getMessages() {
         return messagesView;
     }
 
@@ -66,21 +70,28 @@ public class PircBotChannel implements IrcChannel {
     }
 
     public void addMessage(Instant timestamp, Profile sender, String message) {
-        message = sender.getDisplayName() + ": " + message;
-        int index = messages.size();
-        messages.add(message);
-        onNewMessage(message, index);
+        addMessage(new Message(
+                timestamp,
+                sender,
+                MessageComponent.of(sender),
+                MessageUtils.parseMessage(client.getProfileManager(), message)
+        ));
     }
 
     public void addNoticeMessage(Instant timestamp, String message) {
-        int index = messages.size();
-        messages.add(message);
-        onNewMessage(message, index);
+        Pair<MessageComponent, MessageComponent> pair = MessageUtils.parseSystemMessage(client.getProfileManager(), message);
+        addMessage(new Message(
+                timestamp,
+                null,
+                pair.getLeft(),
+                pair.getRight()
+        ));
     }
 
-    private void onNewMessage(String message, int index) {
+    private void addMessage(Message message) {
+        messages.add(message);
         for (ChatListener listener : listeners) {
-            listener.newMessage(message, index);
+            listener.newMessage(message);
         }
     }
 
