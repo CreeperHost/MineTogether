@@ -5,7 +5,9 @@ import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.hooks.client.screen.ScreenHooks;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.gui.ChatScreen;
+import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcClient;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.PircBotClient;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListRequest;
@@ -13,6 +15,8 @@ import net.creeperhost.minetogether.lib.chat.request.IRCServerListResponse;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.polylib.gui.IconButton;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.apache.logging.log4j.LogManager;
@@ -36,7 +40,14 @@ public class MineTogetherChat {
     @Nullable // TODO make this nonnull, when api server list api request is moved into irc client init.
     private static IrcClient ircClient;
 
+    public static ChatComponent vanillaChat;
+    public static MTChatComponent publicChat;
+    public static ChatTarget target = ChatTarget.PUBLIC;
+
     public static void init() {
+        // Class Initializer must be finished before MTChatComponent is constructed.
+        publicChat = new MTChatComponent(ChatTarget.PUBLIC, Minecraft.getInstance());
+
         ClientGuiEvent.INIT_POST.register(MineTogetherChat::onScreenOpen);
 
         if (Config.instance().debugMode) {
@@ -44,12 +55,32 @@ public class MineTogetherChat {
             System.setProperty("net.covers1624.pircbot.logging.debug", "INFO");
             System.setProperty("net.covers1624.pircbot.logging.very_verbose", "true");
         }
+    }
+
+    public static void initChat(Gui gui) {
+        vanillaChat = gui.chat;
+        publicChat = new MTChatComponent(ChatTarget.PUBLIC, Minecraft.getInstance());
 
         // TODO throw this off thread inside the IRC client initialization.
         try {
             ApiClientResponse<IRCServerListResponse> response = API.execute(new IRCServerListRequest());
             ircClient = new PircBotClient(CHAT_AUTH, API, response.apiResponse(), "{\"p\":\"-1\"}");
             ircClient.connect();
+
+            ircClient.addChannelListener(new IrcClient.ChannelListener() {
+                @Override
+                public void channelJoin(IrcChannel channel) {
+                    if (ircClient.getPrimaryChannel() == null) return;
+                    if (channel == ircClient.getPrimaryChannel()) {
+                        publicChat.attach(channel);
+                    }
+                }
+
+                @Override
+                public void channelLeave(IrcChannel channel) {
+
+                }
+            });
         } catch (IOException ex) {
             LOGGER.error("Failed to initialize IRC client.", ex);
         }

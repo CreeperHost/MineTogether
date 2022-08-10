@@ -1,1 +1,10 @@
 accessWidener   v2  named
+extendable method net/minecraft/client/gui/components/ChatComponent addMessage (Lnet/minecraft/network/chat/Component;I)V
+accessible method net/minecraft/client/gui/components/ChatComponent addMessage (Lnet/minecraft/network/chat/Component;I)V
+extendable method net/minecraft/client/gui/components/ChatComponent addMessage (Lnet/minecraft/network/chat/Component;IIZ)V
+accessible method net/minecraft/client/gui/components/ChatComponent addMessage (Lnet/minecraft/network/chat/Component;IIZ)V
+
+extendable method net/minecraft/client/gui/components/ChatComponent removeById (I)V
+accessible method net/minecraft/client/gui/components/ChatComponent removeById (I)V
+
+accessible field net/minecraft/client/gui/Gui chat Lnet/minecraft/client/gui/components/ChatComponent;

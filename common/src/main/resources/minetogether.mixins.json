@@ -1,4 +1,9 @@
 {
     "required": true,
-    "package": "net.creeperhost.minetogether.mixin"
+    "package": "net.creeperhost.minetogether.mixin",
+    "client": [
+        "chat.ChatScreenMixin",
+        "chat.ingame.ChatComponentMixin",
+        "chat.ingame.GuiMixin"
+    ]
 }
