@@ -6,7 +6,7 @@ package net.creeperhost.minetogether.lib.chat.message;
 public class EmptyMessageComponent extends MessageComponent {
 
     @Override
-    protected String getMessage() {
+    public String getMessage() {
         return "";
     }
 

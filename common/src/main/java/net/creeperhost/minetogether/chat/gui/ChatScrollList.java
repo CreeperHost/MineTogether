@@ -3,9 +3,11 @@ package net.creeperhost.minetogether.chat.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.message.Message;
+import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 
 /**
  * @author covers1624
@@ -53,7 +55,7 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
         private final ChatScrollList parent;
         private final Message message;
 
-        private String line;
+        private Component line;
 
         public ChatLine(ChatScrollList parent, Message message) {
             this.parent = parent;
@@ -62,8 +64,8 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
             line = updateLine();
         }
 
-        private String updateLine() {
-            return message.senderName + ": " + message.getMessage();
+        private Component updateLine() {
+            return MessageFormatter.formatMessage(message);
         }
 
         @Override

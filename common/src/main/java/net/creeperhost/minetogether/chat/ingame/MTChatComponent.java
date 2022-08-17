@@ -4,10 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.chat.ChatTarget;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
+import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.LinkedList;
 
@@ -21,7 +21,7 @@ public class MTChatComponent extends ChatComponent {
     // Flag to override explicitly delegating to vanilla, set in specific cases.
     private boolean internalUpdate = false;
 
-    private final LinkedList<TextComponent> pendingMessages = new LinkedList<>();
+    private final LinkedList<Component> pendingMessages = new LinkedList<>();
     private IrcChannel channel;
 
     public MTChatComponent(ChatTarget target, Minecraft minecraft) {
@@ -34,7 +34,8 @@ public class MTChatComponent extends ChatComponent {
         this.channel = channel;
         channel.addListener(message -> {
             synchronized (pendingMessages) {
-                pendingMessages.add(new TextComponent("<" + message.senderName + "> " + message.getMessage()));
+                // TODO attach listeners to all incoming messages for changes.
+                pendingMessages.add(MessageFormatter.formatMessage(message));
             }
         });
     }
@@ -44,7 +45,7 @@ public class MTChatComponent extends ChatComponent {
         if (!pendingMessages.isEmpty()) {
             internalUpdate = true;
             synchronized (pendingMessages) {
-                for (TextComponent pendingMessage : pendingMessages) {
+                for (Component pendingMessage : pendingMessages) {
                     super.addMessage(pendingMessage);
                 }
                 pendingMessages.clear();

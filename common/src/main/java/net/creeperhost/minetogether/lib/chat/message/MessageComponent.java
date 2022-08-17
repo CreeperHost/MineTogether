@@ -4,6 +4,8 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.util.AbstractWeakNotifiable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
+
 /**
  * An incredibly simple linked list of Strings.
  * <p>
@@ -16,7 +18,7 @@ public abstract class MessageComponent extends AbstractWeakNotifiable<MessageCom
     @Nullable
     protected MessageComponent next;
 
-    protected abstract String getMessage();
+    public abstract String getMessage();
 
     public static MessageComponent of() {
         return new EmptyMessageComponent();
@@ -55,6 +57,35 @@ public abstract class MessageComponent extends AbstractWeakNotifiable<MessageCom
 
     public boolean isEmpty() {
         return false;
+    }
+
+    /**
+     * Returns an Iterable that iterates through this component and all of its children
+     * skipping any empty components.
+     *
+     * @return An {@link Iterable} returning this component followed by its children.
+     */
+    public Iterable<MessageComponent> iterate() {
+        return () -> new Iterator<MessageComponent>() {
+            @Nullable
+            private MessageComponent pointer = MessageComponent.this;
+
+            @Override
+            public boolean hasNext() {
+                return pointer != null;
+            }
+
+            @Override
+            public MessageComponent next() {
+                assert pointer != null;
+                MessageComponent ret = pointer;
+                do {
+                    pointer = pointer.next;
+                }
+                while (pointer != null && pointer.isEmpty());
+                return ret;
+            }
+        };
     }
 
     @Override

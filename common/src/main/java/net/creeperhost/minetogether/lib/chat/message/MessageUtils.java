@@ -49,9 +49,9 @@ public class MessageUtils {
     /**
      * Parses a System user message.
      * <p>
-     * The left hand side of the returned Pair will be either, the user parsed out of the message, or
+     * The left-hand side of the returned Pair will be either, the user parsed out of the message, or
      * the fallback of {@link #FALLBACK_SYSTEM_USER}.
-     * The right hand side of the pair will be the remaining Message as parsed by {@link #parseMessage}.
+     * The right-hand side of the pair will be the remaining Message as parsed by {@link #parseMessage}.
      *
      * @param profileManager The ProfileManager to lookup Profiles with.
      * @param message        The Message.

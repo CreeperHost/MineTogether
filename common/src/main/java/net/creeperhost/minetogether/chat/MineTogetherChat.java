@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcClient;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.PircBotClient;
+import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListRequest;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListResponse;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
@@ -88,6 +89,10 @@ public class MineTogetherChat {
 
     public static IrcClient getIrcClient() {
         return Objects.requireNonNull(ircClient, "IRC client could not be constructed.");
+    }
+
+    public static Profile getOurProfile() {
+        return getIrcClient().getUserProfile();
     }
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {

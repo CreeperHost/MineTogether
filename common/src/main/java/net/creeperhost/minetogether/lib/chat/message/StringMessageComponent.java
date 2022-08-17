@@ -12,7 +12,12 @@ public class StringMessageComponent extends MessageComponent {
     }
 
     @Override
-    protected String getMessage() {
+    public boolean isEmpty() {
+        return text.isEmpty();
+    }
+
+    @Override
+    public String getMessage() {
         return text;
     }
 }

@@ -7,7 +7,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
  */
 public class ProfileMessageComponent extends MessageComponent {
 
-    private final Profile profile;
+    public final Profile profile;
 
     private String displayName;
 
@@ -18,7 +18,7 @@ public class ProfileMessageComponent extends MessageComponent {
     }
 
     private void onProfileUpdate(Profile profile) {
-        assert this.profile == profile : "THWAT?";
+        assert this.profile == profile : "Profile update got a different profile???";
 
         String newName = profile.getDisplayName();
         if (!newName.equals(displayName)) {
@@ -28,7 +28,7 @@ public class ProfileMessageComponent extends MessageComponent {
     }
 
     @Override
-    protected String getMessage() {
+    public String getMessage() {
         return displayName;
     }
 }

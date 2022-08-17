@@ -19,6 +19,8 @@ public class Profile extends AbstractWeakNotifiable<Profile> {
     private ImmutableSet<String> aliases;
     private String displayName;
     private boolean isBanned;
+    private boolean isPremium;
+    private boolean isFriend;
 
     // Stale on creation.
     private boolean stale = true;
@@ -47,6 +49,14 @@ public class Profile extends AbstractWeakNotifiable<Profile> {
         return isBanned;
     }
 
+    public boolean isPremium() {
+        return isPremium;
+    }
+
+    public boolean isFriend() {
+        return isFriend;
+    }
+
     public boolean isStale() {
         return stale;
     }
@@ -63,6 +73,7 @@ public class Profile extends AbstractWeakNotifiable<Profile> {
                     .map(e -> e.format(p.getLongHash()))
                     .toImmutableSet();
             displayName = p.getDisplay();
+            isPremium = p.isPremium();
             // TODO load more data.
 
             fire(this);
