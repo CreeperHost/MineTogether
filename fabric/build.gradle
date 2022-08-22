@@ -55,6 +55,7 @@ shadowJar {
     dependencies {
         exclude(dependency("io.netty::"))
         exclude(dependency("com.google::"))
+        exclude(dependency("com.google.code.gson::"))
     }
 
     relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
