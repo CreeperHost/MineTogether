@@ -152,7 +152,7 @@ public class LibraryHacks {
                 return respData.toString();
             } catch (Exception e)
             {
-                if(print) MineTogetherChat.logger.error(e);
+                if(print) LOGGER.error(e);
             }
 
             return "error";

@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.ChatConnectionStatus;
 import net.creeperhost.minetogether.lib.chat.ChatHandler;
 import net.creeperhost.minetogether.lib.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.logging.Log4jUtils;
 import net.fabricmc.api.EnvType;
 import org.slf4j.Logger;
 
@@ -20,6 +21,7 @@ public class MineTogetherCommon
 
     public static void init()
     {
+        Log4jUtils.attachMTLogs(Platform.getGameFolder().resolve("logs"));
         Config.init(configFile.toFile());
 
         if(!Config.getInstance().isOptOutSentry())
