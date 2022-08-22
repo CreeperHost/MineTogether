@@ -74,6 +74,7 @@ shadowJar {
     dependencies {
         exclude(dependency("io.netty::"))
         exclude(dependency("com.google::"))
+        exclude(dependency("com.google.code.gson::"))
     }
 
     // Relocate fluent-hc to prevent conflicts with other mods that include it
