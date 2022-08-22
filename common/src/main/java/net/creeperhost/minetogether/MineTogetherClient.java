@@ -112,7 +112,7 @@ public class MineTogetherClient
     public static String getServerIDAndVerify()
     {
         Minecraft mc = Minecraft.getInstance();
-        String serverId = DigestUtils.sha1Hex(String.valueOf(new Random().nextInt()));
+        String serverId = DigestUtils.sha1Hex(UUID.randomUUID().toString());
         try
         {
             mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);

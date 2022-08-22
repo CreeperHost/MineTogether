@@ -67,14 +67,13 @@ public class ChatModule
         boolean online = MineTogetherClient.isOnlineUUID;
         String realName = new ModPackVerifier().verify();
         String signature = new SignatureVerifier().verify();
-        String serverID = MineTogetherClient.getServerIDAndVerify();
 
-        mineTogetherChat = new MineTogetherChat(ourNick, MineTogetherClient.getPlayerHash(), online, realName, signature, serverID, ChatListener.INSTANCE);
+        mineTogetherChat = new MineTogetherChat(ourNick, MineTogetherClient.getPlayerHash(), online, realName, signature, "", ChatListener.INSTANCE);
         Sentry.setTag("isOnline", String.valueOf(online));
         Sentry.setTag("hash", MineTogetherClient.getPlayerHash());
         Sentry.setTag("signature", signature);
 
-        if(serverID != null && !serverID.isEmpty())
+        if (online)
         {
             mineTogetherChat.startChat();
         }
