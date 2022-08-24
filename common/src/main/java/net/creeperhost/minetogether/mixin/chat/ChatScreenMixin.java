@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,11 +34,11 @@ abstract class ChatScreenMixin extends Screen {
     private void onInit(CallbackInfo ci) {
         int x = Mth.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 6;
 
-        vanillaChatButton = new RadioButton(x, height - 215, 12, 87, new TextComponent("Commands"))
+        vanillaChatButton = new RadioButton(x, height - 215, 12, 87, new TranslatableComponent("minetogether:ingame.chat.local"))
                 .withTextScale(0.75F)
                 .withVerticalText()
                 .onPressed(e -> MineTogetherChat.target = ChatTarget.VANILLA);
-        mtChatButton = new RadioButton(x, height - 215 + 87, 12, 87, new TextComponent("MineTogether"))
+        mtChatButton = new RadioButton(x, height - 215 + 87, 12, 87, new TranslatableComponent("minetogether:ingame.chat.global"))
                 .withTextScale(0.75F)
                 .withVerticalText()
                 .onPressed(e -> MineTogetherChat.target = ChatTarget.PUBLIC);

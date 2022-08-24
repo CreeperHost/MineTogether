@@ -3,10 +3,12 @@ package net.creeperhost.minetogether.chat;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.hooks.client.screen.ScreenHooks;
+import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.gui.ChatScreen;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcClient;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.PircBotClient;
@@ -37,6 +39,9 @@ public class MineTogetherChat {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static final ChatAuthImpl CHAT_AUTH = new ChatAuthImpl(Minecraft.getInstance());
+    private static final MutedUserList MUTED_USER_LIST = new MutedUserList(
+            Platform.getGameFolder().resolve("local/minetogether/mutedusers.json")
+    );
 
     @Nullable // TODO make this nonnull, when api server list api request is moved into irc client init.
     private static IrcClient ircClient;
@@ -65,7 +70,7 @@ public class MineTogetherChat {
         // TODO throw this off thread inside the IRC client initialization.
         try {
             ApiClientResponse<IRCServerListResponse> response = API.execute(new IRCServerListRequest());
-            ircClient = new PircBotClient(CHAT_AUTH, API, response.apiResponse(), "{\"p\":\"-1\"}");
+            ircClient = new PircBotClient(CHAT_AUTH, MUTED_USER_LIST, API, response.apiResponse(), "{\"p\":\"-1\"}");
             ircClient.connect();
 
             ircClient.addChannelListener(new IrcClient.ChannelListener() {

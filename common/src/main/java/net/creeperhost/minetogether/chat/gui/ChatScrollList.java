@@ -69,7 +69,7 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
         }
 
         @Override
-        public void render(PoseStack poseStack, int idx, int top, int left, int width, int height, int mx, int my, boolean bl, float partialTicks) {
+        public void render(PoseStack poseStack, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
             drawString(poseStack, parent.minecraft.font, line, left, top, 0xFFFFFFFF);
         }
     }

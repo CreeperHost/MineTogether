@@ -1,0 +1,12 @@
+{
+    "minetogether:button.cancel": "Cancel",
+    "minetogether:button.refresh": "Refresh",
+    
+    "minetogether:ingame.chat.global": "MineTogether",
+    "minetogether:ingame.chat.local": "Commands",
+    "minetogether:ingame.chat.server": "Server",
+    
+    "minetogether:screen.muted.title": "Blocked List",
+    "minetogether:screen.muted.empty": "Block list is empty",
+    "minetogether:screen.muted.button.friends": "Friends list"
+}

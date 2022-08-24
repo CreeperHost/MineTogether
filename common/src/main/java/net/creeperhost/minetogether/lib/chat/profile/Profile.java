@@ -2,9 +2,11 @@ package net.creeperhost.minetogether.lib.chat.profile;
 
 import com.google.common.collect.ImmutableSet;
 import net.covers1624.quack.collection.StreamableIterable;
+import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.request.ProfileResponse;
 import net.creeperhost.minetogether.lib.chat.util.HashLength;
 import net.creeperhost.minetogether.lib.util.AbstractWeakNotifiable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -14,22 +16,33 @@ import java.util.function.Consumer;
  */
 public class Profile extends AbstractWeakNotifiable<Profile> {
 
+    private final MutedUserList mutedUserList;
     final String initialHash;
 
     private ImmutableSet<String> aliases;
+    @Nullable
+    private String fullHash;
     private String displayName;
     private boolean isBanned;
     private boolean isPremium;
     private boolean isFriend;
+    private boolean isMuted;
 
     // Stale on creation.
     private boolean stale = true;
 
     private boolean updating = false;
 
-    Profile(String initialHash) {
+    Profile(MutedUserList mutedUserList, String initialHash) {
+        this.mutedUserList = mutedUserList;
         this.initialHash = initialHash;
         aliases = ImmutableSet.of(initialHash);
+
+        // We create Profile entries for known users using their full hash.
+        if (HashLength.FULL.matches(initialHash)) {
+            fullHash = initialHash;
+            isMuted = mutedUserList.isUserMuted(fullHash);
+        }
 
         // First 5 characters after MT if exists.
         // TODO can we assert that the first 2 characters will ALWAYS be MT?
@@ -57,6 +70,26 @@ public class Profile extends AbstractWeakNotifiable<Profile> {
         return isFriend;
     }
 
+    public boolean isMuted() {
+        return isMuted;
+    }
+
+    public void unmute() {
+        assert isMuted;
+        assert fullHash != null; // TODO, function to wait for profile to finish updating?
+
+        isMuted = false;
+        mutedUserList.unmuteUser(fullHash);
+    }
+
+    public void mute() {
+        assert !isMuted;
+        assert fullHash != null; // TODO, function to wait for profile to finish updating?
+
+        isMuted = true;
+        mutedUserList.muteUser(fullHash);
+    }
+
     public boolean isStale() {
         return stale;
     }
@@ -72,6 +105,7 @@ public class Profile extends AbstractWeakNotifiable<Profile> {
             aliases = StreamableIterable.of(HashLength.values())
                     .map(e -> e.format(p.getLongHash()))
                     .toImmutableSet();
+            fullHash = p.getLongHash();
             displayName = p.getDisplay();
             isPremium = p.isPremium();
             // TODO load more data.

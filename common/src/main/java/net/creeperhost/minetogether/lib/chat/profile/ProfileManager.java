@@ -1,6 +1,9 @@
 package net.creeperhost.minetogether.lib.chat.profile;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import net.covers1624.quack.collection.StreamableIterable;
+import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.request.ProfileRequest;
 import net.creeperhost.minetogether.lib.chat.request.ProfileResponse;
 import net.creeperhost.minetogether.lib.chat.request.ProfileResponse.ProfileData;
@@ -38,11 +41,17 @@ public class ProfileManager {
                     .build()
     );
 
+    private final MutedUserList mutedUserList;
     private final ApiClient apiClient;
     private final Map<String, Profile> profiles = new HashMap<>();
 
-    public ProfileManager(ApiClient apiClient) {
+    public ProfileManager(ApiClient apiClient, MutedUserList mutedUserList) {
         this.apiClient = apiClient;
+        this.mutedUserList = mutedUserList;
+        for (String mutedUser : mutedUserList.getMutedUsers()) {
+            // TODO, dont immediately update these, just add them to the Profile list.
+            lookupProfile(mutedUser);
+        }
     }
 
     public Profile lookupProfile(String hash) {
@@ -52,7 +61,7 @@ public class ProfileManager {
                 // Double-check after lock, we may not need to do anything.
                 profile = profiles.get(hash);
                 if (profile != null) return profile;
-                profile = new Profile(hash);
+                profile = new Profile(mutedUserList, hash);
                 profiles.put(hash, profile);
             }
         }
@@ -60,6 +69,39 @@ public class ProfileManager {
             scheduleUpdate(profile);
         }
         return profile;
+    }
+
+    /**
+     * Gets an immutable copy of all profiles seen/known at the current moment.
+     * <p>
+     * Please use sparely, this creates a new List!
+     *
+     * @return The Profiles of the currently known users.
+     */
+    public Iterable<Profile> getKnownProfiles() {
+        synchronized (profiles) {
+            // Since we use a synchronized lock on profiles, it is important
+            // that we don't return an Iterable backed by profiles, thus we copy.
+            return StreamableIterable.of(profiles.values())
+                    .distinct()                             // Entries may exist more than once because of aliases.
+                    .toImmutableList();
+        }
+    }
+
+    /**
+     * Gets an immutable copy of all profiles currently muted.
+     *
+     * @return The Profiles of the currently muted users.
+     */
+    public Iterable<Profile> getMutedProfiles() {
+        synchronized (profiles) {
+            // We could return the StreamableIterable here, but as above, it is important
+            // that we don't return an Iterable backed by profiles in any way, thus we terminate stream.
+            return StreamableIterable.of(profiles.values())
+                    .distinct()                             // Entries may exist more than once because of aliases.
+                    .filter(Profile::isMuted)
+                    .toImmutableList();
+        }
     }
 
     private void scheduleUpdate(Profile profile) {

@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -47,6 +48,8 @@ public class ChatScreen extends Screen {
     @Nullable
     private StringButton connectionStatus;
 
+    private Button friendsList;
+
     public ChatScreen(Screen parent) {
         super(new TextComponent("MineTogether Chat"));
         this.parent = parent;
@@ -61,14 +64,14 @@ public class ChatScreen extends Screen {
         chatList.setLeftPos(10);
         chatList.setScrollAmount(chatList.getMaxScroll());
         boolean shouldFocusEditBox = sendEditBox == null || sendEditBox.isFocused();
-        sendEditBox = new EditBox(minecraft.font, 11, height - 48, width - 22, 20, sendEditBox, new TextComponent(""));
+        sendEditBox = new EditBox(minecraft.font, 11, height - 48, width - 22, 20, sendEditBox, TextComponent.EMPTY);
         sendEditBox.setFocus(shouldFocusEditBox);
         sendEditBox.setMaxLength(256);
 
         addRenderableWidget(chatList);
         addRenderableWidget(sendEditBox);
 
-        addRenderableWidget(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TextComponent("Cancel"), button -> {
+        addRenderableWidget(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TranslatableComponent("minetogether:button.cancel"), button -> {
             minecraft.setScreen(parent);
         }));
 
@@ -76,6 +79,8 @@ public class ChatScreen extends Screen {
             IrcState state = MineTogetherChat.getIrcClient().getState();
             return new TextComponent(STATE_FORMAT_LOOKUP.get(state) + "\u2022" + " " + ChatFormatting.WHITE + STATE_DESC_LOOKUP.get(state));
         }, button -> { }));
+
+        addRenderableWidget(friendsList = new Button(5, 5, 100, 20, new TextComponent("Mute List TEMP"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
     }
 
     @Override

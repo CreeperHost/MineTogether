@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.lib.chat.irc.IrcClient;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.EventSubscriberListener;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.SubscribeEvent;
+import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListResponse;
@@ -37,6 +38,7 @@ public class PircBotClient implements IrcClient {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final ChatAuth auth;
+    private final MutedUserList mutedUserList;
     private final ApiClient api;
     private final String nick;
     private final IRCServerListResponse serverDetails;
@@ -51,12 +53,14 @@ public class PircBotClient implements IrcClient {
     // TODO wire in RECONNECTING state.
     private IrcState state = IrcState.DISCONNECTED;
 
-    public PircBotClient(ChatAuth auth, ApiClient api, IRCServerListResponse serverDetails, String realName) {
+    public PircBotClient(ChatAuth auth, MutedUserList mutedUserList, ApiClient api, IRCServerListResponse serverDetails, String realName) {
         this.auth = auth;
+        this.mutedUserList = mutedUserList;
         this.api = api;
         this.nick = "MT" + HashLength.MEDIUM.format(auth.getHash());
         this.serverDetails = serverDetails;
-        profileManager = new ProfileManager(api);
+        // TODO move this to a Property passed into PircBotClient, it should be unrelated to the IRC implementation.
+        profileManager = new ProfileManager(api, mutedUserList);
         profile = profileManager.lookupProfile(auth.getHash());
 
         // TODO make EventSubscriberListener fire all events on a specific executor.

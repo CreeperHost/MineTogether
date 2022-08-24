@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Created by covers1624 on 27/7/22.
  */
 @Mixin (Gui.class)
-public class GuiMixin {
+abstract class GuiMixin {
 
     @Final
     @Shadow
@@ -30,7 +30,7 @@ public class GuiMixin {
                     value = "TAIL"
             )
     )
-    public void onInit(Minecraft minecraft, CallbackInfo ci) {
+    private void onInit(Minecraft minecraft, CallbackInfo ci) {
         MineTogetherChat.initChat(SneakyUtils.unsafeCast(this));
     }
 
@@ -42,7 +42,7 @@ public class GuiMixin {
                     opcode = Opcodes.GETFIELD
             )
     )
-    public ChatComponent onGetChat(Gui instance) {
+    private ChatComponent onGetChat(Gui instance) {
         return switch (MineTogetherChat.target) {
             case VANILLA -> chat;
             case PUBLIC -> MineTogetherChat.publicChat;
@@ -57,7 +57,7 @@ public class GuiMixin {
                     opcode = Opcodes.GETFIELD
             )
     )
-    public ChatComponent onRender(Gui instance) {
+    private ChatComponent onRender(Gui instance) {
         return switch (MineTogetherChat.target) {
             case VANILLA -> chat;
             case PUBLIC -> MineTogetherChat.publicChat;
@@ -72,7 +72,7 @@ public class GuiMixin {
                     opcode = Opcodes.GETFIELD
             )
     )
-    public ChatComponent onDisconnect(Gui instance) {
+    private ChatComponent onDisconnect(Gui instance) {
         return switch (MineTogetherChat.target) {
             case VANILLA -> chat;
             case PUBLIC -> MineTogetherChat.publicChat;
