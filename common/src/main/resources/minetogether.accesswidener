@@ -9,6 +9,7 @@ accessible method net/minecraft/client/gui/components/ChatComponent removeById (
 
 accessible field net/minecraft/client/gui/Gui chat Lnet/minecraft/client/gui/components/ChatComponent;
 
+extendable method net/minecraft/client/gui/components/AbstractSelectionList clearEntries ()V
 accessible method net/minecraft/client/gui/components/AbstractSelectionList clearEntries ()V
 
 extendable method net/minecraft/client/gui/components/AbstractSelectionList addEntry (Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;)I
