@@ -5,6 +5,7 @@ import dev.architectury.platform.Mod;
 import dev.architectury.platform.Platform;
 import net.covers1624.quack.util.HashUtils;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherPlatform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,9 +18,8 @@ public class SignatureVerifier {
 
     public static String generateSignature() {
         if (!Platform.isDevelopmentEnvironment() && System.getProperty("mt.develop.signature") == null) {
-            Mod mod = Platform.getMod(MineTogether.MOD_ID);
-            if (mod != null && mod.getFilePath().toString().endsWith(".jar")) {
-                Path modJar = mod.getFilePath();
+            Path modJar = MineTogetherPlatform.getModJar();
+            if (modJar != null && modJar.toString().endsWith(".jar")) {
                 try {
                     return HashUtils.hash(Hashing.sha256(), modJar).toString();
                 } catch (IOException ex) {
