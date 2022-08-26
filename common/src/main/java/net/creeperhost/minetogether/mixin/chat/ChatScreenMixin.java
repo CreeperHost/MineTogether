@@ -12,7 +12,10 @@ import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 /**
  * Created by covers1624 on 5/8/22.
@@ -50,6 +53,21 @@ abstract class ChatScreenMixin extends Screen {
         switch (MineTogetherChat.target) {
             case VANILLA -> vanillaChatButton.setPressed(true);
             case PUBLIC -> mtChatButton.setPressed(true);
+        }
+    }
+
+    @Redirect (
+            method = "keyPressed",
+            at = @At (
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/screens/ChatScreen;sendMessage(Ljava/lang/String;)V",
+                    opcode = INVOKEVIRTUAL
+            )
+    )
+    private void onSendMessage(ChatScreen instance, String s) {
+        switch (MineTogetherChat.target) {
+            case VANILLA -> instance.sendMessage(s);
+            case PUBLIC -> MineTogetherChat.publicChat.addRecentChat(s);
         }
     }
 }

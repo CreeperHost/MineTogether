@@ -187,9 +187,9 @@ public class MTChatComponent extends ChatComponent {
 
             // Index of last trimmed line (closest to head of trimmedMessages list)
             int trimmedIdx = trimmedMessages.indexOf(trimmedLines.get(trimmedLines.size() - 1));
-            format();
-
             trimmedMessages.removeAll(trimmedLines);
+
+            format();
             insertAt(trimmedIdx);
         }
 
