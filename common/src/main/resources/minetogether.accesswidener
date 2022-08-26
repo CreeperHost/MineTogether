@@ -7,6 +7,13 @@ accessible method net/minecraft/client/gui/components/ChatComponent addMessage (
 extendable method net/minecraft/client/gui/components/ChatComponent removeById (I)V
 accessible method net/minecraft/client/gui/components/ChatComponent removeById (I)V
 
+extendable method net/minecraft/client/gui/components/ChatComponent isChatFocused ()Z
+accessible method net/minecraft/client/gui/components/ChatComponent isChatFocused ()Z
+
+accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessages Ljava/util/List;
+accessible field net/minecraft/client/gui/components/ChatComponent chatScrollbarPos I
+accessible field net/minecraft/client/gui/components/ChatComponent newMessageSinceScroll Z
+
 accessible field net/minecraft/client/gui/Gui chat Lnet/minecraft/client/gui/components/ChatComponent;
 
 extendable method net/minecraft/client/gui/components/AbstractSelectionList clearEntries ()V
