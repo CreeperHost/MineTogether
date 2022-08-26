@@ -33,6 +33,6 @@
         "flamingo": "*"
     },
     "mixins": [
-        "minetogether.mixins.json"
+        "minetogether-common.mixins.json"
     ]
 }
