@@ -1,4 +1,4 @@
-package net.creeperhost.polylib.gui;
+package net.creeperhost.minetogether.polylib.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

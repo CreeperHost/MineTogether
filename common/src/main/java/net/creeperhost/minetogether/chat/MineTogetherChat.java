@@ -16,7 +16,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListRequest;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListResponse;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
-import net.creeperhost.polylib.gui.IconButton;
+import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.ChatComponent;

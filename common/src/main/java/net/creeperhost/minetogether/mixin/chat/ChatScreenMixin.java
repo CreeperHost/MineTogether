@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.mixin.chat;
 
 import net.creeperhost.minetogether.chat.ChatTarget;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
-import net.creeperhost.polylib.gui.RadioButton;
+import net.creeperhost.minetogether.polylib.gui.RadioButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
