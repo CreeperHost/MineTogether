@@ -13,6 +13,8 @@ import java.util.Iterator;
  */
 public abstract class MessageComponent extends AbstractWeakNotifiable<MessageComponent> {
 
+    public static final MessageComponent MESSAGE_DELETED = of("<message deleted>");
+
     @Nullable
     protected MessageComponent prev;
     @Nullable

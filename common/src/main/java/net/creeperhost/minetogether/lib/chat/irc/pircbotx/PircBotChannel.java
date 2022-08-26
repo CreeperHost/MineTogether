@@ -92,6 +92,9 @@ public class PircBotChannel implements IrcChannel {
         // Yeet messages from muted users.
         if (message.sender != null && message.sender.isMuted()) return;
 
+        if (message.sender != null) {
+            message.sender.addSentMessage(message);
+        }
         messages.add(message);
         for (ChatListener listener : listeners) {
             listener.newMessage(message);

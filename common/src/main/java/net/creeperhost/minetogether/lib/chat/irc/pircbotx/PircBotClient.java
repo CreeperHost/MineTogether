@@ -1,17 +1,18 @@
 package net.creeperhost.minetogether.lib.chat.irc.pircbotx;
 
 import net.creeperhost.minetogether.lib.chat.ChatAuth;
+import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcClient;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.EventSubscriberListener;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.SubscribeEvent;
-import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListResponse;
 import net.creeperhost.minetogether.lib.chat.util.HashLength;
 import net.creeperhost.minetogether.lib.web.ApiClient;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -221,6 +222,26 @@ public class PircBotClient implements IrcClient {
 
             for (ChannelListener listener : channelListeners) {
                 listener.channelJoin(channel);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    private void onUserModeChange(UserModeEvent event) {
+        User user = event.getUser();
+        if (user != null) {
+            boolean hasBanMode = StringUtils.containsAny(event.getMode(), 'b');
+            if (!hasBanMode) return;
+
+            // Who is the recipient of this mode change, us or another user.
+            Profile target = user.getNick().equals(nick) ? profile : profileManager.lookupProfile(user.getNick());
+
+            // Apply ban/unban
+            if (event.getMode().charAt(0) == '-') {
+                target.unbanned();
+            } else {
+                assert event.getMode().charAt(0) == '+';
+                target.banned();
             }
         }
     }
