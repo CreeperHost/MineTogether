@@ -8,17 +8,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author covers1624
  */
 public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLine> {
 
-    private final IrcChannel channel;
-    private final IrcChannel.ChatListener listener;
+    @Nullable
+    private IrcChannel channel;
+    @Nullable
+    private IrcChannel.ChatListener listener;
 
-    public ChatScrollList(Minecraft minecraft, int width, int height, int y0, int y1, IrcChannel channel) {
+    public ChatScrollList(Minecraft minecraft, int width, int height, int y0, int y1) {
         super(minecraft, width, height, y0, y1, 10);
+    }
+
+    public void attach(IrcChannel channel) {
         this.channel = channel;
         for (Message message : channel.getMessages()) {
             addEntry(new ChatLine(this, message));
@@ -47,7 +53,10 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
     }
 
     public void removed() {
-        channel.removeListener(listener);
+        if (channel != null) {
+            assert listener != null;
+            channel.removeListener(listener);
+        }
     }
 
     public static class ChatLine extends Entry<ChatLine> {

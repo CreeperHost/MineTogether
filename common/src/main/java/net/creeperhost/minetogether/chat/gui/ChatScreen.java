@@ -38,7 +38,8 @@ public class ChatScreen extends Screen {
     );
 
     private final Screen parent;
-    private final IrcChannel channel;
+    @Nullable
+    private IrcChannel channel;
 
     @Nullable
     private ChatScrollList chatList;
@@ -53,16 +54,24 @@ public class ChatScreen extends Screen {
     public ChatScreen(Screen parent) {
         super(new TextComponent("MineTogether Chat"));
         this.parent = parent;
-        channel = MineTogetherChat.getIrcClient().getPrimaryChannel();
+    }
+
+    public void attach(IrcChannel channel) {
+        this.channel = channel;
+        chatList.attach(channel);
     }
 
     @Override
     protected void init() {
         assert minecraft != null;
 
-        chatList = new ChatScrollList(minecraft, width - 20, height - 50, 30, height - 50, channel);
+        chatList = new ChatScrollList(minecraft, width - 20, height - 50, 30, height - 50);
         chatList.setLeftPos(10);
         chatList.setScrollAmount(chatList.getMaxScroll());
+        channel = MineTogetherChat.getIrcClient().getPrimaryChannel();
+        if (channel != null) {
+            attach(channel);
+        }
         boolean shouldFocusEditBox = sendEditBox == null || sendEditBox.isFocused();
         sendEditBox = new EditBox(minecraft.font, 11, height - 48, width - 22, 20, sendEditBox, TextComponent.EMPTY);
         sendEditBox.setFocus(shouldFocusEditBox);
@@ -120,7 +129,9 @@ public class ChatScreen extends Screen {
             String trimmedMessage = sendEditBox.getValue().trim();
             if (!trimmedMessage.isEmpty()) {
                 sendEditBox.setValue("");
-                channel.sendMessage(trimmedMessage);
+                if (channel != null) {
+                    channel.sendMessage(trimmedMessage);
+                }
                 return true;
             }
         }

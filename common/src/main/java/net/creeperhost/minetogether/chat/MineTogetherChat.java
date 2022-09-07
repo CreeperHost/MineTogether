@@ -79,6 +79,11 @@ public class MineTogetherChat {
                     if (ircClient.getPrimaryChannel() == null) return;
                     if (channel == ircClient.getPrimaryChannel()) {
                         publicChat.attach(channel);
+
+                        // If we have the ChatScreen open. Attach to main chat.
+                        if (Minecraft.getInstance().screen instanceof ChatScreen chat) {
+                            chat.attach(channel);
+                        }
                     }
                 }
 
