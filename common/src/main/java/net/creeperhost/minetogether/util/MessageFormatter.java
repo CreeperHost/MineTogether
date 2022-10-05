@@ -5,6 +5,8 @@ import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.lib.chat.message.MessageComponent;
 import net.creeperhost.minetogether.lib.chat.message.ProfileMessageComponent;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.ClickEvent.Action;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
@@ -15,6 +17,8 @@ import static net.minecraft.ChatFormatting.RESET;
  */
 public class MessageFormatter {
 
+    public static final String CLICK_NAME = "CE:CLICK_NAME";
+
     public static Component formatMessage(Message message) {
         ChatFormatting mc = getMessageColour(message);
         ChatFormatting ac = getArrowColour(message);
@@ -24,7 +28,7 @@ public class MessageFormatter {
         String sender = ac + "<" + uc + message.senderName + ac + ">" + RESET;
         String msg = formatMessage(message.getMessage(), mc);
 
-        return new TextComponent(sender + " " + msg);
+        return new TextComponent(sender).withStyle(e -> e.withClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, CLICK_NAME))).append(" ").append(msg);
     }
 
     private static String formatMessage(MessageComponent comp, ChatFormatting messageColour) {

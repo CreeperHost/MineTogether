@@ -2,6 +2,10 @@
     "minetogether:button.cancel": "Cancel",
     "minetogether:button.refresh": "Refresh",
     
+    "minetogether:button.mute": "Mute",
+    "minetogether:button.add_friend": "Add Friend",
+    "minetogether:button.mention": "Mention",
+    
     "minetogether:button.friends": "Friends List",
     
     "minetogether:ingame.chat.global": "MineTogether",

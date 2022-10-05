@@ -5,13 +5,20 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
+import net.creeperhost.minetogether.lib.chat.message.Message;
+import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.polylib.gui.StringButton;
+import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -21,6 +28,8 @@ import java.util.Map;
  * @author covers1624
  */
 public class ChatScreen extends Screen {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private static final Map<IrcState, ChatFormatting> STATE_FORMAT_LOOKUP = ImmutableMap.of(
             IrcState.DISCONNECTED, ChatFormatting.RED,
@@ -51,7 +60,10 @@ public class ChatScreen extends Screen {
 
     private Button friendsList;
 
-    private Button addFriendButton;
+    private DropdownButton<MessageDropdownOption> messageDropdownButton;
+
+    @Nullable
+    private Message clickedMessage;
 
     public ChatScreen(Screen parent) {
         super(new TranslatableComponent("minetogether:screen.chat.title"));
@@ -93,13 +105,15 @@ public class ChatScreen extends Screen {
 
         addRenderableWidget(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
 
-        addFriendButton = addRenderableWidget(new Button(width - 215, height - 5 - 20, 100, 20, new TextComponent("Add Friend"), e -> {
-            ChatScrollList.ChatLine line = chatList.getSelected();
-            if (line != null && line.message.sender != null) {
-                minecraft.setScreen(new FriendRequestScreen(this, line.message.sender, FriendRequestScreen.Type.REQUEST));
+        messageDropdownButton = addRenderableWidget(new DropdownButton<>(100, 20, clicked -> {
+            assert clickedMessage != null;
+            if (clicked == MessageDropdownOption.ADD_FRIEND) {
+                minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
+            } else {
+                LOGGER.info("Dropdown action not currently implemented! {}", clicked);
             }
         }));
-        addFriendButton.active = false;
+        messageDropdownButton.setEntries(MessageDropdownOption.VALUES);
     }
 
     @Override
@@ -149,12 +163,27 @@ public class ChatScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
-        boolean b = super.mouseClicked(d, e, i);
-        if (b) {
-            ChatScrollList.ChatLine line = chatList.getSelected();
-            addFriendButton.active = line != null && line.message.sender != null;
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        boolean b = super.mouseClicked(mouseX, mouseY, button);
+        if (b) return true;
+
+        if (!chatList.isMouseOver(mouseX, mouseY)) return false;
+
+        ChatScrollList.ChatLine line = chatList.getEntry(mouseX, mouseY);
+        if (line == null) return false;
+//        if (line.message.sender == null) return false;
+//        if (line.message.sender == MineTogetherChat.getOurProfile()) return false;
+
+        Style style = minecraft.font.getSplitter().componentStyleAtWidth(line.getComponent(), (int) mouseX);
+        if (style == null || style.getClickEvent() == null) return false;
+
+        ClickEvent event = style.getClickEvent();
+        if (event.getValue().equals(MessageFormatter.CLICK_NAME)) {
+            clickedMessage = line.message;
+            messageDropdownButton.openAt(mouseX, mouseY);
+            return true;
         }
-        return b;
+
+        return false;
     }
 }

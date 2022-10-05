@@ -61,12 +61,13 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
 
     @Override
     public boolean mouseClicked(double d, double e, int i) {
-        if (!this.isMouseOver(d, e)) {
-            return false;
-        }
-        ChatLine entry = this.getEntryAtPosition(d, e);
-        setSelected(entry);
-        return true;
+        return false;
+    }
+
+    // TODO replace with AT.
+    @Nullable
+    public ChatLine getEntry(double mouseX, double mouseY) {
+        return getEntryAtPosition(mouseX, mouseY);
     }
 
     public static class ChatLine extends Entry<ChatLine> {
@@ -87,9 +88,18 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
             return MessageFormatter.formatMessage(message);
         }
 
+        public Component getComponent() {
+            return line;
+        }
+
         @Override
         public void render(PoseStack poseStack, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
             drawString(poseStack, parent.minecraft.font, line, left, top, 0xFFFFFFFF);
+        }
+
+        @Override
+        public boolean mouseClicked(double d, double e, int i) {
+            return false; // Prevent dragging.
         }
     }
 }
