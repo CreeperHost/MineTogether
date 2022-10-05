@@ -107,10 +107,18 @@ public class ChatScreen extends Screen {
 
         messageDropdownButton = addRenderableWidget(new DropdownButton<>(100, 20, clicked -> {
             assert clickedMessage != null;
-            if (clicked == MessageDropdownOption.ADD_FRIEND) {
-                minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
-            } else {
-                LOGGER.info("Dropdown action not currently implemented! {}", clicked);
+            switch (clicked) {
+                case MUTE -> clickedMessage.sender.mute();
+                case ADD_FRIEND -> minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
+                // TODO requires replacing known user names in to-be-sent messages.
+//                case MENTION -> {
+//                    String val = sendEditBox.getValue();
+//                    if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
+//                        val = val + " ";
+//                    }
+//                    sendEditBox.setValue(val + clickedMessage.sender.getDisplayName());
+//                }
+                default -> LOGGER.info("Dropdown action not currently implemented! {}", clicked);
             }
         }));
         messageDropdownButton.setEntries(MessageDropdownOption.VALUES);
@@ -171,8 +179,8 @@ public class ChatScreen extends Screen {
 
         ChatScrollList.ChatLine line = chatList.getEntry(mouseX, mouseY);
         if (line == null) return false;
-//        if (line.message.sender == null) return false;
-//        if (line.message.sender == MineTogetherChat.getOurProfile()) return false;
+        if (line.message.sender == null) return false;
+        if (line.message.sender == MineTogetherChat.getOurProfile()) return false;
 
         Style style = minecraft.font.getSplitter().componentStyleAtWidth(line.getComponent(), (int) mouseX);
         if (style == null || style.getClickEvent() == null) return false;
