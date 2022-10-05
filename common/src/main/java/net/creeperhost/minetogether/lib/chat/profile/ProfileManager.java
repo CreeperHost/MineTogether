@@ -3,16 +3,20 @@ package net.creeperhost.minetogether.lib.chat.profile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.covers1624.quack.collection.StreamableIterable;
-import net.creeperhost.minetogether.lib.chat.MutedUserList;
-import net.creeperhost.minetogether.lib.chat.request.ProfileRequest;
-import net.creeperhost.minetogether.lib.chat.request.ProfileResponse;
+import net.creeperhost.minetogether.lib.chat.ChatState;
+import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
+import net.creeperhost.minetogether.lib.chat.request.*;
 import net.creeperhost.minetogether.lib.chat.request.ProfileResponse.ProfileData;
-import net.creeperhost.minetogether.lib.web.ApiClient;
+import net.creeperhost.minetogether.lib.util.AbstractWeakNotifiable;
+import net.creeperhost.minetogether.lib.web.ApiResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,7 +27,7 @@ import java.util.function.Consumer;
 /**
  * Created by covers1624 on 22/6/22.
  */
-public class ProfileManager {
+public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.ProfileManagerEvent> {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -41,32 +45,68 @@ public class ProfileManager {
                     .build()
     );
 
-    private final MutedUserList mutedUserList;
-    private final ApiClient apiClient;
+    private final ChatState chatState;
     private final Map<String, Profile> profiles = new HashMap<>();
+    private final Profile ownProfile;
 
-    public ProfileManager(ApiClient apiClient, MutedUserList mutedUserList) {
-        this.apiClient = apiClient;
-        this.mutedUserList = mutedUserList;
-        for (String mutedUser : mutedUserList.getMutedUsers()) {
-            // TODO, dont immediately update these, just add them to the Profile list.
-            lookupProfile(mutedUser);
+    private final List<FriendRequest> friendRequests = new LinkedList<>();
+
+    public ProfileManager(ChatState chatState, String ownHash) {
+        this.chatState = chatState;
+        for (String mutedUser : chatState.mutedUserList.getMutedUsers()) {
+            lookupProfileStale(mutedUser);
         }
+        ownProfile = lookupProfile(ownHash);
     }
 
+    /**
+     * Gets our own profile.
+     *
+     * @return Our profile.
+     */
+    public Profile getOwnProfile() {
+        return ownProfile;
+    }
+
+    /**
+     * Looks up another user's Profile.
+     * <p>
+     * This method will request an update of the profile's data. Ban status,
+     * Nickname, etc.
+     *
+     * @param hash The first seen hash of the other user. Might be any length.
+     * @return The Profile.
+     */
     public Profile lookupProfile(String hash) {
+        Profile profile = lookupProfileStale(hash);
+        if (profile.isStale() && !profile.isUpdating()) {
+            scheduleUpdate(profile);
+        }
+        return profile;
+    }
+
+    /**
+     * Looks up another user's Profile.
+     * <p>
+     * In contrast to {@link #lookupProfile} this method only creates the singleton Profile.
+     * <p>
+     * It does not schedule an update of profile data.
+     *
+     * @param hash The first seen hash of the other user. Might be any length.
+     * @return The Profile.
+     */
+    public Profile lookupProfileStale(String hash) {
         Profile profile = profiles.get(hash);
         if (profile == null) {
             synchronized (profiles) {
                 // Double-check after lock, we may not need to do anything.
                 profile = profiles.get(hash);
                 if (profile != null) return profile;
-                profile = new Profile(mutedUserList, hash);
+
+                profile = new Profile(chatState, hash);
                 profiles.put(hash, profile);
+                updateAliases(profile);
             }
-        }
-        if (profile.isStale() && !profile.isUpdating()) {
-            scheduleUpdate(profile);
         }
         return profile;
     }
@@ -78,7 +118,7 @@ public class ProfileManager {
      *
      * @return The Profiles of the currently known users.
      */
-    public Iterable<Profile> getKnownProfiles() {
+    public List<Profile> getKnownProfiles() {
         synchronized (profiles) {
             // Since we use a synchronized lock on profiles, it is important
             // that we don't return an Iterable backed by profiles, thus we copy.
@@ -93,7 +133,7 @@ public class ProfileManager {
      *
      * @return The Profiles of the currently muted users.
      */
-    public Iterable<Profile> getMutedProfiles() {
+    public List<Profile> getMutedProfiles() {
         synchronized (profiles) {
             // We could return the StreamableIterable here, but as above, it is important
             // that we don't return an Iterable backed by profiles in any way, thus we terminate stream.
@@ -101,6 +141,102 @@ public class ProfileManager {
                     .distinct()                             // Entries may exist more than once because of aliases.
                     .filter(Profile::isMuted)
                     .toImmutableList();
+        }
+    }
+
+    /**
+     * Gets all the pending friend requests.
+     *
+     * @return The pending friend requests.
+     */
+    public List<FriendRequest> getFriendRequests() {
+        synchronized (friendRequests) {
+            return ImmutableList.copyOf(friendRequests);
+        }
+    }
+
+    public boolean sendFriendRequest(Profile to, String desiredName) {
+        IrcUser ircUser = chatState.getIrcClient().getUser(to);
+        if (ircUser == null) return false; // TODO assertion?
+
+        // Send friend request.
+        ircUser.sendFriendRequest(ownProfile.getFriendCode(), desiredName);
+        return true;
+    }
+
+    public void denyFriendRequest(FriendRequest request) {
+        synchronized (friendRequests) {
+            friendRequests.remove(request);
+        }
+    }
+
+    public boolean acceptFriendRequest(FriendRequest request, String desiredName) {
+        IrcUser ircUser = chatState.getIrcClient().getUser(request.from);
+        if (ircUser == null) return false; // TODO assertion?
+
+        synchronized (friendRequests) {
+            friendRequests.remove(request);
+        }
+
+        ircUser.acceptFriendRequest(ownProfile.getFriendCode(), request.desiredName);
+        apiAcceptFriendRequest(request.friendCode, desiredName);
+        return true;
+    }
+
+    public void onFriendRequestAccepted(Profile from, String friendCode, String desiredName) {
+        fire(new ProfileManagerEvent(EventType.FRIEND_REQUEST_ACCEPTED, from));
+
+        apiAcceptFriendRequest(friendCode, desiredName);
+    }
+
+    // incoming new friend request from IRC.
+    public void onIncomingFriendRequest(Profile from, String friendCode, String desiredName) {
+        synchronized (friendRequests) {
+            FriendRequest request = new FriendRequest(from, friendCode, desiredName);
+            friendRequests.add(request);
+            fire(new ProfileManagerEvent(EventType.FRIEND_REQUEST_ADDED, request));
+        }
+    }
+
+    public void apiAcceptFriendRequest(String friendCode, String desiredName) {
+        try {
+            ApiResponse resp = chatState.api.execute(new AddFriendRequest(
+                    ownProfile.getFullHash(),
+                    friendCode,
+                    desiredName
+            )).apiResponse();
+            if (!resp.getStatus().equals("success")) {
+                LOGGER.error("Failed to remove friend. Api returned: {}", resp.getMessageOrNull());
+            }
+        } catch (IOException ex) {
+            LOGGER.error("Failed to add Friend.", ex);
+        }
+    }
+
+    public void updateFriends() {
+        try {
+            // TODO we need to purge removed friends somehow.
+            ListFriendsResponse resp = chatState.api.execute(new ListFriendsRequest(getOwnProfile().getFullHash())).apiResponse();
+            for (ListFriendsResponse.FriendEntry friend : resp.friends) {
+                if (friend.isAccepted()) {
+                    Profile profile = lookupProfile(friend.getHash());
+                    profile.setFriend(friend.getName());
+                }
+            }
+        } catch (Throwable ex) {
+            LOGGER.error("Failed to query friend list.", ex);
+        }
+    }
+
+    public void removeFriend(Profile friend) {
+        friend.removeFriend();
+        try {
+            ApiResponse resp = chatState.api.execute(new RemoveFriendRequest(friend.getFriendCode(), ownProfile.getFullHash())).apiResponse();
+            if (!resp.getStatus().equals("success")) {
+                LOGGER.error("Failed to remove friend. Api returned: {}", resp.getMessageOrNull());
+            }
+        } catch (IOException ex) {
+            LOGGER.error("Failed to remove friend!", ex);
         }
     }
 
@@ -114,7 +250,7 @@ public class ProfileManager {
     private void scheduleUpdate(Profile profile, Consumer<ProfileData> onFinished, int depth) {
         PROFILE_EXECUTOR.execute(() -> {
             try {
-                ProfileResponse resp = apiClient.execute(new ProfileRequest(profile.initialHash)).apiResponse();
+                ProfileResponse resp = chatState.api.execute(new ProfileRequest(profile.initialHash)).apiResponse();
                 if (resp.getStatus().equals("success")) {
                     onFinished.accept(resp.getData(profile.initialHash));
                     return;
@@ -143,5 +279,38 @@ public class ProfileManager {
                 }
             }
         }
+    }
+
+    public static class FriendRequest {
+
+        // The user this request is from.
+        public final Profile from;
+        // The friend code of 'from'
+        public final String friendCode;
+        // The name for us, to be sent back to the sender.
+        public final String desiredName;
+
+        public FriendRequest(Profile from, String friendCode, String desiredName) {
+            this.from = from;
+            this.friendCode = friendCode;
+            this.desiredName = desiredName;
+        }
+    }
+
+    public static class ProfileManagerEvent {
+
+        public final EventType type;
+        @Nullable
+        public final Object data;
+
+        public ProfileManagerEvent(EventType type, @Nullable Object data) {
+            this.type = type;
+            this.data = data;
+        }
+    }
+
+    public enum EventType {
+        FRIEND_REQUEST_ADDED,
+        FRIEND_REQUEST_ACCEPTED,
     }
 }

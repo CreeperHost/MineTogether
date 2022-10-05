@@ -50,8 +50,7 @@ public class MutedUsersScreen extends Screen {
 
         addRenderableWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("minetogether:button.cancel"), e -> minecraft.setScreen(previous)));
         addRenderableWidget(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether:button.refresh"), e -> refreshList()));
-        Button friendsList = addRenderableWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("minetogether:screen.muted.button.friends"), e -> LOGGER.info("Not Implemented!")));
-        friendsList.active = false;
+        addRenderableWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(previous))));
 
         refreshList();
     }
@@ -59,7 +58,7 @@ public class MutedUsersScreen extends Screen {
     public void refreshList() {
         list.clearEntries();
         String searchTerm = searchBox.getValue();
-        for (Profile mutedProfile : MineTogetherChat.getIrcClient().getProfileManager().getMutedProfiles()) {
+        for (Profile mutedProfile : MineTogetherChat.CHAT_STATE.profileManager.getMutedProfiles()) {
             if (StringUtils.isEmpty(searchTerm) || StringUtils.containsAnyIgnoreCase(mutedProfile.getDisplayName(), searchTerm)) {
                 list.addEntry(new MutedEntry(list, mutedProfile));
             }

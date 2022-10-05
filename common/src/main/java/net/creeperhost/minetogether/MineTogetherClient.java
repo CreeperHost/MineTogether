@@ -12,8 +12,6 @@ import org.apache.logging.log4j.Logger;
  */
 public class MineTogetherClient {
 
-    public static final ResourceLocation WIDGETS_SHEET = new ResourceLocation(MineTogether.MOD_ID, "textures/widgets.png");
-
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static void init() {

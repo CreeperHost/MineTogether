@@ -2,11 +2,31 @@
     "minetogether:button.cancel": "Cancel",
     "minetogether:button.refresh": "Refresh",
     
+    "minetogether:button.friends": "Friends List",
+    
     "minetogether:ingame.chat.global": "MineTogether",
     "minetogether:ingame.chat.local": "Commands",
     "minetogether:ingame.chat.server": "Server",
     
+    "minetogether:screen.chat.title": "MineTogether Chat",
+    
     "minetogether:screen.muted.title": "Blocked List",
     "minetogether:screen.muted.empty": "Block list is empty",
-    "minetogether:screen.muted.button.friends": "Friends list"
+    
+    "minetogether:screen.friends.title": "MineTogether Friends",
+    "minetogether:screen.friends.button.muted": "Muted List",
+    "minetogether:screen.friends.button.accept": "Accept",
+    "minetogether:screen.friends.button.deny": "Deny",
+    
+    "minetogether:screen.friendreq.title.accept": "Accept friend",
+    "minetogether:screen.friendreq.button.accept": "Accept",
+    "minetogether:screen.friendreq.desc.accept": "Please enter the name you want to know your friend as",
+    
+    "minetogether:screen.friendreq.title.request": "Add friend",
+    "minetogether:screen.friendreq.button.request": "Send request",
+    "minetogether:screen.friendreq.desc.request": "Please enter the name you want to know your friend as",
+    
+    "minetogether:screen.friendreq.title.update": "Update friend",
+    "minetogether:screen.friendreq.button.update": "Update name",
+    "minetogether:screen.friendreq.desc.update": "Please enter the name you want to know your friend as"
 }

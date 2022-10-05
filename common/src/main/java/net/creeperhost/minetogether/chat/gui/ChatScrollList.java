@@ -59,10 +59,20 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
         }
     }
 
+    @Override
+    public boolean mouseClicked(double d, double e, int i) {
+        if (!this.isMouseOver(d, e)) {
+            return false;
+        }
+        ChatLine entry = this.getEntryAtPosition(d, e);
+        setSelected(entry);
+        return true;
+    }
+
     public static class ChatLine extends Entry<ChatLine> {
 
         private final ChatScrollList parent;
-        private final Message message;
+        public final Message message;
 
         private Component line;
 

@@ -51,8 +51,10 @@ public class ChatScreen extends Screen {
 
     private Button friendsList;
 
+    private Button addFriendButton;
+
     public ChatScreen(Screen parent) {
-        super(new TextComponent("MineTogether Chat"));
+        super(new TranslatableComponent("minetogether:screen.chat.title"));
         this.parent = parent;
     }
 
@@ -68,7 +70,7 @@ public class ChatScreen extends Screen {
         chatList = new ChatScrollList(minecraft, width - 20, height - 50, 30, height - 50);
         chatList.setLeftPos(10);
         chatList.setScrollAmount(chatList.getMaxScroll());
-        channel = MineTogetherChat.getIrcClient().getPrimaryChannel();
+        channel = MineTogetherChat.CHAT_STATE.getIrcClient().getPrimaryChannel();
         if (channel != null) {
             attach(channel);
         }
@@ -85,11 +87,19 @@ public class ChatScreen extends Screen {
         }));
 
         addRenderableWidget(connectionStatus = new StringButton(8, height - 20, 70, 20, false, () -> {
-            IrcState state = MineTogetherChat.getIrcClient().getState();
+            IrcState state = MineTogetherChat.CHAT_STATE.getIrcClient().getState();
             return new TextComponent(STATE_FORMAT_LOOKUP.get(state) + "\u2022" + " " + ChatFormatting.WHITE + STATE_DESC_LOOKUP.get(state));
         }, button -> { }));
 
-        addRenderableWidget(friendsList = new Button(5, 5, 100, 20, new TextComponent("Mute List TEMP"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
+        addRenderableWidget(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
+
+        addFriendButton = addRenderableWidget(new Button(width - 215, height - 5 - 20, 100, 20, new TextComponent("Add Friend"), e -> {
+            ChatScrollList.ChatLine line = chatList.getSelected();
+            if (line != null && line.message.sender != null) {
+                minecraft.setScreen(new FriendRequestScreen(this, line.message.sender, FriendRequestScreen.Type.REQUEST));
+            }
+        }));
+        addFriendButton.active = false;
     }
 
     @Override
@@ -136,5 +146,15 @@ public class ChatScreen extends Screen {
             }
         }
         return super.keyPressed(key, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseClicked(double d, double e, int i) {
+        boolean b = super.mouseClicked(d, e, i);
+        if (b) {
+            ChatScrollList.ChatLine line = chatList.getSelected();
+            addFriendButton.active = line != null && line.message.sender != null;
+        }
+        return b;
     }
 }

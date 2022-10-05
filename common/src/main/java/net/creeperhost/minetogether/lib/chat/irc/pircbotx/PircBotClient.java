@@ -1,17 +1,15 @@
 package net.creeperhost.minetogether.lib.chat.irc.pircbotx;
 
-import net.creeperhost.minetogether.lib.chat.ChatAuth;
-import net.creeperhost.minetogether.lib.chat.MutedUserList;
+import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcClient;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
+import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.EventSubscriberListener;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.SubscribeEvent;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
-import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListResponse;
 import net.creeperhost.minetogether.lib.chat.util.HashLength;
-import net.creeperhost.minetogether.lib.web.ApiClient;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +25,7 @@ import org.pircbotx.hooks.events.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -38,31 +37,23 @@ public class PircBotClient implements IrcClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final ChatAuth auth;
-    private final MutedUserList mutedUserList;
-    private final ApiClient api;
+    private final ChatState chatState;
     private final String nick;
     private final IRCServerListResponse serverDetails;
-    private final ProfileManager profileManager;
-    private final Profile profile;
     private final PircBotX client;
     private final Thread clientThread;
 
+    private final Map<Profile, PircBotUser> users = new HashMap<>();
     private final Map<String, PircBotChannel> channels = new HashMap<>();
     private final List<ChannelListener> channelListeners = new LinkedList<>();
 
     // TODO wire in RECONNECTING state.
     private IrcState state = IrcState.DISCONNECTED;
 
-    public PircBotClient(ChatAuth auth, MutedUserList mutedUserList, ApiClient api, IRCServerListResponse serverDetails, String realName) {
-        this.auth = auth;
-        this.mutedUserList = mutedUserList;
-        this.api = api;
-        this.nick = "MT" + HashLength.MEDIUM.format(auth.getHash());
+    public PircBotClient(ChatState chatState, IRCServerListResponse serverDetails, String realName) {
+        this.chatState = chatState;
+        this.nick = "MT" + HashLength.MEDIUM.format(chatState.auth.getHash());
         this.serverDetails = serverDetails;
-        // TODO move this to a Property passed into PircBotClient, it should be unrelated to the IRC implementation.
-        profileManager = new ProfileManager(api, mutedUserList);
-        profile = profileManager.lookupProfile(auth.getHash());
 
         // TODO make EventSubscriberListener fire all events on a specific executor.
         EventSubscriberListener eventListener = new EventSubscriberListener();
@@ -78,6 +69,7 @@ public class PircBotClient implements IrcClient {
                 .setAutoReconnectAttempts(-1)
                 .setAutoReconnectDelay(new StaticReadonlyDelay(TimeUnit.SECONDS.toMillis(5)))
                 .setSocketTimeout((int) TimeUnit.SECONDS.toMillis(30))
+                .setEncoding(StandardCharsets.UTF_8)
                 .buildConfiguration();
         client = new PircBotX(config);
         clientThread = new Thread(() -> {
@@ -113,12 +105,23 @@ public class PircBotClient implements IrcClient {
 
     @Override
     public Profile getUserProfile() {
-        return profile;
+        return chatState.profileManager.getOwnProfile();
     }
 
+    // TODO, need to iterate the IRC user list and populate this.
+    @Nullable
     @Override
-    public ProfileManager getProfileManager() {
-        return profileManager;
+    public IrcUser getUser(Profile profile) {
+        synchronized (users) {
+            return users.get(profile);
+        }
+    }
+
+    private PircBotUser computeUser(User ircUser) {
+        Profile profile = chatState.profileManager.lookupProfileStale(ircUser.getNick());
+        synchronized (users) {
+            return users.computeIfAbsent(profile, p -> new PircBotUser(client, p));
+        }
     }
 
     @Nullable
@@ -184,8 +187,45 @@ public class PircBotClient implements IrcClient {
     }
 
     @SubscribeEvent
+    private void onJoin(JoinEvent event) {
+        User ircUser = event.getUser();
+        if (ircUser == null) return; // oookay..
+        // Only if we are in the 'main' channel.
+        if (!event.getChannel().getName().equals(serverDetails.getChannel())) return;
+
+        PircBotUser user = computeUser(ircUser);
+        user.bindIrcUser(ircUser);
+    }
+
+    @SubscribeEvent
+    private void onQuit(QuitEvent event) {
+        User ircUser = event.getUser();
+        if (ircUser == null) return; // oookay..
+
+        PircBotUser user = computeUser(ircUser);
+        if (user.getProfile() != getUserProfile()) {
+            // Only unbind if it's not us
+            user.bindIrcUser(null);
+        }
+    }
+
+    @SubscribeEvent
+    private void onKicked(KickEvent event) {
+        User ircUser = event.getUser();
+        if (ircUser == null) return; // oookay..
+        // Only if we are in the 'main' channel.
+        if (!event.getChannel().getName().equals(serverDetails.getChannel())) return;
+
+        PircBotUser user = computeUser(ircUser);
+        if (user.getProfile() != getUserProfile()) {
+            // Only unbind if it's not us
+            user.bindIrcUser(null);
+        }
+    }
+
+    @SubscribeEvent
     private void onMessage(MessageEvent event) {
-        Profile sender = profileManager.lookupProfile(event.getUser().getNick());
+        Profile sender = chatState.profileManager.lookupProfile(event.getUser().getNick());
         PircBotChannel channel = channels.get(event.getChannel().getName());
         if (channel != null) {
             channel.addMessage(Instant.ofEpochMilli(event.getTimestamp()), sender, event.getMessage());
@@ -217,11 +257,18 @@ public class PircBotClient implements IrcClient {
         User user = event.getUser();
         Channel ircChannel = event.getChannel();
         if (user.getNick().equals(nick)) {
-            PircBotChannel channel = channels.computeIfAbsent(ircChannel.getName(), e -> new PircBotChannel(this, e));
+            PircBotChannel channel = channels.computeIfAbsent(ircChannel.getName(), e -> new PircBotChannel(chatState, e));
             channel.bindChannel(ircChannel);
 
             for (ChannelListener listener : channelListeners) {
                 listener.channelJoin(channel);
+            }
+
+            if (ircChannel.getName().equals(serverDetails.getChannel())) {
+                for (User u : ircChannel.getUsers()) {
+                    PircBotUser ourUser = computeUser(u);
+                    ourUser.bindIrcUser(u);
+                }
             }
         }
     }
@@ -234,7 +281,7 @@ public class PircBotClient implements IrcClient {
             if (!hasBanMode) return;
 
             // Who is the recipient of this mode change, us or another user.
-            Profile target = user.getNick().equals(nick) ? profile : profileManager.lookupProfile(user.getNick());
+            Profile target = user.getNick().equals(nick) ? chatState.profileManager.getOwnProfile() : chatState.profileManager.lookupProfile(user.getNick());
 
             // Apply ban/unban
             if (event.getMode().charAt(0) == '-') {
@@ -254,9 +301,25 @@ public class PircBotClient implements IrcClient {
         LOGGER.info("CTCP Request: {}", request);
         switch (split[0]) {
             case "FRIENDREQ": {
+                // System CTCP or non MT user.
+                if (user == null || !user.getNick().startsWith("MT")) break;
+                Profile from = chatState.profileManager.lookupProfile(user.getNick());
+
+                String[] split2 = split[1].split(" ", 2);
+                if (split2.length < 2) break;
+
+                chatState.profileManager.onIncomingFriendRequest(from, split2[0], split2[1]);
                 break;
             }
             case "FRIENDACC": {
+                // System CTCP or non MT user.
+                if (user == null || !user.getNick().startsWith("MT")) break;
+                Profile source = chatState.profileManager.lookupProfile(user.getNick());
+
+                String[] split2 = split[1].split(" ", 2);
+                if (split2.length < 2) break;
+
+                chatState.profileManager.onFriendRequestAccepted(source, split2[0], split2[1]);
                 break;
             }
             case "SERVERID": {
@@ -268,9 +331,9 @@ public class PircBotClient implements IrcClient {
                 }
                 // TODO when id returns null, IRC needs to disconnect.
                 //      Ideally we should do this before attempting to connect.
-                String id = auth.beginMojangAuth();
+                String id = chatState.auth.beginMojangAuth();
                 LOGGER.info("Verifying with: " + id);
-                event.respond(String.format("VERIFY %s:%s:%s", auth.getSignature(), auth.getUUID(), id));
+                event.respond(String.format("VERIFY %s:%s:%s", chatState.auth.getSignature(), chatState.auth.getUUID(), id));
                 break;
             }
             default: {

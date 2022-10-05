@@ -17,13 +17,16 @@ public class ProfileMessageComponent extends MessageComponent {
         profile.addListener(this, ProfileMessageComponent::onProfileUpdate);
     }
 
-    private void onProfileUpdate(Profile profile) {
-        assert this.profile == profile : "Profile update got a different profile???";
+    private void onProfileUpdate(Profile.ProfileEvent event) {
+        // TODO name change event type?
+        if (event.type == Profile.EventType.FULL_PROFILE) {
+            assert this.profile == event.profile : "Profile update got a different profile???";
 
-        String newName = profile.getDisplayName();
-        if (!newName.equals(displayName)) {
-            displayName = newName;
-            fire(this);
+            String newName = profile.getDisplayName();
+            if (!newName.equals(displayName)) {
+                displayName = newName;
+                fire(this);
+            }
         }
     }
 

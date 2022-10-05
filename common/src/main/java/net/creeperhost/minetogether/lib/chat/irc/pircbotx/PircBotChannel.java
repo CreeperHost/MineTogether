@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.lib.chat.irc.pircbotx;
 
+import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.lib.chat.message.MessageComponent;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public class PircBotChannel implements IrcChannel {
 
-    private final PircBotClient client;
+    private final ChatState chatState;
     private final String name;
 
     private final List<ChatListener> listeners = new LinkedList<>();
@@ -31,8 +32,8 @@ public class PircBotChannel implements IrcChannel {
     @Nullable
     private Channel channel;
 
-    public PircBotChannel(PircBotClient client, String name) {
-        this.client = client;
+    public PircBotChannel(ChatState chatState, String name) {
+        this.chatState = chatState;
         this.name = name;
     }
 
@@ -50,7 +51,7 @@ public class PircBotChannel implements IrcChannel {
     public void sendMessage(String message) {
         if (channel != null) {
             channel.send().message(message);
-            addMessage(Instant.now(), client.getUserProfile(), message);
+            addMessage(Instant.now(), chatState.profileManager.getOwnProfile(), message);
         }
     }
 
@@ -74,12 +75,12 @@ public class PircBotChannel implements IrcChannel {
                 timestamp,
                 sender,
                 MessageComponent.of(sender),
-                MessageUtils.parseMessage(client.getProfileManager(), message)
+                MessageUtils.parseMessage(chatState.profileManager, message)
         ));
     }
 
     public void addNoticeMessage(Instant timestamp, String message) {
-        Pair<MessageComponent, MessageComponent> pair = MessageUtils.parseSystemMessage(client.getProfileManager(), message);
+        Pair<MessageComponent, MessageComponent> pair = MessageUtils.parseSystemMessage(chatState.profileManager, message);
         addMessage(new Message(
                 timestamp,
                 null,

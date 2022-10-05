@@ -25,11 +25,6 @@ public interface IrcChannel {
      *
      * @return The messages.
      */
-    // TODO this should be swapped out for some parsed linked list which
-    //      properly represents user mentions, etc.
-    // MessageHead -> [message, ...]
-    // message.append
-    // message.replace(a) MessageHead.clear, MessageHead.addChild(a)
     List<Message> getMessages();
 
     /**

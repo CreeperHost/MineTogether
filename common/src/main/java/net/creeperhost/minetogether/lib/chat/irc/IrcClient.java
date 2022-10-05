@@ -34,12 +34,13 @@ public interface IrcClient {
     Profile getUserProfile();
 
     /**
-     * Gets the {@link ProfileManager} in charge of
-     * updating/querying/managing profiles.
+     * Get the {@link IrcUser} associated with the profile.
      *
-     * @return The {@link ProfileManager}.
+     * @param profile The user profile.
+     * @return The {@link IrcUser} or {@code null} if it does not exist.
      */
-    ProfileManager getProfileManager();
+    @Nullable
+    IrcUser getUser(Profile profile);
 
     @Nullable
     IrcChannel getPrimaryChannel();
