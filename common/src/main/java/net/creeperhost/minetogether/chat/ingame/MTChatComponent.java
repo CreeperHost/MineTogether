@@ -10,7 +10,9 @@ import net.minecraft.client.GuiMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by covers1624 on 20/7/22.
@@ -36,6 +39,9 @@ public class MTChatComponent extends ChatComponent {
     private final LinkedList<Message> pendingMessages = new LinkedList<>();
     private final List<DisplayableMessage> processedMessages = new ArrayList<>();
     private IrcChannel channel;
+
+    @Nullable
+    private Message clickedMessage;
 
     public MTChatComponent(ChatTarget target, Minecraft minecraft) {
         super(minecraft);
@@ -157,6 +163,68 @@ public class MTChatComponent extends ChatComponent {
         assert !internalUpdate; // We don't use this to add messages.
 
         MineTogetherChat.vanillaChat.addMessage(component, i);
+    }
+
+    public boolean handleClick(double mouseX, double mouseY) {
+        if (!isChatFocused()) return false;
+
+        double x = mouseX - 2.0;
+        double y = (double) minecraft.getWindow().getGuiScaledHeight() - mouseY - 40.0;
+        x = Mth.floor(x / getScale());
+        y = Mth.floor(y / (getScale() * (minecraft.options.chatLineSpacing + 1.0)));
+        if (x < 0.0 || y < 0.0) return false;
+
+        int i = Math.min(getLinesPerPage(), trimmedMessages.size());
+        if (x <= (double) Mth.floor((double) getWidth() / getScale())) {
+            Objects.requireNonNull(minecraft.font);
+            if (y < (double) (9 * i + i)) {
+                Objects.requireNonNull(minecraft.font);
+                int j = (int) (y / 9.0 + (double) chatScrollbarPos);
+                if (j >= 0 && j < trimmedMessages.size()) {
+                    return handleClickedMessage(findMessageForTrimmedMessage(trimmedMessages.get(j)), x);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean handleClickedMessage(@Nullable DisplayableMessage clickedMessage, double x) {
+        if (clickedMessage == null) return false;
+
+        Message message = clickedMessage.message;
+        if (message.sender == null) return false;
+        if (message.sender == MineTogetherChat.getOurProfile()) return false;
+
+        Style style = minecraft.font.getSplitter().componentStyleAtWidth(clickedMessage.builtMessage.getMessage(), (int) x);
+        if (style == null) return false;
+        ClickEvent event = style.getClickEvent();
+        if (event == null) return false;
+        if (!event.getValue().equals(MessageFormatter.CLICK_NAME)) return false;
+
+        this.clickedMessage = message;
+        return true;
+    }
+
+    @Nullable
+    private DisplayableMessage findMessageForTrimmedMessage(GuiMessage<FormattedCharSequence> trimmedMessage) {
+        // Little slow, realistically we should have a lookup map, but would be a pain to maintain.
+        // This searches from the most recent chat message to the oldest.
+        for (DisplayableMessage processedMessage : processedMessages) {
+            if (processedMessage.trimmedLines.contains(trimmedMessage)) {
+                return processedMessage;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public Message getClickedMessage() {
+        return clickedMessage;
+    }
+
+    public void clearClickedMessage() {
+        clickedMessage = null;
     }
 
     private class DisplayableMessage {

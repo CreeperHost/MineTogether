@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.chat.gui;
+package net.creeperhost.minetogether.chat;
 
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.minecraft.network.chat.Component;
