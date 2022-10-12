@@ -184,7 +184,7 @@ public class ChatScreen extends Screen {
         if (line.message.sender == null) return false;
         if (line.message.sender == MineTogetherChat.getOurProfile()) return false;
 
-        Style style = minecraft.font.getSplitter().componentStyleAtWidth(line.getComponent(), (int) mouseX);
+        Style style = minecraft.font.getSplitter().componentStyleAtWidth(line.formattedMessage, (int) mouseX);
         if (style == null || style.getClickEvent() == null) return false;
 
         ClickEvent event = style.getClickEvent();

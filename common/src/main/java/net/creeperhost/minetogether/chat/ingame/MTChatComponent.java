@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.chat.ingame;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.chat.ChatTarget;
+import net.creeperhost.minetogether.chat.DisplayableMessage;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.message.Message;
@@ -9,7 +10,6 @@ import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -17,10 +17,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by covers1624 on 20/7/22.
@@ -37,7 +34,7 @@ public class MTChatComponent extends ChatComponent {
     private boolean internalUpdate = false;
 
     private final LinkedList<Message> pendingMessages = new LinkedList<>();
-    private final List<DisplayableMessage> processedMessages = new ArrayList<>();
+    private final List<InGameDisplayableMessage> processedMessages = new ArrayList<>();
     private IrcChannel channel;
 
     @Nullable
@@ -87,7 +84,7 @@ public class MTChatComponent extends ChatComponent {
         trimmedMessages.clear();
         resetChatScroll();
 
-        for (DisplayableMessage message : processedMessages) {
+        for (InGameDisplayableMessage message : processedMessages) {
             message.format();
             message.display();
         }
@@ -108,7 +105,7 @@ public class MTChatComponent extends ChatComponent {
         synchronized (pendingMessages) {
             pendingMessages.clear();
         }
-        for (DisplayableMessage message : processedMessages) {
+        for (InGameDisplayableMessage message : processedMessages) {
             message.onDead();
         }
         processedMessages.clear();
@@ -121,7 +118,7 @@ public class MTChatComponent extends ChatComponent {
     }
 
     private void addMessage(Message message) {
-        DisplayableMessage newMessage = new DisplayableMessage(message);
+        InGameDisplayableMessage newMessage = new InGameDisplayableMessage(message);
         processedMessages.add(newMessage);
         newMessage.display();
 
@@ -131,8 +128,8 @@ public class MTChatComponent extends ChatComponent {
         }
 
         while (processedMessages.size() > MAX_MESSAGE_HISTORY) {
-            DisplayableMessage toRemove = processedMessages.remove(0);
-            trimmedMessages.removeAll(toRemove.trimmedLines);
+            InGameDisplayableMessage toRemove = processedMessages.remove(0);
+            trimmedMessages.removeAll(toRemove.getTrimmedLines());
             toRemove.onDead();
         }
     }
@@ -189,14 +186,14 @@ public class MTChatComponent extends ChatComponent {
         return false;
     }
 
-    private boolean handleClickedMessage(@Nullable DisplayableMessage clickedMessage, double x) {
+    private boolean handleClickedMessage(@Nullable InGameDisplayableMessage clickedMessage, double x) {
         if (clickedMessage == null) return false;
 
-        Message message = clickedMessage.message;
+        Message message = clickedMessage.getMessage();
         if (message.sender == null) return false;
         if (message.sender == MineTogetherChat.getOurProfile()) return false;
 
-        Style style = minecraft.font.getSplitter().componentStyleAtWidth(clickedMessage.builtMessage.getMessage(), (int) x);
+        Style style = minecraft.font.getSplitter().componentStyleAtWidth(clickedMessage.getBuiltMessage(), (int) x);
         if (style == null) return false;
         ClickEvent event = style.getClickEvent();
         if (event == null) return false;
@@ -207,11 +204,11 @@ public class MTChatComponent extends ChatComponent {
     }
 
     @Nullable
-    private DisplayableMessage findMessageForTrimmedMessage(GuiMessage<FormattedCharSequence> trimmedMessage) {
+    private InGameDisplayableMessage findMessageForTrimmedMessage(GuiMessage<FormattedCharSequence> trimmedMessage) {
         // Little slow, realistically we should have a lookup map, but would be a pain to maintain.
         // This searches from the most recent chat message to the oldest.
-        for (DisplayableMessage processedMessage : processedMessages) {
-            if (processedMessage.trimmedLines.contains(trimmedMessage)) {
+        for (InGameDisplayableMessage processedMessage : processedMessages) {
+            if (processedMessage.getTrimmedLines().contains(trimmedMessage)) {
                 return processedMessage;
             }
         }
@@ -227,58 +224,40 @@ public class MTChatComponent extends ChatComponent {
         clickedMessage = null;
     }
 
-    private class DisplayableMessage {
+    private class InGameDisplayableMessage extends DisplayableMessage<GuiMessage<FormattedCharSequence>> {
 
-        private final Message message;
-        private final Object listener;
-        private final List<GuiMessage<FormattedCharSequence>> trimmedLines = new LinkedList<>();
-        @Nullable
-        private GuiMessage<Component> builtMessage;
-
-        private DisplayableMessage(Message message) {
-            this.message = message;
-            listener = message.addListener(this, (i, e) -> i.onChange());
+        private InGameDisplayableMessage(Message message) {
+            super(message);
         }
 
-        private void onDead() {
-            message.removeListener(listener);
+        @Override
+        protected boolean isForward() {
+            return false;
         }
 
-        private void display() {
-            format();
-            insertAt(0);
+        @Override
+        protected GuiMessage<FormattedCharSequence> createMessage(int addTime, FormattedCharSequence message) {
+            return new GuiMessage<>(addTime, message, 0);
         }
 
-        private void onChange() {
-            // Message has not been displayed yet.
-            if (builtMessage == null) return;
-
-            // Index of last trimmed line (closest to head of trimmedMessages list)
-            int trimmedIdx = trimmedMessages.indexOf(trimmedLines.get(trimmedLines.size() - 1));
-            trimmedMessages.removeAll(trimmedLines);
-
-            format();
-            insertAt(trimmedIdx);
+        @Override
+        protected int getMessageIndex(GuiMessage<FormattedCharSequence> message) {
+            return trimmedMessages.indexOf(message);
         }
 
-        private void insertAt(int trimmedIdx) {
-            for (GuiMessage<FormattedCharSequence> trimmedLine : trimmedLines) {
-                trimmedMessages.add(trimmedIdx, trimmedLine);
-            }
+        @Override
+        protected void clearMessages() {
+            trimmedMessages.removeAll(getTrimmedLines());
         }
 
-        private void format() {
-            int addTime = builtMessage != null ? builtMessage.getAddedTime() : minecraft.gui.getGuiTicks();
-            builtMessage = new GuiMessage<>(addTime, MessageFormatter.formatMessage(message), 0);
+        @Override
+        protected void addMessage(int index, GuiMessage<FormattedCharSequence> message) {
+            trimmedMessages.add(index, message);
+        }
 
-            int maxLen = Mth.floor((double) getWidth() / getScale());
-            List<FormattedCharSequence> lines = ComponentRenderUtils.wrapComponents(builtMessage.getMessage(), maxLen, minecraft.font);
-            for (FormattedCharSequence line : lines) {
-                trimmedLines.add(new GuiMessage<>(addTime, line, 0));
-            }
-
-            // Why would we ever build no lines?
-            assert !trimmedLines.isEmpty();
+        @Override
+        protected double getChatWidth() {
+            return (double) getWidth() / getScale();
         }
     }
 }
