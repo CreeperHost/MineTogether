@@ -9,6 +9,7 @@ import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.polylib.gui.RadioButton;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -18,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -39,6 +41,9 @@ abstract class ChatScreenMixin extends Screen {
 
     @Nullable
     private Message clickedMessage;
+
+    @Shadow
+    protected EditBox input;
 
     protected ChatScreenMixin(Component component) {
         super(component);
@@ -64,17 +69,18 @@ abstract class ChatScreenMixin extends Screen {
 
         dropdownButton = addRenderableWidget(new DropdownButton<>(100, 20, clicked -> {
             assert clickedMessage != null;
+            assert clickedMessage.sender != null;
             switch (clicked) {
                 case MUTE -> clickedMessage.sender.mute();
                 case ADD_FRIEND -> minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
                 // TODO requires replacing known user names in to-be-sent messages.
-//                case MENTION -> {
-//                    String val = sendEditBox.getValue();
-//                    if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
-//                        val = val + " ";
-//                    }
-//                    sendEditBox.setValue(val + clickedMessage.sender.getDisplayName());
-//                }
+                case MENTION -> {
+                    String val = input.getValue();
+                    if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
+                        val = val + " ";
+                    }
+                    input.setValue(val + clickedMessage.sender.getDisplayName());
+                }
                 default -> LOGGER.info("Dropdown action not currently implemented! {}", clicked);
             }
         }));

@@ -50,7 +50,7 @@ public class PircBotChannel implements IrcChannel {
     @Override
     public void sendMessage(String message) {
         if (channel != null) {
-            channel.send().message(message);
+            channel.send().message(MessageUtils.substituteKnownUsers(chatState.profileManager, message));
             addMessage(Instant.now(), chatState.profileManager.getOwnProfile(), message);
         }
     }

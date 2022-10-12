@@ -1,8 +1,11 @@
 package net.creeperhost.minetogether.lib.chat.message;
 
+import net.covers1624.quack.collection.StreamableIterable;
+import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,5 +68,24 @@ public class MessageUtils {
             message = message.substring(matcher.end(0) + 1);
         }
         return Pair.of(MessageComponent.of(user), parseMessage(profileManager, message));
+    }
+
+    /**
+     * Replaces all known user display names in the message with their MT hash reference.
+     *
+     * @param profileManager The profile manager to iterate Profiles.
+     * @param message        The message to parse and replace.
+     * @return The replaced message.
+     */
+    public static String substituteKnownUsers(ProfileManager profileManager, String message) {
+        Map<String, String> knownUsers = StreamableIterable.of(profileManager.getKnownProfiles())
+                .filter(e -> e.getIrcName() != null)
+                .toMap(Profile::getDisplayName, Profile::getIrcName);
+
+        // Not sure if there is a more performant version of this..
+        for (Map.Entry<String, String> entry : knownUsers.entrySet()) {
+            message = message.replaceAll(entry.getKey(), "MT" + entry.getValue());
+        }
+        return message;
     }
 }

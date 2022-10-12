@@ -108,17 +108,18 @@ public class ChatScreen extends Screen {
 
         messageDropdownButton = addRenderableWidget(new DropdownButton<>(100, 20, clicked -> {
             assert clickedMessage != null;
+            assert clickedMessage.sender != null;
             switch (clicked) {
                 case MUTE -> clickedMessage.sender.mute();
                 case ADD_FRIEND -> minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
                 // TODO requires replacing known user names in to-be-sent messages.
-//                case MENTION -> {
-//                    String val = sendEditBox.getValue();
-//                    if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
-//                        val = val + " ";
-//                    }
-//                    sendEditBox.setValue(val + clickedMessage.sender.getDisplayName());
-//                }
+                case MENTION -> {
+                    String val = sendEditBox.getValue();
+                    if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
+                        val = val + " ";
+                    }
+                    sendEditBox.setValue(val + clickedMessage.sender.getDisplayName());
+                }
                 default -> LOGGER.info("Dropdown action not currently implemented! {}", clicked);
             }
         }));

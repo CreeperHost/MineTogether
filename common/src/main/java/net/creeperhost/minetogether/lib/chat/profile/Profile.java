@@ -31,6 +31,8 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     private ImmutableSet<String> aliases;
     @Nullable
     private String fullHash;
+    @Nullable
+    private String ircHash;
     private String displayName;
     @Nullable
     private String friendCode;
@@ -56,6 +58,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
             fullHash = initialHash;
             isMuted = chatState.mutedUserList.isUserMuted(fullHash);
             aliases = computeAllAliases(fullHash);
+            ircHash = HashLength.MEDIUM.format(fullHash);
         } else {
             aliases = ImmutableSet.of(initialHash);
         }
@@ -123,6 +126,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     public String getFriendCode() { return Objects.requireNonNull(friendCode); }
     public String getFriendName() { return Objects.requireNonNull(friendName); }
     public String getFullHash() { return Objects.requireNonNull(fullHash, "Profile not updated yet."); } // TODO await for profile to have this.
+    @Nullable public String getIrcName() { return ircHash; }
     public boolean isBanned() { return isBanned; }
     public boolean isPremium() { return isPremium; }
     public boolean isFriend() { return isFriend; }
@@ -138,6 +142,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
         return p -> {
             aliases = computeAllAliases(p.getLongHash());
             fullHash = p.getLongHash();
+            ircHash = HashLength.MEDIUM.format(fullHash);
             displayName = p.getDisplay();
             friendCode = p.getFriendCode();
             isPremium = p.isPremium();
