@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.covers1624.quack.collection.StreamableIterable;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
@@ -18,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Comparator;
 import java.util.List;
@@ -31,6 +33,9 @@ public class FriendsListScreen extends Screen {
 
     private SimpleSelectionList<FriendEntry> friendList;
     private EditBox searchBox;
+
+    private ChatScrollList chatList;
+    private EditBox chatBox;
 
     @Nullable
     private Profile targetProfile;
@@ -57,6 +62,15 @@ public class FriendsListScreen extends Screen {
         friendList = new SimpleSelectionList<>(minecraft, 100, height - 90, 32, height - 55, 28, 100);
         friendList.setLeftPos(18);
         addRenderableWidget(friendList);
+
+        chatList = new ChatScrollList(Minecraft.getInstance(), width - friendList.getRowWidth() - 40, height - 90, 32, height - 55);
+        chatList.setLeftPos(friendList.getRowRight());
+        chatList.setScrollAmount(chatList.getMaxScroll());
+        addRenderableWidget(chatList);
+
+        chatBox = new EditBox(font, friendList.getRowRight() + 1, height - 50, chatList.width - 2, 20, TextComponent.EMPTY);
+        chatBox.setMaxLength(256);
+        addRenderableWidget(chatBox);
 
         searchBox = new EditBox(font, 19, height - 50, friendList.getWidth() - 2, 20, TextComponent.EMPTY);
         addRenderableWidget(searchBox);
@@ -122,8 +136,15 @@ public class FriendsListScreen extends Screen {
             targetProfile = selected.profile;
             acceptRequest.visible = selected.request != null;
             denyRequest.visible = selected.request != null;
+            IrcUser user = MineTogetherChat.CHAT_STATE.getIrcClient().getUser(selected.profile);
+            if (user != null) {
+                chatList.attach(user.getChannel());
+            } else {
+                chatList.attach(null);
+            }
         } else {
             targetProfile = null;
+            chatList.attach(null);
         }
 
         removeFriend.active = targetProfile != null;
@@ -133,20 +154,29 @@ public class FriendsListScreen extends Screen {
 
     @Override
     public boolean charTyped(char c, int i) {
-        boolean ret = super.charTyped(c, i);
+
         if (searchBox.isFocused()) {
             updateList();
         }
-        return ret;
+        if (chatBox.isFocused()) {
+            return chatBox.charTyped(c, i);
+        }
+        return super.charTyped(c, i);
     }
 
     @Override
     public boolean keyPressed(int i, int j, int k) {
-        boolean ret = super.keyPressed(i, j, k);
         if (searchBox.isFocused()) {
             updateList();
         }
-        return ret;
+        if (targetProfile != null && chatBox.isFocused()) {
+            String str = chatBox.getValue().trim();
+            if ((i == GLFW.GLFW_KEY_ENTER || i == GLFW.GLFW_KEY_KP_ENTER) && !str.isEmpty()) {
+                chatList.getChannel().sendMessage(str);
+                chatBox.setValue("");
+            }
+        }
+        return super.keyPressed(i, j, k);
     }
 
     private void updateList() {

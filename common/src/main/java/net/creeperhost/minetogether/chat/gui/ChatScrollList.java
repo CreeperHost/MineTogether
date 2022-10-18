@@ -12,12 +12,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author covers1624
  */
 public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLine> {
 
+    public final int width;
     @Nullable
     private IrcChannel channel;
     @Nullable
@@ -28,16 +30,28 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
 
     public ChatScrollList(Minecraft minecraft, int width, int height, int y0, int y1) {
         super(minecraft, width, height, y0, y1, 10);
+        this.width = width;
     }
 
-    public void attach(IrcChannel channel) {
+    public void attach(@Nullable IrcChannel channel) {
+        if (this.channel != null) {
+            assert listener != null;
+            this.channel.removeListener(listener);
+            listener = null;
+        }
+        pendingMessages.clear();
+        messages.clear();
+        clearEntries();
+
         this.channel = channel;
-        pendingMessages.addAll(channel.getMessages());
-        listener = channel.addListener(e -> {
-            synchronized (pendingMessages) {
-                pendingMessages.add(e);
-            }
-        });
+        if (channel != null) {
+            pendingMessages.addAll(channel.getMessages());
+            listener = channel.addListener(e -> {
+                synchronized (pendingMessages) {
+                    pendingMessages.add(e);
+                }
+            });
+        }
     }
 
     private void addMessage(Message message) {
@@ -82,6 +96,10 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
             assert listener != null;
             channel.removeListener(listener);
         }
+    }
+
+    public IrcChannel getChannel() {
+        return Objects.requireNonNull(channel);
     }
 
     @Override

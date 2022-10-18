@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.lib.chat.irc;
 
+import net.creeperhost.minetogether.lib.chat.irc.pircbotx.PMChannel;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 
 /**
@@ -22,6 +23,10 @@ public interface IrcUser {
      * @return If the user is online.
      */
     boolean isOnline();
+
+    IrcChannel getChannel();
+
+    void sendMessage(String message);
 
     /**
      * Sends a raw CTCP message to this user.

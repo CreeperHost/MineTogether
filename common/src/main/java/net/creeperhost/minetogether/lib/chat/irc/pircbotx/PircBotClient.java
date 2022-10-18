@@ -1,10 +1,7 @@
 package net.creeperhost.minetogether.lib.chat.irc.pircbotx;
 
 import net.creeperhost.minetogether.lib.chat.ChatState;
-import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
-import net.creeperhost.minetogether.lib.chat.irc.IrcClient;
-import net.creeperhost.minetogether.lib.chat.irc.IrcState;
-import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
+import net.creeperhost.minetogether.lib.chat.irc.*;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.EventSubscriberListener;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.SubscribeEvent;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
@@ -120,7 +117,7 @@ public class PircBotClient implements IrcClient {
     private PircBotUser computeUser(User ircUser) {
         Profile profile = chatState.profileManager.lookupProfileStale(ircUser.getNick());
         synchronized (users) {
-            return users.computeIfAbsent(profile, p -> new PircBotUser(client, p));
+            return users.computeIfAbsent(profile, p -> new PircBotUser(client, chatState, p));
         }
     }
 
@@ -232,6 +229,17 @@ public class PircBotClient implements IrcClient {
         }
 
         LOGGER.info("{}: {} | {}", event.getChannel().getName(), sender.getDisplayName(), event.getMessage());
+    }
+
+    @SubscribeEvent
+    private void onPrivateMessage(PrivateMessageEvent event) {
+        Profile sender = chatState.profileManager.lookupProfile(event.getUser().getNick());
+        IrcUser user = getUser(sender);
+        if (user != null) {
+            ((AbstractChannel)user.getChannel()).addMessage(Instant.ofEpochMilli(event.getTimestamp()), sender, event.getMessage());
+        }
+
+        LOGGER.info("{}: {}", sender.getDisplayName(), event.getMessage());
     }
 
     @SubscribeEvent
