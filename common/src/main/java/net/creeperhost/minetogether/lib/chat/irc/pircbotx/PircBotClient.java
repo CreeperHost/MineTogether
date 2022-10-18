@@ -18,6 +18,7 @@ import org.pircbotx.User;
 import org.pircbotx.delay.StaticReadonlyDelay;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.events.*;
+import org.pircbotx.hooks.managers.SequentialListenerManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -59,7 +60,9 @@ public class PircBotClient implements IrcClient {
                 .setName(nick)
                 .setRealName(realName)
                 .setLogin("MineTogether")
-                .addListener(eventListener)
+                .setListenerManager(SequentialListenerManager.newDefault()
+                        .addListenerSequential(eventListener)
+                )
                 .addAutoJoinChannel(serverDetails.getChannel())
                 .addServer(serverDetails.getServer().getAddress(), serverDetails.getServer().getPort())
                 .setAutoReconnect(true)
@@ -265,6 +268,7 @@ public class PircBotClient implements IrcClient {
         User user = event.getUser();
         Channel ircChannel = event.getChannel();
         if (user.getNick().equals(nick)) {
+            LOGGER.info("Join channel: " + event.getChannel().getName());
             PircBotChannel channel = channels.computeIfAbsent(ircChannel.getName(), e -> new PircBotChannel(chatState, e));
             channel.bindChannel(ircChannel);
 
