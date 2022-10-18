@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
 import net.creeperhost.minetogether.lib.chat.request.*;
 import net.creeperhost.minetogether.lib.chat.request.ProfileResponse.ProfileData;
+import net.creeperhost.minetogether.lib.chat.util.HashLength;
 import net.creeperhost.minetogether.lib.util.AbstractWeakNotifiable;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
 import org.apache.logging.log4j.LogManager;
@@ -102,6 +103,18 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
                 // Double-check after lock, we may not need to do anything.
                 profile = profiles.get(hash);
                 if (profile != null) return profile;
+
+                // If we have a full hash we can do some special lookups to try and find the others.
+                if (HashLength.FULL.matches(hash)) {
+                    for (String alias : Profile.computeAllAliases(hash)) {
+                        profile = profiles.get(alias);
+                        if (profile != null) {
+                            // Add faster lookup.
+                            profiles.put(hash, profile);
+                            return profile;
+                        }
+                    }
+                }
 
                 profile = new Profile(chatState, hash);
                 profiles.put(hash, profile);

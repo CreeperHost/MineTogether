@@ -9,10 +9,7 @@ import net.creeperhost.minetogether.lib.chat.util.HashLength;
 import net.creeperhost.minetogether.lib.util.AbstractWeakNotifiable;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
@@ -60,7 +57,14 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
             aliases = computeAllAliases(fullHash);
             ircHash = HashLength.MEDIUM.format(fullHash);
         } else {
-            aliases = ImmutableSet.of(initialHash);
+            Set<String> aliases = new HashSet<>();
+            aliases.add(initialHash);
+            if (initialHash.startsWith("MT")) {
+                String sub = initialHash.substring(2);
+                assert StreamableIterable.of(HashLength.values()).anyMatch(e -> e.matches(sub));
+                aliases.add(sub);
+            }
+            this.aliases = ImmutableSet.copyOf(aliases);
         }
 
         // First 5 characters after MT if exists.
@@ -154,7 +158,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
         };
     }
 
-    private static ImmutableSet<String> computeAllAliases(String fullHash) {
+    public static ImmutableSet<String> computeAllAliases(String fullHash) {
         return StreamableIterable.of(HashLength.values())
                 .flatMap(e -> asList(e.format(fullHash), "MT" + e.format(fullHash)))
                 .toImmutableSet();
