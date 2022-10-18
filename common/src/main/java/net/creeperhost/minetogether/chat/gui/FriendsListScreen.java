@@ -9,6 +9,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.SimpleSelectionList;
+import net.creeperhost.minetogether.polylib.gui.TooltipContainer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -47,6 +48,8 @@ public class FriendsListScreen extends Screen {
 
     private Button acceptRequest;
     private Button denyRequest;
+
+    private TooltipContainer tooltips;
 
     private int ticks;
 
@@ -114,6 +117,14 @@ public class FriendsListScreen extends Screen {
         }));
 
         addRenderableWidget(new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.muted"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
+
+        tooltips = new TooltipContainer(this);
+        addRenderableOnly(tooltips);
+
+        tooltips.addTooltip(removeFriend, new TranslatableComponent("minetogether:screen.friends.tooltip.remove"));
+        tooltips.addTooltip(blockButton, new TranslatableComponent("minetogether:screen.friends.tooltip.block"));
+        tooltips.addTooltip(partyButton, new TranslatableComponent("minetogether:screen.friends.tooltip.party"));
+        tooltips.addTooltip(editButton, new TranslatableComponent("minetogether:screen.friends.tooltip.edit"));
 
         updateList();
     }

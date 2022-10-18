@@ -21,6 +21,10 @@
     "minetogether:screen.friends.button.muted": "Muted List",
     "minetogether:screen.friends.button.accept": "Accept",
     "minetogether:screen.friends.button.deny": "Deny",
+    "minetogether:screen.friends.tooltip.remove": "Remove friend",
+    "minetogether:screen.friends.tooltip.block": "Block",
+    "minetogether:screen.friends.tooltip.party": "Invite to party",
+    "minetogether:screen.friends.tooltip.edit": "Edit friend's name",
     
     "minetogether:screen.friendreq.title.accept": "Accept friend",
     "minetogether:screen.friendreq.button.accept": "Accept",
