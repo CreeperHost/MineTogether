@@ -150,12 +150,18 @@ public class FriendsListScreen extends Screen {
             IrcUser user = MineTogetherChat.CHAT_STATE.getIrcClient().getUser(selected.profile);
             if (user != null) {
                 chatList.attach(user.getChannel());
+                chatBox.setEditable(true);
+                chatBox.setSuggestion("");
             } else {
                 chatList.attach(null);
+                chatBox.setEditable(false);
+                chatBox.setSuggestion("User is offline."); // TODO locale.
             }
         } else {
             targetProfile = null;
             chatList.attach(null);
+            chatBox.setEditable(false);
+            chatBox.setSuggestion("Select a friend."); // TODO, perhaps just remove the box?
         }
 
         removeFriend.active = targetProfile != null;

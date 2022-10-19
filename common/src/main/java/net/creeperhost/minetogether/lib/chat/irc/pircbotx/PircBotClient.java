@@ -108,7 +108,6 @@ public class PircBotClient implements IrcClient {
         return chatState.profileManager.getOwnProfile();
     }
 
-    // TODO, need to iterate the IRC user list and populate this.
     @Nullable
     @Override
     public IrcUser getUser(Profile profile) {

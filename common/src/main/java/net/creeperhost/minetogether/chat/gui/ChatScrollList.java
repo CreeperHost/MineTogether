@@ -4,12 +4,19 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.chat.DisplayableMessage;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.message.Message;
+import net.creeperhost.minetogether.polylib.gui.PreviewRenderer;
+import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +34,24 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
 
     private final List<Message> pendingMessages = new LinkedList<>();
     private final List<ScrollListDisplayableMessage> messages = new LinkedList<>();
+    private final PreviewRenderer previewRenderer = new PreviewRenderer(5, 5, 80, 60) {
+        @Override
+        protected URL getUrlUnderMouse(int mouseX, int mouseY) {
+            ChatLine line = getEntry(mouseX, mouseY);
+            if (line == null) return null;
+            Style style = minecraft.font.getSplitter().componentStyleAtWidth(line.formattedMessage, mouseX - getRowLeft());
+            if (style == null) return null;
+            HoverEvent event = style.getHoverEvent();
+            if (event == null || event.getAction() != MessageFormatter.SHOW_URL_PREVIEW) return null;
+            Component value = event.getValue(MessageFormatter.SHOW_URL_PREVIEW);
+
+            try {
+                return new URL(value.getString());
+            } catch (MalformedURLException ex) {
+                return null;
+            }
+        }
+    };
 
     public ChatScrollList(Minecraft minecraft, int width, int height, int y0, int y1) {
         super(minecraft, width, height, y0, y1, 10);
@@ -65,7 +90,7 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
+    public void render(PoseStack pStack, int mouseX, int mouseY, float partialTicks) {
         if (!pendingMessages.isEmpty()) {
             synchronized (pendingMessages) {
                 for (Message pendingMessage : pendingMessages) {
@@ -74,7 +99,8 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
                 pendingMessages.clear();
             }
         }
-        super.render(poseStack, i, j, f);
+        super.render(pStack, mouseX, mouseY, partialTicks);
+        previewRenderer.render(pStack, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -98,8 +124,9 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
         }
     }
 
+    @Nullable
     public IrcChannel getChannel() {
-        return Objects.requireNonNull(channel);
+        return channel;
     }
 
     @Override
