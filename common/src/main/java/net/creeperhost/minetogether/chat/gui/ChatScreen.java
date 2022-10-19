@@ -2,12 +2,15 @@ package net.creeperhost.minetogether.chat.gui;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.MessageDropdownOption;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.gui.SettingsScreen;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
+import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.StringButton;
 import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.ChatFormatting;
@@ -95,6 +98,9 @@ public class ChatScreen extends Screen {
         addRenderableWidget(chatList);
         addRenderableWidget(sendEditBox);
 
+        addRenderableWidget(new IconButton(width - 124, 5, 3, Constants.WIDGETS_SHEET, e -> {
+            minecraft.setScreen(new SettingsScreen(this));
+        }));
         addRenderableWidget(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TranslatableComponent("minetogether:button.cancel"), button -> {
             minecraft.setScreen(parent);
         }));

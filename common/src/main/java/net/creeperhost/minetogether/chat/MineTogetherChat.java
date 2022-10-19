@@ -9,6 +9,7 @@ import net.creeperhost.minetogether.chat.gui.ChatScreen;
 import net.creeperhost.minetogether.chat.gui.FriendsListScreen;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.gui.SettingsScreen;
 import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
@@ -25,6 +26,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.TextComponent;
@@ -130,13 +132,28 @@ public class MineTogetherChat {
     }
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
-        if (screen instanceof TitleScreen) {
-            ScreenHooks.addRenderableWidget(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> {
-                Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
-            }));
-            ScreenHooks.addRenderableWidget(screen, new IconButton(screen.width - 125, 5, 1, Constants.WIDGETS_SHEET, e -> {
-                Minecraft.getInstance().setScreen(new ChatScreen(screen));
-            }));
+        if (screen instanceof TitleScreen && Config.instance().mainMenuButtons) {
+            addMenuButtons(screen);
+        } else if (screen instanceof PauseScreen) {
+            addMenuButtons(screen);
         }
+    }
+
+    private static void addMenuButtons(Screen screen) {
+        ScreenHooks.addRenderableWidget(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> {
+            Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
+        }));
+        boolean chatEnabled = Config.instance().chatEnabled;
+        ScreenHooks.addRenderableWidget(screen, new IconButton(screen.width - 125, 5, chatEnabled ? 1 : 3, Constants.WIDGETS_SHEET, e -> {
+            Minecraft.getInstance().setScreen(chatEnabled ? new ChatScreen(screen) : new SettingsScreen(screen));
+        }));
+    }
+
+    public static void disableChat() {
+        LOGGER.warn("Disable chat: Not yet implemented!");
+    }
+
+    public static void enableChat() {
+        LOGGER.warn("Enable chat: Not yet implemented!");
     }
 }

@@ -36,5 +36,13 @@
     
     "minetogether:screen.friendreq.title.update": "Update friend",
     "minetogether:screen.friendreq.button.update": "Update name",
-    "minetogether:screen.friendreq.desc.update": "Please enter the name you want to know your friend as"
+    "minetogether:screen.friendreq.desc.update": "Please enter the name you want to know your friend as",
+    
+    "minetogether:screen.settings.title": "MineTogether Settings",
+    "minetogether:screen.settings.button.enabled": "Enabled",
+    "minetogether:screen.settings.button.disabled": "Disabled",
+    "minetogether:screen.settings.button.chat": "Chat: ",
+    "minetogether:screen.settings.button.friend_toasts": "Friend Toasts: ",
+    "minetogether:screen.settings.button.menu_buttons": "Menu Buttons: "
+    
 }

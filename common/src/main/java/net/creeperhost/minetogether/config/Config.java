@@ -82,4 +82,13 @@ public class Config {
 
     @Comment("Create _VERY_ verbose logs. May create hugenorums log files.")
     public boolean debugMode = false;
+
+    @Comment ("If the Chat component of MineTogether is enabled.")
+    public boolean chatEnabled = true;
+
+    @Comment ("If notifications for friends are enabled.")
+    public boolean friendNotifications = true;
+
+    @Comment ("If menu buttons are enabled.")
+    public boolean mainMenuButtons = true;
 }
