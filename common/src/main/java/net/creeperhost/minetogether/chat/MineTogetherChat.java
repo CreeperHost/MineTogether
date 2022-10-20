@@ -68,7 +68,9 @@ public class MineTogetherChat {
         Minecraft mc = Minecraft.getInstance();
         vanillaChat = gui.chat;
         publicChat = new MTChatComponent(ChatTarget.PUBLIC, mc);
-        CHAT_STATE.ircClient.start();
+        if (Config.instance().chatEnabled) {
+            CHAT_STATE.ircClient.start();
+        }
         CHAT_STATE.ircClient.addChannelListener(new IrcClient.ChannelListener() {
             @Override
             public void channelJoin(IrcChannel channel) {
@@ -142,10 +144,10 @@ public class MineTogetherChat {
     }
 
     public static void disableChat() {
-        LOGGER.warn("Disable chat: Not yet implemented!");
+        CHAT_STATE.ircClient.stop();
     }
 
     public static void enableChat() {
-        LOGGER.warn("Enable chat: Not yet implemented!");
+        CHAT_STATE.ircClient.start();
     }
 }

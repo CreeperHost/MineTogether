@@ -76,7 +76,9 @@ public class ChatScreen extends Screen {
 
     public void attach(IrcChannel channel) {
         this.channel = channel;
-        chatList.attach(channel);
+        if (chatList != null) {
+            chatList.attach(channel);
+        }
     }
 
     @Override

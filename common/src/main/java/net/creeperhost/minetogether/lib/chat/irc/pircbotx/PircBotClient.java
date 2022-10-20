@@ -41,7 +41,9 @@ public class PircBotClient implements IrcClient {
 
     private final ChatState chatState;
     private final String nick;
-    private final Thread clientThread;
+    private final String realName;
+    @Nullable
+    private Thread clientThread;
     @Nullable
     private PircBotX client;
     @Nullable
@@ -57,8 +59,10 @@ public class PircBotClient implements IrcClient {
     public PircBotClient(ChatState chatState, String realName) {
         this.chatState = chatState;
         this.nick = "MT" + HashLength.MEDIUM.format(chatState.auth.getHash());
+        this.realName = realName;
+    }
 
-        // TODO make EventSubscriberListener fire all events on a specific executor.
+    private void startClient() {
         EventSubscriberListener eventListener = new EventSubscriberListener();
         eventListener.addListener(this);
         Configuration.Builder baseConfig = new Configuration.Builder()
@@ -94,19 +98,22 @@ public class PircBotClient implements IrcClient {
         });
         clientThread.setName("MineTogether IRC Client");
         clientThread.setDaemon(true);
+        clientThread.start();
     }
 
     @Override
     public void start() throws IllegalStateException {
         if (state == IrcState.DISCONNECTED || state == IrcState.CRASHED) {
+            LOGGER.info("Starting MineTogether IRCClient.");
             state = IrcState.CONNECTING;
-            clientThread.start();
+            startClient();
         }
     }
 
     @Override
     public void stop() {
         if (client != null) {
+            LOGGER.info("Stopping MineTogether IRCClient.");
             client.stopBotReconnect();
             client.sendIRC().quitServer();
         }
@@ -252,7 +259,7 @@ public class PircBotClient implements IrcClient {
         Profile sender = chatState.profileManager.lookupProfile(event.getUser().getNick());
         IrcUser user = getUser(sender);
         if (user != null) {
-            ((AbstractChannel)user.getChannel()).addMessage(Instant.ofEpochMilli(event.getTimestamp()), sender, event.getMessage());
+            ((AbstractChannel) user.getChannel()).addMessage(Instant.ofEpochMilli(event.getTimestamp()), sender, event.getMessage());
         }
 
         LOGGER.info("{}: {}", sender.getDisplayName(), event.getMessage());
