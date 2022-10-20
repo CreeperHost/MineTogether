@@ -86,7 +86,7 @@ public class ChatScreen extends Screen {
         chatList = new ChatScrollList(minecraft, width - 20, height - 50, 30, height - 50);
         chatList.setLeftPos(10);
         chatList.setScrollAmount(chatList.getMaxScroll());
-        channel = MineTogetherChat.CHAT_STATE.getIrcClient().getPrimaryChannel();
+        channel = MineTogetherChat.CHAT_STATE.ircClient.getPrimaryChannel();
         if (channel != null) {
             attach(channel);
         }
@@ -106,7 +106,7 @@ public class ChatScreen extends Screen {
         }));
 
         addRenderableWidget(connectionStatus = new StringButton(8, height - 20, 70, 20, false, () -> {
-            IrcState state = MineTogetherChat.CHAT_STATE.getIrcClient().getState();
+            IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
             return new TextComponent(STATE_FORMAT_LOOKUP.get(state) + "\u2022" + " " + ChatFormatting.WHITE + STATE_DESC_LOOKUP.get(state));
         }, button -> { }));
 

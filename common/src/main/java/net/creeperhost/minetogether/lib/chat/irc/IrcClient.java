@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.lib.chat.irc;
 
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
-import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -12,12 +11,14 @@ import java.util.Collection;
 public interface IrcClient {
 
     /**
-     * Non-Blocking method to initialize and connect to IRC.
-     *
-     * @throws IllegalStateException When the client is not in the
-     *                               {@link IrcState#DISCONNECTED} state.
+     * Starts the {@link IrcClient}.
      */
-    void connect() throws IllegalStateException;
+    void start();
+
+    /**
+     * Stops the {@link IrcClient}.
+     */
+    void stop();
 
     /**
      * Gets the current state of the IRC client.

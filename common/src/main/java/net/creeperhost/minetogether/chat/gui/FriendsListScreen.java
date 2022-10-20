@@ -147,7 +147,7 @@ public class FriendsListScreen extends Screen {
             targetProfile = selected.profile;
             acceptRequest.visible = selected.request != null;
             denyRequest.visible = selected.request != null;
-            IrcUser user = MineTogetherChat.CHAT_STATE.getIrcClient().getUser(selected.profile);
+            IrcUser user = MineTogetherChat.CHAT_STATE.ircClient.getUser(selected.profile);
             if (user != null) {
                 chatList.attach(user.getChannel());
                 chatBox.setEditable(true);

@@ -169,7 +169,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     }
 
     public boolean sendFriendRequest(Profile to, String desiredName) {
-        IrcUser ircUser = chatState.getIrcClient().getUser(to);
+        IrcUser ircUser = chatState.ircClient.getUser(to);
         if (ircUser == null) return false; // TODO assertion?
 
         // Send friend request.
@@ -184,7 +184,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     }
 
     public boolean acceptFriendRequest(FriendRequest request, String desiredName) {
-        IrcUser ircUser = chatState.getIrcClient().getUser(request.from);
+        IrcUser ircUser = chatState.ircClient.getUser(request.from);
         if (ircUser == null) return false; // TODO assertion?
 
         synchronized (friendRequests) {

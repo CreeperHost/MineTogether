@@ -5,8 +5,10 @@ import net.creeperhost.minetogether.lib.chat.irc.*;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.EventSubscriberListener;
 import net.creeperhost.minetogether.lib.chat.irc.pircbotx.event.SubscribeEvent;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
+import net.creeperhost.minetogether.lib.chat.request.IRCServerListRequest;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListResponse;
 import net.creeperhost.minetogether.lib.chat.util.HashLength;
+import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +30,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static net.creeperhost.minetogether.MineTogether.API;
+
 /**
  * Created by covers1624 on 29/6/22.
  */
@@ -37,9 +41,11 @@ public class PircBotClient implements IrcClient {
 
     private final ChatState chatState;
     private final String nick;
-    private final IRCServerListResponse serverDetails;
-    private final PircBotX client;
     private final Thread clientThread;
+    @Nullable
+    private PircBotX client;
+    @Nullable
+    private IRCServerListResponse serverDetails;
 
     private final Map<Profile, PircBotUser> users = new HashMap<>();
     private final Map<String, PircBotChannel> channels = new HashMap<>();
@@ -48,38 +54,42 @@ public class PircBotClient implements IrcClient {
     // TODO wire in RECONNECTING state.
     private IrcState state = IrcState.DISCONNECTED;
 
-    public PircBotClient(ChatState chatState, IRCServerListResponse serverDetails, String realName) {
+    public PircBotClient(ChatState chatState, String realName) {
         this.chatState = chatState;
         this.nick = "MT" + HashLength.MEDIUM.format(chatState.auth.getHash());
-        this.serverDetails = serverDetails;
 
         // TODO make EventSubscriberListener fire all events on a specific executor.
         EventSubscriberListener eventListener = new EventSubscriberListener();
         eventListener.addListener(this);
-        Configuration config = new Configuration.Builder()
+        Configuration.Builder baseConfig = new Configuration.Builder()
                 .setName(nick)
                 .setRealName(realName)
                 .setLogin("MineTogether")
                 .setListenerManager(SequentialListenerManager.newDefault()
                         .addListenerSequential(eventListener)
                 )
-                .addAutoJoinChannel(serverDetails.getChannel())
-                .addServer(serverDetails.getServer().getAddress(), serverDetails.getServer().getPort())
+
                 .setAutoReconnect(true)
                 .setAutoReconnectAttempts(-1)
                 .setAutoReconnectDelay(new StaticReadonlyDelay(TimeUnit.SECONDS.toMillis(5)))
                 .setSocketTimeout((int) TimeUnit.SECONDS.toMillis(30))
-                .setEncoding(StandardCharsets.UTF_8)
-                .buildConfiguration();
-        client = new PircBotX(config);
+                .setEncoding(StandardCharsets.UTF_8);
         clientThread = new Thread(() -> {
             LOGGER.debug("Starting Pircbotx MineTogether thread.");
             try {
+                ApiClientResponse<IRCServerListResponse> response = API.execute(new IRCServerListRequest());
+                serverDetails = response.apiResponse();
+                Configuration config = new Configuration.Builder(baseConfig)
+                        .addAutoJoinChannel(serverDetails.getChannel())
+                        .addServer(serverDetails.getServer().getAddress(), serverDetails.getServer().getPort())
+                        .buildConfiguration();
+                client = new PircBotX(config);
                 client.startBot();
             } catch (IOException | IrcException ex) {
                 state = IrcState.CRASHED;
-                LOGGER.error("Unrecoverable error occurred with IRC client");
+                LOGGER.error("Unrecoverable error occurred with IRC client.", ex);
             }
+            client = null;
             LOGGER.info("Exiting Pircbotx MineTogether thread.");
         });
         clientThread.setName("MineTogether IRC Client");
@@ -87,15 +97,19 @@ public class PircBotClient implements IrcClient {
     }
 
     @Override
-    public void connect() throws IllegalStateException {
-        switch (state) {
-            case CONNECTING -> throw new IllegalStateException("Client is already connecting");
-            case RECONNECTING -> throw new IllegalStateException("Client is already reconnecting.");
-            case CONNECTED -> throw new IllegalStateException("Already connected.");
-            case CRASHED -> throw new IllegalStateException("Client has crashed, construct new instance.");
+    public void start() throws IllegalStateException {
+        if (state == IrcState.DISCONNECTED || state == IrcState.CRASHED) {
+            state = IrcState.CONNECTING;
+            clientThread.start();
         }
-        state = IrcState.CONNECTING;
-        clientThread.start();
+    }
+
+    @Override
+    public void stop() {
+        if (client != null) {
+            client.stopBotReconnect();
+            client.sendIRC().quitServer();
+        }
     }
 
     @Override

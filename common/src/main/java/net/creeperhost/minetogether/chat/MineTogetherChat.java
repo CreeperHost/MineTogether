@@ -14,12 +14,8 @@ import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcClient;
-import net.creeperhost.minetogether.lib.chat.irc.pircbotx.PircBotClient;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
-import net.creeperhost.minetogether.lib.chat.request.IRCServerListRequest;
-import net.creeperhost.minetogether.lib.chat.request.IRCServerListResponse;
-import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.SimpleToast;
 import net.minecraft.client.Minecraft;
@@ -33,9 +29,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
 
 import static net.creeperhost.minetogether.Constants.MINETOGETHER_LOGO_25;
 import static net.creeperhost.minetogether.MineTogether.API;
@@ -52,9 +45,7 @@ public class MineTogetherChat {
             Platform.getGameFolder().resolve("local/minetogether/mutedusers.json")
     );
 
-    public static ChatState CHAT_STATE = new ChatState(API, CHAT_AUTH, MUTED_USER_LIST);
-    @Nullable // TODO make this nonnull, when api server list api request is moved into irc client init.
-    private static IrcClient ircClient;
+    public static ChatState CHAT_STATE = new ChatState(API, CHAT_AUTH, MUTED_USER_LIST, "{\"p\":\"-1\"}");
 
     public static ChatComponent vanillaChat;
     public static MTChatComponent publicChat;
@@ -77,36 +68,26 @@ public class MineTogetherChat {
         Minecraft mc = Minecraft.getInstance();
         vanillaChat = gui.chat;
         publicChat = new MTChatComponent(ChatTarget.PUBLIC, mc);
+        CHAT_STATE.ircClient.start();
+        CHAT_STATE.ircClient.addChannelListener(new IrcClient.ChannelListener() {
+            @Override
+            public void channelJoin(IrcChannel channel) {
+                if (CHAT_STATE.ircClient.getPrimaryChannel() == null) return;
+                if (channel == CHAT_STATE.ircClient.getPrimaryChannel()) {
+                    publicChat.attach(channel);
 
-        // TODO throw this off thread inside the IRC client initialization.
-        try {
-            ApiClientResponse<IRCServerListResponse> response = API.execute(new IRCServerListRequest());
-            ircClient = new PircBotClient(CHAT_STATE, response.apiResponse(), "{\"p\":\"-1\"}");
-            CHAT_STATE.setIrcClient(ircClient);
-            ircClient.connect();
-
-            ircClient.addChannelListener(new IrcClient.ChannelListener() {
-                @Override
-                public void channelJoin(IrcChannel channel) {
-                    if (ircClient.getPrimaryChannel() == null) return;
-                    if (channel == ircClient.getPrimaryChannel()) {
-                        publicChat.attach(channel);
-
-                        // If we have the ChatScreen open. Attach to main chat.
-                        if (Minecraft.getInstance().screen instanceof ChatScreen chat) {
-                            chat.attach(channel);
-                        }
+                    // If we have the ChatScreen open. Attach to main chat.
+                    if (Minecraft.getInstance().screen instanceof ChatScreen chat) {
+                        chat.attach(channel);
                     }
                 }
+            }
 
-                @Override
-                public void channelLeave(IrcChannel channel) {
+            @Override
+            public void channelLeave(IrcChannel channel) {
 
-                }
-            });
-        } catch (IOException ex) {
-            LOGGER.error("Failed to initialize IRC client.", ex);
-        }
+            }
+        });
 
         CHAT_STATE.profileManager.addListener(mc, (m, e) -> m.submit(() -> {
             if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ADDED) {
