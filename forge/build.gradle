@@ -45,6 +45,10 @@ dependencies {
     shadowLib "blue.endless:jankson:${jankson_version}"
     shadowLib "net.covers1624:Quack:${quack_version}"
     shadowLib "net.covers1624:pircbotx:${pircbotx_version}"
+
+    shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
+    shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'
+    shadowLib 'com.github.scribejava:scribejava-core:6.9.0'
 }
 
 processResources {
@@ -64,6 +68,10 @@ shadowJar {
     relocate 'blue.endless', 'net.creeperhost.minetogether.repack.blue.endless'
     relocate 'net.covers1624', 'net.creeperhost.minetogether.repack.net.covers1624'
     relocate 'org.pircbotx', 'net.creeperhost.minetogether.repack.org.pircbotx'
+    relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
+    relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
+    // TODO can we switch scribble to using Gson?
+    relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
 }
 
 remapJar {

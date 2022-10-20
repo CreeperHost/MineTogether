@@ -91,4 +91,8 @@ public class Config {
 
     @Comment ("If menu buttons are enabled.")
     public boolean mainMenuButtons = true;
+
+    // TODO Move to something in ~/.minetogether/?
+    @Comment ("INTERNAL: Marker for tracking first connections.")
+    public String firstConnect = "";
 }

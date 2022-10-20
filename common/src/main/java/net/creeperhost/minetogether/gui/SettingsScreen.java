@@ -3,8 +3,10 @@ package net.creeperhost.minetogether.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -15,6 +17,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 public class SettingsScreen extends Screen {
 
     private final Screen parent;
+
+    private Button linkButton;
 
     public SettingsScreen(Screen parent) {
         super(new TranslatableComponent("minetogether:screen.settings.title"));
@@ -43,6 +47,16 @@ public class SettingsScreen extends Screen {
             config.mainMenuButtons = !config.mainMenuButtons;
             saveConfig();
         }));
+
+        linkButton = addRenderableWidget(new Button(width / 2 - 100, height - 47, 200, 20, new TranslatableComponent("minetogether:screen.settings.button.link"), e -> {
+            minecraft.setScreen(new ConfirmScreen(b -> {
+                if (b) {
+                    KeycloakOAuth.main(new String[0]);
+                }
+                minecraft.setScreen(this);
+            }, new TranslatableComponent("minetogether:linkaccount1"), new TranslatableComponent("minetogether:linkaccount2")));
+        }));
+        linkButton.active = MineTogetherChat.isFirstConnect();
     }
 
     @Override

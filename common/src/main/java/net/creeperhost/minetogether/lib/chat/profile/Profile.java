@@ -35,6 +35,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     private String friendCode;
     @Nullable
     private String friendName;
+    private boolean hasAccount;
     private boolean isBanned;
     private boolean isPremium;
     private boolean isFriend;
@@ -131,6 +132,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     public String getFriendName() { return Objects.requireNonNull(friendName); }
     public String getFullHash() { return Objects.requireNonNull(fullHash, "Profile not updated yet."); } // TODO await for profile to have this.
     @Nullable public String getIrcName() { return ircHash; }
+    public boolean hasAccount() { return hasAccount; }
     public boolean isBanned() { return isBanned; }
     public boolean isPremium() { return isPremium; }
     public boolean isFriend() { return isFriend; }
@@ -149,6 +151,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
             ircHash = HashLength.MEDIUM.format(fullHash);
             displayName = p.getDisplay();
             friendCode = p.getFriendCode();
+            hasAccount = p.hasAccount();
             isPremium = p.isPremium();
             // TODO load more data.
 

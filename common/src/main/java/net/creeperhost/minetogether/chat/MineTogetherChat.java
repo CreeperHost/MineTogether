@@ -149,6 +149,17 @@ public class MineTogetherChat {
         }));
     }
 
+    public static boolean isFirstConnect() {
+        if (MineTogetherChat.getOurProfile().hasAccount()) return false;
+
+        return !Config.instance().firstConnect.equalsIgnoreCase(CHAT_AUTH.getHash());
+    }
+
+    public static void setFirstConnect() {
+        Config.instance().firstConnect = CHAT_AUTH.getHash();
+        Config.save();
+    }
+
     public static void disableChat() {
         LOGGER.warn("Disable chat: Not yet implemented!");
     }

@@ -43,6 +43,9 @@
     "minetogether:screen.settings.button.disabled": "Disabled",
     "minetogether:screen.settings.button.chat": "Chat: ",
     "minetogether:screen.settings.button.friend_toasts": "Friend Toasts: ",
-    "minetogether:screen.settings.button.menu_buttons": "Menu Buttons: "
+    "minetogether:screen.settings.button.menu_buttons": "Menu Buttons: ",
+    "minetogether:screen.settings.button.link": "Link Account",
     
+    "minetogether:linkaccount1":"Link your Minecraft account to your MineTogether account.",
+    "minetogether:linkaccount2":"Linking your accounts will unlock abilities like being able to set your own nickname.\n\nThis will open a web-browser for you to sign in securely.,"
 }
