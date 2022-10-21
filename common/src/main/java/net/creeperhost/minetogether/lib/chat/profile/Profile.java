@@ -118,11 +118,13 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     public void setFriend(String name) {
         isFriend = true;
         friendName = name;
+        fire(new ProfileEvent(EventType.FRIEND_ADD, this));
     }
 
     void removeFriend() {
         isFriend = false;
         friendName = null;
+        fire(new ProfileEvent(EventType.FRIEND_REMOVE, this));
     }
 
     // @formatter:off
@@ -188,9 +190,15 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     public enum EventType {
         MUTED,
         UNMUTED,
+        FRIEND_ADD,
+        FRIEND_REMOVE,
         BANNED,
         UNBANNED,
         FULL_PROFILE,
-        FRIEND_REQUEST,
+        FRIEND_REQUEST;
+
+        public boolean canChangeName() {
+            return this == FULL_PROFILE || this == FRIEND_ADD || this == FRIEND_REMOVE;
+        }
     }
 }

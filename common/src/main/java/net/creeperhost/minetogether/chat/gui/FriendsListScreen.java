@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 1/9/22.
  */
+// TODO Display smol spinner somewhere when friend update is running: ProfileManager.isFriendUpdateRunning
 public class FriendsListScreen extends Screen {
 
     private final Screen parent;
@@ -52,6 +53,7 @@ public class FriendsListScreen extends Screen {
     private TooltipContainer tooltips;
 
     private int ticks;
+    private int lastFriendUpdateCookie = -1;
 
     public FriendsListScreen(Screen parent) {
         super(new TranslatableComponent("minetogether:screen.friends.title"));
@@ -60,8 +62,6 @@ public class FriendsListScreen extends Screen {
 
     @Override
     protected void init() {
-        // FIXME, Put this off-thread.
-        MineTogetherChat.CHAT_STATE.profileManager.updateFriends();
         friendList = new SimpleSelectionList<>(minecraft, 100, height - 90, 32, height - 55, 28, 100);
         friendList.setLeftPos(18);
         addRenderableWidget(friendList);
@@ -138,9 +138,7 @@ public class FriendsListScreen extends Screen {
     @Override
     public void tick() {
         ticks++;
-        if (ticks % 600 == 0) {
-            updateList();
-        }
+        updateList();
 
         FriendEntry selected = friendList.getSelected();
         if (selected != null) {
@@ -198,6 +196,10 @@ public class FriendsListScreen extends Screen {
 
     private void updateList() {
         ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
+        int newCookie = profileManager.getFriendUpdateCookie();
+        if (lastFriendUpdateCookie == newCookie) return;
+        lastFriendUpdateCookie = newCookie;
+
         List<Profile> knownUsers = profileManager.getKnownProfiles();
         List<Profile> friends = StreamableIterable.of(knownUsers).filter(Profile::isFriend).toLinkedList();
         friends.sort(NameComparator.INSTANCE);
@@ -222,6 +224,12 @@ public class FriendsListScreen extends Screen {
             friendList.addEntry(friendEntry);
         }
 
+        for (FriendEntry entry : friendList.children()) {
+            if (entry.profile == targetProfile) {
+                friendList.setSelected(entry);
+                break;
+            }
+        }
     }
 
     private static class FriendEntry extends SimpleSelectionList.SimpleEntry<FriendEntry> {

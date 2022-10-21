@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.lib.chat.profile;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import net.covers1624.quack.collection.ColUtils;
 import net.covers1624.quack.collection.StreamableIterable;
 import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
@@ -15,10 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,6 +29,13 @@ import java.util.function.Consumer;
 public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.ProfileManagerEvent> {
 
     private static final Logger LOGGER = LogManager.getLogger();
+
+    private final ScheduledExecutorService FRIEND_EXECUTOR = Executors.newScheduledThreadPool(1,
+            new ThreadFactoryBuilder()
+                    .setNameFormat("MT Scheduled Friends Update Thread %d")
+                    .setDaemon(true)
+                    .build()
+    );
 
     private final ExecutorService PROFILE_EXECUTOR = Executors.newFixedThreadPool(2,
             new ThreadFactoryBuilder()
@@ -52,12 +57,16 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
 
     private final List<FriendRequest> friendRequests = new LinkedList<>();
 
+    private int friendCookie;
+    private boolean friendUpdateRunning;
+
     public ProfileManager(ChatState chatState, String ownHash) {
         this.chatState = chatState;
         for (String mutedUser : chatState.mutedUserList.getMutedUsers()) {
             lookupProfileStale(mutedUser);
         }
         ownProfile = lookupProfile(ownHash);
+        FRIEND_EXECUTOR.scheduleAtFixedRate(this::updateFriends, 60, 60, TimeUnit.SECONDS);
     }
 
     /**
@@ -226,19 +235,52 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
         }
     }
 
-    public void updateFriends() {
+    private void updateFriends() {
+        friendUpdateRunning = true;
         try {
             // TODO we need to purge removed friends somehow.
             ListFriendsResponse resp = chatState.api.execute(new ListFriendsRequest(getOwnProfile().getFullHash())).apiResponse();
+            Set<String> friendHashes = new HashSet<>();
+            boolean changes = false;
             for (ListFriendsResponse.FriendEntry friend : resp.friends) {
+                friendHashes.add(friend.getHash());
                 if (friend.isAccepted()) {
                     Profile profile = lookupProfile(friend.getHash());
                     profile.setFriend(friend.getName());
+                    changes = true;
                 }
+            }
+            for (Profile profile : getKnownProfiles()) {
+                if (profile.isFriend() && !ColUtils.anyMatch(profile.getAliases(), friendHashes::contains)) {
+                    profile.removeFriend();
+                    changes = true;
+                }
+            }
+            if (changes) {
+                friendCookie++;
             }
         } catch (Throwable ex) {
             LOGGER.error("Failed to query friend list.", ex);
         }
+        friendUpdateRunning = false;
+    }
+
+    /**
+     * Number incremented each time friend updates change.
+     * <p>
+     * Store this number and re-check it to efficiently monitor for changes.
+     *
+     * @return The cookie.
+     */
+    public int getFriendUpdateCookie() {
+        return friendCookie;
+    }
+
+    /**
+     * @return True when the internal friend update task is running.
+     */
+    public boolean isFriendUpdateRunning() {
+        return friendUpdateRunning;
     }
 
     public void removeFriend(Profile friend) {
