@@ -30,7 +30,14 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final ScheduledExecutorService FRIEND_EXECUTOR = Executors.newScheduledThreadPool(1,
+    private final ExecutorService FRIEND_EXECUTOR = Executors.newFixedThreadPool(2,
+            new ThreadFactoryBuilder()
+                    .setNameFormat("MT Friends Thread %d")
+                    .setDaemon(true)
+                    .build()
+    );
+
+    private final ScheduledExecutorService SCHEDULED_FRIEND_EXECUTOR = Executors.newScheduledThreadPool(1,
             new ThreadFactoryBuilder()
                     .setNameFormat("MT Scheduled Friends Update Thread %d")
                     .setDaemon(true)
@@ -66,7 +73,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
             lookupProfileStale(mutedUser);
         }
         ownProfile = lookupProfile(ownHash);
-        FRIEND_EXECUTOR.scheduleAtFixedRate(this::updateFriends, 60, 60, TimeUnit.SECONDS);
+        SCHEDULED_FRIEND_EXECUTOR.scheduleAtFixedRate(this::updateFriends, 60, 60, TimeUnit.SECONDS);
     }
 
     /**
@@ -221,18 +228,20 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     }
 
     public void apiAcceptFriendRequest(String friendCode, String desiredName) {
-        try {
-            ApiResponse resp = chatState.api.execute(new AddFriendRequest(
-                    ownProfile.getFullHash(),
-                    friendCode,
-                    desiredName
-            )).apiResponse();
-            if (!resp.getStatus().equals("success")) {
-                LOGGER.error("Failed to remove friend. Api returned: {}", resp.getMessageOrNull());
+        FRIEND_EXECUTOR.execute(() -> {
+            try {
+                ApiResponse resp = chatState.api.execute(new AddFriendRequest(
+                        ownProfile.getFullHash(),
+                        friendCode,
+                        desiredName
+                )).apiResponse();
+                if (!resp.getStatus().equals("success")) {
+                    LOGGER.error("Failed to remove friend. Api returned: {}", resp.getMessageOrNull());
+                }
+            } catch (IOException ex) {
+                LOGGER.error("Failed to add Friend.", ex);
             }
-        } catch (IOException ex) {
-            LOGGER.error("Failed to add Friend.", ex);
-        }
+        });
     }
 
     private void updateFriends() {
@@ -285,14 +294,17 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
 
     public void removeFriend(Profile friend) {
         friend.removeFriend();
-        try {
-            ApiResponse resp = chatState.api.execute(new RemoveFriendRequest(friend.getFriendCode(), ownProfile.getFullHash())).apiResponse();
-            if (!resp.getStatus().equals("success")) {
-                LOGGER.error("Failed to remove friend. Api returned: {}", resp.getMessageOrNull());
+        friendCookie++;
+        FRIEND_EXECUTOR.execute(() -> {
+            try {
+                ApiResponse resp = chatState.api.execute(new RemoveFriendRequest(friend.getFriendCode(), ownProfile.getFullHash())).apiResponse();
+                if (!resp.getStatus().equals("success")) {
+                    LOGGER.error("Failed to remove friend. Api returned: {}", resp.getMessageOrNull());
+                }
+            } catch (IOException ex) {
+                LOGGER.error("Failed to remove friend!", ex);
             }
-        } catch (IOException ex) {
-            LOGGER.error("Failed to remove friend!", ex);
-        }
+        });
     }
 
     private void scheduleUpdate(Profile profile) {

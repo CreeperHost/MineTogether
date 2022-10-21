@@ -99,10 +99,7 @@ public class FriendsListScreen extends Screen {
 
         removeFriend = addRenderableWidget(new IconButton(width - 20, 32, 5, Constants.WIDGETS_SHEET, e -> {
             assert targetProfile != null;
-            // TODO, dont make this remove call block.
             MineTogetherChat.CHAT_STATE.profileManager.removeFriend(targetProfile);
-            // TODO once above doesn't block, this should be reactive.
-            updateList();
         }));
         blockButton = addRenderableWidget(new IconButton(width - 20, 52, 6, Constants.WIDGETS_SHEET, e -> {
             assert targetProfile != null;
