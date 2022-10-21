@@ -300,6 +300,8 @@ public class PircBotClient implements IrcClient {
                 for (User u : ircChannel.getUsers()) {
                     PircBotUser ourUser = computeUser(u);
                     ourUser.bindIrcUser(u);
+                    ourUser.getProfile().unbanned(); // Assume if they are here, they aren't banned.
+                    ourUser.getProfile().markStale();
                 }
             }
         }

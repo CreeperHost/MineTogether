@@ -92,7 +92,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     }
 
     public void banned() {
-        assert !isBanned;
+        if (isBanned) return;
 
         isBanned = true;
         for (Message message : sentMessages) {
@@ -102,7 +102,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     }
 
     public void unbanned() {
-        assert isBanned;
+        if (!isBanned) return;
 
         isBanned = false;
         for (Message message : sentMessages) {
@@ -125,6 +125,10 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
         isFriend = false;
         friendName = null;
         fire(new ProfileEvent(EventType.FRIEND_REMOVE, this));
+    }
+
+    public void markStale() {
+        stale = true;
     }
 
     // @formatter:off
