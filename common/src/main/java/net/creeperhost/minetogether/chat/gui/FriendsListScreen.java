@@ -62,6 +62,7 @@ public class FriendsListScreen extends Screen {
 
     @Override
     protected void init() {
+        lastFriendUpdateCookie = -1;
         friendList = new SimpleSelectionList<>(minecraft, 100, height - 90, 32, height - 55, 28, 100);
         friendList.setLeftPos(18);
         addRenderableWidget(friendList);
