@@ -8,7 +8,9 @@ public enum IrcState {
     CONNECTING,
     RECONNECTING,
     CONNECTED,
-    CRASHED;
+    CRASHED,
+    BANNED,
+    VERIFYING;
 
     public boolean isCrashed() {
         return this == CRASHED;

@@ -41,14 +41,18 @@ public class ChatScreen extends Screen {
             IrcState.CONNECTING, ChatFormatting.GOLD,
             IrcState.RECONNECTING, ChatFormatting.GOLD,
             IrcState.CONNECTED, ChatFormatting.GREEN,
-            IrcState.CRASHED, ChatFormatting.RED
+            IrcState.CRASHED, ChatFormatting.RED,
+            IrcState.BANNED, ChatFormatting.BLACK,
+            IrcState.VERIFYING, ChatFormatting.GOLD
     );
     private static final Map<IrcState, String> STATE_DESC_LOOKUP = ImmutableMap.of(
             IrcState.DISCONNECTED, "Disconnected",
             IrcState.CONNECTING, "Connecting",
             IrcState.RECONNECTING, "Reconnecting",
             IrcState.CONNECTED, "Connected",
-            IrcState.CRASHED, "Engine crashed"
+            IrcState.CRASHED, "Engine crashed",
+            IrcState.BANNED, "Banned",
+            IrcState.VERIFYING, "Verifying"
     );
 
     private final Screen parent;

@@ -102,7 +102,7 @@ public class PircBotClient implements IrcClient {
     }
 
     @Override
-    public void start() throws IllegalStateException {
+    public void start() {
         if (state == IrcState.DISCONNECTED || state == IrcState.CRASHED) {
             LOGGER.info("Starting MineTogether IRCClient.");
             state = IrcState.CONNECTING;
@@ -194,13 +194,15 @@ public class PircBotClient implements IrcClient {
     @SubscribeEvent
     private void onConnected(ConnectEvent event) {
         LOGGER.info("Connected to MineTogether IRC.");
-        state = IrcState.CONNECTED;
+        state = IrcState.VERIFYING;
     }
 
     @SubscribeEvent
     private void onDisconnected(DisconnectEvent event) {
         LOGGER.info("Disconnected from MineTogether IRC.");
-        state = IrcState.DISCONNECTED;
+        if (state != IrcState.BANNED) {
+            state = IrcState.DISCONNECTED;
+        }
         for (PircBotChannel channel : channels.values()) {
             channel.bindChannel(null);
         }
@@ -310,23 +312,35 @@ public class PircBotClient implements IrcClient {
     }
 
     @SubscribeEvent
-    private void onUserModeChange(UserModeEvent event) {
-        User user = event.getUser();
-        if (user != null) {
-            boolean hasBanMode = StringUtils.containsAny(event.getMode(), 'b');
-            if (!hasBanMode) return;
+    private void onVoiceEvent(VoiceEvent event) {
+        User user = event.getRecipient();
+        if (user == null) return;
+        Profile target = chatState.profileManager.lookupProfile(user.getNick());
+        if (target != chatState.profileManager.getOwnProfile()) return;
 
-            // Who is the recipient of this mode change, us or another user.
-            Profile target = user.getNick().equals(nick) ? chatState.profileManager.getOwnProfile() : chatState.profileManager.lookupProfile(user.getNick());
-
-            // Apply ban/unban
-            if (event.getMode().charAt(0) == '-') {
-                target.unbanned();
-            } else {
-                assert event.getMode().charAt(0) == '+';
-                target.banned();
-            }
+        if (event.hasVoice()) {
+            state = IrcState.CONNECTED;
         }
+    }
+
+    @SubscribeEvent
+    private void onBannedEvent(SetChannelBanEvent event) {
+        Profile target = chatState.profileManager.lookupProfile(event.getBanHostmask().getNick());
+        if (target != chatState.profileManager.getOwnProfile()) return;
+
+        target.banned();
+        if (target == chatState.profileManager.getOwnProfile()) {
+            state = IrcState.BANNED;
+            stop();
+        }
+    }
+
+    @SubscribeEvent
+    private void onUnbannedEvent(RemoveChannelBanEvent event) {
+        Profile target = chatState.profileManager.lookupProfile(event.getHostmask().getNick());
+        if (target != chatState.profileManager.getOwnProfile()) return;
+
+        target.unbanned();
     }
 
     @SubscribeEvent
