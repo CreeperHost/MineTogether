@@ -1,13 +1,11 @@
 package net.creeperhost.minetogether.mixin.chat;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.chat.ChatStatistics;
-import net.creeperhost.minetogether.chat.ChatTarget;
-import net.creeperhost.minetogether.chat.MessageDropdownOption;
-import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.chat.*;
 import net.creeperhost.minetogether.chat.gui.FriendRequestScreen;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.polylib.gui.PreviewRenderer;
@@ -30,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -142,21 +141,30 @@ abstract class ChatScreenMixin extends Screen {
         }
     }
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    @Inject(
+            method = "mouseClicked",
+            at = @At ("TAIL"),
+            cancellable = true
+    )
+    private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         // Needs to be done explicitly here, so we prioritize button clicks
         // over message clicks. We can't move super.mouseClicked here as that would
         // let vanilla handle clicked styles before us.
-        if (dropdownButton.mouseClicked(mouseX, mouseY, button)) return true;
+        if (dropdownButton.mouseClicked(mouseX, mouseY, button)) {
+            cir.setReturnValue(true);
+            return;
+        }
 
         if (MineTogetherChat.target == ChatTarget.PUBLIC && tryClickMTChat(MineTogetherChat.publicChat, mouseX, mouseY)) {
-            return true;
+            cir.setReturnValue(true);
         }
-        return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
+    @Inject(
+            method = "render",
+            at = @At ("TAIL")
+    )
+    private void onRender(PoseStack poseStack, int i, int j, float f, CallbackInfo ci) {
         if (MineTogetherChat.target == ChatTarget.PUBLIC && MineTogetherChat.isNewUser()) {
             ChatComponent chatComponent = MineTogetherChat.publicChat;
             int y = height - 43 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
@@ -167,7 +175,23 @@ abstract class ChatScreenMixin extends Screen {
             drawCenteredString(poseStack, font, new TranslatableComponent("minetogether:new_user.3"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 20, 0xFFFFFF);
             drawCenteredString(poseStack, font, new TranslatableComponent("minetogether:new_user.4", ChatStatistics.userCount), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
         }
-        super.render(poseStack, i, j, f);
+    }
+
+    @Inject(
+            method = "tick",
+            at = @At ("TAIL")
+    )
+    public void tick(CallbackInfo ci) {
+        IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
+        if (state == IrcState.CONNECTED || MineTogetherChat.target == ChatTarget.VANILLA) {
+            input.setEditable(true);
+            input.setSuggestion("");
+            return;
+        }
+
+        input.setFocus(false);
+        input.setEditable(false);
+        input.setSuggestion(new TranslatableComponent(ChatConstants.STATE_SUGGESTION_LOOKUP.get(state)).getString());
     }
 
     private boolean tryClickMTChat(MTChatComponent mtChat, double mouseX, double mouseY) {

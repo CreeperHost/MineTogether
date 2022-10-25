@@ -1,8 +1,8 @@
 package net.creeperhost.minetogether.chat.gui;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
+import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.ChatStatistics;
 import net.creeperhost.minetogether.chat.MessageDropdownOption;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
@@ -15,8 +15,10 @@ import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.StringButton;
 import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Style;
@@ -27,33 +29,12 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Map;
-
 /**
  * @author covers1624
  */
 public class ChatScreen extends Screen {
 
     private static final Logger LOGGER = LogManager.getLogger();
-
-    private static final Map<IrcState, ChatFormatting> STATE_FORMAT_LOOKUP = ImmutableMap.of(
-            IrcState.DISCONNECTED, ChatFormatting.RED,
-            IrcState.CONNECTING, ChatFormatting.GOLD,
-            IrcState.RECONNECTING, ChatFormatting.GOLD,
-            IrcState.CONNECTED, ChatFormatting.GREEN,
-            IrcState.CRASHED, ChatFormatting.RED,
-            IrcState.BANNED, ChatFormatting.BLACK,
-            IrcState.VERIFYING, ChatFormatting.GOLD
-    );
-    private static final Map<IrcState, String> STATE_DESC_LOOKUP = ImmutableMap.of(
-            IrcState.DISCONNECTED, "Disconnected",
-            IrcState.CONNECTING, "Connecting",
-            IrcState.RECONNECTING, "Reconnecting",
-            IrcState.CONNECTED, "Connected",
-            IrcState.CRASHED, "Engine crashed",
-            IrcState.BANNED, "Banned",
-            IrcState.VERIFYING, "Verifying"
-    );
 
     private final Screen parent;
     @Nullable
@@ -118,8 +99,17 @@ public class ChatScreen extends Screen {
 
         addRenderableWidget(connectionStatus = new StringButton(8, height - 20, 70, 20, false, () -> {
             IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
-            return new TextComponent(STATE_FORMAT_LOOKUP.get(state) + "\u2022" + " " + ChatFormatting.WHITE + STATE_DESC_LOOKUP.get(state));
-        }, button -> { }));
+            return new TextComponent(ChatConstants.STATE_FORMAT_LOOKUP.get(state) + "\u2022" + " " + ChatFormatting.WHITE + ChatConstants.STATE_DESC_LOOKUP.get(state));
+        }, button -> {
+            if (MineTogetherChat.CHAT_STATE.ircClient.getState() == IrcState.BANNED) {
+                minecraft.setScreen(new ConfirmScreen(t -> {
+                    if (t) {
+                        Util.getPlatform().openUri("https://minetogether.io/profile/standing");
+                    }
+                    minecraft.setScreen(this);
+                }, new TranslatableComponent("minetogether:screen.banned.line1"), new TranslatableComponent("minetogether:screen.banned.line2")));
+            }
+        }));
 
         addRenderableWidget(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
 
@@ -177,6 +167,17 @@ public class ChatScreen extends Screen {
         if (connectionStatus != null) {
             connectionStatus.tick();
         }
+
+        IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
+        if (state == IrcState.CONNECTED) {
+            sendEditBox.setEditable(true);
+            sendEditBox.setSuggestion("");
+            return;
+        }
+
+        sendEditBox.setFocus(false);
+        sendEditBox.setEditable(false);
+        sendEditBox.setSuggestion(new TranslatableComponent(ChatConstants.STATE_SUGGESTION_LOOKUP.get(state)).getString());
     }
 
     @Override

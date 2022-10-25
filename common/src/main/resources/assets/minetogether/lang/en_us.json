@@ -13,6 +13,12 @@
     "minetogether:ingame.chat.server": "Server",
     
     "minetogether:screen.chat.title": "MineTogether Chat",
+    "minetogether:screen.chat.suggestion.disconnected": "Unable to send messages while client is disconnected",
+    "minetogether:screen.chat.suggestion.connecting": "Unable to send messages while client is conmnecting",
+    "minetogether:screen.chat.suggestion.reconnecting": "Unable to send messages while client is reconnecting",
+    "minetogether:screen.chat.suggestion.crashed": "Unable to send messages. Chat engine has crashed.",
+    "minetogether:screen.chat.suggestion.banned": "Unable to send messages while client is banned",
+    "minetogether:screen.chat.suggestion.verifying": "Unable to send messages while client is unverified",
     
     "minetogether:screen.muted.title": "Blocked List",
     "minetogether:screen.muted.empty": "Block list is empty",
@@ -52,5 +58,8 @@
     "minetogether:new_user.1": "Welcome to MineTogether",
     "minetogether:new_user.2": "MineTogether is a multiplayer enhancement mod that provides",
     "minetogether:new_user.3": "a multitude of features like chat, friends list, server listing",
-    "minetogether:new_user.4": "and more. Join %s unique users."
+    "minetogether:new_user.4": "and more. Join %s unique users.",
+    
+    "minetogether:screen.banned.line1": "You have been banned from MineTogether Chat",
+    "minetogether:screen.banned.line2": "Do you wish to appeal the ban via the MineTogether website?"
 }
