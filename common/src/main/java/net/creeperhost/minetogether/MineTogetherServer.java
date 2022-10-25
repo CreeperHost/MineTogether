@@ -1,8 +1,13 @@
 package net.creeperhost.minetogether;
 
+import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.event.events.common.TickEvent;
 import net.creeperhost.minetogether.server.Discoverability;
+import net.creeperhost.minetogether.server.PregenHandler;
 import net.creeperhost.minetogether.server.ServerListThread;
+import net.creeperhost.minetogether.server.commands.MTCommands;
 import net.creeperhost.minetogether.util.ModPackInfo;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -17,6 +22,7 @@ import java.util.Locale;
  * Created by covers1624 on 20/6/22.
  */
 public class MineTogetherServer {
+
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static int inviteId;
@@ -24,12 +30,22 @@ public class MineTogetherServer {
     public static String displayName = "";
     public static String serverIp = "";
 
+    public static MinecraftServer minecraftServer = null;
+
     public static void init() {
         LOGGER.info("Initializing MineTogetherServer!");
+
+        CommandRegistrationEvent.EVENT.register(MTCommands::registerCommand);
+        TickEvent.SERVER_POST.register(PregenHandler::onWorldTick);
+        PlayerEvent.PLAYER_JOIN.register(PregenHandler::onPlayerJoin);
+
+        PregenHandler.deserializePreload();
+
         LifecycleEvent.SERVER_STARTED.register(MineTogetherServer::serverStarted);
     }
 
     private static void serverStarted(MinecraftServer server) {
+        minecraftServer = server;
         if (server instanceof DedicatedServer) {
             startServerListThread(server);
         }
