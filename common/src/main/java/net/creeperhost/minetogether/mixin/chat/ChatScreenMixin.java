@@ -105,7 +105,6 @@ abstract class ChatScreenMixin extends Screen {
             switch (clicked) {
                 case MUTE -> clickedMessage.sender.mute();
                 case ADD_FRIEND -> minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
-                // TODO requires replacing known user names in to-be-sent messages.
                 case MENTION -> {
                     String val = input.getValue();
                     if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
