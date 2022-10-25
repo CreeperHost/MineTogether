@@ -2,6 +2,10 @@ package net.creeperhost.minetogether;
 
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
+import net.minecraft.Util;
+import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,5 +23,17 @@ public class MineTogetherClient {
 
         MineTogetherChat.init();
         MineTogetherServerList.init();
+    }
+
+    // TODO
+    public static Screen orderScreen() {
+        return new ConfirmScreen(e -> {
+            if (e) {
+                Util.getPlatform().openUri("https://creeperhost.net");
+            }
+        },
+                new TextComponent("Ordering not yet implemented!"),
+                new TextComponent("Open the CreeperHost website instead?")
+        );
     }
 }
