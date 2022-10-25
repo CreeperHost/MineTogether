@@ -6,5 +6,8 @@
         "chat.InBedChatScreenMixin",
         "chat.ingame.ChatComponentMixin",
         "chat.ingame.GuiMixin"
+    ],
+    "server": [
+        "server.MixinDedicatedServerProperties"
     ]
 }
