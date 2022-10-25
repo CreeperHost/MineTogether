@@ -108,6 +108,20 @@ public class MineTogetherChat {
                         new TextComponent(" "),
                         MINETOGETHER_LOGO_25
                 ));
+            } else if (e.type == ProfileManager.EventType.FRIEND_ONLINE && Config.instance().friendNotifications) {
+                Profile fr = (Profile) e.data;
+                m.getToasts().addToast(new SimpleToast(
+                        new TextComponent(fr.getFriendName() + " Is now online."),
+                        new TextComponent(" "),
+                        MINETOGETHER_LOGO_25
+                ));
+            } else if (e.type == ProfileManager.EventType.FRIEND_OFFLINE && Config.instance().friendNotifications) {
+                Profile fr = (Profile) e.data;
+                m.getToasts().addToast(new SimpleToast(
+                        new TextComponent(fr.getFriendName() + " Is now offline."),
+                        new TextComponent(" "),
+                        MINETOGETHER_LOGO_25
+                ));
             }
         }));
     }

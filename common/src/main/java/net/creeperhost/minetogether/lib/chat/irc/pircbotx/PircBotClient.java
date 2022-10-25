@@ -215,6 +215,7 @@ public class PircBotClient implements IrcClient {
 
         PircBotUser user = computeUser(ircUser);
         user.bindIrcUser(ircUser);
+        chatState.profileManager.onUserOnline(user.getProfile());
     }
 
     @SubscribeEvent
@@ -226,6 +227,7 @@ public class PircBotClient implements IrcClient {
         if (user.getProfile() != getUserProfile()) {
             // Only unbind if it's not us
             user.bindIrcUser(null);
+            chatState.profileManager.onUserOffline(user.getProfile());
         }
     }
 

@@ -73,7 +73,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
             lookupProfileStale(mutedUser);
         }
         ownProfile = lookupProfile(ownHash);
-        SCHEDULED_FRIEND_EXECUTOR.scheduleAtFixedRate(this::updateFriends, 60, 60, TimeUnit.SECONDS);
+        SCHEDULED_FRIEND_EXECUTOR.scheduleAtFixedRate(this::updateFriends, 10, 60, TimeUnit.SECONDS);
     }
 
     /**
@@ -307,6 +307,24 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
         });
     }
 
+    public void onUserOnline(Profile profile) {
+        if (profile.isOnline) return;
+        profile.isOnline = true;
+
+        if (profile.isFriend()) {
+            fire(new ProfileManagerEvent(EventType.FRIEND_ONLINE, profile));
+        }
+    }
+
+    public void onUserOffline(Profile profile) {
+        if (!profile.isOnline) return;
+        profile.isOnline = false;
+
+        if (profile.isFriend()) {
+            fire(new ProfileManagerEvent(EventType.FRIEND_OFFLINE, profile));
+        }
+    }
+
     private void scheduleUpdate(Profile profile) {
         Consumer<ProfileData> onFinished = profile.onStartUpdating()
                 .andThen(p -> updateAliases(profile));
@@ -379,5 +397,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     public enum EventType {
         FRIEND_REQUEST_ADDED,
         FRIEND_REQUEST_ACCEPTED,
+        FRIEND_ONLINE,
+        FRIEND_OFFLINE,
     }
 }

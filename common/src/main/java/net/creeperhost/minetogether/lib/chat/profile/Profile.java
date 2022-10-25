@@ -40,7 +40,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     private boolean isPremium;
     private boolean isFriend;
     private boolean isMuted;
-    private boolean isOnline;
+    boolean isOnline;
 
     // Stale on creation.
     private boolean stale = true;
