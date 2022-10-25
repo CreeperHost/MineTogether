@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.web.ApiClient;
 import net.creeperhost.minetogether.lib.web.DynamicWebAuth;
 import net.creeperhost.minetogether.lib.web.apache.ApacheWebEngine;
+import net.creeperhost.minetogether.orderform.WebUtils;
 import net.creeperhost.minetogether.util.ModPackInfo;
 import net.creeperhost.minetogether.util.SignatureVerifier;
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +33,12 @@ public class MineTogether {
             .addUserAgentSegment("Modloader/" + ArchitecturyTarget.getCurrentTarget())
             .webAuth(AUTH)
             .build();
+    static {
+        WebUtils.userAgent += " MineTogether-lib/@VERSION@";
+        WebUtils.userAgent += " MineTogether-mod/@VERSION@";
+        WebUtils.userAgent += " Minecraft/" + Platform.getMinecraftVersion();
+        WebUtils.userAgent += " Modloader/" + ArchitecturyTarget.getCurrentTarget();
+    }
 
     public static void init() {
         LOGGER.info("Initializing MineTogether!");

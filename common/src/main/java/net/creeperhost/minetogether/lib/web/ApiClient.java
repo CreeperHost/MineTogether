@@ -58,7 +58,7 @@ public final class ApiClient {
             String value = authHeaders.get(authHeader);
             if (value == null) {
                 // Could be dev env, or something is borked.
-                LOGGER.warn("Missing required auth header '{}' for request '{}'", authHeader, apiRequest.url);
+//                LOGGER.warn("Missing required auth header '{}' for request '{}'", authHeader, apiRequest.url);
             } else {
                 request.header(authHeader, value);
             }

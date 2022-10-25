@@ -77,7 +77,13 @@ public class Config {
 
     @Nullable
     @Comment ("For modpack creators. Enter your 'Promo Code' here.")
-    public String promoCode = null;
+    public String promoCode = "";
+
+    @Comment ("For modpack creators. The pregen size when selected during orders.")
+    public int pregenDiameter = 120;
+
+    @Comment ("If the realms button should be replaced.")
+    public boolean replaceRealms = true;
 
     @Comment("Create _VERY_ verbose logs. May create hugenorums log files.")
     public boolean debugMode = false;
