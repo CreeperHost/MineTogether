@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.serverlist.gui;
 
+import net.covers1624.quack.collection.StreamableIterable;
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
 import net.creeperhost.minetogether.serverlist.data.ListType;
@@ -66,25 +67,16 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen {
     }
 
     private void updateServerList() {
-        // TODO purge use of ServerList here? seems redundant? We are effectively using it as a List.
-        ServerList serverList = new ServerList(Minecraft.getInstance());
-
-        int num = serverList.size();
-        for (int i = 0; i < num; i++) {
-            serverList.remove(serverList.get(i));
-        }
-
-        List<Server> servers = MineTogetherServerList.updateServers(listType);
-        for (Server server : servers) {
-            serverList.add(new ServerDataPublic(server));
-        }
-        updateServers(serverList);
+        updateServers(StreamableIterable.of(MineTogetherServerList.updateServers(listType))
+                .map(ServerDataPublic::new)
+                .toLinkedList()
+        );
     }
 
-    private void updateServers(ServerList serverList) {
+    private void updateServers(List<ServerDataPublic> serverList) {
         serverSelectionList.children().clear();
-        for (int i = 0; i < serverList.size(); ++i) {
-            this.serverSelectionList.children().add(new PublicServerEntry(this, serverSelectionList, serverList.get(i)));
+        for (ServerDataPublic data : serverList) {
+            serverSelectionList.children().add(new PublicServerEntry(this, serverSelectionList, data));
         }
     }
 }
