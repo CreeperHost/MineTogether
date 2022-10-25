@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.web.ApiClient;
 import net.creeperhost.minetogether.lib.web.DynamicWebAuth;
 import net.creeperhost.minetogether.lib.web.apache.ApacheWebEngine;
+import net.creeperhost.minetogether.util.ModPackInfo;
 import net.creeperhost.minetogether.util.SignatureVerifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +42,7 @@ public class MineTogether {
             LOGGER.warn("Debug mode enabled. Prepare for _VERY_ verbose logging!");
         }
 
+        ModPackInfo.init();
         switch (Platform.getEnv()) {
             case CLIENT -> MineTogetherClient.init();
             case SERVER -> MineTogetherServer.init();

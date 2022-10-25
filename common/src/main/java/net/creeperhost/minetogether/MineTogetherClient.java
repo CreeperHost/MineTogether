@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether;
 
 import net.creeperhost.minetogether.chat.MineTogetherChat;
-import net.minecraft.resources.ResourceLocation;
+import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,5 +18,6 @@ public class MineTogetherClient {
         LOGGER.info("Initializing MineTogetherClient!");
 
         MineTogetherChat.init();
+        MineTogetherServerList.init();
     }
 }

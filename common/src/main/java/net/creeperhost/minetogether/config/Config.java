@@ -72,9 +72,8 @@ public class Config {
         save();
     }
 
-    @Nullable
     @Comment ("For modpack creators. Enter your CurseForge project id here.")
-    public String curseProjectID = null;
+    public String curseProjectID = "";
 
     @Nullable
     @Comment ("For modpack creators. Enter your 'Promo Code' here.")
