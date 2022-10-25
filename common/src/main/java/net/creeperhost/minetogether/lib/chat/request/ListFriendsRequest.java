@@ -12,6 +12,8 @@ public class ListFriendsRequest extends ApiRequest<ListFriendsResponse> {
 
     public ListFriendsRequest(String target) {
         super("PUT", CH_API + "serverlist/listfriend", ListFriendsResponse.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
 
         jsonBody(ImmutableMap.of("hash", target), STRING_MAP_TYPE);
     }

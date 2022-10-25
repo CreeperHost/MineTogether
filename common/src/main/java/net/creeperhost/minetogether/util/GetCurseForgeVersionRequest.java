@@ -12,6 +12,8 @@ public class GetCurseForgeVersionRequest extends ApiRequest<GetCurseForgeVersion
 
     public GetCurseForgeVersionRequest(String base64) {
         super("GET", CH + "json/modpacks/modpacksch/" + base64, Response.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
     }
 
     public static class Response extends ApiResponse {

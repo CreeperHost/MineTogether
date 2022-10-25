@@ -12,6 +12,8 @@ public class StatisticsRequest extends ApiRequest<StatisticsRequest.Response> {
 
     public StatisticsRequest() {
         super("GET", MT_API + "stats/all", Response.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
     }
 
     public static class Response extends ApiResponse {

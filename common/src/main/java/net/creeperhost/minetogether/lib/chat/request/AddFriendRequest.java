@@ -13,6 +13,8 @@ public class AddFriendRequest extends ApiRequest<ApiResponse> {
 
     public AddFriendRequest(String ourHash, String friendCode, String desiredName) {
         super("PUT", CH_API + "serverlist/requestfriend", ApiResponse.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
 
         jsonBody(GSON, ImmutableMap.of(
                 "hash", ourHash,

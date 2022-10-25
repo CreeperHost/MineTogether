@@ -16,6 +16,8 @@ public class GetServerRequest extends ApiRequest<GetServerRequest.Response> {
 
     public GetServerRequest(String serverId) {
         super("PUT", CH_API + "serverlist/server", Response.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
 
         jsonBody(Map.of("serverid", serverId));
     }

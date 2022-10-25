@@ -20,6 +20,8 @@ public class GetServerListRequest extends ApiRequest<GetServerListRequest.Respon
 
     public GetServerListRequest(ListType listType, String userHash) {
         super("PUT", CH_API + "serverlist/list", Response.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
 
         Map<String, String> body = new HashMap<>();
         body.put("projectid", !ModPackInfo.base64FTBID.isEmpty() ? ModPackInfo.base64FTBID : ModPackInfo.curseID);

@@ -17,6 +17,8 @@ public class ServerListUpdateRequest extends ApiRequest<ServerListUpdateRequest.
 
     public ServerListUpdateRequest(String serverIp, String secret, String name, String projectId, String port, boolean inviteOnly) {
         super("PUT", CH_API + "serverlist/update", Response.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
 
         Map<String, String> body = new HashMap<>();
         if (!serverIp.isEmpty()) {

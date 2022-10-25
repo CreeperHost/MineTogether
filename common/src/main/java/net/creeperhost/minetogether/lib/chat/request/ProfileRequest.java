@@ -12,6 +12,8 @@ public class ProfileRequest extends ApiRequest<ProfileResponse> {
 
     public ProfileRequest(String target) {
         super("PUT", CH_API + "minetogether/profile", ProfileResponse.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
 
         jsonBody(ImmutableMap.of("target", target), STRING_MAP_TYPE);
     }

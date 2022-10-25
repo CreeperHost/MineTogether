@@ -12,6 +12,8 @@ public class GetCountryRequest extends ApiRequest<GetCountryRequest.Response> {
 
     public GetCountryRequest() {
         super("GET", CH + "json/datacentre/closest", Response.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
     }
 
     public static class Response extends ApiResponse {

@@ -13,6 +13,8 @@ public class RemoveFriendRequest extends ApiRequest<ApiResponse> {
 
     public RemoveFriendRequest(String friendCode, String ourHash) {
         super("PUT", CH_API + "serverlist/removefriend", ApiResponse.class);
+        requiredAuthHeaders.add("Fingerprint");
+        requiredAuthHeaders.add("Identifier");
 
         jsonBody(ImmutableMap.of(
                 "hash", ourHash,
