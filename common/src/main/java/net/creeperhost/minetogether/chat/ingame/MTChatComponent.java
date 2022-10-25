@@ -17,7 +17,10 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by covers1624 on 20/7/22.
@@ -184,6 +187,33 @@ public class MTChatComponent extends ChatComponent {
         }
 
         return false;
+    }
+
+    // TOOD unify with above and bellow.
+    @Nullable
+    public Style getStyleUnderMouse(double mouseX, double mouseY) {
+        if (!isChatFocused()) return null;
+
+        double x = mouseX - 2.0;
+        double y = (double) minecraft.getWindow().getGuiScaledHeight() - mouseY - 40.0;
+        x = Mth.floor(x / getScale());
+        y = Mth.floor(y / (getScale() * (minecraft.options.chatLineSpacing + 1.0)));
+        if (x < 0.0 || y < 0.0) return null;
+
+        int i = Math.min(getLinesPerPage(), trimmedMessages.size());
+        if (x <= (double) Mth.floor((double) getWidth() / getScale())) {
+            Objects.requireNonNull(minecraft.font);
+            if (y < (double) (9 * i + i)) {
+                Objects.requireNonNull(minecraft.font);
+                int j = (int) (y / 9.0 + (double) chatScrollbarPos);
+                if (j >= 0 && j < trimmedMessages.size()) {
+                    InGameDisplayableMessage message = findMessageForTrimmedMessage(trimmedMessages.get(j));
+                    if (message == null) return null;
+                    return minecraft.font.getSplitter().componentStyleAtWidth(message.getBuiltMessage(), (int) x);
+                }
+            }
+        }
+        return null;
     }
 
     private boolean handleClickedMessage(@Nullable InGameDisplayableMessage clickedMessage, double x) {

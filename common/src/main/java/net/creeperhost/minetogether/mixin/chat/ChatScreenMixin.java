@@ -7,12 +7,16 @@ import net.creeperhost.minetogether.chat.gui.FriendRequestScreen;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
+import net.creeperhost.minetogether.polylib.gui.PreviewRenderer;
 import net.creeperhost.minetogether.polylib.gui.RadioButton;
+import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +28,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
@@ -44,6 +51,25 @@ abstract class ChatScreenMixin extends Screen {
 
     @Shadow
     protected EditBox input;
+
+    private final PreviewRenderer previewRenderer = new PreviewRenderer(5, 5, 80, 60) {
+        @Override
+        protected URL getUrlUnderMouse(int mouseX, int mouseY) {
+            if (MineTogetherChat.target != ChatTarget.PUBLIC) return null;
+
+            Style style = MineTogetherChat.publicChat.getStyleUnderMouse(mouseX, mouseY);
+            if (style == null) return null;
+            HoverEvent event = style.getHoverEvent();
+            if (event == null || event.getAction() != MessageFormatter.SHOW_URL_PREVIEW) return null;
+            Component value = event.getValue(MessageFormatter.SHOW_URL_PREVIEW);
+
+            try {
+                return new URL(value.getString());
+            } catch (MalformedURLException ex) {
+                return null;
+            }
+        }
+    };
 
     protected ChatScreenMixin(Component component) {
         super(component);
@@ -85,6 +111,7 @@ abstract class ChatScreenMixin extends Screen {
             }
         }));
         dropdownButton.setEntries(MessageDropdownOption.VALUES);
+        dropdownButton.setFlipped(true);
 
         vanillaChatButton.linkButtons(mtChatButton);
         mtChatButton.linkButtons(vanillaChatButton);
@@ -92,6 +119,8 @@ abstract class ChatScreenMixin extends Screen {
             case VANILLA -> vanillaChatButton.setPressed(true);
             case PUBLIC -> mtChatButton.setPressed(true);
         }
+
+        addRenderableOnly(previewRenderer);
     }
 
     @Override
