@@ -47,5 +47,10 @@
     "minetogether:screen.settings.button.link": "Link Account",
     
     "minetogether:linkaccount1":"Link your Minecraft account to your MineTogether account.",
-    "minetogether:linkaccount2":"Linking your accounts will unlock abilities like being able to set your own nickname.\n\nThis will open a web-browser for you to sign in securely.,"
+    "minetogether:linkaccount2":"Linking your accounts will unlock abilities like being able to set your own nickname.\n\nThis will open a web-browser for you to sign in securely.,",
+    
+    "minetogether:new_user.1": "Welcome to MineTogether",
+    "minetogether:new_user.2": "MineTogether is a multiplayer enhancement mod that provides",
+    "minetogether:new_user.3": "a multitude of features like chat, friends list, server listing",
+    "minetogether:new_user.4": "and more. Join %s unique users."
 }

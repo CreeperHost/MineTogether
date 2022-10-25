@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.lib.web;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +71,8 @@ public final class ApiClient {
             if (body == null) {
                 return new ApiClientResponse<>(response, null);
             }
-            if (!WebConstants.JSON.equals(body.contentType())) {
+            // TODO, split on semicolon and parse both the content type and encoding.
+            if (!StringUtils.startsWith(body.contentType(), WebConstants.JSON)) {
                 throw new UnsupportedOperationException("Response for request '" + request.getUrl() + "' returned content type '" + body.contentType() + "'. I don't know how to handle this yet.");
             }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(body.open(), StandardCharsets.UTF_8))) {

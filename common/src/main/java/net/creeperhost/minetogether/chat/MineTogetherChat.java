@@ -62,6 +62,8 @@ public class MineTogetherChat {
             System.setProperty("net.covers1624.pircbot.logging.debug", "INFO");
             System.setProperty("net.covers1624.pircbot.logging.very_verbose", "true");
         }
+
+        ChatStatistics.pollStats();
     }
 
     public static void initChat(Gui gui) {
@@ -132,13 +134,13 @@ public class MineTogetherChat {
         }));
     }
 
-    public static boolean isFirstConnect() {
+    public static boolean isNewUser() {
         if (MineTogetherChat.getOurProfile().hasAccount()) return false;
 
         return !Config.instance().firstConnect.equalsIgnoreCase(CHAT_AUTH.getHash());
     }
 
-    public static void setFirstConnect() {
+    public static void setNewUserResponded() {
         Config.instance().firstConnect = CHAT_AUTH.getHash();
         Config.save();
     }

@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.chat.gui;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
+import net.creeperhost.minetogether.chat.ChatStatistics;
 import net.creeperhost.minetogether.chat.MessageDropdownOption;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.SettingsScreen;
@@ -69,6 +70,10 @@ public class ChatScreen extends Screen {
     @Nullable
     private Message clickedMessage;
 
+    private Button newUserButton;
+    private Button disableButton;
+    private boolean newUser = MineTogetherChat.isNewUser();
+
     public ChatScreen(Screen parent) {
         super(new TranslatableComponent("minetogether:screen.chat.title"));
         this.parent = parent;
@@ -132,6 +137,20 @@ public class ChatScreen extends Screen {
             }
         }));
         messageDropdownButton.setEntries(MessageDropdownOption.VALUES);
+
+        if (newUser) {
+            ChatStatistics.pollStats();
+
+            newUserButton = addRenderableWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, new TextComponent("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
+                MineTogetherChat.setNewUserResponded();
+                minecraft.setScreen(new ChatScreen(parent));
+            }));
+            disableButton = addRenderableWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, new TextComponent("Don't ask me again."), e -> {
+                MineTogetherChat.disableChat();
+                MineTogetherChat.setNewUserResponded();
+                minecraft.setScreen(parent);
+            }));
+        }
     }
 
     @Override
@@ -158,9 +177,19 @@ public class ChatScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
+    public void render(PoseStack pStack, int mouseX, int mouseY, float partialTicks) {
         renderDirtBackground(1);
-        super.render(poseStack, i, j, f);
+        super.render(pStack, mouseX, mouseY, partialTicks);
+        drawCenteredString(pStack, font, getTitle(), width / 2, 5, 0xFFFFFF);
+        if (newUser) {
+            fill(pStack, 10, chatList.getTop(), width - 10, chatList.getHeight(), 0x99000000);
+            fill(pStack, 10, chatList.getTop(), width - 10, chatList.getHeight(), 0x99000000);
+
+            drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.1"), width / 2, (height / 4) + 25, 0xFFFFFF);
+            drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.2"), width / 2, (height / 4) + 35, 0xFFFFFF);
+            drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.3"), width / 2, (height / 4) + 45, 0xFFFFFF);
+            drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.4", ChatStatistics.userCount), width / 2, (height / 4) + 55, 0xFFFFFF);
+        }
     }
 
     @Override
@@ -186,6 +215,8 @@ public class ChatScreen extends Screen {
         if (b) return true;
 
         if (!chatList.isMouseOver(mouseX, mouseY)) return false;
+        // No component clicks when new user.
+        if (newUser) return false;
 
         ChatScrollList.ChatLine line = chatList.getEntry(mouseX, mouseY);
         if (line == null) return false;

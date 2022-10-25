@@ -19,7 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author covers1624
@@ -134,10 +133,22 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
         return false;
     }
 
-    // TODO replace with AT.
+    // TODO replace with AT's
     @Nullable
     public ChatLine getEntry(double mouseX, double mouseY) {
         return getEntryAtPosition(mouseX, mouseY);
+    }
+
+    public int getTop() {
+        return y0;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     private class ScrollListDisplayableMessage extends DisplayableMessage<ChatLine> {
