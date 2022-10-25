@@ -147,6 +147,8 @@ public class MineTogetherChat {
 
     public static void disableChat() {
         CHAT_STATE.ircClient.stop();
+        Config.instance().chatEnabled = false;
+        Config.save();
     }
 
     public static void enableChat() {

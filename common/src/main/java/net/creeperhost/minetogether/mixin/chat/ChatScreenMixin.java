@@ -1,23 +1,25 @@
 package net.creeperhost.minetogether.mixin.chat;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.chat.ChatStatistics;
 import net.creeperhost.minetogether.chat.ChatTarget;
 import net.creeperhost.minetogether.chat.MessageDropdownOption;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.chat.gui.FriendRequestScreen;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.polylib.gui.PreviewRenderer;
 import net.creeperhost.minetogether.polylib.gui.RadioButton;
 import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.*;
 import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,7 +82,11 @@ abstract class ChatScreenMixin extends Screen {
             at = @At ("TAIL")
     )
     private void onInit(CallbackInfo ci) {
-        int x = Mth.ceil(((float) Minecraft.getInstance().gui.getChat().getWidth())) + 6;
+        if (!Config.instance().chatEnabled) return;
+
+        int cWidth = Minecraft.getInstance().gui.getChat().getWidth();
+        int cHeight = Minecraft.getInstance().gui.getChat().getHeight();
+        int x = Mth.ceil(((float) cWidth)) + 6;
 
         vanillaChatButton = new RadioButton(x, height - 215, 12, 87, new TranslatableComponent("minetogether:ingame.chat.local"))
                 .withTextScale(0.75F)
@@ -121,6 +127,20 @@ abstract class ChatScreenMixin extends Screen {
         }
 
         addRenderableOnly(previewRenderer);
+
+        if (MineTogetherChat.isNewUser() && MineTogetherChat.target == ChatTarget.PUBLIC) {
+            ChatStatistics.pollStats();
+
+            addRenderableWidget(new Button(6, height - ((cHeight + 80) / 2) + 45, cWidth - 2, 20, new TextComponent("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
+                MineTogetherChat.setNewUserResponded();
+                minecraft.setScreen(null);
+            }));
+            addRenderableWidget(new Button(6, height - ((cHeight + 80) / 2) + 70, cWidth - 2, 20, new TextComponent("Don't ask me again."), e -> {
+                MineTogetherChat.disableChat();
+                MineTogetherChat.setNewUserResponded();
+                clearWidgets();
+            }));
+        }
     }
 
     @Override
@@ -134,6 +154,21 @@ abstract class ChatScreenMixin extends Screen {
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void render(PoseStack poseStack, int i, int j, float f) {
+        if (MineTogetherChat.target == ChatTarget.PUBLIC && MineTogetherChat.isNewUser()) {
+            ChatComponent chatComponent = MineTogetherChat.publicChat;
+            int y = height - 43 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
+            fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, 0x99000000);
+
+            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether:new_user.1"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2), 0xFFFFFF);
+            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether:new_user.2"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 10, 0xFFFFFF);
+            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether:new_user.3"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 20, 0xFFFFFF);
+            drawCenteredString(poseStack, font, new TranslatableComponent("minetogether:new_user.4", ChatStatistics.userCount), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
+        }
+        super.render(poseStack, i, j, f);
     }
 
     private boolean tryClickMTChat(MTChatComponent mtChat, double mouseX, double mouseY) {
