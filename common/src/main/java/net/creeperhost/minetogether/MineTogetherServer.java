@@ -25,7 +25,7 @@ public class MineTogetherServer {
     public static String serverIp = "";
 
     public static void init() {
-        LOGGER.info("Initializing MineTogetherClient!");
+        LOGGER.info("Initializing MineTogetherServer!");
         LifecycleEvent.SERVER_STARTED.register(MineTogetherServer::serverStarted);
     }
 
