@@ -3,6 +3,7 @@ package net.creeperhost.minetogether;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.connect.MineTogetherConnect;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.orderform.OrderForm;
 import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
@@ -39,20 +40,9 @@ public class MineTogetherClient {
         MineTogetherChat.init();
         MineTogetherServerList.init();
         OrderForm.init();
+        MineTogetherConnect.init();
 
         ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
-    }
-
-    // TODO
-    public static Screen orderScreen() {
-        return new ConfirmScreen(e -> {
-            if (e) {
-                Util.getPlatform().openUri("https://creeperhost.net");
-            }
-        },
-                new TextComponent("Ordering not yet implemented!"),
-                new TextComponent("Open the CreeperHost website instead?")
-        );
     }
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {

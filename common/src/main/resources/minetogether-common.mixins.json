@@ -5,7 +5,11 @@
         "chat.ChatScreenMixin",
         "chat.InBedChatScreenMixin",
         "chat.ingame.ChatComponentMixin",
-        "chat.ingame.GuiMixin"
+        "chat.ingame.GuiMixin",
+        "connect.MixinIntegratedServer",
+        "connect.MixinServerSelectionListAccessor",
+        "connect.MixinShareToLanScreen",
+        "order.MixinServerSelectionList"
     ],
     "server": [
         "server.MixinDedicatedServerProperties"

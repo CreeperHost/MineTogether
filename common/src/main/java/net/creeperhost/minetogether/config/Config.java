@@ -82,6 +82,9 @@ public class Config {
     @Comment ("For modpack creators. The pregen size when selected during orders.")
     public int pregenDiameter = 120;
 
+    @Comment ("If the Multiplayer server list should have CreeperHost adverts.")
+    public boolean mpMenuEnabled = true;
+
     @Comment ("If the realms button should be replaced.")
     public boolean replaceRealms = true;
 
@@ -100,4 +103,6 @@ public class Config {
     // TODO Move to something in ~/.minetogether/?
     @Comment ("INTERNAL: Marker for tracking first connections.")
     public String firstConnect = "";
+
+    public String issueTrackerUrl = "https://pste.ch/";
 }

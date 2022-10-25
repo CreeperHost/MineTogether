@@ -18,6 +18,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.SimpleToast;
+import net.creeperhost.minetogether.util.ModPackInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
@@ -45,7 +46,7 @@ public class MineTogetherChat {
             Platform.getGameFolder().resolve("local/minetogether/mutedusers.json")
     );
 
-    public static ChatState CHAT_STATE = new ChatState(API, CHAT_AUTH, MUTED_USER_LIST, "{\"p\":\"-1\"}");
+    public static ChatState CHAT_STATE = new ChatState(API, CHAT_AUTH, MUTED_USER_LIST, ModPackInfo.realName);
 
     public static ChatComponent vanillaChat;
     public static MTChatComponent publicChat;
