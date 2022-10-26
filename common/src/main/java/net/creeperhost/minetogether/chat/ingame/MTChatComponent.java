@@ -15,6 +15,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -27,6 +29,8 @@ import java.util.Objects;
  */
 public class MTChatComponent extends ChatComponent {
 
+    private static final Logger LOGGER = LogManager.getLogger();
+
     // TODO tweak this.
     private static final int MAX_MESSAGE_HISTORY = 150;
 
@@ -38,6 +42,7 @@ public class MTChatComponent extends ChatComponent {
 
     private final LinkedList<Message> pendingMessages = new LinkedList<>();
     private final List<InGameDisplayableMessage> processedMessages = new ArrayList<>();
+    @Nullable
     private IrcChannel channel;
 
     @Nullable
@@ -117,6 +122,10 @@ public class MTChatComponent extends ChatComponent {
 
     @Override
     public void addRecentChat(String string) {
+        if (channel == null) {
+            LOGGER.error("Can't send message, chat is not bound!");
+            return;
+        }
         channel.sendMessage(string);
     }
 
