@@ -50,7 +50,9 @@ public class MutedUsersScreen extends Screen {
 
         addRenderableWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("minetogether:button.cancel"), e -> minecraft.setScreen(previous)));
         addRenderableWidget(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether:button.refresh"), e -> refreshList()));
-        addRenderableWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(previous))));
+        if (!(previous instanceof FriendsListScreen)) {
+            addRenderableWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
+        }
 
         refreshList();
     }

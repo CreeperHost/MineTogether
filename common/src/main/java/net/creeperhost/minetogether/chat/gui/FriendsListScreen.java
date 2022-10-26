@@ -114,7 +114,9 @@ public class FriendsListScreen extends Screen {
             Minecraft.getInstance().setScreen(new FriendRequestScreen(this, targetProfile, FriendRequestScreen.Type.UPDATE));
         }));
 
-        addRenderableWidget(new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.muted"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
+        if (!(parent instanceof MutedUsersScreen)) {
+            addRenderableWidget(new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.muted"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
+        }
 
         tooltips = new TooltipContainer(this);
         addRenderableOnly(tooltips);
