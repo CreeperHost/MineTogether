@@ -41,7 +41,9 @@ public abstract class OrderServerScreen extends Screen {
     public void addNavigationButtons() {
         addRenderableWidget(this.buttonPrev = new Button(10, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
 
-        addRenderableWidget(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
+        if (stepId != 4) {
+            addRenderableWidget(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
+        }
 
         addRenderableWidget(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.next"), (button) ->
         {
