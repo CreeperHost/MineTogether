@@ -9,7 +9,6 @@ import net.creeperhost.minetogether.lib.chat.request.IRCServerListRequest;
 import net.creeperhost.minetogether.lib.chat.request.IRCServerListResponse;
 import net.creeperhost.minetogether.lib.chat.util.HashLength;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -63,27 +62,25 @@ public class PircBotClient implements IrcClient {
     }
 
     private void startClient() {
-        EventSubscriberListener eventListener = new EventSubscriberListener();
-        eventListener.addListener(this);
-        Configuration.Builder baseConfig = new Configuration.Builder()
-                .setName(nick)
-                .setRealName(realName)
-                .setLogin("MineTogether")
-                .setListenerManager(SequentialListenerManager.newDefault()
-                        .addListenerSequential(eventListener)
-                )
-
-                .setAutoReconnect(true)
-                .setAutoReconnectAttempts(-1)
-                .setAutoReconnectDelay(new StaticReadonlyDelay(TimeUnit.SECONDS.toMillis(5)))
-                .setSocketTimeout((int) TimeUnit.SECONDS.toMillis(30))
-                .setEncoding(StandardCharsets.UTF_8);
         clientThread = new Thread(() -> {
             LOGGER.debug("Starting Pircbotx MineTogether thread.");
             try {
                 ApiClientResponse<IRCServerListResponse> response = API.execute(new IRCServerListRequest());
                 serverDetails = response.apiResponse();
-                Configuration config = new Configuration.Builder(baseConfig)
+                EventSubscriberListener eventListener = new EventSubscriberListener();
+                eventListener.addListener(this);
+                Configuration config = new Configuration.Builder()
+                        .setName(nick)
+                        .setRealName(realName)
+                        .setLogin("MineTogether")
+                        .setListenerManager(SequentialListenerManager.newDefault()
+                                .addListenerSequential(eventListener)
+                        )
+                        .setAutoReconnect(true)
+                        .setAutoReconnectAttempts(-1)
+                        .setAutoReconnectDelay(new StaticReadonlyDelay(TimeUnit.SECONDS.toMillis(5)))
+                        .setSocketTimeout((int) TimeUnit.SECONDS.toMillis(30))
+                        .setEncoding(StandardCharsets.UTF_8)
                         .addAutoJoinChannel(serverDetails.getChannel())
                         .addServer(serverDetails.getServer().getAddress(), serverDetails.getServer().getPort())
                         .buildConfiguration();
