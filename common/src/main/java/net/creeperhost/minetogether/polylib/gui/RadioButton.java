@@ -112,6 +112,13 @@ public class RadioButton extends Button {
     @Override
     public void onClick(double d, double e) {
         super.onClick(d, e);
+        selectButton();
+    }
+
+    /**
+     * Selects the button, but does not fire the click event.
+     */
+    public void selectButton() {
         pressed = true;
         for (RadioButton button : otherButtons) {
             button.pressed = false;

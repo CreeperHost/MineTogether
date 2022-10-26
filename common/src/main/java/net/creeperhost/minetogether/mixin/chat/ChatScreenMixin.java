@@ -139,6 +139,8 @@ abstract class ChatScreenMixin extends Screen {
                 clearWidgets();
             }));
         }
+
+        switchToVanillaIfCommand();
     }
 
     @Inject(
@@ -182,6 +184,8 @@ abstract class ChatScreenMixin extends Screen {
             at = @At ("TAIL")
     )
     public void tick(CallbackInfo ci) {
+        if (switchToVanillaIfCommand()) return;
+
         IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
         if (state == IrcState.CONNECTED || MineTogetherChat.target == ChatTarget.VANILLA) {
             input.setEditable(true);
@@ -220,5 +224,14 @@ abstract class ChatScreenMixin extends Screen {
             case VANILLA -> instance.sendMessage(s);
             case PUBLIC -> MineTogetherChat.publicChat.addRecentChat(s);
         }
+    }
+
+    private boolean switchToVanillaIfCommand() {
+        if (MineTogetherChat.target == ChatTarget.VANILLA)  return false;
+        if (!input.getValue().startsWith("/")) return false;
+
+        MineTogetherChat.target = ChatTarget.VANILLA;
+        vanillaChatButton.selectButton();
+        return true;
     }
 }
