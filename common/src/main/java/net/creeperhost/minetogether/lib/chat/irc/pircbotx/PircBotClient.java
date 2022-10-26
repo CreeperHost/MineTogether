@@ -144,6 +144,7 @@ public class PircBotClient implements IrcClient {
     @Nullable
     @Override
     public PircBotChannel getPrimaryChannel() {
+        if (serverDetails == null) return null;
         return getChannel(serverDetails.getChannel());
     }
 

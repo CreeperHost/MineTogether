@@ -79,4 +79,11 @@ abstract class GuiMixin {
         };
     }
 
+    @Inject(
+            method = "tick()V",
+            at = @At("TAIL")
+    )
+    private void onTick(CallbackInfo ci) {
+        MineTogetherChat.publicChat.tick();
+    }
 }

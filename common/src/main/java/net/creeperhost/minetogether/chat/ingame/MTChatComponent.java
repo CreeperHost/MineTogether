@@ -64,6 +64,15 @@ public class MTChatComponent extends ChatComponent {
         });
     }
 
+    public void tick() {
+        // Fallback to force bind the channel if it is null.
+        if (channel == null) {
+            if (target == ChatTarget.PUBLIC) {
+                channel = MineTogetherChat.CHAT_STATE.ircClient.getPrimaryChannel();
+            }
+        }
+    }
+
     @Override
     public void render(PoseStack poseStack, int i) {
         if (!pendingMessages.isEmpty()) {
