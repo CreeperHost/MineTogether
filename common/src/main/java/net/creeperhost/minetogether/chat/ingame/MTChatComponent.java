@@ -8,10 +8,12 @@ import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.GuiMessage;
+import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -156,20 +158,6 @@ public class MTChatComponent extends ChatComponent {
     }
 
     @Override
-    public void removeById(int i) {
-        assert !internalUpdate; // We dont use ID's
-
-        MineTogetherChat.vanillaChat.removeById(i);
-    }
-
-    @Override
-    public void addMessage(Component component, int i, int j, boolean bl) {
-        assert !internalUpdate; // We don't use this to add messages.
-
-        MineTogetherChat.vanillaChat.addMessage(component, i, j, bl);
-    }
-
-    @Override
     public void addMessage(Component component) {
         assert !internalUpdate; // We don't use this to add messages.
 
@@ -177,10 +165,24 @@ public class MTChatComponent extends ChatComponent {
     }
 
     @Override
-    public void addMessage(Component component, int i) {
+    public void addMessage(Component component, @Nullable MessageSignature messageSignature, @Nullable GuiMessageTag guiMessageTag) {
         assert !internalUpdate; // We don't use this to add messages.
 
-        MineTogetherChat.vanillaChat.addMessage(component, i);
+        MineTogetherChat.vanillaChat.addMessage(component, messageSignature, guiMessageTag);
+    }
+
+    @Override
+    public void addMessage(Component component, @Nullable MessageSignature messageSignature, int i, @Nullable GuiMessageTag guiMessageTag, boolean bl) {
+        assert !internalUpdate; // We don't use this to add messages.
+
+        MineTogetherChat.vanillaChat.addMessage(component, messageSignature, i, guiMessageTag, bl);
+    }
+
+    @Override
+    public void deleteMessage(MessageSignature messageSignature) {
+        assert !internalUpdate; // We don't use this to add messages.
+
+        MineTogetherChat.vanillaChat.deleteMessage(messageSignature);
     }
 
     public boolean handleClick(double mouseX, double mouseY) {
@@ -189,7 +191,7 @@ public class MTChatComponent extends ChatComponent {
         double x = mouseX - 2.0;
         double y = (double) minecraft.getWindow().getGuiScaledHeight() - mouseY - 40.0;
         x = Mth.floor(x / getScale());
-        y = Mth.floor(y / (getScale() * (minecraft.options.chatLineSpacing + 1.0)));
+        y = Mth.floor(y / (getScale() * (minecraft.options.chatLineSpacing().get() + 1.0)));
         if (x < 0.0 || y < 0.0) return false;
 
         int i = Math.min(getLinesPerPage(), trimmedMessages.size());
@@ -215,7 +217,7 @@ public class MTChatComponent extends ChatComponent {
         double x = mouseX - 2.0;
         double y = (double) minecraft.getWindow().getGuiScaledHeight() - mouseY - 40.0;
         x = Mth.floor(x / getScale());
-        y = Mth.floor(y / (getScale() * (minecraft.options.chatLineSpacing + 1.0)));
+        y = Mth.floor(y / (getScale() * (minecraft.options.chatLineSpacing().get() + 1.0)));
         if (x < 0.0 || y < 0.0) return null;
 
         int i = Math.min(getLinesPerPage(), trimmedMessages.size());
@@ -252,7 +254,7 @@ public class MTChatComponent extends ChatComponent {
     }
 
     @Nullable
-    private InGameDisplayableMessage findMessageForTrimmedMessage(GuiMessage<FormattedCharSequence> trimmedMessage) {
+    private InGameDisplayableMessage findMessageForTrimmedMessage(GuiMessage.Line trimmedMessage) {
         // Little slow, realistically we should have a lookup map, but would be a pain to maintain.
         // This searches from the most recent chat message to the oldest.
         for (InGameDisplayableMessage processedMessage : processedMessages) {
@@ -272,7 +274,7 @@ public class MTChatComponent extends ChatComponent {
         clickedMessage = null;
     }
 
-    private class InGameDisplayableMessage extends DisplayableMessage<GuiMessage<FormattedCharSequence>> {
+    private class InGameDisplayableMessage extends DisplayableMessage<GuiMessage.Line> {
 
         private InGameDisplayableMessage(Message message) {
             super(message);
@@ -284,12 +286,12 @@ public class MTChatComponent extends ChatComponent {
         }
 
         @Override
-        protected GuiMessage<FormattedCharSequence> createMessage(int addTime, FormattedCharSequence message) {
-            return new GuiMessage<>(addTime, message, 0);
+        protected GuiMessage.Line createMessage(int addTime, FormattedCharSequence message) {
+            return new GuiMessage.Line(addTime, message, null, true);// TODO true is not correct here, we need to pass it down.
         }
 
         @Override
-        protected int getMessageIndex(GuiMessage<FormattedCharSequence> message) {
+        protected int getMessageIndex(GuiMessage.Line message) {
             return trimmedMessages.indexOf(message);
         }
 
@@ -299,7 +301,7 @@ public class MTChatComponent extends ChatComponent {
         }
 
         @Override
-        protected void addMessage(int index, GuiMessage<FormattedCharSequence> message) {
+        protected void addMessage(int index, GuiMessage.Line message) {
             trimmedMessages.add(index, message);
         }
 

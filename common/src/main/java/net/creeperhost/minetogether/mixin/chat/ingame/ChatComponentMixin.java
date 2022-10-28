@@ -59,8 +59,8 @@ abstract class ChatComponentMixin {
 
             // If we are on a MineTogether tab, draw our logo.
             if (MineTogetherChat.target != ChatTarget.VANILLA) {
-                int w = Mth.ceil((float) getWidth() / (float) minecraft.options.chatScale);
-                int h = Mth.ceil((float) getHeight() / (float) minecraft.options.chatScale);
+                int w = Mth.ceil((float) getWidth() / minecraft.options.chatScale().get().floatValue());
+                int h = Mth.ceil((float) getHeight() / minecraft.options.chatScale().get().floatValue());
                 drawLogo(poseStack, minecraft.font, w + 6, h + 6, -2, getHeight() - 340, 0.75F);
             }
         }

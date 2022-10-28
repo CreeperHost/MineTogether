@@ -13,8 +13,8 @@ import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.ShareToLanScreen;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 
 import java.util.Iterator;
@@ -33,17 +33,17 @@ public class GuiShareToFriends extends ShareToLanScreen {
     @Override
     public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         renderBackground(matrixStack);
-        drawCenteredString(matrixStack, this.font, new TranslatableComponent("minetogether.connect.open.title"), this.width / 2, 50, 16777215);
+        drawCenteredString(matrixStack, this.font, Component.translatable("minetogether.connect.open.title"), this.width / 2, 50, 16777215);
         if (ConnectHelper.isEnabled) {
-            drawCenteredString(matrixStack, this.font, new TranslatableComponent("minetogether.connect.open.settings"), this.width / 2, 82, 16777215);
+            drawCenteredString(matrixStack, this.font, Component.translatable("minetogether.connect.open.settings"), this.width / 2, 82, 16777215);
         } else {
             FormattedText renderComponent;
             String findStr = "website:";
             String sanitisedAuthError = ConnectMain.authError.substring(findStr.length());
             if (ConnectMain.authError.contains(findStr)) {
-                renderComponent = new TranslatableComponent("minetogether.connect.unavailable.website", sanitisedAuthError);
+                renderComponent = Component.translatable("minetogether.connect.unavailable.website", sanitisedAuthError);
             } else {
-                renderComponent = new TranslatableComponent("minetogether.connect.unavailable", ConnectMain.authError);
+                renderComponent = Component.translatable("minetogether.connect.unavailable", ConnectMain.authError);
             }
 
             List<FormattedCharSequence> formattedCharSequences = ComponentRenderUtils.wrapComponents(renderComponent, this.width - 5, this.minecraft.font);
@@ -73,13 +73,12 @@ public class GuiShareToFriends extends ShareToLanScreen {
             startButton.active = false;
             startButton.visible = false;
 
-            addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, new TranslatableComponent("minetogether.connect.open.start"), (button1) ->
+            addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, Component.translatable("minetogether.connect.open.start"), (button1) ->
             {
                 this.minecraft.setScreen(null);
                 MixinShareToLanScreen thisMixin = (MixinShareToLanScreen) this;
                 ConnectHelper.shareToFriends(thisMixin.getGameMode(), thisMixin.getCommands());
-                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.attempting");
-                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.attempting"));
             }));
         } else {
             AbstractWidget cancelButton = ButtonHelper.removeButton("gui.cancel", this);

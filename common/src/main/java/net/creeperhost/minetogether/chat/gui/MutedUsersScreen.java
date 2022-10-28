@@ -10,8 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +29,7 @@ public class MutedUsersScreen extends Screen {
     private EditBox searchBox;
 
     public MutedUsersScreen(Screen previous) {
-        super(new TranslatableComponent("minetogether:screen.muted.title"));
+        super(Component.translatable("minetogether:screen.muted.title"));
         this.previous = previous;
     }
 
@@ -44,14 +43,14 @@ public class MutedUsersScreen extends Screen {
         }
         addRenderableWidget(list);
 
-        searchBox = new EditBox(font, width / 2 - 80, height - 32, 160, 20, TextComponent.EMPTY);
+        searchBox = new EditBox(font, width / 2 - 80, height - 32, 160, 20, Component.empty());
         searchBox.setSuggestion("Search");
         addRenderableWidget(searchBox);
 
-        addRenderableWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("minetogether:button.cancel"), e -> minecraft.setScreen(previous)));
-        addRenderableWidget(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether:button.refresh"), e -> refreshList()));
+        addRenderableWidget(new Button(5, height - 26, 100, 20, Component.translatable("minetogether:button.cancel"), e -> minecraft.setScreen(previous)));
+        addRenderableWidget(new Button(width - 105, height - 26, 100, 20, Component.translatable("minetogether:button.refresh"), e -> refreshList()));
         if (!(previous instanceof FriendsListScreen)) {
-            addRenderableWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
+            addRenderableWidget(new Button(width - 105, 5, 100, 20, Component.translatable("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
         }
 
         refreshList();

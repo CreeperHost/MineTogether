@@ -23,7 +23,7 @@ public abstract class DisplayableMessage<M> {
     private final Object listener;
     private final List<M> trimmedLines = new LinkedList<>();
     @Nullable
-    private GuiMessage<Component> builtMessage;
+    private GuiMessage builtMessage;
 
     protected DisplayableMessage(Message message) {
         this.message = message;
@@ -40,11 +40,11 @@ public abstract class DisplayableMessage<M> {
     }
 
     public void format() {
-        int addTime = builtMessage != null ? builtMessage.getAddedTime() : mc.gui.getGuiTicks();
-        builtMessage = new GuiMessage<>(addTime, MessageFormatter.formatMessage(message), 0);
+        int addTime = builtMessage != null ? builtMessage.addedTime() : mc.gui.getGuiTicks();
+        builtMessage = new GuiMessage(addTime, MessageFormatter.formatMessage(message), null, null);
 
         int maxLen = Mth.floor(getChatWidth());
-        List<FormattedCharSequence> lines = ComponentRenderUtils.wrapComponents(builtMessage.getMessage(), maxLen, mc.font);
+        List<FormattedCharSequence> lines = ComponentRenderUtils.wrapComponents(builtMessage.content(), maxLen, mc.font);
         for (FormattedCharSequence line : lines) {
             trimmedLines.add(createMessage(addTime, line));
         }
@@ -59,7 +59,7 @@ public abstract class DisplayableMessage<M> {
 
     @Nullable
     public Component getBuiltMessage() {
-        return builtMessage.getMessage();
+        return builtMessage.content();
     }
 
     public Message getMessage() {

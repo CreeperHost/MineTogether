@@ -21,9 +21,8 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +59,7 @@ public class ChatScreen extends Screen {
     private boolean newUser = MineTogetherChat.isNewUser();
 
     public ChatScreen(Screen parent) {
-        super(new TranslatableComponent("minetogether:screen.chat.title"));
+        super(Component.translatable("minetogether:screen.chat.title"));
         this.parent = parent;
     }
 
@@ -83,7 +82,7 @@ public class ChatScreen extends Screen {
             attach(channel);
         }
         boolean shouldFocusEditBox = sendEditBox == null || sendEditBox.isFocused();
-        sendEditBox = new EditBox(minecraft.font, 11, height - 48, width - 22, 20, sendEditBox, TextComponent.EMPTY);
+        sendEditBox = new EditBox(minecraft.font, 11, height - 48, width - 22, 20, sendEditBox, Component.empty());
         sendEditBox.setFocus(shouldFocusEditBox);
         sendEditBox.setMaxLength(256);
 
@@ -93,13 +92,13 @@ public class ChatScreen extends Screen {
         addRenderableWidget(new IconButton(width - 124, 5, 3, Constants.WIDGETS_SHEET, e -> {
             minecraft.setScreen(new SettingsScreen(this));
         }));
-        addRenderableWidget(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TranslatableComponent("minetogether:button.cancel"), button -> {
+        addRenderableWidget(new Button(width - 100 - 5, height - 5 - 20, 100, 20, Component.translatable("minetogether:button.cancel"), button -> {
             minecraft.setScreen(parent);
         }));
 
         addRenderableWidget(connectionStatus = new StringButton(8, height - 20, 70, 20, false, () -> {
             IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
-            return new TextComponent(ChatConstants.STATE_FORMAT_LOOKUP.get(state) + "\u2022" + " " + ChatFormatting.WHITE + ChatConstants.STATE_DESC_LOOKUP.get(state));
+            return Component.literal(ChatConstants.STATE_FORMAT_LOOKUP.get(state) + "\u2022" + " " + ChatFormatting.WHITE + ChatConstants.STATE_DESC_LOOKUP.get(state));
         }, button -> {
             if (MineTogetherChat.CHAT_STATE.ircClient.getState() == IrcState.BANNED) {
                 minecraft.setScreen(new ConfirmScreen(t -> {
@@ -107,11 +106,11 @@ public class ChatScreen extends Screen {
                         Util.getPlatform().openUri("https://minetogether.io/profile/standing");
                     }
                     minecraft.setScreen(this);
-                }, new TranslatableComponent("minetogether:screen.banned.line1"), new TranslatableComponent("minetogether:screen.banned.line2")));
+                }, Component.translatable("minetogether:screen.banned.line1"), Component.translatable("minetogether:screen.banned.line2")));
             }
         }));
 
-        addRenderableWidget(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
+        addRenderableWidget(friendsList = new Button(5, 5, 100, 20, Component.translatable("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
 
         messageDropdownButton = addRenderableWidget(new DropdownButton<>(100, 20, clicked -> {
             assert clickedMessage != null;
@@ -134,11 +133,11 @@ public class ChatScreen extends Screen {
         if (newUser) {
             ChatStatistics.pollStats();
 
-            newUserButton = addRenderableWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, new TextComponent("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
+            newUserButton = addRenderableWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, Component.literal("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
                 MineTogetherChat.setNewUserResponded();
                 minecraft.setScreen(new ChatScreen(parent));
             }));
-            disableButton = addRenderableWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, new TextComponent("Don't ask me again."), e -> {
+            disableButton = addRenderableWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, Component.literal("Don't ask me again."), e -> {
                 MineTogetherChat.disableChat();
                 MineTogetherChat.setNewUserResponded();
                 minecraft.setScreen(parent);
@@ -177,7 +176,7 @@ public class ChatScreen extends Screen {
 
         sendEditBox.setFocus(false);
         sendEditBox.setEditable(false);
-        sendEditBox.setSuggestion(new TranslatableComponent(ChatConstants.STATE_SUGGESTION_LOOKUP.get(state)).getString());
+        sendEditBox.setSuggestion(Component.translatable(ChatConstants.STATE_SUGGESTION_LOOKUP.get(state)).getString());
     }
 
     @Override
@@ -189,10 +188,10 @@ public class ChatScreen extends Screen {
             fill(pStack, 10, chatList.getTop(), width - 10, chatList.getHeight(), 0x99000000);
             fill(pStack, 10, chatList.getTop(), width - 10, chatList.getHeight(), 0x99000000);
 
-            drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.1"), width / 2, (height / 4) + 25, 0xFFFFFF);
-            drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.2"), width / 2, (height / 4) + 35, 0xFFFFFF);
-            drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.3"), width / 2, (height / 4) + 45, 0xFFFFFF);
-            drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.4", ChatStatistics.userCount), width / 2, (height / 4) + 55, 0xFFFFFF);
+            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.1"), width / 2, (height / 4) + 25, 0xFFFFFF);
+            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.2"), width / 2, (height / 4) + 35, 0xFFFFFF);
+            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.3"), width / 2, (height / 4) + 45, 0xFFFFFF);
+            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.4", ChatStatistics.userCount), width / 2, (height / 4) + 55, 0xFFFFFF);
         }
     }
 

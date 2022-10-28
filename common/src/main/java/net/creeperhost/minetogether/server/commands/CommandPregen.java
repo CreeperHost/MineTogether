@@ -8,7 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 
 public class CommandPregen {
@@ -51,7 +51,7 @@ public class CommandPregen {
         int chunkMaxZ = zStartChunk + (zDiameter / 2);
 
         PregenHandler.addTask(dimention.dimension(), chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick, preventJoin);
-        cs.sendSuccess(new TranslatableComponent("new PregenTask added for " + dimention.dimension().location()), false);
+        cs.sendSuccess(Component.literal("new PregenTask added for " + dimention.dimension().location()), false);
         return 0;
     }
 

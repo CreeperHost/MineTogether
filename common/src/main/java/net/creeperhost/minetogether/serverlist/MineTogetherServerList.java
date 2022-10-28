@@ -21,7 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -71,7 +71,7 @@ public class MineTogetherServerList {
         if (!(screen instanceof JoinMultiplayerScreen mpScreen)) return;
         if (screen instanceof JoinMultiplayerScreenPublic) return;
 
-        Button serverListButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether:screen.multiplayer.serverlist"), e -> {
+        Button serverListButton = new Button(screen.width - 105, 5, 100, 20, Component.translatable("minetogether:screen.multiplayer.serverlist"), e -> {
             Minecraft.getInstance().setScreen(new ServerTypeScreen(mpScreen));
         });
         serverListButton.active = !MineTogetherChat.isNewUser();

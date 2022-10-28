@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.server.IntegratedServer;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.concurrent.CompletableFuture;
@@ -54,7 +54,7 @@ public class MineTogetherConnect {
                     openToLan.y = feedBack.y;
                 }
 
-                Button guiButton = new Button(screen.width / 2 - 102, screen.height / 4 + 72 + -16, 98, 20, new TranslatableComponent("minetogether.connect.open"), (button) -> Minecraft.getInstance().setScreen(new GuiShareToFriends(screen)));
+                Button guiButton = new Button(screen.width / 2 - 102, screen.height / 4 + 72 + -16, 98, 20, Component.translatable("minetogether.connect.open"), (button) -> Minecraft.getInstance().setScreen(new GuiShareToFriends(screen)));
 
                 guiButton.active = !integratedServer.isPublished();
                 ScreenHooks.addRenderableWidget(screen, guiButton);
@@ -62,7 +62,7 @@ public class MineTogetherConnect {
                 if (bugs == null || feedBack == null) return;
 
                 //TODO: move this to somewhere else, as not really relevant to the connect module
-                Button ourFeedback = new Button(bugs.x, options.y, feedBack.getWidth(), 20, new TranslatableComponent("menu.reportBugs"), (button) ->
+                Button ourFeedback = new Button(bugs.x, options.y, feedBack.getWidth(), 20, Component.translatable("menu.reportBugs"), (button) ->
                 {
                     String s = Config.instance().issueTrackerUrl;
                     Minecraft.getInstance().setScreen(new ConfirmLinkScreen((p_213069_2_) ->

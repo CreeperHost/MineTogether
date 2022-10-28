@@ -10,8 +10,6 @@ import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.net.UnknownHostException;
 import java.util.List;
@@ -25,9 +23,9 @@ public class OurServerListEntryLanDetected extends ServerSelectionList.NetworkSe
     final ServerData fullServerData;
     private final ServerSelectionList mixinServerSelectionList;
     private final static Pattern pattern = Pattern.compile("^(\\d+)/(\\d+)$");
-    private final static Component FULL_COMPONENT = new TranslatableComponent("minetogether.connect.join.full.descript").withStyle(ChatFormatting.RED);
+    private final static Component FULL_COMPONENT = Component.translatable("minetogether.connect.join.full.descript").withStyle(ChatFormatting.RED);
     private final static int fullComponentWidth = Minecraft.getInstance().font.width(FULL_COMPONENT);
-    public final static Component FULL_MESSAGE_COMPONENT = new TranslatableComponent("minetogether.connect.join.full");
+    public final static Component FULL_MESSAGE_COMPONENT = Component.translatable("minetogether.connect.join.full");
     private final static List<Component> FULL_MESSAGE_COMPONENT_LIST = ImmutableList.of(FULL_MESSAGE_COMPONENT);
     private boolean full = false;
 
@@ -44,8 +42,8 @@ public class OurServerListEntryLanDetected extends ServerSelectionList.NetworkSe
         if (!this.fullServerData.pinged) {
             this.fullServerData.pinged = true;
             this.fullServerData.ping = -2L;
-            this.fullServerData.motd = TextComponent.EMPTY;
-            this.fullServerData.status = TextComponent.EMPTY;
+            this.fullServerData.motd = Component.empty();
+            this.fullServerData.status = Component.empty();
             MixinServerSelectionListAccessor.getPingThreadPool().submit(() -> {
                 try {
                     this.joinMultiplayerScreen.getPinger().pingServer(this.fullServerData, () -> {

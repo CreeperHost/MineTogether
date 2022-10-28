@@ -6,7 +6,7 @@ import net.creeperhost.minetogether.orderform.data.IOrderValidation;
 import net.creeperhost.minetogether.orderform.screen.PersonalDetailsScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class TextFieldDetails extends EditBox {
     private DefferedValidation pendingValidation = null;
 
     public TextFieldDetails(PersonalDetailsScreen gui, int id, String displayString, String def, int x, int y, int width, int height, ArrayList<IOrderValidation> validators, boolean canBeFocused) {
-        super(Minecraft.getInstance().font, x, y, width, height, new TranslatableComponent(""));
+        super(Minecraft.getInstance().font, x, y, width, height, Component.translatable(""));
 
         this.ourID = id;
 

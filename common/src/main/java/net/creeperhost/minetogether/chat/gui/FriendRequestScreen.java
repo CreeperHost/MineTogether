@@ -8,10 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -55,14 +52,14 @@ public class FriendRequestScreen extends Screen {
 
     @Override
     protected void init() {
-        cancelButton = addRenderableWidget(new Button(width / 2 - 180, height - 50, 80, 20, new TranslatableComponent("minetogether:button.cancel"), e -> {
+        cancelButton = addRenderableWidget(new Button(width / 2 - 180, height - 50, 80, 20, Component.translatable("minetogether:button.cancel"), e -> {
             minecraft.setScreen(previous);
         }));
 
         acceptButton = addRenderableWidget(new Button(width / 2 + 100, height - 50, 80, 20, type.button, this::onAccept));
 
         String boxString = nameBox != null ? nameBox.getValue() : target.isFriend() ? target.getFriendName() : target.getDisplayName();
-        nameBox = addRenderableWidget(new EditBox(minecraft.font, width / 2 - 100, height / 2 - 10, 200, 20, new TextComponent("")));
+        nameBox = addRenderableWidget(new EditBox(minecraft.font, width / 2 - 100, height / 2 - 10, 200, 20, Component.empty()));
 
         nameBox.setValue(boxString);
 
@@ -113,19 +110,19 @@ public class FriendRequestScreen extends Screen {
 
     public enum Type {
         REQUEST(
-                new TranslatableComponent("minetogether:screen.friendreq.title.request"),
-                new TranslatableComponent("minetogether:screen.friendreq.button.request"),
-                new TranslatableComponent("minetogether:screen.friendreq.desc.request")
+                Component.translatable("minetogether:screen.friendreq.title.request"),
+                Component.translatable("minetogether:screen.friendreq.button.request"),
+                Component.translatable("minetogether:screen.friendreq.desc.request")
         ),
         ACCEPT(
-                new TranslatableComponent("minetogether:screen.friendreq.title.accept"),
-                new TranslatableComponent("minetogether:screen.friendreq.button.accept"),
-                new TranslatableComponent("minetogether:screen.friendreq.desc.accept")
+                Component.translatable("minetogether:screen.friendreq.title.accept"),
+                Component.translatable("minetogether:screen.friendreq.button.accept"),
+                Component.translatable("minetogether:screen.friendreq.desc.accept")
         ),
         UPDATE(
-                new TranslatableComponent("minetogether:screen.friendreq.title.update"),
-                new TranslatableComponent("minetogether:screen.friendreq.button.update"),
-                new TranslatableComponent("minetogether:screen.friendreq.desc.update")
+                Component.translatable("minetogether:screen.friendreq.title.update"),
+                Component.translatable("minetogether:screen.friendreq.button.update"),
+                Component.translatable("minetogether:screen.friendreq.desc.update")
         );
 
         private final Component title;

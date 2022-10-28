@@ -9,8 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-import static net.minecraft.network.chat.TextComponent.EMPTY;
-
 /**
  * A simple button which renders as a single string with no background.
  * <p>
@@ -34,7 +32,7 @@ public class StringButton extends Button {
     }
 
     public StringButton(int x, int y, int width, int height, boolean centered, Supplier<Component> textSupplier, OnPress onPress) {
-        super(x, y, width, height, EMPTY, onPress, NO_TOOLTIP);
+        super(x, y, width, height, Component.empty(), onPress, NO_TOOLTIP);
         this.textSupplier = textSupplier;
         this.centered = centered;
     }

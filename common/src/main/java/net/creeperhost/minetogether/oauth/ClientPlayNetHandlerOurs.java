@@ -32,10 +32,7 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     //@formatter:off
     @Override public void handleAddEntity(ClientboundAddEntityPacket clientboundAddEntityPacket) { }
     @Override public void handleAddExperienceOrb(ClientboundAddExperienceOrbPacket clientboundAddExperienceOrbPacket) { }
-    @Override public void handleAddVibrationSignal(ClientboundAddVibrationSignalPacket clientboundAddVibrationSignalPacket) { }
-    @Override public void handleAddMob(ClientboundAddMobPacket clientboundAddMobPacket) { }
     @Override public void handleAddObjective(ClientboundSetObjectivePacket clientboundSetObjectivePacket) { }
-    @Override public void handleAddPainting(ClientboundAddPaintingPacket clientboundAddPaintingPacket) { }
     @Override public void handleAddPlayer(ClientboundAddPlayerPacket clientboundAddPlayerPacket) { }
     @Override public void handleAnimate(ClientboundAnimatePacket clientboundAnimatePacket) { }
     @Override public void handleAwardStats(ClientboundAwardStatsPacket clientboundAwardStatsPacket) { }
@@ -45,7 +42,12 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleBlockEntityData(ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket) { }
     @Override public void handleBlockEvent(ClientboundBlockEventPacket clientboundBlockEventPacket) { }
     @Override public void handleBlockUpdate(ClientboundBlockUpdatePacket clientboundBlockUpdatePacket) { }
-    @Override public void handleChat(ClientboundChatPacket clientboundChatPacket) { }
+    @Override public void handleSystemChat(ClientboundSystemChatPacket clientboundSystemChatPacket) { }
+    @Override public void handlePlayerChat(ClientboundPlayerChatPacket clientboundPlayerChatPacket) { }
+    @Override public void handlePlayerChatHeader(ClientboundPlayerChatHeaderPacket clientboundPlayerChatHeaderPacket) { }
+    @Override public void handleChatPreview(ClientboundChatPreviewPacket clientboundChatPreviewPacket) { }
+    @Override public void handleSetDisplayChatPreview(ClientboundSetDisplayChatPreviewPacket clientboundSetDisplayChatPreviewPacket) { }
+    @Override public void handleDeleteChat(ClientboundDeleteChatPacket clientboundDeleteChatPacket) { }
     @Override public void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket clientboundSectionBlocksUpdatePacket) { }
     @Override public void handleMapItemData(ClientboundMapItemDataPacket clientboundMapItemDataPacket) { }
     @Override public void handleContainerClose(ClientboundContainerClosePacket clientboundContainerClosePacket) { }
@@ -125,11 +127,13 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleSetChunkCacheRadius(ClientboundSetChunkCacheRadiusPacket clientboundSetChunkCacheRadiusPacket) { }
     @Override public void handleSetSimulationDistance(ClientboundSetSimulationDistancePacket clientboundSetSimulationDistancePacket) { }
     @Override public void handleSetChunkCacheCenter(ClientboundSetChunkCacheCenterPacket clientboundSetChunkCacheCenterPacket) { }
-    @Override public void handleBlockBreakAck(ClientboundBlockBreakAckPacket clientboundBlockBreakAckPacket) { }
+    @Override public void handleBlockChangedAck(ClientboundBlockChangedAckPacket clientboundBlockChangedAckPacket) { }
     @Override public void setActionBarText(ClientboundSetActionBarTextPacket clientboundSetActionBarTextPacket) { }
     @Override public void setSubtitleText(ClientboundSetSubtitleTextPacket clientboundSetSubtitleTextPacket) { }
     @Override public void setTitleText(ClientboundSetTitleTextPacket clientboundSetTitleTextPacket) { }
     @Override public void setTitlesAnimation(ClientboundSetTitlesAnimationPacket clientboundSetTitlesAnimationPacket) { }
     @Override public void handleTitlesClear(ClientboundClearTitlesPacket clientboundClearTitlesPacket) { }
+    @Override public void handleServerData(ClientboundServerDataPacket clientboundServerDataPacket) { }
+    @Override public void handleCustomChatCompletions(ClientboundCustomChatCompletionsPacket clientboundCustomChatCompletionsPacket) { }
     //@formatter:on
 }

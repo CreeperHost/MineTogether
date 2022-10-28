@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +31,7 @@ abstract class GuiMixin {
                     value = "TAIL"
             )
     )
-    private void onInit(Minecraft minecraft, CallbackInfo ci) {
+    private void onInit(Minecraft minecraft, ItemRenderer itemRenderer, CallbackInfo ci) {
         MineTogetherChat.initChat(SneakyUtils.unsafeCast(this));
     }
 

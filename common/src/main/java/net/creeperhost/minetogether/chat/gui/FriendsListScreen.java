@@ -17,8 +17,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -56,7 +54,7 @@ public class FriendsListScreen extends Screen {
     private int lastFriendUpdateCookie = -1;
 
     public FriendsListScreen(Screen parent) {
-        super(new TranslatableComponent("minetogether:screen.friends.title"));
+        super(Component.translatable("minetogether:screen.friends.title"));
         this.parent = parent;
     }
 
@@ -72,16 +70,16 @@ public class FriendsListScreen extends Screen {
         chatList.setScrollAmount(chatList.getMaxScroll());
         addRenderableWidget(chatList);
 
-        chatBox = new EditBox(font, friendList.getRowRight() + 1, height - 50, chatList.width - 2, 20, TextComponent.EMPTY);
+        chatBox = new EditBox(font, friendList.getRowRight() + 1, height - 50, chatList.width - 2, 20, Component.empty());
         chatBox.setMaxLength(256);
         addRenderableWidget(chatBox);
 
-        searchBox = new EditBox(font, 19, height - 50, friendList.getWidth() - 2, 20, TextComponent.EMPTY);
+        searchBox = new EditBox(font, 19, height - 50, friendList.getWidth() - 2, 20, Component.empty());
         addRenderableWidget(searchBox);
 
-        addRenderableWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("minetogether:button.cancel"), e -> minecraft.setScreen(parent)));
+        addRenderableWidget(new Button(5, height - 26, 100, 20, Component.translatable("minetogether:button.cancel"), e -> minecraft.setScreen(parent)));
 
-        acceptRequest = addRenderableWidget(new Button(width - 215, height - 26, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.accept"), e -> {
+        acceptRequest = addRenderableWidget(new Button(width - 215, height - 26, 100, 20, Component.translatable("minetogether:screen.friends.button.accept"), e -> {
             FriendEntry entry = friendList.getSelected();
             assert entry != null;
             assert entry.request != null;
@@ -89,7 +87,7 @@ public class FriendsListScreen extends Screen {
         }));
         acceptRequest.visible = false;
 
-        denyRequest = addRenderableWidget(new Button(width - 110, height - 26, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.deny"), e -> {
+        denyRequest = addRenderableWidget(new Button(width - 110, height - 26, 100, 20, Component.translatable("minetogether:screen.friends.button.deny"), e -> {
             FriendEntry entry = friendList.getSelected();
             assert entry != null;
             assert entry.request != null;
@@ -115,16 +113,16 @@ public class FriendsListScreen extends Screen {
         }));
 
         if (!(parent instanceof MutedUsersScreen)) {
-            addRenderableWidget(new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.muted"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
+            addRenderableWidget(new Button(5, 5, 100, 20, Component.translatable("minetogether:screen.friends.button.muted"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
         }
 
         tooltips = new TooltipContainer(this);
         addRenderableOnly(tooltips);
 
-        tooltips.addTooltip(removeFriend, new TranslatableComponent("minetogether:screen.friends.tooltip.remove"));
-        tooltips.addTooltip(blockButton, new TranslatableComponent("minetogether:screen.friends.tooltip.block"));
-        tooltips.addTooltip(partyButton, new TranslatableComponent("minetogether:screen.friends.tooltip.party"));
-        tooltips.addTooltip(editButton, new TranslatableComponent("minetogether:screen.friends.tooltip.edit"));
+        tooltips.addTooltip(removeFriend, Component.translatable("minetogether:screen.friends.tooltip.remove"));
+        tooltips.addTooltip(blockButton, Component.translatable("minetogether:screen.friends.tooltip.block"));
+        tooltips.addTooltip(partyButton, Component.translatable("minetogether:screen.friends.tooltip.party"));
+        tooltips.addTooltip(editButton, Component.translatable("minetogether:screen.friends.tooltip.edit"));
 
         updateList();
     }
@@ -268,7 +266,7 @@ public class FriendsListScreen extends Screen {
             }
             font.draw(poseStack, name, left + 5, top + 4, 0xFFFFFF);
 
-            Component component = new TextComponent(profile.isFriend() ? profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline" : "Pending");
+            Component component = Component.literal(profile.isFriend() ? profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline" : "Pending");
             font.draw(poseStack, component, left + 5, top + 15, 0xFFFFFF);
         }
     }

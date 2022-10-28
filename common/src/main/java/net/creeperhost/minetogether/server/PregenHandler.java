@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.MineTogetherServer;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -141,7 +141,7 @@ public class PregenHandler {
         if (serverPlayer != null && PregenHandler.isPreGenerating() && PregenHandler.shouldKickPlayer) {
             String remainingTime = PregenHandler.getActiveTask() != null ? PregenHandler.getTimeRemaining(PregenHandler.getActiveTask()) : "";
 
-            serverPlayer.connection.disconnect(new TranslatableComponent("MineTogether Server is still pre-generating!\n" + remainingTime + " Remaining" + ":" + PregenHandler.getActiveTask().totalChunks + ":" + PregenHandler.getActiveTask().chunksDone));
+            serverPlayer.connection.disconnect(Component.literal("MineTogether Server is still pre-generating!\n" + remainingTime + " Remaining" + ":" + PregenHandler.getActiveTask().totalChunks + ":" + PregenHandler.getActiveTask().chunksDone));
             LOGGER.error("Kicked player " + serverPlayer.getName() + " as still pre-generating");
         }
     }

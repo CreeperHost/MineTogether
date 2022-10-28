@@ -3,9 +3,8 @@ package net.creeperhost.minetogether.polylib.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-
-import static net.minecraft.network.chat.TextComponent.EMPTY;
 
 /**
  * A simple {@link Button} implementation using an indexed icon
@@ -30,7 +29,7 @@ public class IconButton extends Button {
     }
 
     public IconButton(int x, int y, int index, ResourceLocation sheet, OnPress onPress, OnTooltip onTooltip) {
-        super(x, y, 20, 20, EMPTY, onPress, onTooltip);
+        super(x, y, 20, 20, Component.empty(), onPress, onTooltip);
         this.index = index;
         this.sheet = sheet;
     }

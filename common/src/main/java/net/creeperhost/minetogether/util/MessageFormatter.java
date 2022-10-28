@@ -37,7 +37,7 @@ public class MessageFormatter {
         String sender = ac + "<" + uc + message.senderName + ac + ">" + RESET;
         String msg = formatMessage(message.getMessage(), mc);
 
-        return new TextComponent(sender).withStyle(e -> e.withClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, CLICK_NAME)))
+        return Component.literal(sender).withStyle(e -> e.withClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, CLICK_NAME)))
                 .append(" ")
                 .append(sugarLinkWithPreview(msg, true));
     }
@@ -114,18 +114,18 @@ public class MessageFormatter {
             // Append the previous left overs.
             String part = string.substring(lastEnd, start);
             if (part.length() > 0) {
-                if (ichat == null) { ichat = new TranslatableComponent(part); } else ichat.append(part);
+                if (ichat == null) { ichat = Component.translatable(part); } else ichat.append(part);
             }
             lastEnd = end;
             String url = string.substring(start, end);
-            MutableComponent link = new TranslatableComponent(url);
+            MutableComponent link = Component.translatable(url);
 
             try {
                 // Add schema so client doesn't crash.
                 if ((new URI(url)).getScheme() == null) {
                     if (!allowMissingHeader) {
                         if (ichat == null) {
-                            ichat = new TranslatableComponent(url);
+                            ichat = Component.translatable(url);
                         } else {
                             ichat.append(url);
                         }
@@ -136,7 +136,7 @@ public class MessageFormatter {
             } catch (URISyntaxException e) {
                 // Bad syntax bail out!
                 if (ichat == null) {
-                    ichat = new TranslatableComponent(url);
+                    ichat = Component.translatable(url);
                 } else {
                     ichat.append(url);
                 }
@@ -145,10 +145,10 @@ public class MessageFormatter {
 
             // Set the click event and append the link.
             ClickEvent click = new ClickEvent(ClickEvent.Action.OPEN_URL, url);
-            HoverEvent hoverEvent = new HoverEvent(SHOW_URL_PREVIEW, new TranslatableComponent(url));
+            HoverEvent hoverEvent = new HoverEvent(SHOW_URL_PREVIEW, Component.translatable(url));
             link.setStyle(link.getStyle().withClickEvent(click).withHoverEvent(hoverEvent).withUnderlined(true).withColor(TextColor.fromLegacyFormat(ChatFormatting.BLUE)));
             if (ichat == null) {
-                ichat = new TextComponent("");
+                ichat = Component.literal("");
             }
             ichat.append(link);
         }
@@ -156,9 +156,9 @@ public class MessageFormatter {
         // Append the rest of the message.
         String end = string.substring(lastEnd);
         if (ichat == null) {
-            ichat = new TranslatableComponent(end);
+            ichat = Component.translatable(end);
         } else if (end.length() > 0) {
-            ichat.append(new TranslatableComponent(string.substring(lastEnd)));
+            ichat.append(Component.translatable(string.substring(lastEnd)));
         }
         return ichat;
     }

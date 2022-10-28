@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,7 +46,7 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
     }
 
     public DropdownButton(int x, int y, int width, int height, boolean isAnchored, boolean hasHeader, Consumer<E> callback) {
-        super(x, y, width, height, TextComponent.EMPTY, NONE);
+        super(x, y, width, height, Component.empty(), NONE);
         this.isAnchored = isAnchored;
         this.hasHeader = hasHeader;
         onPressed = callback;

@@ -4,7 +4,6 @@ import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.serverlist.gui.PublicServerEntry;
 import net.creeperhost.minetogether.util.EnumFlag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Comparator;
 import java.util.Locale;
@@ -70,6 +69,6 @@ public enum SortType implements DropdownButton.DropdownEntry, Comparator<PublicS
 
     @Override
     public Component getTitle(boolean isOpen) {
-        return new TranslatableComponent("minetogether:screen.multiplayer.sort." + name().toLowerCase(Locale.ROOT));
+        return Component.translatable("minetogether:screen.multiplayer.sort." + name().toLowerCase(Locale.ROOT));
     }
 }

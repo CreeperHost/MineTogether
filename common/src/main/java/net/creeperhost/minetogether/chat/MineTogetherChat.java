@@ -26,8 +26,7 @@ import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -98,29 +97,29 @@ public class MineTogetherChat {
             if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ADDED) {
                 ProfileManager.FriendRequest fr = (ProfileManager.FriendRequest) e.data;
                 m.getToasts().addToast(new SimpleToast(
-                        new TextComponent(fr.from.getDisplayName() + " has sent you a friend request"),
-                        new TextComponent(" "),
+                        Component.literal(fr.from.getDisplayName() + " has sent you a friend request"),
+                        Component.literal(" "),
                         MINETOGETHER_LOGO_25
                 ));
             } else if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ACCEPTED) {
                 Profile fr = (Profile) e.data;
                 m.getToasts().addToast(new SimpleToast(
-                        new TextComponent(fr.getDisplayName() + " has accepted your friend request"),
-                        new TextComponent(" "),
+                        Component.literal(fr.getDisplayName() + " has accepted your friend request"),
+                        Component.literal(" "),
                         MINETOGETHER_LOGO_25
                 ));
             } else if (e.type == ProfileManager.EventType.FRIEND_ONLINE && Config.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
                 m.getToasts().addToast(new SimpleToast(
-                        new TextComponent(fr.getFriendName() + " Is now online."),
-                        new TextComponent(" "),
+                        Component.literal(fr.getFriendName() + " Is now online."),
+                        Component.literal(" "),
                         MINETOGETHER_LOGO_25
                 ));
             } else if (e.type == ProfileManager.EventType.FRIEND_OFFLINE && Config.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
                 m.getToasts().addToast(new SimpleToast(
-                        new TextComponent(fr.getFriendName() + " Is now offline."),
-                        new TextComponent(" "),
+                        Component.literal(fr.getFriendName() + " Is now offline."),
+                        Component.literal(" "),
                         MINETOGETHER_LOGO_25
                 ));
             }
@@ -140,7 +139,7 @@ public class MineTogetherChat {
     }
 
     private static void addMenuButtons(Screen screen) {
-        ScreenHooks.addRenderableWidget(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> {
+        ScreenHooks.addRenderableWidget(screen, new Button(screen.width - 105, 5, 100, 20, Component.translatable("minetogether:button.friends"), e -> {
             Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
         }));
         boolean chatEnabled = Config.instance().chatEnabled;

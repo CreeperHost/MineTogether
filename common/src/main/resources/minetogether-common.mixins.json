@@ -3,7 +3,6 @@
     "package": "net.creeperhost.minetogether.mixin",
     "client": [
         "chat.ChatScreenMixin",
-        "chat.InBedChatScreenMixin",
         "chat.ingame.ChatComponentMixin",
         "chat.ingame.GuiMixin",
         "connect.MixinIntegratedServer",

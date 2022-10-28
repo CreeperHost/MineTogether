@@ -4,8 +4,7 @@ import net.creeperhost.minetogether.mixin.connect.MixinIntegratedServer;
 import net.creeperhost.minetogetherconnect.ConnectMain;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
@@ -36,10 +35,10 @@ public class ConnectHelper {
             try {
                 ConnectHandler.openCallback((message) -> {
                     if (message.equals("CLOSED123")) {
-                        Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open to friends again to fix this!"));
+                        Minecraft.getInstance().gui.getChat().addMessage(Component.literal("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open to friends again to fix this!"));
                         ConnectMain.close();
                     } else {
-                        Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: " + message));
+                        Minecraft.getInstance().gui.getChat().addMessage(Component.literal("MineTogether Connect: " + message));
                     }
                 }, (response) -> {
                     if (response.isSuccess()) {
@@ -62,19 +61,15 @@ public class ConnectHelper {
                                     integratedServer.getCommands().sendCommands(serverplayerentity);
                                 }
 
-                                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.success");
-
                                 Minecraft.getInstance().updateTitle();
 
-                                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+                                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.success"));
                             } catch (IOException var6) {
-                                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed");
-                                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+                                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed"));
                             }
                         });
                     } else {
-                        TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed", response.getMessage());
-                        Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+                        Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed", response.getMessage()));
                     }
                 });
             } catch (Exception e) {

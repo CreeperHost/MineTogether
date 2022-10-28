@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Random;
@@ -43,7 +43,7 @@ public class GeneralServerInfoScreen extends OrderServerScreen {
         int checkboxWidth = font.width(I18n.get("minetogether.screen.generalinfo.pregen")) + 13;
 
         addRenderableWidget(this.nameField = new TextFieldValidate(this.font, halfWidth - 100, halfHeight - 50, 200, 20, "([A-Za-z0-9]*)", ""));
-        addRenderableWidget(new Checkbox(halfWidth - (checkboxWidth / 2), halfHeight - 8, 20, 20, new TranslatableComponent("minetogether.screen.generalinfo.pregen"), order.pregen));
+        addRenderableWidget(new Checkbox(halfWidth - (checkboxWidth / 2), halfHeight - 8, 20, 20, Component.translatable("minetogether.screen.generalinfo.pregen"), order.pregen));
 
         this.nameField.setMaxLength(16);
         this.nameField.setValue(this.order.name.isEmpty() ? getDefaultName() : this.order.name);
@@ -65,9 +65,9 @@ public class GeneralServerInfoScreen extends OrderServerScreen {
 
         int strStart = 61;
 
-        drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.screen.generalinfo.secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
-        drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.screen.generalinfo.secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);
-        drawCenteredString(poseStack, font, new TranslatableComponent("minetogether.screen.generalinfo.secure.line3"), this.width / 2, (this.height / 2) + strStart + 20, 0xFFFFFF);
+        drawCenteredString(poseStack, font, Component.translatable("minetogether.screen.generalinfo.secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
+        drawCenteredString(poseStack, font, Component.translatable("minetogether.screen.generalinfo.secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);
+        drawCenteredString(poseStack, font, Component.translatable("minetogether.screen.generalinfo.secure.line3"), this.width / 2, (this.height / 2) + strStart + 20, 0xFFFFFF);
 
         this.nameField.render(poseStack, i, j, f);
 
