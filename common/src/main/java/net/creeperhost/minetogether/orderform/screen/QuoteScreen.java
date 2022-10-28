@@ -137,7 +137,7 @@ public class QuoteScreen extends OrderServerScreen {
 
         CompletableFuture.runAsync(() ->
         {
-            summary = ServerOrderCallbacks.getSummary(order, "0", Config.instance().promoCode);
+            summary = ServerOrderCallbacks.getSummary(order, Config.instance().promoCode);
 
             order.productID = summary.productID;
             order.currency = summary.currency;

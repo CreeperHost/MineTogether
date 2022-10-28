@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.orderform.data.AvailableResult;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.OrderSummary;
 import net.creeperhost.minetogether.util.Countries;
+import net.creeperhost.minetogether.util.ModPackInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,7 +44,7 @@ public class ServerOrderCallbacks {
         return new AvailableResult(false, "unknown");
     }
 
-    public static OrderSummary getSummary(Order order, String modpackVersion, String promo) {
+    public static OrderSummary getSummary(Order order, String promo) {
         if (order.country.isEmpty()) {
             order.country = Countries.getOurCountry();
         }
@@ -53,13 +54,9 @@ public class ServerOrderCallbacks {
         }
 
         try {
-            String version = modpackVersion;
-            if (version.equals("0")) {
-                //TODO
-//                if (!MineTogether.instance.ftbPackID.isEmpty())
-//                {
-//                    Config.getInstance().setVersion(MineTogether.instance.requestedID);
-//                }
+            String version = "0";
+            if (!ModPackInfo.curseID.isEmpty()) {
+                version = ModPackInfo.curseID;
             }
             String url = "https://www.creeperhost.net/json/order/mc/" + version + "/recommend/" + order.playerAmount;
 
@@ -246,11 +243,11 @@ public class ServerOrderCallbacks {
         }
     }
 
-    public static String createOrder(final Order order, String modpackVersion, String pregen) {
+    public static String createOrder(final Order order, String pregen) {
         try {
             String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + order.serverLocation, new HashMap<String, String>() {{
                 put("name", order.name);
-                put("swid", modpackVersion);
+                put("swid", ModPackInfo.curseID);
                 if (order.pregen) { put("pregen", pregen); }
             }});
 
@@ -273,11 +270,11 @@ public class ServerOrderCallbacks {
         }
     }
 
-    public static String createAccount(final Order order, String modpackVersion) {
+    public static String createAccount(final Order order) {
         try {
             String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>() {{
                 put("servername", order.name);
-                put("modpack", modpackVersion);
+                put("modpack", ModPackInfo.curseID);
                 put("email", order.emailAddress);
                 put("password", order.password);
                 put("fname", order.firstName);

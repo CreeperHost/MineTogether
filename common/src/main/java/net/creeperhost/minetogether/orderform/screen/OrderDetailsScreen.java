@@ -84,7 +84,7 @@ public class OrderDetailsScreen extends OrderServerScreen {
             creatingAccount = true;
             CompletableFuture.runAsync(() ->
             {
-                String result = ServerOrderCallbacks.createAccount(order, "0");
+                String result = ServerOrderCallbacks.createAccount(order);
                 String[] resultSplit = result.split(":");
                 if (resultSplit[0].equals("success")) {
                     order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
@@ -107,7 +107,7 @@ public class OrderDetailsScreen extends OrderServerScreen {
             buttonNext.active = false;
             Runnable runnable = () ->
             {
-                String result = ServerOrderCallbacks.createOrder(order, "0", String.valueOf(Config.instance().pregenDiameter));
+                String result = ServerOrderCallbacks.createOrder(order, String.valueOf(Config.instance().pregenDiameter));
                 String[] resultSplit = result.split(":");
                 if (resultSplit[0].equals("success")) {
                     invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
