@@ -38,6 +38,8 @@ dependencies {
     shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
     shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowLib 'com.github.scribejava:scribejava-core:6.9.0'
+    // TODO, provide Java11 http implementation.
+    shadowLib 'org.apache.httpcomponents:httpclient:4.5.13'
 }
 
 processResources {
@@ -59,6 +61,10 @@ shadowJar {
     relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
     // TODO can we switch scribejava to using Gson?
     relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
+
+    relocate 'org.apache.commons.codec', 'net.creeperhost.minetogether.org.apache.commons.codec'
+    relocate 'org.apache.commons.logging', 'net.creeperhost.minetogether.org.apache.commons.logging'
+    relocate 'org.apache.http', 'net.creeperhost.minetogether.org.apache.http'
 }
 
 remapJar {
