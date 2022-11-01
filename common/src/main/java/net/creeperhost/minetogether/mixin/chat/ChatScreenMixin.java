@@ -146,7 +146,7 @@ abstract class ChatScreenMixin extends Screen {
 
     @Inject(
             method = "mouseClicked",
-            at = @At ("TAIL"),
+            at = @At ("HEAD"),
             cancellable = true
     )
     private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
