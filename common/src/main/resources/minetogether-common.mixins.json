@@ -4,6 +4,7 @@
     "client": [
         "chat.ChatScreenMixin",
         "chat.InBedChatScreenMixin",
+        "chat.ScreenMixin",
         "chat.ingame.ChatComponentMixin",
         "chat.ingame.GuiMixin",
         "connect.MixinIntegratedServer",
