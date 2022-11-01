@@ -4,15 +4,17 @@ import net.covers1624.quack.collection.StreamableIterable;
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
 import net.creeperhost.minetogether.serverlist.data.ListType;
-import net.creeperhost.minetogether.serverlist.data.Server;
 import net.creeperhost.minetogether.serverlist.data.SortType;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
-import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 
 import java.util.Collections;
 import java.util.List;
@@ -71,6 +73,20 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen {
                 .map(ServerDataPublic::new)
                 .toLinkedList()
         );
+    }
+
+    @Override
+    public void joinSelectedServer() {
+        ServerSelectionList.Entry entry = serverSelectionList.getSelected();
+        if (entry instanceof PublicServerEntry e) {
+            join(e.getServerData());
+            return;
+        }
+        super.joinSelectedServer();
+    }
+
+    public void join(ServerData serverData) {
+        ConnectScreen.startConnecting(new JoinMultiplayerScreen(this), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
     }
 
     private void updateServers(List<ServerDataPublic> serverList) {
