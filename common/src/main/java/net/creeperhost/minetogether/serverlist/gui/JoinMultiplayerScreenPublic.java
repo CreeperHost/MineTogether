@@ -8,8 +8,12 @@ import net.creeperhost.minetogether.serverlist.data.SortType;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 
 import java.util.Collections;
@@ -69,6 +73,20 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen {
                 .map(ServerDataPublic::new)
                 .toLinkedList()
         );
+    }
+
+    @Override
+    public void joinSelectedServer() {
+        ServerSelectionList.Entry entry = serverSelectionList.getSelected();
+        if (entry instanceof PublicServerEntry e) {
+            join(e.getServerData());
+            return;
+        }
+        super.joinSelectedServer();
+    }
+
+    public void join(ServerData serverData) {
+        ConnectScreen.startConnecting(new JoinMultiplayerScreen(this), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
     }
 
     private void updateServers(List<ServerDataPublic> serverList) {
