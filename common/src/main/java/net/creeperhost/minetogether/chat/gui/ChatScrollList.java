@@ -64,6 +64,9 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
             listener = null;
         }
         pendingMessages.clear();
+        for (ScrollListDisplayableMessage message : messages) {
+            message.onDead();
+        }
         messages.clear();
         clearEntries();
 
@@ -121,6 +124,11 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
             assert listener != null;
             channel.removeListener(listener);
         }
+        for (ScrollListDisplayableMessage message : messages) {
+            message.onDead();
+        }
+        messages.clear();
+        clearEntries();
     }
 
     @Nullable
