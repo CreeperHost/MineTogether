@@ -50,7 +50,7 @@ public class MineTogetherChat {
 
     public static ChatComponent vanillaChat;
     public static MTChatComponent publicChat;
-    public static ChatTarget target = ChatTarget.PUBLIC;
+    public static ChatTarget target = Config.instance().chatEnabled ? ChatTarget.PUBLIC : ChatTarget.VANILLA;
 
     public static void init() {
         // Class Initializer must be finished before MTChatComponent is constructed.
@@ -161,6 +161,7 @@ public class MineTogetherChat {
     }
 
     public static void disableChat() {
+        target = ChatTarget.VANILLA;
         CHAT_STATE.ircClient.stop();
         Config.instance().chatEnabled = false;
         Config.save();
