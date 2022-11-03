@@ -98,6 +98,7 @@ public class FriendsListScreen extends Screen {
 
         removeFriend = addRenderableWidget(new IconButton(width - 20, 32, 5, Constants.WIDGETS_SHEET, e -> {
             assert targetProfile != null;
+            chatList.attach(null);
             MineTogetherChat.CHAT_STATE.profileManager.removeFriend(targetProfile);
         }));
         blockButton = addRenderableWidget(new IconButton(width - 20, 52, 6, Constants.WIDGETS_SHEET, e -> {
