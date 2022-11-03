@@ -67,6 +67,7 @@ public class PircBotClient implements IrcClient {
             try {
                 ApiClientResponse<IRCServerListResponse> response = API.execute(new IRCServerListRequest());
                 serverDetails = response.apiResponse();
+                LOGGER.info("Starting IRC. Channel: {}", serverDetails.getChannel());
                 EventSubscriberListener eventListener = new EventSubscriberListener();
                 eventListener.addListener(this);
                 Configuration config = new Configuration.Builder()
