@@ -58,6 +58,9 @@ public class MTChatComponent extends ChatComponent {
     }
 
     public void attach(IrcChannel channel) {
+        // Bail if we are already bound. IrcChannel's are
+        if (this.channel != null) return;
+
         this.channel = channel;
         channel.addListener(message -> {
             synchronized (pendingMessages) {
