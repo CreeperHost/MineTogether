@@ -40,6 +40,8 @@ dependencies {
     shadowLib 'com.github.scribejava:scribejava-core:6.9.0'
     // TODO, provide Java11 http implementation.
     shadowLib 'org.apache.httpcomponents:httpclient:4.5.13'
+
+    runtimeClasspath "net.covers1624:DevLogin:0.1.+"
 }
 
 processResources {
