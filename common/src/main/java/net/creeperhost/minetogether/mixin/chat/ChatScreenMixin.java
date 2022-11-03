@@ -150,6 +150,8 @@ abstract class ChatScreenMixin extends Screen {
             cancellable = true
     )
     private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+        if (!Config.instance().chatEnabled) return;
+
         // Needs to be done explicitly here, so we prioritize button clicks
         // over message clicks. We can't move super.mouseClicked here as that would
         // let vanilla handle clicked styles before us.
