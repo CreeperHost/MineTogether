@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -55,6 +54,8 @@ public class FriendRequestScreen extends Screen {
 
     @Override
     protected void init() {
+        minecraft.keyboardHandler.setSendRepeatsToGui(true);
+
         cancelButton = addRenderableWidget(new Button(width / 2 - 180, height - 50, 80, 20, new TranslatableComponent("minetogether:button.cancel"), e -> {
             minecraft.setScreen(previous);
         }));
