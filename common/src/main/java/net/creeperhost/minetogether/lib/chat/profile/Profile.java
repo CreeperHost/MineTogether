@@ -9,6 +9,7 @@ import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.lib.chat.request.ProfileResponse;
 import net.creeperhost.minetogether.lib.chat.util.HashLength;
 import net.creeperhost.minetogether.lib.util.AbstractWeakNotifiable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -140,7 +141,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     }
 
     public void setPack(String realName) {
-        if (realName.startsWith("{") && realName.endsWith("}")) {
+        if (StringUtils.isNotEmpty(realName) && realName.startsWith("{") && realName.endsWith("}")) {
             try {
                 JsonObject obj = JsonUtils.parseRaw(realName).getAsJsonObject();
                 String packId = JsonUtils.getString(obj, "p", null);
