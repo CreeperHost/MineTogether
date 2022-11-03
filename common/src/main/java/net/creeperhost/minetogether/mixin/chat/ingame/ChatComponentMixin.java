@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.ChatTarget;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
@@ -52,6 +53,9 @@ abstract class ChatComponentMixin {
             at = @At ("HEAD")
     )
     private void onRender(PoseStack poseStack, int i, CallbackInfo ci) {
+        // Don't render our additional background blackout if chat is not enabled.
+        if (!Config.instance().chatEnabled) return;
+
         if (isChatFocused()) {
             // Render new 'filled' background under all chat lines.
             int y = getHeight() - 175 - (minecraft.font.lineHeight * Math.max(Math.min(getRecentChat().size(), getLinesPerPage()), 20));
@@ -75,8 +79,9 @@ abstract class ChatComponentMixin {
             )
     )
     // When chat is focussed, this disables vanilla rendering the 'filled' background bellow a chat line.
+    // We force-enable this fill if chat is disabled to revert to vanilla behaviour.
     private void onFill(PoseStack poseStack, int i, int j, int k, int l, int m) {
-        if (!isChatFocused()) {
+        if (!isChatFocused() || !Config.instance().chatEnabled) {
             GuiComponent.fill(poseStack, i, j, k, l, m);
         }
     }
