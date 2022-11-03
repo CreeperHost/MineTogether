@@ -1,12 +1,16 @@
 package net.creeperhost.minetogether.lib.chat.profile;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonObject;
 import net.covers1624.quack.collection.StreamableIterable;
+import net.covers1624.quack.gson.JsonUtils;
 import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.lib.chat.request.ProfileResponse;
 import net.creeperhost.minetogether.lib.chat.util.HashLength;
 import net.creeperhost.minetogether.lib.util.AbstractWeakNotifiable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -19,6 +23,8 @@ import static net.creeperhost.minetogether.lib.chat.message.MessageComponent.MES
  * Created by covers1624 on 22/6/22.
  */
 public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     // List of all message sent by the user.
     private final List<Message> sentMessages = new LinkedList<>();
@@ -46,6 +52,8 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     private boolean stale = true;
 
     private boolean updating = false;
+
+    private String packId = "";
 
     Profile(ChatState chatState, String initialHash) {
         this.chatState = chatState;
@@ -131,6 +139,26 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
         stale = true;
     }
 
+    public void setPack(String realName) {
+        if (realName.startsWith("{") && realName.endsWith("}")) {
+            try {
+                JsonObject obj = JsonUtils.parseRaw(realName).getAsJsonObject();
+                String packId = JsonUtils.getString(obj, "p", null);
+                if (packId != null && !packId.equals("-1")) {
+                    this.packId = packId;
+                    return;
+                }
+            } catch (Throwable ex) {
+                LOGGER.error("Failed to parse realName: '{}'", realName);
+            }
+        }
+        packId = "";
+    }
+
+    public boolean isOnSamePack(Profile other) {
+        return !packId.isEmpty() && packId.equals(other.getPackId());
+    }
+
     // @formatter:off
     public Set<String> getAliases() { return aliases; }
     public String getDisplayName() { return displayName; }
@@ -146,6 +174,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     public boolean isOnline() { return isOnline; }
     public boolean isUpdating() { return updating; }
     public boolean isStale() { return stale; }
+    public String getPackId() { return packId; }
     // @formatter:on
 
     Consumer<ProfileResponse.ProfileData> onStartUpdating() {

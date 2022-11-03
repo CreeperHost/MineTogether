@@ -216,6 +216,7 @@ public class PircBotClient implements IrcClient {
         PircBotUser user = computeUser(ircUser);
         user.bindIrcUser(ircUser);
         chatState.profileManager.onUserOnline(user.getProfile());
+        ircUser.send().whois();
     }
 
     @SubscribeEvent
@@ -310,6 +311,14 @@ public class PircBotClient implements IrcClient {
     }
 
     @SubscribeEvent
+    private void onUserList(UserListEvent event) {
+        for (User user : event.getUsers()) {
+            Profile profile = chatState.profileManager.lookupProfileStale(user.getNick());
+            profile.setPack(user.getRealName());
+        }
+    }
+
+    @SubscribeEvent
     private void onVoiceEvent(VoiceEvent event) {
         User user = event.getRecipient();
         if (user == null) return;
@@ -319,6 +328,14 @@ public class PircBotClient implements IrcClient {
         if (event.hasVoice()) {
             state = IrcState.CONNECTED;
         }
+    }
+
+    @SubscribeEvent
+    private void onWhois(WhoisEvent event) {
+        Profile profile = chatState.profileManager.lookupProfile(event.getNick());
+        if (profile == chatState.profileManager.getOwnProfile()) return;
+
+        profile.setPack(event.getRealname());
     }
 
     @SubscribeEvent

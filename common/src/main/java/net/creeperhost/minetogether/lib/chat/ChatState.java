@@ -21,6 +21,7 @@ public class ChatState {
         this.auth = auth;
         this.mutedUserList = mutedUserList;
         profileManager = new ProfileManager(this, auth.getHash());
+        profileManager.getOwnProfile().setPack(realName);
         ircClient = new PircBotClient(this, realName);
     }
 }

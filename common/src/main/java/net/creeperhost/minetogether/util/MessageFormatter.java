@@ -84,7 +84,7 @@ public class MessageFormatter {
         // System/Moderator messages get Aqua.
         if (message.sender == null) return ChatFormatting.AQUA;
 
-        boolean isOnSamePack = false; // TODO match these.
+        boolean isOnSamePack = MineTogetherChat.getOurProfile().isOnSamePack(message.sender);
 
         // Friends get yellow, gold if they are on the same modpack.
         if (message.sender.isFriend()) return isOnSamePack ? ChatFormatting.GOLD : ChatFormatting.YELLOW;
