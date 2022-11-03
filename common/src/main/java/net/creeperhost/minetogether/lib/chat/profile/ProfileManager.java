@@ -263,7 +263,6 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     private void updateFriends() {
         friendUpdateRunning = true;
         try {
-            // TODO we need to purge removed friends somehow.
             ListFriendsResponse resp = chatState.api.execute(new ListFriendsRequest(getOwnProfile().getFullHash())).apiResponse();
             Set<String> friendHashes = new HashSet<>();
             boolean changes = false;
