@@ -213,11 +213,9 @@ public class PircBotClient implements IrcClient {
         if (ircUser == null) return; // oookay..
         // Only if we are in the 'main' channel.
         if (!event.getChannel().getName().equals(serverDetails.getChannel())) return;
-
-        PircBotUser user = computeUser(ircUser);
-        user.bindIrcUser(ircUser);
-        chatState.profileManager.onUserOnline(user.getProfile());
         ircUser.send().whois();
+
+        userSeen(ircUser);
     }
 
     @SubscribeEvent
@@ -299,24 +297,27 @@ public class PircBotClient implements IrcClient {
             for (ChannelListener listener : channelListeners) {
                 listener.channelJoin(channel);
             }
-
-            if (ircChannel.getName().equals(serverDetails.getChannel())) {
-                for (User u : ircChannel.getUsers()) {
-                    PircBotUser ourUser = computeUser(u);
-                    ourUser.bindIrcUser(u);
-                    ourUser.getProfile().unbanned(); // Assume if they are here, they aren't banned.
-                    ourUser.getProfile().markStale();
-                }
-            }
         }
     }
 
     @SubscribeEvent
     private void onUserList(UserListEvent event) {
-        for (User user : event.getUsers()) {
-            Profile profile = chatState.profileManager.lookupProfileStale(user.getNick());
-            profile.setPack(user.getRealName());
+        if (!event.getChannel().getName().equals(serverDetails.getChannel())) return;
+
+        for (User u : event.getUsers()) {
+            userSeen(u);
         }
+    }
+
+    private void userSeen(User u) {
+        PircBotUser user = computeUser(u);
+        user.bindIrcUser(u);
+
+        Profile profile = user.getProfile();
+        profile.unbanned(); // Assume if they are here, they aren't banned.
+        profile.markStale();
+        profile.setPack(u.getRealName());
+        chatState.profileManager.onUserOnline(profile);
     }
 
     @SubscribeEvent
