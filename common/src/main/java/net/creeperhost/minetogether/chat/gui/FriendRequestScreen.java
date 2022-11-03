@@ -52,6 +52,8 @@ public class FriendRequestScreen extends Screen {
 
     @Override
     protected void init() {
+        minecraft.keyboardHandler.setSendRepeatsToGui(true);
+
         cancelButton = addRenderableWidget(new Button(width / 2 - 180, height - 50, 80, 20, Component.translatable("minetogether:button.cancel"), e -> {
             minecraft.setScreen(previous);
         }));

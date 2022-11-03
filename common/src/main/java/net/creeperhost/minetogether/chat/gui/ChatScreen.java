@@ -73,6 +73,7 @@ public class ChatScreen extends Screen {
     @Override
     protected void init() {
         assert minecraft != null;
+        minecraft.keyboardHandler.setSendRepeatsToGui(true);
 
         chatList = new ChatScrollList(minecraft, width - 20, height - 50, 30, height - 50);
         chatList.setLeftPos(10);
