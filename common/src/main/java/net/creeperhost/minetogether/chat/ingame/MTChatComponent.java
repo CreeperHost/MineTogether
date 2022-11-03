@@ -69,9 +69,10 @@ public class MTChatComponent extends ChatComponent {
 
     public void tick() {
         // Fallback to force bind the channel if it is null.
-        if (channel == null) {
-            if (target == ChatTarget.PUBLIC) {
-                channel = MineTogetherChat.CHAT_STATE.ircClient.getPrimaryChannel();
+        if (channel == null && target == ChatTarget.PUBLIC) {
+            IrcChannel channel = MineTogetherChat.CHAT_STATE.ircClient.getPrimaryChannel();
+            if (channel != null) {
+                attach(channel);
             }
         }
     }
