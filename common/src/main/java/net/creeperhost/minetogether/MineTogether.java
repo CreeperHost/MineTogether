@@ -5,6 +5,7 @@ import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.web.ApiClient;
 import net.creeperhost.minetogether.lib.web.DynamicWebAuth;
+import net.creeperhost.minetogether.lib.web.WebEngine;
 import net.creeperhost.minetogether.lib.web.apache.ApacheWebEngine;
 import net.creeperhost.minetogether.orderform.WebUtils;
 import net.creeperhost.minetogether.util.ModPackInfo;
@@ -25,8 +26,9 @@ public class MineTogether {
 
     public static final String FINGERPRINT = SignatureVerifier.generateSignature();
     public static final DynamicWebAuth AUTH = new DynamicWebAuth();
+    public static final WebEngine WEB_ENGINE = new ApacheWebEngine();
     public static final ApiClient API = ApiClient.builder()
-            .webEngine(new ApacheWebEngine())
+            .webEngine(WEB_ENGINE)
             .addUserAgentSegment("MineTogether-lib/@VERSION@")
             .addUserAgentSegment("MineTogether-mod/@VERSION@")
             .addUserAgentSegment("Minecraft/" + Platform.getMinecraftVersion())
