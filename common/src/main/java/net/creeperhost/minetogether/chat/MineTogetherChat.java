@@ -23,6 +23,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -30,6 +32,10 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import static net.creeperhost.minetogether.Constants.MINETOGETHER_LOGO_25;
 import static net.creeperhost.minetogether.MineTogether.API;
@@ -51,6 +57,7 @@ public class MineTogetherChat {
     public static ChatComponent vanillaChat;
     public static MTChatComponent publicChat;
     public static ChatTarget target = Config.instance().chatEnabled ? ChatTarget.PUBLIC : ChatTarget.VANILLA;
+    private static boolean hasHitLoadingScreen = false;
 
     public static void init() {
         // Class Initializer must be finished before MTChatComponent is constructed.
@@ -97,28 +104,28 @@ public class MineTogetherChat {
         CHAT_STATE.profileManager.addListener(mc, (m, e) -> m.submit(() -> {
             if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ADDED) {
                 ProfileManager.FriendRequest fr = (ProfileManager.FriendRequest) e.data;
-                m.getToasts().addToast(new SimpleToast(
+                addToast(new SimpleToast(
                         new TextComponent(fr.from.getDisplayName() + " has sent you a friend request"),
                         new TextComponent(" "),
                         MINETOGETHER_LOGO_25
                 ));
             } else if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ACCEPTED) {
                 Profile fr = (Profile) e.data;
-                m.getToasts().addToast(new SimpleToast(
+                addToast(new SimpleToast(
                         new TextComponent(fr.getDisplayName() + " has accepted your friend request"),
                         new TextComponent(" "),
                         MINETOGETHER_LOGO_25
                 ));
             } else if (e.type == ProfileManager.EventType.FRIEND_ONLINE && Config.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
-                m.getToasts().addToast(new SimpleToast(
+                addToast(new SimpleToast(
                         new TextComponent(fr.getFriendName() + " Is now online."),
                         new TextComponent(" "),
                         MINETOGETHER_LOGO_25
                 ));
             } else if (e.type == ProfileManager.EventType.FRIEND_OFFLINE && Config.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
-                m.getToasts().addToast(new SimpleToast(
+                addToast(new SimpleToast(
                         new TextComponent(fr.getFriendName() + " Is now offline."),
                         new TextComponent(" "),
                         MINETOGETHER_LOGO_25
@@ -127,12 +134,23 @@ public class MineTogetherChat {
         }));
     }
 
+    private static void addToast(Toast toast) {
+        if (hasHitLoadingScreen) {
+            Minecraft.getInstance().getToasts().addToast(toast);
+        } else {
+            // YEET, too bad.
+        }
+    }
+
     public static Profile getOurProfile() {
         return CHAT_STATE.profileManager.getOwnProfile();
     }
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
         if (screen instanceof TitleScreen && Config.instance().mainMenuButtons) {
+            if (!hasHitLoadingScreen) {
+                hasHitLoadingScreen = true;
+            }
             addMenuButtons(screen);
         } else if (screen instanceof PauseScreen) {
             addMenuButtons(screen);
