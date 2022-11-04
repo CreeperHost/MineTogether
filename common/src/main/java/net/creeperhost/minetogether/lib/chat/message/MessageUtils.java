@@ -43,6 +43,10 @@ public class MessageUtils {
             result = result.append(profileManager.lookupProfile(hash));
         }
 
+        if (lastEnd != -1 && lastEnd < message.length()) {
+            result = result.append(message.substring(lastEnd));
+        }
+
         if (result.isEmpty()) {
             return MessageComponent.of(message);
         }
