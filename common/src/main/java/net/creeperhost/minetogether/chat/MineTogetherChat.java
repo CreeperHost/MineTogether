@@ -46,7 +46,7 @@ public class MineTogetherChat {
             Platform.getGameFolder().resolve("local/minetogether/mutedusers.json")
     );
 
-    public static ChatState CHAT_STATE = new ChatState(API, CHAT_AUTH, MUTED_USER_LIST, ModPackInfo.realName);
+    public static ChatState CHAT_STATE = new ChatState(API, CHAT_AUTH, MUTED_USER_LIST, ModPackInfo.realName, Config.instance().logChatToConsole | Config.instance().debugMode);
 
     public static ChatComponent vanillaChat;
     public static MTChatComponent publicChat;

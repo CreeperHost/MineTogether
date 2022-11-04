@@ -88,6 +88,9 @@ public class Config {
     @Comment ("If the realms button should be replaced.")
     public boolean replaceRealms = true;
 
+    @Comment("If all chat messages should be logged to console.")
+    public boolean logChatToConsole = false;
+
     @Comment("Create _VERY_ verbose logs. May create hugenorums log files.")
     public boolean debugMode = false;
 
