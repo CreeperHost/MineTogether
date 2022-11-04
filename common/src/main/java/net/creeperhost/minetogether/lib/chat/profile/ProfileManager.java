@@ -87,6 +87,12 @@ public abstract class ProfileManager extends AbstractWeakNotifiable<ProfileManag
         return ownProfile.get();
     }
 
+    public void refreshOwnProfile() {
+        Profile profile = getOwnProfile();
+        profile.markStale();
+        scheduleUpdate(profile);
+    }
+
     /**
      * Looks up another user's Profile.
      * <p>

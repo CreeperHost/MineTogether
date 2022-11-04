@@ -9,6 +9,7 @@ import com.github.scribejava.core.oauth.AccessTokenRequestParams;
 import com.github.scribejava.core.oauth.AuthorizationUrlBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.gson.*;
+import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import org.apache.commons.io.IOUtils;
@@ -183,6 +184,7 @@ public class KeycloakOAuth {
             public void run() {
                 server.stop();
                 timer.cancel();
+                MineTogetherChat.CHAT_STATE.profileManager.refreshOwnProfile();
             }
         }, 1000);
     }

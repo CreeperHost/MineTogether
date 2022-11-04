@@ -56,7 +56,7 @@ public class SettingsScreen extends Screen {
                 minecraft.setScreen(this);
             }, new TranslatableComponent("minetogether:linkaccount1"), new TranslatableComponent("minetogether:linkaccount2")));
         }));
-        linkButton.active = MineTogetherChat.isNewUser();
+        linkButton.active = !MineTogetherChat.getOurProfile().hasAccount();
 
         addRenderableWidget(new Button(width / 2 - 100, height - 27, 200, 20, new TranslatableComponent("gui.done"), e -> {
             minecraft.setScreen(parent);
