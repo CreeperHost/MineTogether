@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.polylib.gui;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
@@ -9,13 +10,17 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Widget;
-import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,7 +34,19 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class PreviewRenderer implements Widget {
 
+    private static final Set<String> SUPPORTED_IMAGES = ImmutableSet.of(
+            "image/jpeg",
+            "image/png",
+            "image/tga",
+            "image/psd",
+            "image/hdr",
+            "image/pic",
+            "image/pnm"
+    );
+
+    private static final boolean DEBUG = Boolean.getBoolean("PreviewRenderer.debug");
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final CloseableHttpClient HTTP_CLIENT = HttpClientBuilder.create().build();
     private static final ExecutorService PREVIEW_EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("preview-render-%d").setDaemon(true).build());
     private static final Set<URL> NO_PREVIEW = Collections.synchronizedSet(new HashSet<>());
     private static final Cache<URL, Preview> CACHE = CacheBuilder.newBuilder() // TODO, weak values? we dont have anything else holding onto them, which should mean they die only when required by memory pressure.
@@ -95,12 +112,22 @@ public abstract class PreviewRenderer implements Widget {
     }
 
     private static void load(URL url, LoadingPreview preview) {
-        try {
-            byte[] bytes = IOUtils.toByteArray(url);
-            NativeImage image = NativeImage.read(new ByteArrayInputStream(bytes));
+        try (CloseableHttpResponse response = HTTP_CLIENT.execute(new HttpGet(url.toURI()))) {
+            HttpEntity entity = response.getEntity();
+            if (entity == null || !SUPPORTED_IMAGES.contains(entity.getContentType().getValue())) {
+                if (DEBUG) {
+                    LOGGER.info("Ignoring {} for preview, returned content type: {}", url, entity != null ? entity.getContentType() : "Entity null");
+                }
+                // Nope..
+                NO_PREVIEW.add(url);
+                return;
+            }
+
+            NativeImage image = NativeImage.read(entity.getContent());
             preview.setWrapped(new ImagePreview(image));
-        } catch (IOException ex) {
+        } catch (IOException | URISyntaxException ex) {
             LOGGER.error("Failed to load preview for: {}", url, ex);
+            NO_PREVIEW.add(url);
         }
     }
 
