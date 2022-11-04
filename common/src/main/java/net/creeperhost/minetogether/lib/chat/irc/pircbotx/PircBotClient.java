@@ -113,7 +113,13 @@ public class PircBotClient implements IrcClient {
         if (client != null) {
             LOGGER.info("Stopping MineTogether IRCClient.");
             client.stopBotReconnect();
-            client.sendIRC().quitServer();
+
+            // TODO this needs a better solution.
+            try {
+                client.sendIRC().quitServer();
+            } catch (Throwable ex) {
+                LOGGER.error("Failed to send quit message..", ex);
+            }
         }
     }
 
