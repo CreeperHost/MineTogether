@@ -5,6 +5,7 @@ import com.mojang.authlib.exceptions.AuthenticationException;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.lib.chat.ChatAuth;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +29,7 @@ public class ChatAuthImpl implements ChatAuth {
 
     public ChatAuthImpl(Minecraft mc) {
         this.mc = mc;
-        uuid = mc.getUser().getGameProfile().getId();
+        uuid = Player.createPlayerUUID(mc.getUser().getGameProfile());
         uuidHash = Hashing.sha256().hashString(uuid.toString(), UTF_8).toString().toUpperCase(Locale.ROOT);
         isOnline = uuid.version() == 4; // Version 4 UUID's are online (fully random), Version3 UUID's are offline (generated from md5 string hash).
     }
