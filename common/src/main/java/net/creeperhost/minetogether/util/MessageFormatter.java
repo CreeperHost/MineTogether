@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.minecraft.ChatFormatting.RED;
 import static net.minecraft.ChatFormatting.RESET;
 
 /**
@@ -35,27 +36,23 @@ public class MessageFormatter {
 
         // TODO obfuscate banned user messages.
         String sender = ac + "<" + uc + message.senderName + ac + ">" + RESET;
-        String msg = formatMessage(message.getMessage(), mc);
 
         return new TextComponent(sender).withStyle(e -> e.withClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, CLICK_NAME)))
                 .append(" ")
-                .append(sugarLinkWithPreview(msg, true));
+                .append(formatMessage(message.getMessage(), mc));
     }
 
-    private static String formatMessage(MessageComponent comp, ChatFormatting messageColour) {
-        StringBuilder builder = new StringBuilder();
+    private static Component formatMessage(MessageComponent comp, ChatFormatting messageColour) {
+        MutableComponent component = new TextComponent("").withStyle(messageColour);
         for (MessageComponent c : comp.iterate()) {
             if (c instanceof ProfileMessageComponent profileComp && profileComp.profile == MineTogetherChat.getOurProfile()) {
                 // Mentions get red
-                builder.append(ChatFormatting.RED).append(c.getMessage()).append(messageColour);
+                component.append(new TextComponent(c.getMessage()));
             } else {
-                if (builder.isEmpty()) {
-                    builder.append(messageColour);
-                }
-                builder.append(c.getMessage());
+                component.append(sugarLinkWithPreview(c.getMessage(), true));
             }
         }
-        return builder.toString();
+        return component;
     }
 
     private static ChatFormatting getMessageColour(Message message) {
@@ -114,7 +111,11 @@ public class MessageFormatter {
             // Append the previous left overs.
             String part = string.substring(lastEnd, start);
             if (part.length() > 0) {
-                if (ichat == null) { ichat = new TranslatableComponent(part); } else ichat.append(part);
+                if (ichat == null) {
+                    ichat = new TranslatableComponent(part);
+                } else {
+                    ichat.append(part);
+                }
             }
             lastEnd = end;
             String url = string.substring(start, end);
