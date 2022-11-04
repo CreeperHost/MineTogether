@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.covers1624.quack.collection.ColUtils;
 import net.covers1624.quack.collection.StreamableIterable;
+import net.covers1624.quack.util.LazyValue;
 import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
 import net.creeperhost.minetogether.lib.chat.request.*;
@@ -26,7 +27,7 @@ import java.util.function.Consumer;
 /**
  * Created by covers1624 on 22/6/22.
  */
-public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.ProfileManagerEvent> {
+public abstract class ProfileManager extends AbstractWeakNotifiable<ProfileManager.ProfileManagerEvent> {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -58,23 +59,24 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
                     .build()
     );
 
-    private final ChatState chatState;
     private final Map<String, Profile> profiles = new HashMap<>();
-    private final Profile ownProfile;
+    private final LazyValue<Profile> ownProfile;
 
     private final List<FriendRequest> friendRequests = new LinkedList<>();
 
     private int friendCookie;
     private boolean friendUpdateRunning;
 
-    public ProfileManager(ChatState chatState, String ownHash) {
-        this.chatState = chatState;
-        for (String mutedUser : chatState.mutedUserList.getMutedUsers()) {
-            lookupProfileStale(mutedUser);
-        }
-        ownProfile = lookupProfile(ownHash);
+    public ProfileManager(String ownHash) {
+        ownProfile = new LazyValue<>(() -> lookupProfile(ownHash));
+        startFriendsUpdater();
+    }
+
+    protected void startFriendsUpdater() {
         SCHEDULED_FRIEND_EXECUTOR.scheduleAtFixedRate(this::updateFriends, 10, 60, TimeUnit.SECONDS);
     }
+
+    public abstract ChatState getChatState();
 
     /**
      * Gets our own profile.
@@ -82,7 +84,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
      * @return Our profile.
      */
     public Profile getOwnProfile() {
-        return ownProfile;
+        return ownProfile.get();
     }
 
     /**
@@ -148,7 +150,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
                     }
                 }
 
-                profile = new Profile(chatState, hash);
+                profile = new Profile(getChatState(), hash);
                 profiles.put(hash, profile);
                 updateAliases(profile);
             }
@@ -201,11 +203,11 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     }
 
     public boolean sendFriendRequest(Profile to, String desiredName) {
-        IrcUser ircUser = chatState.ircClient.getUser(to);
+        IrcUser ircUser = getChatState().ircClient.getUser(to);
         if (ircUser == null) return false; // TODO assertion?
 
         // Send friend request.
-        ircUser.sendFriendRequest(ownProfile.getFriendCode(), desiredName);
+        ircUser.sendFriendRequest(getOwnProfile().getFriendCode(), desiredName);
         return true;
     }
 
@@ -216,14 +218,14 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     }
 
     public boolean acceptFriendRequest(FriendRequest request, String desiredName) {
-        IrcUser ircUser = chatState.ircClient.getUser(request.from);
+        IrcUser ircUser = getChatState().ircClient.getUser(request.from);
         if (ircUser == null) return false; // TODO assertion?
 
         synchronized (friendRequests) {
             friendRequests.remove(request);
         }
 
-        ircUser.acceptFriendRequest(ownProfile.getFriendCode(), request.desiredName);
+        ircUser.acceptFriendRequest(getOwnProfile().getFriendCode(), request.desiredName);
         apiAcceptFriendRequest(request.friendCode, desiredName);
         return true;
     }
@@ -246,8 +248,8 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     public void apiAcceptFriendRequest(String friendCode, String desiredName) {
         FRIEND_EXECUTOR.execute(() -> {
             try {
-                ApiResponse resp = chatState.api.execute(new AddFriendRequest(
-                        ownProfile.getFullHash(),
+                ApiResponse resp = getChatState().api.execute(new AddFriendRequest(
+                        getOwnProfile().getFullHash(),
                         friendCode,
                         desiredName
                 )).apiResponse();
@@ -263,7 +265,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     private void updateFriends() {
         friendUpdateRunning = true;
         try {
-            ListFriendsResponse resp = chatState.api.execute(new ListFriendsRequest(getOwnProfile().getFullHash())).apiResponse();
+            ListFriendsResponse resp = getChatState().api.execute(new ListFriendsRequest(getOwnProfile().getFullHash())).apiResponse();
             Set<String> friendHashes = new HashSet<>();
             boolean changes = false;
             for (ListFriendsResponse.FriendEntry friend : resp.friends) {
@@ -312,7 +314,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
         friendCookie++;
         FRIEND_EXECUTOR.execute(() -> {
             try {
-                ApiResponse resp = chatState.api.execute(new RemoveFriendRequest(friend.getFriendCode(), ownProfile.getFullHash())).apiResponse();
+                ApiResponse resp = getChatState().api.execute(new RemoveFriendRequest(friend.getFriendCode(), getOwnProfile().getFullHash())).apiResponse();
                 if (!resp.getStatus().equals("success")) {
                     LOGGER.error("Failed to remove friend. Api returned: {}", resp.getMessageOrNull());
                 }
@@ -350,7 +352,7 @@ public class ProfileManager extends AbstractWeakNotifiable<ProfileManager.Profil
     private void scheduleUpdate(Profile profile, Consumer<ProfileData> onFinished, int depth) {
         PROFILE_EXECUTOR.execute(() -> {
             try {
-                ProfileResponse resp = chatState.api.execute(new ProfileRequest(profile.initialHash)).apiResponse();
+                ProfileResponse resp = getChatState().api.execute(new ProfileRequest(profile.initialHash)).apiResponse();
                 if (resp.getStatus().equals("success")) {
                     onFinished.accept(resp.getData(profile.initialHash));
                     return;

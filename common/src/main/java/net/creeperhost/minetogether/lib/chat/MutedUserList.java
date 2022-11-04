@@ -8,6 +8,7 @@ import net.covers1624.quack.io.IOUtils;
 import net.creeperhost.minetogether.lib.chat.annotation.HashLen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -34,6 +35,12 @@ public class MutedUserList {
 
     private final Path file;
     private final Set<String> mutedUsers;
+
+    @VisibleForTesting
+    protected MutedUserList(Path file, Set<String> mutedUsers) {
+        this.file = file;
+        this.mutedUsers = mutedUsers;
+    }
 
     public MutedUserList(Path file) {
         this.file = file;
@@ -100,7 +107,8 @@ public class MutedUserList {
         return Collections.unmodifiableSet(mutedUsers);
     }
 
-    private void save() {
+    @VisibleForTesting
+    protected void save() {
         try {
             JsonUtils.write(GSON, IOUtils.makeParents(file), mutedUsers);
         } catch (IOException ex) {
