@@ -42,6 +42,7 @@ public abstract class DisplayableMessage<M> {
     public void format() {
         int addTime = builtMessage != null ? builtMessage.addedTime() : mc.gui.getGuiTicks();
         builtMessage = new GuiMessage(addTime, MessageFormatter.formatMessage(message), null, null);
+        trimmedLines.clear();
 
         int maxLen = Mth.floor(getChatWidth());
         List<FormattedCharSequence> lines = ComponentRenderUtils.wrapComponents(builtMessage.content(), maxLen, mc.font);
