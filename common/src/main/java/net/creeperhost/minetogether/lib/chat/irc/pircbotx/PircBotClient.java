@@ -351,7 +351,6 @@ public class PircBotClient implements IrcClient {
     @SubscribeEvent
     private void onBannedEvent(SetChannelBanEvent event) {
         Profile target = chatState.profileManager.lookupProfile(event.getBanHostmask().getNick());
-        if (target != chatState.profileManager.getOwnProfile()) return;
 
         target.banned();
         if (target == chatState.profileManager.getOwnProfile()) {
@@ -363,7 +362,6 @@ public class PircBotClient implements IrcClient {
     @SubscribeEvent
     private void onUnbannedEvent(RemoveChannelBanEvent event) {
         Profile target = chatState.profileManager.lookupProfile(event.getHostmask().getNick());
-        if (target != chatState.profileManager.getOwnProfile()) return;
 
         target.unbanned();
     }
