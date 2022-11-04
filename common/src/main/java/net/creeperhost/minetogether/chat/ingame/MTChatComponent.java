@@ -96,12 +96,9 @@ public class MTChatComponent extends ChatComponent {
 
     @Override
     public void rescaleChat() {
-        // Only delegate if we are the target to prevent loops.
-        if (MineTogetherChat.target != target) {
-            switch (MineTogetherChat.target) {
-                case VANILLA -> MineTogetherChat.vanillaChat.rescaleChat();
-                case PUBLIC -> MineTogetherChat.publicChat.rescaleChat();
-            }
+        // If we are the target, propagate to the others.
+        if (MineTogetherChat.target == target) {
+            MineTogetherChat.vanillaChat.rescaleChat();
         }
 
         trimmedMessages.clear();
@@ -115,12 +112,9 @@ public class MTChatComponent extends ChatComponent {
 
     @Override
     public void clearMessages(boolean bl) {
-        // Only delegate if we are the target to prevent loops.
-        if (MineTogetherChat.target != target) {
-            switch (MineTogetherChat.target) {
-                case VANILLA -> MineTogetherChat.vanillaChat.clearMessages(bl);
-                case PUBLIC -> MineTogetherChat.publicChat.clearMessages(bl);
-            }
+        // If we are the target, propagate to the others.
+        if (MineTogetherChat.target == target) {
+            MineTogetherChat.vanillaChat.clearMessages(bl);
         }
 
         // Clear all messages. Do this manually as we don't use all the fields from ChatComponent.
