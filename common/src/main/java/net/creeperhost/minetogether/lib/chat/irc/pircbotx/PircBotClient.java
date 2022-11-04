@@ -253,7 +253,9 @@ public class PircBotClient implements IrcClient {
             channel.addMessage(Instant.ofEpochMilli(event.getTimestamp()), sender, event.getMessage());
         }
 
-        LOGGER.info("{}: {} | {}", event.getChannel().getName(), sender.getDisplayName(), event.getMessage());
+        if (chatState.logChatToConsole) {
+            LOGGER.info("{}: {} | {}", event.getChannel().getName(), sender.getDisplayName(), event.getMessage());
+        }
     }
 
     @SubscribeEvent
@@ -264,7 +266,9 @@ public class PircBotClient implements IrcClient {
             ((AbstractChannel) user.getChannel()).addMessage(Instant.ofEpochMilli(event.getTimestamp()), sender, event.getMessage());
         }
 
-        LOGGER.info("{}: {}", sender.getDisplayName(), event.getMessage());
+        if (chatState.logChatToConsole) {
+            LOGGER.info("{}: {}", sender.getDisplayName(), event.getMessage());
+        }
     }
 
     @SubscribeEvent
@@ -282,7 +286,9 @@ public class PircBotClient implements IrcClient {
             channel.addNoticeMessage(Instant.ofEpochMilli(event.getTimestamp()), event.getMessage());
         }
 
-        LOGGER.info("{}: System {} | {}", cName, nick, event.getMessage());
+        if (chatState.logChatToConsole) {
+            LOGGER.info("{}: System {} | {}", cName, nick, event.getMessage());
+        }
     }
 
     @SubscribeEvent
@@ -290,7 +296,9 @@ public class PircBotClient implements IrcClient {
         User user = event.getUser();
         Channel ircChannel = event.getChannel();
         if (user.getNick().equals(nick)) {
-            LOGGER.info("Join channel: " + event.getChannel().getName());
+            if (chatState.logChatToConsole) {
+                LOGGER.info("Join channel: " + event.getChannel().getName());
+            }
             PircBotChannel channel = channels.computeIfAbsent(ircChannel.getName(), e -> new PircBotChannel(chatState, e));
             channel.bindChannel(ircChannel);
 
@@ -365,9 +373,11 @@ public class PircBotClient implements IrcClient {
         User user = event.getUser();
         String request = event.getRequest();
         String[] split = request.split(" ", 2);
-        LOGGER.info("CTCP Request: {}", request);
+        if (chatState.logChatToConsole) {
+            LOGGER.info("CTCP Request: {}", request);
+        }
         switch (split[0]) {
-            case "FRIENDREQ": {
+            case "FRIENDREQ" -> {
                 // System CTCP or non MT user.
                 if (user == null || !user.getNick().startsWith("MT")) break;
                 Profile from = chatState.profileManager.lookupProfile(user.getNick());
@@ -376,9 +386,8 @@ public class PircBotClient implements IrcClient {
                 if (split2.length < 2) break;
 
                 chatState.profileManager.onIncomingFriendRequest(from, split2[0], split2[1]);
-                break;
             }
-            case "FRIENDACC": {
+            case "FRIENDACC" -> {
                 // System CTCP or non MT user.
                 if (user == null || !user.getNick().startsWith("MT")) break;
                 Profile source = chatState.profileManager.lookupProfile(user.getNick());
@@ -387,12 +396,9 @@ public class PircBotClient implements IrcClient {
                 if (split2.length < 2) break;
 
                 chatState.profileManager.onFriendRequestAccepted(source, split2[0], split2[1]);
-                break;
             }
-            case "SERVERID": {
-                break;
-            }
-            case "VERIFY": {
+            case "SERVERID" -> { }
+            case "VERIFY" -> {
                 if (user == null || user.getNick().startsWith("MT")) {
                     break;
                 }
@@ -401,9 +407,8 @@ public class PircBotClient implements IrcClient {
                 String id = chatState.auth.beginMojangAuth();
                 LOGGER.info("Verifying with: " + id);
                 event.respond(String.format("VERIFY %s:%s:%s", chatState.auth.getSignature(), chatState.auth.getUUID(), id));
-                break;
             }
-            default: {
+            default -> {
                 LOGGER.warn("Unknown CTCP Request from user {}: {}", user, request);
             }
         }
