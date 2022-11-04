@@ -135,6 +135,8 @@ abstract class ChatScreenMixin extends Screen {
             }));
             addRenderableWidget(new Button(6, height - ((cHeight + 80) / 2) + 70, cWidth - 2, 20, new TextComponent("Don't ask me again."), e -> {
                 MineTogetherChat.disableChat();
+                Config.instance().chatEnabled = false;
+                Config.save();
                 MineTogetherChat.setNewUserResponded();
                 clearWidgets();
             }));

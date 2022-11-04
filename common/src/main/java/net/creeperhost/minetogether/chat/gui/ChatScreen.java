@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.ChatStatistics;
 import net.creeperhost.minetogether.chat.MessageDropdownOption;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.gui.SettingsScreen;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
@@ -141,6 +142,8 @@ public class ChatScreen extends Screen {
             }));
             disableButton = addRenderableWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, new TextComponent("Don't ask me again."), e -> {
                 MineTogetherChat.disableChat();
+                Config.instance().chatEnabled = false;
+                Config.save();
                 MineTogetherChat.setNewUserResponded();
                 minecraft.setScreen(parent);
             }));
