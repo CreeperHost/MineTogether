@@ -22,7 +22,7 @@ public class PMChannel extends AbstractChannel {
     @Override
     public void sendMessage(String message) {
         if (user.isOnline()) {
-            user.sendMessage(MessageUtils.processOutboundMessage(chatState.profileManager, message));
+            SEND_EXECUTOR.execute(() -> user.sendMessage(MessageUtils.processOutboundMessage(chatState.profileManager, message)));
             addMessage(Instant.now(), chatState.profileManager.getOwnProfile(), message);
         }
     }
