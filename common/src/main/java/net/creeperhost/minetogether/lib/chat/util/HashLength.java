@@ -12,8 +12,7 @@ import java.util.Locale;
  */
 public enum HashLength {
     FULL(64),
-    MEDIUM(28),
-    SHORT(15);
+    MEDIUM(28);
 
     public final int len;
 
