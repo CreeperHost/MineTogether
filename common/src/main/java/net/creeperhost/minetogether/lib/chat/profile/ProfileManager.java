@@ -121,6 +121,8 @@ public abstract class ProfileManager extends AbstractWeakNotifiable<ProfileManag
      * @return The Profile.
      */
     public Profile lookupProfileStale(String hash) {
+        if (hash.isEmpty()) throw new IllegalStateException("Empty hash provided. This should never happen!!");
+
         Profile profile = profiles.get(hash);
         if (profile == null) {
             synchronized (profiles) {
@@ -275,6 +277,10 @@ public abstract class ProfileManager extends AbstractWeakNotifiable<ProfileManag
             Set<String> friendHashes = new HashSet<>();
             boolean changes = false;
             for (ListFriendsResponse.FriendEntry friend : resp.friends) {
+                if (!HashLength.FULL.matches(friend.getHash())) {
+                    LOGGER.warn("Ignoring friend '{}' with invalid hash. '{}'", friend.getName(), friend.getHash());
+                    continue;
+                }
                 friendHashes.add(friend.getHash());
                 if (friend.isAccepted()) {
                     Profile profile = lookupProfile(friend.getHash());
