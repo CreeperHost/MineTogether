@@ -224,7 +224,6 @@ public class PircBotClient implements IrcClient {
         if (ircUser == null) return; // oookay..
         // Only if we are in the 'main' channel.
         if (!event.getChannel().getName().equals(serverDetails.getChannel())) return;
-        ircUser.send().whois();
 
         userSeen(ircUser);
     }
@@ -258,7 +257,8 @@ public class PircBotClient implements IrcClient {
 
     @SubscribeEvent
     private void onMessage(MessageEvent event) {
-        Profile sender = chatState.profileManager.lookupProfile(event.getUser().getNick());
+        User ircUser = event.getUser();
+        Profile sender = chatState.profileManager.lookupProfile(ircUser.getNick());
         PircBotChannel channel = channels.get(event.getChannel().getName());
         if (channel != null) {
             channel.addMessage(Instant.ofEpochMilli(event.getTimestamp()), sender, event.getMessage());
@@ -267,11 +267,17 @@ public class PircBotClient implements IrcClient {
         if (chatState.logChatToConsole) {
             LOGGER.info("{}: {} | {}", event.getChannel().getName(), sender.getDisplayName(), event.getMessage());
         }
+
+        if (channel.getName().equals(serverDetails.getChannel()) && !sender.newProfileWhoDis) {
+            sender.newProfileWhoDis = true;
+            ircUser.send().whois();
+        }
     }
 
     @SubscribeEvent
     private void onPrivateMessage(PrivateMessageEvent event) {
-        Profile sender = chatState.profileManager.lookupProfile(event.getUser().getNick());
+        User ircUser = event.getUser();
+        Profile sender = chatState.profileManager.lookupProfile(ircUser.getNick());
         IrcUser user = getUser(sender);
         if (user != null) {
             ((AbstractChannel) user.getChannel()).addMessage(Instant.ofEpochMilli(event.getTimestamp()), sender, event.getMessage());
@@ -279,6 +285,11 @@ public class PircBotClient implements IrcClient {
 
         if (chatState.logChatToConsole) {
             LOGGER.info("{}: {}", sender.getDisplayName(), event.getMessage());
+        }
+
+        if (!sender.newProfileWhoDis) {
+            sender.newProfileWhoDis = true;
+            ircUser.send().whois();
         }
     }
 

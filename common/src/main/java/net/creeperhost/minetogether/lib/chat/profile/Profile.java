@@ -56,6 +56,9 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
 
     private String packId = "";
 
+    // Set to true when we have performed a whois on the user.
+    public boolean newProfileWhoDis;
+
     Profile(ChatState chatState, String initialHash) {
         this.chatState = chatState;
         this.initialHash = initialHash;
@@ -142,6 +145,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
 
     public void markStale() {
         stale = true;
+        newProfileWhoDis = false;
     }
 
     public void setPack(String realName) {
