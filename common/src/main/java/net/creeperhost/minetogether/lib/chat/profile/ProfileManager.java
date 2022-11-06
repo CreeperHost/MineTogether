@@ -130,22 +130,6 @@ public abstract class ProfileManager extends AbstractWeakNotifiable<ProfileManag
                 profile = profiles.get(hash);
                 if (profile != null) return profile;
 
-                String hashWithoutMT = hash.startsWith("MT") ? hash.substring(2) : hash;
-
-                for (Map.Entry<String, Profile> entry : profiles.entrySet()) {
-                    String otherName = entry.getKey();
-                    if (otherName.startsWith("MT")) {
-                        otherName = otherName.substring(2);
-                    }
-
-                    // If the entire name is contained within the other, then they are identical.
-                    if (hashWithoutMT.startsWith(otherName) || otherName.startsWith(hashWithoutMT)) {
-                        profile = entry.getValue();
-                        profiles.put(hash, profile);
-                        return profile;
-                    }
-                }
-
                 // If we have a full hash we can do some special lookups to try and find the others.
                 if (HashLength.FULL.matches(hash)) {
                     for (String alias : Profile.computeAllAliases(hash)) {
@@ -155,6 +139,16 @@ public abstract class ProfileManager extends AbstractWeakNotifiable<ProfileManag
                             profiles.put(hash, profile);
                             return profile;
                         }
+                    }
+                }
+
+                // Faster startsWith("MT")
+                if (hash.charAt(0) == 'M') {
+                    String withoutMT = hash.substring(2);
+                    profile = profiles.get(withoutMT);
+                    if (profile != null) {
+                        profiles.put(hash, profile);
+                        return profile;
                     }
                 }
 
