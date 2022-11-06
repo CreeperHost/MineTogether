@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.lib.chat.irc;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.lib.chat.message.MessageComponent;
@@ -12,11 +13,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by covers1624 on 17/10/22.
  */
 public abstract class AbstractChannel implements IrcChannel {
+
+    public static final ExecutorService SEND_EXECUTOR = Executors.newSingleThreadExecutor(
+            new ThreadFactoryBuilder()
+                    .setNameFormat("irc-send-queue")
+                    .setDaemon(true)
+                    .build()
+    );
 
     protected final ChatState chatState;
     protected final String name;
