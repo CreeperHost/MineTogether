@@ -31,6 +31,7 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
     @Nullable
     private IrcChannel.ChatListener listener;
 
+    private final List<ScrollListDisplayableMessage> changedMessages = new LinkedList<>();
     private final List<Message> pendingMessages = new LinkedList<>();
     private final List<ScrollListDisplayableMessage> messages = new LinkedList<>();
     private final PreviewRenderer previewRenderer = new PreviewRenderer(5, 5, 80, 60) {
@@ -101,6 +102,14 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
                 pendingMessages.clear();
             }
         }
+        if (!changedMessages.isEmpty()) {
+            synchronized (changedMessages) {
+                for (ScrollListDisplayableMessage changedMessage : changedMessages) {
+                    changedMessage.reformat();
+                }
+                changedMessages.clear();
+            }
+        }
         super.render(pStack, mouseX, mouseY, partialTicks);
         previewRenderer.render(pStack, mouseX, mouseY, partialTicks);
     }
@@ -169,6 +178,13 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
         public void display() {
             format();
             children().addAll(getTrimmedLines());
+        }
+
+        @Override
+        protected void onModified() {
+            synchronized (changedMessages) {
+                changedMessages.add(this);
+            }
         }
 
         @Override
