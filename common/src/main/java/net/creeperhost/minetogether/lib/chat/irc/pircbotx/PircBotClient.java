@@ -77,6 +77,7 @@ public class PircBotClient implements IrcClient {
                         .setListenerManager(SequentialListenerManager.newDefault()
                                 .addListenerSequential(eventListener)
                         )
+                        .setSnapshotsEnabled(false)
                         .setAutoReconnect(true)
                         .setAutoReconnectAttempts(-1)
                         .setAutoReconnectDelay(new StaticReadonlyDelay(TimeUnit.SECONDS.toMillis(5)))
