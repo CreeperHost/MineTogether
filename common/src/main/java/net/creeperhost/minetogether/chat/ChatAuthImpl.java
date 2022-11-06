@@ -49,6 +49,7 @@ public class ChatAuthImpl implements ChatAuth {
         return uuidHash;
     }
 
+    @Override
     public boolean isOnline() {
         return isOnline;
     }

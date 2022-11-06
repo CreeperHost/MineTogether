@@ -13,5 +13,7 @@ public interface ChatAuth {
 
     String getHash();
 
+    boolean isOnline();
+
     String beginMojangAuth();
 }

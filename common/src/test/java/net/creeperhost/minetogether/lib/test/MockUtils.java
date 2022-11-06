@@ -55,6 +55,7 @@ public class MockUtils {
         @Override public String getSignature() { return SignatureVerifier.generateSignature(); }
         @Override public UUID getUUID() { return TEST_UUID; }
         @Override public String getHash() { return TEST_HASH; }
+        @Override public boolean isOnline() { return true; }
         @Override public String beginMojangAuth() { throw new UnsupportedOperationException("Unable to mock mojang auth. Yet."); }
     }
     private static class MockWebEngine implements WebEngine {
