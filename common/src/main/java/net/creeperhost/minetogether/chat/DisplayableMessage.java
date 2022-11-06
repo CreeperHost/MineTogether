@@ -24,10 +24,14 @@ public abstract class DisplayableMessage<M> {
     private final List<M> trimmedLines = new LinkedList<>();
     @Nullable
     private GuiMessage builtMessage;
+    private boolean dirty;
 
     protected DisplayableMessage(Message message) {
         this.message = message;
-        listener = message.addListener(this, (i, e) -> i.onChange());
+        listener = message.addListener(this, (i, e) -> {
+            i.dirty = true;
+            i.onModified();
+        });
     }
 
     public void onDead() {
@@ -67,7 +71,9 @@ public abstract class DisplayableMessage<M> {
         return message;
     }
 
-    private void onChange() {
+    public void reformat() {
+        if (!dirty) return;
+        dirty = false;
         // Message has not been displayed yet.
         if (builtMessage == null) return;
 
@@ -85,6 +91,8 @@ public abstract class DisplayableMessage<M> {
             addMessage(trimmedIdx, trimmedLine);
         }
     }
+
+    protected abstract void onModified();
 
     protected abstract boolean isForward();
 

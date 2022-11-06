@@ -42,6 +42,7 @@ public class MTChatComponent extends ChatComponent {
     // Flag to override explicitly delegating to vanilla, set in specific cases.
     private boolean internalUpdate = false;
 
+    private final List<InGameDisplayableMessage> changedMessages = new LinkedList<>();
     private final LinkedList<Message> pendingMessages = new LinkedList<>();
     private final List<InGameDisplayableMessage> processedMessages = new ArrayList<>();
     @Nullable
@@ -90,6 +91,14 @@ public class MTChatComponent extends ChatComponent {
                 pendingMessages.clear();
             }
             internalUpdate = false;
+        }
+        if (!changedMessages.isEmpty()) {
+            synchronized (changedMessages) {
+                for (InGameDisplayableMessage changedMessage : changedMessages) {
+                    changedMessage.reformat();
+                }
+                changedMessages.clear();
+            }
         }
         super.render(poseStack, i);
     }
@@ -276,6 +285,13 @@ public class MTChatComponent extends ChatComponent {
 
         private InGameDisplayableMessage(Message message) {
             super(message);
+        }
+
+        @Override
+        protected void onModified() {
+            synchronized (changedMessages) {
+                changedMessages.add(this);
+            }
         }
 
         @Override
