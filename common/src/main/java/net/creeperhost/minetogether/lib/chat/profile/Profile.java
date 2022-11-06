@@ -77,9 +77,13 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
             this.aliases = ImmutableSet.copyOf(aliases);
         }
 
-        // First 5 characters after MT if exists.
-        int start = initialHash.startsWith("MT") ? 2 : 0;
-        displayName = "User#" + initialHash.substring(start, start + 5);
+        boolean startsWithMT = initialHash.startsWith("MT");
+        String hash = startsWithMT ? initialHash.substring(2) : initialHash;
+        if (HashLength.matchesAny(hash)) {
+            displayName = "User#" + hash.substring(0, 5);
+        } else {
+            displayName = hash;
+        }
     }
 
     public void unmute() {
