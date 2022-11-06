@@ -23,7 +23,7 @@ public class PircBotChannel extends AbstractChannel {
     @Override
     public void sendMessage(String message) {
         if (channel != null) {
-            channel.send().message(MessageUtils.substituteKnownUsers(chatState.profileManager, message));
+            channel.send().message(MessageUtils.processOutboundMessage(chatState.profileManager, message));
             addMessage(Instant.now(), chatState.profileManager.getOwnProfile(), message);
         }
     }

@@ -75,13 +75,19 @@ public class MessageUtils {
     }
 
     /**
-     * Replaces all known user display names in the message with their MT hash reference.
+     * Processes an outbound message.
+     * <p>
+     * - Strips formatting<br/>
+     * - Replaces all known user display names in the message with their MT hash reference.<br/>
      *
      * @param profileManager The profile manager to iterate Profiles.
      * @param message        The message to parse and replace.
      * @return The replaced message.
      */
-    public static String substituteKnownUsers(ProfileManager profileManager, String message) {
+    public static String processOutboundMessage(ProfileManager profileManager, String message) {
+
+        message = message.replaceAll("(§.)", "");
+
         Map<String, String> knownUsers = StreamableIterable.of(profileManager.getKnownProfiles())
                 .filter(e -> e.getIrcName() != null)
                 .toMap(Profile::getDisplayName, Profile::getIrcName);

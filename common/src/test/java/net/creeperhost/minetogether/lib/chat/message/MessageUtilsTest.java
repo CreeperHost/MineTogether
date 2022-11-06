@@ -17,4 +17,9 @@ public class MessageUtilsTest {
         assertEquals("Before User#7A70B After", MessageUtils.parseMessage(MOCK_PROFILE_MANAGER, "Before " + TEST_USER_HASH + " After").toString());
         assertEquals("Before User#7A70B Middle User#7A70B After", MessageUtils.parseMessage(MOCK_PROFILE_MANAGER, "Before " + TEST_USER_HASH + " Middle " + TEST_USER_HASH + " After").toString());
     }
+
+    @Test
+    public void testOutgoingMessage() {
+        assertEquals("Hello, World!", MessageUtils.processOutboundMessage(MOCK_PROFILE_MANAGER, "§cHello§r, §bWorld§r!"));
+    }
 }
