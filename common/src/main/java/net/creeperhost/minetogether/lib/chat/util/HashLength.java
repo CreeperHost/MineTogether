@@ -57,4 +57,13 @@ public enum HashLength {
     public String format(HashCode hash) {
         return format(hash.toString().toUpperCase(Locale.ROOT));
     }
+
+    public static boolean matchesAny(String hash) {
+        for (HashLength value : values()) {
+            if (value.matches(hash)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
