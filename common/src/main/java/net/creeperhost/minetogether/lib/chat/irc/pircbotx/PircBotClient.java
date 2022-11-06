@@ -101,6 +101,10 @@ public class PircBotClient implements IrcClient {
 
     @Override
     public void start() {
+        if (!chatState.auth.isOnline()) {
+            LOGGER.info("Refusing to start IRCClient. User is in offline mode.");
+            return;
+        }
         if (state == IrcState.DISCONNECTED || state == IrcState.CRASHED) {
             LOGGER.info("Starting MineTogether IRCClient.");
             state = IrcState.CONNECTING;
