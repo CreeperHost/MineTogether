@@ -8,6 +8,7 @@
         "chat.ingame.ChatComponentMixin",
         "chat.ingame.GuiMixin",
         "connect.MixinIntegratedServer",
+        "connect.MixinJoinMultiplayerScreen",
         "connect.MixinServerSelectionListAccessor",
         "connect.MixinShareToLanScreen",
         "order.MixinServerSelectionList"
