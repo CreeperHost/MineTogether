@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.forge;
 
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModFileInfo;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 
@@ -12,10 +13,11 @@ import static net.creeperhost.minetogether.MineTogether.MOD_ID;
  */
 public class MineTogetherPlatformImpl {
 
+    @Nullable
     public static Path getModJar() {
         IModFileInfo fileInfo = ModList.get().getModFileById(MOD_ID);
         if (fileInfo == null) {
-            throw new IllegalStateException("Failed to find ModFileInfo for MineTogether?");
+            return null;
         }
         return fileInfo.getFile().getFilePath();
     }
