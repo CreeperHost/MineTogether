@@ -1,14 +1,18 @@
 package net.creeperhost.minetogether.mixin.order;
 
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.connect.ConnectHelper;
 import net.creeperhost.minetogether.connect.LanServerInfoConnect;
 import net.creeperhost.minetogether.connect.OurServerListEntryLanDetected;
 import net.creeperhost.minetogether.orderform.CreeperHostServerEntry;
 import net.creeperhost.minetogether.serverlist.gui.JoinMultiplayerScreenPublic;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,6 +24,20 @@ public class MixinServerSelectionList {
     @Shadow
     @Final
     private JoinMultiplayerScreen screen;
+
+    private static final Component OURSCANNING_LABEL = new TranslatableComponent("minetogether.connect.scan");
+    private static final Component MTSCANNING_LABEL = new TranslatableComponent("minetogether.connect.scan.offline");
+
+    @Mutable
+    @Shadow
+    @Final
+    private static Component SCANNING_LABEL;
+
+    @Inject(at = @At("TAIL"), method = "<init>")
+    public void init(CallbackInfo ci)
+    {
+        SCANNING_LABEL = ConnectHelper.isEnabled ? OURSCANNING_LABEL : MTSCANNING_LABEL;
+    }
 
     @Inject (at = @At ("RETURN"), method = "refreshEntries()V")
     private void afterRefreshEntries(CallbackInfo info) {

@@ -183,5 +183,7 @@
     "minetogether.connect.join.notfriend":"You cannot join as you are not MineTogether friends with this user!",
     "minetogether.connect.unavailable":"MineTogether connect is unavailable: %s",
     "minetogether.connect.unavailable.website":"MineTogether connect is unavailable: %s\n\nDo you wish to visit the MineTogether website now?",
-    "minetogether.connect.title": "Multiplayer (MineTogether Connect)"
+    "minetogether.connect.title": "Multiplayer (MineTogether Connect)",
+    "minetogether.connect.scan":"Scanning MineTogether Connect and LAN for available worlds",
+    "minetogether.connect.scan.offline":"Scanning LAN for available worlds"
 }
