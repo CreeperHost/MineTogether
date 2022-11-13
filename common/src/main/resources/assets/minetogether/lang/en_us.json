@@ -15,7 +15,7 @@
     
     "minetogether:screen.chat.title": "MineTogether Chat",
     "minetogether:screen.chat.suggestion.disconnected": "Unable to send messages while client is disconnected",
-    "minetogether:screen.chat.suggestion.connecting": "Unable to send messages while client is conmnecting",
+    "minetogether:screen.chat.suggestion.connecting": "Unable to send messages while client is connecting",
     "minetogether:screen.chat.suggestion.reconnecting": "Unable to send messages while client is reconnecting",
     "minetogether:screen.chat.suggestion.crashed": "Unable to send messages. Chat engine has crashed.",
     "minetogether:screen.chat.suggestion.banned": "Unable to send messages while client is banned",
