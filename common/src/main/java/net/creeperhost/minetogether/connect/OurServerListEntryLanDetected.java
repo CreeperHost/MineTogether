@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 
 import java.net.UnknownHostException;
@@ -82,7 +81,7 @@ public class OurServerListEntryLanDetected extends ServerSelectionList.NetworkSe
             //if (bl) joinMultiplayerScreen.setToolTip(FULL_TOOLTOP_LIST);
             this.minecraft.font.draw(poseStack, FULL_COMPONENT, listWidth + l - fullComponentWidth - 20, y + 1, 16777215);
         }
-        this.minecraft.font.draw(poseStack, I18n.get("minetogether.connect.friendentry.title"), listWidth + 32 + 3, y + 1, 16777215);
+        this.minecraft.font.draw(poseStack, Component.translatable("minetogether.connect.friendentry.title"), listWidth + 32 + 3, y + 1, 16777215);
         this.minecraft.font.draw(poseStack, serverData.getFriend().getChosenName(), listWidth + 32 + 3, y + 12, 8421504);
         this.minecraft.font.draw(poseStack, ChatFormatting.DARK_GRAY + serverData.getFriend().getDisplayName(), listWidth + l - this.minecraft.font.width(serverData.getFriend().getDisplayName()) - 20, y + 12, 16777215);
     }
