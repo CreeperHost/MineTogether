@@ -15,4 +15,9 @@ public class MineTogetherPlatform {
     public static Path getModJar() {
         throw new AssertionError();
     }
+
+    @ExpectPlatform
+    public static String getVersion() {
+        throw new AssertionError();
+    }
 }

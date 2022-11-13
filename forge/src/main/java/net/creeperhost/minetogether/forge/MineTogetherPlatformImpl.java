@@ -21,4 +21,13 @@ public class MineTogetherPlatformImpl {
         }
         return fileInfo.getFile().getFilePath();
     }
+
+    public static String getVersion() {
+        IModFileInfo fileInfo = ModList.get().getModFileById(MOD_ID);
+        if (fileInfo == null) {
+            return "UNKNOWN";
+        }
+
+        return fileInfo.versionString();
+    }
 }

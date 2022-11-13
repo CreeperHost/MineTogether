@@ -29,4 +29,12 @@ public class MineTogetherPlatformImpl {
         List<Path> paths = origin.getPaths();
         return !paths.isEmpty() ? paths.get(0) : null;
     }
+
+    public static String getVersion() {
+        Optional<ModContainer> container = FabricLoader.getInstance()
+                .getModContainer(MOD_ID);
+        if (container.isEmpty()) return "UNKNOWN";
+
+        return container.get().getMetadata().getVersion().getFriendlyString();
+    }
 }

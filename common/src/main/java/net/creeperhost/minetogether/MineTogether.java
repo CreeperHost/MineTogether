@@ -29,15 +29,15 @@ public class MineTogether {
     public static final WebEngine WEB_ENGINE = new ApacheWebEngine();
     public static final ApiClient API = ApiClient.builder()
             .webEngine(WEB_ENGINE)
-            .addUserAgentSegment("MineTogether-lib/@VERSION@")
-            .addUserAgentSegment("MineTogether-mod/@VERSION@")
+            .addUserAgentSegment("MineTogether-lib/2.0.0")// TODO change when lib gets yoinked.
+            .addUserAgentSegment("MineTogether-mod/" + MineTogetherPlatform.getVersion())
             .addUserAgentSegment("Minecraft/" + Platform.getMinecraftVersion())
             .addUserAgentSegment("Modloader/" + ArchitecturyTarget.getCurrentTarget())
             .webAuth(AUTH)
             .build();
     static {
-        WebUtils.userAgent += " MineTogether-lib/@VERSION@";
-        WebUtils.userAgent += " MineTogether-mod/@VERSION@";
+        WebUtils.userAgent += " MineTogether-lib/2.0.0";// TODO change when lib gets yoinked.
+        WebUtils.userAgent += " MineTogether-mod/" + MineTogetherPlatform.getVersion();
         WebUtils.userAgent += " Minecraft/" + Platform.getMinecraftVersion();
         WebUtils.userAgent += " Modloader/" + ArchitecturyTarget.getCurrentTarget();
     }
