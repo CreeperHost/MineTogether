@@ -90,8 +90,12 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     }
 
     public void unmute() {
-        assert isMuted;
-        assert fullHash != null; // TODO, function to wait for profile to finish updating?
+        if (!isMuted) return;
+        if (fullHash == null) {
+            // TODO, function to wait for profile to finish updating and perform this action.
+            LOGGER.warn("Full hash not available when trying to unmute user.");
+            return;
+        }
 
         isMuted = false;
         chatState.mutedUserList.unmuteUser(fullHash);
@@ -99,8 +103,12 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     }
 
     public void mute() {
-        assert !isMuted;
-        assert fullHash != null; // TODO, function to wait for profile to finish updating?
+        if (isMuted) return;
+        if (fullHash == null) {
+            // TODO, function to wait for profile to finish updating and perform this action.
+            LOGGER.warn("Full hash not available when trying to mute user.");
+            return;
+        }
 
         isMuted = true;
         chatState.mutedUserList.muteUser(fullHash);
