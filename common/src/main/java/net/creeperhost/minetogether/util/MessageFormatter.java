@@ -47,9 +47,9 @@ public class MessageFormatter {
         for (MessageComponent c : comp.iterate()) {
             if (c instanceof ProfileMessageComponent profileComp && profileComp.profile == MineTogetherChat.getOurProfile()) {
                 // Mentions get red
-                component.append(new TextComponent(c.getMessage()));
+                component.append(new TextComponent(c.getMessage()).withStyle(RED));
             } else {
-                component.append(sugarLinkWithPreview(c.getMessage(), true));
+                component.append(sugarLinkWithPreview(c.getMessage(), true, messageColour));
             }
         }
         return component;
@@ -95,7 +95,7 @@ public class MessageFormatter {
     }
 
     //Copied from forge
-    private static Component sugarLinkWithPreview(String string, boolean allowMissingHeader) {
+    private static Component sugarLinkWithPreview(String string, boolean allowMissingHeader, ChatFormatting messageColour) {
         // Includes ipv4 and domain pattern
         // Matches an ip (xx.xxx.xx.xxx) or a domain (something.com) with or
         // without a protocol or path.
@@ -112,7 +112,7 @@ public class MessageFormatter {
             String part = string.substring(lastEnd, start);
             if (part.length() > 0) {
                 if (ichat == null) {
-                    ichat = new TranslatableComponent(part);
+                    ichat = new TranslatableComponent(part).withStyle(messageColour);
                 } else {
                     ichat.append(part);
                 }
@@ -157,9 +157,9 @@ public class MessageFormatter {
         // Append the rest of the message.
         String end = string.substring(lastEnd);
         if (ichat == null) {
-            ichat = new TranslatableComponent(end);
+            ichat = new TranslatableComponent(end).withStyle(messageColour);
         } else if (end.length() > 0) {
-            ichat.append(new TranslatableComponent(string.substring(lastEnd)));
+            ichat.append(new TranslatableComponent(string.substring(lastEnd)).withStyle(messageColour));
         }
         return ichat;
     }
