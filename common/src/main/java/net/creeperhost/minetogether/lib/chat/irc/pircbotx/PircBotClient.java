@@ -354,7 +354,7 @@ public class PircBotClient implements IrcClient {
     private void onVoiceEvent(VoiceEvent event) {
         User user = event.getRecipient();
         if (user == null) return;
-        Profile target = chatState.profileManager.lookupProfile(user.getNick());
+        Profile target = chatState.profileManager.lookupProfileStale(user.getNick());
         if (target != chatState.profileManager.getOwnProfile()) return;
 
         if (event.hasVoice()) {
@@ -364,7 +364,7 @@ public class PircBotClient implements IrcClient {
 
     @SubscribeEvent
     private void onWhois(WhoisEvent event) {
-        Profile profile = chatState.profileManager.lookupProfile(event.getNick());
+        Profile profile = chatState.profileManager.lookupProfileStale(event.getNick());
         if (profile == chatState.profileManager.getOwnProfile()) return;
 
         profile.setPack(event.getRealname());
@@ -372,7 +372,7 @@ public class PircBotClient implements IrcClient {
 
     @SubscribeEvent
     private void onBannedEvent(SetChannelBanEvent event) {
-        Profile target = chatState.profileManager.lookupProfile(event.getBanHostmask().getNick());
+        Profile target = chatState.profileManager.lookupProfileStale(event.getBanHostmask().getNick());
 
         target.banned();
         if (target == chatState.profileManager.getOwnProfile()) {
@@ -383,7 +383,7 @@ public class PircBotClient implements IrcClient {
 
     @SubscribeEvent
     private void onUnbannedEvent(RemoveChannelBanEvent event) {
-        Profile target = chatState.profileManager.lookupProfile(event.getHostmask().getNick());
+        Profile target = chatState.profileManager.lookupProfileStale(event.getHostmask().getNick());
 
         target.unbanned();
     }
