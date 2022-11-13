@@ -56,6 +56,7 @@ public class MutedUserList {
             mu = new HashSet<>();
         }
         mutedUsers = mu;
+        mutedUsers.remove(null);
         save();
     }
 
