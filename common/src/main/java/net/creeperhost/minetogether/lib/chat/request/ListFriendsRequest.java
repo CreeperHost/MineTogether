@@ -11,7 +11,7 @@ import static net.creeperhost.minetogether.lib.web.WebConstants.CH_API;
 public class ListFriendsRequest extends ApiRequest<ListFriendsResponse> {
 
     public ListFriendsRequest(String target) {
-        super("PUT", CH_API + "serverlist/listfriend", ListFriendsResponse.class);
+        super("PUT", CH_API + "minetogether/listfriend", ListFriendsResponse.class);
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 

@@ -12,7 +12,7 @@ import static net.creeperhost.minetogether.lib.web.WebConstants.CH_API;
 public class RemoveFriendRequest extends ApiRequest<ApiResponse> {
 
     public RemoveFriendRequest(String friendCode, String ourHash) {
-        super("PUT", CH_API + "serverlist/removefriend", ApiResponse.class);
+        super("PUT", CH_API + "minetogether/removefriend", ApiResponse.class);
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 
