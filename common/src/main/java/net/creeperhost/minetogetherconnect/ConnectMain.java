@@ -150,6 +150,7 @@ public class ConnectMain {
         }
 
         public void openToOthers(BiConsumer<Boolean, String> callback, Consumer<String> messageRelayer) {
+            LOGGER.info("MineTogether Connect: Opening to others.");
             if (!doAuth()) {
                 callback.accept(false, "failed auth");
                 return;
@@ -246,7 +247,9 @@ public class ConnectMain {
                             outputStream.write("PONG\n".getBytes(StandardCharsets.UTF_8));
                             break;
                         case "Connect":
+                            LOGGER.info("MineTogether Connect: Handling connect: {}, {}", address, registerResponse.port - 1);
                             ProxyHandler.Start(42069, this.address, registerResponse.port - 1, registerResponse.secret, callback);
+                            break;
                         default:
                             if (line.startsWith(messageStr)) {
                                 messageStr = line.substring(messageStr.length());
