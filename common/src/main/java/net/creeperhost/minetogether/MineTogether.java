@@ -3,6 +3,7 @@ package net.creeperhost.minetogether;
 import dev.architectury.injectables.targets.ArchitecturyTarget;
 import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.lib.util.Log4jUtils;
 import net.creeperhost.minetogether.lib.web.ApiClient;
 import net.creeperhost.minetogether.lib.web.DynamicWebAuth;
 import net.creeperhost.minetogether.lib.web.WebEngine;
@@ -43,6 +44,7 @@ public class MineTogether {
     }
 
     public static void init() {
+        Log4jUtils.attachMTLogs(Platform.getGameFolder().resolve("logs"));
         LOGGER.info("Initializing MineTogether!");
         AUTH.setHeader("Fingerprint", FINGERPRINT);
 
