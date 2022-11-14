@@ -12,7 +12,7 @@ import static net.creeperhost.minetogether.lib.web.WebConstants.CH_API;
 public class AddFriendRequest extends ApiRequest<ApiResponse> {
 
     public AddFriendRequest(String ourHash, String friendCode, String desiredName) {
-        super("PUT", CH_API + "serverlist/requestfriend", ApiResponse.class);
+        super("PUT", CH_API + "minetogether/requestfriend", ApiResponse.class);
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 

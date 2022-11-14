@@ -10,7 +10,7 @@ import static net.creeperhost.minetogether.lib.web.WebConstants.CH_API;
 public class IRCServerListRequest extends ApiRequest<IRCServerListResponse> {
 
     public IRCServerListRequest() {
-        super("GET", CH_API + "serverlist/chatserver", IRCServerListResponse.class);
+        super("GET", CH_API + "minetogether/chatserver", IRCServerListResponse.class);
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
     }
