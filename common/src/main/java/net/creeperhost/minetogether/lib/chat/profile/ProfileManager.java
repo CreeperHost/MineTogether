@@ -360,8 +360,13 @@ public abstract class ProfileManager extends AbstractWeakNotifiable<ProfileManag
             try {
                 ProfileResponse resp = getChatState().api.execute(new ProfileRequest(profile.initialHash)).apiResponse();
                 if (resp.getStatus().equals("success")) {
-                    onFinished.accept(resp.getData(profile.initialHash));
-                    return;
+                    ProfileData data = resp.getData(profile.initialHash);
+                    if (data == null) {
+                        LOGGER.error("Profile response did not return expected hash. Got: '{}' Expected: {}", resp.getDataKeys(), profile.initialHash);
+                    } else {
+                        onFinished.accept(data);
+                        return;
+                    }
                 }
                 if (!resp.getMessage().startsWith("Profile request already ongoing")) {
                     LOGGER.warn("Unexpected error response from API: " + resp.getMessage());

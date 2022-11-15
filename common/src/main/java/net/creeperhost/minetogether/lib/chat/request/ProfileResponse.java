@@ -3,8 +3,10 @@ package net.creeperhost.minetogether.lib.chat.request;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by covers1624 on 21/6/22.
@@ -14,6 +16,11 @@ public class ProfileResponse extends ApiResponse {
     @Nullable
     private Map<String, ProfileData> profileData;
 
+    public Set<String> getDataKeys() {
+        return Collections.unmodifiableSet(Objects.requireNonNull(profileData).keySet());
+    }
+
+    @Nullable
     public ProfileData getData(String hash) {
         return Objects.requireNonNull(profileData).get(hash);
     }
