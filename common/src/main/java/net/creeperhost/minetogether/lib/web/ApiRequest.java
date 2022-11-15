@@ -16,14 +16,14 @@ import static net.creeperhost.minetogether.lib.web.WebConstants.JSON;
 /**
  * Created by covers1624 on 20/6/22.
  */
-public abstract class ApiRequest<R extends ApiResponse> {
+public abstract class ApiRequest<R> {
 
     protected static final Gson GSON = new Gson();
     protected static final Type STRING_MAP_TYPE = new TypeToken<>() { }.getType();
 
     public final String method;
     public final String url;
-    public final Class<R> responseClass;
+    public final Type responseClass;
 
     public final Set<String> requiredAuthHeaders = new HashSet<>();
 
@@ -33,7 +33,7 @@ public abstract class ApiRequest<R extends ApiResponse> {
     @Nullable
     protected WebBody body;
 
-    protected ApiRequest(String method, String url, Class<R> responseClass) {
+    protected ApiRequest(String method, String url, Type responseClass) {
         this.method = method;
         this.url = url;
         this.responseClass = responseClass;

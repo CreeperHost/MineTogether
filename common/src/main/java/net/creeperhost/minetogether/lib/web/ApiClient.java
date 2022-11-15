@@ -49,7 +49,7 @@ public final class ApiClient {
      * @return The {@link ApiClientResponse}.
      * @throws IOException If an IO error occurs whilst executing the given {@link ApiRequest}.
      */
-    public <R extends ApiResponse> ApiClientResponse<R> execute(ApiRequest<R> apiRequest) throws IOException {
+    public <R> ApiClientResponse<R> execute(ApiRequest<R> apiRequest) throws IOException {
         EngineRequest request = engine.newRequest();
         apiRequest.fillRequest(request);
 

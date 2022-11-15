@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Created by covers1624 on 21/6/22.
  */
-public class ApiClientResponse<R extends ApiResponse> {
+public class ApiClientResponse<R> {
 
     private final EngineResponse response;
     @Nullable
@@ -28,6 +28,10 @@ public class ApiClientResponse<R extends ApiResponse> {
 
     public HeaderList headers() {
         return response.headers();
+    }
+
+    public boolean hasBody() {
+        return apiResponse != null;
     }
 
     public R apiResponse() {
