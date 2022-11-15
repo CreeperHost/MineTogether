@@ -73,7 +73,7 @@ public final class ApiClient {
             }
             // TODO, split on semicolon and parse both the content type and encoding.
             if (!StringUtils.startsWith(body.contentType(), WebConstants.JSON)) {
-                throw new UnsupportedOperationException("Response for request '" + request.getUrl() + "' returned content type '" + body.contentType() + "'. I don't know how to handle this yet.");
+                throw new IOException("Response for request '" + request.getUrl() + "' returned content type '" + body.contentType() + "'. I don't know how to handle this yet.");
             }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(body.open(), StandardCharsets.UTF_8))) {
                 return new ApiClientResponse<>(response, apiRequest.getGson().fromJson(reader, apiRequest.responseClass));
