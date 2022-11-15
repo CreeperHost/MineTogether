@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.connect;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.mixin.connect.MixinServerSelectionListAccessor;
+import net.creeperhost.minetogether.mixin.connect.ServerSelectionListAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -46,7 +46,7 @@ public class OurServerListEntryLanDetected extends ServerSelectionList.NetworkSe
             this.fullServerData.ping = -2L;
             this.fullServerData.motd = TextComponent.EMPTY;
             this.fullServerData.status = TextComponent.EMPTY;
-            MixinServerSelectionListAccessor.getPingThreadPool().submit(() -> {
+            ServerSelectionListAccessor.getPingThreadPool().submit(() -> {
                 try {
                     this.joinMultiplayerScreen.getPinger().pingServer(this.fullServerData, () -> {
                     });

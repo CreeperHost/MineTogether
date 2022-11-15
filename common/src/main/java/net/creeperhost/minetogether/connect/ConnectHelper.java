@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.connect;
 
-import net.creeperhost.minetogether.mixin.connect.MixinIntegratedServer;
+import net.creeperhost.minetogether.mixin.connect.IntegratedServerAccessor;
 import net.creeperhost.minetogetherconnect.ConnectMain;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
@@ -50,7 +50,7 @@ public class ConnectHelper {
                                 int port = 42069;
                                 System.setProperty("java.net.preferIPv4Stack", "false"); // no tears, not only ipv4
                                 integratedServer.getConnection().startTcpServerListener(null, port); // make localhost only
-                                ((MixinIntegratedServer) integratedServer).setPublishedPort(port);
+                                ((IntegratedServerAccessor) integratedServer).setPublishedPort(port);
                                 integratedServer.getPlayerList().getMaxPlayers();
                                 integratedServer.setPort(port);
                                 integratedServer.setDefaultGameType(type);
