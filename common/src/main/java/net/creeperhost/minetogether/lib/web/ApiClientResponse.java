@@ -31,6 +31,6 @@ public class ApiClientResponse<R extends ApiResponse> {
     }
 
     public R apiResponse() {
-        return Objects.requireNonNull(apiResponse, "Response does not have a body.");
+        return Objects.requireNonNull(apiResponse, "Response does not have a body. Status code of: " + statusCode() + " " + message());
     }
 }
