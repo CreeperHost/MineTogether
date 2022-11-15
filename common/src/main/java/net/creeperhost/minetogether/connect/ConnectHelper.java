@@ -9,12 +9,15 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class ConnectHelper {
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public static boolean isEnabled = false;
 
@@ -31,19 +34,20 @@ public class ConnectHelper {
     }
 
     public static void shareToFriends(GameType type, boolean allowCheats) {
+        Minecraft mc = Minecraft.getInstance();
         CompletableFuture.runAsync(() ->
         {
             try {
                 ConnectHandler.openCallback((message) -> {
                     if (message.equals("CLOSED123")) {
-                        Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open to friends again to fix this!"));
+                        mc.gui.getChat().addMessage(new TextComponent("MineTogether Connect: An error occurred and you are no longer listening for new friend connections. Please reload your world and open to friends again to fix this!"));
                         ConnectMain.close();
                     } else {
-                        Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("MineTogether Connect: " + message));
+                        mc.gui.getChat().addMessage(new TextComponent("MineTogether Connect: " + message));
                     }
                 }, (response) -> {
                     if (response.isSuccess()) {
-                        IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
+                        IntegratedServer integratedServer = mc.getSingleplayerServer();
                         Objects.requireNonNull(integratedServer).submit(() ->
                         {
                             try {
@@ -57,28 +61,26 @@ public class ConnectHelper {
 //                                integratedServer.getPlayerList().setOverrideGameMode(type);
                                 integratedServer.getPlayerList().setAllowCheatsForAllPlayers(allowCheats);
                                 int i = integratedServer.getProfilePermissions(Minecraft.getInstance().player.getGameProfile());
-                                Minecraft.getInstance().player.setPermissionLevel(i);
+                                mc.player.setPermissionLevel(i);
                                 for (ServerPlayer serverplayerentity : integratedServer.getPlayerList().getPlayers()) {
                                     integratedServer.getCommands().sendCommands(serverplayerentity);
                                 }
 
-                                TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.success");
+                                mc.submit(() -> mc.updateTitle());
 
-                                Minecraft.getInstance().updateTitle();
-
-                                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+                                mc.gui.getChat().addMessage(new TranslatableComponent("minetogether.connect.open.success"));
                             } catch (IOException var6) {
                                 TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed");
-                                Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+                                mc.gui.getChat().addMessage(itextcomponent);
                             }
                         });
                     } else {
                         TranslatableComponent itextcomponent = new TranslatableComponent("minetogether.connect.open.failed", response.getMessage());
-                        Minecraft.getInstance().gui.getChat().addMessage(itextcomponent);
+                        mc.gui.getChat().addMessage(itextcomponent);
                     }
                 });
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ex) {
+                LOGGER.error("Error opening to friends.", ex);
             }
         });
     }
