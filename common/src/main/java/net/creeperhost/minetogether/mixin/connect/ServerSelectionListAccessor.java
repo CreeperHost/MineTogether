@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Mixin (ServerSelectionList.class)
-public interface MixinServerSelectionListAccessor {
+public interface ServerSelectionListAccessor {
 
     @Accessor ("THREAD_POOL")
     static ThreadPoolExecutor getPingThreadPool() {

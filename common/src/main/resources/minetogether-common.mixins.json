@@ -6,10 +6,10 @@
         "chat.ScreenMixin",
         "chat.ingame.ChatComponentMixin",
         "chat.ingame.GuiMixin",
-        "connect.MixinIntegratedServer",
-        "connect.MixinJoinMultiplayerScreen",
-        "connect.MixinServerSelectionListAccessor",
-        "connect.MixinShareToLanScreen",
+        "connect.IntegratedServerAccessor",
+        "connect.JoinMultiplayerScreenMixin",
+        "connect.ServerSelectionListAccessor",
+        "connect.ShareToLanScreenAccessor",
         "order.MixinServerSelectionList"
     ],
     "server": [
