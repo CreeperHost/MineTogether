@@ -90,59 +90,5 @@ public class LibraryHacks {
         public static String methodWebResponse(String urlString, String postDataString, String method, boolean isJson, boolean silent) {
             return methodWebResponse(urlString, postDataString, method, isJson ? "application/json" : "application/x-www-form-urlencoded", silent);
         }
-
-        public static String getWebResponse(String urlString) {
-            return getWebResponse(urlString, 0, false);
-        }
-
-        public static String getWebResponse(String urlString, int timeout) {
-            return getWebResponse(urlString, timeout, false);
-        }
-
-        public static String getWebResponse(String urlString, int timeout, boolean print) {
-            try {
-                //If the request fails with domain ressolution and the domain is api.creeper.host try again using the IP address 84.54.54.84
-                if (timeout == 0) timeout = 120000;
-                URL url = new URL(urlString);
-                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-                url = uri.toURL();
-                // lul
-                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-                conn.setInstanceFollowRedirects(true);
-                conn.setReadTimeout(timeout);
-
-                conn.setRequestMethod("GET");
-
-                if (cookies != null) {
-                    for (String cookie : cookies) {
-                        conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
-                    }
-                }
-                if (userAgent == null) userAgent = "";
-                conn.setRequestProperty("User-Agent", userAgent);
-                conn.setRequestProperty("Fingerprint", MineTogether.FINGERPRINT);
-                conn.setRequestProperty("Identifier", URLEncoder.encode(ModPackInfo.realName, "UTF-8"));
-                BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String line;
-                StringBuilder respData = new StringBuilder();
-                while ((line = rd.readLine()) != null) {
-                    respData.append(line);
-                    respData.append("\n");
-                }
-
-                List<String> setCookies = conn.getHeaderFields().get("Set-Cookie");
-
-                if (setCookies != null) {
-                    cookies = setCookies;
-                }
-
-                rd.close();
-                return respData.toString();
-            } catch (Exception e) {
-                if (print) LOGGER.error(e);
-            }
-
-            return "error";
-        }
     }
 }

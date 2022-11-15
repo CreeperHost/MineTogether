@@ -10,5 +10,6 @@ public class WebConstants {
 
     public static final String CH = "https://www.creeperhost.net/";
     public static final String CH_API = "https://api.creeper.host/";
+    public static final String MT = "https://minetogether.io/";
     public static final String MT_API = "https://minetogether.io/api/";
 }

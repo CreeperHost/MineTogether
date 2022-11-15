@@ -275,8 +275,8 @@ public class Countries {
     public static String getOurCountry() {
         if (ourCountry == null) {
             try {
-                ourCountry = MineTogether.API.execute(new GetCountryRequest())
-                        .apiResponse().customer.country;
+                ourCountry = MineTogether.API.execute(new GetClosestDCRequest())
+                        .apiResponse().getCustomer().getCountry();
             } catch (IOException ex) {
                 LOGGER.error("Failed to get country. Assuming US.", ex);
                 ourCountry = "US";

@@ -1,25 +1,26 @@
 package net.creeperhost.minetogetherconnect;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.connect.ConnectHandler;
+import net.creeperhost.minetogether.connect.web.GetConnectServersRequest;
+import net.creeperhost.minetogether.lib.web.ApiClientResponse;
+import net.creeperhost.minetogether.util.GetClosestDCRequest;
 import net.creeperhost.minetogetherconnect.LibraryHacks.WebUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -40,58 +41,51 @@ public class ConnectMain {
     private static OutputStream outputStream;
 
     public static boolean listen(BiConsumer<Boolean, String> callback, Consumer<String> messageRelayer) {
-        BackendServer backendServer = getBackendServer();
-        backendServer.openToOthers(callback, messageRelayer);
+        getBackendServer().openToOthers(callback, messageRelayer);
         return true;
     }
 
     public static BackendServer getBackendServer() {
-        if (backendServer != null) return backendServer;
-        String webResponse = WebUtils.getWebResponse("https://minetogether.io/connect.json");
-        if (webResponse.equals("error")) {
-            return BackendServer.getDefault();
+        if (backendServer == null) {
+            backendServer = computeServer();
         }
+        return backendServer;
+    }
 
-        Type listOfMyClassObject = new TypeToken<ArrayList<BackendServer>>() { }.getType();
-
-        // maybe tries just in case
-        List<BackendServer> servers = gson.fromJson(webResponse, listOfMyClassObject);
-
-        if (servers == null) {
-            return BackendServer.getDefault();
-        }
-
-        String closestString = WebUtils.getWebResponse("https://creeperhost.net/json/datacentre/closest");
-
-        if (closestString.equals("error")) {
-            return BackendServer.getDefault();
-        }
-
-        ClosestResponse closestResponse = gson.fromJson(closestString, ClosestResponse.class);
-
-        if (closestResponse == null || closestResponse.datacentre == null) {
-            return BackendServer.getDefault();
-        }
-
-        BackendServer chosenServer = null;
-
-        for (BackendServer server : servers) {
-            if (server.name.toLowerCase(Locale.ROOT).equals(closestResponse.datacentre.name.toLowerCase(Locale.ROOT))) {
-                chosenServer = server;
-                break;
+    private static BackendServer computeServer() {
+        try {
+            ApiClientResponse<List<GetConnectServersRequest.Server>> connectServersResponse = MineTogether.API.execute(new GetConnectServersRequest());
+            if (!connectServersResponse.hasBody()) {
+                LOGGER.error("Failed to get available MineTogether Connect server list.");
+                return BackendServer.getDefault();
             }
-        }
 
-        if (chosenServer == null) {
-            return BackendServer.getDefault();
-        }
+            List<GetConnectServersRequest.Server> connectServers = connectServersResponse.apiResponse();
 
-        return chosenServer;
+            ApiClientResponse<GetClosestDCRequest.Response> closestDCResponse = MineTogether.API.execute(new GetClosestDCRequest());
+            if (!closestDCResponse.hasBody()) {
+                LOGGER.error("Failed to get Closest DC locations.");
+                return BackendServer.getDefault();
+            }
+
+            for (GetClosestDCRequest.DataCenter dc : closestDCResponse.apiResponse().getDataCenters()) {
+                for (GetConnectServersRequest.Server server : connectServers) {
+                    if (dc.getName().replace(" ", "").equalsIgnoreCase(server.name.replace(" ", ""))) {
+                        LOGGER.info("Selected server {}. Closest DC was {}.", server.name, dc.getName());
+                        return new BackendServer(server.name, server.address, server.httpProtocol, server.httpPort);
+                    }
+                }
+            }
+
+            LOGGER.info("Could not select a server. Using default.");
+        } catch (IOException ex) {
+            LOGGER.error("Error selecting server. Using default.", ex);
+        }
+        return BackendServer.getDefault();
     }
 
     public static boolean doAuth() {
-        BackendServer backendServer = getBackendServer();
-        return backendServer.doAuth();
+        return getBackendServer().doAuth();
     }
 
     public static void close() {
@@ -310,16 +304,6 @@ public class ConnectMain {
             return gson.fromJson(data, clazz);
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    public static class ClosestResponse {
-
-        private Datacentre datacentre;
-
-        public static class Datacentre {
-
-            private String name;
         }
     }
 

@@ -28,7 +28,7 @@ public class MineTogetherConnect {
     public static boolean isInitted = false;
 
     public static void init() {
-        CompletableFuture.runAsync(ConnectHandler::connectToProc, connectExecutor);
+        CompletableFuture.runAsync(ConnectHandler::probeEnabled, connectExecutor);
         isInitted = true;
         Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("minetogether-connect-%d").build());
         ClientGuiEvent.INIT_POST.register(MineTogetherConnect::onScreenOpen);

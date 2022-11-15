@@ -21,7 +21,7 @@ public class ConnectHandler {
     private static final Gson gson = new Gson();
     private static Socket socket = null;
 
-    public static void connectToProc() {
+    public static void probeEnabled() {
         ConnectHelper.isEnabled = ConnectMain.doAuth();
         if (!ConnectHelper.isEnabled) {
             LOGGER.info("MineTogether Connect not enabled: " + ConnectMain.authError);
