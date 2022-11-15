@@ -54,6 +54,9 @@ abstract class ChatScreenMixin extends Screen {
     @Shadow
     protected EditBox input;
 
+    private Button newUserButton;
+    private Button disableButton;
+
     private final PreviewRenderer previewRenderer = new PreviewRenderer(5, 5, 80, 60) {
         @Override
         protected URL getUrlUnderMouse(int mouseX, int mouseY) {
@@ -127,20 +130,23 @@ abstract class ChatScreenMixin extends Screen {
 
         addRenderableOnly(previewRenderer);
 
+        newUserButton = addWidget(new Button(6, height - ((cHeight + 80) / 2) + 45, cWidth - 2, 20, Component.literal("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
+            MineTogetherChat.setNewUserResponded();
+        }));
+        disableButton = addWidget(new Button(6, height - ((cHeight + 80) / 2) + 70, cWidth - 2, 20, Component.literal("Don't ask me again."), e -> {
+            MineTogetherChat.disableChat();
+            Config.instance().chatEnabled = false;
+            Config.save();
+            MineTogetherChat.setNewUserResponded();
+            clearWidgets();
+        }));
+        newUserButton.visible = false;
+        disableButton.visible = false;
+
         if (MineTogetherChat.isNewUser() && MineTogetherChat.target == ChatTarget.PUBLIC) {
             ChatStatistics.pollStats();
-
-            addRenderableWidget(new Button(6, height - ((cHeight + 80) / 2) + 45, cWidth - 2, 20, Component.literal("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
-                MineTogetherChat.setNewUserResponded();
-                minecraft.setScreen(null);
-            }));
-            addRenderableWidget(new Button(6, height - ((cHeight + 80) / 2) + 70, cWidth - 2, 20, Component.literal("Don't ask me again."), e -> {
-                MineTogetherChat.disableChat();
-                Config.instance().chatEnabled = false;
-                Config.save();
-                MineTogetherChat.setNewUserResponded();
-                clearWidgets();
-            }));
+            newUserButton.visible = true;
+            disableButton.visible = true;
         }
 
         switchToVanillaIfCommand();
@@ -171,16 +177,24 @@ abstract class ChatScreenMixin extends Screen {
             method = "render",
             at = @At ("TAIL")
     )
-    private void onRender(PoseStack poseStack, int i, int j, float f, CallbackInfo ci) {
+    private void onRender(PoseStack pStack, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         if (MineTogetherChat.target == ChatTarget.PUBLIC && MineTogetherChat.isNewUser()) {
+            pStack.pushPose();
+            pStack.translate(0, 0, 100); // Push it forward a little bit so It's actually above the text.
+
             ChatComponent chatComponent = MineTogetherChat.publicChat;
             int y = height - 43 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
-            fill(poseStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, 0x99000000);
+            fill(pStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, 0x99000000);
 
-            drawCenteredString(poseStack, font, Component.translatable("minetogether:new_user.1"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2), 0xFFFFFF);
-            drawCenteredString(poseStack, font, Component.translatable("minetogether:new_user.2"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 10, 0xFFFFFF);
-            drawCenteredString(poseStack, font, Component.translatable("minetogether:new_user.3"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 20, 0xFFFFFF);
-            drawCenteredString(poseStack, font, Component.translatable("minetogether:new_user.4", ChatStatistics.userCount), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
+            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.1"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2), 0xFFFFFF);
+            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.2"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 10, 0xFFFFFF);
+            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.3"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 20, 0xFFFFFF);
+            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.4", ChatStatistics.userCount), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
+
+            // Render these manually after the grey-out, so they are on top of it.
+            newUserButton.render(pStack, mouseX, mouseY, partialTicks);
+            disableButton.render(pStack, mouseX, mouseY, partialTicks);
+            pStack.popPose();
         }
     }
 
@@ -189,18 +203,33 @@ abstract class ChatScreenMixin extends Screen {
             at = @At ("TAIL")
     )
     public void tick(CallbackInfo ci) {
-        if (switchToVanillaIfCommand()) return;
+        switchToVanillaIfCommand();
 
-        IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
-        if (state == IrcState.CONNECTED || MineTogetherChat.target == ChatTarget.VANILLA) {
+        // If we are the vanilla chat, set things editable, and bail out.
+        if (MineTogetherChat.target == ChatTarget.VANILLA) {
             input.setEditable(true);
             input.setSuggestion("");
             return;
         }
 
-        input.setFocus(false);
-        input.setEditable(false);
-        input.setSuggestion(Component.translatable(ChatConstants.STATE_SUGGESTION_LOOKUP.get(state)).getString());
+        if (MineTogetherChat.isNewUser()) {
+            newUserButton.visible = true;
+            disableButton.visible = true;
+            input.setFocus(false);
+            input.setEditable(false);
+            return;
+        }
+
+        IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
+        if (state != IrcState.CONNECTED) {
+            input.setFocus(false);
+            input.setEditable(false);
+            input.setSuggestion(Component.translatable(ChatConstants.STATE_SUGGESTION_LOOKUP.get(state)).getString());
+            return;
+        }
+
+        input.setEditable(true);
+        input.setSuggestion("");
     }
 
     private boolean tryClickMTChat(MTChatComponent mtChat, double mouseX, double mouseY) {
