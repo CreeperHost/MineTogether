@@ -136,11 +136,11 @@ public class ChatScreen extends Screen {
         if (newUser) {
             ChatStatistics.pollStats();
 
-            newUserButton = addRenderableWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, new TextComponent("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
+            newUserButton = addWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, new TextComponent("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
                 MineTogetherChat.setNewUserResponded();
                 minecraft.setScreen(new ChatScreen(parent));
             }));
-            disableButton = addRenderableWidget(new Button(width / 2 - 150, 75 + (height / 4), 300, 20, new TextComponent("Don't ask me again."), e -> {
+            disableButton = addWidget(new Button(width / 2 - 150, 95 + (height / 4), 300, 20, new TextComponent("Don't ask me again."), e -> {
                 MineTogetherChat.disableChat();
                 Config.instance().chatEnabled = false;
                 Config.save();
@@ -172,16 +172,23 @@ public class ChatScreen extends Screen {
             connectionStatus.tick();
         }
 
-        IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
-        if (state == IrcState.CONNECTED) {
-            sendEditBox.setEditable(true);
+        if (newUser) {
+            sendEditBox.setFocus(false);
+            sendEditBox.setEditable(false);
             sendEditBox.setSuggestion("");
             return;
         }
 
-        sendEditBox.setFocus(false);
-        sendEditBox.setEditable(false);
-        sendEditBox.setSuggestion(new TranslatableComponent(ChatConstants.STATE_SUGGESTION_LOOKUP.get(state)).getString());
+        IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
+        if (state != IrcState.CONNECTED) {
+            sendEditBox.setFocus(false);
+            sendEditBox.setEditable(false);
+            sendEditBox.setSuggestion(new TranslatableComponent(ChatConstants.STATE_SUGGESTION_LOOKUP.get(state)).getString());
+            return;
+        }
+
+        sendEditBox.setEditable(true);
+        sendEditBox.setSuggestion("");
     }
 
     @Override
@@ -190,6 +197,9 @@ public class ChatScreen extends Screen {
         super.render(pStack, mouseX, mouseY, partialTicks);
         drawCenteredString(pStack, font, getTitle(), width / 2, 5, 0xFFFFFF);
         if (newUser) {
+            pStack.pushPose();
+            pStack.translate(0, 0, 100); // Push it forward a little bit so It's actually above the text.
+
             fill(pStack, 10, chatList.getTop(), width - 10, chatList.getHeight(), 0x99000000);
             fill(pStack, 10, chatList.getTop(), width - 10, chatList.getHeight(), 0x99000000);
 
@@ -197,6 +207,11 @@ public class ChatScreen extends Screen {
             drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.2"), width / 2, (height / 4) + 35, 0xFFFFFF);
             drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.3"), width / 2, (height / 4) + 45, 0xFFFFFF);
             drawCenteredString(pStack, font, new TranslatableComponent("minetogether:new_user.4", ChatStatistics.userCount), width / 2, (height / 4) + 55, 0xFFFFFF);
+
+            // Render these manually after the grey-out, so they are on top of it.
+            newUserButton.render(pStack, mouseX, mouseY, partialTicks);
+            disableButton.render(pStack, mouseX, mouseY, partialTicks);
+            pStack.popPose();
         }
     }
 

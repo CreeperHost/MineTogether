@@ -132,6 +132,12 @@ public class MineTogetherChat {
                 ));
             }
         }));
+
+        // If the user has an account. Set firstConnect just incase.
+        if (!Config.instance().firstConnect.equalsIgnoreCase(CHAT_AUTH.getHash()) && CHAT_STATE.profileManager.getOwnProfile().hasAccount()) {
+            Config.instance().firstConnect = CHAT_AUTH.getHash();
+            Config.save();
+        }
     }
 
     private static void addToast(Toast toast) {
