@@ -198,8 +198,12 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
         assert !updating;
         updating = true;
         return p -> {
-            aliases = computeAllAliases(p.getLongHash());
-            fullHash = p.getLongHash();
+            String fullHash = p.getLongHash();
+            String initialWithoutMT = initialHash.startsWith("MT") ? initialHash.substring(2) : initialHash;
+            if (!fullHash.startsWith(initialWithoutMT)) {
+                LOGGER.error("Full hash does not start with initial hash! Full: {}, Initial: {}", fullHash, initialWithoutMT);
+            }
+            aliases = computeAllAliases(fullHash);
             ircHash = HashLength.MEDIUM.format(fullHash);
             displayName = p.getDisplay();
             friendCode = p.getFriendCode();
