@@ -68,7 +68,6 @@ processResources {
 shadowJar {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
-
     configurations = [project.configurations.shadowCommon]
     // Don't shadow netty, we already have it.
     dependencies {
@@ -83,6 +82,7 @@ shadowJar {
     relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
     relocate 'io.sentry', 'net.creeperhost.minetogether.io.sentry'
 
+    mergeServiceFiles()
 //    classifier '' // Replace the default JAR
     classifier "dev-shadow"
 }
