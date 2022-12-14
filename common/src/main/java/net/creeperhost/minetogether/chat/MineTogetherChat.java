@@ -152,13 +152,17 @@ public class MineTogetherChat {
     }
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
-        if (screen instanceof TitleScreen && Config.instance().mainMenuButtons) {
+        if (screen instanceof TitleScreen) {
             if (!hasHitLoadingScreen) {
                 hasHitLoadingScreen = true;
             }
-            addMenuButtons(screen);
+            if (Config.instance().mainMenuButtons) {
+                addMenuButtons(screen);
+            }
         } else if (screen instanceof PauseScreen) {
-            addMenuButtons(screen);
+            if (Config.instance().pauseScreenButtons) {
+                addMenuButtons(screen);
+            }
         }
     }
 
