@@ -55,6 +55,7 @@ processResources {
 shadowJar {
     configurations = [project.configurations.shadowCommon]
     classifier "dev-shadow"
+    mergeServiceFiles()
 
     relocate 'blue.endless', 'net.creeperhost.minetogether.repack.blue.endless'
     relocate 'net.covers1624', 'net.creeperhost.minetogether.repack.net.covers1624'
