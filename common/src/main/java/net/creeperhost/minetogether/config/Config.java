@@ -88,10 +88,13 @@ public class Config {
     @Comment ("If the realms button should be replaced.")
     public boolean replaceRealms = true;
 
-    @Comment("If all chat messages should be logged to console.")
+    @Comment ("If the pause menu buttons should be moved around to insert the Open To Friends button.")
+    public boolean moveButtonsOnPauseMenu = true;
+
+    @Comment ("If all chat messages should be logged to console.")
     public boolean logChatToConsole = false;
 
-    @Comment("Create _VERY_ verbose logs. May create hugenorums log files.")
+    @Comment ("Create _VERY_ verbose logs. May create hugenorums log files.")
     public boolean debugMode = false;
 
     @Comment ("If the Chat component of MineTogether is enabled.")
@@ -110,5 +113,7 @@ public class Config {
     @Comment ("INTERNAL: Marker for tracking first connections.")
     public String firstConnect = "";
 
+    @Nullable
+    @Comment ("If not null, replaces the Bug Reports button on the pause screen to open this link.")
     public String issueTrackerUrl = "https://pste.ch/";
 }
