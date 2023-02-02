@@ -44,6 +44,10 @@ public abstract class PreviewRenderer implements Widget {
             "image/pnm"
     );
 
+    private static final Set<String> ALLOWED_DOMAINS = ImmutableSet.of(
+            "blockshot.ch"
+    );
+
     private static final boolean DEBUG = Boolean.getBoolean("PreviewRenderer.debug");
     private static final Logger LOGGER = LogManager.getLogger();
     private static final CloseableHttpClient HTTP_CLIENT = HttpClientBuilder.create().build();
@@ -90,6 +94,7 @@ public abstract class PreviewRenderer implements Widget {
 
     @Nullable
     private static Preview getPreview(URL url) {
+        if (!ALLOWED_DOMAINS.contains(url.getHost())) return null;
         if (NO_PREVIEW.contains(url)) return null;
 
         Preview preview = CACHE.getIfPresent(url);
