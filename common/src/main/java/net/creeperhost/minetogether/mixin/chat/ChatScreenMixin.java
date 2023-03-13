@@ -60,7 +60,7 @@ abstract class ChatScreenMixin extends Screen {
     private final PreviewRenderer previewRenderer = new PreviewRenderer(5, 5, 80, 60) {
         @Override
         protected URL getUrlUnderMouse(int mouseX, int mouseY) {
-            if (MineTogetherChat.target != ChatTarget.PUBLIC) return null;
+            if (MineTogetherChat.getTarget() != ChatTarget.PUBLIC) return null;
 
             Style style = MineTogetherChat.publicChat.getStyleUnderMouse(mouseX, mouseY);
             if (style == null) return null;
@@ -94,11 +94,11 @@ abstract class ChatScreenMixin extends Screen {
         vanillaChatButton = new RadioButton(x, height - 215, 12, 87, Component.translatable("minetogether:ingame.chat.local"))
                 .withTextScale(0.75F)
                 .withVerticalText()
-                .onPressed(e -> MineTogetherChat.target = ChatTarget.VANILLA);
+                .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.VANILLA));
         mtChatButton = new RadioButton(x, height - 215 + 87, 12, 87, Component.translatable("minetogether:ingame.chat.global"))
                 .withTextScale(0.75F)
                 .withVerticalText()
-                .onPressed(e -> MineTogetherChat.target = ChatTarget.PUBLIC);
+                .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.PUBLIC));
         addRenderableWidget(vanillaChatButton);
         addRenderableWidget(mtChatButton);
 
@@ -123,7 +123,7 @@ abstract class ChatScreenMixin extends Screen {
 
         vanillaChatButton.linkButtons(mtChatButton);
         mtChatButton.linkButtons(vanillaChatButton);
-        switch (MineTogetherChat.target) {
+        switch (MineTogetherChat.getTarget()) {
             case VANILLA -> vanillaChatButton.setPressed(true);
             case PUBLIC -> mtChatButton.setPressed(true);
         }
@@ -143,7 +143,7 @@ abstract class ChatScreenMixin extends Screen {
         newUserButton.visible = false;
         disableButton.visible = false;
 
-        if (MineTogetherChat.isNewUser() && MineTogetherChat.target == ChatTarget.PUBLIC) {
+        if (MineTogetherChat.isNewUser() && MineTogetherChat.getTarget() == ChatTarget.PUBLIC) {
             ChatStatistics.pollStats();
             newUserButton.visible = true;
             disableButton.visible = true;
@@ -168,7 +168,7 @@ abstract class ChatScreenMixin extends Screen {
             return;
         }
 
-        if (MineTogetherChat.target == ChatTarget.PUBLIC && tryClickMTChat(MineTogetherChat.publicChat, mouseX, mouseY)) {
+        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && tryClickMTChat(MineTogetherChat.publicChat, mouseX, mouseY)) {
             cir.setReturnValue(true);
         }
     }
@@ -178,7 +178,7 @@ abstract class ChatScreenMixin extends Screen {
             at = @At ("TAIL")
     )
     private void onRender(PoseStack pStack, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
-        if (MineTogetherChat.target == ChatTarget.PUBLIC && MineTogetherChat.isNewUser()) {
+        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && MineTogetherChat.isNewUser()) {
             pStack.pushPose();
             pStack.translate(0, 0, 100); // Push it forward a little bit so It's actually above the text.
 
@@ -206,7 +206,7 @@ abstract class ChatScreenMixin extends Screen {
         switchToVanillaIfCommand();
 
         // If we are the vanilla chat, set things editable, and bail out.
-        if (MineTogetherChat.target == ChatTarget.VANILLA) {
+        if (MineTogetherChat.getTarget() == ChatTarget.VANILLA) {
             input.setEditable(true);
             input.setSuggestion("");
             return;
@@ -251,7 +251,7 @@ abstract class ChatScreenMixin extends Screen {
             cancellable = true
     )
     private void onHandleChatInput(String message, boolean bl, CallbackInfoReturnable<Boolean> cir) {
-        if (MineTogetherChat.target == ChatTarget.PUBLIC) {
+        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC) {
             MineTogetherChat.publicChat.addRecentChat(message);
             cir.setReturnValue(true);
         }
@@ -263,16 +263,16 @@ abstract class ChatScreenMixin extends Screen {
             cancellable = true
     )
     private void onSendsChatPreviewRequests(CallbackInfoReturnable<Boolean> cir) {
-        if (MineTogetherChat.target != ChatTarget.VANILLA) {
+        if (MineTogetherChat.getTarget() != ChatTarget.VANILLA) {
             cir.setReturnValue(false);
         }
     }
 
     private boolean switchToVanillaIfCommand() {
-        if (MineTogetherChat.target == ChatTarget.VANILLA)  return false;
+        if (MineTogetherChat.getTarget() == ChatTarget.VANILLA)  return false;
         if (!input.getValue().startsWith("/")) return false;
 
-        MineTogetherChat.target = ChatTarget.VANILLA;
+        MineTogetherChat.setTarget(ChatTarget.VANILLA);
         vanillaChatButton.selectButton();
         return true;
     }
