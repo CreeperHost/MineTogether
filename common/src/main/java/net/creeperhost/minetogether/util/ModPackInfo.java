@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.util;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.architectury.platform.Platform;
@@ -25,7 +26,13 @@ import java.util.function.Consumer;
  * Created by covers1624 on 25/10/22.
  */
 public class ModPackInfo {
-    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
+    public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(
+            new ThreadFactoryBuilder()
+                    .setNameFormat("mt-packinfo-request")
+                    .setDaemon(true)
+                    .build()
+    );
+
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     private static final Logger LOGGER = LogManager.getLogger();
 
