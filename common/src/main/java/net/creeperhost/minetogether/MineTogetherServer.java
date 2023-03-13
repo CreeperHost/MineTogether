@@ -52,7 +52,7 @@ public class MineTogetherServer {
     }
 
     private static void startServerListThread(MinecraftServer server) {
-        String projectId = ModPackInfo.base64FTBID;
+        String projectId = ModPackInfo.getInfo().base64FTBID;
         Discoverability discoverability;
         LOGGER.info("Current discoverability: {}", MineTogetherServer.discoverability);
         try {
@@ -68,7 +68,7 @@ public class MineTogetherServer {
 
         if (projectId.isEmpty()) {
             LOGGER.info("Unable to find version.json. Assuming Curse modpack.");
-            projectId = ModPackInfo.curseID;
+            projectId = ModPackInfo.getInfo().curseID;
         }
 
         if (projectId.isEmpty()) {

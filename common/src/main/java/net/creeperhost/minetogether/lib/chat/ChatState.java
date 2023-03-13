@@ -6,6 +6,8 @@ import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.lib.web.ApiClient;
 import org.jetbrains.annotations.VisibleForTesting;
 
+import java.util.function.Supplier;
+
 /**
  * Created by covers1624 on 14/9/22.
  */
@@ -28,7 +30,7 @@ public class ChatState {
         this.logChatToConsole = logChatToConsole;
     }
 
-    public ChatState(ApiClient api, ChatAuth auth, MutedUserList mutedUserList, String realName, boolean logChatToConsole) {
+    public ChatState(ApiClient api, ChatAuth auth, MutedUserList mutedUserList, Supplier<String> realName, boolean logChatToConsole) {
         this.api = api;
         this.auth = auth;
         this.mutedUserList = mutedUserList;

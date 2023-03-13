@@ -55,8 +55,8 @@ public class ServerOrderCallbacks {
 
         try {
             String version = "0";
-            if (!ModPackInfo.curseID.isEmpty()) {
-                version = ModPackInfo.curseID;
+            if (!ModPackInfo.getInfo().curseID.isEmpty()) {
+                version = ModPackInfo.getInfo().curseID;
             }
             String url = "https://www.creeperhost.net/json/order/mc/" + version + "/recommend/" + order.playerAmount;
 
@@ -247,7 +247,7 @@ public class ServerOrderCallbacks {
         try {
             String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + order.serverLocation, new HashMap<String, String>() {{
                 put("name", order.name);
-                put("swid", ModPackInfo.curseID);
+                put("swid", ModPackInfo.getInfo().curseID);
                 if (order.pregen) { put("pregen", pregen); }
             }});
 
@@ -274,7 +274,7 @@ public class ServerOrderCallbacks {
         try {
             String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/account/create", new HashMap<String, String>() {{
                 put("servername", order.name);
-                put("modpack", ModPackInfo.curseID);
+                put("modpack", ModPackInfo.getInfo().curseID);
                 put("email", order.emailAddress);
                 put("password", order.password);
                 put("fname", order.firstName);

@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 import static net.creeperhost.minetogether.lib.chat.message.MessageComponent.MESSAGE_DELETED;
@@ -54,7 +55,9 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
 
     private boolean updating = false;
 
+    @Nullable
     private String packId = "";
+    private Supplier<String> nameSupplier = () -> "";
 
     // Set to true when we have performed a whois on the user.
     public boolean newProfileWhoDis;
@@ -156,24 +159,35 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
         newProfileWhoDis = false;
     }
 
-    public void setPack(String realName) {
-        if (StringUtils.isNotEmpty(realName) && realName.startsWith("{") && realName.endsWith("}")) {
-            try {
-                JsonObject obj = JsonUtils.parseRaw(realName).getAsJsonObject();
-                String packId = JsonUtils.getString(obj, "p", null);
-                if (packId != null && !packId.equals("-1")) {
-                    this.packId = packId;
-                    return;
-                }
-            } catch (Throwable ex) {
-                LOGGER.error("Failed to parse realName: '{}'", realName);
-            }
-        }
-        packId = "";
+    public void setPack(Supplier<String> realName) {
+        nameSupplier = realName;
+        packId = null;
     }
 
+    public String getPackId() {
+        if (packId == null) {
+            String realName = nameSupplier.get();
+            if (StringUtils.isNotEmpty(realName) && realName.startsWith("{") && realName.endsWith("}")) {
+                try {
+                    JsonObject obj = JsonUtils.parseRaw(realName).getAsJsonObject();
+                    String packId = JsonUtils.getString(obj, "p", null);
+                    if (packId != null && !packId.equals("-1")) {
+                        this.packId = packId;
+                        return packId;
+                    }
+                } catch (Throwable ex) {
+                    LOGGER.error("Failed to parse realName: '{}'", realName);
+                }
+            }
+            packId = "";
+        }
+
+        return packId;
+    }
+
+
     public boolean isOnSamePack(Profile other) {
-        return !packId.isEmpty() && packId.equals(other.getPackId());
+        return !getPackId().isEmpty() && getPackId().equals(other.getPackId());
     }
 
     // @formatter:off
@@ -191,7 +205,6 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     public boolean isOnline() { return isOnline; }
     public boolean isUpdating() { return updating; }
     public boolean isStale() { return stale; }
-    public String getPackId() { return packId; }
     // @formatter:on
 
     Consumer<ProfileResponse.ProfileData> onStartUpdating() {

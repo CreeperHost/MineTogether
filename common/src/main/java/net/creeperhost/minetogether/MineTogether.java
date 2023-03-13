@@ -54,7 +54,7 @@ public class MineTogether {
         }
 
         ModPackInfo.init();
-        AUTH.setHeader("Identifier", ModPackInfo.realName);
+        ModPackInfo.waitForInfo(info -> AUTH.setHeader("Identifier", info.realName));
         switch (Platform.getEnv()) {
             case CLIENT -> MineTogetherClient.init();
             case SERVER -> MineTogetherServer.init();
