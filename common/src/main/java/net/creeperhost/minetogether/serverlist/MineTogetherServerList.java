@@ -45,26 +45,33 @@ public class MineTogetherServerList {
     private static boolean incorrectlyConfigured = false;
 
     public static void init() {
-        incorrectlyConfigured = ModPackInfo.curseID.isEmpty();
-        if (incorrectlyConfigured) {
-            Server server = new Server();
-            server.name = "No project ID! Please fix the MineTogether config or ensure a version.json exists.";
-            servers.add(server);
-        }
+        ModPackInfo.waitForInfo(versionInfo -> {
+            incorrectlyConfigured = versionInfo.curseID.isEmpty();
+            if (incorrectlyConfigured) {
+                Server server = new Server();
+                server.name = "No project ID! Please fix the MineTogether config or ensure a version.json exists.";
+                synchronized (servers) {
+                    servers.add(server);
+                }
+            }
+        });
+
         ClientGuiEvent.INIT_POST.register(MineTogetherServerList::onScreenOpen);
     }
 
     public static List<Server> updateServers(ListType type) {
-        if (incorrectlyConfigured || lastRequest == type && lastRequestTime + 30000 < System.currentTimeMillis()) return Collections.unmodifiableList(servers);
+        synchronized (servers) {
+            if (incorrectlyConfigured || lastRequest == type && lastRequestTime + 30000 < System.currentTimeMillis()) return Collections.unmodifiableList(servers);
 
-        try {
-            ApiClientResponse<GetServerListRequest.Response> resp = MineTogether.API.execute(new GetServerListRequest(type, MineTogetherChat.CHAT_AUTH.getHash()));
-            servers.clear();
-            servers.addAll(resp.apiResponse().servers);
-        } catch (Throwable ex) {
-            LOGGER.error("Failed to update server listings.", ex);
+            try {
+                ApiClientResponse<GetServerListRequest.Response> resp = MineTogether.API.execute(new GetServerListRequest(type, MineTogetherChat.CHAT_AUTH.getHash()));
+                servers.clear();
+                servers.addAll(resp.apiResponse().servers);
+            } catch (Throwable ex) {
+                LOGGER.error("Failed to update server listings.", ex);
+            }
+            return Collections.unmodifiableList(servers);
         }
-        return Collections.unmodifiableList(servers);
     }
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
