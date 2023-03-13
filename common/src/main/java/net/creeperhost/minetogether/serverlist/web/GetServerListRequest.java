@@ -23,8 +23,9 @@ public class GetServerListRequest extends ApiRequest<GetServerListRequest.Respon
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 
+        ModPackInfo.VersionInfo info = ModPackInfo.getInfo();
         Map<String, String> body = new HashMap<>();
-        body.put("projectid", !ModPackInfo.getInfo().base64FTBID.isEmpty() ? ModPackInfo.getInfo().base64FTBID : ModPackInfo.getInfo().curseID);
+        body.put("projectid", !info.base64FTBID.isEmpty() ? info.base64FTBID : info.curseID);
         body.put("listType", listType.name().toLowerCase());
         if (listType == ListType.INVITE) {
             body.put("hash", userHash);

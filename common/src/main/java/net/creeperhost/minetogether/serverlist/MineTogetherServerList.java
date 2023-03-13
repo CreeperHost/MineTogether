@@ -42,7 +42,7 @@ public class MineTogetherServerList {
     @Nullable
     private static ListType lastRequest;
     private static long lastRequestTime = 0;
-    private static boolean incorrectlyConfigured = false;
+    private static boolean incorrectlyConfigured = true;
 
     public static void init() {
         ModPackInfo.waitForInfo(versionInfo -> {
