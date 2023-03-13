@@ -55,7 +55,6 @@ public class MineTogetherChat {
 
     public static ChatComponent vanillaChat;
     public static MTChatComponent publicChat;
-    public static ChatTarget target = Config.instance().chatEnabled ? ChatTarget.PUBLIC : ChatTarget.VANILLA;
     private static boolean hasHitLoadingScreen = false;
 
     public static void init() {
@@ -188,11 +187,19 @@ public class MineTogetherChat {
     }
 
     public static void disableChat() {
-        target = ChatTarget.VANILLA;
         CHAT_STATE.ircClient.stop();
     }
 
     public static void enableChat() {
         CHAT_STATE.ircClient.start();
+    }
+
+    public static void setTarget(ChatTarget target) {
+        Config.instance().selectedTab = target;
+        Config.save();
+    }
+
+    public static ChatTarget getTarget() {
+        return Config.instance().chatEnabled ? Config.instance().selectedTab : ChatTarget.VANILLA;
     }
 }

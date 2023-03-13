@@ -44,7 +44,7 @@ abstract class GuiMixin {
             )
     )
     private ChatComponent onGetChat(Gui instance) {
-        return switch (MineTogetherChat.target) {
+        return switch (MineTogetherChat.getTarget()) {
             case VANILLA -> chat;
             case PUBLIC -> MineTogetherChat.publicChat;
         };
@@ -59,7 +59,7 @@ abstract class GuiMixin {
             )
     )
     private ChatComponent onRender(Gui instance) {
-        return switch (MineTogetherChat.target) {
+        return switch (MineTogetherChat.getTarget()) {
             case VANILLA -> chat;
             case PUBLIC -> MineTogetherChat.publicChat;
         };
@@ -74,7 +74,7 @@ abstract class GuiMixin {
             )
     )
     private ChatComponent onDisconnect(Gui instance) {
-        return switch (MineTogetherChat.target) {
+        return switch (MineTogetherChat.getTarget()) {
             case VANILLA -> chat;
             case PUBLIC -> MineTogetherChat.publicChat;
         };

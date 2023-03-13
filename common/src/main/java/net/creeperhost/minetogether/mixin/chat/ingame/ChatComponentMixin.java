@@ -60,7 +60,7 @@ abstract class ChatComponentMixin {
             GuiComponent.fill(poseStack, 0, y, getWidth() + 6, getHeight() + 10 + y, minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
 
             // If we are on a MineTogether tab, draw our logo.
-            if (MineTogetherChat.target != ChatTarget.VANILLA) {
+            if (MineTogetherChat.getTarget() != ChatTarget.VANILLA) {
                 int w = Mth.ceil((float) getWidth() / minecraft.options.chatScale().get().floatValue());
                 int h = Mth.ceil((float) getHeight() / minecraft.options.chatScale().get().floatValue());
                 drawLogo(poseStack, minecraft.font, w + 6, h + 6, -2, getHeight() - 340, 0.75F);
@@ -89,7 +89,7 @@ abstract class ChatComponentMixin {
             at = @At ("HEAD")
     )
     private void onRescaleChat(CallbackInfo ci) {
-        if (MineTogetherChat.target == ChatTarget.VANILLA) {
+        if (MineTogetherChat.getTarget() == ChatTarget.VANILLA) {
             MineTogetherChat.publicChat.rescaleChat();
         }
     }
