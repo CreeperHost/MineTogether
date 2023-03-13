@@ -29,7 +29,7 @@ public class WebUtils {
                 .url(urlString)
                 .header("User-Agent", userAgent)
                 .header("Fingerprint", MineTogether.FINGERPRINT)
-                .header("Identifier", ModPackInfo.realName);
+                .header("Identifier", ModPackInfo.getInfo().realName);
 
         try (EngineResponse response = WEB_ENGINE.execute(request)) {
             WebBody entity = response.body();
@@ -74,7 +74,7 @@ public class WebUtils {
                 .url(urlString)
                 .header("User-Agent", userAgent)
                 .header("Fingerprint", MineTogether.FINGERPRINT)
-                .header("Identifier", ModPackInfo.realName)
+                .header("Identifier", ModPackInfo.getInfo().realName)
                 .header("charset", "utf-8");
         try (EngineResponse response = WEB_ENGINE.execute(request)) {
             WebBody entity = response.body();

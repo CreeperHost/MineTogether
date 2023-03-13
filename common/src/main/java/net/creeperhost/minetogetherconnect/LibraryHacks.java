@@ -35,7 +35,7 @@ public class LibraryHacks {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestProperty("User-Agent", userAgent);
                 conn.setRequestProperty("Fingerprint", MineTogether.FINGERPRINT);
-                conn.setRequestProperty("Identifier", URLEncoder.encode(ModPackInfo.realName, "UTF-8"));
+                conn.setRequestProperty("Identifier", URLEncoder.encode(ModPackInfo.getInfo().realName, "UTF-8"));
                 conn.setRequestMethod(method);
                 if (cookies != null) {
                     for (String cookie : cookies) {

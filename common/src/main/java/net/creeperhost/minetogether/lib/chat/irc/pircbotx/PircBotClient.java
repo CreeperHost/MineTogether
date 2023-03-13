@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static net.creeperhost.minetogether.MineTogether.API;
 
@@ -40,7 +41,7 @@ public class PircBotClient implements IrcClient {
 
     private final ChatState chatState;
     private final String nick;
-    private final String realName;
+    private final Supplier<String> realName;
     @Nullable
     private Thread clientThread;
     @Nullable
@@ -55,7 +56,7 @@ public class PircBotClient implements IrcClient {
     // TODO wire in RECONNECTING state.
     private IrcState state = IrcState.DISCONNECTED;
 
-    public PircBotClient(ChatState chatState, String realName) {
+    public PircBotClient(ChatState chatState, Supplier<String> realName) {
         this.chatState = chatState;
         this.nick = "MT" + HashLength.MEDIUM.format(chatState.auth.getHash());
         this.realName = realName;
@@ -72,7 +73,7 @@ public class PircBotClient implements IrcClient {
                 eventListener.addListener(this);
                 Configuration config = new Configuration.Builder()
                         .setName(nick)
-                        .setRealName(realName)
+                        .setRealName(realName.get())
                         .setLogin("MineTogether")
                         .setListenerManager(SequentialListenerManager.newDefault()
                                 .addListenerSequential(eventListener)
@@ -346,7 +347,7 @@ public class PircBotClient implements IrcClient {
         Profile profile = user.getProfile();
         profile.unbanned(); // Assume if they are here, they aren't banned.
         profile.markStale();
-        profile.setPack(u.getRealName());
+        profile.setPack(u::getRealName);
         chatState.profileManager.onUserOnline(profile);
     }
 
@@ -367,7 +368,7 @@ public class PircBotClient implements IrcClient {
         Profile profile = chatState.profileManager.lookupProfileStale(event.getNick());
         if (profile == chatState.profileManager.getOwnProfile()) return;
 
-        profile.setPack(event.getRealname());
+        profile.setPack(event::getRealname);
     }
 
     @SubscribeEvent

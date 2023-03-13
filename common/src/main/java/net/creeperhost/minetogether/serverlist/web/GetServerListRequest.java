@@ -24,7 +24,7 @@ public class GetServerListRequest extends ApiRequest<GetServerListRequest.Respon
         requiredAuthHeaders.add("Identifier");
 
         Map<String, String> body = new HashMap<>();
-        body.put("projectid", !ModPackInfo.base64FTBID.isEmpty() ? ModPackInfo.base64FTBID : ModPackInfo.curseID);
+        body.put("projectid", !ModPackInfo.getInfo().base64FTBID.isEmpty() ? ModPackInfo.getInfo().base64FTBID : ModPackInfo.getInfo().curseID);
         body.put("listType", listType.name().toLowerCase());
         if (listType == ListType.INVITE) {
             body.put("hash", userHash);
