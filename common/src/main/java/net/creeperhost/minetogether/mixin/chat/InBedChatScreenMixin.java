@@ -23,7 +23,7 @@ abstract class InBedChatScreenMixin {
             )
     )
     private void onSendMessage(InBedChatScreen instance, String s) {
-        switch (MineTogetherChat.target) {
+        switch (MineTogetherChat.getTarget()) {
             case VANILLA -> instance.sendMessage(s);
             case PUBLIC -> MineTogetherChat.publicChat.addRecentChat(s);
         }

@@ -5,6 +5,7 @@ import blue.endless.jankson.Jankson;
 import blue.endless.jankson.JsonGrammar;
 import blue.endless.jankson.JsonPrimitive;
 import blue.endless.jankson.api.SyntaxError;
+import net.creeperhost.minetogether.chat.ChatTarget;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -116,4 +117,7 @@ public class Config {
     @Nullable
     @Comment ("If not null, replaces the Bug Reports button on the pause screen to open this link.")
     public String issueTrackerUrl = "https://pste.ch/";
+
+    @Comment ("Stores the currently selected chat TAB, Ether VANILLA or PUBLIC")
+    public ChatTarget selectedTab = ChatTarget.PUBLIC;
 }

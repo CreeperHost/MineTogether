@@ -104,7 +104,7 @@ public class MTChatComponent extends ChatComponent {
     @Override
     public void rescaleChat() {
         // If we are the target, propagate to the others.
-        if (MineTogetherChat.target == target) {
+        if (MineTogetherChat.getTarget() == target) {
             MineTogetherChat.vanillaChat.rescaleChat();
         }
 
@@ -120,7 +120,7 @@ public class MTChatComponent extends ChatComponent {
     @Override
     public void clearMessages(boolean bl) {
         // If we are the target, propagate to the others.
-        if (MineTogetherChat.target == target) {
+        if (MineTogetherChat.getTarget() == target) {
             MineTogetherChat.vanillaChat.clearMessages(bl);
         }
 
