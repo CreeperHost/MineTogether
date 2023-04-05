@@ -39,8 +39,8 @@ public class GuiShareToFriends extends ShareToLanScreen {
         } else {
             FormattedText renderComponent;
             String findStr = "website:";
-            String sanitisedAuthError = ConnectMain.authError.substring(findStr.length());
             if (ConnectMain.authError.contains(findStr)) {
+                String sanitisedAuthError = ConnectMain.authError.substring(findStr.length());
                 renderComponent = Component.translatable("minetogether.connect.unavailable.website", sanitisedAuthError);
             } else {
                 renderComponent = Component.translatable("minetogether.connect.unavailable", ConnectMain.authError);
