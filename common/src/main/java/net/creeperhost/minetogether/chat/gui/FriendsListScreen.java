@@ -3,7 +3,9 @@ package net.creeperhost.minetogether.chat.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.covers1624.quack.collection.StreamableIterable;
 import net.creeperhost.minetogether.Constants;
+import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
@@ -142,7 +144,8 @@ public class FriendsListScreen extends Screen {
         updateList();
 
         FriendEntry selected = friendList.getSelected();
-        if (selected != null) {
+        IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
+        if (selected != null && state == IrcState.CONNECTED) {
             targetProfile = selected.profile;
             acceptRequest.visible = selected.request != null;
             denyRequest.visible = selected.request != null;
@@ -160,7 +163,11 @@ public class FriendsListScreen extends Screen {
             targetProfile = null;
             chatList.attach(null);
             chatBox.setEditable(false);
-            chatBox.setSuggestion("Select a friend."); // TODO, perhaps just remove the box?
+            if (state == IrcState.CONNECTED) {
+                chatBox.setSuggestion("Select a friend."); // TODO, perhaps just remove the box?
+            } else {
+                chatBox.setSuggestion(ChatConstants.STATE_DESC_LOOKUP.get(state));
+            }
         }
 
         removeFriend.active = targetProfile != null;
