@@ -2,8 +2,10 @@ package net.creeperhost.minetogether.chat.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
+import net.creeperhost.minetogether.polylib.gui.SimpleToast;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -99,15 +101,19 @@ public class FriendRequestScreen extends Screen {
     }
 
     private void onAccept(Button b) {
-        ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
-        if (type == Type.REQUEST) {
-            profileManager.sendFriendRequest(target, nameBox.getValue().trim());
-        } else if (type == Type.ACCEPT) {
-            assert request != null;
-            profileManager.acceptFriendRequest(request, nameBox.getValue().trim());
+        if (MineTogetherChat.CHAT_STATE.ircClient.getState() == IrcState.CONNECTED) {
+            ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
+            if (type == Type.REQUEST) {
+                profileManager.sendFriendRequest(target, nameBox.getValue().trim());
+            } else if (type == Type.ACCEPT) {
+                assert request != null;
+                profileManager.acceptFriendRequest(request, nameBox.getValue().trim());
+            } else {
+                assert type == Type.UPDATE;
+                LOGGER.fatal("Not currently implemented!");
+            }
         } else {
-            assert type == Type.UPDATE;
-            LOGGER.fatal("Not currently implemented!");
+            LOGGER.warn("IRC not connected. Did nothing.");
         }
         Minecraft.getInstance().setScreen(previous);
     }
