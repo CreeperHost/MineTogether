@@ -51,13 +51,15 @@ public class MineTogetherChat {
             Platform.getGameFolder().resolve("local/minetogether/mutedusers.json")
     );
 
-    public static ChatState CHAT_STATE = new ChatState(API, CHAT_AUTH, MUTED_USER_LIST, () -> ModPackInfo.getInfo().realName, Config.instance().logChatToConsole | Config.instance().debugMode);
+    public static ChatState CHAT_STATE = new ChatState(API, CHAT_AUTH, MUTED_USER_LIST, () -> ModPackInfo.getInfo().realName, false);
 
     public static ChatComponent vanillaChat;
     public static MTChatComponent publicChat;
     private static boolean hasHitLoadingScreen = false;
 
     public static void init() {
+        CHAT_STATE.logChatToConsole = Config.instance().logChatToConsole | Config.instance().debugMode;
+
         // Class Initializer must be finished before MTChatComponent is constructed.
         publicChat = new MTChatComponent(ChatTarget.PUBLIC, Minecraft.getInstance());
 

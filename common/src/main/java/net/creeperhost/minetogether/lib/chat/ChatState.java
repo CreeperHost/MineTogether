@@ -18,7 +18,7 @@ public class ChatState {
     public final MutedUserList mutedUserList;
     public final ProfileManager profileManager;
     public final IrcClient ircClient;
-    public final boolean logChatToConsole;
+    public boolean logChatToConsole;
 
     @VisibleForTesting
     protected ChatState(ApiClient api, ChatAuth auth, MutedUserList mutedUserList, ProfileManager profileManager, IrcClient ircClient, boolean logChatToConsole) {
