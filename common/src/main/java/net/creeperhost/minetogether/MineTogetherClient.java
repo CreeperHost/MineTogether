@@ -3,23 +3,32 @@ package net.creeperhost.minetogether;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.connect.MineTogetherConnect;
+import net.creeperhost.minetogether.connectv2.MineTogetherConnectV2;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.orderform.OrderForm;
 import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
 import net.creeperhost.minetogether.serverlist.data.Server;
 import net.creeperhost.minetogether.serverlist.web.GetServerRequest;
+import net.creeperhost.polylib.client.screen.ButtonHelper;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ConnectScreen;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Initialize on a client.
@@ -37,7 +46,7 @@ public class MineTogetherClient {
         MineTogetherChat.init();
         MineTogetherServerList.init();
         OrderForm.init();
-        MineTogetherConnect.init();
+        MineTogetherConnectV2.init();
 
         ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
     }
@@ -67,6 +76,31 @@ public class MineTogetherClient {
 
             ServerData serverData = new ServerData(server.ip, String.valueOf(server.port), false);
             ConnectScreen.startConnecting(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
+        } else if (screen instanceof PauseScreen) {
+            @SuppressWarnings ("unchecked")
+            List<GuiEventListener> children = (List<GuiEventListener>) screen.children();
+            List<Widget> renderables = screenAccess.getRenderables();
+            List<NarratableEntry> narratables = screenAccess.getNarratables();
+
+            // Replace bugs button with our own button.
+            AbstractWidget bugs = ButtonHelper.findButton("menu.reportBugs", screen);
+            if (bugs != null && Config.instance().issueTrackerUrl != null) {
+                Button ourBugsButton = new Button(bugs.x, bugs.y, bugs.getWidth(), bugs.getHeight(), Component.translatable("menu.reportBugs"), (button) -> {
+                    String s = Config.instance().issueTrackerUrl;
+                    Minecraft.getInstance().setScreen(new ConfirmLinkScreen((p_213069_2_) -> {
+                        if (p_213069_2_) {
+                            Util.getPlatform().openUri(s);
+                        }
+
+                        Minecraft.getInstance().setScreen(screen);
+                    }, s, true));
+                });
+                // We have to keep these indexes the same and remove the old button due to how Mod Menu works...
+                children.set(children.indexOf(bugs), ourBugsButton);
+                renderables.set(renderables.indexOf(bugs), ourBugsButton);
+                narratables.set(narratables.indexOf(bugs), ourBugsButton);
+                bugs = ourBugsButton;
+            }
         }
     }
 }
