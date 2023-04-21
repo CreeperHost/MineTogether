@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.lib.util;
+package net.creeperhost.minetogether.util;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;

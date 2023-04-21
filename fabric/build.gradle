@@ -32,8 +32,7 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
     shadowLib "blue.endless:jankson:${jankson_version}"
-    shadowLib "net.covers1624:Quack:${quack_version}"
-    shadowLib "net.covers1624:pircbotx:${pircbotx_version}"
+    shadowLib "net.creeperhost:MineTogetherLib:${mtlib_version}"
 
     shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
     shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'

@@ -12,8 +12,7 @@ dependencies {
 
     modApi "net.creeperhost:polylib-fabric:${polylib_version}"
     modApi "blue.endless:jankson:${jankson_version}"
-    modApi "net.covers1624:Quack:${quack_version}"
-    modApi "net.covers1624:pircbotx:${pircbotx_version}"
+    modApi "net.creeperhost:MineTogetherLib:${mtlib_version}"
 
     modApi 'org.nanohttpd:nanohttpd:2.3.1'
     modApi 'com.github.scribejava:scribejava-apis:6.9.0'
