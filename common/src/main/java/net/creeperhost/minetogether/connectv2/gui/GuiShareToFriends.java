@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.connectv2.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.connectv2.ConnectHandlerV2;
 import net.creeperhost.minetogether.mixin.connect.ShareToLanScreenAccessor;
 import net.creeperhost.minetogetherconnect.ConnectMain;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
@@ -30,9 +31,7 @@ public class GuiShareToFriends extends ShareToLanScreen {
         AbstractWidget startButton = ButtonHelper.removeButton("lanServer.start", this);
         AbstractWidget cancelButton = ButtonHelper.removeButton("gui.cancel", this);
 
-        boolean isEnabled = true;//TODO point to the v2 equivalent of ConnectHelper.isEnabled
-
-        if (startButton == null || !isEnabled) {
+        if (startButton == null || !ConnectHandlerV2.isEnabled()) {
             if (cancelButton != null) {
                 cancelButton.active = cancelButton.visible = true;
                 clearWidgets();
@@ -64,9 +63,7 @@ public class GuiShareToFriends extends ShareToLanScreen {
 
         drawCenteredString(matrixStack, this.font, Component.translatable("minetogether.connect.open.title"), this.width / 2, 50, 16777215);
 
-        boolean isEnabled = true;//TODO point to the v2 equivalent of ConnectHelper.isEnabled
-
-        if (isEnabled) {
+        if (ConnectHandlerV2.isEnabled()) {
             drawCenteredString(matrixStack, this.font, Component.translatable("minetogether.connect.open.settings"), this.width / 2, 82, 16777215);
         } else {
             //TODO unavailable message

@@ -9,6 +9,7 @@
         "connect.IntegratedServerAccessor",
         "connect.JoinMultiplayerScreenMixin",
         "connect.ServerSelectionListAccessor",
+        "connect.ServerSelectionListMixin",
         "connect.ShareToLanScreenAccessor",
         "order.MixinServerSelectionList"
     ],

@@ -194,6 +194,7 @@ public class Profile extends AbstractWeakNotifiable<Profile.ProfileEvent> {
     public Set<String> getAliases() { return aliases; }
     public String getDisplayName() { return displayName; }
     public String getFriendCode() { return Objects.requireNonNull(friendCode); }
+    public boolean hasFriendName() { return friendName != null; }
     public String getFriendName() { return Objects.requireNonNull(friendName); }
     public String getFullHash() { return Objects.requireNonNull(fullHash, "Profile not updated yet."); } // TODO await for profile to have this.
     @Nullable public String getIrcName() { return ircHash; }

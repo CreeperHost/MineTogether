@@ -24,20 +24,6 @@ public class MixinServerSelectionList {
     @Final
     private JoinMultiplayerScreen screen;
 
-    private static final Component OURSCANNING_LABEL = Component.translatable("minetogether.connect.scan");
-    private static final Component MTSCANNING_LABEL = Component.translatable("minetogether.connect.scan.offline");
-
-    @Mutable
-    @Shadow
-    @Final
-    private static Component SCANNING_LABEL;
-
-    @Inject(at = @At("TAIL"), method = "<init>")
-    public void init(CallbackInfo ci)
-    {
-        SCANNING_LABEL = ConnectHelper.isEnabled ? OURSCANNING_LABEL : MTSCANNING_LABEL;
-    }
-
     @Inject (at = @At ("RETURN"), method = "refreshEntries()V")
     private void afterRefreshEntries(CallbackInfo info) {
         if (!Config.instance().mpMenuEnabled || screen instanceof JoinMultiplayerScreenPublic) return;

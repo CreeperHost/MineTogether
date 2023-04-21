@@ -25,6 +25,7 @@ public class MineTogetherConnectV2 {
 
     public static void init() {
         isInitted = true;
+        ConnectHandlerV2.init();
 
         ClientGuiEvent.INIT_POST.register(MineTogetherConnectV2::onScreenOpen);
     }
