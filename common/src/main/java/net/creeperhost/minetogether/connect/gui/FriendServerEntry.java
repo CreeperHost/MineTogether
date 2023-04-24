@@ -1,8 +1,8 @@
-package net.creeperhost.minetogether.connectv2.gui;
+package net.creeperhost.minetogether.connect.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.connectv2.ConnectHandlerV2;
-import net.creeperhost.minetogether.connectv2.RemoteServer;
+import net.creeperhost.minetogether.connect.ConnectHandler;
+import net.creeperhost.minetogether.connect.RemoteServer;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -21,7 +21,7 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
     protected FriendServerEntry(JoinMultiplayerScreen joinMultiplayerScreen, RemoteServer remoteServer) {
         super(joinMultiplayerScreen, new LanServer("Dummy Server", "0.0.0.0"));
         this.remoteServer = remoteServer;
-        this.friendProfile = ConnectHandlerV2.getServerProfile(remoteServer);
+        this.friendProfile = ConnectHandler.getServerProfile(remoteServer);
     }
 
     @Override
@@ -77,10 +77,10 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
     }
 
     public String getFriendName() {
-        return friendProfile.hasFriendName() ? friendProfile.getFriendName() : "[Name Unavailable]";
+        return friendProfile.isFriend() ? friendProfile.getFriendName() : "[Name Unavailable]";
     }
 
     public String getDisplayName() {
-        return friendProfile.isFriend() && friendProfile.hasFriendName() ? friendProfile.getFriendName() : friendProfile.getDisplayName();
+        return friendProfile.isFriend() ? friendProfile.getFriendName() : friendProfile.getDisplayName();
     }
 }

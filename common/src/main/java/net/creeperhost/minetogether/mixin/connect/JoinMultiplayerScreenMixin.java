@@ -1,14 +1,13 @@
 package net.creeperhost.minetogether.mixin.connect;
 
-import net.creeperhost.minetogether.connectv2.ConnectHandlerV2;
-import net.creeperhost.minetogether.connectv2.gui.FriendServerEntry;
-import net.creeperhost.minetogether.connectv2.gui.ServerListAppender;
+import net.creeperhost.minetogether.connect.ConnectHandler;
+import net.creeperhost.minetogether.connect.gui.FriendServerEntry;
+import net.creeperhost.minetogether.connect.gui.ServerListAppender;
 import net.creeperhost.minetogether.orderform.CreeperHostServerEntry;
 import net.creeperhost.minetogether.serverlist.gui.JoinMultiplayerScreenPublic;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.server.LanServerDetection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,7 +31,7 @@ public abstract class JoinMultiplayerScreenMixin {
     public void init(CallbackInfo ci) {
         if (getThis() instanceof JoinMultiplayerScreenPublic) return;
 
-        if (ConnectHandlerV2.isEnabled()){
+        if (ConnectHandler.isEnabled()){
             ServerListAppender.INSTANCE.init(serverSelectionList, getThis());
         }
     }
@@ -52,7 +51,7 @@ public abstract class JoinMultiplayerScreenMixin {
         if (entry instanceof CreeperHostServerEntry) {
             ci.cancel();
         } else if (entry instanceof FriendServerEntry friendServer) {
-            ConnectHandlerV2.connect(friendServer.remoteServer);
+            ConnectHandler.connect(friendServer.remoteServer);
             ci.cancel();
         }
     }
@@ -61,7 +60,7 @@ public abstract class JoinMultiplayerScreenMixin {
     public void tick(CallbackInfo ci) {
         if (getThis() instanceof JoinMultiplayerScreenPublic) return;
 
-        if (ConnectHandlerV2.isEnabled()){
+        if (ConnectHandler.isEnabled()){
             ServerListAppender.INSTANCE.tick();
         }
     }

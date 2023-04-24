@@ -5,7 +5,6 @@ import dev.architectury.hooks.client.screen.ScreenAccess;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.connect.MineTogetherConnect;
-import net.creeperhost.minetogether.connectv2.MineTogetherConnectV2;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.orderform.OrderForm;
 import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
@@ -46,7 +45,8 @@ public class MineTogetherClient {
         MineTogetherChat.init();
         MineTogetherServerList.init();
         OrderForm.init();
-        MineTogetherConnectV2.init();
+        MineTogetherConnect.init();
+//        MineTogetherConnect.init();
 
         ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
     }

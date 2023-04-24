@@ -1,7 +1,7 @@
-package net.creeperhost.minetogether.connectv2.gui;
+package net.creeperhost.minetogether.connect.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.connectv2.ConnectHandlerV2;
+import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -24,7 +24,7 @@ public class FriendsHeader extends ServerSelectionList.Entry {
         int var10000 = j + m / 2;
         Objects.requireNonNull(minecraft.font);
         int p = var10000 - 9 / 2;
-        boolean online = ConnectHandlerV2.isEnabled();
+        boolean online = ConnectHandler.isEnabled();
         String locString = online ? I18n.get("minetogether.connect.scan") : I18n.get("minetogether.connect.scan.offline");
         minecraft.font.draw(poseStack, locString, (float) (minecraft.screen.width / 2 - minecraft.font.width(locString) / 2), (float) p, online ? 0x00FF00 : 0xFF0000);
         if (online) {

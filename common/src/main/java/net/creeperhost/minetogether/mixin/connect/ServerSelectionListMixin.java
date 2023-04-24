@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.mixin.connect;
 
-import net.creeperhost.minetogether.connectv2.ConnectHandlerV2;
-import net.creeperhost.minetogether.connectv2.gui.ServerListAppender;
+import net.creeperhost.minetogether.connect.ConnectHandler;
+import net.creeperhost.minetogether.connect.gui.ServerListAppender;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Final;
@@ -29,7 +29,7 @@ public abstract class ServerSelectionListMixin {
 
     @Inject(at = @At("TAIL"), method = "<init>")
     public void init(CallbackInfo ci) {
-        SCANNING_LABEL = ConnectHandlerV2.isEnabled() ? Component.translatable("minetogether.connect.scan") : Component.translatable("minetogether.connect.scan.offline");
+        SCANNING_LABEL = ConnectHandler.isEnabled() ? Component.translatable("minetogether.connect.scan") : Component.translatable("minetogether.connect.scan.offline");
     }
 
 

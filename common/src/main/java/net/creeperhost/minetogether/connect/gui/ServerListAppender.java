@@ -1,7 +1,7 @@
-package net.creeperhost.minetogether.connectv2.gui;
+package net.creeperhost.minetogether.connect.gui;
 
-import net.creeperhost.minetogether.connectv2.ConnectHandlerV2;
-import net.creeperhost.minetogether.connectv2.RemoteServer;
+import net.creeperhost.minetogether.connect.ConnectHandler;
+import net.creeperhost.minetogether.connect.RemoteServer;
 import net.creeperhost.minetogether.mixin.connect.ServerSelectionListAccessor;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
@@ -25,14 +25,14 @@ public class ServerListAppender {
     public void init(ServerSelectionList serverList, JoinMultiplayerScreen multiplayerScreen) {
         this.serverList = serverList;
         this.multiplayerScreen = multiplayerScreen;
-        ConnectHandlerV2.genRandomTestServers();
+        ConnectHandler.genRandomTestServers();
     }
 
     public void tick() {
         if (tick++ % 20 != 0 || serverList == null || multiplayerScreen == null) return;
 
         boolean dirty = false;
-        List<RemoteServer> remoteServers = new ArrayList<>(ConnectHandlerV2.getRemoteServers());
+        List<RemoteServer> remoteServers = new ArrayList<>(ConnectHandler.getRemoteServers());
 
         //Add new servers
         for (RemoteServer remoteServer : remoteServers) {

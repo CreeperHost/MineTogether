@@ -1,160 +1,65 @@
 package net.creeperhost.minetogether.connect;
 
-import com.google.gson.Gson;
-import net.creeperhost.minetogetherconnect.ConnectMain;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.lib.chat.profile.Profile;
+import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.*;
 
+/**
+ * Created by brandon3055 on 21/04/2023
+ */
 public class ConnectHandler {
 
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final HashMap<Integer, ResponseInfo> awaiting = new HashMap<>();
-    private static final Object lock = new Object();
-    private static final Gson gson = new Gson();
-    private static Socket socket = null;
+    private static Map<RemoteServer, Profile> testServerMap = new HashMap<>();
 
-    public static void probeEnabled() {
-        ConnectHelper.isEnabled = ConnectMain.doAuth();
-        if (!ConnectHelper.isEnabled) {
-            LOGGER.info("MineTogether Connect not enabled: " + ConnectMain.authError);
-        }
+
+    public static void init() {
     }
 
-    public static boolean sendMessage(Message message, Function<Response, Void> callback) {
-        return true;
-        //return sendMessage(message, new ResponseInfo(Response.class, callback));
+    public static boolean isEnabled() {
+        return true; //TODO v2
     }
 
-    public static void openCallback(Consumer<String> messageRelayer, Consumer<Response> responseConsumer) {
-        ConnectMain.listen((success, message) -> {
-            Response response = new Response();
-            response.success = success;
-            response.message = message;
-            responseConsumer.accept(response);
-        }, messageRelayer);
-    }
+    @Deprecated
+    public static void genRandomTestServers() {
+        testServerMap.clear();
+        //Generate a bunch or random fake servers for testing.
+        ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
+        List<Profile> profiles =profileManager.getKnownProfiles();
+        Random random = new Random();
 
-    public static <E extends Response> E blocking(Function<Function<E, Void>, Void> func) {
-
-        AtomicReference<E> tempResponse = new AtomicReference<>();
-        final Object tempLock = new Object();
-        func.apply((response) ->
-        {
-            tempResponse.set(response);
-            synchronized (tempLock) {
-                tempLock.notifyAll();
-            }
-
-            return null;
-        });
-
-        try {
-            synchronized (tempLock) {
-                tempLock.wait();
-            }
-        } catch (InterruptedException ignored) {
-        }
-
-        return tempResponse.get();
-    }
-
-    public static void close() {
-        ConnectMain.close();
-    }
-
-    public static FriendsResponse getFriendsBlocking() {
-        return ConnectMain.getBackendServer().getFriends();
-    }
-
-    static class Response extends Message {
-
-        private boolean success;
-        private String message;
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
-
-    public static class FriendsResponse extends Response {
-
-        private ArrayList<Friend> friends;
-
-        public ArrayList<Friend> getFriends() {
-            return friends;
-        }
-
-        static class Friend {
-
-            private String hash;
-            private String displayName;
-            private int port;
-
-            public String getHash() {
-                return hash;
-            }
-
-            public String getDisplayName() {
-                return displayName;
-            }
-
-            public int getPort() {
-                return port;
+        for (Profile profile : profiles) {
+            if (profile.isFriend()) {
+                RemoteServer server = new RemoteServer(String.valueOf(random.nextLong()), String.valueOf(random.nextLong()));
+                testServerMap.put(server, profile);
             }
         }
-    }
 
-    private static class Message {
+        int count = Math.min(profiles.size(), 5 + random.nextInt(10));
+        for (int i = 0; i < count; i++) {
+            Profile profile;
+            do {
+                profile = profiles.get(random.nextInt(profiles.size()));
+            } while (testServerMap.containsKey(profile));
 
-        private static final AtomicInteger lastId = new AtomicInteger(0);
-        private int id;
-        private String type;
-
-        private Message(String type) {
-            this.id = lastId.getAndIncrement();
-            this.type = type;
-        }
-
-        private Message() {
-        } // to be used for response
-
-        public int getId() {
-            return id;
-        }
-
-        public String getType() {
-            return type;
+            RemoteServer server = new RemoteServer(String.valueOf(random.nextLong()), String.valueOf(random.nextLong()));
+            testServerMap.put(server, profile);
         }
     }
 
-    private static class ResponseInfo<T extends Response> {
-
-        private final Class<T> clazz;
-        private final Function<T, Void> callback;
-
-        private ResponseInfo(Class<T> clazz, Function<T, Void> callback) {
-            this.clazz = clazz;
-            this.callback = callback;
-        }
-
-        public Class<T> getClazz() {
-            return clazz;
-        }
-
-        public Function<T, Void> getCallback() {
-            return callback;
-        }
+    public static Collection<RemoteServer> getRemoteServers() {
+        return testServerMap.keySet();
     }
+
+    public static Profile getServerProfile(RemoteServer server) {
+        return testServerMap.get(server);
+    }
+
+    public static void connect(RemoteServer server) {
+        //Do the thing!!!
+    }
+
+
+
 }

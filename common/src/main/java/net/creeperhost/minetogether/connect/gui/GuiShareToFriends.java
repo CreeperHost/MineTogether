@@ -1,9 +1,8 @@
-package net.creeperhost.minetogether.connectv2.gui;
+package net.creeperhost.minetogether.connect.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.connectv2.ConnectHandlerV2;
+import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.mixin.connect.ShareToLanScreenAccessor;
-import net.creeperhost.minetogetherconnect.ConnectMain;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -31,16 +30,16 @@ public class GuiShareToFriends extends ShareToLanScreen {
         AbstractWidget startButton = ButtonHelper.removeButton("lanServer.start", this);
         AbstractWidget cancelButton = ButtonHelper.removeButton("gui.cancel", this);
 
-        if (startButton == null || !ConnectHandlerV2.isEnabled()) {
+        if (startButton == null || !ConnectHandler.isEnabled()) {
             if (cancelButton != null) {
                 cancelButton.active = cancelButton.visible = true;
                 clearWidgets();
-                if (ConnectMain.authError.startsWith(findStr)) {
-                    //TODO v2
-                    //addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
-                } else {
+//                if (ConnectMain.authError.startsWith(findStr)) {
+//                    //TODO v2
+//                    //addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
+//                } else {
                     cancelButton.x = (this.width / 2) - (cancelButton.getWidth() / 2);
-                }
+//                }
                 addRenderableWidget(cancelButton);
             }
 
@@ -63,7 +62,7 @@ public class GuiShareToFriends extends ShareToLanScreen {
 
         drawCenteredString(matrixStack, this.font, Component.translatable("minetogether.connect.open.title"), this.width / 2, 50, 16777215);
 
-        if (ConnectHandlerV2.isEnabled()) {
+        if (ConnectHandler.isEnabled()) {
             drawCenteredString(matrixStack, this.font, Component.translatable("minetogether.connect.open.settings"), this.width / 2, 82, 16777215);
         } else {
             //TODO unavailable message

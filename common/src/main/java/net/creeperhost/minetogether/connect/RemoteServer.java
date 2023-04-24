@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.connectv2;
+package net.creeperhost.minetogether.connect;
 
 /**
  * Created by brandon3055 on 21/04/2023
