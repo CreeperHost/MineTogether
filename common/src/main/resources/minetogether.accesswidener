@@ -16,3 +16,6 @@ accessible method net/minecraft/client/gui/components/AbstractSelectionList clea
 
 extendable method net/minecraft/client/gui/components/AbstractSelectionList addEntry (Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;)I
 accessible method net/minecraft/client/gui/components/AbstractSelectionList addEntry (Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;)I
+
+accessible field net/minecraft/server/network/ServerConnectionListener channels Ljava/util/List;
+accessible field net/minecraft/server/network/ServerConnectionListener connections Ljava/util/List;

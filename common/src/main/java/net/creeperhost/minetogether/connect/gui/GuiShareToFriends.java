@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.connect.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.connect.ConnectHandler;
+import net.creeperhost.minetogether.connect.ShareHandler;
 import net.creeperhost.minetogether.mixin.connect.ShareToLanScreenAccessor;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.client.Minecraft;
@@ -49,9 +50,9 @@ public class GuiShareToFriends extends ShareToLanScreen {
         startButton.active = startButton.visible = false;
         addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, Component.translatable("minetogether.connect.open.start"), (button1) -> {
             this.minecraft.setScreen(null);
+            // TODO nuke accessor in favor of AT
             ShareToLanScreenAccessor thisMixin = (ShareToLanScreenAccessor) this;
-            //TODO v2 do share operation.
-//            ConnectHelper.shareToFriends(thisMixin.getGameMode(), thisMixin.getCommands());
+            ShareHandler.publishToFriends(thisMixin.getGameMode(), thisMixin.getCommands());
             Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.attempting"));
         }));
     }

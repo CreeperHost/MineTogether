@@ -1,5 +1,10 @@
 package net.creeperhost.minetogether;
 
+import com.google.common.hash.Hashing;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.datafixers.util.Either;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
@@ -10,6 +15,8 @@ import net.creeperhost.minetogether.orderform.OrderForm;
 import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
 import net.creeperhost.minetogether.serverlist.data.Server;
 import net.creeperhost.minetogether.serverlist.web.GetServerRequest;
+import net.creeperhost.minetogether.session.JWebToken;
+import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -25,9 +32,17 @@ import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Initialize on a client.
@@ -37,10 +52,36 @@ import java.util.List;
 public class MineTogetherClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final ExecutorService SESSION_EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("MT Session Executor").build());
+
     private static boolean first = true;
+    @Nullable
+    private static MineTogetherSession session;
 
     public static void init() {
         LOGGER.info("Initializing MineTogetherClient!");
+
+        Minecraft mc = Minecraft.getInstance();
+        GameProfile profile = mc.getUser().getGameProfile();
+        // Profile id may be null if none is specified when starting the game (dev)
+        // Version 4 is 'random', version 3 is offline (md5 hash based).
+        if (profile.getId() != null && profile.getId().version() == 4) {
+            session = new MineTogetherSession(
+                    Path.of("./.mtsession"),
+                    profile.getId(),
+                    profile.getName(),
+                    () -> {
+                        String serverId = Hashing.sha1().hashString(UUID.randomUUID().toString(), UTF_8).toString();
+                        try {
+                            mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
+                            return serverId;
+                        } catch (AuthenticationException ex) {
+                            LOGGER.error("Failed to send 'joinServer' request.", ex);
+                        }
+                        return null;
+                    }
+            );
+        }
 
         MineTogetherChat.init();
         MineTogetherServerList.init();
@@ -49,6 +90,24 @@ public class MineTogetherClient {
 //        MineTogetherConnect.init();
 
         ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
+    }
+
+    public static CompletableFuture<Either<JWebToken, String>> getSession() {
+        if (session == null) return CompletableFuture.completedFuture(Either.right("Offline mode. No session available."));
+        if (session.isValid()) return CompletableFuture.completedFuture(Either.left(session.getToken()));
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                session.validate();
+                if (!session.isValid()) {
+                    LOGGER.error("Got invalid session after validate.. Api failure?");
+                    return Either.right("Got invalid session after validate.. Api failure?");
+                }
+                return Either.left(session.getToken());
+            } catch (Throwable ex) {
+                LOGGER.error("Failed to validate session.", ex);
+                return Either.right("Failed to acquire session token. See logs.");
+            }
+        }, SESSION_EXECUTOR);
     }
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
