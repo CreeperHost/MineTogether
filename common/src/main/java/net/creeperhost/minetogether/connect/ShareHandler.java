@@ -1,14 +1,13 @@
 package net.creeperhost.minetogether.connect;
 
-import com.mojang.datafixers.util.Either;
 import net.creeperhost.minetogether.MineTogetherClient;
-import net.creeperhost.minetogether.connect.netty.ServerPublishHandler;
+import net.creeperhost.minetogether.connect.netty.NettyClient;
+import net.creeperhost.minetogether.connect.netty.packet.SHostRegister;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.world.level.GameType;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -27,6 +26,7 @@ public class ShareHandler {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
-        ServerPublishHandler.publishServer(server.getConnection(), token, "localhost", 32437);
+        NettyClient client = new NettyClient(server, "localhost", 32437, () -> new SHostRegister(token.toString()));
+        client.start();
     }
 }
