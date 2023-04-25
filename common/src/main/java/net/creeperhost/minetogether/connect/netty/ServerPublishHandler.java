@@ -1,28 +1,22 @@
 package net.creeperhost.minetogether.connect.netty;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import net.creeperhost.minetogether.connect.netty.packet.*;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.server.network.ServerConnectionListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import static net.creeperhost.minetogether.connect.netty.DataUtils.readString;
-import static net.creeperhost.minetogether.connect.netty.PacketIds.*;
 
 /**
  * Created by covers1624 on 24/4/23.
  */
-public class ServerPublishHandler extends SimpleChannelInboundHandler<ByteBuf> {
+public class ServerPublishHandler extends AbstractChannelHandler<ClientPacketHandler> implements ClientPacketHandler {
 
     public static void publishServer(ServerConnectionListener listener, JWebToken session, String proxyHost, int proxyPort) {
         synchronized (listener.channels) {
@@ -48,7 +42,9 @@ public class ServerPublishHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
                             ChannelPipeline pipe = ch.pipeline();
                             pipe.addLast("timeout", new ReadTimeoutHandler(120));
-                            pipe.addLast(new FrameCodec());
+                            pipe.addLast("frame_codec", new FrameCodec());
+                            pipe.addLast("packet_codec", new PacketCodec());
+                            pipe.addLast("logging_codec", new LoggingPacketCodec(LOGGER));
                             pipe.addLast(new ServerPublishHandler(session));
 
                         }
@@ -60,71 +56,32 @@ public class ServerPublishHandler extends SimpleChannelInboundHandler<ByteBuf> {
     }
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private static boolean DEBUG_PACKETS = true;
 
     private final JWebToken session;
 
     public ServerPublishHandler(JWebToken session) {
+        super(PacketType.Direction.CLIENT_BOUND);
         this.session = session;
     }
-
-    @Nullable
-    private Channel channel;
 
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        channel = ctx.channel();
 
-        ByteBuf buf = Unpooled.buffer();
-        buf.writeByte(S_HOST_REGISTER);
-        DataUtils.writeString(buf, session.toString());
-        sendPacket(buf);
+        sendPacket(new SHostRegister(session.toString()));
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
-        debugInboundPacket(buf);
-        int id = buf.readUnsignedByte();
-        switch (id) {
-            case C_ACCEPTED -> { }
-            case C_DISCONNECTED -> {
-                String reason = readString(buf);
-                LOGGER.error("Disconnected from proxy: {}", reason);
-            }
-        }
+    protected void channelRead0(ChannelHandlerContext ctx, Packet<ClientPacketHandler> packet) throws Exception {
+        packet.handle(ctx, this);
     }
 
-    private ChannelFuture sendPacket(ByteBuf buf) {
-        assert channel != null : "Not connected.";
-
-        debugOutboundPacket(buf);
-        return channel.writeAndFlush(buf);
+    @Override
+    public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
+        LOGGER.error("Disconnected from proxy: {}", packet.message);
     }
 
-    private static void debugOutboundPacket(ByteBuf buf) {
-        if (!DEBUG_PACKETS) return;
-
-        buf.markReaderIndex();
-        int idx = buf.readUnsignedByte();
-        switch (idx) {
-            case S_HOST_REGISTER -> LOGGER.info("S_HOST_REGISTER <- \n\tsessionToken={}", readString(buf));
-            case S_HOST_CONNECT -> LOGGER.info("S_HOST_CONNECT <- \n\tsessionToken={}\n\tlinkToken={}", readString(buf), readString(buf));
-            case S_USER_CONNECT -> LOGGER.info("S_USER_CONNECT <- \n\tsessionToken={}\n\tserverToken={}", readString(buf), readString(buf));
-            default -> LOGGER.error("Unknown packet {}", idx);
-        }
-        buf.resetReaderIndex();
+    @Override
+    public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) {
     }
-
-    private static void debugInboundPacket(ByteBuf buf) {
-        if (!DEBUG_PACKETS) return;
-
-        buf.markReaderIndex();
-        int idx = buf.readUnsignedByte();
-        switch (idx) {
-            case C_DISCONNECTED -> LOGGER.info("C_DISCONNECTED ->\n\tmessage={}", readString(buf));
-            case C_ACCEPTED -> LOGGER.info("C_ACCEPTED ->");
-            default -> LOGGER.error("Unknown packet {}", idx);
-        }
-        buf.resetReaderIndex();
-    }}
+}
