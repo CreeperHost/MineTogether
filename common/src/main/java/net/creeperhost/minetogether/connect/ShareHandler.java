@@ -27,8 +27,7 @@ public class ShareHandler {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
-        NettyClient client = new NettyClient(server, "localhost", 32437, () -> new SHostRegister(token.toString()));
-        client.start();
+        NettyClient.publishServer(server, "localhost", 32437, token);
         server.publishedPort = 0; // Doesn't matter, just set to _something_.
         server.publishedGameType = gameType;
         server.getPlayerList().setAllowCheatsForAllPlayers(cheats);

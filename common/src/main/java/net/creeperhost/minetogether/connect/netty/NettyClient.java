@@ -6,50 +6,152 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import net.covers1624.quack.util.SneakyUtils;
+import net.creeperhost.minetogether.MineTogetherPlatform;
 import net.creeperhost.minetogether.connect.netty.packet.*;
+import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.network.*;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.server.network.LegacyQueryHandler;
 import net.minecraft.server.network.ServerConnectionListener;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.function.Supplier;
 
 /**
  * Created by covers1624 on 24/4/23.
  */
-public class NettyClient extends Thread {
+public class NettyClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    @Nullable
-    private final IntegratedServer server;
-    private final String proxyHost;
-    private final int proxyPort;
-    private final Supplier<Packet<ServerPacketHandler>> connectedPacketSupplier;
+    public static void publishServer(IntegratedServer server, String proxyHost, int proxyPort, JWebToken session) {
+        ProxyConnection connection = new ProxyConnection() {
+            @Override
+            public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {
+                link(server, proxyHost, proxyPort, session, packet.linkToken);
+            }
+        };
+        ChannelFuture channelFuture = openConnection(
+                proxyHost,
+                proxyPort,
+                connection,
+                ServerConnectionListener.SERVER_EPOLL_EVENT_GROUP::get,
+                ServerConnectionListener.SERVER_EVENT_GROUP::get
+        );
+        connection.sendPacket(new SHostRegister(session.toString()));
 
-    public NettyClient(@Nullable IntegratedServer server, String proxyHost, int proxyPort, Supplier<Packet<ServerPacketHandler>> connectedPacketSupplier) {
-        this.server = server;
-        this.proxyHost = proxyHost;
-        this.proxyPort = proxyPort;
-        this.connectedPacketSupplier = connectedPacketSupplier;
-        setDaemon(true);
-        setName("MineTogether Connect");
+        ServerConnectionListener listener = server.getConnection();
+        assert listener != null;
+
+        synchronized (listener.channels) {
+            listener.channels.add(channelFuture);
+        }
     }
 
-    @Override
-    public void run() {
+    public static Connection connect(String proxyHost, int proxyPort, JWebToken session, String serverToken) {
+        Throwable[] error = new Throwable[1];
+        Connection connection = new Connection(PacketFlow.CLIENTBOUND);
+        ProxyConnection proxyConnection = new ProxyConnection() {
+
+            @Override
+            public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
+                super.handleDisconnect(ctx, packet);
+                error[0] = new IOException("Failed to connect to server: " + packet.message);
+                synchronized (error) {
+                    error.notifyAll();
+                }
+            }
+
+            @Override
+            public void handleBeginRaw(ChannelHandlerContext ctx, CBeginRaw packet) {
+                synchronized (error) {
+                    error.notifyAll();
+                }
+            }
+        };
+        ChannelFuture channelFuture = openConnection(
+                proxyHost,
+                proxyPort,
+                proxyConnection,
+                Connection.NETWORK_EPOLL_WORKER_GROUP::get,
+                Connection.NETWORK_WORKER_GROUP::get
+        );
+        ChannelPipeline pipeline = channelFuture.channel().pipeline();
+        pipeline.addLast("mc:splitter", new Varint21FrameDecoder());
+        pipeline.addLast("mc:decoder", new PacketDecoder(PacketFlow.CLIENTBOUND));
+        pipeline.addLast("mc:prepender", new Varint21LengthFieldPrepender());
+        pipeline.addLast("mc:encoder", new PacketEncoder(PacketFlow.SERVERBOUND));
+        pipeline.addLast("mc:packet_handler", connection);
+
+        proxyConnection.sendPacket(new SUserConnect(session.toString(), serverToken));
+
+        synchronized (error) {
+            try {
+                error.wait();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException("Interrupted whilst waiting.", ex);
+            }
+        }
+        if (error[0] != null) {
+            SneakyUtils.throwUnchecked(error[0]);
+        }
+
+        // Required for Forge to add channel attributes. This is usually called form channelActive, but here will do.
+        MineTogetherPlatform.prepareClientConnection(connection);
+        return connection;
+    }
+
+    private static void link(IntegratedServer server, String proxyHost, int proxyPort, JWebToken session, String linkToken) {
+        ProxyConnection proxyConnection = new ProxyConnection();
+        ChannelFuture channelFuture = openConnection(
+                proxyHost,
+                proxyPort,
+                proxyConnection,
+                ServerConnectionListener.SERVER_EPOLL_EVENT_GROUP::get,
+                ServerConnectionListener.SERVER_EVENT_GROUP::get
+        );
+
+        ServerConnectionListener listener = server.getConnection();
+        assert listener != null;
+
+        synchronized (listener.channels) {
+            listener.channels.add(channelFuture);
+        }
+
+        Connection connection = new Connection(PacketFlow.SERVERBOUND);
+        ChannelPipeline pipeline = channelFuture.channel().pipeline();
+        pipeline.addLast("mc:legacy_query", new LegacyQueryHandler(listener));
+        pipeline.addLast("mc:splitter", new Varint21FrameDecoder());
+        pipeline.addLast("mc:decoder", new PacketDecoder(PacketFlow.SERVERBOUND));
+        pipeline.addLast("mc:prepender", new Varint21LengthFieldPrepender());
+        pipeline.addLast("mc:encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
+        pipeline.addLast("mc:packet_handler", connection);
+
+        synchronized (listener.connections) {
+            listener.connections.add(connection);
+        }
+
+        proxyConnection.sendPacket(new SHostConnect(session.toString(), linkToken));
+    }
+
+    private static ChannelFuture openConnection(String proxyHost, int proxyPort, ProxyConnection connection, Supplier<EventLoopGroup> epollGroup, Supplier<EventLoopGroup> nioGroup) {
         EventLoopGroup eventGroup;
         Class<? extends Channel> channelClass;
         if (Epoll.isAvailable()) {
-            eventGroup = ServerConnectionListener.SERVER_EPOLL_EVENT_GROUP.get();
+            eventGroup = epollGroup.get();
             channelClass = EpollSocketChannel.class;
         } else {
-            eventGroup = ServerConnectionListener.SERVER_EVENT_GROUP.get();
+            eventGroup = nioGroup.get();
             channelClass = NioSocketChannel.class;
         }
-        ChannelFuture channelFuture = new Bootstrap()
+
+        return new Bootstrap()
                 .group(eventGroup)
                 .channel(channelClass)
                 .handler(new ChannelInitializer<>() {
@@ -65,46 +167,18 @@ public class NettyClient extends Thread {
                         pipe.addLast("frame_codec", new FrameCodec());
                         pipe.addLast("packet_codec", new PacketCodec());
                         pipe.addLast("logging_codec", new LoggingPacketCodec(LOGGER));
-                        pipe.addLast(new ChannelHandler());
+                        pipe.addLast(connection);
 
                     }
                 })
                 .connect(proxyHost, proxyPort)
                 .syncUninterruptibly();
-
-        if (server != null) {
-            ServerConnectionListener listener = server.getConnection();
-            assert listener != null;
-
-            synchronized (listener.channels) {
-                listener.channels.add(channelFuture);
-            }
-        }
-        channelFuture.channel().closeFuture().syncUninterruptibly();
     }
 
-    private class ChannelHandler extends AbstractChannelHandler<ClientPacketHandler> implements ClientPacketHandler {
+    public static class ProxyConnection extends AbstractChannelHandler<ClientPacketHandler> implements ClientPacketHandler {
 
-        private ConnectionType type;
-
-        public ChannelHandler() {
+        public ProxyConnection() {
             super(PacketType.Direction.CLIENT_BOUND);
-        }
-
-        @Override
-        public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
-            super.channelActive(ctx);
-
-            Packet<ServerPacketHandler> packet = connectedPacketSupplier.get();
-            if (packet instanceof SHostRegister) {
-                type = ConnectionType.HOST_CONTROL;
-            } else if (packet instanceof SHostConnect) {
-                type = ConnectionType.HOST_USER;
-            } else if (packet instanceof SUserConnect) {
-                type = ConnectionType.CLIENT_USER;
-            }
-
-            sendPacket(packet);
         }
 
         @Override
@@ -119,6 +193,21 @@ public class NettyClient extends Thread {
 
         @Override
         public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) {
+        }
+
+        @Override
+        public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {
+            throw new NotImplementedException();
+        }
+
+        @Override
+        public void handleBeginRaw(ChannelHandlerContext ctx, CBeginRaw packet) {
+            throw new NotImplementedException();
+        }
+
+        @Override
+        public void handleRaw(ChannelHandlerContext ctx, CRaw packet) {
+            ctx.fireChannelRead(packet);
         }
     }
 }

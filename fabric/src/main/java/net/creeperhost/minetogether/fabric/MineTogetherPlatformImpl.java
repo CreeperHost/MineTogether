@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.fabric;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModOrigin;
+import net.minecraft.network.Connection;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -36,5 +37,8 @@ public class MineTogetherPlatformImpl {
         if (container.isEmpty()) return "UNKNOWN";
 
         return container.get().getMetadata().getVersion().getFriendlyString();
+    }
+
+    public static void prepareClientConnection(Connection connection) {
     }
 }
