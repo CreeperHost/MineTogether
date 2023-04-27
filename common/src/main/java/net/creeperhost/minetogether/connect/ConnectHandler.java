@@ -1,23 +1,22 @@
 package net.creeperhost.minetogether.connect;
 
-import com.mojang.logging.LogUtils;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
-import net.creeperhost.minetogether.connect.gui.FriendConnectScreen;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
 import net.creeperhost.minetogether.connect.web.FriendServerListRequest;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
-import net.creeperhost.minetogether.lib.web.ApiClient;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
-import net.creeperhost.minetogether.lib.web.WebUtils;
 import net.creeperhost.minetogether.session.JWebToken;
-import net.minecraft.client.multiplayer.resolver.ServerRedirectHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -33,23 +32,43 @@ public class ConnectHandler {
     private static CompletableFuture<?> activeSearch = null;
     private static FriendServerListRequest.Response searchResult = null;
 
+    @Nullable
+    private static ConnectHost endpoint;
+
     public static void init() {
+    }
+
+    public static ConnectHost getEndpoint() {
+        if (endpoint == null) {
+            endpoint = ConnectHost.LOCALHOST; // TODO actually resolve closest endpoint.
+        }
+        return endpoint;
     }
 
     public static boolean isEnabled() {
         return true; //TODO v2
     }
 
-    public static String getProxyAddress() {
-        return "localhost";
-    }
+    public static void publishToFriends(GameType gameType, boolean cheats) {
+        // Mostly copy of IntegratedServer#publishServer
+        Minecraft mc = Minecraft.getInstance();
+        IntegratedServer server = mc.getSingleplayerServer();
+        mc.prepareForMultiplayer();
+        JWebToken token;
+        try { // TODO, This should be done outside somewhere.
+            token = MineTogetherClient.getSession().get().orThrow();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        NettyClient.publishServer(server, getEndpoint(), token);
+        server.publishedPort = 0; // Doesn't matter, just set to _something_.
+        server.publishedGameType = gameType;
+        server.getPlayerList().setAllowCheatsForAllPlayers(cheats);
+        mc.player.setPermissionLevel(server.getProfilePermissions(mc.player.getGameProfile()));
 
-    public static int getProxyPort() {
-        return 32437;
-    }
-
-    public static int getHTTPPort() {
-        return 32436;
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            server.getCommands().sendCommands(player);
+        }
     }
 
     public static void updateFriendsSearch() {
@@ -83,7 +102,7 @@ public class ConnectHandler {
             try {
                 JWebToken token = MineTogetherClient.getSession().get().orThrow();
 
-                ApiClientResponse<FriendServerListRequest.Response> res = MineTogether.API.execute(new FriendServerListRequest("http://" + getProxyAddress() + ":" + getHTTPPort(), token.toString()));
+                ApiClientResponse<FriendServerListRequest.Response> res = MineTogether.API.execute(new FriendServerListRequest(getEndpoint().httpUrl(), token.toString()));
                 if (res.statusCode() != 200) {
                     LOGGER.error("An error occurred while searching for friend servers, Response code: {}, Message: {}", res.statusCode(), res.message());
                     return;

@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.connect.ConnectHandler;
+import net.creeperhost.minetogether.connect.ConnectHost;
 import net.creeperhost.minetogether.connect.FriendServerData;
 import net.creeperhost.minetogether.connect.RemoteServer;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
@@ -40,19 +41,15 @@ import org.slf4j.Logger;
 
 public class FriendConnectScreen extends ConnectScreen {
     private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
-    static final Logger LOGGER = LogUtils.getLogger();
-    private static final long NARRATION_DELAY_MS = 2000L;
-    public static final Component UNKNOWN_HOST_MESSAGE = Component.translatable("disconnect.genericReason", new Object[]{Component.translatable("disconnect.unknownHost")});
-//    @Nullable
-//    volatile Connection connection;
-    volatile boolean aborted;
-    final Screen parent;
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private volatile boolean aborted;
+    private final Screen parent;
     private Component status = Component.translatable("connect.connecting");
     private long lastNarration = -1L;
 
     private FriendConnectScreen(Screen screen) {
         super(screen);
-        this.parent = screen;
+        parent = screen;
     }
 
     public static void startConnecting(Screen screen, Minecraft minecraft, RemoteServer server) {
@@ -71,53 +68,30 @@ public class FriendConnectScreen extends ConnectScreen {
 
         Thread thread = new Thread("MT Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
             public void run() {
-//                InetSocketAddress inetSocketAddress = null;
-
                 try {
-                    if (FriendConnectScreen.this.aborted) {
+                    if (aborted) {
                         return;
                     }
 
-//                    Optional<InetSocketAddress> optional = ServerNameResolver.DEFAULT.resolveAddress(serverAddress).map(ResolvedServerAddress::asInetSocketAddress);
-//                    if (FriendConnectScreen.this.aborted) {
-//                        return;
-//                    }
-//
-//                    if (!optional.isPresent()) {
-//                        minecraft.execute(() -> {
-//                            minecraft.setScreen(new DisconnectedScreen(FriendConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, FriendConnectScreen.UNKNOWN_HOST_MESSAGE));
-//                        });
-//                        return;
-//                    }
-
-                    //Anything todo with the connection field is important.
-//                    inetSocketAddress = (InetSocketAddress)optional.get();
-
+                    ConnectHost endpoint = ConnectHandler.getEndpoint();
                     JWebToken token = MineTogetherClient.getSession().get().orThrow();
-                    FriendConnectScreen.this.connection = NettyClient.connect(ConnectHandler.getProxyAddress(), ConnectHandler.getProxyPort(), token, server.serverToken());
+                    connection = NettyClient.connect(endpoint, token, server.serverToken());
 
-//                    FriendConnectScreen.this.connection = Connection.connectToServer(inetSocketAddress, minecraft.options.useNativeTransport());
-                    FriendConnectScreen.this.connection.setListener(new ClientHandshakePacketListenerImpl(FriendConnectScreen.this.connection, minecraft, FriendConnectScreen.this.parent, FriendConnectScreen.this::updateStatus)); //<
-                    FriendConnectScreen.this.connection.send(new ClientIntentionPacket(ConnectHandler.getProxyAddress(), ConnectHandler.getProxyPort(), ConnectionProtocol.LOGIN)); //<
-                    FriendConnectScreen.this.connection.send(new ServerboundHelloPacket(minecraft.getUser().getName(), completableFuture.join(), Optional.ofNullable(minecraft.getUser().getProfileId()))); //<
-                } catch (Exception var6) {
-                    if (FriendConnectScreen.this.aborted) {
+                    connection.setListener(new ClientHandshakePacketListenerImpl(connection, minecraft, parent, FriendConnectScreen.this::updateStatus));
+                    connection.send(new ClientIntentionPacket(endpoint.host(), endpoint.proxyPort(), ConnectionProtocol.LOGIN));
+                    connection.send(new ServerboundHelloPacket(minecraft.getUser().getName(), completableFuture.join(), Optional.ofNullable(minecraft.getUser().getProfileId())));
+                } catch (Exception ex) {
+                    if (aborted) {
                         return;
                     }
+                    FriendConnectScreen.LOGGER.error("Couldn't connect to server", ex);
 
-//                    Throwable var5 = var6.getCause();
-//                    Exception exception3;
-//                    if (var5 instanceof Exception exception2) {
-//                        exception3 = exception2;
-//                    } else {
-//                        exception3 = var6;
-//                    }
+                    Exception loggedException = ex.getCause() instanceof Exception e ? e : ex;
 
-                    FriendConnectScreen.LOGGER.error("Couldn't connect to server", var6);
 
-                    String string = "";//TODO inetSocketAddress == null ? exception3.getMessage() : exception3.getMessage().replaceAll(inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort(), "").replaceAll(inetSocketAddress.toString(), "");
+                    String string = loggedException.getMessage();
                     minecraft.execute(() -> {
-                        minecraft.setScreen(new DisconnectedScreen(FriendConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", new Object[]{string})));
+                        minecraft.setScreen(new DisconnectedScreen(parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", string)));
                     });
                 }
 
@@ -128,15 +102,15 @@ public class FriendConnectScreen extends ConnectScreen {
     }
 
     private void updateStatus(Component component) {
-        this.status = component;
+        status = component;
     }
 
     public void tick() {
-        if (this.connection != null) {
-            if (this.connection.isConnected()) {
-                this.connection.tick(); //<
+        if (connection != null) {
+            if (connection.isConnected()) {
+                connection.tick();
             } else {
-                this.connection.handleDisconnection();
+                connection.handleDisconnection();
             }
         }
 
@@ -147,25 +121,25 @@ public class FriendConnectScreen extends ConnectScreen {
     }
 
     protected void init() {
-        this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 4 + 120 + 12, 200, 20, CommonComponents.GUI_CANCEL, (button) -> {
-            this.aborted = true;
-            if (this.connection != null) {
-                this.connection.disconnect(Component.translatable("connect.aborted")); //<
+        addRenderableWidget(new Button(width / 2 - 100, height / 4 + 120 + 12, 200, 20, CommonComponents.GUI_CANCEL, (button) -> {
+            aborted = true;
+            if (connection != null) {
+                connection.disconnect(Component.translatable("connect.aborted"));
             }
 
-            this.minecraft.setScreen(this.parent);
+            minecraft.setScreen(parent);
         }));
     }
 
     public void render(PoseStack poseStack, int i, int j, float f) {
-        this.renderBackground(poseStack);
+        renderBackground(poseStack);
         long l = Util.getMillis();
-        if (l - this.lastNarration > 2000L) {
-            this.lastNarration = l;
-            this.minecraft.getNarrator().sayNow(Component.translatable("narrator.joining"));
+        if (l - lastNarration > 2000L) {
+            lastNarration = l;
+            minecraft.getNarrator().sayNow(Component.translatable("narrator.joining"));
         }
 
-        drawCenteredString(poseStack, this.font, this.status, this.width / 2, this.height / 2 - 50, 16777215);
+        drawCenteredString(poseStack, font, status, width / 2, height / 2 - 50, 16777215);
         super.render(poseStack, i, j, f);
     }
 }

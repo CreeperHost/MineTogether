@@ -7,6 +7,7 @@ import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import net.covers1624.quack.util.SneakyUtils;
 import net.creeperhost.minetogether.MineTogetherPlatform;
+import net.creeperhost.minetogether.connect.ConnectHost;
 import net.creeperhost.minetogether.connect.netty.packet.*;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.client.Minecraft;
@@ -33,7 +34,7 @@ public class NettyClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static void publishServer(IntegratedServer server, String proxyHost, int proxyPort, JWebToken session) {
+    public static void publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session) {
         Throwable[] error = new Throwable[1];
         ProxyConnection connection = new ProxyConnection() {
             @Override
@@ -63,12 +64,11 @@ public class NettyClient {
 
             @Override
             public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {
-                link(server, proxyHost, proxyPort, session, packet.linkToken);
+                link(server, endpoint, session, packet.linkToken);
             }
         };
         ChannelFuture channelFuture = openConnection(
-                proxyHost,
-                proxyPort,
+                endpoint,
                 connection,
                 ServerConnectionListener.SERVER_EPOLL_EVENT_GROUP::get,
                 ServerConnectionListener.SERVER_EVENT_GROUP::get
@@ -93,7 +93,7 @@ public class NettyClient {
         }
     }
 
-    public static Connection connect(String proxyHost, int proxyPort, JWebToken session, String serverToken) {
+    public static Connection connect(ConnectHost endpoint, JWebToken session, String serverToken) {
         Throwable[] error = new Throwable[1];
         Connection connection = new Connection(PacketFlow.CLIENTBOUND);
         ProxyConnection proxyConnection = new ProxyConnection() {
@@ -133,8 +133,7 @@ public class NettyClient {
             }
         };
         ChannelFuture channelFuture = openConnection(
-                proxyHost,
-                proxyPort,
+                endpoint,
                 proxyConnection,
                 Connection.NETWORK_EPOLL_WORKER_GROUP::get,
                 Connection.NETWORK_WORKER_GROUP::get
@@ -154,7 +153,7 @@ public class NettyClient {
         return connection;
     }
 
-    private static void link(IntegratedServer server, String proxyHost, int proxyPort, JWebToken session, String linkToken) {
+    private static void link(IntegratedServer server, ConnectHost endpoint, JWebToken session, String linkToken) {
         ServerConnectionListener listener = server.getConnection();
         assert listener != null;
 
@@ -201,8 +200,7 @@ public class NettyClient {
             }
         };
         ChannelFuture channelFuture = openConnection(
-                proxyHost,
-                proxyPort,
+                endpoint,
                 proxyConnection,
                 ServerConnectionListener.SERVER_EPOLL_EVENT_GROUP::get,
                 ServerConnectionListener.SERVER_EVENT_GROUP::get
@@ -228,7 +226,7 @@ public class NettyClient {
         }
     }
 
-    private static ChannelFuture openConnection(String proxyHost, int proxyPort, ProxyConnection connection, Supplier<EventLoopGroup> epollGroup, Supplier<EventLoopGroup> nioGroup) {
+    private static ChannelFuture openConnection(ConnectHost endpoint, ProxyConnection connection, Supplier<EventLoopGroup> epollGroup, Supplier<EventLoopGroup> nioGroup) {
         EventLoopGroup eventGroup;
         Class<? extends Channel> channelClass;
         if (Epoll.isAvailable()) {
@@ -260,7 +258,7 @@ public class NettyClient {
 
                     }
                 })
-                .connect(proxyHost, proxyPort)
+                .connect(endpoint.host(), endpoint.proxyPort())
                 .syncUninterruptibly();
     }
 
