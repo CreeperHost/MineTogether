@@ -19,6 +19,7 @@ import net.minecraft.Util;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
@@ -37,20 +38,20 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 
-public class FriendConnectScreen extends Screen {
+public class FriendConnectScreen extends ConnectScreen {
     private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
     static final Logger LOGGER = LogUtils.getLogger();
     private static final long NARRATION_DELAY_MS = 2000L;
     public static final Component UNKNOWN_HOST_MESSAGE = Component.translatable("disconnect.genericReason", new Object[]{Component.translatable("disconnect.unknownHost")});
-    @Nullable
-    volatile Connection connection;
+//    @Nullable
+//    volatile Connection connection;
     volatile boolean aborted;
     final Screen parent;
     private Component status = Component.translatable("connect.connecting");
     private long lastNarration = -1L;
 
     private FriendConnectScreen(Screen screen) {
-        super(GameNarrator.NO_TITLE);
+        super(screen);
         this.parent = screen;
     }
 
@@ -93,13 +94,11 @@ public class FriendConnectScreen extends Screen {
 //                    inetSocketAddress = (InetSocketAddress)optional.get();
 
                     JWebToken token = MineTogetherClient.getSession().get().orThrow();
-                    FriendConnectScreen.this.connection = NettyClient.connect("http://localhost", 32437, token, server.serverToken());
+                    FriendConnectScreen.this.connection = NettyClient.connect(ConnectHandler.getProxyAddress(), ConnectHandler.getProxyPort(), token, server.serverToken());
 
-
-//                    FriendConnectScreen.this.connection = Connection.connectToServer(inetSocketAddress, minecraft.options.useNativeTransport());
 //                    FriendConnectScreen.this.connection = Connection.connectToServer(inetSocketAddress, minecraft.options.useNativeTransport());
                     FriendConnectScreen.this.connection.setListener(new ClientHandshakePacketListenerImpl(FriendConnectScreen.this.connection, minecraft, FriendConnectScreen.this.parent, FriendConnectScreen.this::updateStatus)); //<
-                    FriendConnectScreen.this.connection.send(new ClientIntentionPacket("http://localhost", 32437, ConnectionProtocol.LOGIN)); //<
+                    FriendConnectScreen.this.connection.send(new ClientIntentionPacket(ConnectHandler.getProxyAddress(), ConnectHandler.getProxyPort(), ConnectionProtocol.LOGIN)); //<
                     FriendConnectScreen.this.connection.send(new ServerboundHelloPacket(minecraft.getUser().getName(), completableFuture.join(), Optional.ofNullable(minecraft.getUser().getProfileId()))); //<
                 } catch (Exception var6) {
                     if (FriendConnectScreen.this.aborted) {

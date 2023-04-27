@@ -40,13 +40,17 @@ public class ConnectHandler {
         return true; //TODO v2
     }
 
-//    public static String getProxyAddress() {
-//        return ""
-//    }
-//
-//    public static int getProxyPort() {
-//return 0;
-//    }
+    public static String getProxyAddress() {
+        return "localhost";
+    }
+
+    public static int getProxyPort() {
+        return 32437;
+    }
+
+    public static int getHTTPPort() {
+        return 32436;
+    }
 
     public static void updateFriendsSearch() {
         if (activeSearch != null) {
@@ -79,7 +83,7 @@ public class ConnectHandler {
             try {
                 JWebToken token = MineTogetherClient.getSession().get().orThrow();
 
-                ApiClientResponse<FriendServerListRequest.Response> res = MineTogether.API.execute(new FriendServerListRequest("http://localhost:32436", token.toString()));
+                ApiClientResponse<FriendServerListRequest.Response> res = MineTogether.API.execute(new FriendServerListRequest("http://" + getProxyAddress() + ":" + getHTTPPort(), token.toString()));
                 if (res.statusCode() != 200) {
                     LOGGER.error("An error occurred while searching for friend servers, Response code: {}, Message: {}", res.statusCode(), res.message());
                     return;

@@ -22,3 +22,8 @@ accessible field net/minecraft/server/network/ServerConnectionListener connectio
 
 accessible field net/minecraft/client/server/IntegratedServer publishedPort I
 accessible field net/minecraft/client/server/IntegratedServer publishedGameType Lnet/minecraft/world/level/GameType;
+
+accessible field net/minecraft/client/gui/screens/ConnectScreen connection Lnet/minecraft/network/Connection;
+
+extendable method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/minecraft/client/gui/screens/Screen;)V
+accessible method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/minecraft/client/gui/screens/Screen;)V
