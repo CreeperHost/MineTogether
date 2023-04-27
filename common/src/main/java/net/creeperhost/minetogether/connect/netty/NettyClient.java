@@ -97,11 +97,11 @@ public class NettyClient {
 
             @Override
             protected void buildPipeline(ChannelPipeline pipeline) {
-                pipeline.addLast("mc:splitter", new Varint21FrameDecoder());
-                pipeline.addLast("mc:decoder", new PacketDecoder(PacketFlow.CLIENTBOUND));
-                pipeline.addLast("mc:prepender", new Varint21LengthFieldPrepender());
-                pipeline.addLast("mc:encoder", new PacketEncoder(PacketFlow.SERVERBOUND));
-                pipeline.addLast("mc:packet_handler", connection);
+                pipeline.addLast("splitter", new Varint21FrameDecoder());
+                pipeline.addLast("decoder", new PacketDecoder(PacketFlow.CLIENTBOUND));
+                pipeline.addLast("prepender", new Varint21LengthFieldPrepender());
+                pipeline.addLast("encoder", new PacketEncoder(PacketFlow.SERVERBOUND));
+                pipeline.addLast("packet_handler", connection);
             }
 
             @Override
@@ -161,12 +161,12 @@ public class NettyClient {
 
             @Override
             protected void buildPipeline(ChannelPipeline pipeline) {
-                pipeline.addLast("mc:legacy_query", new LegacyQueryHandler(listener));
-                pipeline.addLast("mc:splitter", new Varint21FrameDecoder());
-                pipeline.addLast("mc:decoder", new PacketDecoder(PacketFlow.SERVERBOUND));
-                pipeline.addLast("mc:prepender", new Varint21LengthFieldPrepender());
-                pipeline.addLast("mc:encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
-                pipeline.addLast("mc:packet_handler", connection);
+                pipeline.addLast("legacy_query", new LegacyQueryHandler(listener));
+                pipeline.addLast("splitter", new Varint21FrameDecoder());
+                pipeline.addLast("decoder", new PacketDecoder(PacketFlow.SERVERBOUND));
+                pipeline.addLast("prepender", new Varint21LengthFieldPrepender());
+                pipeline.addLast("encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
+                pipeline.addLast("packet_handler", connection);
             }
 
             @Override
@@ -245,11 +245,11 @@ public class NettyClient {
                         }
 
                         ChannelPipeline pipe = ch.pipeline();
-                        pipe.addLast("timeout", new ReadTimeoutHandler(120));
-                        pipe.addLast("frame_codec", new FrameCodec());
-                        pipe.addLast("packet_codec", new PacketCodec());
-                        pipe.addLast("logging_codec", new LoggingPacketCodec(LOGGER));
-                        pipe.addLast(connection);
+//                        pipe.addLast("timeout", new ReadTimeoutHandler(120)); // TODO ping/pong on control socket required for this.
+                        pipe.addLast("mt:frame_codec", new FrameCodec());
+                        pipe.addLast("mt:packet_codec", new PacketCodec());
+                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER));
+                        pipe.addLast("mt:packet_handler", connection);
                         connection.buildPipeline(pipe);
 
                     }
