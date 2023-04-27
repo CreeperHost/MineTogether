@@ -15,6 +15,7 @@ import net.minecraft.network.*;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.network.LegacyQueryHandler;
 import net.minecraft.server.network.ServerConnectionListener;
+import net.minecraft.server.network.ServerHandshakePacketListenerImpl;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -156,6 +157,7 @@ public class NettyClient {
         assert listener != null;
 
         Connection connection = new Connection(PacketFlow.SERVERBOUND);
+        connection.setListener(new ServerHandshakePacketListenerImpl(server, connection));
 
         Throwable[] error = new Throwable[1];
         ProxyConnection proxyConnection = new ProxyConnection() {
@@ -295,7 +297,7 @@ public class NettyClient {
 
         @Override
         public void handleRaw(ChannelHandlerContext ctx, CRaw packet) {
-            ctx.fireChannelRead(packet);
+            ctx.fireChannelRead(packet.data);
         }
     }
 }
