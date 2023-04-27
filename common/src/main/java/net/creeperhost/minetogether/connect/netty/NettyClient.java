@@ -31,7 +31,33 @@ public class NettyClient {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static void publishServer(IntegratedServer server, String proxyHost, int proxyPort, JWebToken session) {
+        Throwable[] error = new Throwable[1];
         ProxyConnection connection = new ProxyConnection() {
+            @Override
+            public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+                super.channelActive(ctx);
+
+                sendPacket(new SHostRegister(session.toString()));
+            }
+
+            @Override
+            public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
+                super.handleDisconnect(ctx, packet);
+
+                error[0] = new IOException("Failed to host server: " + packet.message);
+                synchronized (error) {
+                    error.notifyAll();
+                }
+            }
+
+            @Override
+            public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) {
+                super.handleAccepted(ctx, cAccepted);
+                synchronized (error) {
+                    error.notifyAll();
+                }
+            }
+
             @Override
             public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {
                 link(server, proxyHost, proxyPort, session, packet.linkToken);
@@ -44,7 +70,17 @@ public class NettyClient {
                 ServerConnectionListener.SERVER_EPOLL_EVENT_GROUP::get,
                 ServerConnectionListener.SERVER_EVENT_GROUP::get
         );
-        connection.sendPacket(new SHostRegister(session.toString()));
+
+        synchronized (error) {
+            try {
+                error.wait();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException("Interrupted whilst waiting.", ex);
+            }
+        }
+        if (error[0] != null) {
+            SneakyUtils.throwUnchecked(error[0]);
+        }
 
         ServerConnectionListener listener = server.getConnection();
         assert listener != null;
@@ -58,6 +94,14 @@ public class NettyClient {
         Throwable[] error = new Throwable[1];
         Connection connection = new Connection(PacketFlow.CLIENTBOUND);
         ProxyConnection proxyConnection = new ProxyConnection() {
+
+            @Override
+            public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+                super.channelActive(ctx);
+                sendPacket(new SUserConnect(session.toString(), serverToken));
+                // Required for Forge to add channel attributes.
+                MineTogetherPlatform.prepareClientConnection(connection);
+            }
 
             @Override
             public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
@@ -89,8 +133,6 @@ public class NettyClient {
         pipeline.addLast("mc:encoder", new PacketEncoder(PacketFlow.SERVERBOUND));
         pipeline.addLast("mc:packet_handler", connection);
 
-        proxyConnection.sendPacket(new SUserConnect(session.toString(), serverToken));
-
         synchronized (error) {
             try {
                 error.wait();
@@ -102,13 +144,37 @@ public class NettyClient {
             SneakyUtils.throwUnchecked(error[0]);
         }
 
-        // Required for Forge to add channel attributes. This is usually called form channelActive, but here will do.
-        MineTogetherPlatform.prepareClientConnection(connection);
         return connection;
     }
 
     private static void link(IntegratedServer server, String proxyHost, int proxyPort, JWebToken session, String linkToken) {
-        ProxyConnection proxyConnection = new ProxyConnection();
+        Throwable[] error = new Throwable[1];
+        ProxyConnection proxyConnection = new ProxyConnection() {
+            @Override
+            public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+                super.channelActive(ctx);
+
+                sendPacket(new SHostConnect(session.toString(), linkToken));
+            }
+
+            @Override
+            public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
+                super.handleDisconnect(ctx, packet);
+
+                error[0] = new IOException("Failed to host server: " + packet.message);
+                synchronized (error) {
+                    error.notifyAll();
+                }
+            }
+
+            @Override
+            public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) {
+                super.handleAccepted(ctx, cAccepted);
+                synchronized (error) {
+                    error.notifyAll();
+                }
+            }
+        };
         ChannelFuture channelFuture = openConnection(
                 proxyHost,
                 proxyPort,
@@ -137,7 +203,16 @@ public class NettyClient {
             listener.connections.add(connection);
         }
 
-        proxyConnection.sendPacket(new SHostConnect(session.toString(), linkToken));
+        synchronized (error) {
+            try {
+                error.wait();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException("Interrupted whilst waiting.", ex);
+            }
+        }
+        if (error[0] != null) {
+            SneakyUtils.throwUnchecked(error[0]);
+        }
     }
 
     private static ChannelFuture openConnection(String proxyHost, int proxyPort, ProxyConnection connection, Supplier<EventLoopGroup> epollGroup, Supplier<EventLoopGroup> nioGroup) {
