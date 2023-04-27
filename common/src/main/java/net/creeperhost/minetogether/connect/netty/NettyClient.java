@@ -96,6 +96,15 @@ public class NettyClient {
         ProxyConnection proxyConnection = new ProxyConnection() {
 
             @Override
+            protected void buildPipeline(ChannelPipeline pipeline) {
+                pipeline.addLast("mc:splitter", new Varint21FrameDecoder());
+                pipeline.addLast("mc:decoder", new PacketDecoder(PacketFlow.CLIENTBOUND));
+                pipeline.addLast("mc:prepender", new Varint21LengthFieldPrepender());
+                pipeline.addLast("mc:encoder", new PacketEncoder(PacketFlow.SERVERBOUND));
+                pipeline.addLast("mc:packet_handler", connection);
+            }
+
+            @Override
             public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
                 super.channelActive(ctx);
                 sendPacket(new SUserConnect(session.toString(), serverToken));
@@ -126,12 +135,6 @@ public class NettyClient {
                 Connection.NETWORK_EPOLL_WORKER_GROUP::get,
                 Connection.NETWORK_WORKER_GROUP::get
         );
-        ChannelPipeline pipeline = channelFuture.channel().pipeline();
-        pipeline.addLast("mc:splitter", new Varint21FrameDecoder());
-        pipeline.addLast("mc:decoder", new PacketDecoder(PacketFlow.CLIENTBOUND));
-        pipeline.addLast("mc:prepender", new Varint21LengthFieldPrepender());
-        pipeline.addLast("mc:encoder", new PacketEncoder(PacketFlow.SERVERBOUND));
-        pipeline.addLast("mc:packet_handler", connection);
 
         synchronized (error) {
             try {
@@ -148,8 +151,24 @@ public class NettyClient {
     }
 
     private static void link(IntegratedServer server, String proxyHost, int proxyPort, JWebToken session, String linkToken) {
+        ServerConnectionListener listener = server.getConnection();
+        assert listener != null;
+
+        Connection connection = new Connection(PacketFlow.SERVERBOUND);
+
         Throwable[] error = new Throwable[1];
         ProxyConnection proxyConnection = new ProxyConnection() {
+
+            @Override
+            protected void buildPipeline(ChannelPipeline pipeline) {
+                pipeline.addLast("mc:legacy_query", new LegacyQueryHandler(listener));
+                pipeline.addLast("mc:splitter", new Varint21FrameDecoder());
+                pipeline.addLast("mc:decoder", new PacketDecoder(PacketFlow.SERVERBOUND));
+                pipeline.addLast("mc:prepender", new Varint21LengthFieldPrepender());
+                pipeline.addLast("mc:encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
+                pipeline.addLast("mc:packet_handler", connection);
+            }
+
             @Override
             public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
                 super.channelActive(ctx);
@@ -183,21 +202,9 @@ public class NettyClient {
                 ServerConnectionListener.SERVER_EVENT_GROUP::get
         );
 
-        ServerConnectionListener listener = server.getConnection();
-        assert listener != null;
-
         synchronized (listener.channels) {
             listener.channels.add(channelFuture);
         }
-
-        Connection connection = new Connection(PacketFlow.SERVERBOUND);
-        ChannelPipeline pipeline = channelFuture.channel().pipeline();
-        pipeline.addLast("mc:legacy_query", new LegacyQueryHandler(listener));
-        pipeline.addLast("mc:splitter", new Varint21FrameDecoder());
-        pipeline.addLast("mc:decoder", new PacketDecoder(PacketFlow.SERVERBOUND));
-        pipeline.addLast("mc:prepender", new Varint21LengthFieldPrepender());
-        pipeline.addLast("mc:encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
-        pipeline.addLast("mc:packet_handler", connection);
 
         synchronized (listener.connections) {
             listener.connections.add(connection);
@@ -243,6 +250,7 @@ public class NettyClient {
                         pipe.addLast("packet_codec", new PacketCodec());
                         pipe.addLast("logging_codec", new LoggingPacketCodec(LOGGER));
                         pipe.addLast(connection);
+                        connection.buildPipeline(pipe);
 
                     }
                 })
@@ -254,6 +262,9 @@ public class NettyClient {
 
         public ProxyConnection() {
             super(PacketType.Direction.CLIENT_BOUND);
+        }
+
+        protected void buildPipeline(ChannelPipeline pipeline) {
         }
 
         @Override
