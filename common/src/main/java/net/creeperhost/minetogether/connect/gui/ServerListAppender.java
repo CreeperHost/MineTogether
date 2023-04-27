@@ -25,11 +25,11 @@ public class ServerListAppender {
     public void init(ServerSelectionList serverList, JoinMultiplayerScreen multiplayerScreen) {
         this.serverList = serverList;
         this.multiplayerScreen = multiplayerScreen;
-        ConnectHandler.genRandomTestServers();
     }
 
     public void tick() {
         if (tick++ % 20 != 0 || serverList == null || multiplayerScreen == null) return;
+        ConnectHandler.updateFriendsSearch();
 
         boolean dirty = false;
         List<RemoteServer> remoteServers = new ArrayList<>(ConnectHandler.getRemoteServers());

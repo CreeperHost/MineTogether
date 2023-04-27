@@ -1,18 +1,37 @@
 package net.creeperhost.minetogether.connect;
 
+import com.mojang.logging.LogUtils;
+import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.connect.gui.FriendConnectScreen;
+import net.creeperhost.minetogether.connect.netty.NettyClient;
+import net.creeperhost.minetogether.connect.web.FriendServerListRequest;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
+import net.creeperhost.minetogether.lib.web.ApiClient;
+import net.creeperhost.minetogether.lib.web.ApiClientResponse;
+import net.creeperhost.minetogether.lib.web.WebUtils;
+import net.creeperhost.minetogether.session.JWebToken;
+import net.minecraft.client.multiplayer.resolver.ServerRedirectHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by brandon3055 on 21/04/2023
  */
 public class ConnectHandler {
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Map<RemoteServer, Profile> AVAILABLE_SERVER_MAP = new HashMap<>();
 
-    private static Map<RemoteServer, Profile> testServerMap = new HashMap<>();
-
+    private static long lastSearch = 0;
+    private static CompletableFuture<?> activeSearch = null;
+    private static FriendServerListRequest.Response searchResult = null;
 
     public static void init() {
     }
@@ -21,45 +40,62 @@ public class ConnectHandler {
         return true; //TODO v2
     }
 
-    @Deprecated
-    public static void genRandomTestServers() {
-        testServerMap.clear();
-        //Generate a bunch or random fake servers for testing.
-        ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
-        List<Profile> profiles =profileManager.getKnownProfiles();
-        Random random = new Random();
+//    public static String getProxyAddress() {
+//        return ""
+//    }
+//
+//    public static int getProxyPort() {
+//return 0;
+//    }
 
-        for (Profile profile : profiles) {
-            if (profile.isFriend()) {
-                RemoteServer server = new RemoteServer(String.valueOf(random.nextLong()), String.valueOf(random.nextLong()));
-                testServerMap.put(server, profile);
+    public static void updateFriendsSearch() {
+        if (activeSearch != null) {
+            if (!activeSearch.isDone()) return;
+
+            activeSearch = null;
+
+            if (searchResult != null) {
+                AVAILABLE_SERVER_MAP.clear();
+                ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
+
+                for (FriendServerListRequest.Response.ServerEntry entry : searchResult.servers) {
+                    RemoteServer server = new RemoteServer(entry.friend(), entry.serverToken());
+                    Profile profile = profileManager.lookupProfile(entry.friend());
+                    AVAILABLE_SERVER_MAP.put(server, profile);
+                }
+
+                searchResult = null;
             }
+            return;
         }
 
-        int count = Math.min(profiles.size(), 5 + random.nextInt(10));
-        for (int i = 0; i < count; i++) {
-            Profile profile;
-            do {
-                profile = profiles.get(random.nextInt(profiles.size()));
-            } while (testServerMap.containsKey(profile));
-
-            RemoteServer server = new RemoteServer(String.valueOf(random.nextLong()), String.valueOf(random.nextLong()));
-            testServerMap.put(server, profile);
+        if (System.currentTimeMillis() - lastSearch < 5000) {
+            return;
         }
+        lastSearch = System.currentTimeMillis();
+
+        activeSearch = CompletableFuture.runAsync(() -> {
+            searchResult = null;
+            try {
+                JWebToken token = MineTogetherClient.getSession().get().orThrow();
+
+                ApiClientResponse<FriendServerListRequest.Response> res = MineTogether.API.execute(new FriendServerListRequest("http://localhost:32436", token.toString()));
+                if (res.statusCode() != 200) {
+                    LOGGER.error("An error occurred while searching for friend servers, Response code: {}, Message: {}", res.statusCode(), res.message());
+                    return;
+                }
+                searchResult = res.apiResponse();
+            } catch (Throwable e) {
+                LOGGER.error("An error occurred while searching for friend servers.", e);
+            }
+        });
     }
 
     public static Collection<RemoteServer> getRemoteServers() {
-        return testServerMap.keySet();
+        return AVAILABLE_SERVER_MAP.keySet();
     }
 
     public static Profile getServerProfile(RemoteServer server) {
-        return testServerMap.get(server);
+        return AVAILABLE_SERVER_MAP.get(server);
     }
-
-    public static void connect(RemoteServer server) {
-        //Do the thing!!!
-    }
-
-
-
 }

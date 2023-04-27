@@ -1,10 +1,12 @@
 package net.creeperhost.minetogether.mixin.connect;
 
 import net.creeperhost.minetogether.connect.ConnectHandler;
+import net.creeperhost.minetogether.connect.gui.FriendConnectScreen;
 import net.creeperhost.minetogether.connect.gui.FriendServerEntry;
 import net.creeperhost.minetogether.connect.gui.ServerListAppender;
 import net.creeperhost.minetogether.orderform.CreeperHostServerEntry;
 import net.creeperhost.minetogether.serverlist.gui.JoinMultiplayerScreenPublic;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
@@ -51,7 +53,7 @@ public abstract class JoinMultiplayerScreenMixin {
         if (entry instanceof CreeperHostServerEntry) {
             ci.cancel();
         } else if (entry instanceof FriendServerEntry friendServer) {
-            ConnectHandler.connect(friendServer.remoteServer);
+            FriendConnectScreen.startConnecting(getThis(), Minecraft.getInstance(), friendServer.remoteServer);
             ci.cancel();
         }
     }
