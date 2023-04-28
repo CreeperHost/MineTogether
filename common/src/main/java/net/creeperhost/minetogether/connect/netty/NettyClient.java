@@ -212,9 +212,10 @@ public class NettyClient {
                 ServerConnectionListener.SERVER_EVENT_GROUP::get
         );
 
-        synchronized (listener.channels) {
-            listener.channels.add(channelFuture);
-        }
+        // TODO, I _BELIEVE_ this is not required..
+//        synchronized (listener.channels) {
+//            listener.channels.add(channelFuture);
+//        }
 
         synchronized (listener.connections) {
             listener.connections.add(connection);
