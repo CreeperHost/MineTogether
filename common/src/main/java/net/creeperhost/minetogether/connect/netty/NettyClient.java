@@ -11,7 +11,6 @@ import net.creeperhost.minetogether.connect.ConnectHost;
 import net.creeperhost.minetogether.connect.netty.packet.*;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.*;
 import net.minecraft.network.chat.Component;
@@ -94,6 +93,7 @@ public class NettyClient {
     }
 
     public static Connection connect(ConnectHost endpoint, JWebToken session, String serverToken) {
+        boolean[] isConnecting = { true };
         Throwable[] error = new Throwable[1];
         Connection connection = new Connection(PacketFlow.CLIENTBOUND);
         ProxyConnection proxyConnection = new ProxyConnection() {
@@ -119,9 +119,14 @@ public class NettyClient {
             @Override
             public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
                 super.handleDisconnect(ctx, packet);
-                error[0] = new IOException("Failed to connect to server: " + packet.message);
-                synchronized (error) {
-                    error.notifyAll();
+                if (isConnecting[0]) {
+                    error[0] = new IOException("Failed to connect to server: " + packet.message);
+                    synchronized (error) {
+                        error.notifyAll();
+                    }
+                } else {
+                    //Manually disconnect the client, so we can show them our disconnect message.
+                    connection.disconnect(Component.literal(packet.message));
                 }
             }
 
@@ -150,6 +155,7 @@ public class NettyClient {
             SneakyUtils.throwUnchecked(error[0]);
         }
 
+        isConnecting[0] = false;
         return connection;
     }
 
@@ -279,11 +285,6 @@ public class NettyClient {
         @Override
         public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
             LOGGER.error("Disconnected from proxy: {}", packet.message);
-            ClientPacketListener packetListener = Minecraft.getInstance().getConnection();
-            if (packetListener != null) {
-                //Manually disconnect the client, so we can show them our disconnect message.
-                packetListener.getConnection().disconnect(Component.literal(packet.message));
-            }
         }
 
         @Override
