@@ -51,9 +51,9 @@ public class GuiShareToFriends extends ShareToLanScreen {
         addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, Component.translatable("minetogether.connect.open.start"), (button1) -> {
             this.minecraft.setScreen(null);
             // TODO nuke accessor in favor of AT
+            Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.attempting"));
             ShareToLanScreenAccessor thisMixin = (ShareToLanScreenAccessor) this;
             ShareHandler.publishToFriends(thisMixin.getGameMode(), thisMixin.getCommands());
-            Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.attempting"));
         }));
     }
 

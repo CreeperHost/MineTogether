@@ -5,13 +5,15 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.covers1624.quack.util.SneakyUtils;
 import net.creeperhost.minetogether.MineTogetherPlatform;
 import net.creeperhost.minetogether.connect.netty.packet.*;
 import net.creeperhost.minetogether.session.JWebToken;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.network.LegacyQueryHandler;
 import net.minecraft.server.network.ServerConnectionListener;
@@ -252,7 +254,7 @@ public class NettyClient {
 //                        pipe.addLast("timeout", new ReadTimeoutHandler(120)); // TODO ping/pong on control socket required for this.
                         pipe.addLast("mt:frame_codec", new FrameCodec());
                         pipe.addLast("mt:packet_codec", new PacketCodec());
-                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER));
+//                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER));
                         pipe.addLast("mt:packet_handler", connection);
                         connection.buildPipeline(pipe);
 
@@ -279,10 +281,16 @@ public class NettyClient {
         @Override
         public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
             LOGGER.error("Disconnected from proxy: {}", packet.message);
+            ClientPacketListener packetListener = Minecraft.getInstance().getConnection();
+            if (packetListener != null) {
+                //Manually disconnect the client, so we can show them our disconnect message.
+                packetListener.getConnection().disconnect(Component.literal(packet.message));
+            }
         }
 
         @Override
         public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) {
+            Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.success"));
         }
 
         @Override

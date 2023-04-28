@@ -102,4 +102,8 @@ public class ConnectHandler {
     public static Profile getServerProfile(RemoteServer server) {
         return AVAILABLE_SERVER_MAP.get(server);
     }
+
+    public static void clearRemotes() {
+        AVAILABLE_SERVER_MAP.clear();
+    }
 }

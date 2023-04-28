@@ -25,6 +25,8 @@ public class ServerListAppender {
     public void init(ServerSelectionList serverList, JoinMultiplayerScreen multiplayerScreen) {
         this.serverList = serverList;
         this.multiplayerScreen = multiplayerScreen;
+        ConnectHandler.clearRemotes();
+        ConnectHandler.updateFriendsSearch();
     }
 
     public void tick() {
