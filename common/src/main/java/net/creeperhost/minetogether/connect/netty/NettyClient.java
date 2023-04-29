@@ -51,6 +51,7 @@ public class NettyClient {
                 synchronized (error) {
                     error.notifyAll();
                 }
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed", packet.message));
             }
 
             @Override
@@ -59,6 +60,7 @@ public class NettyClient {
                 synchronized (error) {
                     error.notifyAll();
                 }
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.success"));
             }
 
             @Override
@@ -259,7 +261,7 @@ public class NettyClient {
 //                        pipe.addLast("timeout", new ReadTimeoutHandler(120)); // TODO ping/pong on control socket required for this.
                         pipe.addLast("mt:frame_codec", new FrameCodec());
                         pipe.addLast("mt:packet_codec", new PacketCodec());
-//                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER));
+                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER, true));
                         pipe.addLast("mt:packet_handler", connection);
                         connection.buildPipeline(pipe);
 
@@ -289,9 +291,7 @@ public class NettyClient {
         }
 
         @Override
-        public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) {
-            Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.success"));
-        }
+        public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) {}
 
         @Override
         public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {

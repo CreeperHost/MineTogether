@@ -64,7 +64,9 @@ public class FriendConnectScreen extends ConnectScreen {
     private void connect(Minecraft minecraft, RemoteServer server) {
         CompletableFuture<Optional<ProfilePublicKey.Data>> completableFuture = minecraft.getProfileKeyPairManager().preparePublicKey();
         Profile profile = ConnectHandler.getServerProfile(server);
-        LOGGER.info("Connecting to MF Friend Server: {}", profile.isFriend() ? profile.getFriendName() : profile.getDisplayName());
+        if (profile != null){
+            LOGGER.info("Connecting to MF Friend Server: {}", profile.isFriend() ? profile.getFriendName() : profile.getDisplayName());
+        }
 
         Thread thread = new Thread("MT Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
             public void run() {

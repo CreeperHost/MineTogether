@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.connect;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
@@ -11,6 +12,7 @@ import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import org.apache.logging.log4j.LogManager;
@@ -20,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by brandon3055 on 21/04/2023
@@ -27,6 +31,8 @@ import java.util.concurrent.ExecutionException;
 public class ConnectHandler {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Map<RemoteServer, Profile> AVAILABLE_SERVER_MAP = new HashMap<>();
+    private static final ExecutorService SEARCH_EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("MT Connect Friend Search Executor").build());
+    private static final ExecutorService SHARE_EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("MT Connect Friend Share Executor").build());
 
     private static long lastSearch = 0;
     private static CompletableFuture<?> activeSearch = null;
@@ -54,13 +60,17 @@ public class ConnectHandler {
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer server = mc.getSingleplayerServer();
         mc.prepareForMultiplayer();
-        JWebToken token;
-        try { // TODO, This should be done outside somewhere.
-            token = MineTogetherClient.getSession().get().orThrow();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-        NettyClient.publishServer(server, getEndpoint(), token);
+
+        CompletableFuture.runAsync(() -> {
+            try { // TODO, This should be done outside somewhere.
+                JWebToken token = MineTogetherClient.getSession().get().orThrow();
+                NettyClient.publishServer(server, getEndpoint(), token);
+            } catch (Exception e) {
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed"));
+                LOGGER.error("Failed to open to friends", e);
+            }
+        }, SHARE_EXECUTOR);
+
         server.publishedPort = 0; // Doesn't matter, just set to _something_.
         server.publishedGameType = gameType;
         server.getPlayerList().setAllowCheatsForAllPlayers(cheats);
@@ -111,7 +121,7 @@ public class ConnectHandler {
             } catch (Throwable e) {
                 LOGGER.error("An error occurred while searching for friend servers.", e);
             }
-        });
+        }, SEARCH_EXECUTOR);
     }
 
     public static Collection<RemoteServer> getRemoteServers() {
