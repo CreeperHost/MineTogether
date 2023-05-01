@@ -7,9 +7,11 @@ import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import net.covers1624.quack.util.SneakyUtils;
 import net.creeperhost.minetogether.MineTogetherPlatform;
+import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.ConnectHost;
 import net.creeperhost.minetogether.connect.netty.packet.*;
 import net.creeperhost.minetogether.session.JWebToken;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.*;
@@ -52,6 +54,14 @@ public class NettyClient {
                     error.notifyAll();
                 }
                 Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed", packet.message));
+                ConnectHandler.unPublish();
+            }
+
+            @Override
+            public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
+                super.channelInactive(ctx);
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.proxy.disconnect").withStyle(ChatFormatting.RED));
+                ConnectHandler.unPublish();
             }
 
             @Override
@@ -261,7 +271,7 @@ public class NettyClient {
 //                        pipe.addLast("timeout", new ReadTimeoutHandler(120)); // TODO ping/pong on control socket required for this.
                         pipe.addLast("mt:frame_codec", new FrameCodec());
                         pipe.addLast("mt:packet_codec", new PacketCodec());
-                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER, true));
+//                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER, true));
                         pipe.addLast("mt:packet_handler", connection);
                         connection.buildPipeline(pipe);
 

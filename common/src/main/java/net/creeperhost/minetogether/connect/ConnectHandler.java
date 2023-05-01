@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -59,17 +58,8 @@ public class ConnectHandler {
         // Mostly copy of IntegratedServer#publishServer
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer server = mc.getSingleplayerServer();
+        if (server == null) return;
         mc.prepareForMultiplayer();
-
-        CompletableFuture.runAsync(() -> {
-            try { // TODO, This should be done outside somewhere.
-                JWebToken token = MineTogetherClient.getSession().get().orThrow();
-                NettyClient.publishServer(server, getEndpoint(), token);
-            } catch (Exception e) {
-                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed"));
-                LOGGER.error("Failed to open to friends", e);
-            }
-        }, SHARE_EXECUTOR);
 
         server.publishedPort = 0; // Doesn't matter, just set to _something_.
         server.publishedGameType = gameType;
@@ -79,6 +69,26 @@ public class ConnectHandler {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             server.getCommands().sendCommands(player);
         }
+
+        CompletableFuture.runAsync(() -> {
+            try { // TODO, This should be done outside somewhere.
+                JWebToken token = MineTogetherClient.getSession().get().orThrow();
+                NettyClient.publishServer(server, getEndpoint(), token);
+            } catch (Exception e) {
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed"));
+                LOGGER.error("Failed to open to friends", e);
+                unPublish();
+            }
+        }, SHARE_EXECUTOR);
+    }
+
+    public static void unPublish() {
+        Minecraft mc = Minecraft.getInstance();
+        IntegratedServer server = mc.getSingleplayerServer();
+        if (server == null) return;
+        //Un-Share the world.
+        server.publishedPort = -1;
+        server.publishedGameType = null;
     }
 
     public static void updateFriendsSearch() {
@@ -88,15 +98,18 @@ public class ConnectHandler {
             activeSearch = null;
 
             if (searchResult != null) {
-                AVAILABLE_SERVER_MAP.clear();
                 ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
-
+                Set<RemoteServer> keep = new HashSet<>();
                 for (FriendServerListRequest.Response.ServerEntry entry : searchResult.servers) {
                     RemoteServer server = new RemoteServer(entry.friend(), entry.serverToken());
-                    Profile profile = profileManager.lookupProfile(entry.friend());
-                    AVAILABLE_SERVER_MAP.put(server, profile);
+                    keep.add(server);
+                    if (!AVAILABLE_SERVER_MAP.containsKey(server)) {
+                        Profile profile = profileManager.lookupProfile(entry.friend());
+                        AVAILABLE_SERVER_MAP.put(server, profile);
+                    }
                 }
 
+                AVAILABLE_SERVER_MAP.entrySet().removeIf(entry -> !keep.contains(entry.getKey()));
                 searchResult = null;
             }
             return;
@@ -132,7 +145,13 @@ public class ConnectHandler {
         return AVAILABLE_SERVER_MAP.get(server);
     }
 
-    public static void clearRemotes() {
+    public static void clearAndReset() {
+        if (activeSearch != null) {
+            activeSearch.cancel(true);
+            activeSearch = null;
+            searchResult = null;
+        }
         AVAILABLE_SERVER_MAP.clear();
+        lastSearch = 0;
     }
 }
