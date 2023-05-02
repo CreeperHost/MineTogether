@@ -10,6 +10,8 @@ import net.creeperhost.minetogether.MineTogetherPlatform;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.ConnectHost;
 import net.creeperhost.minetogether.connect.netty.packet.*;
+import net.creeperhost.minetogether.connect.util.AESUtils;
+import net.creeperhost.minetogether.connect.util.RSAUtils;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -25,7 +27,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.function.Supplier;
 
 /**
@@ -37,23 +42,19 @@ public class NettyClient {
 
     public static void publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session) {
         Throwable[] error = new Throwable[1];
-        ProxyConnection connection = new ProxyConnection() {
+        ProxyConnection connection = new ProxyConnection(endpoint) {
             @Override
-            public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
-                super.channelActive(ctx);
-
+            public void channelReady() {
                 sendPacket(new SHostRegister(session.toString()));
             }
 
             @Override
-            public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
-                super.handleDisconnect(ctx, packet);
-
-                error[0] = new IOException("Failed to host server: " + packet.message);
+            public void onDisconnected(String message) {
+                error[0] = new IOException("Failed to host server: " + message);
                 synchronized (error) {
                     error.notifyAll();
                 }
-                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed", packet.message));
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed", message));
                 ConnectHandler.unPublish();
             }
 
@@ -108,7 +109,7 @@ public class NettyClient {
         boolean[] isConnecting = { true };
         Throwable[] error = new Throwable[1];
         Connection connection = new Connection(PacketFlow.CLIENTBOUND);
-        ProxyConnection proxyConnection = new ProxyConnection() {
+        ProxyConnection proxyConnection = new ProxyConnection(endpoint) {
 
             @Override
             protected void buildPipeline(ChannelPipeline pipeline) {
@@ -121,24 +122,22 @@ public class NettyClient {
             }
 
             @Override
-            public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
-                super.channelActive(ctx);
+            public void channelReady() {
                 sendPacket(new SUserConnect(session.toString(), serverToken));
                 // Required for Forge to add channel attributes.
                 MineTogetherPlatform.prepareClientConnection(connection);
             }
 
             @Override
-            public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
-                super.handleDisconnect(ctx, packet);
+            public void onDisconnected(String message) {
                 if (isConnecting[0]) {
-                    error[0] = new IOException("Failed to connect to server: " + packet.message);
+                    error[0] = new IOException("Failed to connect to server: " + message);
                     synchronized (error) {
                         error.notifyAll();
                     }
                 } else {
                     //Manually disconnect the client, so we can show them our disconnect message.
-                    connection.disconnect(Component.literal(packet.message));
+                    connection.disconnect(Component.literal(message));
                 }
             }
 
@@ -179,7 +178,7 @@ public class NettyClient {
         connection.setListener(new ServerHandshakePacketListenerImpl(server, connection));
 
         Throwable[] error = new Throwable[1];
-        ProxyConnection proxyConnection = new ProxyConnection() {
+        ProxyConnection proxyConnection = new ProxyConnection(endpoint) {
 
             @Override
             protected void buildPipeline(ChannelPipeline pipeline) {
@@ -193,17 +192,13 @@ public class NettyClient {
             }
 
             @Override
-            public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
-                super.channelActive(ctx);
-
+            public void channelReady() {
                 sendPacket(new SHostConnect(session.toString(), linkToken));
             }
 
             @Override
-            public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
-                super.handleDisconnect(ctx, packet);
-
-                error[0] = new IOException("Failed to host server: " + packet.message);
+            public void onDisconnected(String message) {
+                error[0] = new IOException("Failed to host server: " + message);
                 synchronized (error) {
                     error.notifyAll();
                 }
@@ -271,7 +266,7 @@ public class NettyClient {
 //                        pipe.addLast("timeout", new ReadTimeoutHandler(120)); // TODO ping/pong on control socket required for this.
                         pipe.addLast("mt:frame_codec", new FrameCodec());
                         pipe.addLast("mt:packet_codec", new PacketCodec());
-//                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER, true));
+                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER, true));
                         pipe.addLast("mt:packet_handler", connection);
                         connection.buildPipeline(pipe);
 
@@ -283,11 +278,24 @@ public class NettyClient {
 
     public static class ProxyConnection extends AbstractChannelHandler<ClientPacketHandler> implements ClientPacketHandler {
 
-        public ProxyConnection() {
+        private final ConnectHost endpoint;
+        private final byte[] nonce = new byte[32];
+        private final SecretKey aesSecret;
+
+        public ProxyConnection(ConnectHost endpoint) {
             super(PacketType.Direction.CLIENT_BOUND);
+            this.endpoint = endpoint;
+            new SecureRandom().nextBytes(nonce);
+            aesSecret = AESUtils.generateAESKey();
         }
 
         protected void buildPipeline(ChannelPipeline pipeline) {
+        }
+
+        protected void channelReady() {
+        }
+
+        protected void onDisconnected(String message) {
         }
 
         @Override
@@ -296,12 +304,36 @@ public class NettyClient {
         }
 
         @Override
-        public void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
-            LOGGER.error("Disconnected from proxy: {}", packet.message);
+        public final void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+            super.channelActive(ctx);
+
+            sendPacket(new SHello(nonce, RSAUtils.encrypt(aesSecret.getEncoded(), endpoint.publicKey())));
         }
 
         @Override
-        public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) {}
+        public void handleHello(ChannelHandlerContext ctx, CHello packet) {
+            if (!RSAUtils.isValid(nonce, packet.signedNonce, endpoint.publicKey())) {
+                LOGGER.error("Failed to validate server signature.");
+                onDisconnected("Handshake failed.");
+                channel.close();
+                return;
+            }
+
+            channel.pipeline().addBefore("mt:frame_codec", "aes_codec", new CipherCodec(
+                    AESUtils.loadCipher(Cipher.ENCRYPT_MODE, aesSecret),
+                    AESUtils.loadCipher(Cipher.DECRYPT_MODE, aesSecret)
+            ));
+            channelReady();
+        }
+
+        @Override
+        public final void handleDisconnect(ChannelHandlerContext ctx, CDisconnect packet) {
+            LOGGER.error("Disconnected from proxy: {}", packet.message);
+            onDisconnected(packet.message);
+        }
+
+        @Override
+        public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) { }
 
         @Override
         public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {

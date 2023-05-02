@@ -4,7 +4,10 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.connect.data.HostListRequest;
+import net.creeperhost.minetogether.connect.http.data.HostListResponse;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
+import net.creeperhost.minetogether.connect.util.RSAUtils;
 import net.creeperhost.minetogether.connect.web.FriendServerListRequest;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
@@ -19,8 +22,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -28,6 +33,7 @@ import java.util.concurrent.Executors;
  * Created by brandon3055 on 21/04/2023
  */
 public class ConnectHandler {
+
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Map<RemoteServer, Profile> AVAILABLE_SERVER_MAP = new HashMap<>();
     private static final ExecutorService SEARCH_EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("MT Connect Friend Search Executor").build());
@@ -45,7 +51,28 @@ public class ConnectHandler {
 
     public static ConnectHost getEndpoint() {
         if (endpoint == null) {
-            endpoint = ConnectHost.LOCALHOST; // TODO actually resolve closest endpoint.
+            // TODO this specific request needs to only be run in-dev.
+            //  We need to run another different request out-of-dev to a static json.
+            //  If either request fails, we need to disable MT connect instead of just exploding.
+            HostListResponse hostListResp;
+            try {
+                ApiClientResponse<HostListResponse> resp = MineTogether.API.execute(new HostListRequest(MineTogetherClient.getSession().get().orThrow()));
+                hostListResp = resp.apiResponse();
+            } catch (IOException | ExecutionException | InterruptedException ex) {
+                LOGGER.error("Failed to query host list.", ex);
+                throw new RuntimeException(ex);
+            }
+
+            // TODO actually resolve closest endpoint, not just the first.
+            HostListResponse.Host host = hostListResp.hosts.get(0);
+
+            endpoint = new ConnectHost(
+                    host.ssl ? "https" : "http",
+                    host.hostname,
+                    host.port,
+                    host.port + 1,
+                    RSAUtils.loadRSAPublicKey(RSAUtils.loadPem(host.publicKey))
+            );
         }
         return endpoint;
     }
