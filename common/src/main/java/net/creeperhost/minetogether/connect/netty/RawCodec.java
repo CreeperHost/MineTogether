@@ -5,8 +5,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import net.creeperhost.minetogether.connect.netty.packet.CRaw;
+import net.creeperhost.minetogether.connect.netty.packet.Packet;
 import net.creeperhost.minetogether.connect.netty.packet.SRaw;
-import net.minecraft.network.protocol.Packet;
 
 import java.util.List;
 
