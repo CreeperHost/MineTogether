@@ -3,7 +3,8 @@ package net.creeperhost.minetogether;
 import dev.architectury.injectables.targets.ArchitecturyTarget;
 import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.lib.util.Log4jUtils;
+import net.creeperhost.minetogether.lib.MineTogetherLib;
+import net.creeperhost.minetogether.util.Log4jUtils;
 import net.creeperhost.minetogether.lib.web.ApiClient;
 import net.creeperhost.minetogether.lib.web.DynamicWebAuth;
 import net.creeperhost.minetogether.lib.web.WebEngine;
@@ -30,14 +31,14 @@ public class MineTogether {
     public static final WebEngine WEB_ENGINE = new ApacheWebEngine();
     public static final ApiClient API = ApiClient.builder()
             .webEngine(WEB_ENGINE)
-            .addUserAgentSegment("MineTogether-lib/2.0.0")// TODO change when lib gets yoinked.
+            .addUserAgentSegment("MineTogether-lib/" + MineTogetherLib.VERSION)
             .addUserAgentSegment("MineTogether-mod/" + MineTogetherPlatform.getVersion())
             .addUserAgentSegment("Minecraft/" + Platform.getMinecraftVersion())
             .addUserAgentSegment("Modloader/" + ArchitecturyTarget.getCurrentTarget())
             .webAuth(AUTH)
             .build();
     static {
-        WebUtils.userAgent += " MineTogether-lib/2.0.0";// TODO change when lib gets yoinked.
+        WebUtils.userAgent += " MineTogether-lib/" + MineTogetherLib.VERSION;
         WebUtils.userAgent += " MineTogether-mod/" + MineTogetherPlatform.getVersion();
         WebUtils.userAgent += " Minecraft/" + Platform.getMinecraftVersion();
         WebUtils.userAgent += " Modloader/" + ArchitecturyTarget.getCurrentTarget();
