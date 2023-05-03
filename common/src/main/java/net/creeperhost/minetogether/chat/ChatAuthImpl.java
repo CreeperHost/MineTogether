@@ -2,14 +2,19 @@ package net.creeperhost.minetogether.chat;
 
 import com.google.common.hash.Hashing;
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.datafixers.util.Either;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.lib.chat.ChatAuth;
+import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -25,13 +30,11 @@ public class ChatAuthImpl implements ChatAuth {
     private final Minecraft mc;
     private final UUID uuid;
     private final String uuidHash;
-    private final boolean isOnline;
 
     public ChatAuthImpl(Minecraft mc) {
         this.mc = mc;
         uuid = Player.createPlayerUUID(mc.getUser().getGameProfile());
         uuidHash = Hashing.sha256().hashString(uuid.toString(), UTF_8).toString().toUpperCase(Locale.ROOT);
-        isOnline = uuid.version() == 4; // Version 4 UUID's are online (fully random), Version3 UUID's are offline (generated from md5 string hash).
     }
 
     @Override
@@ -50,11 +53,21 @@ public class ChatAuthImpl implements ChatAuth {
     }
 
     @Override
-    public boolean isOnline() {
-        return isOnline;
+    public @Nullable JWebToken getSessionToken() {
+        try {
+            Either<JWebToken, String> either = MineTogetherClient.getSession().get();
+            Optional<JWebToken> tokenOpt = either.left();
+            if (tokenOpt.isPresent()) {
+                return tokenOpt.get();
+            }
+            LOGGER.warn("Failed to get MineTogether session. {}", either.right().get());
+        } catch (Throwable ex) {
+            LOGGER.error("Failed to get MineTogether session.", ex);
+        }
+        return null;
     }
 
-    @Override
+    @Deprecated // Exists for old connect. Will be nuked with new connect.
     public String beginMojangAuth() {
         String serverId = Hashing.sha1().hashString(UUID.randomUUID().toString(), UTF_8).toString();
         try {

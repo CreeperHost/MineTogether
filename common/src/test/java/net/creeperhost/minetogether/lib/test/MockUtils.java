@@ -12,6 +12,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.lib.chat.util.HashLength;
 import net.creeperhost.minetogether.lib.web.*;
+import net.creeperhost.minetogether.session.JWebToken;
 import net.creeperhost.minetogether.util.SignatureVerifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,8 +56,7 @@ public class MockUtils {
         @Override public String getSignature() { return SignatureVerifier.generateSignature(); }
         @Override public UUID getUUID() { return TEST_UUID; }
         @Override public String getHash() { return TEST_HASH; }
-        @Override public boolean isOnline() { return true; }
-        @Override public String beginMojangAuth() { throw new UnsupportedOperationException("Unable to mock mojang auth. Yet."); }
+        @Override public @Nullable JWebToken getSessionToken() { throw new UnsupportedOperationException("Unable to mock auth. Yet."); }
     }
     private static class MockWebEngine implements WebEngine {
         @Override public EngineRequest newRequest() { throw new UnsupportedOperationException("Unable to mock web requests. Yet."); }
