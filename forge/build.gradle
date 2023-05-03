@@ -44,8 +44,12 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
     shadowLib "blue.endless:jankson:${jankson_version}"
-    shadowLib "net.creeperhost:MineTogetherLib:${mtlib_version}"
-    shadowLib "net.creeperhost:MineTogetherSessions:${mtsession_version}"
+    shadowLib("net.creeperhost:MineTogetherLib:${mtlib_version}") {
+        exclude group: "net.creeperhost", module: "MineTogetherSessions"
+    }
+    shadowLib("net.creeperhost:MineTogetherSessions:${mtsession_version}") {
+        transitive false
+    }
 
     shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
     shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'
