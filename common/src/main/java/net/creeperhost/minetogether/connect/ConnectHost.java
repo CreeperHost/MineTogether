@@ -7,13 +7,13 @@ import java.security.PublicKey;
  */
 public record ConnectHost(
         String httpScheme,
-        String host,
+        String address,
         int httpPort,
         int proxyPort,
         PublicKey publicKey
 ) {
 
     public String httpUrl() {
-        return httpScheme + "://" + host + ":" + httpPort;
+        return httpScheme + "://" + address + ":" + httpPort;
     }
 }

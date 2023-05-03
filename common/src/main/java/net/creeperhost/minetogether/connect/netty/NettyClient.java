@@ -272,7 +272,7 @@ public class NettyClient {
 
                     }
                 })
-                .connect(endpoint.host(), endpoint.proxyPort())
+                .connect(endpoint.address(), endpoint.proxyPort())
                 .syncUninterruptibly();
     }
 

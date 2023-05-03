@@ -4,8 +4,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
-import net.creeperhost.minetogether.connect.data.HostListRequest;
-import net.creeperhost.minetogether.connect.http.data.HostListResponse;
+import net.creeperhost.minetogether.connect.web.GetConnectServersRequest;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
 import net.creeperhost.minetogether.connect.util.RSAUtils;
 import net.creeperhost.minetogether.connect.web.FriendServerListRequest;
@@ -18,14 +17,13 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,30 +49,24 @@ public class ConnectHandler {
 
     public static ConnectHost getEndpoint() {
         if (endpoint == null) {
-            // TODO this specific request needs to only be run in-dev.
-            //  We need to run another different request out-of-dev to a static json.
-            //  If either request fails, we need to disable MT connect instead of just exploding.
-            HostListResponse hostListResp;
-            try {
-                ApiClientResponse<HostListResponse> resp = MineTogether.API.execute(new HostListRequest(MineTogetherClient.getSession().get().orThrow()));
-                hostListResp = resp.apiResponse();
-            } catch (IOException | ExecutionException | InterruptedException ex) {
-                LOGGER.error("Failed to query host list.", ex);
-                throw new RuntimeException(ex);
-            }
-
-            // TODO actually resolve closest endpoint, not just the first.
-            HostListResponse.Host host = hostListResp.hosts.get(0);
+            GetConnectServersRequest.ConnectServer node = chooseServer();
 
             endpoint = new ConnectHost(
-                    host.ssl ? "https" : "http",
-                    host.hostname,
-                    host.port,
-                    host.port + 1,
-                    RSAUtils.loadRSAPublicKey(RSAUtils.loadPem(host.publicKey))
+                    node.ssl ? "https" : "http",
+                    node.address,
+                    node.port,
+                    node.port + 1,
+                    RSAUtils.loadRSAPublicKey(RSAUtils.loadPem(node.publicKey))
             );
         }
         return endpoint;
+    }
+
+    private static GetConnectServersRequest.ConnectServer chooseServer() {
+        if (Boolean.getBoolean("mt.develop.connect")) {
+            return GetConnectServersRequest.ConnectServer.getLocalHost();
+        }
+        throw new NotImplementedException("TODO");
     }
 
     public static boolean isEnabled() {

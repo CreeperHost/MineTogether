@@ -2,7 +2,7 @@ package net.creeperhost.minetogether.connect.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-import java.net.InetSocketAddress;
+
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,25 +17,18 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
-import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
-import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.multiplayer.resolver.ResolvedServerAddress;
-import net.minecraft.client.multiplayer.resolver.ServerAddress;
-import net.minecraft.client.multiplayer.resolver.ServerNameResolver;
-import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraft.world.entity.player.ProfilePublicKey;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 
@@ -80,7 +73,7 @@ public class FriendConnectScreen extends ConnectScreen {
                     connection = NettyClient.connect(endpoint, token, server.serverToken());
 
                     connection.setListener(new ClientHandshakePacketListenerImpl(connection, minecraft, parent, FriendConnectScreen.this::updateStatus));
-                    connection.send(new ClientIntentionPacket(endpoint.host(), endpoint.proxyPort(), ConnectionProtocol.LOGIN));
+                    connection.send(new ClientIntentionPacket(endpoint.address(), endpoint.proxyPort(), ConnectionProtocol.LOGIN));
                     connection.send(new ServerboundHelloPacket(minecraft.getUser().getName(), completableFuture.join(), Optional.ofNullable(minecraft.getUser().getProfileId())));
                 } catch (Exception ex) {
                     if (aborted) {

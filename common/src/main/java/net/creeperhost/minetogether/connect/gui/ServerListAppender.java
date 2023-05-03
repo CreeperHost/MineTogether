@@ -213,7 +213,7 @@ public class ServerListAppender {
 
         try {
             ConnectHost endpoint = ConnectHandler.getEndpoint();
-            connection.send(new ClientIntentionPacket(endpoint.host(), endpoint.proxyPort(), ConnectionProtocol.STATUS));
+            connection.send(new ClientIntentionPacket(endpoint.address(), endpoint.proxyPort(), ConnectionProtocol.STATUS));
             connection.send(new ServerboundStatusRequestPacket());
         } catch (Throwable var8) {
             LOGGER.error( "Failed to ping friend server {}", server.friend(), var8);
