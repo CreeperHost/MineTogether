@@ -4,10 +4,10 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
-import net.creeperhost.minetogether.connect.web.GetConnectServersRequest;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
 import net.creeperhost.minetogether.connect.util.RSAUtils;
 import net.creeperhost.minetogether.connect.web.FriendServerListRequest;
+import net.creeperhost.minetogether.connect.web.GetConnectServersRequest;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -50,6 +51,7 @@ public class ConnectHandler {
     public static ConnectHost getEndpoint() {
         if (endpoint == null) {
             GetConnectServersRequest.ConnectServer node = chooseServer();
+            LOGGER.info("Selected MTConnect server: " + node.name);
 
             endpoint = new ConnectHost(
                     node.ssl ? "https" : "http",
@@ -66,7 +68,20 @@ public class ConnectHandler {
         if (Boolean.getBoolean("mt.develop.connect")) {
             return GetConnectServersRequest.ConnectServer.getLocalHost();
         }
-        throw new NotImplementedException("TODO");
+        try {
+            List<GetConnectServersRequest.ConnectServer> servers = MineTogether.API.execute(new GetConnectServersRequest()).apiResponse();
+            if (servers.isEmpty()) {
+                // TODO, this needs to gracefully fail as noted bellow.
+                LOGGER.warn("No MTConnect nodes found.. :(");
+                throw new NotImplementedException();
+            }
+
+            // TODO this needs to get geography data and select the closest node.
+            return servers.get(0);
+        } catch (IOException ex) {
+            // TODO, this needs to gracefully fail, getEndpoint likely needs to return null, and isEnabled needs to return false.
+            throw new NotImplementedException("TODO, Implement exception handling for this:", ex);
+        }
     }
 
     public static boolean isEnabled() {
