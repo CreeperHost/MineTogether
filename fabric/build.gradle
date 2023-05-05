@@ -32,8 +32,12 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
     shadowLib "blue.endless:jankson:${jankson_version}"
-    shadowLib "net.creeperhost:MineTogetherLib:${mtlib_version}"
-    shadowLib "net.creeperhost:MineTogetherSessions:${mtsession_version}"
+    shadowLib("net.creeperhost:MineTogetherLib:${mtlib_version}") {
+        exclude group: "net.creeperhost", module: "MineTogetherSessions"
+    }
+    shadowLib("net.creeperhost:MineTogetherSessions:${mtsession_version}") {
+        transitive false
+    }
     shadowLib "net.creeperhost:MTConnectProxyCommon:${mtproxy_version}"
 
     shadowLib 'org.nanohttpd:nanohttpd:2.3.1'

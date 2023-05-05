@@ -18,10 +18,7 @@ import net.creeperhost.minetogether.serverlist.web.GetServerRequest;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
-import net.minecraft.DetectedVersion;
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.WorldVersion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -40,7 +37,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -98,6 +94,9 @@ public class MineTogetherClient {
     }
 
     public static CompletableFuture<Either<JWebToken, String>> getSession() {
+        // TODO, store the CompletableFuture, so we can preserve the api errors in the Either.
+        // TODO, also detect the token becoming expired between calls to getSession and prepare a new one.
+        // TODO, Would a wrapper around the CompletableFuture be better? which lazily does everything internally when queried for a result?
         if (session == null) return CompletableFuture.completedFuture(Either.right("Offline mode. No session available."));
         if (session.isValid()) return CompletableFuture.completedFuture(Either.left(session.getToken()));
         return CompletableFuture.supplyAsync(() -> {
