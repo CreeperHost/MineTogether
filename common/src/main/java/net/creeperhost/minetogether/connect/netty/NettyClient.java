@@ -283,7 +283,6 @@ public class NettyClient {
         private final SecretKey aesSecret;
 
         public ProxyConnection(ConnectHost endpoint) {
-            super(PacketType.Direction.CLIENT_BOUND);
             this.endpoint = endpoint;
             new SecureRandom().nextBytes(nonce);
             aesSecret = AESUtils.generateAESKey();
