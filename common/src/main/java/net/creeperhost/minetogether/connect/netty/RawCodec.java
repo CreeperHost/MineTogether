@@ -4,9 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
-import net.creeperhost.minetogether.connect.netty.packet.CRaw;
-import net.creeperhost.minetogether.connect.netty.packet.Packet;
-import net.creeperhost.minetogether.connect.netty.packet.SRaw;
+import net.creeperhost.minetogether.connect.lib.netty.packet.CRaw;
+import net.creeperhost.minetogether.connect.lib.netty.packet.Packet;
+import net.creeperhost.minetogether.connect.lib.netty.packet.SRaw;
 
 import java.util.List;
 
