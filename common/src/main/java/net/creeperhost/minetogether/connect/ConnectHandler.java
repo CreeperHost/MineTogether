@@ -135,10 +135,10 @@ public class ConnectHandler {
                 ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
                 Set<RemoteServer> keep = new HashSet<>();
                 for (FriendServerListRequest.Response.ServerEntry entry : searchResult.servers) {
-                    RemoteServer server = new RemoteServer(entry.friend(), entry.serverToken());
+                    RemoteServer server = new RemoteServer(entry.friend, entry.serverToken);
                     keep.add(server);
                     if (!AVAILABLE_SERVER_MAP.containsKey(server)) {
-                        Profile profile = profileManager.lookupProfile(entry.friend());
+                        Profile profile = profileManager.lookupProfile(entry.friend);
                         AVAILABLE_SERVER_MAP.put(server, profile);
                     }
                 }

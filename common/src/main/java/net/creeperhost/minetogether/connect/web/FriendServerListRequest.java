@@ -1,12 +1,10 @@
 package net.creeperhost.minetogether.connect.web;
 
-import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.lib.web.ApiRequest;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Created by brandon3055 on 27/04/2023
@@ -22,6 +20,10 @@ public class FriendServerListRequest extends ApiRequest<FriendServerListRequest.
 
         public final List<ServerEntry> servers = new ArrayList<>();
 
-        public record ServerEntry(String friend, String serverToken) { }
+        public static class ServerEntry {
+
+            public String friend;
+            public String serverToken;
+        }
     }
 }
