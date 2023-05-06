@@ -64,7 +64,11 @@ public class ServerListAppender {
         //Add new servers
         for (RemoteServer remoteServer : remoteServers) {
             if (!serverEntries.containsKey(remoteServer)) {
-                serverEntries.put(remoteServer, new FriendServerEntry(multiplayerScreen, remoteServer, this));
+                Profile profile = ConnectHandler.getServerProfile(remoteServer);
+                if (profile.isStale()) {
+                    continue;
+                }
+                serverEntries.put(remoteServer, new FriendServerEntry(multiplayerScreen, remoteServer, profile, this));
                 dirty = true;
             }
         }

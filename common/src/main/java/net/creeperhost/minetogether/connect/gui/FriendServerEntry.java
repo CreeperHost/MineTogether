@@ -53,11 +53,11 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
     @Nullable
     private DynamicTexture icon;
 
-    protected FriendServerEntry(JoinMultiplayerScreen joinMultiplayerScreen, RemoteServer remoteServer, ServerListAppender listAppender) {
+    protected FriendServerEntry(JoinMultiplayerScreen joinMultiplayerScreen, RemoteServer remoteServer, Profile friendProfile, ServerListAppender listAppender) {
         super(joinMultiplayerScreen, new LanServer("Dummy Server", "0.0.0.0"));
         this.screen = joinMultiplayerScreen;
         this.remoteServer = remoteServer;
-        this.friendProfile = ConnectHandler.getServerProfile(remoteServer);
+        this.friendProfile = friendProfile;
         this.listAppender = listAppender;
         iconLocation = new ResourceLocation("servers/" + friendProfile.getFullHash().toLowerCase(Locale.ROOT) + "/icon");
     }
