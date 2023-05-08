@@ -32,6 +32,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /**
@@ -40,6 +41,8 @@ import java.util.function.Supplier;
 public class NettyClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    private static long connectionLatency = -1;
+    private static long pingPongInterval = 1000;
 
     public static void publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session) {
         Throwable[] error = new Throwable[1];
@@ -104,6 +107,11 @@ public class NettyClient {
         synchronized (listener.channels) {
             listener.channels.add(channelFuture);
         }
+
+        Thread pingPongThread = new Thread(new PingPong(connection));
+        pingPongThread.setName("MT Connect Ping-Pong");
+        pingPongThread.setDaemon(true);
+        pingPongThread.start();
     }
 
     public static Connection connect(ConnectHost endpoint, JWebToken session, String serverToken) {
@@ -282,6 +290,7 @@ public class NettyClient {
         private final ConnectHost endpoint;
         private final byte[] nonce = new byte[32];
         private final SecretKey aesSecret;
+        private long pingSent = -1;
 
         public ProxyConnection(ConnectHost endpoint) {
             this.endpoint = endpoint;
@@ -348,6 +357,57 @@ public class NettyClient {
         @Override
         public void handleRaw(ChannelHandlerContext ctx, CRaw packet) {
             ctx.fireChannelRead(packet.data);
+        }
+
+        @Override
+        public void handlePong(ChannelHandlerContext channelHandlerContext, CPong cPong) {
+            connectionLatency = System.currentTimeMillis() - pingSent;
+            pingSent = -1;
+        }
+
+        public int sendPing() {
+            if (!channel.isOpen()) return -1;
+            if (pingSent != -1) return 0;
+            pingSent = System.currentTimeMillis();
+            channel.eventLoop().execute(() -> sendPacket(new SPing()));
+            return 1;
+        }
+    }
+
+    public static class PingPong implements Runnable {
+        private final ProxyConnection connection;
+
+        public PingPong(ProxyConnection connection) {
+            this.connection = connection;
+        }
+
+        @Override
+        public void run() {
+            boolean connected = true;
+            do {
+                long sleepTime = pingPongInterval;
+                long lastPacket = System.currentTimeMillis() - connection.getLastPacketTime();
+
+                //If we have already sent a packet recently then skip this ping and wait the ping interval minus the last packet time.
+                if (lastPacket < pingPongInterval) {
+                    sleepTime = pingPongInterval - lastPacket;
+                } else {
+                    int result = connection.sendPing();
+                    //Chanel is no longer open
+                    if (result == -1) {
+                        connected = false;
+                    }
+                    //Still waiting for last ping response.
+                    else if (result == 0) {
+                        sleepTime = 50;
+                    }
+                }
+
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException ignored) {}
+            }while (connected);
+
         }
     }
 }
