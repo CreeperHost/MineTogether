@@ -5,6 +5,9 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.covers1624.quack.util.SneakyUtils;
 import net.creeperhost.minetogether.MineTogetherPlatform;
 import net.creeperhost.minetogether.connect.ConnectHandler;
@@ -32,7 +35,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -41,8 +44,6 @@ import java.util.function.Supplier;
 public class NettyClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private static long connectionLatency = -1;
-    private static long pingPongInterval = 1000;
 
     public static void publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session) {
         Throwable[] error = new Throwable[1];
@@ -107,11 +108,6 @@ public class NettyClient {
         synchronized (listener.channels) {
             listener.channels.add(channelFuture);
         }
-
-        Thread pingPongThread = new Thread(new PingPong(connection));
-        pingPongThread.setName("MT Connect Ping-Pong");
-        pingPongThread.setDaemon(true);
-        pingPongThread.start();
     }
 
     public static Connection connect(ConnectHost endpoint, JWebToken session, String serverToken) {
@@ -272,7 +268,10 @@ public class NettyClient {
                         }
 
                         ChannelPipeline pipe = ch.pipeline();
-//                        pipe.addLast("timeout", new ReadTimeoutHandler(120)); // TODO ping/pong on control socket required for this.
+                        pipe.addLast("mt:timeout", new ReadTimeoutHandler(240)); // 4 min
+                        // Causes a user event to send a ping packet every 3m 30s, this will reset the read timeouts on the server, and on us from the response.
+                        // If the response is not seen within 30s of sending the ping, the connection will be closed due to read timeout.
+                        pipe.addLast("mt:read_idle", new IdleStateHandler(210, 0, 0, TimeUnit.SECONDS)); // 3m 30s.
                         pipe.addLast("mt:frame_codec", new FrameCodec());
                         pipe.addLast("mt:packet_codec", new PacketCodec());
                         pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER, true));
@@ -290,7 +289,6 @@ public class NettyClient {
         private final ConnectHost endpoint;
         private final byte[] nonce = new byte[32];
         private final SecretKey aesSecret;
-        private long pingSent = -1;
 
         public ProxyConnection(ConnectHost endpoint) {
             this.endpoint = endpoint;
@@ -317,6 +315,15 @@ public class NettyClient {
             super.channelActive(ctx);
 
             sendPacket(new SHello(nonce, RSAUtils.encrypt(aesSecret.getEncoded(), endpoint.publicKey())));
+        }
+
+        @Override
+        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+            if (!(evt instanceof IdleStateEvent)) {
+                super.userEventTriggered(ctx, evt);
+                return;
+            }
+            channel.eventLoop().execute(() -> sendPacket(new SPing()));
         }
 
         @Override
@@ -361,53 +368,6 @@ public class NettyClient {
 
         @Override
         public void handlePong(ChannelHandlerContext channelHandlerContext, CPong cPong) {
-            connectionLatency = System.currentTimeMillis() - pingSent;
-            pingSent = -1;
-        }
-
-        public int sendPing() {
-            if (!channel.isOpen()) return -1;
-            if (pingSent != -1) return 0;
-            pingSent = System.currentTimeMillis();
-            channel.eventLoop().execute(() -> sendPacket(new SPing()));
-            return 1;
-        }
-    }
-
-    public static class PingPong implements Runnable {
-        private final ProxyConnection connection;
-
-        public PingPong(ProxyConnection connection) {
-            this.connection = connection;
-        }
-
-        @Override
-        public void run() {
-            boolean connected = true;
-            do {
-                long sleepTime = pingPongInterval;
-                long lastPacket = System.currentTimeMillis() - connection.getLastPacketTime();
-
-                //If we have already sent a packet recently then skip this ping and wait the ping interval minus the last packet time.
-                if (lastPacket < pingPongInterval) {
-                    sleepTime = pingPongInterval - lastPacket;
-                } else {
-                    int result = connection.sendPing();
-                    //Chanel is no longer open
-                    if (result == -1) {
-                        connected = false;
-                    }
-                    //Still waiting for last ping response.
-                    else if (result == 0) {
-                        sleepTime = 50;
-                    }
-                }
-
-                try {
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException ignored) {}
-            }while (connected);
-
         }
     }
 }
