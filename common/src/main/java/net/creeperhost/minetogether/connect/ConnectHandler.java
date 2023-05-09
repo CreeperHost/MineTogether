@@ -12,6 +12,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.session.JWebToken;
+import net.creeperhost.minetogether.util.GetClosestDCRequest;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.Component;
@@ -75,9 +76,25 @@ public class ConnectHandler {
                 LOGGER.warn("No MTConnect nodes found.. :(");
                 throw new NotImplementedException();
             }
+            GetConnectServersRequest.ConnectServer first = servers.get(0);
 
-            // TODO this needs to get geography data and select the closest node.
-            return servers.get(0);
+            ApiClientResponse<GetClosestDCRequest.Response> closestDCResponse = MineTogether.API.execute(new GetClosestDCRequest());
+            if (!closestDCResponse.hasBody()) {
+                LOGGER.error("Failed to get Closest DC locations. Using first server: {}", first.name);
+                return first;
+            }
+
+            for (GetClosestDCRequest.DataCenter dc : closestDCResponse.apiResponse().getDataCenters()) {
+                for (GetConnectServersRequest.ConnectServer server : servers) {
+                    if (server.location.equals(dc.getName())) {
+                        LOGGER.info("Selected server {}. Closest DC was {}.", server.name, dc.getName());
+                        return server;
+                    }
+                }
+            }
+
+            LOGGER.info("Could not select a server. Using first server: {}", first.name);
+            return first;
         } catch (IOException ex) {
             // TODO, this needs to gracefully fail, getEndpoint likely needs to return null, and isEnabled needs to return false.
             throw new NotImplementedException("TODO, Implement exception handling for this:", ex);
