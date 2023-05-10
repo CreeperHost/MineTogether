@@ -1,13 +1,15 @@
 package net.creeperhost.minetogether.connect;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.gson.Gson;
+import net.covers1624.quack.collection.FastStream;
+import net.covers1624.quack.gson.JsonUtils;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
-import net.creeperhost.minetogether.connect.lib.util.RSAUtils;
 import net.creeperhost.minetogether.connect.lib.web.GetConnectServersRequest;
+import net.creeperhost.minetogether.connect.lib.web.GetFriendServersRequest;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
-import net.creeperhost.minetogether.connect.web.FriendServerListRequest;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
@@ -24,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -41,7 +44,11 @@ public class ConnectHandler {
 
     private static long lastSearch = 0;
     private static CompletableFuture<?> activeSearch = null;
-    private static FriendServerListRequest.Response searchResult = null;
+    private static GetFriendServersRequest.Response searchResult = null;
+
+    @Nullable
+    private static final String NODE_HOSTS_OVERRIDE = System.getProperty("connect.mesh.hosts");
+    private static final Gson GSON = new Gson();
 
     @Nullable
     private static ConnectHost endpoint;
@@ -54,15 +61,27 @@ public class ConnectHandler {
             GetConnectServersRequest.ConnectServer node = chooseServer();
             LOGGER.info("Selected MTConnect server: " + node.name);
 
-            endpoint = new ConnectHost(
-                    node.ssl ? "https" : "http",
-                    node.address,
-                    node.port,
-                    node.port + 1,
-                    RSAUtils.loadRSAPublicKey(RSAUtils.loadPem(node.publicKey))
-            );
+            endpoint = new ConnectHost(node);
         }
         return endpoint;
+    }
+
+    public static ConnectHost getSpecificEndpoint(@Nullable String node) throws IOException {
+        if (node == null) {
+            return getEndpoint();
+        }
+
+        List<GetConnectServersRequest.ConnectServer> servers = pollServers();
+        if (servers == null || servers.isEmpty()) {
+            throw new IllegalStateException("No server list returned.");
+        }
+        GetConnectServersRequest.ConnectServer server = FastStream.of(servers)
+                .filter(e -> e.name.equals(node))
+                .firstOrDefault();
+        if (server == null) {
+            throw new IllegalStateException("Did not find node with id: " + node);
+        }
+        return new ConnectHost(server);
     }
 
     private static GetConnectServersRequest.ConnectServer chooseServer() {
@@ -70,8 +89,8 @@ public class ConnectHandler {
             return GetConnectServersRequest.ConnectServer.getLocalHost();
         }
         try {
-            List<GetConnectServersRequest.ConnectServer> servers = MineTogether.API.execute(new GetConnectServersRequest()).apiResponse();
-            if (servers.isEmpty()) {
+            List<GetConnectServersRequest.ConnectServer> servers = pollServers();
+            if (servers == null || servers.isEmpty()) {
                 // TODO, this needs to gracefully fail as noted bellow.
                 LOGGER.warn("No MTConnect nodes found.. :(");
                 throw new NotImplementedException();
@@ -99,6 +118,19 @@ public class ConnectHandler {
             // TODO, this needs to gracefully fail, getEndpoint likely needs to return null, and isEnabled needs to return false.
             throw new NotImplementedException("TODO, Implement exception handling for this:", ex);
         }
+    }
+
+    @Nullable
+    private static List<GetConnectServersRequest.ConnectServer> pollServers() throws IOException {
+        if (NODE_HOSTS_OVERRIDE != null) {
+            return JsonUtils.parse(GSON, Path.of(NODE_HOSTS_OVERRIDE), GetConnectServersRequest.LIST_SERVERS);
+        }
+        ApiClientResponse<List<GetConnectServersRequest.ConnectServer>> apiResp = MineTogether.API.execute(new GetConnectServersRequest());
+        if (apiResp.statusCode() != 200) {
+            LOGGER.error("Failed to query node list. Got: {}", apiResp.statusCode());
+            return null;
+        }
+        return apiResp.apiResponse();
     }
 
     public static boolean isEnabled() {
@@ -151,8 +183,8 @@ public class ConnectHandler {
             if (searchResult != null) {
                 ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
                 Set<RemoteServer> keep = new HashSet<>();
-                for (FriendServerListRequest.Response.ServerEntry entry : searchResult.servers) {
-                    RemoteServer server = new RemoteServer(entry.friend, entry.serverToken);
+                for (GetFriendServersRequest.Response.ServerEntry entry : searchResult.servers) {
+                    RemoteServer server = new RemoteServer(entry.friend, entry.serverToken, entry.node);
                     keep.add(server);
                     if (!AVAILABLE_SERVER_MAP.containsKey(server)) {
                         Profile profile = profileManager.lookupProfile(entry.friend);
@@ -176,7 +208,7 @@ public class ConnectHandler {
             try {
                 JWebToken token = MineTogetherClient.getSession().get().orThrow();
 
-                ApiClientResponse<FriendServerListRequest.Response> res = MineTogether.API.execute(new FriendServerListRequest(getEndpoint().httpUrl(), token.toString()));
+                ApiClientResponse<GetFriendServersRequest.Response> res = MineTogether.API.execute(new GetFriendServersRequest(getEndpoint().httpUrl(), token));
                 if (res.statusCode() != 200) {
                     LOGGER.error("An error occurred while searching for friend servers, Response code: {}, Message: {}", res.statusCode(), res.message());
                     return;

@@ -12,8 +12,10 @@ import java.util.Objects;
  * Created by brandon3055 on 21/04/2023
  */
 public final class RemoteServer {
-    private final String friend;
-    private final String serverToken;
+
+    public final String friend;
+    public final String serverToken;
+    public final @Nullable String node;
 
     public Component status;
     public Component motd;
@@ -25,9 +27,10 @@ public final class RemoteServer {
     @Nullable
     private String iconB64;
 
-    public RemoteServer(String friend, String serverToken) {
+    public RemoteServer(String friend, String serverToken, @Nullable String node) {
         this.friend = friend;
         this.serverToken = serverToken;
+        this.node = node;
     }
 
     @Override
@@ -42,10 +45,6 @@ public final class RemoteServer {
     public int hashCode() {
         return Objects.hash(friend, serverToken);
     }
-
-    public String friend() { return friend; }
-
-    public String serverToken() { return serverToken; }
 
     @Override
     public String toString() {

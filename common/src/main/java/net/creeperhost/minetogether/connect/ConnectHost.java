@@ -1,5 +1,8 @@
 package net.creeperhost.minetogether.connect;
 
+import net.creeperhost.minetogether.connect.lib.util.RSAUtils;
+import net.creeperhost.minetogether.connect.lib.web.GetConnectServersRequest;
+
 import java.security.PublicKey;
 
 /**
@@ -12,6 +15,16 @@ public record ConnectHost(
         int proxyPort,
         PublicKey publicKey
 ) {
+
+    public ConnectHost(GetConnectServersRequest.ConnectServer node) {
+        this(
+                node.ssl ? "https" : "http",
+                node.address,
+                node.port,
+                node.port + 1,
+                RSAUtils.loadRSAPublicKey(RSAUtils.loadPem(node.publicKey))
+        );
+    }
 
     public String httpUrl() {
         return httpScheme + "://" + address + ":" + httpPort;

@@ -25,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -121,9 +122,9 @@ public class ServerListAppender {
         }
     }
 
-    public void pingServer(RemoteServer server, Profile profile) throws ExecutionException, InterruptedException {
+    public void pingServer(RemoteServer server, Profile profile) throws Exception {
         JWebToken token = MineTogetherClient.getSession().get().orThrow();
-        Connection connection = NettyClient.connect(ConnectHandler.getEndpoint(), token, server.serverToken());
+        Connection connection = NettyClient.connect(ConnectHandler.getSpecificEndpoint(server.node), token, server.serverToken);
         connections.add(connection);
         server.motd = Component.translatable("multiplayer.status.pinging");
         server.ping = -1L;
@@ -220,7 +221,7 @@ public class ServerListAppender {
             connection.send(new ClientIntentionPacket(endpoint.address(), endpoint.proxyPort(), ConnectionProtocol.STATUS));
             connection.send(new ServerboundStatusRequestPacket());
         } catch (Throwable var8) {
-            LOGGER.error( "Failed to ping friend server {}", server.friend(), var8);
+            LOGGER.error( "Failed to ping friend server {}", server.friend, var8);
         }
     }
 
