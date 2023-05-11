@@ -46,6 +46,9 @@ public class ConnectHandler {
     private static CompletableFuture<?> activeSearch = null;
     private static GetFriendServersRequest.Response searchResult = null;
 
+    // Useful for testing, can connect to specific node.
+    private static final String FORCED_NODE = System.getProperty("connect.node");
+    // Useful for testing, can force the use of a host list json. Running node mesh locally, for example.
     @Nullable
     private static final String NODE_HOSTS_OVERRIDE = System.getProperty("connect.mesh.hosts");
     private static final Gson GSON = new Gson();
@@ -95,6 +98,13 @@ public class ConnectHandler {
                 LOGGER.warn("No MTConnect nodes found.. :(");
                 throw new NotImplementedException();
             }
+
+            if (FORCED_NODE != null) {
+                return FastStream.of(servers)
+                        .filter(e -> e.name.equals(FORCED_NODE))
+                        .first();
+            }
+
             GetConnectServersRequest.ConnectServer first = servers.get(0);
 
             ApiClientResponse<GetClosestDCRequest.Response> closestDCResponse = MineTogether.API.execute(new GetClosestDCRequest());
