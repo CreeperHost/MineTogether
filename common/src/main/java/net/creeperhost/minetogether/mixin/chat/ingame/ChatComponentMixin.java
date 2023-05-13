@@ -52,7 +52,7 @@ abstract class ChatComponentMixin {
     )
     private void onRender(PoseStack poseStack, int i, CallbackInfo ci) {
         // Don't render our additional background blackout if chat is not enabled.
-        if (!Config.instance().chatEnabled) return;
+        if (!Config.instance().chatEnabled || Minecraft.getInstance().options.hideGui) return;
 
         if (isChatFocused()) {
             // Render new 'filled' background under all chat lines.
@@ -79,7 +79,7 @@ abstract class ChatComponentMixin {
     // When chat is focussed, this disables vanilla rendering the 'filled' background bellow a chat line.
     // We force-enable this fill if chat is disabled to revert to vanilla behaviour.
     private void onFill(PoseStack poseStack, int i, int j, int k, int l, int m) {
-        if (!isChatFocused() || !Config.instance().chatEnabled) {
+        if (!isChatFocused() || !Config.instance().chatEnabled || Minecraft.getInstance().options.hideGui) {
             GuiComponent.fill(poseStack, i, j, k, l, m);
         }
     }
