@@ -85,10 +85,11 @@ abstract class ChatScreenMixin extends Screen {
             at = @At ("TAIL")
     )
     private void onInit(CallbackInfo ci) {
-        if (!Config.instance().chatEnabled) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (!Config.instance().chatEnabled || mc.options.hideGui) return;
 
-        int cWidth = Minecraft.getInstance().gui.getChat().getWidth();
-        int cHeight = Minecraft.getInstance().gui.getChat().getHeight();
+        int cWidth = mc.gui.getChat().getWidth();
+        int cHeight = mc.gui.getChat().getHeight();
         int x = Mth.ceil(((float) cWidth)) + 6;
 
         vanillaChatButton = new RadioButton(x, height - 215, 12, 87, Component.translatable("minetogether:ingame.chat.local"))
@@ -158,7 +159,7 @@ abstract class ChatScreenMixin extends Screen {
             cancellable = true
     )
     private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (!Config.instance().chatEnabled) return;
+        if (!Config.instance().chatEnabled || Minecraft.getInstance().options.hideGui) return;
 
         // Needs to be done explicitly here, so we prioritize button clicks
         // over message clicks. We can't move super.mouseClicked here as that would
