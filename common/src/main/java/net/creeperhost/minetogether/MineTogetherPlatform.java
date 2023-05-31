@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.network.Connection;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -18,6 +19,11 @@ public class MineTogetherPlatform {
 
     @ExpectPlatform
     public static String getVersion() {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static void prepareClientConnection(Connection connection) {
         throw new AssertionError();
     }
 }

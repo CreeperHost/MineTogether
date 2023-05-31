@@ -1,7 +1,9 @@
 package net.creeperhost.minetogether.forge;
 
+import net.minecraft.network.Connection;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModFileInfo;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -29,5 +31,9 @@ public class MineTogetherPlatformImpl {
         }
 
         return fileInfo.versionString();
+    }
+
+    public static void prepareClientConnection(Connection connection) {
+        NetworkHooks.registerClientLoginChannel(connection);
     }
 }

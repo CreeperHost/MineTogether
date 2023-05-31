@@ -1,34 +1,29 @@
 package net.creeperhost.minetogether.mixin.connect;
 
-import net.creeperhost.minetogether.connect.FriendsServerList;
-import net.creeperhost.minetogether.connect.OurServerListEntryLanDetected;
+import net.creeperhost.minetogether.connect.ConnectHandler;
+import net.creeperhost.minetogether.connect.gui.FriendConnectScreen;
+import net.creeperhost.minetogether.connect.gui.FriendServerEntry;
+import net.creeperhost.minetogether.connect.gui.ServerListAppender;
 import net.creeperhost.minetogether.orderform.CreeperHostServerEntry;
 import net.creeperhost.minetogether.serverlist.gui.JoinMultiplayerScreenPublic;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.server.LanServer;
-import net.minecraft.client.server.LanServerDetection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-
 @Mixin (JoinMultiplayerScreen.class)
 public abstract class JoinMultiplayerScreenMixin {
 
     @Shadow
     protected ServerSelectionList serverSelectionList;
-    @Shadow
-    private LanServerDetection.LanServerList lanServerList;
 
     @Shadow
     protected abstract void join(ServerData serverData);
-
-    private FriendsServerList friendsServerList = null;
 
     private JoinMultiplayerScreen getThis() {
         return (JoinMultiplayerScreen) (Object) this;
@@ -38,8 +33,8 @@ public abstract class JoinMultiplayerScreenMixin {
     public void init(CallbackInfo ci) {
         if (getThis() instanceof JoinMultiplayerScreenPublic) return;
 
-        if (friendsServerList == null) {
-            friendsServerList = new FriendsServerList(getThis(), lanServerList);
+        if (ConnectHandler.isEnabled()){
+            ServerListAppender.INSTANCE.init(serverSelectionList, getThis());
         }
     }
 
@@ -47,9 +42,7 @@ public abstract class JoinMultiplayerScreenMixin {
     public void removed(CallbackInfo ci) {
         if (getThis() instanceof JoinMultiplayerScreenPublic) return;
 
-        if (friendsServerList != null) {
-            friendsServerList.removed();
-        }
+        ServerListAppender.INSTANCE.remove();
     }
 
     @Inject (at = @At ("HEAD"), method = "joinSelectedServer", cancellable = true)
@@ -59,10 +52,9 @@ public abstract class JoinMultiplayerScreenMixin {
         ServerSelectionList.Entry entry = this.serverSelectionList.getSelected();
         if (entry instanceof CreeperHostServerEntry) {
             ci.cancel();
-        } else if (entry instanceof OurServerListEntryLanDetected) {
-            if (!((OurServerListEntryLanDetected) entry).canBeJoined()) {
-                //ci.cancel();
-            }
+        } else if (entry instanceof FriendServerEntry friendServer) {
+            FriendConnectScreen.startConnecting(getThis(), Minecraft.getInstance(), friendServer.remoteServer);
+            ci.cancel();
         }
     }
 
@@ -70,20 +62,8 @@ public abstract class JoinMultiplayerScreenMixin {
     public void tick(CallbackInfo ci) {
         if (getThis() instanceof JoinMultiplayerScreenPublic) return;
 
-        if (friendsServerList != null && friendsServerList.isDirty()) {
-            List<LanServer> list = friendsServerList.getServers();
-            friendsServerList.markClean();
-            this.serverSelectionList.updateNetworkServers(list);
-        }
-    }
-
-    @Inject (at = @At ("TAIL"), method = "onSelectedChange()V")
-    public void selectedChangeHook(CallbackInfo ci) {
-        if (getThis() instanceof JoinMultiplayerScreenPublic) return;
-
-        ServerSelectionList.Entry entry = this.serverSelectionList.getSelected();
-        if (entry instanceof OurServerListEntryLanDetected && !((OurServerListEntryLanDetected) entry).canBeJoined()) {
-            //this.selectButton.active = false;
+        if (ConnectHandler.isEnabled()){
+            ServerListAppender.INSTANCE.tick();
         }
     }
 }
