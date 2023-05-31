@@ -7,8 +7,8 @@ import net.covers1624.quack.gson.JsonUtils;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.connect.lib.netty.packet.CFriendServers;
 import net.creeperhost.minetogether.connect.lib.web.GetConnectServersRequest;
-import net.creeperhost.minetogether.connect.lib.web.GetFriendServersRequest;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
@@ -44,7 +44,7 @@ public class ConnectHandler {
 
     private static long lastSearch = 0;
     private static CompletableFuture<?> activeSearch = null;
-    private static GetFriendServersRequest.Response searchResult = null;
+    private static List<CFriendServers.ServerEntry> searchResult = null;
 
     // Useful for testing, can connect to specific node.
     private static final String FORCED_NODE = System.getProperty("connect.node");
@@ -193,7 +193,7 @@ public class ConnectHandler {
             if (searchResult != null) {
                 ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
                 Set<RemoteServer> keep = new HashSet<>();
-                for (GetFriendServersRequest.Response.ServerEntry entry : searchResult.servers) {
+                for (CFriendServers.ServerEntry entry : searchResult) {
                     RemoteServer server = new RemoteServer(entry.friend, entry.serverToken, entry.node);
                     keep.add(server);
                     if (!AVAILABLE_SERVER_MAP.containsKey(server)) {
@@ -217,13 +217,7 @@ public class ConnectHandler {
             searchResult = null;
             try {
                 JWebToken token = MineTogetherClient.getSession().get().orThrow();
-
-                ApiClientResponse<GetFriendServersRequest.Response> res = MineTogether.API.execute(new GetFriendServersRequest(getEndpoint().httpUrl(), token));
-                if (res.statusCode() != 200) {
-                    LOGGER.error("An error occurred while searching for friend servers, Response code: {}, Message: {}", res.statusCode(), res.message());
-                    return;
-                }
-                searchResult = res.apiResponse();
+                searchResult = NettyClient.getFriendServers(getEndpoint(), token).servers;
             } catch (Throwable e) {
                 LOGGER.error("An error occurred while searching for friend servers.", e);
             }

@@ -245,6 +245,60 @@ public class NettyClient {
         }
     }
 
+    public static CFriendServers getFriendServers(ConnectHost endpoint, JWebToken session) throws IOException {
+        IOException[] error = new IOException[1];
+        CFriendServers[] result = new CFriendServers[1];
+
+        ProxyConnection connection = new ProxyConnection(endpoint) {
+            @Override
+            protected void channelReady() {
+                sendPacket(new SRequestFriendServers(session.toString()));
+            }
+
+            @Override
+            public void handleFriendServers(ChannelHandlerContext channelHandlerContext, CFriendServers packet) {
+                result[0] = packet;
+                synchronized (error) {
+                    error.notifyAll();
+                }
+            }
+
+            @Override
+            public void onDisconnected(String message) {
+                error[0] = new IOException("Failed to host server: " + message);
+                synchronized (error) {
+                    error.notifyAll();
+                }
+            }
+        };
+
+        ChannelFuture channelFuture = openConnection(
+                endpoint,
+                connection,
+                Connection.NETWORK_EPOLL_WORKER_GROUP::get,
+                Connection.NETWORK_WORKER_GROUP::get
+        );
+
+        synchronized (error) {
+            try {
+                error.wait(TimeUnit.MINUTES.toMillis(1)); // 1 Minute timeout on waiting.
+            } catch (InterruptedException ex) {
+                throw new RuntimeException("Interrupted whilst waiting.", ex);
+            }
+
+            if (error[0] != null) {
+                throw error[0];
+            }
+
+            if (result[0] == null) {
+                channelFuture.channel().close();
+                throw new IOException("Timeout reached whilst waiting for server response.");
+            }
+
+            return result[0];
+        }
+    }
+
     private static ChannelFuture openConnection(ConnectHost endpoint, ProxyConnection connection, Supplier<EventLoopGroup> epollGroup, Supplier<EventLoopGroup> nioGroup) {
         EventLoopGroup eventGroup;
         Class<? extends Channel> channelClass;
@@ -340,6 +394,11 @@ public class NettyClient {
                     AESUtils.loadCipher(Cipher.DECRYPT_MODE, aesSecret)
             ));
             channelReady();
+        }
+
+        @Override
+        public void handleFriendServers(ChannelHandlerContext channelHandlerContext, CFriendServers cFriendServers) {
+            throw new NotImplementedException();
         }
 
         @Override
