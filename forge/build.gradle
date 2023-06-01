@@ -50,6 +50,9 @@ dependencies {
     shadowLib("net.creeperhost:MineTogetherSessions:${mtsession_version}") {
         transitive false
     }
+    shadowLib("net.creeperhost:MTConnectProxyCommon:${mtproxy_version}") {
+        exclude group: "net.creeperhost", module: "MineTogetherSessions"
+    }
 
     shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
     shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'

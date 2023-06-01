@@ -177,6 +177,7 @@
     "minetogether.connect.open.attempting":"Attempting to open world to friends",
     "minetogether.connect.open.success":"Opened local game world to your MineTogether friends.",
     "minetogether.connect.open.failed":"Failed to open local game to MineTogether friends: %s",
+    "minetogether.connect.open.proxy.disconnect":"MineTogether connection lost. Your world is no longer shared to friends.",
     "minetogether.connect.join.full.descript":"FULL",
     "minetogether.connect.join.full":"MineTogether friends' server is full. Please contact your friend!",
     "minetogether.connect.join.tried.name":"Your friend %s tried to join but was unable to do so as the player limit has been reached :(\nFor more information, please see https://minetogether.io/full/%s",
@@ -186,5 +187,9 @@
     "minetogether.connect.title": "Multiplayer (MineTogether Connect)",
     "minetogether.connect.scan":"Scanning MineTogether Connect and LAN for available worlds",
     "minetogether.connect.scan.offline":"Scanning LAN for available worlds",
-    "minetogether.connect.friendentry.title":"MineTogether Friend Server"
+    "minetogether.connect.friendentry.title":"MineTogether Friend Server",
+
+    "minetogether.connect.friend.server.title":"%s's Shared MineTogether Server"
+
+
 }
