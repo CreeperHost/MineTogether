@@ -98,6 +98,9 @@ public class Config {
     @Comment ("Create _VERY_ verbose logs. May create hugenorums log files.")
     public boolean debugMode = false;
 
+    @Comment ("Enables dumping all MTConnect packets to logs.")
+    public boolean dumpConnectPackets = false;
+
     @Comment ("If the Chat component of MineTogether is enabled.")
     public boolean chatEnabled = true;
 
