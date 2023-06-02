@@ -10,6 +10,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.covers1624.quack.util.SneakyUtils;
 import net.creeperhost.minetogether.MineTogetherPlatform;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.ConnectHost;
 import net.creeperhost.minetogether.connect.lib.netty.*;
@@ -328,7 +329,9 @@ public class NettyClient {
                         pipe.addLast("mt:read_idle", new IdleStateHandler(210, 0, 0, TimeUnit.SECONDS)); // 3m 30s.
                         pipe.addLast("mt:frame_codec", new FrameCodec());
                         pipe.addLast("mt:packet_codec", new PacketCodec());
-                        pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER, true));
+                        if (Config.instance().dumpConnectPackets) {
+                            pipe.addLast("mt:logging_codec", new LoggingPacketCodec(LOGGER, true));
+                        }
                         pipe.addLast("mt:packet_handler", connection);
                         connection.buildPipeline(pipe);
 
