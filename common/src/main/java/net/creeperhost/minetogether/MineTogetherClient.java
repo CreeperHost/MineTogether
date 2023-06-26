@@ -22,7 +22,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.*;
@@ -30,7 +30,6 @@ import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.storage.DataVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -86,9 +85,7 @@ public class MineTogetherClient {
 
         MineTogetherChat.init();
         MineTogetherServerList.init();
-        OrderForm.init();
         MineTogetherConnect.init();
-//        MineTogetherConnect.init();
 
         ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
     }
@@ -97,7 +94,8 @@ public class MineTogetherClient {
         // TODO, store the CompletableFuture, so we can preserve the api errors in the Either.
         // TODO, also detect the token becoming expired between calls to getSession and prepare a new one.
         // TODO, Would a wrapper around the CompletableFuture be better? which lazily does everything internally when queried for a result?
-        if (session == null) return CompletableFuture.completedFuture(Either.right("Offline mode. No session available."));
+        if (session == null)
+            return CompletableFuture.completedFuture(Either.right("Offline mode. No session available."));
         if (session.isValid()) return CompletableFuture.completedFuture(Either.left(session.getToken()));
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -138,26 +136,28 @@ public class MineTogetherClient {
             }
 
             ServerData serverData = new ServerData(server.ip, String.valueOf(server.port), false);
-            ConnectScreen.startConnecting(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
+            ConnectScreen.startConnecting(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData, false);
         } else if (screen instanceof PauseScreen) {
-            @SuppressWarnings ("unchecked")
+            @SuppressWarnings("unchecked")
             List<GuiEventListener> children = (List<GuiEventListener>) screen.children();
-            List<Widget> renderables = screenAccess.getRenderables();
+            List<Renderable> renderables = screenAccess.getRenderables();
             List<NarratableEntry> narratables = screenAccess.getNarratables();
 
             // Replace bugs button with our own button.
             AbstractWidget bugs = ButtonHelper.findButton("menu.reportBugs", screen);
             if (bugs != null && Config.instance().issueTrackerUrl != null) {
-                Button ourBugsButton = new Button(bugs.x, bugs.y, bugs.getWidth(), bugs.getHeight(), Component.translatable("menu.reportBugs"), (button) -> {
-                    String s = Config.instance().issueTrackerUrl;
-                    Minecraft.getInstance().setScreen(new ConfirmLinkScreen((p_213069_2_) -> {
-                        if (p_213069_2_) {
-                            Util.getPlatform().openUri(s);
-                        }
+                Button ourBugsButton = Button.builder(Component.translatable("menu.reportBugs"), (button) -> {
+                            String s = Config.instance().issueTrackerUrl;
+                            Minecraft.getInstance().setScreen(new ConfirmLinkScreen((p_213069_2_) -> {
+                                if (p_213069_2_) {
+                                    Util.getPlatform().openUri(s);
+                                }
 
-                        Minecraft.getInstance().setScreen(screen);
-                    }, s, true));
-                });
+                                Minecraft.getInstance().setScreen(screen);
+                            }, s, true));
+                        })
+                        .bounds(bugs.getX(), bugs.getY(), bugs.getWidth(), bugs.getHeight())
+                        .build();
                 // We have to keep these indexes the same and remove the old button due to how Mod Menu works...
                 children.set(children.indexOf(bugs), ourBugsButton);
                 renderables.set(renderables.indexOf(bugs), ourBugsButton);

@@ -10,8 +10,11 @@ import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
 
 public class NetHandlerLoginClientOurs extends ClientHandshakePacketListenerImpl {
 
+    private final Connection connection;
+
     public NetHandlerLoginClientOurs(Connection connection, Minecraft mcIn) {
-        super(connection, mcIn, null, e -> { });
+        super(connection, mcIn, null, null, false, null, e -> { });
+        this.connection = connection;
     }
 
     @Override
@@ -23,8 +26,8 @@ public class NetHandlerLoginClientOurs extends ClientHandshakePacketListenerImpl
     @Override
     public void handleGameProfile(ClientboundGameProfilePacket packetIn) {
         GameProfile gameProfile = packetIn.getGameProfile();
-        getConnection().setProtocol(ConnectionProtocol.PLAY);
-        ClientPlayNetHandlerOurs nhpc = new ClientPlayNetHandlerOurs(this.getConnection());
-        getConnection().setListener(nhpc);
+        connection.setProtocol(ConnectionProtocol.PLAY);
+        ClientPlayNetHandlerOurs nhpc = new ClientPlayNetHandlerOurs(connection);
+        connection.setListener(nhpc);
     }
 }

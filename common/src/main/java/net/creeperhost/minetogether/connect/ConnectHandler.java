@@ -168,7 +168,7 @@ public class ConnectHandler {
                 JWebToken token = MineTogetherClient.getSession().get().orThrow();
                 NettyClient.publishServer(server, getEndpoint(), token);
             } catch (Exception e) {
-                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed"));
+                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed", e.getMessage()));
                 LOGGER.error("Failed to open to friends", e);
                 unPublish();
             }

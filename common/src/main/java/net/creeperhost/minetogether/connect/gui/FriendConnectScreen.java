@@ -1,35 +1,37 @@
 package net.creeperhost.minetogether.connect.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.ConnectHost;
-import net.creeperhost.minetogether.connect.FriendServerData;
 import net.creeperhost.minetogether.connect.RemoteServer;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
-import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.chat.report.ReportEnvironment;
+import net.minecraft.client.quickplay.QuickPlayLog;
+import net.minecraft.client.server.LanServer;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 import org.slf4j.Logger;
+
+import java.time.Duration;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class FriendConnectScreen extends ConnectScreen {
@@ -41,40 +43,36 @@ public class FriendConnectScreen extends ConnectScreen {
     private long lastNarration = -1L;
 
     private FriendConnectScreen(Screen screen) {
-        super(screen);
+        super(screen, CommonComponents.CONNECT_FAILED);
         parent = screen;
     }
 
-    public static void startConnecting(Screen screen, Minecraft minecraft, RemoteServer server) {
+    public static void startConnecting(Screen screen, Minecraft minecraft, RemoteServer server, LanServer serverData) {
         FriendConnectScreen connectScreen = new FriendConnectScreen(screen);
         minecraft.clearLevel();
         minecraft.prepareForMultiplayer();
-        minecraft.setCurrentServer(new FriendServerData(server));
+        minecraft.updateReportEnvironment(ReportEnvironment.thirdParty(serverData.getAddress()));
+        minecraft.quickPlayLog().setWorldData(QuickPlayLog.Type.MULTIPLAYER, serverData.getAddress(), "MT Friend Server"); //< TODO Ideally we want the world or the friend name here
         minecraft.setScreen(connectScreen);
         connectScreen.connect(minecraft, server);
     }
 
     private void connect(Minecraft minecraft, RemoteServer server) {
-        CompletableFuture<Optional<ProfilePublicKey.Data>> completableFuture = minecraft.getProfileKeyPairManager().preparePublicKey();
-        Profile profile = ConnectHandler.getServerProfile(server);
-        if (profile != null){
-            LOGGER.info("Connecting to MF Friend Server: {}", profile.isFriend() ? profile.getFriendName() : profile.getDisplayName());
-        }
-
+        LOGGER.info("Connecting to friend server, {}", server.friend);
         Thread thread = new Thread("MT Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
             public void run() {
                 try {
-                    if (aborted) {
-                        return;
+                    if (aborted) return;
+
+                    synchronized (FriendConnectScreen.this) {
+                        ConnectHost endpoint = ConnectHandler.getSpecificEndpoint(server.node);
+                        JWebToken token = MineTogetherClient.getSession().get().orThrow();
+                        connection = NettyClient.connect(endpoint, token, server.serverToken);
+                                                                                                             //TODO This v may break....
+                        connection.setListener(new ClientHandshakePacketListenerImpl(connection, minecraft, new ServerData("", "", false), parent, false, (Duration) null, FriendConnectScreen.this::updateStatus));
+                        connection.send(new ClientIntentionPacket(endpoint.address(), endpoint.proxyPort(), ConnectionProtocol.LOGIN));
+                        connection.send(new ServerboundHelloPacket(minecraft.getUser().getName(), Optional.ofNullable(minecraft.getUser().getProfileId())));
                     }
-
-                    ConnectHost endpoint = ConnectHandler.getSpecificEndpoint(server.node);
-                    JWebToken token = MineTogetherClient.getSession().get().orThrow();
-                    connection = NettyClient.connect(endpoint, token, server.serverToken);
-
-                    connection.setListener(new ClientHandshakePacketListenerImpl(connection, minecraft, parent, FriendConnectScreen.this::updateStatus));
-                    connection.send(new ClientIntentionPacket(endpoint.address(), endpoint.proxyPort(), ConnectionProtocol.LOGIN));
-                    connection.send(new ServerboundHelloPacket(minecraft.getUser().getName(), completableFuture.join(), Optional.ofNullable(minecraft.getUser().getProfileId())));
                 } catch (Exception ex) {
                     if (aborted) {
                         return;
@@ -116,25 +114,31 @@ public class FriendConnectScreen extends ConnectScreen {
     }
 
     protected void init() {
-        addRenderableWidget(new Button(width / 2 - 100, height / 4 + 120 + 12, 200, 20, CommonComponents.GUI_CANCEL, (button) -> {
-            aborted = true;
-            if (connection != null) {
-                connection.disconnect(Component.translatable("connect.aborted"));
-            }
+        addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, (button) -> {
+                            aborted = true;
+                            if (connection != null) {
+                                connection.disconnect(Component.translatable("connect.aborted"));
+                            }
 
-            minecraft.setScreen(parent);
-        }));
+                            minecraft.setScreen(parent);
+                        })
+                        .bounds(width / 2 - 100, height / 4 + 120 + 12, 200, 20)
+                        .build()
+        );
     }
 
-    public void render(PoseStack poseStack, int i, int j, float f) {
-        renderBackground(poseStack);
+    public void render(GuiGraphics graphics, int i, int j, float f) {
+        renderBackground(graphics);
         long l = Util.getMillis();
         if (l - lastNarration > 2000L) {
             lastNarration = l;
             minecraft.getNarrator().sayNow(Component.translatable("narrator.joining"));
         }
 
-        drawCenteredString(poseStack, font, status, width / 2, height / 2 - 50, 16777215);
-        super.render(poseStack, i, j, f);
+        graphics.drawCenteredString(font, status, width / 2, height / 2 - 50, 16777215);
+
+        for (Renderable renderable : this.renderables) {
+            renderable.render(graphics, i, j, f);
+        }
     }
 }

@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.polylib.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -25,22 +26,17 @@ public class IconButton extends Button {
     private final int index;
 
     public IconButton(int x, int y, int index, ResourceLocation sheet, OnPress onPress) {
-        this(x, y, index, sheet, onPress, NO_TOOLTIP);
-    }
-
-    public IconButton(int x, int y, int index, ResourceLocation sheet, OnPress onPress, OnTooltip onTooltip) {
-        super(x, y, 20, 20, Component.empty(), onPress, onTooltip);
+        super(x, y, 20, 20, Component.empty(), onPress, Button.DEFAULT_NARRATION);
         this.index = index;
         this.sheet = sheet;
     }
 
     @Override
-    public void renderButton(PoseStack pStack, int mx, int my, float partialTicks) {
+    public void renderWidget(GuiGraphics graphics, int mx, int my, float partialTicks) {
         if (!visible) return;
 
         int yOffset = !active ? 40 : isHovered ? 20 : 0;
-        RenderSystem.setShaderTexture(0, sheet);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        blit(pStack, x, y, index * 20, yOffset, width, height);
+        graphics.blit(sheet, getX(), getY(), index * 20, yOffset, width, height);
     }
 }

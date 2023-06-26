@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,7 +60,8 @@ public class MineTogetherServerList {
 
     public static List<Server> updateServers(ListType type) {
         synchronized (servers) {
-            if (incorrectlyConfigured || lastRequest == type && lastRequestTime + 30000 < System.currentTimeMillis()) return Collections.unmodifiableList(servers);
+            if (incorrectlyConfigured || lastRequest == type && lastRequestTime + 30000 < System.currentTimeMillis())
+                return Collections.unmodifiableList(servers);
 
             try {
                 ApiClientResponse<GetServerListRequest.Response> resp = MineTogether.API.execute(new GetServerListRequest(type, MineTogetherChat.CHAT_AUTH.getHash()));
@@ -78,9 +78,9 @@ public class MineTogetherServerList {
         if (!(screen instanceof JoinMultiplayerScreen mpScreen)) return;
         if (screen instanceof JoinMultiplayerScreenPublic) return;
 
-        Button serverListButton = new Button(screen.width - 105, 5, 100, 20, Component.translatable("minetogether:screen.multiplayer.serverlist"), e -> {
-            Minecraft.getInstance().setScreen(new ServerTypeScreen(mpScreen));
-        });
+        Button serverListButton = Button.builder(Component.translatable("minetogether:screen.multiplayer.serverlist"), e -> Minecraft.getInstance().setScreen(new ServerTypeScreen(mpScreen)))
+                .bounds(screen.width - 105, 5, 100, 20)
+                .build();
         serverListButton.active = !MineTogetherChat.isNewUser();
 
         ScreenHooks.addRenderableWidget(mpScreen, serverListButton);

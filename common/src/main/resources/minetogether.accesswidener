@@ -25,5 +25,9 @@ accessible field net/minecraft/client/server/IntegratedServer publishedGameType 
 
 accessible field net/minecraft/client/gui/screens/ConnectScreen connection Lnet/minecraft/network/Connection;
 
-extendable method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/minecraft/client/gui/screens/Screen;)V
-accessible method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/minecraft/client/gui/screens/Screen;)V
+extendable method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/network/chat/Component;)V
+accessible method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/network/chat/Component;)V
+
+accessible field net/minecraft/client/gui/screens/ShareToLanScreen portEdit Lnet/minecraft/client/gui/components/EditBox;
+
+accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;

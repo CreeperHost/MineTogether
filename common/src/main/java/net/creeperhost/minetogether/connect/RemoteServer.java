@@ -25,7 +25,7 @@ public final class RemoteServer {
     public int protocol = SharedConstants.getCurrentVersion().getProtocolVersion();
     public Component version = Component.literal(SharedConstants.getCurrentVersion().getName());
     @Nullable
-    private String iconB64;
+    private byte[] iconBytes;
 
     public RemoteServer(String friend, String serverToken, @Nullable String node) {
         this.friend = friend;
@@ -54,11 +54,11 @@ public final class RemoteServer {
     }
 
     @Nullable
-    public String getIconB64() {
-        return this.iconB64;
+    public byte[] getIconBytes() {
+        return this.iconBytes;
     }
 
-    public void setIconB64(@Nullable String string) {
-        this.iconB64 = string;
+    public void setIconBytes(@Nullable byte[] bs) {
+        this.iconBytes = bs;
     }
 }

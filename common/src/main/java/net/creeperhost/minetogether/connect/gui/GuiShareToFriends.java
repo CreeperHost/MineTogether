@@ -1,13 +1,13 @@
 package net.creeperhost.minetogether.connect.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.mixin.connect.ShareToLanScreenAccessor;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.ShareToLanScreen;
@@ -27,6 +27,11 @@ public class GuiShareToFriends extends ShareToLanScreen {
     public void init() {
         super.init();
 
+        if (portEdit != null){
+            portEdit.setVisible(false);
+            portEdit.active = false;
+        }
+
         AbstractWidget startButton = ButtonHelper.removeButton("lanServer.start", this);
         AbstractWidget cancelButton = ButtonHelper.removeButton("gui.cancel", this);
 
@@ -38,7 +43,7 @@ public class GuiShareToFriends extends ShareToLanScreen {
 //                    //TODO v2
 //                    //addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, CommonComponents.GUI_YES, (a) -> Util.getPlatform().openUri("https://minetogether.io/")));
 //                } else {
-                    cancelButton.x = (this.width / 2) - (cancelButton.getWidth() / 2);
+                cancelButton.setX((this.width / 2) - (cancelButton.getWidth() / 2));
 //                }
                 addRenderableWidget(cancelButton);
             }
@@ -47,32 +52,34 @@ public class GuiShareToFriends extends ShareToLanScreen {
         }
 
         startButton.active = startButton.visible = false;
-        addRenderableWidget(new Button(startButton.x, startButton.y, startButton.getWidth(), 20, Component.translatable("minetogether.connect.open.start"), (button1) -> {
-            this.minecraft.setScreen(null);
-            // TODO nuke accessor in favor of AT
-            Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.attempting"));
-            ShareToLanScreenAccessor thisMixin = (ShareToLanScreenAccessor) this;
-            ConnectHandler.publishToFriends(thisMixin.getGameMode(), thisMixin.getCommands());
-        }));
+        addRenderableWidget(Button.builder(Component.translatable("minetogether.connect.open.start"), (button1) -> {
+                            this.minecraft.setScreen(null);
+                            // TODO nuke accessor in favor of AT
+                            Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.attempting"));
+                            ShareToLanScreenAccessor thisMixin = (ShareToLanScreenAccessor) this;
+                            ConnectHandler.publishToFriends(thisMixin.getGameMode(), thisMixin.getCommands());
+                        })
+                        .bounds(startButton.getX(), startButton.getY(), startButton.getWidth(), 20)
+                        .build()
+        );
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(matrixStack);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(graphics);
 
-        drawCenteredString(matrixStack, this.font, Component.translatable("minetogether.connect.open.title"), this.width / 2, 50, 16777215);
+        graphics.drawCenteredString(this.font, Component.translatable("minetogether.connect.open.title"), this.width / 2, 50, 16777215);
 
         if (ConnectHandler.isEnabled()) {
-            drawCenteredString(matrixStack, this.font, Component.translatable("minetogether.connect.open.settings"), this.width / 2, 82, 16777215);
+            graphics.drawCenteredString(this.font, Component.translatable("minetogether.connect.open.settings"), this.width / 2, 82, 16777215);
         } else {
             //TODO unavailable message
             // Will probably want to completely redo this in v2.
         }
 
-        //super.super.render()
         for (GuiEventListener guiEventListener : this.children()) {
-            Widget widget = (Widget) guiEventListener;
-            widget.render(matrixStack, mouseX, mouseY, partialTicks);
+            Renderable renderable = (Renderable) guiEventListener;
+            renderable.render(graphics, mouseX, mouseY, partialTicks);
         }
     }
 }

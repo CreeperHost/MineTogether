@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.polylib.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 
@@ -61,7 +62,7 @@ public class SimpleSelectionList<E extends SimpleSelectionList.SimpleEntry<E>> e
         }
 
         @Override
-        public void render(PoseStack poseStack, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
+        public void render(GuiGraphics graphics, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
         }
 
 

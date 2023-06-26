@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.server.PregenHandler;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -18,21 +19,31 @@ public class CommandPregen {
         return Commands.literal("pregen").requires((cs) -> cs.hasPermission(4))
                 .then(Commands.argument("dimention", DimensionArgument.dimension())
                         .then(Commands.argument("minX", IntegerArgumentType.integer())
-                                .then((Commands.argument("maxX", IntegerArgumentType.integer())
+                                .then(Commands.argument("maxX", IntegerArgumentType.integer())
                                         .then(Commands.argument("minZ", IntegerArgumentType.integer())
                                                 .then(Commands.argument("maxZ", IntegerArgumentType.integer())
                                                         .then(Commands.argument("chunksPerTick", IntegerArgumentType.integer())
                                                                 .then(Commands.argument("preventJoin", BoolArgumentType.bool())
                                                                         .executes((ctx) -> execute(ctx.getSource(),
-                                                                                DimensionArgument.getDimension(ctx, "dimention"),
-                                                                                IntegerArgumentType.getInteger(ctx, "minX"),
-                                                                                IntegerArgumentType.getInteger(ctx, "maxX"),
-                                                                                IntegerArgumentType.getInteger(ctx, "minZ"),
-                                                                                IntegerArgumentType.getInteger(ctx, "maxZ"),
-                                                                                IntegerArgumentType.getInteger(ctx, "chunksPerTick"),
-                                                                                BoolArgumentType.getBool(ctx, "preventJoin")))))))))));
+                                                                                        DimensionArgument.getDimension(ctx, "dimention"),
+                                                                                        IntegerArgumentType.getInteger(ctx, "minX"),
+                                                                                        IntegerArgumentType.getInteger(ctx, "maxX"),
+                                                                                        IntegerArgumentType.getInteger(ctx, "minZ"),
+                                                                                        IntegerArgumentType.getInteger(ctx, "maxZ"),
+                                                                                        IntegerArgumentType.getInteger(ctx, "chunksPerTick"),
+                                                                                        BoolArgumentType.getBool(ctx, "preventJoin")
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                );
     }
 
+    //TODO This looks very broken, and the command can be simplified with two ColumnPosArgument's But i dont know if this is already in use somewhere so i will leave it for now.
     private static int execute(CommandSourceStack cs, ServerLevel dimention, int minX, int maxX, int minZ, int maxZ, int chunksPerTick, boolean preventJoin) {
         int xStartChunk;
         int zStartChunk;
@@ -51,7 +62,7 @@ public class CommandPregen {
         int chunkMaxZ = zStartChunk + (zDiameter / 2);
 
         PregenHandler.addTask(dimention.dimension(), chunkMinX, chunkMaxX, chunkMinZ, chunkMaxZ, chunksPerTick, preventJoin);
-        cs.sendSuccess(Component.literal("new PregenTask added for " + dimention.dimension().location()), false);
+        cs.sendSuccess(() -> Component.literal("new PregenTask added for " + dimention.dimension().location()), false);
         return 0;
     }
 

@@ -1,8 +1,7 @@
 package net.creeperhost.minetogether.polylib.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -32,18 +31,18 @@ public class StringButton extends Button {
     }
 
     public StringButton(int x, int y, int width, int height, boolean centered, Supplier<Component> textSupplier, OnPress onPress) {
-        super(x, y, width, height, Component.empty(), onPress, NO_TOOLTIP);
+        super(x, y, width, height, Component.empty(), onPress, Button.DEFAULT_NARRATION);
         this.textSupplier = textSupplier;
         this.centered = centered;
     }
 
     @Override
-    public void renderButton(PoseStack pStack, int mx, int my, float partialTicks) {
+    public void renderWidget(GuiGraphics graphics, int mx, int my, float partialTicks) {
         if (cachedText == null) return;
         if (centered) {
-            GuiComponent.drawCenteredString(pStack, Minecraft.getInstance().font, cachedText, x + width / 2, y + (height - 8) / 2, 0xFFFFFF);
+            graphics.drawCenteredString(Minecraft.getInstance().font, cachedText, getX() + width / 2, getY() + (height - 8) / 2, 0xFFFFFF);
         } else {
-            GuiComponent.drawString(pStack, Minecraft.getInstance().font, cachedText, x, y, 0xFFFFFF);
+            graphics.drawString(Minecraft.getInstance().font, cachedText, getX(), getY(), 0xFFFFFF);
         }
     }
 

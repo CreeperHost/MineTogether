@@ -1,18 +1,19 @@
 package net.creeperhost.minetogether.connect.gui;
 
+import com.google.common.base.Charsets;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.RemoteServer;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.mixin.connect.ServerSelectionListAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.renderer.GameRenderer;
@@ -20,38 +21,31 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.regex.Pattern;
+import java.util.*;
 
 /**
  * Created by brandon3055 on 21/04/2023
  */
 public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
     private static final ResourceLocation ICON_MISSING = new ResourceLocation("textures/misc/unknown_server.png");
+    private static final ResourceLocation GUI_ICONS_LOCATION = new ResourceLocation("textures/gui/icons.png");
     private static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/server_selection.png");
     private static final Component INCOMPATIBLE_TOOLTIP = Component.translatable("multiplayer.status.incompatible");
     private static final Component NO_CONNECTION_TOOLTIP = Component.translatable("multiplayer.status.no_connection");
     private static final Component PINGING_TOOLTIP = Component.translatable("multiplayer.status.pinging");
 
     private final JoinMultiplayerScreen screen;
+    private final FaviconTexture icon;
     public final RemoteServer remoteServer;
     public final Profile friendProfile;
     private final ServerListAppender listAppender;
-
-    private final ResourceLocation iconLocation;
     @Nullable
-    private String lastIconB64;
-    @Nullable
-    private DynamicTexture icon;
+    private byte[] lastIconBytes;
 
     protected FriendServerEntry(JoinMultiplayerScreen joinMultiplayerScreen, RemoteServer remoteServer, Profile friendProfile, ServerListAppender listAppender) {
         super(joinMultiplayerScreen, new LanServer("Dummy Server", "0.0.0.0"));
@@ -59,11 +53,11 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
         this.remoteServer = remoteServer;
         this.friendProfile = friendProfile;
         this.listAppender = listAppender;
-        iconLocation = new ResourceLocation("servers/" + friendProfile.getFullHash().toLowerCase(Locale.ROOT) + "/icon");
+        this.icon = FaviconTexture.forServer(this.minecraft.getTextureManager(), friendProfile.getFullHash().toLowerCase(Locale.ROOT));
     }
 
     @Override                                                 //Yes. y, then x. This is correct. wtf...
-    public void render(PoseStack poseStack, int entryIndex, int y, int x, int entryWidth, int m, int mouseX, int mouseY, boolean selected, float f) {
+    public void render(GuiGraphics graphics, int entryIndex, int y, int x, int entryWidth, int m, int mouseX, int mouseY, boolean selected, float f) {
         //Do Ping
         if (!remoteServer.pinged) {
             remoteServer.pinged = true;
@@ -80,17 +74,17 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
         }
 
         //Draw Server Title
-        this.minecraft.font.draw(poseStack, Component.translatable("minetogether.connect.friend.server.title", getDisplayName()), (float) (x + 32 + 3), (float) (y + 1), 16777215);
+        graphics.drawString(this.minecraft.font, Component.translatable("minetogether.connect.friend.server.title", getDisplayName()), x + 32 + 3, y + 1, 16777215);
 
         //Draw MOTD
         List<FormattedCharSequence> list = this.minecraft.font.split(this.remoteServer.motd, entryWidth - 32 - 2);
         for (int line = 0; line < Math.min(list.size(), 2); ++line) {
             Font var10000 = this.minecraft.font;
             FormattedCharSequence var10002 = list.get(line);
-            float var10003 = (float) (x + 32 + 3);
+            int var10003 = (x + 32 + 3);
             int var10004 = y + 12;
             Objects.requireNonNull(this.minecraft.font);
-            var10000.draw(poseStack, var10002, var10003, (float) (var10004 + 9 * line), 8421504);
+            graphics.drawString(var10000, var10002, var10003, (var10004 + 9 * line), 8421504);
         }
 
         boolean versionMismatch = this.remoteServer.protocol != SharedConstants.getCurrentVersion().getProtocolVersion();
@@ -98,7 +92,7 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
         Component statusText = versionMismatch ? this.remoteServer.version.copy().withStyle(ChatFormatting.RED) : this.remoteServer.status;
         //Draw Status
         int statusWidth = this.minecraft.font.width(statusText);
-        this.minecraft.font.draw(poseStack, statusText, (float) (x + entryWidth - statusWidth - 15 - 2), (float) (y + 1), 8421504);
+        graphics.drawString(this.minecraft.font, statusText, (x + entryWidth - statusWidth - 15 - 2), (y + 1), 8421504);
 
         int signalTexSelect = 0; //0 = Signal Bars, 1 = "Scanning" bars
         int singnalBarsInvrse; //Higher 0 = full bars, 5 = no bars
@@ -142,27 +136,19 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
         }
 
         //Draw Signal / Scanning Bars.
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
-        GuiComponent.blit(poseStack, x + entryWidth - 15, y, (float) (signalTexSelect * 10), (float) (176 + singnalBarsInvrse * 8), 10, 8, 256, 256);
+        graphics.blit(GUI_ICONS_LOCATION, x + entryWidth - 15, y, (float) (signalTexSelect * 10), (float) (176 + singnalBarsInvrse * 8), 10, 8, 256, 256);
 
         //Update server icon.
-        String string = this.remoteServer.getIconB64();
-        if (!Objects.equals(string, this.lastIconB64)) {
-            if (this.uploadServerIcon(string)) {
-                this.lastIconB64 = string;
+        byte[] bs = this.remoteServer.getIconBytes();
+        if (!Arrays.equals(bs, this.lastIconBytes)) {
+            if (this.uploadServerIcon(bs)) {
+                this.lastIconBytes = bs;
             } else {
-                this.remoteServer.setIconB64(null);
+                this.remoteServer.setIconBytes(null);
             }
         }
 
-        //Draw server icon
-        if (this.icon == null) {
-            this.drawIcon(poseStack, x, y, ICON_MISSING);
-        } else {
-            this.drawIcon(poseStack, x, y, this.iconLocation);
-        }
+        this.drawIcon(graphics, x, y, this.icon.textureLocation());
 
         int t = mouseX - x;
         int u = mouseY - y;
@@ -175,16 +161,13 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
         }
 
         if (this.minecraft.options.touchscreen().get() || selected) {
-            RenderSystem.setShaderTexture(0, ICON_OVERLAY_LOCATION);
-            GuiComponent.fill(poseStack, x, y, x + 32, y + 32, 0xa0909090);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            graphics.fill(x, y, x + 32, y + 32, 0xa0909090);
             int v = mouseX - x;
             //Draw "Join Arrow"
             if (v < 32 && v > 16) {
-                GuiComponent.blit(poseStack, x, y, 0.0F, 32.0F, 32, 32, 256, 256);
+                graphics.blit(ICON_OVERLAY_LOCATION, x, y, 0.0F, 32.0F, 32, 32, 256, 256);
             } else {
-                GuiComponent.blit(poseStack, x, y, 0.0F, 0.0F, 32, 32, 256, 256);
+                graphics.blit(ICON_OVERLAY_LOCATION, x, y, 0.0F, 0.0F, 32, 32, 256, 256);
             }
         }
     }
@@ -193,36 +176,17 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
         return friendProfile.isFriend() ? friendProfile.getFriendName() : friendProfile.getDisplayName();
     }
 
-    protected void drawIcon(PoseStack poseStack, int i, int j, ResourceLocation resourceLocation) {
-        RenderSystem.setShaderTexture(0, resourceLocation);
-        RenderSystem.enableBlend();
-        GuiComponent.blit(poseStack, i, j, 0.0F, 0.0F, 32, 32, 32, 32);
-        RenderSystem.disableBlend();
+    protected void drawIcon(GuiGraphics graphics, int i, int j, ResourceLocation resourceLocation) {
+        graphics.blit(resourceLocation, i, j, 0.0F, 0.0F, 32, 32, 32, 32);
     }
 
-    private boolean uploadServerIcon(@Nullable String string) {
-        if (string == null) {
-            this.minecraft.getTextureManager().release(this.iconLocation);
-            if (this.icon != null && this.icon.getPixels() != null) {
-                this.icon.getPixels().close();
-            }
-
-            this.icon = null;
+    private boolean uploadServerIcon(@Nullable byte[] bs) {
+        if (bs == null) {
+            this.icon.clear();
         } else {
             try {
-                NativeImage nativeImage = NativeImage.fromBase64(string);
-                Validate.validState(nativeImage.getWidth() == 64, "Must be 64 pixels wide");
-                Validate.validState(nativeImage.getHeight() == 64, "Must be 64 pixels high");
-                if (this.icon == null) {
-                    this.icon = new DynamicTexture(nativeImage);
-                } else {
-                    this.icon.setPixels(nativeImage);
-                    this.icon.upload();
-                }
-
-                this.minecraft.getTextureManager().register((ResourceLocation) this.iconLocation, (AbstractTexture) this.icon);
+                this.icon.upload(NativeImage.read(bs));
             } catch (Throwable var3) {
-//                LOGGER.error("Invalid icon for server {} ({})", this.serverData.name, this.serverData.ip, var3);
                 return false;
             }
         }

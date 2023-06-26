@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.chat.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.covers1624.quack.collection.StreamableIterable;
+import net.covers1624.quack.collection.FastStream;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
@@ -11,12 +10,13 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.SimpleSelectionList;
-import net.creeperhost.minetogether.polylib.gui.TooltipContainer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -50,8 +50,6 @@ public class FriendsListScreen extends Screen {
     private Button acceptRequest;
     private Button denyRequest;
 
-    private TooltipContainer tooltips;
-
     private int ticks;
     private int lastFriendUpdateCookie = -1;
 
@@ -62,8 +60,6 @@ public class FriendsListScreen extends Screen {
 
     @Override
     protected void init() {
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
-
         lastFriendUpdateCookie = -1;
         friendList = new SimpleSelectionList<>(minecraft, 100, height - 90, 32, height - 55, 28, 100);
         friendList.setLeftPos(18);
@@ -81,23 +77,32 @@ public class FriendsListScreen extends Screen {
         searchBox = new EditBox(font, 19, height - 50, friendList.getWidth() - 2, 20, Component.empty());
         addRenderableWidget(searchBox);
 
-        addRenderableWidget(new Button(5, height - 26, 100, 20, Component.translatable("minetogether:button.cancel"), e -> minecraft.setScreen(parent)));
+        addRenderableWidget(Button.builder(Component.translatable("minetogether:button.cancel"), e -> minecraft.setScreen(parent))
+                .bounds(5, height - 26, 100, 20)
+                .build()
+        );
 
-        acceptRequest = addRenderableWidget(new Button(width - 215, height - 26, 100, 20, Component.translatable("minetogether:screen.friends.button.accept"), e -> {
-            FriendEntry entry = friendList.getSelected();
-            assert entry != null;
-            assert entry.request != null;
-            Minecraft.getInstance().setScreen(new FriendRequestScreen(this, entry.request));
-        }));
+        acceptRequest = addRenderableWidget(Button.builder(Component.translatable("minetogether:screen.friends.button.accept"), e -> {
+                            FriendEntry entry = friendList.getSelected();
+                            assert entry != null;
+                            assert entry.request != null;
+                            Minecraft.getInstance().setScreen(new FriendRequestScreen(this, entry.request));
+                        })
+                        .bounds(width - 215, height - 26, 100, 20)
+                        .build()
+        );
         acceptRequest.visible = false;
 
-        denyRequest = addRenderableWidget(new Button(width - 110, height - 26, 100, 20, Component.translatable("minetogether:screen.friends.button.deny"), e -> {
-            FriendEntry entry = friendList.getSelected();
-            assert entry != null;
-            assert entry.request != null;
-            MineTogetherChat.CHAT_STATE.profileManager.denyFriendRequest(entry.request);
-            updateList();
-        }));
+        denyRequest = addRenderableWidget(Button.builder(Component.translatable("minetogether:screen.friends.button.deny"), e -> {
+                            FriendEntry entry = friendList.getSelected();
+                            assert entry != null;
+                            assert entry.request != null;
+                            MineTogetherChat.CHAT_STATE.profileManager.denyFriendRequest(entry.request);
+                            updateList(true);
+                        })
+                        .bounds(width - 110, height - 26, 100, 20)
+                        .build()
+        );
         denyRequest.visible = false;
 
         removeFriend = addRenderableWidget(new IconButton(width - 20, 32, 5, Constants.WIDGETS_SHEET, e -> {
@@ -118,30 +123,31 @@ public class FriendsListScreen extends Screen {
         }));
 
         if (!(parent instanceof MutedUsersScreen)) {
-            addRenderableWidget(new Button(5, 5, 100, 20, Component.translatable("minetogether:screen.friends.button.muted"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
+            addRenderableWidget(Button.builder(Component.translatable("minetogether:screen.friends.button.muted"), e -> minecraft.setScreen(new MutedUsersScreen(this)))
+                    .bounds(5, 5, 100, 20)
+                    .build()
+            );
         }
 
-        tooltips = new TooltipContainer(this);
-        addRenderableOnly(tooltips);
+        //Yay! No tooltip containers required!
+        removeFriend.setTooltip(Tooltip.create(Component.translatable("minetogether:screen.friends.tooltip.remove")));
+        blockButton.setTooltip(Tooltip.create(Component.translatable("minetogether:screen.friends.tooltip.block")));
+        partyButton.setTooltip(Tooltip.create(Component.translatable("minetogether:screen.friends.tooltip.party")));
+        editButton.setTooltip(Tooltip.create(Component.translatable("minetogether:screen.friends.tooltip.edit")));
 
-        tooltips.addTooltip(removeFriend, Component.translatable("minetogether:screen.friends.tooltip.remove"));
-        tooltips.addTooltip(blockButton, Component.translatable("minetogether:screen.friends.tooltip.block"));
-        tooltips.addTooltip(partyButton, Component.translatable("minetogether:screen.friends.tooltip.party"));
-        tooltips.addTooltip(editButton, Component.translatable("minetogether:screen.friends.tooltip.edit"));
-
-        updateList();
+        updateList(false);
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
-        renderDirtBackground(1);
-        super.render(poseStack, i, j, f);
+    public void render(GuiGraphics graphics, int i, int j, float f) {
+        renderDirtBackground(graphics);
+        super.render(graphics, i, j, f);
     }
 
     @Override
     public void tick() {
         ticks++;
-        updateList();
+        updateList(false);
 
         FriendEntry selected = friendList.getSelected();
         IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
@@ -177,21 +183,18 @@ public class FriendsListScreen extends Screen {
 
     @Override
     public boolean charTyped(char c, int i) {
-
-        if (searchBox.isFocused()) {
-            updateList();
-        }
         if (chatBox.isFocused()) {
             return chatBox.charTyped(c, i);
         }
-        return super.charTyped(c, i);
+        boolean ret = super.charTyped(c, i);
+        if (searchBox.isFocused()) {
+            updateList(true);
+        }
+        return ret;
     }
 
     @Override
     public boolean keyPressed(int i, int j, int k) {
-        if (searchBox.isFocused()) {
-            updateList();
-        }
         if (targetProfile != null && chatBox.isFocused()) {
             String str = chatBox.getValue().trim();
             if ((i == GLFW.GLFW_KEY_ENTER || i == GLFW.GLFW_KEY_KP_ENTER) && !str.isEmpty()) {
@@ -199,17 +202,21 @@ public class FriendsListScreen extends Screen {
                 chatBox.setValue("");
             }
         }
-        return super.keyPressed(i, j, k);
+        boolean ret = super.keyPressed(i, j, k);
+        if (searchBox.isFocused()) {
+            updateList(true);
+        }
+        return ret;
     }
 
-    private void updateList() {
+    private void updateList(boolean force) {
         ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
         int newCookie = profileManager.getFriendUpdateCookie();
-        if (lastFriendUpdateCookie == newCookie) return;
+        if (lastFriendUpdateCookie == newCookie && !force) return;
         lastFriendUpdateCookie = newCookie;
 
         List<Profile> knownUsers = profileManager.getKnownProfiles();
-        List<Profile> friends = StreamableIterable.of(knownUsers).filter(Profile::isFriend).toLinkedList();
+        List<Profile> friends = FastStream.of(knownUsers).filter(Profile::isFriend).toLinkedList();
         friends.sort(NameComparator.INSTANCE);
         friends.sort(Comparator.comparingInt(e -> e.isOnline() ? 1 : 0));
 
@@ -261,7 +268,7 @@ public class FriendsListScreen extends Screen {
         }
 
         @Override
-        public void render(PoseStack poseStack, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
+        public void render(GuiGraphics graphics, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
             Minecraft mc = Minecraft.getInstance();
             Font font = mc.font;
 
@@ -274,10 +281,10 @@ public class FriendsListScreen extends Screen {
             if (ellipsis) {
                 name += "...";
             }
-            font.draw(poseStack, name, left + 5, top + 4, 0xFFFFFF);
+            graphics.drawString(font, name, left + 5, top + 4, 0xFFFFFF);
 
             Component component = Component.literal(profile.isFriend() ? profile.isOnline() ? ChatFormatting.DARK_GREEN + "Online" : "Offline" : "Pending");
-            font.draw(poseStack, component, left + 5, top + 15, 0xFFFFFF);
+            graphics.drawString(font, component, left + 5, top + 15, 0xFFFFFF);
         }
     }
 

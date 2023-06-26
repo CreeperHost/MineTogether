@@ -1,7 +1,5 @@
 package net.creeperhost.minetogether.chat;
 
-import dev.architectury.event.events.client.ClientGuiEvent;
-import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.hooks.client.screen.ScreenHooks;
 import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
@@ -24,17 +22,12 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.toasts.Toast;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 import static net.creeperhost.minetogether.Constants.MINETOGETHER_LOGO_25;
 import static net.creeperhost.minetogether.MineTogether.API;
@@ -62,8 +55,6 @@ public class MineTogetherChat {
 
         // Class Initializer must be finished before MTChatComponent is constructed.
         publicChat = new MTChatComponent(ChatTarget.PUBLIC, Minecraft.getInstance());
-
-        ClientGuiEvent.INIT_POST.register(MineTogetherChat::onScreenOpen);
 
         if (Config.instance().debugMode) {
             System.setProperty("net.covers1624.pircbot.logging.info", "INFO");
@@ -152,7 +143,7 @@ public class MineTogetherChat {
         return CHAT_STATE.profileManager.getOwnProfile();
     }
 
-    private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
+    public static void onScreenPostInit(Screen screen) {
         if (screen instanceof TitleScreen) {
             if (!hasHitLoadingScreen) {
                 hasHitLoadingScreen = true;
@@ -168,9 +159,12 @@ public class MineTogetherChat {
     }
 
     private static void addMenuButtons(Screen screen) {
-        ScreenHooks.addRenderableWidget(screen, new Button(screen.width - 105, 5, 100, 20, Component.translatable("minetogether:button.friends"), e -> {
-            Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
-        }));
+        ScreenHooks.addRenderableWidget(screen, Button.builder(Component.translatable("minetogether:button.friends"), e -> {
+                            Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
+                        })
+                        .bounds(screen.width - 105, 5, 100, 20)
+                        .build()
+        );
         boolean chatEnabled = Config.instance().chatEnabled;
         ScreenHooks.addRenderableWidget(screen, new IconButton(screen.width - 125, 5, chatEnabled ? 1 : 3, Constants.WIDGETS_SHEET, e -> {
             Minecraft.getInstance().setScreen(chatEnabled ? new ChatScreen(screen) : new SettingsScreen(screen));

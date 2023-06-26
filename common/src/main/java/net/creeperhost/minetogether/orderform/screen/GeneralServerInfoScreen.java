@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.orderform.ServerOrderCallbacks;
 import net.creeperhost.minetogether.orderform.data.AvailableResult;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.polylib.client.screen.widget.TextFieldValidate;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -53,23 +54,22 @@ public class GeneralServerInfoScreen extends OrderServerScreen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
-        renderDirtBackground(1);
-        fill(poseStack, 0, this.height - 20, width, 20, 0x99000000);
+    public void render(GuiGraphics graphics, int i, int j, float f) {
+        renderDirtBackground(graphics);
+        graphics.fill(0, this.height - 20, width, 20, 0x99000000);
 
-        drawCenteredString(poseStack, this.font, I18n.get("minetogether.info.server_name"), this.width / 2, this.height / 2 - 65, -1);
+        graphics.drawCenteredString(this.font, I18n.get("minetogether.info.server_name"), this.width / 2, this.height / 2 - 65, -1);
 
-        RenderSystem.setShaderTexture(0, lockIcon);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        blit(poseStack, (this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16, 16);
+        graphics.blit(lockIcon, (this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16, 16);
 
         int strStart = 61;
 
-        drawCenteredString(poseStack, font, Component.translatable("minetogether.screen.generalinfo.secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
-        drawCenteredString(poseStack, font, Component.translatable("minetogether.screen.generalinfo.secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);
-        drawCenteredString(poseStack, font, Component.translatable("minetogether.screen.generalinfo.secure.line3"), this.width / 2, (this.height / 2) + strStart + 20, 0xFFFFFF);
+        graphics.drawCenteredString(font, Component.translatable("minetogether.screen.generalinfo.secure.line1"), this.width / 2, (this.height / 2) + strStart, 0xFFFFFF);
+        graphics.drawCenteredString(font, Component.translatable("minetogether.screen.generalinfo.secure.line2"), this.width / 2, (this.height / 2) + strStart + 10, 0xFFFFFF);
+        graphics.drawCenteredString(font, Component.translatable("minetogether.screen.generalinfo.secure.line3"), this.width / 2, (this.height / 2) + strStart + 20, 0xFFFFFF);
 
-        this.nameField.render(poseStack, i, j, f);
+        this.nameField.render(graphics, i, j, f);
 
         int colour;
 
@@ -78,9 +78,9 @@ public class GeneralServerInfoScreen extends OrderServerScreen {
         } else {
             colour = 0xFF0000;
         }
-        drawCenteredString(poseStack, font, message, (this.width / 2), (this.height / 2) - 26, colour);
+        graphics.drawCenteredString(font, message, (this.width / 2), (this.height / 2) - 26, colour);
 
-        super.render(poseStack, i, j, f);
+        super.render(graphics, i, j, f);
     }
 
     @Override

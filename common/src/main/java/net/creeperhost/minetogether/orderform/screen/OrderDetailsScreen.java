@@ -5,8 +5,10 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.orderform.ServerOrderCallbacks;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.polylib.client.screen.ScreenHelper;
+import net.creeperhost.polylib.client.screen.widget.LoadingSpinner;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.multiplayer.ServerData;
@@ -47,7 +49,7 @@ public class OrderDetailsScreen extends OrderServerScreen {
         }
     }
 
-    @SuppressWarnings ("Duplicates")
+    @SuppressWarnings("Duplicates")
     @Override
     public void init() {
         clearWidgets();
@@ -59,20 +61,23 @@ public class OrderDetailsScreen extends OrderServerScreen {
         buttonCancel.active = false;
         buttonPrev.active = false;
         buttonPrev.visible = false;
-        buttonInvoice = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, Component.translatable("minetogether.button.invoice"), p ->
-        {
-            try {
-                Util.getPlatform().openUri(new URI(ServerOrderCallbacks.getPaymentLink(invoiceID)));
-            } catch (Throwable throwable) {
-                LOGGER.error("Couldn't open link", throwable);
-            }
-        }));
+        buttonInvoice = addRenderableWidget(Button.builder(Component.translatable("minetogether.button.invoice"), p ->
+                        {
+                            try {
+                                Util.getPlatform().openUri(new URI(ServerOrderCallbacks.getPaymentLink(invoiceID)));
+                            } catch (Throwable throwable) {
+                                LOGGER.error("Couldn't open link", throwable);
+                            }
+                        })
+                        .bounds(this.width / 2 - 40, (this.height / 2) + 30, 80, 20)
+                        .build()
+        );
         buttonNext.visible = true;
         buttonNext.active = true;
         buttonInvoice.visible = false;
     }
 
-    @SuppressWarnings ("Duplicates")
+    @SuppressWarnings("Duplicates")
     public void tick() {
         ticks++;
         super.tick();
@@ -150,44 +155,38 @@ public class OrderDetailsScreen extends OrderServerScreen {
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderDirtBackground(0);
-        fill(matrixStack, 0, this.height - 20, width, 20, 0x99000000);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        this.renderDirtBackground(graphics);
+        graphics.fill(0, this.height - 20, width, 20, 0x99000000);
 
         if (creatingAccount) {
-            drawCenteredString(matrixStack, font, I18n.get("minetogether.order.accountcreating"), this.width / 2, this.height / 2, 0xFFFFFF);
+            graphics.drawCenteredString(font, I18n.get("minetogether.order.accountcreating"), this.width / 2, this.height / 2, 0xFFFFFF);
         } else if (!createdAccountError.isEmpty()) {
-            drawCenteredString(matrixStack, font, I18n.get("minetogether.order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
+            graphics.drawCenteredString(font, I18n.get("minetogether.order.accounterror"), this.width / 2, this.height / 2, 0xFFFFFF);
             List<FormattedCharSequence> list = ComponentRenderUtils.wrapComponents(Component.translatable(createdAccountError), width - 30, font);
             int offset = 10;
             for (FormattedCharSequence str : list) {
-                drawCenteredString(matrixStack, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
+                graphics.drawCenteredString(font, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
                 offset += 10;
             }
-            drawCenteredString(matrixStack, font, I18n.get("minetogether.order.accounterrorgoback"), this.width / 2, this.height / 2 + offset, 0xFFFFFF);
+            graphics.drawCenteredString(font, I18n.get("minetogether.order.accounterrorgoback"), this.width / 2, this.height / 2 + offset, 0xFFFFFF);
         } else if (placingOrder) {
-            drawCenteredString(matrixStack, font, I18n.get("minetogether.order.orderplacing"), this.width / 2, this.height / 2, 0xFFFFFF);
-            //TODO replace with LoadingSpinner.class
-            ScreenHelper.loadingSpin(matrixStack, partialTicks, ticks, width / 2, height / 2 + 20, new ItemStack(Items.BEEF));
+            graphics.drawCenteredString(font, I18n.get("minetogether.order.orderplacing"), this.width / 2, this.height / 2, 0xFFFFFF);
+            LoadingSpinner.render(graphics.pose(), partialTicks, ticks, width / 2, height / 2 + 20, new ItemStack(Items.BEEF));
         } else if (!placedOrderError.isEmpty()) {
-            drawCenteredString(matrixStack, font, I18n.get("minetogether.order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
+            graphics.drawCenteredString(font, I18n.get("minetogether.order.ordererror"), this.width / 2, this.height / 2, 0xFFFFFF);
             List<FormattedCharSequence> list = ComponentRenderUtils.wrapComponents(Component.translatable(placedOrderError), width - 30, font);
             int offset = 10;
             for (FormattedCharSequence str : list) {
-                drawCenteredString(matrixStack, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
+                graphics.drawCenteredString(font, str, this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
                 offset += 10;
             }
-            drawCenteredString(matrixStack, font, I18n.get("minetogether.order.ordererrorsupport"), this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
+            graphics.drawCenteredString(font, I18n.get("minetogether.order.ordererrorsupport"), this.width / 2, (this.height / 2) + offset, 0xFFFFFF);
         } else {
-            drawCenteredString(matrixStack, font, I18n.get("minetogether.order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
-            drawCenteredString(matrixStack, font, I18n.get("minetogether.order.ordermodpack"), (this.width / 2) + 10, (this.height / 2) + 10, 0xFFFFFF);
+            graphics.drawCenteredString(font, I18n.get("minetogether.order.ordersuccess"), this.width / 2, this.height / 2, 0xFFFFFF);
+            graphics.drawCenteredString(font, I18n.get("minetogether.order.ordermodpack"), (this.width / 2) + 10, (this.height / 2) + 10, 0xFFFFFF);
         }
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
-    }
-
-    //Copy paste but allow FormattedCharSequence to be used, Might be better in ScreenUtils
-    public void drawCenteredString(PoseStack matrixStack, FormattedCharSequence text, int x, int y, int color) {
-        Minecraft.getInstance().font.drawShadow(matrixStack, text, (float) (x - Minecraft.getInstance().font.width(text) / 2), (float) y, color);
+        super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override

@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.forge.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import org.objectweb.asm.Opcodes;
@@ -28,7 +29,7 @@ abstract class ForgeIngameGuiMixin extends Gui {
                     opcode = Opcodes.GETFIELD
             )
     )
-    private ChatComponent onRender(ForgeGui instance, int width, int height, PoseStack pStack) {
+    private ChatComponent onRender(ForgeGui instance, int width, int height, GuiGraphics pStack) {
         return getChat();
     }
 }

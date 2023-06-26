@@ -42,8 +42,8 @@ public class OrderSummary {
     public OrderSummary(String summaryError) {
         this.productID = "";
         this.serverHostName = "";
-        this.serverFeatures = new ArrayList<String>();
-        this.serverIncluded = new ArrayList<String>();
+        this.serverFeatures = new ArrayList<>();
+        this.serverIncluded = new ArrayList<>();
         this.preDiscount = 0;
         this.subTotal = 0;
         this.total = 0;

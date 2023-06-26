@@ -11,6 +11,7 @@ import net.creeperhost.minetogether.orderform.widget.TextFieldDetails;
 import net.creeperhost.minetogether.util.Countries;
 import net.creeperhost.polylib.client.screen.widget.ScreenList;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.resources.language.I18n;
@@ -61,49 +62,52 @@ public class PersonalDetailsScreen extends OrderServerScreen {
         return I18n.get("minetogether.screen.personal_details");
     }
 
-    @SuppressWarnings ("Duplicates")
+    @SuppressWarnings("Duplicates")
     @Override
     public void init() {
         clearWidgets();
         super.init();
 
         addWidget(this.list = new ScreenList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36));
-        addWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, Component.translatable("")));
+        addWidget(this.searchEntry = new EditBox(this.font, this.width / 2 - 80, this.height - 32, 160, 20, Component.empty()));
 
         updateList();
 
-        this.loginButton = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, Component.translatable("minetogether.button.login"), p ->
-        {
-            if (orderPressed && !isSure) {
-                isSure = true;
-                buttonNext.onPress();
-                return;
-            }
-            loggingIn = true;
-            loginButton.active = false;
-            loginButton.setMessage(Component.translatable("minetogether.button.logging"));
+        this.loginButton = addRenderableWidget(Button.builder(Component.translatable("minetogether.button.login"), p ->
+                        {
+                            if (orderPressed && !isSure) {
+                                isSure = true;
+                                buttonNext.onPress();
+                                return;
+                            }
+                            loggingIn = true;
+                            loginButton.active = false;
+                            loginButton.setMessage(Component.translatable("minetogether.button.logging"));
 
-            CompletableFuture.runAsync(() ->
-            {
-                String result = ServerOrderCallbacks.doLogin(order.emailAddress, order.password);
-                String[] resultSplit = result.split(":");
-                if (resultSplit[0].equals("success")) {
-                    order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
-                    order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
-                    loggingIn = false;
-                    loggedIn = true;
-                    loggingInError = "";
-                    loginButton.setMessage(Component.translatable("minetogether.button.done"));
-                } else {
-                    loggingIn = false;
-                    loggedIn = false;
-                    loggingInError = result;
-                    loginButton.active = true;
-                    loginButton.setMessage(Component.translatable("minetogether.button.logintryagain"));
-                }
-            });
-            return;
-        }));
+                            CompletableFuture.runAsync(() ->
+                            {
+                                String result = ServerOrderCallbacks.doLogin(order.emailAddress, order.password);
+                                String[] resultSplit = result.split(":");
+                                if (resultSplit[0].equals("success")) {
+                                    order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
+                                    order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
+                                    loggingIn = false;
+                                    loggedIn = true;
+                                    loggingInError = "";
+                                    loginButton.setMessage(Component.translatable("minetogether.button.done"));
+                                } else {
+                                    loggingIn = false;
+                                    loggedIn = false;
+                                    loggingInError = result;
+                                    loginButton.active = true;
+                                    loginButton.setMessage(Component.translatable("minetogether.button.logintryagain"));
+                                }
+                            });
+                            return;
+                        })
+                        .bounds(this.width / 2 - 40, (this.height / 2) - 10, 80, 20)
+                        .build()
+        );
 
         loginButton.visible = loginMode;
 
@@ -199,15 +203,21 @@ public class PersonalDetailsScreen extends OrderServerScreen {
         String buttonName = Countries.COUNTRIES.get(this.order.country);
         if (buttonName == null || buttonName.isEmpty()) buttonName = "Invalid";
 
-        addRenderableWidget(buttonList = new Button(x - 205, 165, fieldWidths, 20, Component.translatable(buttonName), p -> renderList = true));
+        addRenderableWidget(buttonList = Button.builder(Component.translatable(buttonName), p -> renderList = true)
+                .bounds(x - 205, 165, fieldWidths, 20)
+                .build()
+        );
 
-        addRenderableWidget(selectCountry = new Button(this.width - 90, this.height - 30, 80, 20, Component.translatable("minetogether.button.select"), (button) ->
-        {
-            renderList = false;
-            ListEntryCountry listEntryCountry = (ListEntryCountry) list.getCurrSelected();
-            order.country = listEntryCountry.countryID;
-            buttonList.setMessage(Component.translatable(Countries.COUNTRIES.get(listEntryCountry.countryID)));
-        }));
+        addRenderableWidget(selectCountry = Button.builder(Component.translatable("minetogether.button.select"), (button) ->
+                        {
+                            renderList = false;
+                            ListEntryCountry listEntryCountry = (ListEntryCountry) list.getCurrSelected();
+                            order.country = listEntryCountry.countryID;
+                            buttonList.setMessage(Component.translatable(Countries.COUNTRIES.get(listEntryCountry.countryID)));
+                        })
+                .bounds(this.width - 90, this.height - 30, 80, 20)
+                .build()
+        );
 
         this.fields.add(new TextFieldDetails(this, 9, I18n.get("minetogether.info.phone"), this.order.phone, x + 5, 165, fieldWidths, 20, defaultValidators));
 
@@ -230,8 +240,7 @@ public class PersonalDetailsScreen extends OrderServerScreen {
             if (part.length() > 0) {
                 if (component == null) {
                     component = Component.translatable(part);
-                }
-                else {
+                } else {
                     component = component.copy().append(Component.translatable(part));
                 }
             }
@@ -253,7 +262,7 @@ public class PersonalDetailsScreen extends OrderServerScreen {
         info2 = component;
     }
 
-    @SuppressWarnings ("Duplicates")
+    @SuppressWarnings("Duplicates")
     @Override
     public void tick() {
         super.tick();
@@ -290,51 +299,51 @@ public class PersonalDetailsScreen extends OrderServerScreen {
         this.buttonNext.active = this.loggedIn || this.buttonNext.active;
     }
 
-    @SuppressWarnings ("Duplicates")
+    @SuppressWarnings("Duplicates")
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderDirtBackground(0);
-        fill(matrixStack, 0, this.height - 20, width, 20, 0x99000000);
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        this.renderDirtBackground(graphics);
+        graphics.fill(0, this.height - 20, width, 20, 0x99000000);
+        super.render(graphics, mouseX, mouseY, partialTicks);
 
         if (renderList) {
-            list.render(matrixStack, mouseX, mouseY, partialTicks);
-            searchEntry.render(matrixStack, mouseX, mouseY, partialTicks);
-            super.render(matrixStack, mouseX, mouseY, partialTicks);
+            list.render(graphics, mouseX, mouseY, partialTicks);
+            searchEntry.render(graphics, mouseX, mouseY, partialTicks);
+            super.render(graphics, mouseX, mouseY, partialTicks);
         } else {
             if ((!orderPressed || !isSure) && !loginMode) {
-                drawCenteredString(matrixStack, font, "No data will be sent until you complete the order.", this.width / 2, this.height - 45, 0xFFFFFF);
+                graphics.drawCenteredString(font, "No data will be sent until you complete the order.", this.width / 2, this.height - 45, 0xFFFFFF);
             }
 
             if (!orderPressed || isSure) {
                 for (TextFieldDetails field : this.fields) {
                     if (loginMode) {
                         if (field.getId() < 2) {
-                            field.render(matrixStack, mouseX, mouseY, partialTicks);
+                            field.render(graphics, mouseX, mouseY, partialTicks);
                         }
                     } else {
-                        field.render(matrixStack, mouseX, mouseY, partialTicks);
+                        field.render(graphics, mouseX, mouseY, partialTicks);
                     }
                 }
 
                 if (loginMode) {
                     if (loggingIn) {
-                        drawCenteredString(matrixStack, font, I18n.get("minetogether.details.login"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                        graphics.drawCenteredString(font, I18n.get("minetogether.details.login"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
                     } else if (!loggingInError.isEmpty()) {
-                        drawCenteredString(matrixStack, font, I18n.get("minetogether.details.loginerror") + loggingInError, this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                        graphics.drawCenteredString(font, I18n.get("minetogether.details.loginerror") + loggingInError, this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
                     } else if (loggedIn) {
-                        drawCenteredString(matrixStack, font, I18n.get("minetogether.details.loginsuccess"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                        graphics.drawCenteredString(font, I18n.get("minetogether.details.loginsuccess"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
                     } else {
-                        drawCenteredString(matrixStack, font, I18n.get("minetogether.details.accountexists"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                        graphics.drawCenteredString(font, I18n.get("minetogether.details.accountexists"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
                     }
                 }
             } else {
                 int info2Start = (this.height / 2) - 50;
 
-                drawCenteredString(matrixStack, font, I18n.get("order.info1"), this.width / 2, (this.height / 2) - 60, 0xFFFFFF);
-                drawCenteredString(matrixStack, font, info2.getString(), this.width / 2, (this.height / 2) - 50, 0xFFFFFF);
-                drawCenteredString(matrixStack, font, I18n.get("order.info3"), this.width / 2, (this.height / 2) - 30, 0xFFFFFF);
-                drawCenteredString(matrixStack, font, I18n.get("order.info4"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
+                graphics.drawCenteredString(font, I18n.get("order.info1"), this.width / 2, (this.height / 2) - 60, 0xFFFFFF);
+                graphics.drawCenteredString(font, info2.getString(), this.width / 2, (this.height / 2) - 50, 0xFFFFFF);
+                graphics.drawCenteredString(font, I18n.get("order.info3"), this.width / 2, (this.height / 2) - 30, 0xFFFFFF);
+                graphics.drawCenteredString(font, I18n.get("order.info4"), this.width / 2, (this.height / 2) - 20, 0xFFFFFF);
 
                 if (mouseY >= info2Start && mouseY <= info2Start + font.lineHeight) {
                     Component component = getComponent(mouseX, mouseY);
@@ -343,7 +352,7 @@ public class PersonalDetailsScreen extends OrderServerScreen {
                         HoverEvent event = component.getStyle().getHoverEvent();
                         if (event != null) {
                             if (event.getAction() == HoverEvent.Action.SHOW_TEXT) {
-                                this.renderTooltip(matrixStack, Component.translatable(event.toString()), mouseX, mouseY);
+                                graphics.renderTooltip(font, Component.translatable(event.toString()), mouseX, mouseY);
                             }
                         }
                     }
@@ -477,7 +486,7 @@ public class PersonalDetailsScreen extends OrderServerScreen {
         return super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
     }
 
-    @SuppressWarnings ("Duplicates")
+    @SuppressWarnings("Duplicates")
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         if (buttonList != null) {
@@ -565,7 +574,7 @@ public class PersonalDetailsScreen extends OrderServerScreen {
         }
     }
 
-    @SuppressWarnings ("unchecked")
+    @SuppressWarnings("unchecked")
     public void updateList() {
         first = false;
         list.clearList();

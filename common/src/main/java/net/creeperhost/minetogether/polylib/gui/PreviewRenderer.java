@@ -7,9 +7,10 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Widget;
+import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.renderer.GameRenderer;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -18,11 +19,13 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -32,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by covers1624 on 19/10/22.
  */
-public abstract class PreviewRenderer implements Widget {
+public abstract class PreviewRenderer implements Renderable {
 
     private static final Set<String> SUPPORTED_IMAGES = ImmutableSet.of(
             "image/jpeg",
@@ -79,14 +82,14 @@ public abstract class PreviewRenderer implements Widget {
     }
 
     @Override
-    public void render(PoseStack pStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         URL url = getUrlUnderMouse(mouseX, mouseY);
         if (url == null) return;
 
         Preview preview = getPreview(url);
         if (preview == null) return;
 
-        preview.render(pStack, mouseX + xOffset, mouseY + yOffset, width, height, partialTicks);
+        preview.render(graphics, mouseX + xOffset, mouseY + yOffset, width, height, partialTicks);
     }
 
     @Nullable
@@ -138,7 +141,7 @@ public abstract class PreviewRenderer implements Widget {
 
     private static abstract class Preview implements AutoCloseable {
 
-        public abstract void render(PoseStack pStack, int x, int y, int w, int h, float partialTicks);
+        public abstract void render(GuiGraphics graphics, int x, int y, int w, int h, float partialTicks);
     }
 
     private static class LoadingPreview extends Preview {
@@ -150,10 +153,10 @@ public abstract class PreviewRenderer implements Widget {
         }
 
         @Override
-        public void render(PoseStack pStack, int x, int y, int w, int h, float partialTicks) {
+        public void render(GuiGraphics graphics, int x, int y, int w, int h, float partialTicks) {
             if (closed) return;
             if (wrapped != null) {
-                wrapped.render(pStack, x, y, w, h, partialTicks);
+                wrapped.render(graphics, x, y, w, h, partialTicks);
             } else {
                 // TODO render LOADING dirt or gif.
             }
@@ -183,16 +186,26 @@ public abstract class PreviewRenderer implements Widget {
         }
 
         @Override
-        public void render(PoseStack pStack, int x, int y, int w, int h, float partialTicks) {
+        public void render(GuiGraphics graphics, int x, int y, int w, int h, float partialTicks) {
             if (glTexture == -1) {
                 glTexture = TextureUtil.generateTextureId();
                 TextureUtil.prepareImage(glTexture, 0, image.getWidth(), image.getHeight());
                 image.upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, true);
             }
 
-            RenderSystem.enableTexture();
+            //TODO Test This
+            int x2 = x + w;
+            int y2 = y + h;
             RenderSystem.setShaderTexture(0, glTexture);
-            GuiComponent.blit(pStack, x, y, 0.0F, 0.0F, w, h, w, h);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            Matrix4f matrix4f = graphics.pose().last().pose();
+            BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            bufferBuilder.vertex(matrix4f, (float)x, (float)y, (float)0).uv(0, 0).endVertex();
+            bufferBuilder.vertex(matrix4f, (float)x, (float)y2, (float)0).uv(0, 1).endVertex();
+            bufferBuilder.vertex(matrix4f, (float)x2, (float)y2, (float)0).uv(1, 1).endVertex();
+            bufferBuilder.vertex(matrix4f, (float)x2, (float)y, (float)0).uv(1, 0).endVertex();
+            BufferUploader.drawWithShader(bufferBuilder.end());
         }
 
         @Override

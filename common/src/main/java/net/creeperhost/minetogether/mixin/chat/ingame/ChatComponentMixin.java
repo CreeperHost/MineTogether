@@ -8,7 +8,7 @@ import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Final;
@@ -50,20 +50,20 @@ abstract class ChatComponentMixin {
             method = "render",
             at = @At ("HEAD")
     )
-    private void onRender(PoseStack poseStack, int i, CallbackInfo ci) {
+    private void onRender(GuiGraphics graphics, int i, int mouseX, int mouseY, CallbackInfo ci) {
         // Don't render our additional background blackout if chat is not enabled.
         if (!Config.instance().chatEnabled || Minecraft.getInstance().options.hideGui) return;
 
         if (isChatFocused()) {
             // Render new 'filled' background under all chat lines.
-            int y = getHeight() - 175 - (minecraft.font.lineHeight * Math.max(Math.min(getRecentChat().size(), getLinesPerPage()), 20));
-            GuiComponent.fill(poseStack, 0, y, getWidth() + 6, getHeight() + 10 + y, minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
+            int y = (graphics.guiHeight() - 44 - (minecraft.font.lineHeight * Math.max(Math.min(getRecentChat().size(), getLinesPerPage()), 20)));
+            graphics.fill(0, y, getWidth() + 6, y + getHeight() + 10, minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
 
             // If we are on a MineTogether tab, draw our logo.
             if (MineTogetherChat.getTarget() != ChatTarget.VANILLA) {
                 int w = Mth.ceil((float) getWidth() / minecraft.options.chatScale().get().floatValue());
                 int h = Mth.ceil((float) getHeight() / minecraft.options.chatScale().get().floatValue());
-                drawLogo(poseStack, minecraft.font, w + 6, h + 6, -2, getHeight() - 340, 0.75F);
+                drawLogo(graphics, minecraft.font, w + 6, h + 6, -2, graphics.guiHeight() - getHeight() -20, 0.75F);
             }
         }
     }
@@ -72,15 +72,15 @@ abstract class ChatComponentMixin {
             method = "render",
             at = @At (
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/components/ChatComponent;fill(Lcom/mojang/blaze3d/vertex/PoseStack;IIIII)V",
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V",
                     ordinal = 0
             )
     )
     // When chat is focussed, this disables vanilla rendering the 'filled' background bellow a chat line.
     // We force-enable this fill if chat is disabled to revert to vanilla behaviour.
-    private void onFill(PoseStack poseStack, int i, int j, int k, int l, int m) {
+    private void onFill(GuiGraphics graphics, int i, int j, int k, int l, int m) {
         if (!isChatFocused() || !Config.instance().chatEnabled || Minecraft.getInstance().options.hideGui) {
-            GuiComponent.fill(poseStack, i, j, k, l, m);
+            graphics.fill(i, j, k, l, m);
         }
     }
 
@@ -94,7 +94,7 @@ abstract class ChatComponentMixin {
         }
     }
 
-    private static void drawLogo(PoseStack pStack, Font font, int containerWidth, int containerHeight, int containerX, int containerY, float scale) {
+    private static void drawLogo(GuiGraphics graphics, Font font, int containerWidth, int containerHeight, int containerX, int containerY, float scale) {
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
         float invScale = 1 / scale;
         int width = (int) (containerWidth * invScale);
@@ -102,8 +102,8 @@ abstract class ChatComponentMixin {
         int x = (int) (containerX * invScale);
         int y = (int) (containerY * invScale);
 
-        pStack.pushPose();
-        pStack.scale(scale, scale, scale);
+        graphics.pose().pushPose();
+        graphics.pose().scale(scale, scale, scale);
 
         int mtHeight = (int) (318 / 2.5);
         int mtWidth = (int) (348 / 2.5);
@@ -115,22 +115,20 @@ abstract class ChatComponentMixin {
 
         totalHeight *= invScale;
 
-        RenderSystem.setShaderTexture(0, Constants.MINETOGETHER_LOGO_25);
         RenderSystem.enableBlend();
-        GuiComponent.blit(pStack, x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
+        graphics.blit(Constants.MINETOGETHER_LOGO_25, x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
 
         String created = "Created by";
         int stringWidth = font.width(created);
 
         int creeperTotalWidth = creeperWidth + stringWidth;
-        font.drawShadow(pStack, created, x + (width / 2F - (creeperTotalWidth / 2F)), y + (height / 2F - (totalHeight / 2F) + mtHeight + 7), 0x40FFFFFF);
+        graphics.drawString(font, created, (int)(x + (width / 2F - (creeperTotalWidth / 2F))), (int) (y + (height / 2F - (totalHeight / 2F) + mtHeight + 7)), 0x40FFFFFF, true);
 
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
-        RenderSystem.setShaderTexture(0, Constants.CREEPERHOST_LOGO_25);
         RenderSystem.enableBlend();
-        GuiComponent.blit(pStack, x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
+        graphics.blit(Constants.CREEPERHOST_LOGO_25, x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
 
         RenderSystem.disableBlend();
-        pStack.popPose();
+        graphics.pose().popPose();
     }
 }

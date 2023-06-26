@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.orderform.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.orderform.data.Order;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -17,14 +18,14 @@ public abstract class OrderServerScreen extends Screen {
     private Screen parent;
 
     public OrderServerScreen(int stepId, Screen parent, Order order) {
-        super(Component.translatable("minetogether.screen.orderscreen"));
+        super(Component.translatable("minetogether.screen.order"));
         this.stepId = stepId;
         this.order = order;
         this.parent = parent;
     }
 
     public OrderServerScreen(int stepId, Order order) {
-        super(Component.translatable("minetogether.screen.orderscreen"));
+        super(Component.translatable("minetogether.screen.order"));
         this.stepId = stepId;
         this.order = order;
     }
@@ -34,36 +35,44 @@ public abstract class OrderServerScreen extends Screen {
         clearWidgets();
 
         super.init();
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
         addNavigationButtons();
     }
 
     public void addNavigationButtons() {
-        addRenderableWidget(this.buttonPrev = new Button(10, this.height - 30, 80, 20, Component.translatable("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
+        addRenderableWidget(this.buttonPrev = Button.builder(Component.translatable("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent)))
+                .bounds(10, this.height - 30, 80, 20)
+                .build()
+        );
 
-        addRenderableWidget(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, Component.translatable("minetogether.button.cancel"), (button) -> cancelOrder()));
+        addRenderableWidget(this.buttonCancel = Button.builder(Component.translatable("minetogether.button.cancel"), (button) -> cancelOrder())
+                .bounds(this.width / 2 - 40, this.height - 30, 80, 20)
+                .build()
+        );
         buttonCancel.visible = stepId != 4;
 
-        addRenderableWidget(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, Component.translatable("minetogether.button.next"), (button) ->
-        {
-            if ((this.stepId + 1) == STEP_AMOUNT) {
-                this.minecraft.setScreen(parent);
-            } else {
-                this.minecraft.setScreen(getByStep(this.stepId + 1, this.order, parent));
-            }
-        }));
+        addRenderableWidget(this.buttonNext = Button.builder(Component.translatable("minetogether.button.next"), (button) ->
+                        {
+                            if ((this.stepId + 1) == STEP_AMOUNT) {
+                                this.minecraft.setScreen(parent);
+                            } else {
+                                this.minecraft.setScreen(getByStep(this.stepId + 1, this.order, parent));
+                            }
+                        })
+                        .bounds(this.width - 90, this.height - 30, 80, 20)
+                        .build()
+        );
 
         this.buttonPrev.active = this.stepId > 0;
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
-        drawCenteredString(poseStack, minecraft.font, "Step " + (this.stepId + 1 + " / ") + STEP_AMOUNT, this.width - 30, 10, -1);
-        drawCenteredString(poseStack, minecraft.font, this.getStepName(), this.width / 2, 10, -1);
-        super.render(poseStack, i, j, f);
+    public void render(GuiGraphics graphics, int i, int j, float f) {
+        graphics.drawCenteredString(minecraft.font, "Step " + (this.stepId + 1 + " / ") + STEP_AMOUNT, this.width - 30, 10, -1);
+        graphics.drawCenteredString(minecraft.font, this.getStepName(), this.width / 2, 10, -1);
+        super.render(graphics, i, j, f);
     }
 
-    @SuppressWarnings ("Duplicates")
+    @SuppressWarnings("Duplicates")
     public static Screen getByStep(int step, Order order, Screen parent) {
         switch (step) {
             case 0:

@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.orderform.data.DefferedValidation;
 import net.creeperhost.minetogether.orderform.data.IOrderValidation;
 import net.creeperhost.minetogether.orderform.screen.PersonalDetailsScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.tuple.Pair;
@@ -71,7 +72,7 @@ public class TextFieldDetails extends EditBox {
 
     @SuppressWarnings ("Duplicates")
     @Override
-    public void render(PoseStack matrixStack, int p_render_1_, int p_render_2_, float p_render_3_) {
+    public void render(GuiGraphics graphics, int p_render_1_, int p_render_2_, float p_render_3_) {
         if (!this.censorText.isEmpty()) {
             String text = this.getValue();
 
@@ -87,33 +88,32 @@ public class TextFieldDetails extends EditBox {
             boolean oldNotValidate = doNotValidate;
             doNotValidate = true;
             this.setValue(obscure);
-            super.render(matrixStack, p_render_1_, p_render_2_, p_render_3_);
+            super.render(graphics, p_render_1_, p_render_2_, p_render_3_);
 
             this.setValue(text);
             doNotValidate = oldNotValidate;
         } else {
-            super.render(matrixStack, p_render_1_, p_render_2_, p_render_3_);
+            super.render(graphics, p_render_1_, p_render_2_, p_render_3_);
         }
 
-        int startX = (this.x + this.width + 3) / 2;
-        int startY = (this.y + 4) / 2;
+        int startX = (this.getX() + this.width + 3) / 2;
+        int startY = (this.getY() + 4) / 2;
 
-        matrixStack.scale(2.0F, 2.0F, 2.0F);
-//        RenderSystem.scalef(2.0F, 2.0F, 2.0F);
+        graphics.pose().scale(2.0F, 2.0F, 2.0F);
 
         if (isValidated) {
-            drawString(matrixStack, Minecraft.getInstance().font, acceptString, startX, startY, 0x00FF00);
+            graphics.drawString(Minecraft.getInstance().font, acceptString, startX, startY, 0x00FF00);
         } else {
-            drawString(matrixStack, Minecraft.getInstance().font, denyString, startX, startY, 0xFF0000);
+            graphics.drawString(Minecraft.getInstance().font, denyString, startX, startY, 0xFF0000);
         }
 
-        matrixStack.scale(0.5F, 0.5F, 0.5F);
+        graphics.pose().scale(0.5F, 0.5F, 0.5F);
 
         if (!this.isFocused() && this.getValue().trim().isEmpty()) {
-            int x = this.x + 4;
-            int y = this.y + (this.height - 8) / 2;
+            int x = this.getX() + 4;
+            int y = this.getY() + (this.height - 8) / 2;
 
-            Minecraft.getInstance().font.drawShadow(matrixStack, "\u00A7o" + this.displayString, x, y, 14737632);
+            graphics.drawString(Minecraft.getInstance().font, "\u00A7o" + this.displayString, x, y, 14737632, true);
         }
     }
 

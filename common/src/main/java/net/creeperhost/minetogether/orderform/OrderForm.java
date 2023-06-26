@@ -1,7 +1,5 @@
 package net.creeperhost.minetogether.orderform;
 
-import dev.architectury.event.events.client.ClientGuiEvent;
-import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.hooks.client.screen.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.orderform.data.Order;
@@ -19,16 +17,16 @@ import net.minecraft.network.chat.Component;
  */
 public class OrderForm {
 
-    public static void init() {
-        ClientGuiEvent.INIT_POST.register(OrderForm::onScreenOpen);
-    }
 
-    private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
+
+    public static void onScreenPostInit(Screen screen) {
         if (screen instanceof TitleScreen && Config.instance().replaceRealms) {
             AbstractWidget realms = ButtonHelper.removeButton("menu.online", screen);
             if (realms != null) {
-                ScreenHooks.addRenderableWidget(screen, new Button(realms.x, realms.y, realms.getWidth(), realms.getHeight(), Component.translatable("minetogether:button.getserver"), p ->
-                        Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), screen)))
+                ScreenHooks.addRenderableWidget(screen, Button.builder(Component.translatable("minetogether:button.getserver"), p ->
+                                Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), screen)))
+                        .bounds(realms.getX(), realms.getY(), realms.getWidth(), realms.getHeight())
+                        .build()
                 );
             }
         }

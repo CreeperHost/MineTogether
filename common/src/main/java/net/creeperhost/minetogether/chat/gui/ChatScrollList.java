@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.polylib.gui.PreviewRenderer;
 import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -59,6 +60,12 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
     }
 
     public void attach(@Nullable IrcChannel channel) {
+        if (this.channel == channel) {
+            //This fixes the inability to scroll the chat.
+            //TODO, Keep an eye on this, I dont think this breaks anything, But its possible i have overlooked something.
+            return;
+        }
+
         if (this.channel != null) {
             assert listener != null;
             this.channel.removeListener(listener);
@@ -93,7 +100,7 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
     }
 
     @Override
-    public void render(PoseStack pStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         if (!pendingMessages.isEmpty()) {
             synchronized (pendingMessages) {
                 for (Message pendingMessage : pendingMessages) {
@@ -110,8 +117,8 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
                 changedMessages.clear();
             }
         }
-        super.render(pStack, mouseX, mouseY, partialTicks);
-        previewRenderer.render(pStack, mouseX, mouseY, partialTicks);
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        previewRenderer.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -125,7 +132,7 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
 
     @Override
     protected int getScrollbarPosition() {
-        return width + 2;
+        return x0 + width - 8;
     }
 
     public void removed() {
@@ -231,8 +238,8 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
         }
 
         @Override
-        public void render(PoseStack poseStack, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
-            drawString(poseStack, parent.minecraft.font, formattedMessage, left, top, 0xFFFFFFFF);
+        public void render(GuiGraphics graphics, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
+            graphics.drawString(parent.minecraft.font, formattedMessage, left, top, 0xFFFFFFFF);
         }
 
         @Override

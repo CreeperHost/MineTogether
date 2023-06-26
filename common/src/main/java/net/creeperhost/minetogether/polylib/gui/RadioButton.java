@@ -1,12 +1,12 @@
 package net.creeperhost.minetogether.polylib.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
+import org.joml.Quaternionf;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -29,7 +29,8 @@ public class RadioButton extends Button {
     private boolean pressed;
 
     public RadioButton(int x, int y, int width, int height, Component text) {
-        super(x, y, width, height, text, e -> { });
+        super(x, y, width, height, text, e -> {
+        }, Button.DEFAULT_NARRATION);
     }
 
     /**
@@ -82,31 +83,27 @@ public class RadioButton extends Button {
     }
 
     @Override
-    public void render(PoseStack pStack, int mouseX, int mouseY, float partialTicks) {
-        if (!visible) return;
-
-        isHovered = pressed || mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
-
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         int textColor = 0xFFFFFF;
         int fillColor = 200 / 2 << 24;
-        if (isHovered) {
+        if (isHovered || isPressed()) {
             textColor = 0xffffa0;
             fillColor = 256 / 2 << 24;
         }
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        fill(pStack, x, y, x + width, y + height, fillColor);
+        graphics.fill(getX(), getY(), getX() + width, getY() + height, fillColor);
 
         Font font = Minecraft.getInstance().font;
         int lHeight = (int) (font.lineHeight * textScale);
 
-        pStack.pushPose();
-        pStack.translate(x + (lHeight / 2D) + (width / 2D), y + (height - 8D) / 2, 20);
+        graphics.pose().pushPose();
+        graphics.pose().translate(getX() + (lHeight / 2D) + (width / 2D), getY() + (height - 8D) / 2, 20);
         if (verticalText) {
-            pStack.mulPose(new Quaternion(-1, 0, 90, true));
+            graphics.pose().mulPose(new Quaternionf().rotationXYZ(-1F * 0.017453292F, 0F, 90F * 0.017453292F));
         }
-        pStack.scale(textScale, textScale, textScale);
-        drawCenteredString(pStack, font, getMessage(), 0, 0, textColor);
-        pStack.popPose();
+        graphics.pose().scale(textScale, textScale, textScale);
+        graphics.drawCenteredString(font, getMessage(), 0, 0, textColor);
+        graphics.pose().popPose();
     }
 
     @Override

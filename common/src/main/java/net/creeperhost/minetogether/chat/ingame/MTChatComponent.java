@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -70,7 +71,9 @@ public class MTChatComponent extends ChatComponent {
         });
     }
 
+    @Override
     public void tick() {
+        super.tick();
         // Fallback to force bind the channel if it is null.
         if (channel == null && target == ChatTarget.PUBLIC) {
             IrcChannel channel = MineTogetherChat.CHAT_STATE.ircClient.getPrimaryChannel();
@@ -81,7 +84,7 @@ public class MTChatComponent extends ChatComponent {
     }
 
     @Override
-    public void render(PoseStack poseStack, int i) {
+    public void render(GuiGraphics graphics, int i, int j, int k) {
         if (!pendingMessages.isEmpty()) {
             internalUpdate = true;
             synchronized (pendingMessages) {
@@ -100,7 +103,7 @@ public class MTChatComponent extends ChatComponent {
                 changedMessages.clear();
             }
         }
-        super.render(poseStack, i);
+        super.render(graphics, i, j, k);
     }
 
     @Override

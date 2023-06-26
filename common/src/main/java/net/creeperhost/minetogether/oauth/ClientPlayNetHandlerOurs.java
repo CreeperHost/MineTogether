@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.oauth;
 
+import net.fabricmc.fabric.mixin.networking.client.accessor.ClientLoginNetworkHandlerAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -23,9 +24,14 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
         networkManagerIn.disconnect(packetIn.getReason());
     }
 
+//    @Override
+//    public Connection getConnection() {
+//        return networkManagerIn;
+//    }
+
     @Override
-    public Connection getConnection() {
-        return networkManagerIn;
+    public boolean isAcceptingMessages() {
+        return this.networkManagerIn.isConnected();
     }
 
     // NO-OP
@@ -44,9 +50,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleBlockUpdate(ClientboundBlockUpdatePacket clientboundBlockUpdatePacket) { }
     @Override public void handleSystemChat(ClientboundSystemChatPacket clientboundSystemChatPacket) { }
     @Override public void handlePlayerChat(ClientboundPlayerChatPacket clientboundPlayerChatPacket) { }
-    @Override public void handlePlayerChatHeader(ClientboundPlayerChatHeaderPacket clientboundPlayerChatHeaderPacket) { }
-    @Override public void handleChatPreview(ClientboundChatPreviewPacket clientboundChatPreviewPacket) { }
-    @Override public void handleSetDisplayChatPreview(ClientboundSetDisplayChatPreviewPacket clientboundSetDisplayChatPreviewPacket) { }
     @Override public void handleDeleteChat(ClientboundDeleteChatPacket clientboundDeleteChatPacket) { }
     @Override public void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket clientboundSectionBlocksUpdatePacket) { }
     @Override public void handleMapItemData(ClientboundMapItemDataPacket clientboundMapItemDataPacket) { }
@@ -71,7 +74,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleParticleEvent(ClientboundLevelParticlesPacket clientboundLevelParticlesPacket) { }
     @Override public void handlePing(ClientboundPingPacket clientboundPingPacket) { }
     @Override public void handlePlayerAbilities(ClientboundPlayerAbilitiesPacket clientboundPlayerAbilitiesPacket) { }
-    @Override public void handlePlayerInfo(ClientboundPlayerInfoPacket clientboundPlayerInfoPacket) { }
     @Override public void handleRemoveEntities(ClientboundRemoveEntitiesPacket clientboundRemoveEntitiesPacket) { }
     @Override public void handleRemoveMobEffect(ClientboundRemoveMobEffectPacket clientboundRemoveMobEffectPacket) { }
     @Override public void handleRespawn(ClientboundRespawnPacket clientboundRespawnPacket) { }
@@ -89,7 +91,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleSetTime(ClientboundSetTimePacket clientboundSetTimePacket) { }
     @Override public void handleSoundEvent(ClientboundSoundPacket clientboundSoundPacket) { }
     @Override public void handleSoundEntityEvent(ClientboundSoundEntityPacket clientboundSoundEntityPacket) { }
-    @Override public void handleCustomSoundEvent(ClientboundCustomSoundPacket clientboundCustomSoundPacket) { }
     @Override public void handleTakeItemEntity(ClientboundTakeItemEntityPacket clientboundTakeItemEntityPacket) { }
     @Override public void handleTeleportEntity(ClientboundTeleportEntityPacket clientboundTeleportEntityPacket) { }
     @Override public void handleUpdateAttributes(ClientboundUpdateAttributesPacket clientboundUpdateAttributesPacket) { }
@@ -135,5 +136,15 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleTitlesClear(ClientboundClearTitlesPacket clientboundClearTitlesPacket) { }
     @Override public void handleServerData(ClientboundServerDataPacket clientboundServerDataPacket) { }
     @Override public void handleCustomChatCompletions(ClientboundCustomChatCompletionsPacket clientboundCustomChatCompletionsPacket) { }
+
+    @Override public void handleHurtAnimation(ClientboundHurtAnimationPacket clientboundHurtAnimationPacket) { }
+    @Override public void handleDisguisedChat(ClientboundDisguisedChatPacket clientboundDisguisedChatPacket) { }
+    @Override public void handleChunksBiomes(ClientboundChunksBiomesPacket clientboundChunksBiomesPacket) { }
+    @Override public void handlePlayerInfoRemove(ClientboundPlayerInfoRemovePacket clientboundPlayerInfoRemovePacket) { }
+    @Override public void handlePlayerInfoUpdate(ClientboundPlayerInfoUpdatePacket clientboundPlayerInfoUpdatePacket) { }
+    @Override public void handleEnabledFeatures(ClientboundUpdateEnabledFeaturesPacket clientboundUpdateEnabledFeaturesPacket) { }
+    @Override public void handleBundlePacket(ClientboundBundlePacket clientboundBundlePacket) { }
+    @Override public void handleDamageEvent(ClientboundDamageEventPacket clientboundDamageEventPacket) { }
+
     //@formatter:on
 }

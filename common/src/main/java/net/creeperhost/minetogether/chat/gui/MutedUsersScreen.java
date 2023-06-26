@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.polylib.gui.SimpleSelectionList;
 import net.creeperhost.minetogether.polylib.gui.SimpleSelectionList.SimpleEntry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -47,10 +48,19 @@ public class MutedUsersScreen extends Screen {
         searchBox.setSuggestion("Search");
         addRenderableWidget(searchBox);
 
-        addRenderableWidget(new Button(5, height - 26, 100, 20, Component.translatable("minetogether:button.cancel"), e -> minecraft.setScreen(previous)));
-        addRenderableWidget(new Button(width - 105, height - 26, 100, 20, Component.translatable("minetogether:button.refresh"), e -> refreshList()));
+        addRenderableWidget(Button.builder(Component.translatable("minetogether:button.cancel"), e -> minecraft.setScreen(previous))
+                .bounds(5, height - 26, 100, 20)
+                .build()
+        );
+        addRenderableWidget(Button.builder(Component.translatable("minetogether:button.refresh"), e -> refreshList())
+                .bounds(width - 105, height - 26, 100, 20)
+                .build()
+        );
         if (!(previous instanceof FriendsListScreen)) {
-            addRenderableWidget(new Button(width - 105, 5, 100, 20, Component.translatable("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
+            addRenderableWidget(Button.builder(Component.translatable("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this)))
+                    .bounds(width - 105, 5, 100, 20)
+                    .build()
+            );
         }
 
         refreshList();
@@ -96,7 +106,7 @@ public class MutedUsersScreen extends Screen {
         }
 
         @Override
-        public void render(PoseStack poseStack, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
+        public void render(GuiGraphics graphics, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
             Minecraft mc = Minecraft.getInstance();
             if (hovered) {
                 if (transparency <= 1.0F) transparency += 0.04;
@@ -104,10 +114,10 @@ public class MutedUsersScreen extends Screen {
                 if (transparency >= 0.5F) transparency -= 0.04;
             }
 
-            mc.font.draw(poseStack, profile.getDisplayName(), left + 5, top + 5, 0xFFFFFF);
+            graphics.drawString(mc.font, profile.getDisplayName(), left + 5, top + 5, 0xFFFFFF);
 
             RenderSystem.enableBlend();
-            mc.font.draw(poseStack, CROSS, width + left - mc.font.width(CROSS) - 4, top, 0xFF0000 + ((int) (transparency * 254) << 24));
+            graphics.drawString(mc.font, CROSS, width + left - mc.font.width(CROSS) - 4, top, 0xFF0000 + ((int) (transparency * 254) << 24));
             RenderSystem.disableBlend();
         }
 

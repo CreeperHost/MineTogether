@@ -48,7 +48,8 @@ public class ServerAuthTest {
                     networkManager = Connection.connectToServer(inetaddress, true);
                     networkManager.setListener(new NetHandlerLoginClientOurs(networkManager, mc));
                     networkManager.send(new ClientIntentionPacket(address, port, ConnectionProtocol.LOGIN));
-                    networkManager.send(new ServerboundHelloPacket(mc.getUser().getName(), mc.getProfileKeyPairManager().preparePublicKey().join(), Optional.ofNullable(mc.getUser().getProfileId())));
+                    networkManager.send(new ServerboundHelloPacket(mc.getUser().getName(), Optional.ofNullable(mc.getUser().getProfileId())));
+
                 } catch (UnknownHostException unknownhostexception) {
                     if (ServerAuthTest.cancel) {
                         return;

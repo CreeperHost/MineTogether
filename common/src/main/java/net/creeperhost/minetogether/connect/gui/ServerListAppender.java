@@ -14,7 +14,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
@@ -25,10 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by brandon3055 on 21/04/2023
@@ -135,61 +131,50 @@ public class ServerListAppender {
             private boolean receivedPing;
             private long pingStart;
 
+            @Override
             public void handleStatusResponse(ClientboundStatusResponsePacket clientboundStatusResponsePacket) {
                 if (this.receivedPing) {
                     connection.disconnect(Component.translatable("multiplayer.status.unrequested"));
                 } else {
                     this.receivedPing = true;
-                    ServerStatus serverStatus = clientboundStatusResponsePacket.getStatus();
-                    if (serverStatus.getDescription() != null) {
-                        server.motd = serverStatus.getDescription();
+                    ServerStatus serverStatus = clientboundStatusResponsePacket.status();
+                    if (serverStatus.description() != null) {
+                        server.motd = serverStatus.description();
                     } else {
                         server.motd = CommonComponents.EMPTY;
                     }
 
-                    if (serverStatus.getVersion() != null) {
-                        server.version = Component.literal(serverStatus.getVersion().getName());
-                        server.protocol = serverStatus.getVersion().getProtocol();
-                    } else {
-                        server.version = Component.translatable("multiplayer.status.old");
-                        server.protocol = 0;
-                    }
+                    serverStatus.version().ifPresentOrElse(version -> {
+                                server.version = Component.literal(version.name());
+                                server.protocol = version.protocol();
+                            }, () -> {
+                                server.version = Component.translatable("multiplayer.status.old");
+                                server.protocol = 0;
+                            }
+                    );
 
-                    if (serverStatus.getPlayers() != null) {
-                        server.status = formatPlayerCount(serverStatus.getPlayers().getNumPlayers(), serverStatus.getPlayers().getMaxPlayers());
+                    serverStatus.players().ifPresentOrElse(players -> {
+                        server.status = formatPlayerCount(players.online(), players.max());
                         List<Component> list = Lists.newArrayList();
-                        GameProfile[] gameProfiles = serverStatus.getPlayers().getSample();
-                        if (gameProfiles != null && gameProfiles.length > 0) {
-                            GameProfile[] var5 = gameProfiles;
-                            int var6 = gameProfiles.length;
-
-                            for (int var7 = 0; var7 < var6; ++var7) {
-                                GameProfile gameProfile = var5[var7];
+                        List<GameProfile> gameProfiles = players.sample();
+                        if (!gameProfiles.isEmpty()) {
+                            for (GameProfile gameProfile : gameProfiles) {
                                 list.add(Component.literal(gameProfile.getName()));
                             }
 
-                            if (gameProfiles.length < serverStatus.getPlayers().getNumPlayers()) {
-                                list.add(Component.translatable("multiplayer.status.and_more", serverStatus.getPlayers().getNumPlayers() - gameProfiles.length));
+                            if (gameProfiles.size() < players.online()) {
+                                list.add(Component.translatable("multiplayer.status.and_more", players.online() - gameProfiles.size()));
                             }
 
                             server.playerList = list;
                         }
-                    } else {
-                        server.status = Component.translatable("multiplayer.status.unknown").withStyle(ChatFormatting.DARK_GRAY);
-                    }
+                    }, () -> server.status = Component.translatable("multiplayer.status.unknown").withStyle(ChatFormatting.DARK_GRAY));
 
-                    String string = serverStatus.getFavicon();
-                    if (string != null) {
-                        try {
-                            string = ServerData.parseFavicon(string);
-                        } catch (ParseException var9) {
-                            LOGGER.error("Invalid server icon", var9);
+                    serverStatus.favicon().ifPresent((favicon) -> {
+                        if (!Arrays.equals(favicon.iconBytes(), server.getIconBytes())) {
+                            server.setIconBytes(favicon.iconBytes());
                         }
-                    }
-
-                    if (!Objects.equals(string, server.getIconB64())) {
-                        server.setIconB64(string);
-                    }
+                    });
 
                     this.pingStart = Util.getMillis();
                     connection.send(new ServerboundPingRequestPacket(this.pingStart));
@@ -197,6 +182,7 @@ public class ServerListAppender {
                 }
             }
 
+            @Override
             public void handlePongResponse(ClientboundPongResponsePacket clientboundPongResponsePacket) {
                 long l = this.pingStart;
                 long m = Util.getMillis();
@@ -204,6 +190,7 @@ public class ServerListAppender {
                 connection.disconnect(Component.translatable("multiplayer.status.finished"));
             }
 
+            @Override
             public void onDisconnect(Component component) {
                 if (!this.success) {
                     onPingFailed(component, server, profile);
@@ -211,8 +198,9 @@ public class ServerListAppender {
                 }
             }
 
-            public Connection getConnection() {
-                return connection;
+            @Override
+            public boolean isAcceptingMessages() {
+                return connection.isConnected();
             }
         });
 
@@ -221,7 +209,7 @@ public class ServerListAppender {
             connection.send(new ClientIntentionPacket(endpoint.address(), endpoint.proxyPort(), ConnectionProtocol.STATUS));
             connection.send(new ServerboundStatusRequestPacket());
         } catch (Throwable var8) {
-            LOGGER.error( "Failed to ping friend server {}", server.friend, var8);
+            LOGGER.error("Failed to ping friend server {}", server.friend, var8);
         }
     }
 

@@ -1,6 +1,6 @@
 package net.creeperhost.minetogether.serverlist.gui;
 
-import net.covers1624.quack.collection.StreamableIterable;
+import net.covers1624.quack.collection.FastStream;
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
 import net.creeperhost.minetogether.serverlist.data.ListType;
@@ -44,7 +44,6 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen {
     protected void init() {
         super.init();
 
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
         serverSelectionList.children().clear();
         updateServerList();
         if (sorting == SortType.RANDOM) {
@@ -53,9 +52,12 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen {
             serverSelectionList.children().sort(unsafeCast(sorting));
         }
 
-        addRenderableWidget(new Button(width - 85, 5, 80, 20, listType.title, p -> {
-            minecraft.setScreen(new ServerTypeScreen(this));
-        }));
+        addRenderableWidget(Button.builder(listType.title, p -> {
+                            minecraft.setScreen(new ServerTypeScreen(this));
+                        })
+                        .bounds(width - 85, 5, 80, 20)
+                        .build()
+        );
 
         sortDropdown = addRenderableWidget(new DropdownButton<>(width - 165, 5, 80, 20, true, true, e -> {
             minecraft.setScreen(new JoinMultiplayerScreenPublic(parent, listType, e));
@@ -67,11 +69,14 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen {
         ButtonHelper.removeButton("selectServer.add", this);
 
         AbstractWidget refreshButton = ButtonHelper.removeButton("selectServer.refresh", this);
-        addRenderableWidget(new Button(refreshButton.x, refreshButton.y, refreshButton.getWidth(), refreshButton.getHeight(), Component.translatable("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(parent, listType, sorting))));
+        addRenderableWidget(Button.builder(Component.translatable("selectServer.refresh"), p -> Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(parent, listType, sorting)))
+                .bounds(refreshButton.getX(), refreshButton.getY(), refreshButton.getWidth(), refreshButton.getHeight())
+                .build()
+        );
     }
 
     private void updateServerList() {
-        updateServers(StreamableIterable.of(MineTogetherServerList.updateServers(listType))
+        updateServers(FastStream.of(MineTogetherServerList.updateServers(listType))
                 .map(ServerDataPublic::new)
                 .toLinkedList()
         );
@@ -88,7 +93,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen {
     }
 
     public void join(ServerData serverData) {
-        ConnectScreen.startConnecting(new JoinMultiplayerScreen(this), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
+        ConnectScreen.startConnecting(new JoinMultiplayerScreen(this), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData, false);
     }
 
     private void updateServers(List<ServerDataPublic> serverList) {

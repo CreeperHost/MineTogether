@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.mixin.chat;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.chat.*;
 import net.creeperhost.minetogether.chat.gui.FriendRequestScreen;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
@@ -12,34 +11,33 @@ import net.creeperhost.minetogether.polylib.gui.PreviewRenderer;
 import net.creeperhost.minetogether.polylib.gui.RadioButton;
 import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-
 /**
  * Created by covers1624 on 5/8/22.
  */
-@Mixin (ChatScreen.class)
+@Mixin(ChatScreen.class)
 abstract class ChatScreenMixin extends Screen {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -80,9 +78,9 @@ abstract class ChatScreenMixin extends Screen {
         super(component);
     }
 
-    @Inject (
+    @Inject(
             method = "init",
-            at = @At ("TAIL")
+            at = @At("TAIL")
     )
     private void onInit(CallbackInfo ci) {
         Minecraft mc = Minecraft.getInstance();
@@ -108,7 +106,8 @@ abstract class ChatScreenMixin extends Screen {
             assert clickedMessage.sender != null;
             switch (clicked) {
                 case MUTE -> clickedMessage.sender.mute();
-                case ADD_FRIEND -> minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
+                case ADD_FRIEND ->
+                        minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
                 case MENTION -> {
                     String val = input.getValue();
                     if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
@@ -131,16 +130,22 @@ abstract class ChatScreenMixin extends Screen {
 
         addRenderableOnly(previewRenderer);
 
-        newUserButton = addWidget(new Button(6, height - ((cHeight + 80) / 2) + 45, cWidth - 2, 20, Component.literal("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
-            MineTogetherChat.setNewUserResponded();
-        }));
-        disableButton = addWidget(new Button(6, height - ((cHeight + 80) / 2) + 70, cWidth - 2, 20, Component.literal("Don't ask me again."), e -> {
-            MineTogetherChat.disableChat();
-            Config.instance().chatEnabled = false;
-            Config.save();
-            MineTogetherChat.setNewUserResponded();
-            clearWidgets();
-        }));
+        newUserButton = addWidget(Button.builder(Component.literal("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
+                            MineTogetherChat.setNewUserResponded();
+                        })
+                        .bounds(6, height - ((cHeight + 80) / 2) + 45, cWidth - 2, 20)
+                        .build()
+        );
+        disableButton = addWidget(Button.builder(Component.literal("Don't ask me again."), e -> {
+                            MineTogetherChat.disableChat();
+                            Config.instance().chatEnabled = false;
+                            Config.save();
+                            MineTogetherChat.setNewUserResponded();
+                            clearWidgets();
+                        })
+                        .bounds(6, height - ((cHeight + 80) / 2) + 70, cWidth - 2, 20)
+                        .build()
+        );
         newUserButton.visible = false;
         disableButton.visible = false;
 
@@ -155,7 +160,7 @@ abstract class ChatScreenMixin extends Screen {
 
     @Inject(
             method = "mouseClicked",
-            at = @At ("HEAD"),
+            at = @At("HEAD"),
             cancellable = true
     )
     private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
@@ -176,35 +181,36 @@ abstract class ChatScreenMixin extends Screen {
 
     @Inject(
             method = "render",
-            at = @At ("TAIL")
+            at = @At("TAIL")
     )
-    private void onRender(PoseStack pStack, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
+    private void onRender(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && MineTogetherChat.isNewUser()) {
-            pStack.pushPose();
-            pStack.translate(0, 0, 100); // Push it forward a little bit so It's actually above the text.
+            graphics.pose().pushPose();
+            graphics.pose().translate(0, 0, 100); // Push it forward a little bit so It's actually above the text.
 
             ChatComponent chatComponent = MineTogetherChat.publicChat;
             int y = height - 43 - (minecraft.font.lineHeight * Math.max(Math.min(chatComponent.getRecentChat().size(), chatComponent.getLinesPerPage()), 20));
-            fill(pStack, 0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, 0x99000000);
+            graphics.fill(0, y, chatComponent.getWidth() + 6, chatComponent.getHeight() + 10 + y, 0x99000000);
 
-            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.1"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2), 0xFFFFFF);
-            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.2"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 10, 0xFFFFFF);
-            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.3"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 20, 0xFFFFFF);
-            drawCenteredString(pStack, font, Component.translatable("minetogether:new_user.4", ChatStatistics.userCount), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
+            graphics.drawCenteredString(font, Component.translatable("minetogether:new_user.1"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2), 0xFFFFFF);
+            graphics.drawCenteredString(font, Component.translatable("minetogether:new_user.2"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 10, 0xFFFFFF);
+            graphics.drawCenteredString(font, Component.translatable("minetogether:new_user.3"), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 20, 0xFFFFFF);
+            graphics.drawCenteredString(font, Component.translatable("minetogether:new_user.4", ChatStatistics.userCount), (chatComponent.getWidth() / 2) + 3, height - ((chatComponent.getHeight() + 80) / 2) + 30, 0xFFFFFF);
 
             // Render these manually after the grey-out, so they are on top of it.
-            newUserButton.render(pStack, mouseX, mouseY, partialTicks);
-            disableButton.render(pStack, mouseX, mouseY, partialTicks);
-            pStack.popPose();
+            newUserButton.render(graphics, mouseX, mouseY, partialTicks);
+            disableButton.render(graphics, mouseX, mouseY, partialTicks);
+            graphics.pose().popPose();
         }
     }
 
     @Inject(
             method = "tick",
-            at = @At ("TAIL")
+            at = @At("TAIL")
     )
     public void tick(CallbackInfo ci) {
         switchToVanillaIfCommand();
+        setFocused(input);
 
         // If we are the vanilla chat, set things editable, and bail out.
         if (MineTogetherChat.getTarget() == ChatTarget.VANILLA) {
@@ -216,14 +222,14 @@ abstract class ChatScreenMixin extends Screen {
         if (MineTogetherChat.isNewUser()) {
             newUserButton.visible = true;
             disableButton.visible = true;
-            input.setFocus(false);
+            setFocused(null);
             input.setEditable(false);
             return;
         }
 
         IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
         if (state != IrcState.CONNECTED) {
-            input.setFocus(false);
+            setFocused(null);
             input.setEditable(false);
             input.setSuggestion(Component.translatable(ChatConstants.STATE_SUGGESTION_LOOKUP.get(state)).getString());
             return;
@@ -258,19 +264,20 @@ abstract class ChatScreenMixin extends Screen {
         }
     }
 
-    @Inject(
-            method = "sendsChatPreviewRequests",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    private void onSendsChatPreviewRequests(CallbackInfoReturnable<Boolean> cir) {
-        if (MineTogetherChat.getTarget() != ChatTarget.VANILLA) {
-            cir.setReturnValue(false);
-        }
-    }
+    //TODO looks like the code this references has been completely removed. Not sure if this is going to be an issue.
+//    @Inject(
+//            method = "sendsChatPreviewRequests",
+//            at = @At("HEAD"),
+//            cancellable = true
+//    )
+//    private void onSendsChatPreviewRequests(CallbackInfoReturnable<Boolean> cir) {
+//        if (MineTogetherChat.getTarget() != ChatTarget.VANILLA) {
+//            cir.setReturnValue(false);
+//        }
+//    }
 
     private boolean switchToVanillaIfCommand() {
-        if (MineTogetherChat.getTarget() == ChatTarget.VANILLA)  return false;
+        if (MineTogetherChat.getTarget() == ChatTarget.VANILLA) return false;
         if (!input.getValue().startsWith("/")) return false;
 
         MineTogetherChat.setTarget(ChatTarget.VANILLA);

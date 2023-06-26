@@ -36,21 +36,23 @@ public class CommandInvite {
 
     private static int execute(CommandContext<CommandSourceStack> cs, String username) {
         MinecraftServer minecraftServer = cs.getSource().getServer();
-        if (username.isEmpty()) throw new CommandRuntimeException(Component.translatable("Invalid username"));
+        if (username.isEmpty()) throw new CommandRuntimeException(Component.literal("Invalid username"));
 
         GameProfile gameProfile = minecraftServer.getProfileCache().get(username).get();
         if (gameProfile == null) {
-            throw new CommandRuntimeException(Component.translatable("Failed to load GameProfile, Username is not valid"));
+            throw new CommandRuntimeException(Component.literal("Failed to load GameProfile, Username is not valid"));
         }
 
-        if (minecraftServer.getPlayerList().getWhiteList().isWhiteListed(gameProfile)) { throw new CommandRuntimeException(Component.translatable(username + " Is already whitelisted")); }
+        if (minecraftServer.getPlayerList().getWhiteList().isWhiteListed(gameProfile)) {
+            throw new CommandRuntimeException(Component.translatable(username + " Is already whitelisted"));
+        }
 
         UserWhiteListEntry userWhiteListEntry = new UserWhiteListEntry(gameProfile);
         minecraftServer.getPlayerList().getWhiteList().add(userWhiteListEntry);
         minecraftServer.getPlayerList().reloadWhiteList();
         sendUserInvite(gameProfile, minecraftServer);
 
-        cs.getSource().sendSuccess(Component.translatable(username + " Added to whitelist"), false);
+        cs.getSource().sendSuccess(() -> Component.literal(username + " Added to whitelist"), false);
         return 0;
     }
 

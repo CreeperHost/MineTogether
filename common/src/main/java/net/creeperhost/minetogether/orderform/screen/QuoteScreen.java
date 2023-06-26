@@ -7,8 +7,10 @@ import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.OrderSummary;
 import net.creeperhost.minetogether.util.Countries;
 import net.creeperhost.polylib.client.screen.ScreenHelper;
+import net.creeperhost.polylib.client.screen.widget.LoadingSpinner;
 import net.creeperhost.polylib.client.screen.widget.ScreenWell;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -53,22 +55,22 @@ public class QuoteScreen extends OrderServerScreen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        renderDirtBackground(1);
-        fill(poseStack, 0, this.height - 20, width, 20, 0x99000000);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderDirtBackground(graphics);
+        graphics.fill(0, this.height - 20, width, 20, 0x99000000);
 
         if (!refreshing) {
             if (!summary.summaryError.isEmpty()) {
-                super.render(poseStack, mouseX, mouseY, partialTicks);
-                drawCenteredString(poseStack, this.font, I18n.get("quote.error"), this.width / 2, 50, -1);
-                drawCenteredString(poseStack, this.font, I18n.get(summary.summaryError), this.width / 2, 60, -1);
+                super.render(graphics, mouseX, mouseY, partialTicks);
+                graphics.drawCenteredString(this.font, I18n.get("quote.error"), this.width / 2, 50, -1);
+                graphics.drawCenteredString(this.font, I18n.get(summary.summaryError), this.width / 2, 60, -1);
                 return;
             }
-            wellBottom.render(poseStack);
-            wellLeft.render(poseStack);
-            wellRight.render(poseStack);
+            wellBottom.render(graphics);
+            wellLeft.render(graphics);
+            wellRight.render(graphics);
 
-            drawCenteredString(poseStack, this.font, I18n.get("minetogether.quote.requirements") + " " + summary.serverHostName.toLowerCase() + " package", this.width / 2, 50, -1);
+            graphics.drawCenteredString(this.font, I18n.get("minetogether.quote.requirements") + " " + summary.serverHostName.toLowerCase() + " package", this.width / 2, 50, -1);
 
             String formatString = summary.prefix + "%1$.2f " + summary.suffix;
 
@@ -93,28 +95,27 @@ public class QuoteScreen extends OrderServerScreen {
             int offset = maxStringSize / 2;
             int otherOffset = ((this.width / 2 - 10) / 2) - offset;
 
-            drawString(poseStack, this.font, subTotalString, otherOffset, this.height - 80, 0xFFFFFF);
-            drawString(poseStack, this.font, String.format(formatString, summary.preDiscount), otherOffset + headerSize, this.height - 80, 0xFFFFFF);
-            drawString(poseStack, this.font, discountString, otherOffset, this.height - 70, 0xFFFFFF);
-            drawString(poseStack, this.font, String.format(formatString, summary.discount), otherOffset + headerSize, this.height - 70, 0xFFFFFF);
-            drawString(poseStack, this.font, taxString, otherOffset, this.height - 60, 0xFFFFFF);
-            drawString(poseStack, this.font, String.format(formatString, summary.tax), otherOffset + headerSize, this.height - 60, 0xFFFFFF);
-            drawString(poseStack, this.font, totalString, otherOffset, this.height - 50, 0xFFFFFF);
-            drawString(poseStack, this.font, String.format(formatString, summary.total), otherOffset + headerSize, this.height - 50, 0xFFFFFF);
+            graphics.drawString(this.font, subTotalString, otherOffset, this.height - 80, 0xFFFFFF);
+            graphics.drawString(this.font, String.format(formatString, summary.preDiscount), otherOffset + headerSize, this.height - 80, 0xFFFFFF);
+            graphics.drawString(this.font, discountString, otherOffset, this.height - 70, 0xFFFFFF);
+            graphics.drawString(this.font, String.format(formatString, summary.discount), otherOffset + headerSize, this.height - 70, 0xFFFFFF);
+            graphics.drawString(this.font, taxString, otherOffset, this.height - 60, 0xFFFFFF);
+            graphics.drawString(this.font, String.format(formatString, summary.tax), otherOffset + headerSize, this.height - 60, 0xFFFFFF);
+            graphics.drawString(this.font, totalString, otherOffset, this.height - 50, 0xFFFFFF);
+            graphics.drawString(this.font, String.format(formatString, summary.total), otherOffset + headerSize, this.height - 50, 0xFFFFFF);
 
             int start = (this.width / 2) + 10;
             int end = this.width;
             int middle = (end - start) / 2;
             int stringStart = this.font.width(I18n.get("minetogether.quote.figures")) / 2;
 
-            drawString(poseStack, this.font, I18n.get("minetogether.quote.figures"), start + middle - stringStart, this.height - 80, 0xFFFFFF);
-            drawCenteredString(poseStack, this.font, ChatFormatting.BOLD + I18n.get(Countries.COUNTRIES.get(order.country)), start + middle, this.height - 65, 0xFFFFFF);
+            graphics.drawString(this.font, I18n.get("minetogether.quote.figures"), start + middle - stringStart, this.height - 80, 0xFFFFFF);
+            graphics.drawCenteredString(this.font, ChatFormatting.BOLD + I18n.get(Countries.COUNTRIES.get(order.country)), start + middle, this.height - 65, 0xFFFFFF);
         } else {
-            drawCenteredString(poseStack, this.font, I18n.get("minetogether.quote.refreshing"), this.width / 2, 50, -1);
-            //TODO replace with LoadingSpinner
-            ScreenHelper.loadingSpin(poseStack, partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
+            graphics.drawCenteredString(this.font, I18n.get("minetogether.quote.refreshing"), this.width / 2, 50, -1);
+            LoadingSpinner.render(graphics.pose(), partialTicks, ticks, width / 2, height / 2, new ItemStack(Items.BEEF));
         }
-        super.render(poseStack, mouseX, mouseY, partialTicks);
+        super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override

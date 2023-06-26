@@ -5,8 +5,8 @@ import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
-import net.creeperhost.minetogether.polylib.gui.SimpleToast;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -54,13 +54,14 @@ public class FriendRequestScreen extends Screen {
 
     @Override
     protected void init() {
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
+        cancelButton = addRenderableWidget(Button.builder(Component.translatable("minetogether:button.cancel"), e -> minecraft.setScreen(previous))
+                .bounds(width / 2 - 180, height - 50, 80, 20)
+                .build()
+        );
 
-        cancelButton = addRenderableWidget(new Button(width / 2 - 180, height - 50, 80, 20, Component.translatable("minetogether:button.cancel"), e -> {
-            minecraft.setScreen(previous);
-        }));
-
-        acceptButton = addRenderableWidget(new Button(width / 2 + 100, height - 50, 80, 20, type.button, this::onAccept));
+        acceptButton = addRenderableWidget(Button.builder(type.button, this::onAccept)
+                .bounds(width / 2 + 100, height - 50, 80, 20)
+                .build());
 
         String boxString = nameBox != null ? nameBox.getValue() : target.isFriend() ? target.getFriendName() : target.getDisplayName();
         nameBox = addRenderableWidget(new EditBox(minecraft.font, width / 2 - 100, height / 2 - 10, 200, 20, Component.empty()));
@@ -68,7 +69,7 @@ public class FriendRequestScreen extends Screen {
         nameBox.setValue(boxString);
 
         acceptButton.active = nameBox.getValue().trim().length() >= 3;
-        nameBox.setFocus(true);
+        nameBox.setFocused(true);
         nameBox.setCanLoseFocus(false);
     }
 
@@ -91,11 +92,11 @@ public class FriendRequestScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
-        renderDirtBackground(1);
-        super.render(poseStack, i, j, f);
-        drawCenteredString(poseStack, minecraft.font, type.title, width / 2, 5, 0xFFFFFFFF);
-        drawCenteredString(poseStack, minecraft.font, type.desc, width / 2, height / 2 - 30, 0xFFFFFFFF);
+    public void render(GuiGraphics graphics, int i, int j, float f) {
+        renderDirtBackground(graphics);
+        super.render(graphics, i, j, f);
+        graphics.drawCenteredString(minecraft.font, type.title, width / 2, 5, 0xFFFFFFFF);
+        graphics.drawCenteredString(minecraft.font, type.desc, width / 2, height / 2 - 30, 0xFFFFFFFF);
     }
 
     private void onAccept(Button b) {

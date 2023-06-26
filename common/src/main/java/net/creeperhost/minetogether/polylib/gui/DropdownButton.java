@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -46,7 +47,7 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
     }
 
     public DropdownButton(int x, int y, int width, int height, boolean isAnchored, boolean hasHeader, Consumer<E> callback) {
-        super(x, y, width, height, Component.empty(), NONE);
+        super(x, y, width, height, Component.empty(), NONE, Button.DEFAULT_NARRATION);
         this.isAnchored = isAnchored;
         this.hasHeader = hasHeader;
         onPressed = callback;
@@ -80,21 +81,20 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
     }
 
     @Override
-    public void renderButton(PoseStack pStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
-        int drawY = y;
+        int drawY = getY();
         Font font = Minecraft.getInstance().font;
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        isHovered = mouseX >= x && mouseY >= drawY && mouseX < x + width && mouseY < drawY + height;
+        isHovered = mouseX >= getX() && mouseY >= drawY && mouseX < getX() + width && mouseY < drawY + height;
         int i = getHoverState(isHovered);
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         if (hasHeader) {
-            blit(pStack, x, drawY, 0, 46 + i * 20, width / 2, height);
-            blit(pStack, x + width / 2, drawY, 200 - width / 2, 46 + i * 20, width / 2, height);
+            graphics.blit(WIDGETS_LOCATION, getX(), drawY, 0, 46 + i * 20, width / 2, height);
+            graphics.blit(WIDGETS_LOCATION, getX() + width / 2, drawY, 200 - width / 2, 46 + i * 20, width / 2, height);
             int j = 14737632;
 
             if (!active) {
@@ -103,7 +103,7 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
                 j = 16777120;
             }
 
-            drawCenteredString(pStack, font, getMessage(), x + width / 2, y + (height - 8) / 2, j);
+            graphics.drawCenteredString(font, getMessage(), getX() + width / 2, getY() + (height - 8) / 2, j);
         }
 
         if (dropdownOpen) {
@@ -116,18 +116,17 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
 
             for (E e : entries) {
                 drawY += yOffset;
-                boolean ourHovered = mouseX >= x && mouseY >= drawY && mouseX < x + width && mouseY < drawY + height - 2;
+                boolean ourHovered = mouseX >= getX() && mouseY >= drawY && mouseX < getX() + width && mouseY < drawY + height - 2;
 
                 int subHovered = ourHovered ? 2 : 0;
 
-                RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 // TODO: Fix rendering being dodgy, but it is "good enough" to avoid spending too much time on right now
-                blit(pStack, x, drawY, 0, 46 + subHovered * 20 + 1, width / 2, height - 1);
-                blit(pStack, x + width / 2, drawY, 200 - width / 2, 46 + subHovered * 20 + 1, width / 2, height - 1);
+                graphics.blit(WIDGETS_LOCATION, getX(), drawY, 0, 46 + subHovered * 20 + 1, width / 2, height - 1);
+                graphics.blit(WIDGETS_LOCATION, getX() + width / 2, drawY, 200 - width / 2, 46 + subHovered * 20 + 1, width / 2, height - 1);
 
                 int textColour = 14737632;
-                drawCenteredString(pStack, font, e.getTitle(true), x + width / 2, drawY + (height - 10) / 2, textColour);
+                graphics.drawCenteredString(font, e.getTitle(true), getX() + width / 2, drawY + (height - 10) / 2, textColour);
             }
         }
 
@@ -171,19 +170,19 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
         dropdownOpen = false;
         wasJustClosed = true;
         if (!isAnchored) {
-            x = -1000;
-            y = -1000;
+            setX(-1000);
+            setY(-1000);
         }
     }
 
     public void openAt(double mouseX, double mouseY) {
         if (isAnchored) throw new UnsupportedOperationException("Cannot move anchored dropdown.");
-        x = (int) mouseX;
-        y = (int) mouseY;
+        setX((int) mouseX);;
+        setY((int) mouseY);;
         isFlipped = mouseY > 150; // TODO constant? should this be based off the number of entries?
         if (!isFlipped) {
-            y -= getHeight() - 1;
-            x++;
+            setY(getY() - (getHeight() - 1));
+            setX(getX() + 1);
         }
         dropdownOpen = true;
     }
@@ -197,7 +196,7 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
 
     private E getClickedElement(double mouseX, double mouseY) {
         E clickedElement = null;
-        int y = this.y + 1;
+        int y = getY() + 1;
 
         int yOffset = height - 2;
         if (isFlipped) {
@@ -206,7 +205,7 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
         }
         for (E e : entries) {
             y += yOffset;
-            if (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height - 2) {
+            if (mouseX >= getX() && mouseY >= y && mouseX < getX() + width && mouseY < y + height - 2) {
                 clickedElement = e;
                 break;
             }

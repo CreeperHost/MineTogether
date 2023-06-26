@@ -53,7 +53,7 @@ public abstract class JoinMultiplayerScreenMixin {
         if (entry instanceof CreeperHostServerEntry) {
             ci.cancel();
         } else if (entry instanceof FriendServerEntry friendServer) {
-            FriendConnectScreen.startConnecting(getThis(), Minecraft.getInstance(), friendServer.remoteServer);
+            FriendConnectScreen.startConnecting(getThis(), Minecraft.getInstance(), friendServer.remoteServer, friendServer.getServerData());
             ci.cancel();
         }
     }

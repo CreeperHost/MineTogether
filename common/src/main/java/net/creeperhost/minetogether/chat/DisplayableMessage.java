@@ -80,6 +80,12 @@ public abstract class DisplayableMessage<M> {
         // If we are running in forward mode (oldest at index 0), we want message in index 0.
         // If we are running in backwards mode (oldest at index size - 1), we want message in index size - 1.
         int trimmedIdx = getMessageIndex(isForward() ? trimmedLines.get(0) : trimmedLines.get(trimmedLines.size() - 1));
+        //TODO figure out why this sometimes breaks.
+        // Annoyingly, this is one of those illusive issues that run away and hide as soon as you try to troubleshoot them.
+        if (trimmedIdx == -1) {
+            return;
+        }
+
         clearMessages();
 
         format();

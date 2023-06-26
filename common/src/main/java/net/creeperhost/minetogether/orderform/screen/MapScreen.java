@@ -7,6 +7,8 @@ import net.creeperhost.minetogether.orderform.ServerOrderCallbacks;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.widget.ButtonMap;
 import net.creeperhost.minetogether.util.Countries;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
@@ -22,6 +24,7 @@ import java.util.Map;
 public class MapScreen extends OrderServerScreen {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final ResourceLocation GUI_ICONS_LOCATION = new ResourceLocation("textures/gui/icons.png");
     private final ResourceLocation siv = new ResourceLocation(MineTogether.MOD_ID, "textures/guisiv.png");
     private Button currentFocus;
     private Map<String, String> regions;
@@ -126,9 +129,9 @@ public class MapScreen extends OrderServerScreen {
 
     private void updateSelected(Button button) {
         try {
-            if (currentFocus != null) currentFocus.changeFocus(false);
+            if (currentFocus != null) currentFocus.setFocused(false);
             this.currentFocus = button;
-            button.changeFocus(true);
+            button.setFocused(true);
             if (dataCenters != null && !dataCenters.isEmpty()) {
                 distance = dataCenters.get(regionToDataCentre(currentFocus.getMessage().getString()));
             }
@@ -138,27 +141,26 @@ public class MapScreen extends OrderServerScreen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int p_render_1_, int p_render_2_, float p_render_3_) {
-        renderDirtBackground(1);
-        fill(poseStack, 0, this.height - 20, width, 20, 0x99000000);
-        super.render(poseStack, p_render_1_, p_render_2_, p_render_3_);
+    public void render(GuiGraphics graphics, int p_render_1_, int p_render_2_, float p_render_3_) {
+        renderDirtBackground(graphics);
+        graphics.fill(0, this.height - 20, width, 20, 0x99000000);
+        super.render(graphics, p_render_1_, p_render_2_, p_render_3_);
 
         if (currentFocus != null) {
             RenderSystem.setShaderTexture(0, siv);
             int x = font.width(ttl(currentFocus.getMessage().getString()));
             int bufferLeft = 20;
 
-            blit(poseStack, (this.width - bufferLeft) - x - 5, 20, 0, 0, x + bufferLeft, 20);
+            graphics.blit(siv, (this.width - bufferLeft) - x - 5, 20, 0, 0, x + bufferLeft, 20);
 
-            drawString(poseStack, font, ttl(currentFocus.getMessage().getString()), (this.width - x) - bufferLeft, 26, -1);
-            RenderSystem.setShaderTexture(0, GUI_ICONS_LOCATION);
+            graphics.drawString(font, ttl(currentFocus.getMessage().getString()), (this.width - x) - bufferLeft, 26, -1);
 
             //16 = 4 bars
             //32 = 3 bars
             //40 = 2 bars
             //48 = 1 bars
             if (distance != null && !distance.isEmpty()) {
-                Screen.blit(poseStack, this.width - 18, 26, 8, 8, 0, distanceConvert(Integer.parseInt(distance)), 8, 8, 256, 256);
+                graphics.blit(GUI_ICONS_LOCATION, this.width - 18, 26, 8, 8, 0, distanceConvert(Integer.parseInt(distance)), 8, 8, 256, 256);
             }
         }
     }
