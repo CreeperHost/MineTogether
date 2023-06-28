@@ -112,21 +112,21 @@ public class MessageFormatter {
             String part = string.substring(lastEnd, start);
             if (part.length() > 0) {
                 if (ichat == null) {
-                    ichat = Component.translatable(part).withStyle(messageColour);
+                    ichat = Component.literal(part).withStyle(messageColour);
                 } else {
                     ichat.append(part);
                 }
             }
             lastEnd = end;
             String url = string.substring(start, end);
-            MutableComponent link = Component.translatable(url);
+            MutableComponent link = Component.literal(url);
 
             try {
                 // Add schema so client doesn't crash.
                 if ((new URI(url)).getScheme() == null) {
                     if (!allowMissingHeader) {
                         if (ichat == null) {
-                            ichat = Component.translatable(url);
+                            ichat = Component.literal(url);
                         } else {
                             ichat.append(url);
                         }
@@ -137,7 +137,7 @@ public class MessageFormatter {
             } catch (URISyntaxException e) {
                 // Bad syntax bail out!
                 if (ichat == null) {
-                    ichat = Component.translatable(url);
+                    ichat = Component.literal(url);
                 } else {
                     ichat.append(url);
                 }
@@ -146,7 +146,7 @@ public class MessageFormatter {
 
             // Set the click event and append the link.
             ClickEvent click = new ClickEvent(ClickEvent.Action.OPEN_URL, url);
-            HoverEvent hoverEvent = new HoverEvent(SHOW_URL_PREVIEW, Component.translatable(url));
+            HoverEvent hoverEvent = new HoverEvent(SHOW_URL_PREVIEW, Component.literal(url));
             link.setStyle(link.getStyle().withClickEvent(click).withHoverEvent(hoverEvent).withUnderlined(true).withColor(TextColor.fromLegacyFormat(ChatFormatting.BLUE)));
             if (ichat == null) {
                 ichat = Component.literal("");
@@ -157,9 +157,9 @@ public class MessageFormatter {
         // Append the rest of the message.
         String end = string.substring(lastEnd);
         if (ichat == null) {
-            ichat = Component.translatable(end).withStyle(messageColour);
+            ichat = Component.literal(end).withStyle(messageColour);
         } else if (end.length() > 0) {
-            ichat.append(Component.translatable(string.substring(lastEnd)).withStyle(messageColour));
+            ichat.append(Component.literal(string.substring(lastEnd)).withStyle(messageColour));
         }
         return ichat;
     }
