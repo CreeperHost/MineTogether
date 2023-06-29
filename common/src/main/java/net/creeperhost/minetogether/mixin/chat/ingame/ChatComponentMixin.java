@@ -56,30 +56,23 @@ abstract class ChatComponentMixin {
         // Don't render our additional background blackout if chat is not enabled, or chat is not focused.
         if (!Config.instance().chatEnabled || Minecraft.getInstance().options.hideGui || !isChatFocused()) return;
 
-        //This is now replicating what vanilla does exactly as of 1.20
-        //Except of one thing. Vanilla translates +50z which breaks the vanilla chat scroll bar.
+        //This does not *perfectly* match vanilla, but its very close, and a lot less dumb.
+        //It also just happens to fix the vanilla scroll bar
 
         float scale = (float)getScale();
-        int width = Mth.ceil((float)this.getWidth() / scale) + 8;
-        int height = getHeight();
+        int width = Mth.ceil((float)this.getWidth() + (12 * scale));
+        int height = Mth.ceil(getHeight() * scale);
         int guiHeight = graphics.guiHeight();
-        int maxYPos = Mth.floor((float)(guiHeight - 40) / scale);
-
-        graphics.pose().pushPose();
-        graphics.pose().scale(scale, scale, 1);
-        graphics.pose().translate(4.0F, 0.0F, 0.0F);
+        int maxYPos = guiHeight - 40;
 
         // Render new 'filled' background under all chat lines.
-        graphics.fill(-4, maxYPos - height, width, maxYPos, minecraft.options.getBackgroundColor(0x80000000));
-
-        int logoSize = (int) (Math.min(width, height) * 0.9D);
+        graphics.fill(0, maxYPos - height, width, maxYPos, minecraft.options.getBackgroundColor(0x80000000));
 
         // If we are on a MineTogether tab, draw our logo.
         if (MineTogetherChat.getTarget() != ChatTarget.VANILLA){
+            int logoSize = (int) (Math.min(width, height) * 0.9D);
             drawLogo(graphics, minecraft.font, -4 + (width / 2) - (logoSize / 2), maxYPos - (height / 2) - (logoSize / 2), logoSize, logoSize);
         }
-
-        graphics.pose().popPose();
     }
 
     @Redirect(

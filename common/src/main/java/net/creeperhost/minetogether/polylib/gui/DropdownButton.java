@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.polylib.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -20,7 +19,8 @@ import java.util.function.Consumer;
  */
 public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Button {
 
-    private static final OnPress NONE = e -> { };
+    private static final OnPress NONE = e -> {
+    };
 
     private final List<E> entries = new LinkedList<>();
     private final List<Runnable> dynamicCallbacks = new LinkedList<>();
@@ -84,6 +84,9 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
+        //Ensures we render above other elements such as the MT buttons.
+        graphics.pose().translate(0, 0, 1);
+
         int drawY = getY();
         Font font = Minecraft.getInstance().font;
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -117,19 +120,18 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
             for (E e : entries) {
                 drawY += yOffset;
                 boolean ourHovered = mouseX >= getX() && mouseY >= drawY && mouseX < getX() + width && mouseY < drawY + height - 2;
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
                 int subHovered = ourHovered ? 2 : 0;
-
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                // TODO: Fix rendering being dodgy, but it is "good enough" to avoid spending too much time on right now
-                graphics.blit(WIDGETS_LOCATION, getX(), drawY, 0, 46 + subHovered * 20 + 1, width / 2, height - 1);
-                graphics.blit(WIDGETS_LOCATION, getX() + width / 2, drawY, 200 - width / 2, 46 + subHovered * 20 + 1, width / 2, height - 1);
+                int tex = 46 + subHovered * 20;
+                graphics.blitNineSliced(WIDGETS_LOCATION, getX(), drawY, width, height - 2, 20, 4, 200, 20, 0, tex);
 
                 int textColour = 14737632;
                 graphics.drawCenteredString(font, e.getTitle(true), getX() + width / 2, drawY + (height - 10) / 2, textColour);
             }
         }
 
+        graphics.pose().translate(0, 0, -1);
     }
 
     @Override
@@ -177,8 +179,10 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
 
     public void openAt(double mouseX, double mouseY) {
         if (isAnchored) throw new UnsupportedOperationException("Cannot move anchored dropdown.");
-        setX((int) mouseX);;
-        setY((int) mouseY);;
+        setX((int) mouseX);
+        ;
+        setY((int) mouseY);
+        ;
         isFlipped = mouseY > 150; // TODO constant? should this be based off the number of entries?
         if (!isFlipped) {
             setY(getY() - (getHeight() - 1));
