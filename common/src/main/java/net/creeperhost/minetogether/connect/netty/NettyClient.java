@@ -120,10 +120,7 @@ public class NettyClient {
             @Override
             protected void buildPipeline(ChannelPipeline pipeline) {
                 pipeline.addLast("mt:raw", new RawCodec());
-                pipeline.addLast("splitter", new Varint21FrameDecoder());
-                pipeline.addLast("decoder", new PacketDecoder(PacketFlow.CLIENTBOUND));
-                pipeline.addLast("prepender", new Varint21LengthFieldPrepender());
-                pipeline.addLast("encoder", new PacketEncoder(PacketFlow.SERVERBOUND));
+                Connection.configureSerialization(pipeline, PacketFlow.CLIENTBOUND);
                 pipeline.addLast("packet_handler", connection);
             }
 
@@ -190,10 +187,7 @@ public class NettyClient {
             protected void buildPipeline(ChannelPipeline pipeline) {
                 pipeline.addLast("mt:raw", new RawCodec());
                 pipeline.addLast("legacy_query", new LegacyQueryHandler(listener));
-                pipeline.addLast("splitter", new Varint21FrameDecoder());
-                pipeline.addLast("decoder", new PacketDecoder(PacketFlow.SERVERBOUND));
-                pipeline.addLast("prepender", new Varint21LengthFieldPrepender());
-                pipeline.addLast("encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
+                Connection.configureSerialization(pipeline, PacketFlow.SERVERBOUND);
                 pipeline.addLast("packet_handler", connection);
             }
 
