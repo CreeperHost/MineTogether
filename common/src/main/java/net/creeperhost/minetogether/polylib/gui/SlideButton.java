@@ -44,6 +44,7 @@ public class SlideButton extends Button {
     private boolean applyOnRelease = false;
 
     private Runnable onRelease = () -> {};
+    private Supplier<Boolean> enabled = null;
 
     public SlideButton(int x, int y, int width, int height) {
         this(x, y, width, height, Component.empty());
@@ -51,6 +52,15 @@ public class SlideButton extends Button {
 
     public SlideButton(int x, int y, int width, int height, Component message) {
         super(x, y, width, height, message, e -> {}, Button.DEFAULT_NARRATION);
+    }
+
+    public SlideButton setEnabled(Supplier<Boolean> enabled) {
+        this.enabled = enabled;
+        return this;
+    }
+
+    public boolean isEnabled() {
+        return enabled == null || enabled.get();
     }
 
     @Override
@@ -135,6 +145,7 @@ public class SlideButton extends Button {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
+        if (!isEnabled()) return;
         dragging = true;
         int endOffset = width / 20;
         rangeLeft = getX() + endOffset;
@@ -182,6 +193,7 @@ public class SlideButton extends Button {
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        if (!isEnabled()) return;
         int textColor = 0xFFFFFF;
         int fillColor = 0x80000000;
         int sliderColor = 0x64808080;
@@ -198,7 +210,6 @@ public class SlideButton extends Button {
         int slidePos = (int) ((width - slideWidth) * pos);
 
         graphics.fill(getX() + slidePos, getY(), getX() + slidePos + slideWidth, getY() + height, sliderColor);
-
 
         Font font = Minecraft.getInstance().font;
         float scale = textScale;
@@ -220,10 +231,11 @@ public class SlideButton extends Button {
             graphics.pose().translate(getX() + (width / 2D) - (lWidth / 2D), getY() + (height / 2D) - (lHeight / 2D), 0);
         }
 
-        graphics.pose().scale(scale, scale, scale);
+        graphics.pose().scale(scale, scale, 1);
 
         graphics.drawString(font, getMessage(), 0, 0, textColor);
+        graphics.flush();
+
         graphics.pose().popPose();
     }
-
 }

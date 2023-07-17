@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -55,6 +56,9 @@ abstract class ChatScreenMixin extends Screen {
 
     @Shadow
     protected EditBox input;
+
+    @Shadow
+    CommandSuggestions commandSuggestions;
 
     private Button newUserButton;
     private Button disableButton;
@@ -118,6 +122,7 @@ abstract class ChatScreenMixin extends Screen {
                 .setRange(0.25, 1)
                 .withTextScale(0.75F)
                 .onRelease(() -> setFocused(input))
+                .setEnabled(() -> commandSuggestions.suggestions == null)
                 .withAutoScaleText(3);
 
         chatWidthSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
@@ -129,6 +134,7 @@ abstract class ChatScreenMixin extends Screen {
                 .withTextScale(0.75F)
                 .onRelease(() -> setFocused(input))
                 .setApplyOnRelease(true)
+                .setEnabled(() -> commandSuggestions.suggestions == null)
                 .withAutoScaleText(3);
 
         chatHeightSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
@@ -139,6 +145,7 @@ abstract class ChatScreenMixin extends Screen {
                 })
                 .withTextScale(0.75F)
                 .onRelease(() -> setFocused(input))
+                .setEnabled(() -> commandSuggestions.suggestions == null)
                 .withAutoScaleText(3);
 
         updateButtons();
