@@ -13,8 +13,13 @@ dependencies {
     modApi "net.creeperhost:polylib-fabric:${polylib_version}"
     modApi "blue.endless:jankson:${jankson_version}"
     modApi "net.creeperhost:MineTogetherLib:${mtlib_version}"
-    modApi "net.creeperhost:MineTogetherSessions:${mtsession_version}"
-    modApi "net.creeperhost:MTConnectProxyCommon:${mtproxy_version}"
+    modApi ("net.creeperhost:MineTogetherSessions:${mtsession_version}") {
+        transitive false
+    }
+    modApi("net.creeperhost:MTConnectProxyCommon:${mtproxy_version}") {
+        exclude group: "net.creeperhost", module: "MineTogetherSessions"
+        exclude group: "net.creeperhost", module: "MineTogetherLib"
+    }
 
     modApi 'org.nanohttpd:nanohttpd:2.3.1'
     modApi 'com.github.scribejava:scribejava-apis:6.9.0'
