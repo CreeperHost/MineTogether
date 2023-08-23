@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface ShareToLanScreenAccessor {
 
     @Accessor
-    GameType getGameMode();
+    String getGameModeName();
 
     @Accessor
     boolean getCommands();

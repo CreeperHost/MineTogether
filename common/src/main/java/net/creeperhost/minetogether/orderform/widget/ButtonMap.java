@@ -3,7 +3,8 @@ package net.creeperhost.minetogether.orderform.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.polylib.client.screen.ScreenHelper;
+import net.creeperhost.minetogether.polylib.client.screen.ScreenHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -40,22 +41,22 @@ public class ButtonMap extends Button {
 
     @Override
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        RenderSystem.setShaderColor(1F, 1F, 1F, alpha);
+        Minecraft minecraft = Minecraft.getInstance();
+        RenderSystem.color4f(1F, 1F, 1F, alpha);
 
         ResourceLocation map = new ResourceLocation(MineTogether.MOD_ID, "textures/map/" + buttonText + ".png");
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, map);
+        minecraft.getTextureManager().bind(map);
 
-        if (isHoveredOrFocused()) {
-            RenderSystem.setShaderColor(0F, 1F, 0F, alpha);
+        if (isHovered()) {
+            RenderSystem.color4f(0F, 1F, 0F, alpha);
         }
         if (isFocused()) {
-            RenderSystem.setShaderColor(0F, 0.6F, 0F, alpha);
+            RenderSystem.color4f(0F, 0.6F, 0F, alpha);
         }
         if (!active) {
-            RenderSystem.setShaderColor(0.4F, 0.4F, 0.4F, alpha);
+            RenderSystem.color4f(0.4F, 0.4F, 0.4F, alpha);
         }
         ScreenHelper.drawModalRectWithCustomSizedTextureFloat(poseStack.last().pose(), x, y, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
-        RenderSystem.setShaderColor(1F, 1F, 1F, alpha);
+        RenderSystem.color4f(1F, 1F, 1F, alpha);
     }
 }

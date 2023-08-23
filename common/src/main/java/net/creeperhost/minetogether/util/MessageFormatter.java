@@ -45,7 +45,7 @@ public class MessageFormatter {
     private static Component formatMessage(MessageComponent comp, ChatFormatting messageColour) {
         MutableComponent component = new TextComponent("").withStyle(messageColour);
         for (MessageComponent c : comp.iterate()) {
-            if (c instanceof ProfileMessageComponent profileComp && profileComp.profile == MineTogetherChat.getOurProfile()) {
+            if (c instanceof ProfileMessageComponent && ((ProfileMessageComponent) c).profile == MineTogetherChat.getOurProfile()) {
                 // Mentions get red
                 component.append(new TextComponent(c.getMessage()).withStyle(RED));
             } else {

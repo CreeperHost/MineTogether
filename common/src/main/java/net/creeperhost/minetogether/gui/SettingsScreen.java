@@ -28,7 +28,7 @@ public class SettingsScreen extends Screen {
     @Override
     protected void init() {
         Config config = Config.instance();
-        addRenderableWidget(new Button(width / 2 - 123, 40, 120, 20, new TranslatableComponent("minetogether:screen.settings.button.chat").append(state(config.chatEnabled)), e -> {
+        addButton(new Button(width / 2 - 123, 40, 120, 20, new TranslatableComponent("minetogether:screen.settings.button.chat").append(state(config.chatEnabled)), e -> {
             if (config.chatEnabled) {
                 MineTogetherChat.disableChat();
                 config.chatEnabled = false;
@@ -39,16 +39,16 @@ public class SettingsScreen extends Screen {
             saveConfig();
         }));
 
-        addRenderableWidget(new Button(width / 2 + 3, 40, 120, 20, new TranslatableComponent("minetogether:screen.settings.button.friend_toasts").append(state(config.friendNotifications)), e -> {
+        addButton(new Button(width / 2 + 3, 40, 120, 20, new TranslatableComponent("minetogether:screen.settings.button.friend_toasts").append(state(config.friendNotifications)), e -> {
             config.friendNotifications = !config.friendNotifications;
             saveConfig();
         }));
-        addRenderableWidget(new Button(width / 2 - 123, 60, 120, 20, new TranslatableComponent("minetogether:screen.settings.button.menu_buttons").append(state(config.mainMenuButtons)), e -> {
+        addButton(new Button(width / 2 - 123, 60, 120, 20, new TranslatableComponent("minetogether:screen.settings.button.menu_buttons").append(state(config.mainMenuButtons)), e -> {
             config.mainMenuButtons = !config.mainMenuButtons;
             saveConfig();
         }));
 
-        linkButton = addRenderableWidget(new Button(width / 2 - 100, height - 47, 200, 20, new TranslatableComponent("minetogether:screen.settings.button.link"), e -> {
+        linkButton = addButton(new Button(width / 2 - 100, height - 47, 200, 20, new TranslatableComponent("minetogether:screen.settings.button.link"), e -> {
             minecraft.setScreen(new ConfirmScreen(b -> {
                 if (b) {
                     KeycloakOAuth.main(new String[0]);
@@ -58,7 +58,7 @@ public class SettingsScreen extends Screen {
         }));
         linkButton.active = !MineTogetherChat.getOurProfile().hasAccount();
 
-        addRenderableWidget(new Button(width / 2 - 100, height - 27, 200, 20, new TranslatableComponent("gui.done"), e -> {
+        addButton(new Button(width / 2 - 100, height - 27, 200, 20, new TranslatableComponent("gui.done"), e -> {
             minecraft.setScreen(parent);
         }));
     }

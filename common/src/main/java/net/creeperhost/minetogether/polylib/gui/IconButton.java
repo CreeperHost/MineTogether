@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.polylib.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.resources.ResourceLocation;
 
@@ -40,8 +41,8 @@ public class IconButton extends Button {
         if (!visible) return;
 
         int yOffset = !active ? 40 : isHovered ? 20 : 0;
-        RenderSystem.setShaderTexture(0, sheet);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        Minecraft.getInstance().getTextureManager().bind(sheet);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         blit(pStack, x, y, index * 20, yOffset, width, height);
     }
 }

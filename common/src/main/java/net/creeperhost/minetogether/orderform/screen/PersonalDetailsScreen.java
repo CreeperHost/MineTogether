@@ -8,8 +8,8 @@ import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.RegexValidator;
 import net.creeperhost.minetogether.orderform.screen.listentries.ListEntryCountry;
 import net.creeperhost.minetogether.orderform.widget.TextFieldDetails;
+import net.creeperhost.minetogether.polylib.client.screen.widget.ScreenList;
 import net.creeperhost.minetogether.util.Countries;
-import net.creeperhost.polylib.client.screen.widget.ScreenList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -64,7 +64,8 @@ public class PersonalDetailsScreen extends OrderServerScreen {
     @SuppressWarnings ("Duplicates")
     @Override
     public void init() {
-        clearWidgets();
+        buttons.clear();
+        children.clear();
         super.init();
 
         addWidget(this.list = new ScreenList(this, this.minecraft, this.width, this.height, 56, this.height - 36, 36));
@@ -72,7 +73,7 @@ public class PersonalDetailsScreen extends OrderServerScreen {
 
         updateList();
 
-        this.loginButton = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, new TranslatableComponent("minetogether.button.login"), p ->
+        this.loginButton = addButton(new Button(this.width / 2 - 40, (this.height / 2) - 10, 80, 20, new TranslatableComponent("minetogether.button.login"), p ->
         {
             if (orderPressed && !isSure) {
                 isSure = true;
@@ -199,9 +200,9 @@ public class PersonalDetailsScreen extends OrderServerScreen {
         String buttonName = Countries.COUNTRIES.get(this.order.country);
         if (buttonName == null || buttonName.isEmpty()) buttonName = "Invalid";
 
-        addRenderableWidget(buttonList = new Button(x - 205, 165, fieldWidths, 20, new TranslatableComponent(buttonName), p -> renderList = true));
+        addButton(buttonList = new Button(x - 205, 165, fieldWidths, 20, new TranslatableComponent(buttonName), p -> renderList = true));
 
-        addRenderableWidget(selectCountry = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.select"), (button) ->
+        addButton(selectCountry = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.select"), (button) ->
         {
             renderList = false;
             ListEntryCountry listEntryCountry = (ListEntryCountry) list.getCurrSelected();

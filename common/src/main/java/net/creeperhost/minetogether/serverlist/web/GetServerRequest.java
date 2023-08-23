@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.serverlist.web;
 
+import com.google.common.collect.ImmutableMap;
 import net.creeperhost.minetogether.lib.web.ApiRequest;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
 import net.creeperhost.minetogether.serverlist.data.Server;
@@ -19,7 +20,7 @@ public class GetServerRequest extends ApiRequest<GetServerRequest.Response> {
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 
-        jsonBody(Map.of("serverid", serverId));
+        jsonBody(ImmutableMap.of("serverid", serverId));
     }
 
     public static class Response extends ApiResponse {

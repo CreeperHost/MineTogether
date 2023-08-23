@@ -316,7 +316,7 @@ public class NettyClient {
         return new Bootstrap()
                 .group(eventGroup)
                 .channel(channelClass)
-                .handler(new ChannelInitializer<>() {
+                .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(@NotNull Channel ch) throws Exception {
                         try {
@@ -403,7 +403,7 @@ public class NettyClient {
 
         @Override
         public void handleFriendServers(ChannelHandlerContext channelHandlerContext, CFriendServers cFriendServers) {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Not implemented.");
         }
 
         @Override
@@ -417,12 +417,12 @@ public class NettyClient {
 
         @Override
         public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Not implemented.");
         }
 
         @Override
         public void handleBeginRaw(ChannelHandlerContext ctx, CBeginRaw packet) {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Not implemented.");
         }
 
         @Override

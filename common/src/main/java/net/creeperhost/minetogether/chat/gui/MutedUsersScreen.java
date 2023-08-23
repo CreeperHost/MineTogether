@@ -16,12 +16,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Locale;
+
 /**
  * Created by covers1624 on 24/8/22.
  */
 public class MutedUsersScreen extends Screen {
 
-    private static final String CROSS = Character.toString(10006);
+    private static final String CROSS = new String(new byte[] { 0x27, 0x16 });
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -42,26 +44,32 @@ public class MutedUsersScreen extends Screen {
         } else {
             list.updateSize(width, height, 32, height - 64);
         }
-        addRenderableWidget(list);
+        addWidget(list);
 
         searchBox = new EditBox(font, width / 2 - 80, height - 32, 160, 20, TextComponent.EMPTY);
         searchBox.setSuggestion("Search");
-        addRenderableWidget(searchBox);
+        addButton(searchBox);
 
-        addRenderableWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("minetogether:button.cancel"), e -> minecraft.setScreen(previous)));
-        addRenderableWidget(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether:button.refresh"), e -> refreshList()));
+        addButton(new Button(5, height - 26, 100, 20, new TranslatableComponent("minetogether:button.cancel"), e -> minecraft.setScreen(previous)));
+        addButton(new Button(width - 105, height - 26, 100, 20, new TranslatableComponent("minetogether:button.refresh"), e -> refreshList()));
         if (!(previous instanceof FriendsListScreen)) {
-            addRenderableWidget(new Button(width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
+            addButton(new Button(width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
         }
 
         refreshList();
+    }
+
+    @Override
+    public void render(PoseStack poseStack, int i, int j, float f) {
+        list.render(poseStack, i, j, f);
+        super.render(poseStack, i, j, f);
     }
 
     public void refreshList() {
         list.clearEntries();
         String searchTerm = searchBox.getValue();
         for (Profile mutedProfile : MineTogetherChat.CHAT_STATE.profileManager.getMutedProfiles()) {
-            if (StringUtils.isEmpty(searchTerm) || StringUtils.containsAnyIgnoreCase(mutedProfile.getDisplayName(), searchTerm)) {
+            if (StringUtils.isEmpty(searchTerm) || mutedProfile.getDisplayName().toLowerCase(Locale.ROOT).contains(searchTerm.toLowerCase(Locale.ROOT))) {
                 list.addEntry(new MutedEntry(list, mutedProfile));
             }
         }

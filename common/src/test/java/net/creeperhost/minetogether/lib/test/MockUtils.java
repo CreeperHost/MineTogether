@@ -34,7 +34,7 @@ public class MockUtils {
     public static final WebEngine MOCK_WEB_ENGINE = new MockWebEngine();
     public static final WebAuth MOCK_WEB_AUTH = new DynamicWebAuth();
     public static final ApiClient MOCK_API_CLIENT = ApiClient.builder().webAuth(MOCK_WEB_AUTH).webEngine(MOCK_WEB_ENGINE).build();
-    public static final MutedUserList MOCK_MUTED_USERS = new MockMutedUserList(Set.of());
+    public static final MutedUserList MOCK_MUTED_USERS = new MockMutedUserList(new HashSet<>());
     public static final ProfileManager MOCK_PROFILE_MANAGER = new MockProfileManager();
     public static final IrcClient MOCK_IRC_CLIENT = new MockIrcClient();
     public static final ChatState MOCK_CHAT_STATE = new MockChatState(
@@ -76,7 +76,7 @@ public class MockUtils {
         @Override @Nullable public IrcUser getUser(Profile profile) { return null; }
         @Override @Nullable public IrcChannel getPrimaryChannel() { return null; }
         @Override @Nullable public IrcChannel getChannel(String name) { return null; }
-        @Override public Collection<IrcChannel> getChannels() { return List.of(); }
+        @Override public Collection<IrcChannel> getChannels() { return new ArrayList<>(); }
         @Override public void addChannelListener(ChannelListener listener) { }
         @Override public void removeChannelListener(ChannelListener listener) { }
     }

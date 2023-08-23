@@ -21,7 +21,7 @@ public class MineTogetherPlatformImpl {
     public static Path getModJar() {
         Optional<ModContainer> container = FabricLoader.getInstance()
                 .getModContainer(MOD_ID);
-        if (container.isEmpty()) return null;
+        if (!container.isPresent()) return null;
 
         ModOrigin origin = container.get().getOrigin();
         if (origin.getKind() != ModOrigin.Kind.PATH) {
@@ -34,7 +34,7 @@ public class MineTogetherPlatformImpl {
     public static String getVersion() {
         Optional<ModContainer> container = FabricLoader.getInstance()
                 .getModContainer(MOD_ID);
-        if (container.isEmpty()) return "UNKNOWN";
+        if (!container.isPresent()) return "UNKNOWN";
 
         return container.get().getMetadata().getVersion().getFriendlyString();
     }

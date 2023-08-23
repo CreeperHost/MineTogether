@@ -8,7 +8,6 @@ import net.creeperhost.minetogether.polylib.gui.PreviewRenderer;
 import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
@@ -115,10 +114,6 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput narrationElementOutput) {
-    }
-
-    @Override
     public int getRowWidth() {
         return width;
     }
@@ -218,7 +213,7 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
         }
     }
 
-    public static class ChatLine extends Entry<ChatLine> {
+    public static class ChatLine extends AbstractSelectionList.Entry<ChatLine> {
 
         private final ChatScrollList parent;
         public final FormattedCharSequence formattedMessage;
@@ -232,7 +227,7 @@ public class ChatScrollList extends AbstractSelectionList<ChatScrollList.ChatLin
 
         @Override
         public void render(PoseStack poseStack, int idx, int top, int left, int width, int height, int mx, int my, boolean hovered, float partialTicks) {
-            drawString(poseStack, parent.minecraft.font, formattedMessage, left, top, 0xFFFFFFFF);
+            parent.minecraft.font.drawShadow(poseStack, formattedMessage, left, top, 0xFFFFFFFF);
         }
 
         @Override

@@ -1,12 +1,10 @@
 package net.creeperhost.minetogether.polylib.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.creeperhost.polylib.client.screen.ScreenHelper;
+import net.creeperhost.minetogether.polylib.client.screen.ScreenHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
@@ -35,8 +33,7 @@ public class LargeButton extends Button {
             Minecraft mc = Minecraft.getInstance();
             isHovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
             int k = getYImage(isHovered);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+            mc.getTextureManager().bind(WIDGETS_LOCATION);
             ScreenHelper.drawContinuousTexturedBox(matrixStack, x, y, 0, 46 + k * 20, width, height, 200, 20, 2, 3, 2, 2, getBlitOffset());
             renderBg(matrixStack, mc, mouseX, mouseY);
             int color = 14737632;

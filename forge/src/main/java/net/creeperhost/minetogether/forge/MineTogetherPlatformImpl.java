@@ -2,8 +2,9 @@ package net.creeperhost.minetogether.forge;
 
 import net.minecraft.network.Connection;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
+import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.forgespi.language.IModFileInfo;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -17,7 +18,7 @@ public class MineTogetherPlatformImpl {
 
     @Nullable
     public static Path getModJar() {
-        IModFileInfo fileInfo = ModList.get().getModFileById(MOD_ID);
+        ModFileInfo fileInfo = ModList.get().getModFileById(MOD_ID);
         if (fileInfo == null) {
             return null;
         }
@@ -25,12 +26,12 @@ public class MineTogetherPlatformImpl {
     }
 
     public static String getVersion() {
-        IModFileInfo fileInfo = ModList.get().getModFileById(MOD_ID);
+        ModFileInfo fileInfo = ModList.get().getModFileById(MOD_ID);
         if (fileInfo == null) {
             return "UNKNOWN";
         }
 
-        return fileInfo.versionString();
+        return fileInfo.getMods().get(0).getVersion().toString();
     }
 
     public static void prepareClientConnection(Connection connection) {

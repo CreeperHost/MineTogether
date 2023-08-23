@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -47,11 +48,45 @@ public class TooltipContainer implements Widget {
         }
     }
 
-    private record Entry<C extends GuiComponent & GuiEventListener>(C component, Function<? super C, @Nullable Component> func) {
+    private static final class Entry<C extends GuiComponent & GuiEventListener> {
 
-        @Nullable
-        public Component getTooltip() {
-            return func.apply(component);
+        private final C component;
+        private final Function<? super C, @Nullable Component> func;
+
+        private Entry(C component, Function<? super C, @Nullable Component> func) {
+            this.component = component;
+            this.func = func;
         }
-    }
+
+            @Nullable
+            public Component getTooltip() {
+                return func.apply(component);
+            }
+
+        public C component() { return component; }
+
+        public Function<? super C, @Nullable Component> func() { return func; }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            Entry that = (Entry) obj;
+            return Objects.equals(this.component, that.component) &&
+                    Objects.equals(this.func, that.func);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(component, func);
+        }
+
+        @Override
+        public String toString() {
+            return "Entry[" +
+                    "component=" + component + ", " +
+                    "func=" + func + ']';
+        }
+
+        }
 }

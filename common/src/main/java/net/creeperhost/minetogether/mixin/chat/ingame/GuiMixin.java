@@ -43,10 +43,14 @@ abstract class GuiMixin {
             )
     )
     private ChatComponent onGetChat(Gui instance) {
-        return switch (MineTogetherChat.getTarget()) {
-            case VANILLA -> chat;
-            case PUBLIC -> MineTogetherChat.publicChat;
-        };
+        switch (MineTogetherChat.getTarget()) {
+            case VANILLA:
+                return chat;
+            case PUBLIC:
+                return MineTogetherChat.publicChat;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     @Redirect (
@@ -58,25 +62,14 @@ abstract class GuiMixin {
             )
     )
     private ChatComponent onRender(Gui instance) {
-        return switch (MineTogetherChat.getTarget()) {
-            case VANILLA -> chat;
-            case PUBLIC -> MineTogetherChat.publicChat;
-        };
-    }
-
-    @Redirect (
-            method = "onDisconnected",
-            at = @At (
-                    value = "FIELD",
-                    target = "Lnet/minecraft/client/gui/Gui;chat:Lnet/minecraft/client/gui/components/ChatComponent;",
-                    opcode = Opcodes.GETFIELD
-            )
-    )
-    private ChatComponent onDisconnect(Gui instance) {
-        return switch (MineTogetherChat.getTarget()) {
-            case VANILLA -> chat;
-            case PUBLIC -> MineTogetherChat.publicChat;
-        };
+        switch (MineTogetherChat.getTarget()) {
+            case VANILLA:
+                return chat;
+            case PUBLIC:
+                return MineTogetherChat.publicChat;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     @Inject(

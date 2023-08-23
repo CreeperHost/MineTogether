@@ -36,15 +36,11 @@ public class ServerAuthTest {
         (new Thread("Server Connector #" + CONNECTION_ID.incrementAndGet()) {
 
             public void run() {
-                InetSocketAddress inetaddress = null;
-
                 try {
                     if (ServerAuthTest.cancel) {
                         return;
                     }
-
-                    inetaddress = new InetSocketAddress(InetAddress.getByName(address), port);
-                    networkManager = Connection.connectToServer(inetaddress, true);
+                    networkManager = Connection.connectToServer(InetAddress.getByName(address), port, true);
                     networkManager.setListener(new NetHandlerLoginClientOurs(networkManager, mc));
                     networkManager.send(new ClientIntentionPacket(address, port, ConnectionProtocol.LOGIN));
                     networkManager.send(new ServerboundHelloPacket(mc.getUser().getGameProfile()));

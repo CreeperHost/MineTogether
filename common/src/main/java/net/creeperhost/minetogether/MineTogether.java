@@ -1,10 +1,10 @@
 package net.creeperhost.minetogether;
 
 import dev.architectury.injectables.targets.ArchitecturyTarget;
-import dev.architectury.platform.Platform;
+import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.MineTogetherLib;
-import net.creeperhost.minetogether.lib.web.java11.Java11WebEngine;
+import net.creeperhost.minetogether.lib.web.apache.ApacheWebEngine;
 import net.creeperhost.minetogether.util.Log4jUtils;
 import net.creeperhost.minetogether.lib.web.ApiClient;
 import net.creeperhost.minetogether.lib.web.DynamicWebAuth;
@@ -28,7 +28,7 @@ public class MineTogether {
 
     public static final String FINGERPRINT = SignatureVerifier.generateSignature();
     public static final DynamicWebAuth AUTH = new DynamicWebAuth();
-    public static final WebEngine WEB_ENGINE = new Java11WebEngine();
+    public static final WebEngine WEB_ENGINE = new ApacheWebEngine();
     public static final ApiClient API = ApiClient.builder()
             .webEngine(WEB_ENGINE)
             .addUserAgentSegment("MineTogether-lib/" + MineTogetherLib.VERSION)
@@ -57,8 +57,12 @@ public class MineTogether {
         ModPackInfo.init();
         ModPackInfo.waitForInfo(info -> AUTH.setHeader("Identifier", info.realName));
         switch (Platform.getEnv()) {
-            case CLIENT -> MineTogetherClient.init();
-            case SERVER -> MineTogetherServer.init();
+            case CLIENT:
+                MineTogetherClient.init();
+                break;
+            case SERVER:
+                MineTogetherServer.init();
+                break;
         }
     }
 }

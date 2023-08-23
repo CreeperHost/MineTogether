@@ -5,9 +5,9 @@ import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.orderform.ServerOrderCallbacks;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.OrderSummary;
+import net.creeperhost.minetogether.polylib.client.screen.ScreenHelper;
+import net.creeperhost.minetogether.polylib.client.screen.widget.ScreenWell;
 import net.creeperhost.minetogether.util.Countries;
-import net.creeperhost.polylib.client.screen.ScreenHelper;
-import net.creeperhost.polylib.client.screen.widget.ScreenWell;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -32,7 +32,8 @@ public class QuoteScreen extends OrderServerScreen {
 
     @Override
     public void init() {
-        clearWidgets();
+        buttons.clear();
+        children.clear();
 
         int start = (this.width / 2) + 10;
         int end = this.width;

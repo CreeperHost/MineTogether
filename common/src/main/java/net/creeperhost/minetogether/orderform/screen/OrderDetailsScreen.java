@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.orderform.ServerOrderCallbacks;
 import net.creeperhost.minetogether.orderform.data.Order;
-import net.creeperhost.polylib.client.screen.ScreenHelper;
+import net.creeperhost.minetogether.polylib.client.screen.ScreenHelper;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -50,7 +50,8 @@ public class OrderDetailsScreen extends OrderServerScreen {
     @SuppressWarnings ("Duplicates")
     @Override
     public void init() {
-        clearWidgets();
+        buttons.clear();
+        children.clear();
 
         super.init();
         this.buttonNext.setMessage(new TranslatableComponent("minetogether.button.finish"));
@@ -59,7 +60,7 @@ public class OrderDetailsScreen extends OrderServerScreen {
         buttonCancel.active = false;
         buttonPrev.active = false;
         buttonPrev.visible = false;
-        buttonInvoice = addRenderableWidget(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, new TranslatableComponent("minetogether.button.invoice"), p ->
+        buttonInvoice = addButton(new Button(this.width / 2 - 40, (this.height / 2) + 30, 80, 20, new TranslatableComponent("minetogether.button.invoice"), p ->
         {
             try {
                 Util.getPlatform().openUri(new URI(ServerOrderCallbacks.getPaymentLink(invoiceID)));

@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.polylib.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
@@ -16,7 +17,7 @@ public class PolyToast implements Toast {
 
     //TODO scale the image
     public void renderImage(PoseStack poseStack, ToastComponent toastComponent, ResourceLocation resourceLocation) {
-        RenderSystem.setShaderTexture(0, resourceLocation);
+        Minecraft.getInstance().getTextureManager().bind(resourceLocation);
         RenderSystem.enableBlend();
         GuiComponent.blit(poseStack, 8, 8, 0, 0, 16, 16, 16, 16);
         RenderSystem.enableBlend();

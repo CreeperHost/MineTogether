@@ -6,7 +6,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.orderform.ServerOrderCallbacks;
 import net.creeperhost.minetogether.orderform.data.AvailableResult;
 import net.creeperhost.minetogether.orderform.data.Order;
-import net.creeperhost.polylib.client.screen.widget.TextFieldValidate;
+import net.creeperhost.minetogether.polylib.client.screen.widget.TextFieldValidate;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,15 +35,16 @@ public class GeneralServerInfoScreen extends OrderServerScreen {
 
     @Override
     public void init() {
-        clearWidgets();
+        buttons.clear();
+        children.clear();
 
         super.init();
         int halfWidth = this.width / 2;
         int halfHeight = this.height / 2;
         int checkboxWidth = font.width(I18n.get("minetogether.screen.generalinfo.pregen")) + 13;
 
-        addRenderableWidget(this.nameField = new TextFieldValidate(this.font, halfWidth - 100, halfHeight - 50, 200, 20, "([A-Za-z0-9]*)", ""));
-        addRenderableWidget(new Checkbox(halfWidth - (checkboxWidth / 2), halfHeight - 8, 20, 20, new TranslatableComponent("minetogether.screen.generalinfo.pregen"), order.pregen));
+        addButton(this.nameField = new TextFieldValidate(this.font, halfWidth - 100, halfHeight - 50, 200, 20, "([A-Za-z0-9]*)", ""));
+        addButton(new Checkbox(halfWidth - (checkboxWidth / 2), halfHeight - 8, 20, 20, new TranslatableComponent("minetogether.screen.generalinfo.pregen"), order.pregen));
 
         this.nameField.setMaxLength(16);
         this.nameField.setValue(this.order.name.isEmpty() ? getDefaultName() : this.order.name);
@@ -59,8 +60,8 @@ public class GeneralServerInfoScreen extends OrderServerScreen {
 
         drawCenteredString(poseStack, this.font, I18n.get("minetogether.info.server_name"), this.width / 2, this.height / 2 - 65, -1);
 
-        RenderSystem.setShaderTexture(0, lockIcon);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        minecraft.getTextureManager().bind(lockIcon);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         blit(poseStack, (this.width / 2) - 8, (this.height / 2) + 40, 0.0F, 0.0F, 16, 16, 16, 16);
 
         int strStart = 61;

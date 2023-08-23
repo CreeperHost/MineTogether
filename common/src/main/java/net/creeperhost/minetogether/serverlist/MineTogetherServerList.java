@@ -1,8 +1,6 @@
 package net.creeperhost.minetogether.serverlist;
 
-import dev.architectury.event.events.client.ClientGuiEvent;
-import dev.architectury.hooks.client.screen.ScreenAccess;
-import dev.architectury.hooks.client.screen.ScreenHooks;
+import me.shedaniel.architectury.event.events.GuiEvent;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
@@ -18,7 +16,9 @@ import net.creeperhost.minetogether.serverlist.gui.ServerTypeScreen;
 import net.creeperhost.minetogether.serverlist.web.GetServerListRequest;
 import net.creeperhost.minetogether.util.ModPackInfo;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +55,7 @@ public class MineTogetherServerList {
             }
         });
 
-        ClientGuiEvent.INIT_POST.register(MineTogetherServerList::onScreenOpen);
+        GuiEvent.INIT_POST.register(MineTogetherServerList::onScreenOpen);
     }
 
     public static List<Server> updateServers(ListType type) {
@@ -74,19 +73,20 @@ public class MineTogetherServerList {
         }
     }
 
-    private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
-        if (!(screen instanceof JoinMultiplayerScreen mpScreen)) return;
+    private static void onScreenOpen(Screen screen, List<AbstractWidget> widgets, List<GuiEventListener> children) {
+        if (!(screen instanceof JoinMultiplayerScreen)) return;
         if (screen instanceof JoinMultiplayerScreenPublic) return;
+        JoinMultiplayerScreen mpScreen = (JoinMultiplayerScreen) screen;
 
         Button serverListButton = new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether:screen.multiplayer.serverlist"), e -> {
             Minecraft.getInstance().setScreen(new ServerTypeScreen(mpScreen));
         });
         serverListButton.active = !MineTogetherChat.isNewUser();
 
-        ScreenHooks.addRenderableWidget(mpScreen, serverListButton);
+        mpScreen.addButton(serverListButton);
 
         boolean chatEnabled = Config.instance().chatEnabled;
-        ScreenHooks.addRenderableWidget(screen, new IconButton(screen.width - 125, 5, chatEnabled ? 1 : 3, Constants.WIDGETS_SHEET, e -> {
+        screen.addButton(new IconButton(screen.width - 125, 5, chatEnabled ? 1 : 3, Constants.WIDGETS_SHEET, e -> {
             Minecraft.getInstance().setScreen(chatEnabled ? new ChatScreen(screen) : new SettingsScreen(screen));
         }));
     }

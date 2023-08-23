@@ -31,7 +31,8 @@ public abstract class OrderServerScreen extends Screen {
 
     @Override
     public void init() {
-        clearWidgets();
+        buttons.clear();
+        children.clear();
 
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui(true);
@@ -39,12 +40,12 @@ public abstract class OrderServerScreen extends Screen {
     }
 
     public void addNavigationButtons() {
-        addRenderableWidget(this.buttonPrev = new Button(10, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
+        addButton(this.buttonPrev = new Button(10, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.prev"), (button) -> this.minecraft.setScreen(getByStep(this.stepId - 1, this.order, parent))));
 
-        addRenderableWidget(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
+        addButton(this.buttonCancel = new Button(this.width / 2 - 40, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.cancel"), (button) -> cancelOrder()));
         buttonCancel.visible = stepId != 4;
 
-        addRenderableWidget(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.next"), (button) ->
+        addButton(this.buttonNext = new Button(this.width - 90, this.height - 30, 80, 20, new TranslatableComponent("minetogether.button.next"), (button) ->
         {
             if ((this.stepId + 1) == STEP_AMOUNT) {
                 this.minecraft.setScreen(parent);

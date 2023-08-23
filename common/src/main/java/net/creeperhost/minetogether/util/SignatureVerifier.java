@@ -1,10 +1,8 @@
 package net.creeperhost.minetogether.util;
 
 import com.google.common.hash.Hashing;
-import dev.architectury.platform.Mod;
-import dev.architectury.platform.Platform;
+import me.shedaniel.architectury.platform.Platform;
 import net.covers1624.quack.util.HashUtils;
-import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherPlatform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

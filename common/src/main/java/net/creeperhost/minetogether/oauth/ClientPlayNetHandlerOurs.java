@@ -32,7 +32,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     //@formatter:off
     @Override public void handleAddEntity(ClientboundAddEntityPacket clientboundAddEntityPacket) { }
     @Override public void handleAddExperienceOrb(ClientboundAddExperienceOrbPacket clientboundAddExperienceOrbPacket) { }
-    @Override public void handleAddVibrationSignal(ClientboundAddVibrationSignalPacket clientboundAddVibrationSignalPacket) { }
     @Override public void handleAddMob(ClientboundAddMobPacket clientboundAddMobPacket) { }
     @Override public void handleAddObjective(ClientboundSetObjectivePacket clientboundSetObjectivePacket) { }
     @Override public void handleAddPainting(ClientboundAddPaintingPacket clientboundAddPaintingPacket) { }
@@ -48,6 +47,7 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleChat(ClientboundChatPacket clientboundChatPacket) { }
     @Override public void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket clientboundSectionBlocksUpdatePacket) { }
     @Override public void handleMapItemData(ClientboundMapItemDataPacket clientboundMapItemDataPacket) { }
+    @Override public void handleContainerAck(ClientboundContainerAckPacket clientboundContainerAckPacket) { }
     @Override public void handleContainerClose(ClientboundContainerClosePacket clientboundContainerClosePacket) { }
     @Override public void handleContainerContent(ClientboundContainerSetContentPacket clientboundContainerSetContentPacket) { }
     @Override public void handleHorseScreenOpen(ClientboundHorseScreenOpenPacket clientboundHorseScreenOpenPacket) { }
@@ -60,17 +60,16 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleExplosion(ClientboundExplodePacket clientboundExplodePacket) { }
     @Override public void handleGameEvent(ClientboundGameEventPacket clientboundGameEventPacket) { }
     @Override public void handleKeepAlive(ClientboundKeepAlivePacket clientboundKeepAlivePacket) { }
-    @Override public void handleLevelChunkWithLight(ClientboundLevelChunkWithLightPacket clientboundLevelChunkWithLightPacket) { }
+    @Override public void handleLevelChunk(ClientboundLevelChunkPacket clientboundLevelChunkPacket) { }
     @Override public void handleForgetLevelChunk(ClientboundForgetLevelChunkPacket clientboundForgetLevelChunkPacket) { }
     @Override public void handleLevelEvent(ClientboundLevelEventPacket clientboundLevelEventPacket) { }
     @Override public void handleLogin(ClientboundLoginPacket clientboundLoginPacket) { }
     @Override public void handleMoveEntity(ClientboundMoveEntityPacket clientboundMoveEntityPacket) { }
     @Override public void handleMovePlayer(ClientboundPlayerPositionPacket clientboundPlayerPositionPacket) { }
     @Override public void handleParticleEvent(ClientboundLevelParticlesPacket clientboundLevelParticlesPacket) { }
-    @Override public void handlePing(ClientboundPingPacket clientboundPingPacket) { }
     @Override public void handlePlayerAbilities(ClientboundPlayerAbilitiesPacket clientboundPlayerAbilitiesPacket) { }
     @Override public void handlePlayerInfo(ClientboundPlayerInfoPacket clientboundPlayerInfoPacket) { }
-    @Override public void handleRemoveEntities(ClientboundRemoveEntitiesPacket clientboundRemoveEntitiesPacket) { }
+    @Override public void handleRemoveEntity(ClientboundRemoveEntitiesPacket clientboundRemoveEntitiesPacket) { }
     @Override public void handleRemoveMobEffect(ClientboundRemoveMobEffectPacket clientboundRemoveMobEffectPacket) { }
     @Override public void handleRespawn(ClientboundRespawnPacket clientboundRespawnPacket) { }
     @Override public void handleRotateMob(ClientboundRotateHeadPacket clientboundRotateHeadPacket) { }
@@ -93,17 +92,11 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleUpdateAttributes(ClientboundUpdateAttributesPacket clientboundUpdateAttributesPacket) { }
     @Override public void handleUpdateMobEffect(ClientboundUpdateMobEffectPacket clientboundUpdateMobEffectPacket) { }
     @Override public void handleUpdateTags(ClientboundUpdateTagsPacket clientboundUpdateTagsPacket) { }
-    @Override public void handlePlayerCombatEnd(ClientboundPlayerCombatEndPacket clientboundPlayerCombatEndPacket) { }
-    @Override public void handlePlayerCombatEnter(ClientboundPlayerCombatEnterPacket clientboundPlayerCombatEnterPacket) { }
-    @Override public void handlePlayerCombatKill(ClientboundPlayerCombatKillPacket clientboundPlayerCombatKillPacket) { }
+    @Override public void handlePlayerCombat(ClientboundPlayerCombatPacket clientboundPlayerCombatPacket) { }
     @Override public void handleChangeDifficulty(ClientboundChangeDifficultyPacket clientboundChangeDifficultyPacket) { }
     @Override public void handleSetCamera(ClientboundSetCameraPacket clientboundSetCameraPacket) { }
-    @Override public void handleInitializeBorder(ClientboundInitializeBorderPacket clientboundInitializeBorderPacket) { }
-    @Override public void handleSetBorderLerpSize(ClientboundSetBorderLerpSizePacket clientboundSetBorderLerpSizePacket) { }
-    @Override public void handleSetBorderSize(ClientboundSetBorderSizePacket clientboundSetBorderSizePacket) { }
-    @Override public void handleSetBorderWarningDelay(ClientboundSetBorderWarningDelayPacket clientboundSetBorderWarningDelayPacket) { }
-    @Override public void handleSetBorderWarningDistance(ClientboundSetBorderWarningDistancePacket clientboundSetBorderWarningDistancePacket) { }
-    @Override public void handleSetBorderCenter(ClientboundSetBorderCenterPacket clientboundSetBorderCenterPacket) { }
+    @Override public void handleSetBorder(ClientboundSetBorderPacket clientboundSetBorderPacket) { }
+    @Override public void handleSetTitles(ClientboundSetTitlesPacket clientboundSetTitlesPacket) { }
     @Override public void handleTabListCustomisation(ClientboundTabListPacket clientboundTabListPacket) { }
     @Override public void handleResourcePack(ClientboundResourcePackPacket clientboundResourcePackPacket) { }
     @Override public void handleBossUpdate(ClientboundBossEventPacket clientboundBossEventPacket) { }
@@ -118,18 +111,12 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleUpdateRecipes(ClientboundUpdateRecipesPacket clientboundUpdateRecipesPacket) { }
     @Override public void handleLookAt(ClientboundPlayerLookAtPacket clientboundPlayerLookAtPacket) { }
     @Override public void handleTagQueryPacket(ClientboundTagQueryPacket clientboundTagQueryPacket) { }
-    @Override public void handleLightUpdatePacket(ClientboundLightUpdatePacket clientboundLightUpdatePacket) { }
+    @Override public void handleLightUpdatePacked(ClientboundLightUpdatePacket clientboundLightUpdatePacket) { }
     @Override public void handleOpenBook(ClientboundOpenBookPacket clientboundOpenBookPacket) { }
     @Override public void handleOpenScreen(ClientboundOpenScreenPacket clientboundOpenScreenPacket) { }
     @Override public void handleMerchantOffers(ClientboundMerchantOffersPacket clientboundMerchantOffersPacket) { }
     @Override public void handleSetChunkCacheRadius(ClientboundSetChunkCacheRadiusPacket clientboundSetChunkCacheRadiusPacket) { }
-    @Override public void handleSetSimulationDistance(ClientboundSetSimulationDistancePacket clientboundSetSimulationDistancePacket) { }
     @Override public void handleSetChunkCacheCenter(ClientboundSetChunkCacheCenterPacket clientboundSetChunkCacheCenterPacket) { }
     @Override public void handleBlockBreakAck(ClientboundBlockBreakAckPacket clientboundBlockBreakAckPacket) { }
-    @Override public void setActionBarText(ClientboundSetActionBarTextPacket clientboundSetActionBarTextPacket) { }
-    @Override public void setSubtitleText(ClientboundSetSubtitleTextPacket clientboundSetSubtitleTextPacket) { }
-    @Override public void setTitleText(ClientboundSetTitleTextPacket clientboundSetTitleTextPacket) { }
-    @Override public void setTitlesAnimation(ClientboundSetTitlesAnimationPacket clientboundSetTitlesAnimationPacket) { }
-    @Override public void handleTitlesClear(ClientboundClearTitlesPacket clientboundClearTitlesPacket) { }
     //@formatter:on
 }

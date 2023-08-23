@@ -34,7 +34,8 @@ public class MapScreen extends OrderServerScreen {
 
     @Override
     public void init() {
-        clearWidgets();
+        buttons.clear();
+        children.clear();
 
         super.init();
         int y = (this.height / 2) + 20;
@@ -78,22 +79,22 @@ public class MapScreen extends OrderServerScreen {
 
         float halfWidth = (float) width / 2;
 
-        addRenderableWidget(new ButtonMap(halfWidth - 228F, y - 94F, (int) (nawestX / scalingFactor), (int) (nawestY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-west", false, this::updateSelected));
-        addRenderableWidget(new ButtonMap(halfWidth - 207F, y - 44.8F, (int) (nasouthX / scalingFactor), (int) (nasouthY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-south", false, this::updateSelected));
-        addRenderableWidget(new ButtonMap(halfWidth - 176.5F, y - 96.5F, (int) (naeastX / scalingFactor), (int) (naeastY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-east", false, this::updateSelected));
-        addRenderableWidget(new ButtonMap(halfWidth - 171.8F, y - 19.5F, (int) (southamericaX / scalingFactor), (int) (southamericaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "south-america", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 228F, y - 94F, (int) (nawestX / scalingFactor), (int) (nawestY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-west", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 207F, y - 44.8F, (int) (nasouthX / scalingFactor), (int) (nasouthY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-south", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 176.5F, y - 96.5F, (int) (naeastX / scalingFactor), (int) (naeastY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "na-east", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 171.8F, y - 19.5F, (int) (southamericaX / scalingFactor), (int) (southamericaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "south-america", false, this::updateSelected));
 
-        addRenderableWidget(new ButtonMap(halfWidth - 115F, y - 122F, (int) (greenlandX / scalingFactor), (int) (greenlandY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "greenland", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 115F, y - 122F, (int) (greenlandX / scalingFactor), (int) (greenlandY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "greenland", false, this::updateSelected));
 
-        addRenderableWidget(new ButtonMap(halfWidth - 30.8F, y - 101.2F, (int) (euwestX / scalingFactor), (int) (euwestY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-west", false, this::updateSelected));
-        addRenderableWidget(new ButtonMap(halfWidth - 0.5F, y - 95F, (int) (eumiddleeastX / scalingFactor), (int) (eumiddleeastY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-middle-east", false, this::updateSelected));
-        addRenderableWidget(new ButtonMap(halfWidth + 24F, y - 114F, (int) (russiaX / scalingFactor), (int) (russiaY / scalingFactor), (int) (2048 / scalingFactor), (int) (2048 / scalingFactor), "russia", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 30.8F, y - 101.2F, (int) (euwestX / scalingFactor), (int) (euwestY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-west", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 0.5F, y - 95F, (int) (eumiddleeastX / scalingFactor), (int) (eumiddleeastY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "eu-middle-east", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth + 24F, y - 114F, (int) (russiaX / scalingFactor), (int) (russiaY / scalingFactor), (int) (2048 / scalingFactor), (int) (2048 / scalingFactor), "russia", false, this::updateSelected));
 
-        addRenderableWidget(new ButtonMap(halfWidth + 64.5F, y - 69F, (int) (asiaX / scalingFactor), (int) (asiaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "asia", false, this::updateSelected));
-        addRenderableWidget(new ButtonMap(halfWidth + 119.5F, y - 5.5F, (int) (australiaX / scalingFactor), (int) (australiaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "australia", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth + 64.5F, y - 69F, (int) (asiaX / scalingFactor), (int) (asiaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "asia", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth + 119.5F, y - 5.5F, (int) (australiaX / scalingFactor), (int) (australiaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "australia", false, this::updateSelected));
 
-        addRenderableWidget(new ButtonMap(halfWidth - 35.8F, y - 23.2F, (int) (subsaharanafricaX / scalingFactor), (int) (subsaharanafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "sub-saharan-africa", false, this::updateSelected));
-        addRenderableWidget(new ButtonMap(halfWidth - 41.4F, y - 57.7F, (int) (northafricaX / scalingFactor), (int) (northafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "north-africa", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 35.8F, y - 23.2F, (int) (subsaharanafricaX / scalingFactor), (int) (subsaharanafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "sub-saharan-africa", false, this::updateSelected));
+        addButton(new ButtonMap(halfWidth - 41.4F, y - 57.7F, (int) (northafricaX / scalingFactor), (int) (northafricaY / scalingFactor), (int) (1024 / scalingFactor), (int) (1024 / scalingFactor), "north-africa", false, this::updateSelected));
 
         //Should never be null but /shrug its Minecraft
         if (regions != null && !regions.isEmpty()) {
@@ -144,14 +145,14 @@ public class MapScreen extends OrderServerScreen {
         super.render(poseStack, p_render_1_, p_render_2_, p_render_3_);
 
         if (currentFocus != null) {
-            RenderSystem.setShaderTexture(0, siv);
+            minecraft.getTextureManager().bind(siv);
             int x = font.width(ttl(currentFocus.getMessage().getString()));
             int bufferLeft = 20;
 
             blit(poseStack, (this.width - bufferLeft) - x - 5, 20, 0, 0, x + bufferLeft, 20);
 
             drawString(poseStack, font, ttl(currentFocus.getMessage().getString()), (this.width - x) - bufferLeft, 26, -1);
-            RenderSystem.setShaderTexture(0, GUI_ICONS_LOCATION);
+            minecraft.getTextureManager().bind(GUI_ICONS_LOCATION);
 
             //16 = 4 bars
             //32 = 3 bars

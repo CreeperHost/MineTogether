@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.server.web;
 
+import com.google.common.collect.ImmutableMap;
 import net.creeperhost.minetogether.lib.web.ApiRequest;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
 
@@ -18,7 +19,7 @@ public class SendInviteRequest extends ApiRequest<ApiResponse> {
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 
-        jsonBody(Map.of(
+        jsonBody(ImmutableMap.of(
                 "id", String.valueOf(id),
                 "hash", hash
         ));

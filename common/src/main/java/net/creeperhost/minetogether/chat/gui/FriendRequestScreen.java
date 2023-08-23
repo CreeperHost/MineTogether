@@ -58,14 +58,14 @@ public class FriendRequestScreen extends Screen {
     protected void init() {
         minecraft.keyboardHandler.setSendRepeatsToGui(true);
 
-        cancelButton = addRenderableWidget(new Button(width / 2 - 180, height - 50, 80, 20, new TranslatableComponent("minetogether:button.cancel"), e -> {
+        cancelButton = addButton(new Button(width / 2 - 180, height - 50, 80, 20, new TranslatableComponent("minetogether:button.cancel"), e -> {
             minecraft.setScreen(previous);
         }));
 
-        acceptButton = addRenderableWidget(new Button(width / 2 + 100, height - 50, 80, 20, type.button, this::onAccept));
+        acceptButton = addButton(new Button(width / 2 + 100, height - 50, 80, 20, type.button, this::onAccept));
 
         String boxString = nameBox != null ? nameBox.getValue() : target.isFriend() ? target.getFriendName() : target.getDisplayName();
-        nameBox = addRenderableWidget(new EditBox(minecraft.font, width / 2 - 100, height / 2 - 10, 200, 20, new TextComponent("")));
+        nameBox = addButton(new EditBox(minecraft.font, width / 2 - 100, height / 2 - 10, 200, 20, new TextComponent("")));
 
         nameBox.setValue(boxString);
 

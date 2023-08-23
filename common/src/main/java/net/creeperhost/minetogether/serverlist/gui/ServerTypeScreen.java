@@ -27,16 +27,16 @@ public class ServerTypeScreen extends Screen {
     public void init() {
         super.init();
 
-        addRenderableWidget(new LargeButton((width / 2) - 180, (height / 8) + 20, 120, 165, new TextComponent("PUBLIC"), new TranslatableComponent("minetogether:screen.servertype.listing.public"), new ItemStack(Items.GUNPOWDER), p -> {
+        addButton(new LargeButton((width / 2) - 180, (height / 8) + 20, 120, 165, new TextComponent("PUBLIC"), new TranslatableComponent("minetogether:screen.servertype.listing.public"), new ItemStack(Items.GUNPOWDER), p -> {
             Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(parent, ListType.PUBLIC, SortType.RANDOM));
         }));
-        addRenderableWidget(new LargeButton((width / 2) - 60, (height / 8) + 20, 120, 165, new TextComponent("COMMUNITY"), new TranslatableComponent("minetogether:screen.servertype.listing.community"), new ItemStack(Items.FISHING_ROD), p -> {
+        addButton(new LargeButton((width / 2) - 60, (height / 8) + 20, 120, 165, new TextComponent("COMMUNITY"), new TranslatableComponent("minetogether:screen.servertype.listing.community"), new ItemStack(Items.FISHING_ROD), p -> {
             Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(parent, ListType.INVITE, SortType.RANDOM));
         }));
-        addRenderableWidget(new LargeButton((width / 2) + 60, (height / 8) + 20, 120, 165, new TextComponent("CLOSED"), new TranslatableComponent("minetogether:screen.servertype.listing.closed"), new ItemStack(Items.CHAINMAIL_CHESTPLATE), p -> {
+        addButton(new LargeButton((width / 2) + 60, (height / 8) + 20, 120, 165, new TextComponent("CLOSED"), new TranslatableComponent("minetogether:screen.servertype.listing.closed"), new ItemStack(Items.CHAINMAIL_CHESTPLATE), p -> {
             Minecraft.getInstance().setScreen(new JoinMultiplayerScreenPublic(parent, ListType.APPLICATION, SortType.RANDOM));
         }));
-        addRenderableWidget(new Button((width / 2) - 110, height - 22, 220, 20, new TranslatableComponent("gui.cancel"), p -> {
+        addButton(new Button((width / 2) - 110, height - 22, 220, 20, new TranslatableComponent("gui.cancel"), p -> {
             Minecraft.getInstance().setScreen(parent);
         }));
     }

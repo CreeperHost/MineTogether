@@ -53,7 +53,7 @@ public class Log4jUtils {
                             .build()
                     )
                     .withPolicy(CompositeTriggeringPolicy.createPolicy(
-                            new TimeBasedTriggeringPolicy.Builder().build(),
+                            TimeBasedTriggeringPolicy.createPolicy(null, null),
                             OnStartupTriggeringPolicy.createPolicy(1)
                     ))
                     .build();
@@ -70,11 +70,12 @@ public class Log4jUtils {
                             OnStartupTriggeringPolicy.createPolicy(1),
                             SizeBasedTriggeringPolicy.createPolicy("200MB")
                     ))
-                    .withStrategy(DefaultRolloverStrategy.newBuilder()
-                            .withMax("5")
-                            .withFileIndex("min")
-                            .build()
-                    )
+                    // TODO
+//                    .withStrategy(DefaultRolloverStrategy.newBuilder()
+//                            .withMax("5")
+//                            .withFileIndex("min")
+//                            .build()
+//                    )
                     .build();
 
             latest.start();

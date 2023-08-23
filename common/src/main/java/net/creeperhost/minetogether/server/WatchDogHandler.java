@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.server;
 
-import com.mojang.logging.LogUtils;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -37,7 +36,7 @@ public class WatchDogHandler {
         DedicatedServer server = (DedicatedServer) MineTogetherServer.minecraftServer;
         if (server.getMaxTickLength() > 0L) {
             Thread thread2 = new Thread(new ServerWatchdog(server));
-            thread2.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(LogUtils.getLogger()));
+            thread2.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(LogManager.getLogger()));
             thread2.setName("Server Watchdog");
             thread2.setDaemon(true);
             thread2.start();

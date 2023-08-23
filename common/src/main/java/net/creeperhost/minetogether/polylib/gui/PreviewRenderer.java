@@ -4,10 +4,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Widget;
 import org.apache.http.HttpEntity;
@@ -18,6 +20,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -191,7 +194,7 @@ public abstract class PreviewRenderer implements Widget {
             }
 
             RenderSystem.enableTexture();
-            RenderSystem.setShaderTexture(0, glTexture);
+            GlStateManager._bindTexture(glTexture);
             GuiComponent.blit(pStack, x, y, 0.0F, 0.0F, w, h, w, h);
         }
 

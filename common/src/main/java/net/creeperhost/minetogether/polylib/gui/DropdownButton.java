@@ -83,11 +83,12 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
     @Override
     public void renderButton(PoseStack pStack, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
+        Minecraft minecraft = Minecraft.getInstance();
 
         int drawY = y;
         Font font = Minecraft.getInstance().font;
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        minecraft.getTextureManager().bind(WIDGETS_LOCATION);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         isHovered = mouseX >= x && mouseY >= drawY && mouseX < x + width && mouseY < drawY + height;
         int i = getHoverState(isHovered);
         RenderSystem.enableBlend();
@@ -121,8 +122,8 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
 
                 int subHovered = ourHovered ? 2 : 0;
 
-                RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                minecraft.getTextureManager().bind(WIDGETS_LOCATION);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 // TODO: Fix rendering being dodgy, but it is "good enough" to avoid spending too much time on right now
                 blit(pStack, x, drawY, 0, 46 + subHovered * 20 + 1, width / 2, height - 1);
                 blit(pStack, x + width / 2, drawY, 200 - width / 2, 46 + subHovered * 20 + 1, width / 2, height - 1);

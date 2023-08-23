@@ -5,12 +5,11 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import net.creeperhost.minetogether.MineTogether;
+import net.creeperhost.minetogether.polylib.client.screen.ScreenHelper;
 import net.creeperhost.minetogether.serverlist.data.Server;
 import net.creeperhost.minetogether.util.Countries;
 import net.creeperhost.minetogether.util.EnumFlag;
-import net.creeperhost.polylib.client.screen.ScreenHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
@@ -54,7 +53,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
     private JoinMultiplayerScreenPublic joinMultiplayerScreen;
     private String lastIconB64;
     private final ResourceLocation iconLocation;
-    private static final ThreadPoolExecutor THREAD_POOL = new ScheduledThreadPoolExecutor(5, (new ThreadFactoryBuilder()).setNameFormat("Server Pinger #%d").setDaemon(true).setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LogUtils.getLogger())).build());
+    private static final ThreadPoolExecutor THREAD_POOL = new ScheduledThreadPoolExecutor(5, (new ThreadFactoryBuilder()).setNameFormat("Server Pinger #%d").setDaemon(true).setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LogManager.getLogger())).build());
     private final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/server_selection.png");
     private final Component CANT_RESOLVE_TEXT = (new TranslatableComponent("multiplayer.status.cannot_resolve")).withStyle(ChatFormatting.DARK_RED);
     private final Component NO_CONNECTION_TOOLTIP = new TranslatableComponent("multiplayer.status.no_connection");
@@ -71,7 +70,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
         this.joinMultiplayerScreen = joinMultiplayerScreen;
         this.serverSelectionList = serverSelectionList;
         this.iconLocation = new ResourceLocation("servers/" + Hashing.sha1().hashUnencodedChars(serverData.ip) + "/icon");
-        AbstractTexture abstractTexture = this.minecraft.getTextureManager().getTexture(this.iconLocation, MissingTextureAtlasSprite.getTexture());
+        AbstractTexture abstractTexture = this.minecraft.getTextureManager().getTexture(this.iconLocation);
         if (abstractTexture != MissingTextureAtlasSprite.getTexture() && abstractTexture instanceof DynamicTexture) {
             this.icon = (DynamicTexture) abstractTexture;
         }
@@ -159,8 +158,8 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
             list5 = Collections.emptyList();
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
         GuiComponent.blit(poseStack, k + l - 15, j, (float) (r * 10), (float) (176 + z * 8), 10, 8, 256, 256);
         String string = this.serverData.getIconB64();
         if (!Objects.equals(string, this.lastIconB64)) {
@@ -187,9 +186,9 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
         }
 
         if (this.minecraft.options.touchscreen || bl) {
-            RenderSystem.setShaderTexture(0, ICON_OVERLAY_LOCATION);
+            minecraft.getTextureManager().bind(ICON_OVERLAY_LOCATION);
             GuiComponent.fill(poseStack, k, j, k + 32, j + 32, -1601138544);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             int ac = n - k;
             int ad = o - j;
             if (this.canJoin()) {
@@ -214,7 +213,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
             EnumFlag flag = server.getFlag();
             String applicationURL = server.applicationUrl;
             if (flag != null) {
-                RenderSystem.setShaderTexture(0, flags);
+                minecraft.getTextureManager().bind(flags);
                 int flagWidth = 16;
                 int flagHeight = flag.height / (flag.width / flagWidth);
                 ScreenHelper.drawScaledCustomSizeModalRect(k + l - 5 - flagWidth, j + 30 - flagHeight, flag.x, flag.y, flag.width, flag.height, flagWidth, flagHeight, 512, 512);
@@ -269,7 +268,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
     }
 
     protected void drawIcon(PoseStack poseStack, int i, int j, ResourceLocation resourceLocation) {
-        RenderSystem.setShaderTexture(0, resourceLocation);
+        minecraft.getTextureManager().bind(resourceLocation);
         RenderSystem.enableBlend();
         GuiComponent.blit(poseStack, i, j, 0.0F, 0.0F, 32, 32, 32, 32);
         RenderSystem.disableBlend();
@@ -298,10 +297,5 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
 
         this.lastClickTime = Util.getMillis();
         return false;
-    }
-
-    @Override
-    public Component getNarration() {
-        return new TranslatableComponent("narrator.select", new Object[] { this.serverData.name });
     }
 }

@@ -99,23 +99,29 @@ abstract class ChatScreenMixin extends Screen {
                 .withTextScale(0.75F)
                 .withVerticalText()
                 .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.PUBLIC));
-        addRenderableWidget(vanillaChatButton);
-        addRenderableWidget(mtChatButton);
+        addButton(vanillaChatButton);
+        addButton(mtChatButton);
 
-        dropdownButton = addRenderableWidget(new DropdownButton<>(100, 20, clicked -> {
+        dropdownButton = addButton(new DropdownButton<>(100, 20, clicked -> {
             assert clickedMessage != null;
             assert clickedMessage.sender != null;
             switch (clicked) {
-                case MUTE -> clickedMessage.sender.mute();
-                case ADD_FRIEND -> minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
-                case MENTION -> {
+                case MUTE:
+                    clickedMessage.sender.mute();
+                    break;
+                case ADD_FRIEND:
+                    minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
+                    break;
+                case MENTION:
                     String val = input.getValue();
                     if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
                         val = val + " ";
                     }
                     input.setValue(val + clickedMessage.sender.getDisplayName());
-                }
-                default -> LOGGER.info("Dropdown action not currently implemented! {}", clicked);
+                    break;
+                default:
+                    LOGGER.info("Dropdown action not currently implemented! {}", clicked);
+                    break;
             }
         }));
         dropdownButton.setEntries(MessageDropdownOption.VALUES);
@@ -124,11 +130,13 @@ abstract class ChatScreenMixin extends Screen {
         vanillaChatButton.linkButtons(mtChatButton);
         mtChatButton.linkButtons(vanillaChatButton);
         switch (MineTogetherChat.getTarget()) {
-            case VANILLA -> vanillaChatButton.setPressed(true);
-            case PUBLIC -> mtChatButton.setPressed(true);
+            case VANILLA:
+                vanillaChatButton.setPressed(true);
+                break;
+            case PUBLIC:
+                mtChatButton.setPressed(true);
+                break;
         }
-
-        addRenderableOnly(previewRenderer);
 
         newUserButton = addWidget(new Button(6, height - ((cHeight + 80) / 2) + 45, cWidth - 2, 20, new TextComponent("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
             MineTogetherChat.setNewUserResponded();
@@ -138,7 +146,8 @@ abstract class ChatScreenMixin extends Screen {
             Config.instance().chatEnabled = false;
             Config.save();
             MineTogetherChat.setNewUserResponded();
-            clearWidgets();
+            buttons.clear();
+            children.clear();
         }));
         newUserButton.visible = false;
         disableButton.visible = false;
@@ -178,6 +187,7 @@ abstract class ChatScreenMixin extends Screen {
             at = @At ("TAIL")
     )
     private void onRender(PoseStack pStack, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
+        previewRenderer.render(pStack, mouseX, mouseY, partialTicks);
         if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && MineTogetherChat.isNewUser()) {
             pStack.pushPose();
             pStack.translate(0, 0, 100); // Push it forward a little bit so It's actually above the text.
@@ -255,8 +265,12 @@ abstract class ChatScreenMixin extends Screen {
     )
     private void onSendMessage(ChatScreen instance, String s) {
         switch (MineTogetherChat.getTarget()) {
-            case VANILLA -> instance.sendMessage(s);
-            case PUBLIC -> MineTogetherChat.publicChat.addRecentChat(s);
+            case VANILLA:
+                instance.sendMessage(s);
+                break;
+            case PUBLIC:
+                MineTogetherChat.publicChat.addRecentChat(s);
+                break;
         }
     }
 

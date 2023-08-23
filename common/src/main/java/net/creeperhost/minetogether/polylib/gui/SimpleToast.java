@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.polylib.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.renderer.GameRenderer;
@@ -39,9 +40,8 @@ public class SimpleToast extends PolyToast {
 
     @Override
     public Toast.Visibility render(PoseStack poseStack, ToastComponent toastComponent, long l) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, TEXTURE);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        Minecraft.getInstance().getTextureManager().bind(TEXTURE);
+        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         toastComponent.blit(poseStack, 0, 0, 0, 0, this.width(), this.height());
         if (iconResourceLocation != null) {
             renderImage(poseStack, toastComponent, iconResourceLocation);

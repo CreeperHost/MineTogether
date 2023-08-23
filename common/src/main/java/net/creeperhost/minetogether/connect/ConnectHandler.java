@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -97,7 +98,7 @@ public class ConnectHandler {
             if (servers == null || servers.isEmpty()) {
                 // TODO, this needs to gracefully fail as noted bellow.
                 LOGGER.warn("No MTConnect nodes found.. :(");
-                throw new NotImplementedException();
+                throw new NotImplementedException("Not implemented.");
             }
 
             if (FORCED_NODE != null) {
@@ -134,7 +135,7 @@ public class ConnectHandler {
     @Nullable
     private static List<GetConnectServersRequest.ConnectServer> pollServers() throws IOException {
         if (NODE_HOSTS_OVERRIDE != null) {
-            return JsonUtils.parse(GSON, Path.of(NODE_HOSTS_OVERRIDE), GetConnectServersRequest.LIST_SERVERS);
+            return JsonUtils.parse(GSON, Paths.get(NODE_HOSTS_OVERRIDE), GetConnectServersRequest.LIST_SERVERS);
         }
         ApiClientResponse<List<GetConnectServersRequest.ConnectServer>> apiResp = MineTogether.API.execute(new GetConnectServersRequest());
         if (apiResp.statusCode() != 200) {
@@ -153,10 +154,12 @@ public class ConnectHandler {
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer server = mc.getSingleplayerServer();
         if (server == null) return;
-        mc.prepareForMultiplayer();
+        // TODO
+//        mc.prepareForMultiplayer();
 
         server.publishedPort = 0; // Doesn't matter, just set to _something_.
-        server.publishedGameType = gameType;
+        // TODO
+//        server.publishedGameType = gameType;
         server.getPlayerList().setAllowCheatsForAllPlayers(cheats);
         mc.player.setPermissionLevel(server.getProfilePermissions(mc.player.getGameProfile()));
 
@@ -182,7 +185,8 @@ public class ConnectHandler {
         if (server == null) return;
         //Un-Share the world.
         server.publishedPort = -1;
-        server.publishedGameType = null;
+        // TODO
+//        server.publishedGameType = null;
     }
 
     public static void updateFriendsSearch() {

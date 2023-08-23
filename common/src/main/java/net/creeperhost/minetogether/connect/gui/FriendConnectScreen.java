@@ -1,3 +1,4 @@
+/*
 package net.creeperhost.minetogether.connect.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -138,3 +139,4 @@ public class FriendConnectScreen extends ConnectScreen {
         super.render(poseStack, i, j, f);
     }
 }
+*/

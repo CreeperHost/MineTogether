@@ -38,6 +38,12 @@ allprojects {
     version = rootProject.mod_version
     group = rootProject.maven_group
 
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(8)
+        }
+    }
+
     repositories {
         mavenLocal()
         maven {
@@ -48,7 +54,7 @@ allprojects {
 
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
-        options.release = 17
+//        options.release = 17
     }
 
     java {

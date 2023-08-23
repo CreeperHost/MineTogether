@@ -1,9 +1,7 @@
 package net.creeperhost.minetogether.chat;
 
-import dev.architectury.event.events.client.ClientGuiEvent;
-import dev.architectury.hooks.client.screen.ScreenAccess;
-import dev.architectury.hooks.client.screen.ScreenHooks;
-import dev.architectury.platform.Platform;
+import me.shedaniel.architectury.event.events.GuiEvent;
+import me.shedaniel.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.gui.ChatScreen;
 import net.creeperhost.minetogether.chat.gui.FriendsListScreen;
@@ -21,8 +19,11 @@ import net.creeperhost.minetogether.polylib.gui.SimpleToast;
 import net.creeperhost.minetogether.util.ModPackInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -64,7 +65,7 @@ public class MineTogetherChat {
         // Class Initializer must be finished before MTChatComponent is constructed.
         publicChat = new MTChatComponent(ChatTarget.PUBLIC, Minecraft.getInstance());
 
-        ClientGuiEvent.INIT_POST.register(MineTogetherChat::onScreenOpen);
+        GuiEvent.INIT_POST.register(MineTogetherChat::onScreenOpen);
 
         if (Config.instance().debugMode) {
             System.setProperty("net.covers1624.pircbot.logging.info", "INFO");
@@ -90,8 +91,9 @@ public class MineTogetherChat {
                     publicChat.attach(channel);
 
                     // If we have the ChatScreen open. Attach to main chat.
-                    if (Minecraft.getInstance().screen instanceof ChatScreen chat) {
-                        chat.attach(channel);
+                    Screen screen = Minecraft.getInstance().screen;
+                    if (screen instanceof ChatScreen) {
+                        ((ChatScreen) screen).attach(channel);
                     }
                 }
             }
@@ -153,7 +155,7 @@ public class MineTogetherChat {
         return CHAT_STATE.profileManager.getOwnProfile();
     }
 
-    private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
+    private static void onScreenOpen(Screen screen, List<AbstractWidget> widgets, List<GuiEventListener> children) {
         if (screen instanceof TitleScreen) {
             if (!hasHitLoadingScreen) {
                 hasHitLoadingScreen = true;
@@ -169,11 +171,11 @@ public class MineTogetherChat {
     }
 
     private static void addMenuButtons(Screen screen) {
-        ScreenHooks.addRenderableWidget(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> {
+        screen.addButton(new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> {
             Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
         }));
         boolean chatEnabled = Config.instance().chatEnabled;
-        ScreenHooks.addRenderableWidget(screen, new IconButton(screen.width - 125, 5, chatEnabled ? 1 : 3, Constants.WIDGETS_SHEET, e -> {
+        screen.addButton(new IconButton(screen.width - 125, 5, chatEnabled ? 1 : 3, Constants.WIDGETS_SHEET, e -> {
             Minecraft.getInstance().setScreen(chatEnabled ? new ChatScreen(screen) : new SettingsScreen(screen));
         }));
     }

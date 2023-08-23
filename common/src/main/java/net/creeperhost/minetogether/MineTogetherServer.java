@@ -1,9 +1,9 @@
 package net.creeperhost.minetogether;
 
-import dev.architectury.event.events.common.CommandRegistrationEvent;
-import dev.architectury.event.events.common.LifecycleEvent;
-import dev.architectury.event.events.common.PlayerEvent;
-import dev.architectury.event.events.common.TickEvent;
+import me.shedaniel.architectury.event.events.CommandRegistrationEvent;
+import me.shedaniel.architectury.event.events.LifecycleEvent;
+import me.shedaniel.architectury.event.events.PlayerEvent;
+import me.shedaniel.architectury.event.events.TickEvent;
 import net.creeperhost.minetogether.server.Discoverability;
 import net.creeperhost.minetogether.server.PregenHandler;
 import net.creeperhost.minetogether.server.ServerListThread;

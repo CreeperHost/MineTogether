@@ -144,9 +144,8 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
         }
 
         //Draw Signal / Scanning Bars.
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
         GuiComponent.blit(poseStack, x + entryWidth - 15, y, (float) (signalTexSelect * 10), (float) (176 + singnalBarsInvrse * 8), 10, 8, 256, 256);
 
         //Update server icon.
@@ -177,10 +176,9 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
         }
 
         if (this.minecraft.options.touchscreen || selected) {
-            RenderSystem.setShaderTexture(0, ICON_OVERLAY_LOCATION);
+            minecraft.getTextureManager().bind(ICON_OVERLAY_LOCATION);
             GuiComponent.fill(poseStack, x, y, x + 32, y + 32, 0xa0909090);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             int v = mouseX - x;
             //Draw "Join Arrow"
             if (v < 32 && v > 16) {
@@ -196,7 +194,7 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
     }
 
     protected void drawIcon(PoseStack poseStack, int i, int j, ResourceLocation resourceLocation) {
-        RenderSystem.setShaderTexture(0, resourceLocation);
+        minecraft.getTextureManager().bind(resourceLocation);
         RenderSystem.enableBlend();
         GuiComponent.blit(poseStack, i, j, 0.0F, 0.0F, 32, 32, 32, 32);
         RenderSystem.disableBlend();

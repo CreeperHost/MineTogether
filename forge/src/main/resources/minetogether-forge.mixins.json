@@ -2,7 +2,6 @@
     "required": true,
     "package": "net.creeperhost.minetogether.forge.mixin",
     "client": [
-        "ForgeIngameGuiMixin",
-        "ForgeI18nMixin"
+        "ForgeIngameGuiMixin"
     ]
 }

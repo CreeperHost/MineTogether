@@ -89,17 +89,17 @@ public class ChatScreen extends Screen {
         sendEditBox.setFocus(shouldFocusEditBox);
         sendEditBox.setMaxLength(256);
 
-        addRenderableWidget(chatList);
-        addRenderableWidget(sendEditBox);
+        addWidget(chatList);
+        addButton(sendEditBox);
 
-        addRenderableWidget(new IconButton(width - 124, 5, 3, Constants.WIDGETS_SHEET, e -> {
+        addButton(new IconButton(width - 124, 5, 3, Constants.WIDGETS_SHEET, e -> {
             minecraft.setScreen(new SettingsScreen(this));
         }));
-        addRenderableWidget(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TranslatableComponent("minetogether:button.cancel"), button -> {
+        addButton(new Button(width - 100 - 5, height - 5 - 20, 100, 20, new TranslatableComponent("minetogether:button.cancel"), button -> {
             minecraft.setScreen(parent);
         }));
 
-        addRenderableWidget(connectionStatus = new StringButton(8, height - 20, 70, 20, false, () -> {
+        addButton(connectionStatus = new StringButton(8, height - 20, 70, 20, false, () -> {
             IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
             return new TextComponent(ChatConstants.STATE_FORMAT_LOOKUP.get(state) + "\u2022" + " " + ChatFormatting.WHITE + ChatConstants.STATE_DESC_LOOKUP.get(state));
         }, button -> {
@@ -113,22 +113,28 @@ public class ChatScreen extends Screen {
             }
         }));
 
-        addRenderableWidget(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
+        addButton(friendsList = new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> minecraft.setScreen(new FriendsListScreen(this))));
 
-        messageDropdownButton = addRenderableWidget(new DropdownButton<>(100, 20, clicked -> {
+        messageDropdownButton = addButton(new DropdownButton<>(100, 20, clicked -> {
             assert clickedMessage != null;
             assert clickedMessage.sender != null;
             switch (clicked) {
-                case MUTE -> clickedMessage.sender.mute();
-                case ADD_FRIEND -> minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
-                case MENTION -> {
+                case MUTE:
+                    clickedMessage.sender.mute();
+                    break;
+                case ADD_FRIEND:
+                    minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
+                    break;
+                case MENTION:
                     String val = sendEditBox.getValue();
                     if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
                         val = val + " ";
                     }
                     sendEditBox.setValue(val + clickedMessage.sender.getDisplayName());
-                }
-                default -> LOGGER.info("Dropdown action not currently implemented! {}", clicked);
+                    break;
+                default:
+                    LOGGER.info("Dropdown action not currently implemented! {}", clicked);
+                    break;
             }
         }));
         messageDropdownButton.setEntries(MessageDropdownOption.VALUES);
@@ -150,13 +156,13 @@ public class ChatScreen extends Screen {
         }
     }
 
-    @Override
-    protected void clearWidgets() {
-        if (chatList != null) {
-            chatList.removed();
-        }
-        super.clearWidgets();
-    }
+//    @Override
+//    protected void clearWidgets() {
+//        if (chatList != null) {
+//            chatList.removed();
+//        }
+//        super.clearWidgets();
+//    }
 
     @Override
     public void removed() {
@@ -194,6 +200,7 @@ public class ChatScreen extends Screen {
     @Override
     public void render(PoseStack pStack, int mouseX, int mouseY, float partialTicks) {
         renderDirtBackground(1);
+        chatList.render(pStack, mouseX, mouseY, partialTicks);
         super.render(pStack, mouseX, mouseY, partialTicks);
         drawCenteredString(pStack, font, getTitle(), width / 2, 5, 0xFFFFFF);
         if (newUser) {

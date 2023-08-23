@@ -6,7 +6,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.screen.OrderServerScreen;
-import net.creeperhost.polylib.client.screen.widget.buttons.ButtonString;
+import net.creeperhost.minetogether.polylib.client.screen.widget.buttons.ButtonString;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -48,9 +48,9 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             if (transparency >= 0.5F) transparency -= 0.04;
         }
 
-        RenderSystem.setShaderTexture(0, serverIcon);
+        this.minecraft.getTextureManager().bind(serverIcon);
         RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, transparency);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
         Screen.blit(matrixStack, x, y, 0.0F, 0.0F, 32, 32, 32, 32);
         int transparentString = (int) (transparency * 254) << 24;
         this.mc.font.draw(matrixStack, I18n.get("minetogether.multiplayerscreen.partner"), x + 35, y, 16777215 + transparentString);
@@ -65,10 +65,10 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             removeButton.y = y;
 
             if (removeButton.isMouseOver(mouseX, mouseY)) {
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 final int tooltipY = mouseY + ((mc.screen.width / 2 >= mouseY) ? 11 : -11);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, transparency);
-                RenderSystem.setShaderTexture(0, BUTTON_TEXTURES);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, transparency);
+                this.minecraft.getTextureManager().bind(BUTTON_TEXTURES);
                 Screen.blit(matrixStack, mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
             }
         }

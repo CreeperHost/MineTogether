@@ -69,23 +69,23 @@ public class FriendsListScreen extends Screen {
         lastFriendUpdateCookie = -1;
         friendList = new SimpleSelectionList<>(minecraft, 100, height - 90, 32, height - 55, 28, 100);
         friendList.setLeftPos(18);
-        addRenderableWidget(friendList);
+        addWidget(friendList);
 
         chatList = new ChatScrollList(Minecraft.getInstance(), width - friendList.getRowWidth() - 40, height - 90, 32, height - 55);
         chatList.setLeftPos(friendList.getRowRight());
         chatList.setScrollAmount(chatList.getMaxScroll());
-        addRenderableWidget(chatList);
+        addWidget(chatList);
 
         chatBox = new EditBox(font, friendList.getRowRight() + 1, height - 50, chatList.width - 2, 20, TextComponent.EMPTY);
         chatBox.setMaxLength(256);
-        addRenderableWidget(chatBox);
+        addButton(chatBox);
 
         searchBox = new EditBox(font, 19, height - 50, friendList.getWidth() - 2, 20, TextComponent.EMPTY);
-        addRenderableWidget(searchBox);
+        addButton(searchBox);
 
-        addRenderableWidget(new Button(5, height - 26, 100, 20, new TranslatableComponent("minetogether:button.cancel"), e -> minecraft.setScreen(parent)));
+        addButton(new Button(5, height - 26, 100, 20, new TranslatableComponent("minetogether:button.cancel"), e -> minecraft.setScreen(parent)));
 
-        acceptRequest = addRenderableWidget(new Button(width - 215, height - 26, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.accept"), e -> {
+        acceptRequest = addButton(new Button(width - 215, height - 26, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.accept"), e -> {
             FriendEntry entry = friendList.getSelected();
             assert entry != null;
             assert entry.request != null;
@@ -93,7 +93,7 @@ public class FriendsListScreen extends Screen {
         }));
         acceptRequest.visible = false;
 
-        denyRequest = addRenderableWidget(new Button(width - 110, height - 26, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.deny"), e -> {
+        denyRequest = addButton(new Button(width - 110, height - 26, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.deny"), e -> {
             FriendEntry entry = friendList.getSelected();
             assert entry != null;
             assert entry.request != null;
@@ -102,29 +102,29 @@ public class FriendsListScreen extends Screen {
         }));
         denyRequest.visible = false;
 
-        removeFriend = addRenderableWidget(new IconButton(width - 20, 32, 5, Constants.WIDGETS_SHEET, e -> {
+        removeFriend = addButton(new IconButton(width - 20, 32, 5, Constants.WIDGETS_SHEET, e -> {
             assert targetProfile != null;
             chatList.attach(null);
             MineTogetherChat.CHAT_STATE.profileManager.removeFriend(targetProfile);
         }));
-        blockButton = addRenderableWidget(new IconButton(width - 20, 52, 6, Constants.WIDGETS_SHEET, e -> {
+        blockButton = addButton(new IconButton(width - 20, 52, 6, Constants.WIDGETS_SHEET, e -> {
             assert targetProfile != null;
             targetProfile.mute();
         }));
-        partyButton = addRenderableWidget(new IconButton(width - 20, 72, 7, Constants.WIDGETS_SHEET, e -> {
+        partyButton = addButton(new IconButton(width - 20, 72, 7, Constants.WIDGETS_SHEET, e -> {
         }));
         partyButton.active = false;
-        editButton = addRenderableWidget(new IconButton(width - 20, 92, 8, Constants.WIDGETS_SHEET, e -> {
+        editButton = addButton(new IconButton(width - 20, 92, 8, Constants.WIDGETS_SHEET, e -> {
             assert targetProfile != null;
             Minecraft.getInstance().setScreen(new FriendRequestScreen(this, targetProfile, FriendRequestScreen.Type.UPDATE));
         }));
 
         if (!(parent instanceof MutedUsersScreen)) {
-            addRenderableWidget(new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.muted"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
+            addButton(new Button(5, 5, 100, 20, new TranslatableComponent("minetogether:screen.friends.button.muted"), e -> minecraft.setScreen(new MutedUsersScreen(this))));
         }
 
         tooltips = new TooltipContainer(this);
-        addRenderableOnly(tooltips);
+//        addWidget(tooltips);
 
         tooltips.addTooltip(removeFriend, new TranslatableComponent("minetogether:screen.friends.tooltip.remove"));
         tooltips.addTooltip(blockButton, new TranslatableComponent("minetogether:screen.friends.tooltip.block"));
@@ -137,6 +137,10 @@ public class FriendsListScreen extends Screen {
     @Override
     public void render(PoseStack poseStack, int i, int j, float f) {
         renderDirtBackground(1);
+        friendList.render(poseStack, i, j, f);
+        chatList.render(poseStack, i, j, f);
+        tooltips.render(poseStack, i, j, f);
+
         super.render(poseStack, i, j, f);
     }
 

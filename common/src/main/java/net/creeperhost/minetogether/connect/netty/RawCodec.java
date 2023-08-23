@@ -22,8 +22,8 @@ public class RawCodec extends MessageToMessageCodec<Packet<?>, ByteBuf> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, Packet<?> msg, List<Object> out) throws Exception {
-        if (msg instanceof CRaw p) {
-            out.add(p.data);
+        if (msg instanceof CRaw) {
+            out.add(((CRaw) msg).data);
         }
     }
 }

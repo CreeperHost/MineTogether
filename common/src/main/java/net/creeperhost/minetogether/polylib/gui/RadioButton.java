@@ -93,7 +93,7 @@ public class RadioButton extends Button {
             textColor = 0xffffa0;
             fillColor = 256 / 2 << 24;
         }
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         fill(pStack, x, y, x + width, y + height, fillColor);
 
         Font font = Minecraft.getInstance().font;

@@ -95,7 +95,7 @@ abstract class ChatComponentMixin {
     }
 
     private static void drawLogo(PoseStack pStack, Font font, int containerWidth, int containerHeight, int containerX, int containerY, float scale) {
-        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+        RenderSystem.color4f(1F, 1F, 1F, 1F);
         float invScale = 1 / scale;
         int width = (int) (containerWidth * invScale);
         int height = (int) (containerHeight * invScale);
@@ -115,7 +115,8 @@ abstract class ChatComponentMixin {
 
         totalHeight *= invScale;
 
-        RenderSystem.setShaderTexture(0, Constants.MINETOGETHER_LOGO_25);
+        Minecraft minecraft = Minecraft.getInstance();
+        minecraft.getTextureManager().bind(Constants.MINETOGETHER_LOGO_25);
         RenderSystem.enableBlend();
         GuiComponent.blit(pStack, x + (width / 2 - (mtWidth / 2)), y + (height / 2 - (totalHeight / 2)), 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
 
@@ -125,8 +126,8 @@ abstract class ChatComponentMixin {
         int creeperTotalWidth = creeperWidth + stringWidth;
         font.drawShadow(pStack, created, x + (width / 2F - (creeperTotalWidth / 2F)), y + (height / 2F - (totalHeight / 2F) + mtHeight + 7), 0x40FFFFFF);
 
-        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
-        RenderSystem.setShaderTexture(0, Constants.CREEPERHOST_LOGO_25);
+        RenderSystem.color4f(1F, 1F, 1F, 1F);
+        minecraft.getTextureManager().bind(Constants.CREEPERHOST_LOGO_25);
         RenderSystem.enableBlend();
         GuiComponent.blit(pStack, x + (width / 2 - (creeperTotalWidth / 2) + stringWidth), y + (height / 2 - (totalHeight / 2) + mtHeight), 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
 

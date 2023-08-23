@@ -3,7 +3,6 @@ package net.creeperhost.minetogether.polylib.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSelectionList;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 
 /**
  * Created by covers1624 on 24/8/22.
@@ -46,10 +45,6 @@ public class SimpleSelectionList<E extends SimpleSelectionList.SimpleEntry<E>> e
     @Override
     protected int getScrollbarPosition() {
         return scrollBarPosition == -1 ? super.getScrollbarPosition() : scrollBarPosition;
-    }
-
-    @Override
-    public void updateNarration(NarrationElementOutput narrationElementOutput) {
     }
 
     public static class SimpleEntry<E extends SimpleEntry<E>> extends Entry<E> {
