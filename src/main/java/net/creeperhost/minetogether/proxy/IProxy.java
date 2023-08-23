@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.proxy;
 
 import net.creeperhost.minetogether.chat.Message;
+import net.creeperhost.minetogether.session.MineTogetherSession;
 
 import java.util.UUID;
 
@@ -32,5 +33,5 @@ public interface IProxy
 
     boolean checkOnline();
 
-    String getServerIDAndVerify();
+    MineTogetherSession getSession();
 }

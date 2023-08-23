@@ -121,7 +121,7 @@ public class CreeperHost implements ICreeperHostMod, IHost
 
     public static String getServerIDAndVerify()
     {
-        return proxy.getServerIDAndVerify();
+        return proxy.getSession().toString();
     }
 
     @SuppressWarnings("Duplicates")
@@ -129,9 +129,8 @@ public class CreeperHost implements ICreeperHostMod, IHost
     public void preInit(FMLPreInitializationEvent event)
     {
         INSTANCE = this;
-        String serverIDAndVerify = proxy.getServerIDAndVerify();
         signature = verifySignature();
-        if(signature == null) signature = "Development";
+        if(signature == null) signature = System.getProperty("mt.develop.signature", "Develop");
 
         if(event.getSide() != Side.SERVER) {
             MinecraftForge.EVENT_BUS.register(new net.creeperhost.minetogether.mtconnect.EventHandler());

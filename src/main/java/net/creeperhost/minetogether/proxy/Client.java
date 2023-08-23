@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.proxy;
 
+import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -22,6 +23,7 @@ import net.creeperhost.minetogether.gui.serverlist.gui.GuiFriendsList;
 import net.creeperhost.minetogether.gui.serverlist.gui.GuiInvited;
 import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.misc.Callbacks;
+import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiScreen;
@@ -39,11 +41,15 @@ import org.lwjgl.input.Keyboard;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Client implements IProxy
 {
@@ -237,15 +243,31 @@ public class Client implements IProxy
         return false;
     }
 
+    private static MineTogetherSession session;
+
     @Override
-    public String getServerIDAndVerify() {
+    public MineTogetherSession getSession() {
         Minecraft mc = Minecraft.getMinecraft();
-        String serverId = DigestUtils.sha1Hex(String.valueOf(new Random().nextInt()));
-        try {
-            mc.getSessionService().joinServer(mc.getSession().getProfile(), mc.getSession().getToken(), serverId);
-        } catch (AuthenticationException e) {
-            return null;
+        GameProfile profile = mc.getSession().getProfile();
+        // Profile id may be null if none is specified when starting the game (dev)
+        // Version 4 is 'random', version 3 is offline (md5 hash based).
+        if (profile.getId() != null && profile.getId().version() == 4) {
+            session = new MineTogetherSession(
+                    Paths.get("./.mtsession"),
+                    profile.getId(),
+                    profile.getName(),
+                    () -> {
+                        String serverId = Hashing.sha1().hashString(UUID.randomUUID().toString(), UTF_8).toString();
+                        try {
+                            mc.getSessionService().joinServer(mc.getSession().getProfile(), mc.getSession().getToken(), serverId);
+                            return serverId;
+                        } catch (AuthenticationException ex) {
+                            CreeperHost.logger.error("Failed to send 'joinServer' request.", ex);
+                        }
+                        return null;
+                    }
+            );
         }
-        return serverId;
+        return session;
     }
 }
