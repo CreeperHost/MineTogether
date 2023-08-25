@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.connect;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
+import io.netty.channel.ChannelFuture;
 import net.covers1624.quack.collection.FastStream;
 import net.covers1624.quack.gson.JsonUtils;
 import net.creeperhost.minetogether.MineTogether;
@@ -55,6 +56,9 @@ public class ConnectHandler {
 
     @Nullable
     private static ConnectHost endpoint;
+
+    private static boolean didWeShareFirst = false;
+    private static NettyClient.ProxyConnection publishedServer;
 
     public static void init() {
     }
@@ -154,7 +158,12 @@ public class ConnectHandler {
         if (server == null) return;
         mc.prepareForMultiplayer();
 
-        server.publishedPort = 0; // Doesn't matter, just set to _something_.
+        if (server.isPublished()) {
+            didWeShareFirst = false;
+        } else {
+            didWeShareFirst = true;
+            server.publishedPort = 0; // Doesn't matter, just set to _something_.
+        }
         server.publishedGameType = gameType;
         server.getPlayerList().setAllowCheatsForAllPlayers(cheats);
         mc.player.setPermissionLevel(server.getProfilePermissions(mc.player.getGameProfile()));
@@ -166,7 +175,7 @@ public class ConnectHandler {
         CompletableFuture.runAsync(() -> {
             try { // TODO, This should be done outside somewhere.
                 JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
-                NettyClient.publishServer(server, getEndpoint(), token);
+                publishedServer = NettyClient.publishServer(server, getEndpoint(), token);
             } catch (Exception e) {
                 Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed", e.getMessage()));
                 LOGGER.error("Failed to open to friends", e);
@@ -179,9 +188,20 @@ public class ConnectHandler {
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer server = mc.getSingleplayerServer();
         if (server == null) return;
-        //Un-Share the world.
-        server.publishedPort = -1;
-        server.publishedGameType = null;
+        // This will yeet the control socket, which, should cause the proxy to sever all other connections.
+        if (publishedServer != null) {
+            publishedServer.disconnect();
+            publishedServer = null;
+        }
+        if (didWeShareFirst) {
+            //Un-Share the world.
+            server.publishedPort = -1;
+            server.publishedGameType = null;
+        }
+    }
+
+    public static boolean isPublished() {
+        return publishedServer != null;
     }
 
     public static void updateFriendsSearch() {

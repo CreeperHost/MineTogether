@@ -36,7 +36,18 @@ public class MineTogetherConnect {
         IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
         if (integratedServer == null) return;
 
-        @SuppressWarnings("unchecked")
+        boolean isConnectPublished = ConnectHandler.isPublished();
+        Component buttonText = isConnectPublished ? Component.translatable("minetogether.connect.close") : Component.translatable("minetogether.connect.open");
+        Button.OnPress action = button -> {
+            if (isConnectPublished) {
+                ConnectHandler.unPublish();
+                Minecraft.getInstance().setScreen(new PauseScreen(true));
+            } else {
+                Minecraft.getInstance().setScreen(new GuiShareToFriends(screen));
+            }
+        };
+
+        @SuppressWarnings ("unchecked")
         List<GuiEventListener> children = (List<GuiEventListener>) screen.children();
         List<Renderable> renderables = screenAccess.getRenderables();
         List<NarratableEntry> narratables = screenAccess.getNarratables();
@@ -46,7 +57,7 @@ public class MineTogetherConnect {
         if (!Config.instance().moveButtonsOnPauseMenu || feedBack == null || options == null) {
             // Just add the button bellow the FriendsList button in the corner.
             // We either didn't find the Feedback and Options buttons, or moving these buttons was disabled in our config.
-            Button openToFriends = Button.builder(Component.translatable("minetogether.connect.open"), (button) -> Minecraft.getInstance().setScreen(new GuiShareToFriends(screen)))
+            Button openToFriends = Button.builder(buttonText, action)
                     .bounds(screen.width - 105, 25, 100, 20)
                     .build();
             ScreenHooks.addRenderableWidget(screen, openToFriends);
@@ -54,11 +65,9 @@ public class MineTogetherConnect {
         }
 
         // Open To Friends button goes where the options button was.
-        Button openToFriends = Button.builder(Component.translatable("minetogether.connect.open"), (button) -> Minecraft.getInstance().setScreen(new GuiShareToFriends(screen)))
+        Button openToFriends = Button.builder(buttonText, action)
                 .bounds(options.getX(), options.getY(), 98, 20)
                 .build();
-
-        openToFriends.active = !integratedServer.isPublished();
         ScreenHooks.addRenderableWidget(screen, openToFriends);
 
         // Move the options button to where the feedback button was.

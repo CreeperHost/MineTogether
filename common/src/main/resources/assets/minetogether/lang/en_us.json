@@ -171,6 +171,7 @@
     "minetogether.multiplayerscreen.partner":"Support the modpack creator!",
     
     "minetogether.connect.open": "Open to friends",
+    "minetogether.connect.close": "Close from friends",
     "minetogether.connect.open.title":"MineTogether Connect",
     "minetogether.connect.open.settings":"Settings for MineTogether friends",
     "minetogether.connect.open.start":"Open world to friends",
@@ -178,6 +179,7 @@
     "minetogether.connect.open.success":"Opened local game world to your MineTogether friends.",
     "minetogether.connect.open.failed":"Failed to open local game to MineTogether friends: %s",
     "minetogether.connect.open.proxy.disconnect":"MineTogether connection lost. Your world is no longer shared to friends.",
+    "minetogether.connect.open.proxy.closed":"Closed local game world. Friends can no longer connect.",
     "minetogether.connect.join.full.descript":"FULL",
     "minetogether.connect.join.full":"MineTogether friends' server is full. Please contact your friend!",
     "minetogether.connect.join.tried.name":"Your friend %s tried to join but was unable to do so as the player limit has been reached :(\nFor more information, please see https://minetogether.io/full/%s",

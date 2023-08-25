@@ -46,9 +46,12 @@ public class NettyClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static void publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session) {
+    public static ProxyConnection publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session) {
         Throwable[] error = new Throwable[1];
         ProxyConnection connection = new ProxyConnection(endpoint) {
+
+            private boolean disconnectRequested = false;
+
             @Override
             public void channelReady() {
                 sendPacket(new SHostRegister(session.toString()));
@@ -67,8 +70,12 @@ public class NettyClient {
             @Override
             public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
                 super.channelInactive(ctx);
-                Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.proxy.disconnect").withStyle(ChatFormatting.RED));
-                ConnectHandler.unPublish();
+                if (disconnectRequested) {
+                    Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.proxy.closed"));
+                } else {
+                    Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.proxy.disconnect").withStyle(ChatFormatting.RED));
+                    ConnectHandler.unPublish();
+                }
             }
 
             @Override
@@ -83,6 +90,14 @@ public class NettyClient {
             @Override
             public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {
                 link(server, endpoint, session, packet.linkToken);
+            }
+
+            @Override
+            public void disconnect() {
+                if (disconnectRequested) return;
+                disconnectRequested = true;
+                // TODO, we should send a packet to the proxy and nicely kick all clients with a 'Host closed the game' message or something.
+                channel.close();
             }
         };
         ChannelFuture channelFuture = openConnection(
@@ -109,6 +124,7 @@ public class NettyClient {
         synchronized (listener.channels) {
             listener.channels.add(channelFuture);
         }
+        return connection;
     }
 
     public static Connection connect(ConnectHost endpoint, JWebToken session, String serverToken) {
@@ -354,6 +370,9 @@ public class NettyClient {
         }
 
         protected void onDisconnected(String message) {
+        }
+
+        public void disconnect() {
         }
 
         @Override
