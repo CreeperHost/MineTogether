@@ -3,7 +3,6 @@ package net.creeperhost.minetogether.connect.gui;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.ConnectHost;
 import net.creeperhost.minetogether.connect.RemoteServer;
@@ -11,6 +10,7 @@ import net.creeperhost.minetogether.connect.netty.NettyClient;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.mixin.connect.ServerSelectionListAccessor;
 import net.creeperhost.minetogether.session.JWebToken;
+import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiComponent;
@@ -129,7 +129,7 @@ public class ServerListAppender {
     }
 
     public void pingServer(RemoteServer server, Profile profile) throws Exception {
-        JWebToken token = MineTogetherClient.getSession().get().orThrow();
+        JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
         Connection connection = NettyClient.connect(ConnectHandler.getSpecificEndpoint(server.node), token, server.serverToken);
         connections.add(connection);
         server.motd = new TranslatableComponent("multiplayer.status.pinging");

@@ -12,8 +12,10 @@ dependencies {
 
 //    modApi "net.creeperhost:polylib-fabric:${polylib_version}"
     modApi "blue.endless:jankson:${jankson_version}"
-    modApi "net.creeperhost:MineTogetherLib:${mtlib_version}"
-    modApi ("net.creeperhost:MineTogetherSessions:${mtsession_version}") {
+    modApi("net.creeperhost:MineTogetherLib:${mtlib_version}") {
+        exclude group: "net.creeperhost", module: "MineTogetherSessions"
+    }
+    modApi("net.creeperhost:MineTogetherSessions:${mtsession_version}") {
         transitive false
     }
     modApi("net.creeperhost:MTConnectProxyCommon:${mtproxy_version}") {
