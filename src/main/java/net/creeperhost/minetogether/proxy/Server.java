@@ -50,9 +50,4 @@ public class Server implements IProxy
     public boolean checkOnline() {
         return false;
     }
-
-    @Override
-    public MineTogetherSession getSession() {
-        return null;
-    }
 }

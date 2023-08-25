@@ -39,6 +39,7 @@ group = "${config.group_id}" // http://maven.apache.org/guides/mini/guide-naming
 archivesBaseName = "${config.mod_name}-${config.minecraft_version}"
 
 repositories {
+    mavenLocal()
     maven {
         name = "CreeperHost"
         url = 'https://maven.creeperhost.net'
@@ -64,7 +65,7 @@ dependencies {
     shadow 'org.nanohttpd:nanohttpd:2.3.1'
     shadow 'com.github.scribejava:scribejava-apis:6.9.0'
     shadow 'com.github.scribejava:scribejava-core:6.9.0'
-    shadow("net.creeperhost:MineTogetherSessions:1.1.4") {
+    shadow("net.creeperhost:MineTogetherSessions:1.2.1") {
         transitive false
     }
 

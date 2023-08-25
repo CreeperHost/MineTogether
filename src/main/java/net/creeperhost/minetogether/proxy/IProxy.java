@@ -32,6 +32,4 @@ public interface IProxy
     void refreshChat();
 
     boolean checkOnline();
-
-    MineTogetherSession getSession();
 }

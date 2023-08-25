@@ -15,9 +15,11 @@ import net.creeperhost.minetogether.misc.CreeperHostServerHost;
 import net.creeperhost.minetogether.proxy.IProxy;
 import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.serverstuffs.command.CommandKill;
+import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.creeperhost.minetogether.siv.QueryGetter;
 import net.creeperhost.minetogether.trade.GuiHandler;
 import net.creeperhost.minetogether.trade.TradeEventHandler;
+import net.creeperhost.minetogether.util.MTSessionProvider;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
@@ -119,11 +121,6 @@ public class CreeperHost implements ICreeperHostMod, IHost
         return signature;
     }
 
-    public static String getServerIDAndVerify()
-    {
-        return proxy.getSession().toString();
-    }
-
     @SuppressWarnings("Duplicates")
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -150,6 +147,9 @@ public class CreeperHost implements ICreeperHostMod, IHost
             {
                 logger.error("Client is in offline mode");
             }
+            MineTogetherSession.getDefault().setProvider(new MTSessionProvider());
+            // Trigger session validation early in the background.
+            MineTogetherSession.getDefault().getTokenAsync();
         }
 
         configFile = event.getSuggestedConfigurationFile();

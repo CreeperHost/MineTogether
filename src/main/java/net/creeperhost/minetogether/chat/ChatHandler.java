@@ -9,6 +9,8 @@ import net.creeperhost.minetogether.data.Friend;
 import net.creeperhost.minetogether.data.Profile;
 import net.creeperhost.minetogether.irc.IrcHandler;
 import net.creeperhost.minetogether.misc.Callbacks;
+import net.creeperhost.minetogether.session.JWebToken;
+import net.creeperhost.minetogether.session.MineTogetherSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -290,9 +292,16 @@ public class ChatHandler
                     break;
                 case "VERIFY":
                     if (!user.startsWith("MT")) {
-                        String serverID = CreeperHost.getServerIDAndVerify();
-                        if (serverID == null) return;
-                        IrcHandler.sendCTCPMessage(user, "VERIFY", CreeperHost.getSignature() + ":" + CreeperHost.proxy.getUUID() + ":" + serverID);
+                        JWebToken token;
+                        try {
+                            token = MineTogetherSession.getDefault().getTokenAsync().get();
+                        } catch (Throwable ex) {
+                            logger.error("Failed to get session token.", ex);
+                            return;
+                        }
+                        if (token == null) return;
+
+                        IrcHandler.sendCTCPMessage(user, "VERIFY", CreeperHost.getSignature().substring(0, 15) + ":" + token);
                     }
             }
         }, CreeperHost.ircEventExecutor);

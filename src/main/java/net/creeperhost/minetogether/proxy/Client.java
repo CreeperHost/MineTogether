@@ -242,32 +242,4 @@ public class Client implements IProxy
         } catch (AuthenticationException ignored) {}
         return false;
     }
-
-    private static MineTogetherSession session;
-
-    @Override
-    public MineTogetherSession getSession() {
-        Minecraft mc = Minecraft.getMinecraft();
-        GameProfile profile = mc.getSession().getProfile();
-        // Profile id may be null if none is specified when starting the game (dev)
-        // Version 4 is 'random', version 3 is offline (md5 hash based).
-        if (profile.getId() != null && profile.getId().version() == 4) {
-            session = new MineTogetherSession(
-                    Paths.get("./.mtsession"),
-                    profile.getId(),
-                    profile.getName(),
-                    () -> {
-                        String serverId = Hashing.sha1().hashString(UUID.randomUUID().toString(), UTF_8).toString();
-                        try {
-                            mc.getSessionService().joinServer(mc.getSession().getProfile(), mc.getSession().getToken(), serverId);
-                            return serverId;
-                        } catch (AuthenticationException ex) {
-                            CreeperHost.logger.error("Failed to send 'joinServer' request.", ex);
-                        }
-                        return null;
-                    }
-            );
-        }
-        return session;
-    }
 }
