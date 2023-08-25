@@ -2,11 +2,10 @@ package net.creeperhost.minetogether.chat;
 
 import com.google.common.hash.Hashing;
 import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.datafixers.util.Either;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.lib.chat.ChatAuth;
 import net.creeperhost.minetogether.session.JWebToken;
+import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import org.apache.logging.log4j.LogManager;
@@ -14,8 +13,8 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -55,16 +54,11 @@ public class ChatAuthImpl implements ChatAuth {
     @Override
     public @Nullable JWebToken getSessionToken() {
         try {
-            Either<JWebToken, String> either = MineTogetherClient.getSession().get();
-            Optional<JWebToken> tokenOpt = either.left();
-            if (tokenOpt.isPresent()) {
-                return tokenOpt.get();
-            }
-            LOGGER.warn("Failed to get MineTogether session. {}", either.right().get());
-        } catch (Throwable ex) {
-            LOGGER.error("Failed to get MineTogether session.", ex);
+            return MineTogetherSession.getDefault().getTokenAsync().get();
+        } catch (InterruptedException | ExecutionException ex ){
+            LOGGER.error("Error whilst waiting for token.", ex);
+            return null;
         }
-        return null;
     }
 
     @Deprecated // Exists for old connect. Will be nuked with new connect.

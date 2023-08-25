@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.ConnectHost;
 import net.creeperhost.minetogether.connect.FriendServerData;
@@ -15,6 +14,7 @@ import net.creeperhost.minetogether.connect.RemoteServer;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.session.JWebToken;
+import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -69,7 +69,7 @@ public class FriendConnectScreen extends ConnectScreen {
                     }
 
                     ConnectHost endpoint = ConnectHandler.getSpecificEndpoint(server.node);
-                    JWebToken token = MineTogetherClient.getSession().get().orThrow();
+                    JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
                     connection = NettyClient.connect(endpoint, token, server.serverToken);
 
                     connection.setListener(new ClientHandshakePacketListenerImpl(connection, minecraft, parent, FriendConnectScreen.this::updateStatus));
