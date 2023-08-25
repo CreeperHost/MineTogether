@@ -15,6 +15,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 
@@ -37,6 +38,17 @@ public class MineTogetherConnect {
         IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
         if (integratedServer == null) return;
 
+        boolean isConnectPublished = ConnectHandler.isPublished();
+        Component buttonText = isConnectPublished ? new TranslatableComponent("minetogether.connect.close") : new TranslatableComponent("minetogether.connect.open");
+        Button.OnPress action = button -> {
+            if (isConnectPublished) {
+                ConnectHandler.unPublish();
+                Minecraft.getInstance().setScreen(new PauseScreen(true));
+            } else {
+                Minecraft.getInstance().setScreen(new GuiShareToFriends(screen));
+            }
+        };
+
         @SuppressWarnings ("unchecked")
         List<GuiEventListener> children = (List<GuiEventListener>) screen.children();
         List<Widget> renderables = screenAccess.getRenderables();
@@ -47,15 +59,13 @@ public class MineTogetherConnect {
         if (!Config.instance().moveButtonsOnPauseMenu || feedBack == null || options == null) {
             // Just add the button bellow the FriendsList button in the corner.
             // We either didn't find the Feedback and Options buttons, or moving these buttons was disabled in our config.
-            Button openToFriends = new Button(screen.width - 105, 25, 100, 20, new TranslatableComponent("minetogether.connect.open"), (button) -> Minecraft.getInstance().setScreen(new GuiShareToFriends(screen)));
+            Button openToFriends = new Button(screen.width - 105, 25, 100, 20, buttonText, action);
             ScreenHooks.addRenderableWidget(screen, openToFriends);
             return;
         }
 
         // Open To Friends button goes where the options button was.
-        Button openToFriends = new Button(options.x, options.y, 98, 20, new TranslatableComponent("minetogether.connect.open"), (button) -> Minecraft.getInstance().setScreen(new GuiShareToFriends(screen)));
-
-        openToFriends.active = !integratedServer.isPublished();
+        Button openToFriends = new Button(options.x, options.y, 98, 20, buttonText, action);
         ScreenHooks.addRenderableWidget(screen, openToFriends);
 
         // Move the options button to where the feedback button was.
