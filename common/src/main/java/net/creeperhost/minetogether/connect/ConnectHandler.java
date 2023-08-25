@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import net.covers1624.quack.collection.FastStream;
 import net.covers1624.quack.gson.JsonUtils;
 import net.creeperhost.minetogether.MineTogether;
-import net.creeperhost.minetogether.MineTogetherClient;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.connect.lib.netty.packet.CFriendServers;
 import net.creeperhost.minetogether.connect.lib.web.GetConnectServersRequest;
@@ -14,6 +13,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.session.JWebToken;
+import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.creeperhost.minetogether.util.GetClosestDCRequest;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
@@ -165,7 +165,7 @@ public class ConnectHandler {
 
         CompletableFuture.runAsync(() -> {
             try { // TODO, This should be done outside somewhere.
-                JWebToken token = MineTogetherClient.getSession().get().orThrow();
+                JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
                 NettyClient.publishServer(server, getEndpoint(), token);
             } catch (Exception e) {
                 Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed"));
@@ -216,7 +216,7 @@ public class ConnectHandler {
         activeSearch = CompletableFuture.runAsync(() -> {
             searchResult = null;
             try {
-                JWebToken token = MineTogetherClient.getSession().get().orThrow();
+                JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
                 searchResult = NettyClient.getFriendServers(getEndpoint(), token).servers;
             } catch (Throwable e) {
                 LOGGER.error("An error occurred while searching for friend servers.", e);
