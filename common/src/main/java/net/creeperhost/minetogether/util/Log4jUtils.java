@@ -9,6 +9,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.RollingRandomAccessFileAppender;
 import org.apache.logging.log4j.core.appender.rolling.*;
 import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.nio.file.Path;
@@ -70,12 +71,16 @@ public class Log4jUtils {
                             OnStartupTriggeringPolicy.createPolicy(1),
                             SizeBasedTriggeringPolicy.createPolicy("200MB")
                     ))
-                    // TODO
-//                    .withStrategy(DefaultRolloverStrategy.newBuilder()
-//                            .withMax("5")
-//                            .withFileIndex("min")
-//                            .build()
-//                    )
+                    .withStrategy(DefaultRolloverStrategy.createStrategy(
+                                    "5",
+                                    null,
+                                    "max",
+                                    null,
+                                    null,
+                                    true,
+                                    new DefaultConfiguration()
+                            )
+                    )
                     .build();
 
             latest.start();

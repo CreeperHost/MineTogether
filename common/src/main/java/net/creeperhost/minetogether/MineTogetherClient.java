@@ -17,10 +17,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.ConfirmLinkScreen;
-import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.*;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.logging.log4j.LogManager;
@@ -79,8 +77,7 @@ public class MineTogetherClient {
             }
 
             ServerData serverData = new ServerData(server.ip, String.valueOf(server.port), false);
-            // TODO
-//            ConnectScreen.startConnecting(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
+            Minecraft.getInstance().setScreen(new ConnectScreen(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), serverData));
         } else if (screen instanceof PauseScreen) {
             // Replace bugs button with our own button.
             AbstractWidget bugs = ButtonHelper.findButton("menu.reportBugs", screen);

@@ -87,7 +87,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen {
     }
 
     public void join(ServerData serverData) {
-//        ConnectScreen.startConnecting(new JoinMultiplayerScreen(this), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData);
+        minecraft.setScreen(new ConnectScreen(new JoinMultiplayerScreen(this), Minecraft.getInstance(), serverData));
     }
 
     private void updateServers(List<ServerDataPublic> serverList) {

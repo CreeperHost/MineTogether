@@ -22,6 +22,9 @@ accessible method net/minecraft/client/gui/components/AbstractSelectionList clea
 extendable method net/minecraft/client/gui/components/AbstractSelectionList addEntry (Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;)I
 accessible method net/minecraft/client/gui/components/AbstractSelectionList addEntry (Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;)I
 
+extendable method net/minecraft/client/gui/components/AbstractSelectionList removeEntry (Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;)Z
+accessible method net/minecraft/client/gui/components/AbstractSelectionList removeEntry (Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;)Z
+
 accessible field net/minecraft/server/network/ServerConnectionListener channels Ljava/util/List;
 accessible field net/minecraft/server/network/ServerConnectionListener connections Ljava/util/List;
 
@@ -35,3 +38,5 @@ accessible field net/minecraft/client/gui/screens/ConnectScreen connection Lnet/
 
 extendable method net/minecraft/client/gui/screens/Screen addButton (Lnet/minecraft/client/gui/components/AbstractWidget;)Lnet/minecraft/client/gui/components/AbstractWidget;
 accessible method net/minecraft/client/gui/screens/Screen addButton (Lnet/minecraft/client/gui/components/AbstractWidget;)Lnet/minecraft/client/gui/components/AbstractWidget;
+
+extendable method net/minecraft/client/gui/screens/ConnectScreen connect (Ljava/lang/String;I)V

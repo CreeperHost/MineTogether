@@ -154,12 +154,9 @@ public class ConnectHandler {
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer server = mc.getSingleplayerServer();
         if (server == null) return;
-        // TODO
-//        mc.prepareForMultiplayer();
 
         server.publishedPort = 0; // Doesn't matter, just set to _something_.
-        // TODO
-//        server.publishedGameType = gameType;
+        server.getPlayerList().setOverrideGameMode(gameType);
         server.getPlayerList().setAllowCheatsForAllPlayers(cheats);
         mc.player.setPermissionLevel(server.getProfilePermissions(mc.player.getGameProfile()));
 
@@ -185,8 +182,7 @@ public class ConnectHandler {
         if (server == null) return;
         //Un-Share the world.
         server.publishedPort = -1;
-        // TODO
-//        server.publishedGameType = null;
+        server.getPlayerList().setOverrideGameMode(null);
     }
 
     public static void updateFriendsSearch() {

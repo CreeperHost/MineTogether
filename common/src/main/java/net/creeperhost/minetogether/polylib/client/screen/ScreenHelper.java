@@ -59,6 +59,7 @@ public class ScreenHelper
         bufferbuilder.vertex(matrix, (float)(x + width), (float)y, 0.0F).uv((float)((u + (float)width) * f), (float)(v * f1)).endVertex();
         bufferbuilder.vertex(matrix, (float)x, (float)y, 0.0F).uv((float)(u * f), (float)(v * f1)).endVertex();
         bufferbuilder.end();
+        RenderSystem.enableAlphaTest();
         BufferUploader.end(bufferbuilder);
     }
 
