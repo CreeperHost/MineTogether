@@ -290,6 +290,11 @@ abstract class ChatScreenMixin extends Screen {
     public void tick(CallbackInfo ci) {
         switchToVanillaIfCommand();
 
+        //Ok, so the sensible option had issues... Let's just make sure this is fixed properly this time.
+        if (getFocused() != input) {
+            setFocused(input);
+        }
+
         // If we are the vanilla chat, set things editable, and bail out.
         if (MineTogetherChat.getTarget() == ChatTarget.VANILLA) {
             input.setEditable(true);
