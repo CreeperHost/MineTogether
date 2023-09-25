@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.connect;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
-import io.netty.channel.ChannelFuture;
 import net.covers1624.quack.collection.FastStream;
 import net.covers1624.quack.gson.JsonUtils;
 import net.creeperhost.minetogether.MineTogether;
@@ -16,6 +15,7 @@ import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.creeperhost.minetogether.util.GetClosestDCRequest;
+import net.creeperhost.minetogether.util.ModPackInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.Component;
@@ -23,6 +23,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -176,7 +177,7 @@ public class ConnectHandler {
         CompletableFuture.runAsync(() -> {
             try { // TODO, This should be done outside somewhere.
                 JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
-                publishedServer = NettyClient.publishServer(server, getEndpoint(), token);
+                publishedServer = NettyClient.publishServer(server, getEndpoint(), token, getModpackKey());
             } catch (Exception e) {
                 Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("minetogether.connect.open.failed"));
                 LOGGER.error("Failed to open to friends", e);
@@ -238,7 +239,7 @@ public class ConnectHandler {
             searchResult = null;
             try {
                 JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
-                searchResult = NettyClient.getFriendServers(getEndpoint(), token).servers;
+                searchResult = NettyClient.getFriendServers(getEndpoint(), token, getModpackKey()).servers;
             } catch (Throwable e) {
                 LOGGER.error("An error occurred while searching for friend servers.", e);
             }
@@ -261,5 +262,15 @@ public class ConnectHandler {
         }
         AVAILABLE_SERVER_MAP.clear();
         lastSearch = 0;
+    }
+
+    private static @Nullable String getModpackKey() {
+        String modpackKey = ModPackInfo.getInfo().base64FTBID;
+        if (StringUtils.isEmpty(modpackKey)) {
+            modpackKey = ModPackInfo.getInfo().curseID;
+        }
+
+        if (!StringUtils.isEmpty(modpackKey)) return modpackKey;
+        return null;
     }
 }

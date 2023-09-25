@@ -17,7 +17,7 @@ public class RawCodec extends MessageToMessageCodec<Packet<?>, ByteBuf> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-        out.add(new SRaw(Unpooled.copiedBuffer(msg), null)); // TODO pooled.
+        out.add(new SRaw(msg.copy()));
     }
 
     @Override
