@@ -31,6 +31,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -46,7 +47,7 @@ public class NettyClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static ProxyConnection publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session) {
+    public static ProxyConnection publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session, @Nullable String modpackKey) {
         Throwable[] error = new Throwable[1];
         ProxyConnection connection = new ProxyConnection(endpoint) {
 
@@ -54,7 +55,7 @@ public class NettyClient {
 
             @Override
             public void channelReady() {
-                sendPacket(new SHostRegister(session.toString()));
+                sendPacket(new SHostRegister(session.toString(), modpackKey));
             }
 
             @Override
@@ -262,14 +263,14 @@ public class NettyClient {
         }
     }
 
-    public static CFriendServers getFriendServers(ConnectHost endpoint, JWebToken session) throws IOException {
+    public static CFriendServers getFriendServers(ConnectHost endpoint, JWebToken session, @Nullable String modpackKey) throws IOException {
         IOException[] error = new IOException[1];
         CFriendServers[] result = new CFriendServers[1];
 
         ProxyConnection connection = new ProxyConnection(endpoint) {
             @Override
             protected void channelReady() {
-                sendPacket(new SRequestFriendServers(session.toString()));
+                sendPacket(new SRequestFriendServers(session.toString(), modpackKey));
             }
 
             @Override
@@ -390,7 +391,7 @@ public class NettyClient {
         public final void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
             super.channelActive(ctx);
 
-            sendPacket(new SHello(nonce, RSAUtils.encrypt(aesSecret.getEncoded(), endpoint.publicKey())));
+            sendPacket(new SHello(nonce, RSAUtils.encrypt(aesSecret.getEncoded(), endpoint.publicKey()), ProtocolVersions.PROTOCOL_VERSION));
         }
 
         @Override
