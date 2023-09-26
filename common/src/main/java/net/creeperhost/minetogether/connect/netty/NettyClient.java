@@ -5,9 +5,6 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.covers1624.quack.util.SneakyUtils;
 import net.creeperhost.minetogether.MineTogetherPlatform;
 import net.creeperhost.minetogether.config.Config;
@@ -334,10 +331,6 @@ public class NettyClient {
                         }
 
                         ChannelPipeline pipe = ch.pipeline();
-                        pipe.addLast("mt:timeout", new ReadTimeoutHandler(240)); // 4 min
-                        // Causes a user event to send a ping packet every 3m 30s, this will reset the read timeouts on the server, and on us from the response.
-                        // If the response is not seen within 30s of sending the ping, the connection will be closed due to read timeout.
-                        pipe.addLast("mt:read_idle", new IdleStateHandler(210, 0, 0, TimeUnit.SECONDS)); // 3m 30s.
                         pipe.addLast("mt:frame_codec", new FrameCodec());
                         pipe.addLast("mt:packet_codec", new PacketCodec());
                         if (Config.instance().dumpConnectPackets) {
@@ -386,15 +379,6 @@ public class NettyClient {
             super.channelActive(ctx);
 
             sendPacket(new SHello(nonce, RSAUtils.encrypt(aesSecret.getEncoded(), endpoint.publicKey()), ProtocolVersions.PROTOCOL_VERSION));
-        }
-
-        @Override
-        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-            if (!(evt instanceof IdleStateEvent)) {
-                super.userEventTriggered(ctx, evt);
-                return;
-            }
-            channel.eventLoop().execute(() -> sendPacket(new SPing()));
         }
 
         @Override
