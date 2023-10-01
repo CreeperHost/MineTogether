@@ -203,7 +203,11 @@ abstract class ChatScreenMixin extends Screen {
     }
 
     private void updateButtons() {
-        ChatComponent chat = Minecraft.getInstance().gui.getChat();
+        Minecraft mc = Minecraft.getInstance();
+        if (!Config.instance().chatEnabled || mc.options.hideGui) {
+            return;
+        }
+        ChatComponent chat = mc.gui.getChat();
         float cScale = (float) chat.getScale();
         int cWidth = Mth.ceil((float) chat.getWidth() + (12 * cScale)); //Vanilla does some wired s%$#. This mostly accounts for it.
         int cHeight = Mth.ceil(chat.getHeight() * cScale);
@@ -248,6 +252,11 @@ abstract class ChatScreenMixin extends Screen {
     //Wait this actually works?
     @Override
     public boolean mouseReleased(double d, double e, int i) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!Config.instance().chatEnabled || mc.options.hideGui) {
+            return super.mouseReleased(d, e, i);
+        }
+
         //Needed because vanilla does not bother to send release if the mouse is not over the component.
         chatWidthSlider.mouseReleased(d, e, i);
         chatHeightSlider.mouseReleased(d, e, i);
