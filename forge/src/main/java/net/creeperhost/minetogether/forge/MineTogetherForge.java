@@ -24,6 +24,7 @@ public class MineTogetherForge {
         MineTogether.init();
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener(this::clientInit));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ForgeClientEvents::init);
     }
 
     private void clientInit(ScreenEvent.Init.Post event) {

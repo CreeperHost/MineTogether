@@ -10,6 +10,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.SimpleSelectionList;
+import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

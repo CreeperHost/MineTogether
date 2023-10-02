@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.chat.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.ChatStatistics;
@@ -15,6 +14,7 @@ import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.StringButton;
 import net.creeperhost.minetogether.util.MessageFormatter;
+import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
@@ -61,7 +61,7 @@ public class ChatScreen extends Screen {
     private boolean newUser = MineTogetherChat.isNewUser();
 
     public ChatScreen(Screen parent) {
-        super(Component.translatable("minetogether:screen.chat.title"));
+        super(Component.translatable("minetogether:gui.chat.title"));
         this.parent = parent;
     }
 
@@ -93,8 +93,9 @@ public class ChatScreen extends Screen {
         addRenderableWidget(sendEditBox);
 
         addRenderableWidget(new IconButton(width - 124, 5, 3, Constants.WIDGETS_SHEET, e -> {
-            minecraft.setScreen(new SettingsScreen(this));
+            minecraft.setScreen(new ModularGuiScreen(new SettingGui(), this));
         }));
+
         addRenderableWidget(Button.builder(Component.translatable("minetogether:button.cancel"), button -> minecraft.setScreen(parent))
                 .bounds(width - 100 - 5, height - 5 - 20, 100, 20)
                 .build()
@@ -142,7 +143,7 @@ public class ChatScreen extends Screen {
             ChatStatistics.pollStats();
             newUserButton = addWidget(Button.builder(Component.literal("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
                                 MineTogetherChat.setNewUserResponded();
-                                minecraft.setScreen(new ChatScreen(parent));
+                                minecraft.setScreen(new ModularGuiScreen(PublicChatGui.createGui(), parent));
                             })
                             .bounds(width / 2 - 150, 75 + (height / 4), 300, 20)
                             .build()

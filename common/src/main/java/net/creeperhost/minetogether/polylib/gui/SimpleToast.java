@@ -23,6 +23,15 @@ public class SimpleToast extends PolyToast {
     private ItemStack displayIconStack = ItemStack.EMPTY;
     private ResourceLocation iconResourceLocation;
 
+    public SimpleToast(Component title) {
+        this(title, Component.empty());
+    }
+
+    public SimpleToast(Component title, ResourceLocation resourceLocation) {
+        this(title, Component.empty());
+        this.iconResourceLocation = resourceLocation;
+    }
+
     public SimpleToast(Component title, Component description) {
         this.title = title;
         this.description = description;
@@ -50,21 +59,28 @@ public class SimpleToast extends PolyToast {
 
         if (title != null) {
             Font font = toastComponent.getMinecraft().font;
-            List<FormattedCharSequence> list = font.split(description, 125);
+            List<FormattedCharSequence> titleList = font.split(title, 125);
+            List<FormattedCharSequence> descList = font.split(description, 125);
+            boolean titleOnly = description.getString().isEmpty();
+
             int n = 0xFF88FF;
-            if (list.size() == 1) {
+            if (descList.size() == 1 && titleList.size() == 1) {
                 graphics.drawString(font, title, 30, 7, n | 0xFF000000);
-                graphics.drawString(font, list.get(0), 30, 18, -1);
+                graphics.drawString(font, descList.get(0), 30, 18, -1);
             } else {
-                if (l < 1500L) {
-                    int k = Mth.floor(Mth.clamp((float) (1500L - l) / 300.0f, 0.0f, 1.0f) * 255.0f) << 24 | 0x4000000;
-                    graphics.drawString(font, title, 30, 11, n | k);
+                if (l < 1500L || titleOnly) {
+                    int yPos = this.height() / 2 - titleList.size() * font.lineHeight / 2;
+                    int alpha = titleOnly ? 0xFF000000 : Mth.floor(Mth.clamp((float) (1500L - l) / 300.0f, 0.0f, 1.0f) * 255.0f) << 24 | 0x4000000;
+                    for (FormattedCharSequence formattedCharSequence : titleList) {
+                        graphics.drawString(font, formattedCharSequence, 30, yPos, n | alpha);
+                        yPos += font.lineHeight;
+                    }
                 } else {
-                    int k = Mth.floor(Mth.clamp((float) (l - 1500L) / 300.0f, 0.0f, 1.0f) * 252.0f) << 24 | 0x4000000;
-                    int m = this.height() / 2 - list.size() * font.lineHeight / 2;
-                    for (FormattedCharSequence formattedCharSequence : list) {
-                        graphics.drawString(font, formattedCharSequence, 30, m, 0xFFFFFF | k);
-                        m += font.lineHeight;
+                    int yPos = this.height() / 2 - descList.size() * font.lineHeight / 2;
+                    int alpha = Mth.floor(Mth.clamp((float) (l - 1500L) / 300.0f, 0.0f, 1.0f) * 252.0f) << 24 | 0x4000000;
+                    for (FormattedCharSequence formattedCharSequence : descList) {
+                        graphics.drawString(font, formattedCharSequence, 30, yPos, 0xFFFFFF | alpha);
+                        yPos += font.lineHeight;
                     }
                 }
             }

@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;

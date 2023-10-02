@@ -13,14 +13,76 @@
     "minetogether:ingame.chat.local": "Commands",
     "minetogether:ingame.chat.server": "Server",
     
-    "minetogether:screen.chat.title": "MineTogether Chat",
     "minetogether:screen.chat.suggestion.disconnected": "Unable to send messages while client is disconnected",
     "minetogether:screen.chat.suggestion.connecting": "Unable to send messages while client is connecting",
     "minetogether:screen.chat.suggestion.reconnecting": "Unable to send messages while client is reconnecting",
     "minetogether:screen.chat.suggestion.crashed": "Unable to send messages. Chat engine has crashed.",
     "minetogether:screen.chat.suggestion.banned": "Unable to send messages while client is banned",
     "minetogether:screen.chat.suggestion.verifying": "Unable to send messages while client is unverified",
-    
+
+    "minetogether:gui.join.button.accept": "Join %s online users now!",
+    "minetogether:gui.join.button.reject": "Don't ask me again.",
+
+    "minetogether:gui.chat.title": "MineTogether Chat",
+
+    "minetogether:gui.friends.title": "MineTogether Friends",
+    "minetogether:gui.friends.friend_request": "Friend Request",
+    "minetogether:gui.friends.search_suggestion": "Search Friends",
+    "minetogether:gui.friends.requests": "Friend Requests",
+    "minetogether:gui.friends.online": "Online",
+    "minetogether:gui.friends.offline": "Offline",
+    "minetogether:gui.friends.select_friend": "Select a friend.",
+    "minetogether:gui.friends.user_offline": "User is offline.",
+    "minetogether:gui.friends.copy_code": "Copy",
+    "minetogether:gui.friends.copy_code.info": "Copy your friend code to clipboard.",
+    "minetogether:gui.friends.enter_code": "Add friend",
+    "minetogether:gui.friends.enter_code.info": "Add a friend using their friend code.",
+    "minetogether:gui.friends.enter_code.add": "Add",
+
+    "minetogether:gui.friends.button.accept": "Accept",
+    "minetogether:gui.friends.button.reject": "Reject",
+    "minetogether:gui.friends.button.block": "Block User",
+    "minetogether:gui.friends.button.remove": "Remove Friend",
+    "minetogether:gui.friends.button.rename": "Edit friend's name",
+    "minetogether:gui.friends.button.party": "Invite to party",
+
+    "minetogether:gui.settings.title": "MineTogether Settings",
+
+    "minetogether:gui.settings.button.chat": "Chat: ",
+    "minetogether:gui.settings.button.friend_toasts": "Friend Toasts: ",
+    "minetogether:gui.settings.button.menu_buttons": "Menu Buttons: ",
+    "minetogether:gui.settings.button.enabled": "Enabled",
+    "minetogether:gui.settings.button.disabled": "Disabled",
+    "minetogether:gui.settings.button.link": "Link Account",
+    "minetogether:gui.settings.button.blocked": "Blocked Users",
+    "minetogether:gui.settings.button.unblock.info": "Un-Block User",
+
+
+    "minetogether:screen.settings.title": "MineTogether Settings",
+    "minetogether:screen.settings.button.enabled": "Enabled",
+    "minetogether:screen.settings.button.disabled": "Disabled",
+    "minetogether:screen.settings.button.chat": "Chat: ",
+    "minetogether:screen.settings.button.friend_toasts": "Friend Toasts: ",
+    "minetogether:screen.settings.button.menu_buttons": "Menu Buttons: ",
+    "minetogether:screen.settings.button.link": "Link Account",
+
+    "minetogether:gui.button.back": "Back",
+    "minetogether:gui.button.back_arrow": "← Back",
+    "minetogether:gui.button.friends": "Friends Chat",
+    "minetogether:gui.button.friends.info": "Open MineTogether Friends Chat",
+    "minetogether:gui.button.settings.info": "Open MineTogether Settings",
+    "minetogether:gui.button.banned": "You have been banned from MineTogether Chat",
+    "minetogether:gui.button.banned.info": "Click here to appeal the ban via the MineTogether website.",
+    "minetogether:gui.button.global_chat": "Public Chat",
+    "minetogether:gui.button.global_chat.info": "Open MineTogether Public Chat",
+    "minetogether:gui.button.ok": "Ok",
+    "minetogether:gui.button.cancel": "Cancel",
+
+    "minetogether:toast.fiend_request_received": "%s has sent you a friend request",
+    "minetogether:toast.fiend_request_accepted": "%s has accepted your friend request",
+    "minetogether:toast.user_online": "%s Is now online.",
+    "minetogether:toast.user_offline": "%s Is now offline.",
+
     "minetogether:screen.muted.title": "Blocked List",
     "minetogether:screen.muted.empty": "Block list is empty",
     
@@ -44,14 +106,6 @@
     "minetogether:screen.friendreq.title.update": "Update friend",
     "minetogether:screen.friendreq.button.update": "Update name",
     "minetogether:screen.friendreq.desc.update": "Please enter the name you want to know your friend as",
-    
-    "minetogether:screen.settings.title": "MineTogether Settings",
-    "minetogether:screen.settings.button.enabled": "Enabled",
-    "minetogether:screen.settings.button.disabled": "Disabled",
-    "minetogether:screen.settings.button.chat": "Chat: ",
-    "minetogether:screen.settings.button.friend_toasts": "Friend Toasts: ",
-    "minetogether:screen.settings.button.menu_buttons": "Menu Buttons: ",
-    "minetogether:screen.settings.button.link": "Link Account",
     
     "minetogether:linkaccount1":"Link your Minecraft account to your MineTogether account.",
     "minetogether:linkaccount2":"Linking your accounts will unlock abilities like being able to set your own nickname.\n\nThis will open a web-browser for you to sign in securely.,",
