@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.chat.gui;
+package net.creeperhost.minetogether.gui.dialogs;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
@@ -6,17 +6,11 @@ import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.BackgroundRender;
 import net.creeperhost.polylib.client.modulargui.lib.Constraints;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
-import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
@@ -38,6 +32,7 @@ public class TextInputDialog extends GuiElement<TextInputDialog> implements Back
 
     public TextInputDialog(@NotNull GuiParent<?> parent, Component title, String defaultText) {
         super(parent);
+        this.setOpaque(true);
 
         GuiText titleText = new GuiText(this, title)
                 .setWrap(true)
@@ -98,11 +93,6 @@ public class TextInputDialog extends GuiElement<TextInputDialog> implements Back
 
     public void close(){
         getParent().removeChild(this);
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        return true;
     }
 
     @Override

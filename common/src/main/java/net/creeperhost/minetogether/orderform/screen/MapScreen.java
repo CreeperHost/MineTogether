@@ -28,8 +28,8 @@ public class MapScreen extends OrderServerScreen {
     private final ResourceLocation siv = new ResourceLocation(MineTogether.MOD_ID, "textures/guisiv.png");
     private Button currentFocus;
     private Map<String, String> regions;
-    private Map<String, String> dataCenters;
-    private String distance = "";
+    private Map<String, Integer> dataCenters;
+    private Integer distance = -1;
 
     public MapScreen(int stepId, Order order) {
         super(stepId, order);
@@ -113,7 +113,7 @@ public class MapScreen extends OrderServerScreen {
                             if (order.serverLocation != null) {
                                 if (widget.getMessage().getString().equalsIgnoreCase(datacentreToRegion(order.serverLocation)) || widget.getMessage().getString().equalsIgnoreCase(order.serverLocation)) {
                                     updateSelected((Button) widget);
-                                    if (dataCenters != null && distance.isEmpty()) {
+                                    if (dataCenters != null && distance == -1) {
                                         distance = dataCenters.get(order.serverLocation);
                                     }
                                 }
@@ -159,8 +159,8 @@ public class MapScreen extends OrderServerScreen {
             //32 = 3 bars
             //40 = 2 bars
             //48 = 1 bars
-            if (distance != null && !distance.isEmpty()) {
-                graphics.blit(GUI_ICONS_LOCATION, this.width - 18, 26, 8, 8, 0, distanceConvert(Integer.parseInt(distance)), 8, 8, 256, 256);
+            if (distance != -1) {
+                graphics.blit(GUI_ICONS_LOCATION, this.width - 18, 26, 8, 8, 0, distanceConvert(distance), 8, 8, 256, 256);
             }
         }
     }
@@ -175,67 +175,42 @@ public class MapScreen extends OrderServerScreen {
         if (distance < 1000) return 16;
         if (distance > 1000 && distance < 5000) return 32;
         if (distance > 5000 && distance < 6000) return 40;
-
         return 48;
     }
 
     public String datacentreToRegion(String centre) {
-        switch (centre) {
-            case "grantham":
-                return "eu-west";
-            case "buffalo":
-                return "na-east";
-            case "chicago":
-                return "na-east";
-            case "miami":
-                return "na-south";
-            case "dallas":
-                return "na-south";
-            case "seattle":
-                return "na-west";
-            case "losangeles":
-                return "na-west";
-            case "johannesburg":
-                return "sub-saharan-africa";
-            case "tokyo":
-                return "asia";
-            case "saopaulo":
-                return "south-america";
-            case "hongkong":
-                return "asia";
-            case "sydney":
-                return "australia";
-            case "bucharest":
-                return "eu-middle-east";
-            default:
-                return "";
-        }
+        return switch (centre) {
+            case "grantham" -> "eu-west";
+            case "buffalo" -> "na-east";
+            case "chicago" -> "na-east";
+            case "miami" -> "na-south";
+            case "dallas" -> "na-south";
+            case "seattle" -> "na-west";
+            case "losangeles" -> "na-west";
+            case "johannesburg" -> "sub-saharan-africa";
+            case "tokyo" -> "asia";
+            case "saopaulo" -> "south-america";
+            case "hongkong" -> "asia";
+            case "sydney" -> "australia";
+            case "bucharest" -> "eu-middle-east";
+            default -> "";
+        };
     }
 
     //This is only used to get an Approximate distance
     public String regionToDataCentre(String region) {
-        switch (region) {
-            case "eu-west":
-                return "grantham";
-            case "na-east":
-                return "buffalo";
-            case "na-west":
-                return "losangeles";
-            case "na-south":
-                return "dallas";
-            case "sub-saharan-africa":
-                return "johannesburg";
-            case "south-america":
-                return "saopaulo";
-            case "asia":
-                return "hongkong";
-            case "australia":
-                return "sydney";
-            case "eu-middle-east":
-                return "bucharest";
-            default:
-                return "";
-        }
+        return switch (region) {
+            case "eu-west" -> "grantham";
+            case "na-east" -> "buffalo";
+            case "na-west" -> "losangeles";
+            case "na-south" -> "dallas";
+            case "sub-saharan-africa" -> "johannesburg";
+            case "south-america" -> "saopaulo";
+            case "asia" -> "hongkong";
+            case "australia" -> "sydney";
+            case "eu-middle-east" -> "bucharest";
+            default -> "";
+        };
     }
 
     @Override

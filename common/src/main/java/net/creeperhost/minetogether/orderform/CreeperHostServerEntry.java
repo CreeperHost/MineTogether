@@ -6,6 +6,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.screen.OrderServerScreen;
+import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.screen.widget.buttons.ButtonString;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -81,7 +82,8 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (removeButton != null && removeButton.mouseClicked(mouseX, mouseY, button)) return true;
-        Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), new JoinMultiplayerScreen(new TitleScreen())));
+//        Minecraft.getInstance().setScreen(OrderServerScreen.getByStep(0, new Order(), new JoinMultiplayerScreen(new TitleScreen())));
+        Minecraft.getInstance().setScreen(new ModularGuiScreen(new OrderGui(), new JoinMultiplayerScreen(new TitleScreen())));
         return true;
     }
 

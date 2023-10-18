@@ -1,4 +1,4 @@
-package net.creeperhost.minetogether.chat.gui;
+package net.creeperhost.minetogether.gui.dialogs;
 
 import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
 import net.creeperhost.polylib.client.modulargui.elements.GuiRectangle;
@@ -40,6 +40,7 @@ public class ContextMenu extends GuiElement<ContextMenu> implements BackgroundRe
     public ContextMenu(@NotNull GuiParent<?> parent, int maxWidth) {
         super(parent);
         this.maxWidth = maxWidth;
+        this.setOpaque(true);
 
         constrain(WIDTH, dynamic(() -> menuWidth));
         constrain(HEIGHT, dynamic(() -> menuHeight));
@@ -63,7 +64,7 @@ public class ContextMenu extends GuiElement<ContextMenu> implements BackgroundRe
                     .constrain(BOTTOM, match(container.get(BOTTOM)))
                     .constrain(LEFT, relative(get(LEFT), 2))
                     .constrain(RIGHT, relative(get(RIGHT), -2));
-            background.fill(() -> background.hovered() ? 0x50FFFFFF : 0);
+            background.fill(() -> background.isMouseOver() ? 0x50FFFFFF : 0);
         }
 
         new GuiText(container, option)
@@ -101,9 +102,9 @@ public class ContextMenu extends GuiElement<ContextMenu> implements BackgroundRe
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
-        if (isMouseOver(mouseX, mouseY)) {
+        if (isMouseOver()) {
             for (GuiElement<?> element : menuElements) {
-                if (element.isMouseOver(mouseX, mouseY) && options.containsKey(element)) {
+                if (element.isMouseOver() && options.containsKey(element)) {
                     options.get(element).run();
                     mc().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 }

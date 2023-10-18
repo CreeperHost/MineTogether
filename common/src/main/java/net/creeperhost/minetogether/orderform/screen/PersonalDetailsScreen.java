@@ -172,7 +172,7 @@ public class PersonalDetailsScreen extends OrderServerScreen {
 
             @Override
             public boolean isValidReal(String string) {
-                return ServerOrderCallbacks.doesEmailExist(string);
+                return !ServerOrderCallbacks.doesEmailExist(string);
             }
 
             public String getMessageReal() {

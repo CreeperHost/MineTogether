@@ -2,6 +2,8 @@ package net.creeperhost.minetogether.chat.gui;
 
 import net.creeperhost.minetogether.chat.MessageDropdownOption;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.gui.dialogs.ContextMenu;
+import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
@@ -23,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.HEIGHT;
 
@@ -88,7 +89,7 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (friendUI || !isMouseOver(mouseX, mouseY) || (button != GuiButton.LEFT_CLICK && button != GuiButton.RIGHT_CLICK)) return false;
+        if (friendUI || !isMouseOver() || (button != GuiButton.LEFT_CLICK && button != GuiButton.RIGHT_CLICK)) return false;
         Style style = getStyleAtPos(mouseX, mouseY);
         if (style == null) return false;
 
@@ -125,7 +126,7 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
     @Override
     public boolean renderOverlay(GuiRender render, double mouseX, double mouseY, float partialTicks, boolean consumed) {
         if (consumed || super.renderOverlay(render, mouseX, mouseY, partialTicks, consumed)) return true;
-        if (!isMouseOver(mouseX, mouseY)) return false;
+        if (!isMouseOver()) return false;
 
         Style style = getStyleAtPos(mouseX, mouseY);
         if (style != null && style.getHoverEvent() != null) {

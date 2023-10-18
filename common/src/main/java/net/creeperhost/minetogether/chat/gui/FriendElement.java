@@ -1,6 +1,8 @@
 package net.creeperhost.minetogether.chat.gui;
 
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.gui.dialogs.ContextMenu;
+import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.polylib.client.modulargui.elements.GuiButton;
@@ -95,7 +97,7 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (profile == null || !isMouseOver(mouseX, mouseY)) return false;
+        if (profile == null || !isMouseOver()) return false;
 
         if (button == GuiButton.LEFT_CLICK) {
             if (request == null) {
@@ -149,6 +151,6 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
             render.drawCenteredString(Component.translatable("minetogether:gui.friends.requests").withStyle(ChatFormatting.UNDERLINE), xCenter(), yMin() + 2, 0xFFFFFF, false);
             return;
         }
-        render.rect(getRectangle(), MTStyle.Flat.friendEntryBackground((isMouseOver(mouseX, mouseY) && request == null) || FriendChatGui.selected == profile));
+        render.rect(getRectangle(), MTStyle.Flat.friendEntryBackground((isMouseOver() && request == null) || FriendChatGui.selected == profile));
     }
 }
