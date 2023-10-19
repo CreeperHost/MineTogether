@@ -4,6 +4,7 @@ import net.covers1624.quack.collection.FastStream;
 import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.MTTextures;
+import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
 import net.creeperhost.minetogether.lib.chat.message.Message;
@@ -130,13 +131,6 @@ public class FriendChatGui implements GuiProvider {
 
         GuiTexture gear = new GuiTexture(settings, PolyTextures.get("widgets/gear_light"));
         Constraints.bind(gear, settings);
-
-        GuiButton oldGui = MTStyle.Flat.button(root, Component.literal("Old Gui"))
-                .onPress(() -> gui.mc().setScreen(new FriendsListScreen(gui.getScreen())))
-                .constrain(BOTTOM, relative(root.get(BOTTOM), 0))
-                .constrain(RIGHT, relative(root.get(RIGHT), 0))
-                .constrain(WIDTH, literal(50))
-                .constrain(HEIGHT, literal(10));
 
         publicChat = MTStyle.Flat.button(root, (Supplier<Component>) null)
                 //Keep the same parent screen, So the back button always takes us to the 'first' screen (Main Menu / Pause Menu)

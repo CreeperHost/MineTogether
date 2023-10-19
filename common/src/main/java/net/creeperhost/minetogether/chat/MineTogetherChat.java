@@ -3,13 +3,11 @@ package net.creeperhost.minetogether.chat;
 import dev.architectury.hooks.client.screen.ScreenHooks;
 import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
-import net.creeperhost.minetogether.chat.gui.ChatScreen;
 import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.gui.PublicChatGui;
-import net.creeperhost.minetogether.chat.gui.SettingGui;
+import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.gui.SettingsScreen;
 import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
@@ -86,9 +84,7 @@ public class MineTogetherChat {
                     Screen screen = Minecraft.getInstance().screen;
 
                     // If we have the ChatScreen open. Attach to main chat.
-                    if (screen instanceof ChatScreen chat) {
-                        chat.attach(channel);
-                    } else if (screen instanceof ModularGuiScreen mgui && mgui.getModularGui().getProvider() instanceof PublicChatGui chat) {
+                    if (screen instanceof ModularGuiScreen mgui && mgui.getModularGui().getProvider() instanceof PublicChatGui chat) {
                         chat.chatMonitor.attach(channel);
                     }
                 }

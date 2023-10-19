@@ -1,7 +1,7 @@
 {
     "minetogether:button.cancel": "Cancel",
     "minetogether:button.refresh": "Refresh",
-    
+
     "minetogether:button.mute": "Mute",
     "minetogether:button.add_friend": "Add Friend",
     "minetogether:button.mention": "Mention",
@@ -12,13 +12,6 @@
     "minetogether:ingame.chat.global": "MineTogether",
     "minetogether:ingame.chat.local": "Commands",
     "minetogether:ingame.chat.server": "Server",
-    
-    "minetogether:screen.chat.suggestion.disconnected": "Unable to send messages while client is disconnected",
-    "minetogether:screen.chat.suggestion.connecting": "Unable to send messages while client is connecting",
-    "minetogether:screen.chat.suggestion.reconnecting": "Unable to send messages while client is reconnecting",
-    "minetogether:screen.chat.suggestion.crashed": "Unable to send messages. Chat engine has crashed.",
-    "minetogether:screen.chat.suggestion.banned": "Unable to send messages while client is banned",
-    "minetogether:screen.chat.suggestion.verifying": "Unable to send messages while client is unverified",
 
     "minetogether:gui.join.button.accept": "Join %s online users now!",
     "minetogether:gui.join.button.reject": "Don't ask me again.",
@@ -143,14 +136,6 @@
     "minetogether:gui.order.account_creating":"Please wait. Account being created",
     "minetogether:gui.order.order_placing":"Please wait. Order being placed",
 
-    "minetogether:screen.settings.title": "MineTogether Settings",
-    "minetogether:screen.settings.button.enabled": "Enabled",
-    "minetogether:screen.settings.button.disabled": "Disabled",
-    "minetogether:screen.settings.button.chat": "Chat: ",
-    "minetogether:screen.settings.button.friend_toasts": "Friend Toasts: ",
-    "minetogether:screen.settings.button.menu_buttons": "Menu Buttons: ",
-    "minetogether:screen.settings.button.link": "Link Account",
-
     "minetogether:gui.button.back": "Back",
     "minetogether:gui.button.back_arrow": "← Back",
     "minetogether:gui.button.friends": "Friends Chat",
@@ -167,30 +152,15 @@
     "minetogether:gui.button.invoice":"View invoice",
     "minetogether:gui.button.close":"Close",
 
-
-
     "minetogether:gui.select_dialog.select": "Select",
     "minetogether:gui.select_dialog.cancel": "Cancel",
     "minetogether:gui.select_dialog.search": "Search",
-
 
     "minetogether:toast.fiend_request_received": "%s has sent you a friend request",
     "minetogether:toast.fiend_request_accepted": "%s has accepted your friend request",
     "minetogether:toast.user_online": "%s Is now online.",
     "minetogether:toast.user_offline": "%s Is now offline.",
 
-    "minetogether:screen.muted.title": "Blocked List",
-    "minetogether:screen.muted.empty": "Block list is empty",
-    
-    "minetogether:screen.friends.title": "MineTogether Friends",
-    "minetogether:screen.friends.button.muted": "Muted List",
-    "minetogether:screen.friends.button.accept": "Accept",
-    "minetogether:screen.friends.button.deny": "Deny",
-    "minetogether:screen.friends.tooltip.remove": "Remove friend",
-    "minetogether:screen.friends.tooltip.block": "Block",
-    "minetogether:screen.friends.tooltip.party": "Invite to party",
-    "minetogether:screen.friends.tooltip.edit": "Edit friend's name",
-    
     "minetogether:screen.friendreq.title.accept": "Accept friend",
     "minetogether:screen.friendreq.button.accept": "Accept",
     "minetogether:screen.friendreq.desc.accept": "Please enter the name you want to know your friend as",
@@ -210,10 +180,7 @@
     "minetogether:new_user.2": "MineTogether is a multiplayer enhancement mod that provides",
     "minetogether:new_user.3": "a multitude of features like chat, friends list, server listing",
     "minetogether:new_user.4": "and more. Join %s unique users.",
-    
-    "minetogether:screen.banned.line1": "You have been banned from MineTogether Chat",
-    "minetogether:screen.banned.line2": "Do you wish to appeal the ban via the MineTogether website?",
-    
+
     "minetogether:screen.multiplayer.serverlist": "Server List",
     
     "minetogether:screen.multiplayer.sort.random": "Random",
@@ -230,65 +197,6 @@
     "minetogether:screen.servertype.listing.public":"Public Servers don't have any limitations on entry. Anyone can join and immediately start playing, and their player bases can be large, but their open nature can increases the chance of being griefed.",
     "minetogether:screen.servertype.listing.community":"Community Servers are still relatively open, but will require being added to an approved list of members to join, offering some increased security and peace of mind with vetted users.",
     "minetogether:screen.servertype.listing.closed":"Closed Servers require a direct invite from the server owner to join. Usually for groups of friends, these servers may be smaller in population, but with the highest level of trust between users.",
-
-    "minetogether.info.server_name": "Server name",
-    "minetogether.order.screen.generalinfo": "General Server Info",
-    "minetogether.screen.generalinfo.secure.line1":"All data is transmitted via SSL, no payment details",
-    "minetogether.screen.generalinfo.secure.line2":"will be taken in the client. You will be redirected outside",
-    "minetogether.screen.generalinfo.secure.line3":"of the client to CreeperHost's secure portal to make payment",
-    "minetogether.screen.generalinfo.pregen": "Agree to Mojang EULA and pre-generate world?",
-    "minetogether.button.prev":"Previous Step",
-    "minetogether.button.next":"Next Step",
-    "minetogether.button.cancel":"Cancel",
-    "minetogether.order.screen.generalinfo.quote": "Server Quote",
-    "minetogether.screen.server_location":"Server Location",
-    "minetogether.screen.personal_details":"Personal Details",
-    "minetogether.screen.order":"Order details",
-    "minetogether.button.logging":"Logging in",
-    "minetogether.button.logintryagain":"Try again",
-    "minetogether.button.done":"Done",
-    "minetogether.button.login":"Login",
-    "minetogether.button.invoice":"View invoice",
-    "minetogether.button.select":"Select",
-    "minetogether.button.order":"Place Order",
-    "minetogether.button.finish": "Finish",
-    
-    "minetogether.details.login":"Logging in. Please wait",
-    "minetogether.details.loginerror":"An error occurred. E1ror:",
-    "minetogether.details.loginsuccess":"Logged in successfully. Proceed to order!",
-    "minetogether.details.accountexists":"Account exists with this email. Please login or try another email address.",
-    
-    "minetogether.quote.vpsfeatures":"VPS Features",
-    "minetogether.quote.figures":"Figures based on you being in",
-    "minetogether.quote.refreshing":"Please wait - refreshing quote",
-    "minetogether.quote.error":"Error occurred while fetching quote.",
-    "minetogether.quote.curseerror":"Cannot find specified project on CreeperHost. If correct, wait 15!",
-    "minetogether.quote.promoerror":"Promo code does not exist on CreeperHost.",
-    "minetogether.quote.requirements":"Based on your requirements, we recommend a",
-    "minetogether.quote.tax":"Tax",
-    "minetogether.quote.subtotal":"SubTotal",
-    "minetogether.quote.total":"Total",
-    "minetogether.quote.discount":"Discount",
-    
-    "minetogether.order.accountcreating":"Please wait. Account being created",
-    "minetogether.order.accounterror":"Error occurred while creating account. Error:",
-    "minetogether.order.accounterrorgoback":"Please go back and correct the errors",
-    "minetogether.order.orderplacing":"Please wait. Order being placed",
-    "minetogether.order.ordererror":"Error occurred while placing order. Error:",
-    "minetogether.order.ordererrorsupport":"Please contact support if the problem persists",
-    "minetogether.order.ordersuccess":"Order successful! Please click the button below to pay!",
-    "minetogether.order.ordermodpack":"Your server will then be set up with the latest modpack version!",
-    "minetogether.order.ordercancel":"Cancel order",
-    
-    "minetogether.region.eu-west":"Western Europe",
-    "minetogether.region.eu-middle-east":"Eastern Europe & Middle East",
-    "minetogether.region.asia":"Asia",
-    "minetogether.region.australia":"Australia",
-    "minetogether.region.sub-saharan-africa":"Sub Saharan Africa",
-    "minetogether.region.south-america":"South America",
-    "minetogether.region.na-south":"North America - South",
-    "minetogether.region.na-west":"North America - West",
-    "minetogether.region.na-east":"North America - East",
     
     "minetogether.info.e_mail":"E-Mail",
     "minetogether.info.password":"Password",
@@ -301,12 +209,6 @@
     "minetogether.info.state":"State",
     "minetogether.info.country":"Country",
     "minetogether.info.phone":"Phone Number",
-    
-    "minetogether.order.info1":"To continue to place an order, please click the Place order button below.",
-    "minetogether.order.info2":"By continuing, you agree to CreeperHost's (Terms Of Service|https://creeper.host/tos) and (Policies|https://creeper.host/policies).",
-    "minetogether.order.info3":"An order and invoice will be generated, but you are under no obligation to pay.",
-    "minetogether.order.info4":"They will be automatically cancelled after 72 hours if no payment is received.",
-    "minetogether.order.url":"Click to open in your web browser",
     
     "minetogether.multiplayerscreen.getserver":"Want a server?",
     "minetogether.multiplayerscreen.clickhere":"Click here!",

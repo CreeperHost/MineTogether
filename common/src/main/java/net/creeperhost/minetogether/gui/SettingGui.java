@@ -1,9 +1,9 @@
-package net.creeperhost.minetogether.chat.gui;
+package net.creeperhost.minetogether.gui;
 
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.chat.gui.FriendChatGui;
+import net.creeperhost.minetogether.chat.gui.MTStyle;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.gui.MTTextures;
-import net.creeperhost.minetogether.gui.SettingsScreen;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
@@ -145,13 +145,6 @@ public class SettingGui implements GuiProvider {
         scrollBar.primary
                 .setScrollableElement(blockedList)
                 .setSliderState(blockedList.scrollState());
-
-        GuiButton oldGui = MTStyle.Flat.button(root, Component.literal("Old Gui"))
-                .onPress(() -> gui.mc().setScreen(new SettingsScreen(gui.getScreen())))
-                .constrain(BOTTOM, relative(root.get(BOTTOM), 0))
-                .constrain(RIGHT, relative(root.get(RIGHT), 0))
-                .constrain(WIDTH, literal(50))
-                .constrain(HEIGHT, literal(10));
 
         updateBlockedList();
         gui.onTick(this::tick);

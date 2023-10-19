@@ -8,7 +8,7 @@ import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.chat.gui.PublicChatGui;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.gui.SettingsScreen;
+import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.serverlist.data.ListType;
@@ -88,7 +88,7 @@ public class MineTogetherServerList {
 
         boolean chatEnabled = Config.instance().chatEnabled;
         ScreenHooks.addRenderableWidget(screen, new IconButton(screen.width - 125, 5, chatEnabled ? 1 : 3, Constants.WIDGETS_SHEET, e -> {
-            Minecraft.getInstance().setScreen(chatEnabled ? new ModularGuiScreen(PublicChatGui.createGui(), screen) : new SettingsScreen(screen));
+            Minecraft.getInstance().setScreen(chatEnabled ? new ModularGuiScreen(PublicChatGui.createGui(), screen) : new ModularGuiScreen(new SettingGui(), screen));
         }));
     }
 }

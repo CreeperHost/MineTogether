@@ -2,8 +2,6 @@ package net.creeperhost.minetogether.orderform;
 
 import dev.architectury.hooks.client.screen.ScreenHooks;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.orderform.data.Order;
-import net.creeperhost.minetogether.orderform.screen.OrderServerScreen;
 import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.client.Minecraft;

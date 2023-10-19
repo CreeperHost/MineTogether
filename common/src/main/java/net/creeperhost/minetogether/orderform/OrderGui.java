@@ -8,7 +8,6 @@ import net.creeperhost.minetogether.gui.dialogs.OptionDialog;
 import net.creeperhost.minetogether.orderform.data.AvailableResult;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.OrderSummary;
-import net.creeperhost.minetogether.orderform.screen.OrderServerScreen;
 import net.creeperhost.minetogether.util.Countries;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
 import net.creeperhost.polylib.client.modulargui.elements.*;
@@ -156,13 +155,6 @@ public class OrderGui implements GuiProvider {
                 .constrain(LEFT, match(orderBg.get(LEFT)))
                 .constrain(WIDTH, literal(50))
                 .constrain(HEIGHT, literal(14));
-
-        GuiButton oldGui = MTStyle.Flat.button(root, Component.literal("Old Gui"))
-                .onPress(() -> gui.mc().setScreen(OrderServerScreen.getByStep(0, new Order(), gui.getScreen())))
-                .constrain(TOP, relative(root.get(TOP), 0))
-                .constrain(RIGHT, relative(root.get(RIGHT), 0))
-                .constrain(WIDTH, literal(50))
-                .constrain(HEIGHT, literal(10));
 
         GuiButton placeOrder = MTStyle.Flat.buttonPrimary(root, this::getOrderButtonText)
                 .onPress(() -> {
