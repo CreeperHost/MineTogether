@@ -232,7 +232,7 @@ public class SettingGui implements GuiProvider {
 
         @Override
         public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-            render.rect(getRectangle(), MTStyle.Flat.friendEntryBackground(true));
+            render.rect(getRectangle(), MTStyle.Flat.listEntryBackground(true));
         }
     }
 }

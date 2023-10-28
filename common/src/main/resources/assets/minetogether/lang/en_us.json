@@ -31,6 +31,9 @@
     "minetogether:gui.friends.enter_code": "Add friend",
     "minetogether:gui.friends.enter_code.info": "Add a friend using their friend code.",
     "minetogether:gui.friends.enter_code.add": "Add",
+    "minetogether:gui.friends.icon.offline": "Icon unavailable for offline player",
+    "minetogether:gui.friends.icon.no_uuid": "Waiting for profile sync...",
+    "minetogether:gui.friends.icon.fail": "Failed to fetch player icon",
 
     "minetogether:gui.friends.button.accept": "Accept",
     "minetogether:gui.friends.button.reject": "Reject",
@@ -149,12 +152,34 @@
     "minetogether:gui.button.confirm": "Confirm",
     "minetogether:gui.button.cancel": "Cancel",
     "minetogether:gui.button.login": "Login",
-    "minetogether:gui.button.invoice":"View invoice",
-    "minetogether:gui.button.close":"Close",
+    "minetogether:gui.button.invoice": "View invoice",
+    "minetogether:gui.button.close": "Close",
+    "minetogether:gui.button.refresh": "Refresh",
 
     "minetogether:gui.select_dialog.select": "Select",
     "minetogether:gui.select_dialog.cancel": "Cancel",
     "minetogether:gui.select_dialog.search": "Search",
+
+
+    "minetogether:gui.server_list.title": "MineTogether Server List",
+    "minetogether:gui.server_list.type.select":"Select server type",
+    "minetogether:gui.server_list.type.public": "Public",
+    "minetogether:gui.server_list.type.public.info": "Public Servers don't have any limitations on entry. Anyone can join and immediately start playing, and their player bases can be large, but their open nature can increases the chance of being griefed.",
+    "minetogether:gui.server_list.type.community": "Community",
+    "minetogether:gui.server_list.type.community.info": "Community Servers are still relatively open, but will require being added to an approved list of members to join, offering some increased security and peace of mind with vetted users.",
+    "minetogether:gui.server_list.type.closed": "Closed",
+    "minetogether:gui.server_list.type.closed.info": "Closed Servers require a direct invite from the server owner to join. Usually for groups of friends, these servers may be smaller in population, but with the highest level of trust between users.",
+    "minetogether:gui.server_list.search": "Search Servers",
+    "minetogether:gui.server_list.join": "Join Server",
+
+    "minetogether:gui.server_list.sort_by": "Sort by:",
+    "minetogether:gui.server_list.sort.random": "Random",
+    "minetogether:gui.server_list.sort.player": "Player",
+    "minetogether:gui.server_list.sort.name": "Name",
+    "minetogether:gui.server_list.sort.uptime": "Uptime",
+    "minetogether:gui.server_list.sort.location": "Location",
+    "minetogether:gui.server_list.sort.ping": "Ping",
+
 
     "minetogether:toast.fiend_request_received": "%s has sent you a friend request",
     "minetogether:toast.fiend_request_accepted": "%s has accepted your friend request",

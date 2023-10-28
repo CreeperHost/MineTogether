@@ -3,8 +3,6 @@ package net.creeperhost.minetogether.chat.gui;
 import net.creeperhost.polylib.client.PolyPalette;
 import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.Assembly;
-import net.creeperhost.polylib.client.modulargui.lib.Constraints;
-import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Axis;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.minecraft.network.chat.Component;
@@ -63,7 +61,7 @@ public class MTStyle {
 
         //MT Specific
 
-        public static int friendEntryBackground(boolean hoveredOrSelected) {
+        public static int listEntryBackground(boolean hoveredOrSelected) {
             return hoveredOrSelected ? 0x40FFFFFF : 0;
         }
     }

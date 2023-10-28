@@ -49,7 +49,7 @@ public class JoinMultiplayerScreenPublic extends JoinMultiplayerScreen {
         if (sorting == SortType.RANDOM) {
             Collections.shuffle(serverSelectionList.children());
         } else {
-            serverSelectionList.children().sort(unsafeCast(sorting));
+//            serverSelectionList.children().sort(unsafeCast(sorting));
         }
 
         addRenderableWidget(Button.builder(listType.title, p -> {

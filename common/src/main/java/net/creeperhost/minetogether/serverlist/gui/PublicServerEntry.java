@@ -99,6 +99,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
         graphics.drawString(this.minecraft.font, this.serverData.name, (k + 32 + 3), (j + 1), 16777215);
         List<FormattedCharSequence> list = this.minecraft.font.split(this.serverData.motd, l - 32 - 2);
 
+        //MOTD Lines
         for (int p = 0; p < Math.min(list.size(), 2); ++p) {
             Font var10000 = this.minecraft.font;
             FormattedCharSequence var10002 = list.get(p);
@@ -110,14 +111,15 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
 
         Component component = bl2 ? this.serverData.version.copy().withStyle(ChatFormatting.RED) : this.serverData.status;
         int q = this.minecraft.font.width(component);
+        //Draw player count status text
         graphics.drawString(this.minecraft.font, component, (k + l - q - 15 - 2), (j + 1), 8421504);
         int r = 0;
         int z;
         List list5;
-        Component component5;
+        Component activeToolTip;
         if (bl2) {
             z = 5;
-            component5 = Component.empty();
+            activeToolTip = Component.empty();
             list5 = this.serverData.playerList;
         } else if (this.serverData.pinged && this.serverData.ping != -2L) {
             if (this.serverData.ping < 0L) {
@@ -135,10 +137,10 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
             }
 
             if (this.serverData.ping < 0L) {
-                component5 = NO_CONNECTION_TOOLTIP;
+                activeToolTip = NO_CONNECTION_TOOLTIP;
                 list5 = Collections.emptyList();
             } else {
-                component5 = Component.translatable("multiplayer.status.ping", new Object[] { this.serverData.ping });
+                activeToolTip = Component.translatable("multiplayer.status.ping", new Object[] { this.serverData.ping });
                 list5 = this.serverData.playerList;
             }
         } else {
@@ -148,7 +150,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
                 z = 8 - z;
             }
 
-            component5 = PINGING_TOOLTIP;
+            activeToolTip = PINGING_TOOLTIP;
             list5 = Collections.emptyList();
         }
 
@@ -168,7 +170,7 @@ public class PublicServerEntry extends ServerSelectionList.Entry {
         int aa = n - k;
         int ab = o - j;
         if (aa >= l - 15 && aa <= l - 5 && ab >= 0 && ab <= 8) {
-            this.joinMultiplayerScreen.setToolTip(Collections.singletonList(component5));
+            this.joinMultiplayerScreen.setToolTip(Collections.singletonList(activeToolTip));
         } else if (aa >= l - q - 15 - 2 && aa <= l - 15 - 2 && ab >= 0 && ab <= 8) {
             this.joinMultiplayerScreen.setToolTip(list5);
         }
