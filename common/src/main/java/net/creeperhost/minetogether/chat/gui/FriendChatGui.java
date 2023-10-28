@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.MTTextures;
 import net.creeperhost.minetogether.gui.SettingGui;
+import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
 import net.creeperhost.minetogether.lib.chat.message.Message;
@@ -191,9 +192,15 @@ public class FriendChatGui implements GuiProvider {
                 .setTooltip(Component.translatable("minetogether:gui.friends.enter_code.info"))
                 .onPress(() -> {
                     ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
-                    //Dont allow self friend
-                    profileManager.apiAcceptFriendRequest(friendCode.getValue(), "Test Name");
-                    friendCode.setValue("");
+
+                    new TextInputDialog(root, Component.translatable("minetogether:screen.friendreq.desc.request"), "")
+                            .setResultCallback(friendName -> {
+                                if (friendCode.getValue().equals(profileManager.getOwnProfile().getFriendCode())) {
+                                    return;
+                                }
+                                profileManager.sendFriendRequest(friendCode.getValue(), friendName.trim());
+                                friendCode.setValue("");
+                            });
                 })
                 .setDisabled(() -> friendCode.getValue().isEmpty())
                 .constrain(TOP, match(textBoxBg.get(TOP)))

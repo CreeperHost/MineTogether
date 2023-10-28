@@ -1,22 +1,32 @@
 package net.creeperhost.minetogether.chat.gui;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.dialogs.ContextMenu;
 import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
-import net.creeperhost.polylib.client.modulargui.elements.GuiButton;
-import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
-import net.creeperhost.polylib.client.modulargui.elements.GuiRectangle;
-import net.creeperhost.polylib.client.modulargui.elements.GuiText;
+import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.BackgroundRender;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.SkullBlock;
+import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
@@ -30,6 +40,10 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
     private final ProfileManager.FriendRequest request;
     @Nullable
     private final Profile profile;
+    @Nullable
+    private GameProfile iconProfile = null;
+
+    private PlayerIconElement icon;
 
     public FriendElement(@NotNull GuiParent<?> parent, @Nullable Profile profile) {
         this(parent, null, profile);
@@ -47,12 +61,22 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
 
         if (profile == null) return;
 
-        GuiRectangle icon = new GuiRectangle(this)
-                .fill(0x50FFFFFF)
+        icon = new PlayerIconElement(this, null)
                 .constrain(TOP, relative(get(TOP), 2))
                 .constrain(LEFT, relative(get(LEFT), 2))
                 .constrain(WIDTH, literal(28))
                 .constrain(HEIGHT, literal(28));
+
+        icon.setTooltip(() -> {
+            if (!profile.isOnline()) {
+                return Collections.singletonList(Component.translatable("minetogether:gui.friends.icon.offline"));
+            } else if (!profile.hasFriendUUID()) {
+                return Collections.singletonList(Component.translatable("minetogether:gui.friends.icon.no_uuid"));
+            } else if (icon.textureFail) {
+                return Collections.singletonList(Component.translatable("minetogether:gui.friends.icon.fail"));
+            }
+            return Collections.emptyList();
+        }, 0);
 
         GuiText name = new GuiText(this, Component.empty())
                 .setTextSupplier(() -> Component.literal(FriendChatGui.displayName(profile)))
@@ -96,6 +120,19 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
     }
 
     @Override
+    public void tick(double mouseX, double mouseY) {
+        super.tick(mouseX, mouseY);
+
+        if (profile != null && profile.hasFriendUUID() && iconProfile == null) {
+            iconProfile = new GameProfile(profile.getFriendUUID(), "");
+            SkullBlockEntity.updateGameprofile(iconProfile, e -> {
+                iconProfile = e;
+                icon.setProfile(e);
+            });
+        }
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (profile == null || !isMouseOver()) return false;
 
@@ -121,11 +158,11 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
         menu.addTitle(Component.literal(FriendChatGui.displayName(profile)).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD));
 
         if (request == null) {
-//            menu.addOption(Component.translatable("minetogether:gui.friends.button.rename").withStyle(ChatFormatting.AQUA), () -> {
-//                ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
-//                new TextInputDialog(getModularGui().getRoot(), Component.translatable("minetogether:screen.friendreq.desc.request"), FriendChatGui.displayName(profile))
-//                        .setResultCallback(friendName -> profileManager.updateFriendName(profile, friendName.trim()));
-//            });
+            menu.addOption(Component.translatable("minetogether:gui.friends.button.rename").withStyle(ChatFormatting.AQUA), () -> {
+                ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
+                new TextInputDialog(getModularGui().getRoot(), Component.translatable("minetogether:screen.friendreq.desc.request"), FriendChatGui.displayName(profile))
+                        .setResultCallback(friendName -> profileManager.apiAcceptFriendRequest(profile.getFriendCode(), friendName.trim()));
+            });
 //                menu.addOption(Component.translatable("minetogether:gui.friends.button.party").withStyle(ChatFormatting.AQUA), () -> {});
             menu.addOption(Component.translatable("minetogether:gui.friends.button.remove").withStyle(ChatFormatting.YELLOW), () -> {
                 MineTogetherChat.CHAT_STATE.profileManager.removeFriend(profile);
@@ -151,6 +188,6 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
             render.drawCenteredString(Component.translatable("minetogether:gui.friends.requests").withStyle(ChatFormatting.UNDERLINE), xCenter(), yMin() + 2, 0xFFFFFF, false);
             return;
         }
-        render.rect(getRectangle(), MTStyle.Flat.friendEntryBackground((isMouseOver() && request == null) || FriendChatGui.selected == profile));
+        render.rect(getRectangle(), MTStyle.Flat.listEntryBackground((isMouseOver() && request == null) || FriendChatGui.selected == profile));
     }
 }
