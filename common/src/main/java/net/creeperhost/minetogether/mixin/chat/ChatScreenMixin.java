@@ -249,7 +249,6 @@ abstract class ChatScreenMixin extends Screen {
         }
     }
 
-    //Wait this actually works?
     @Override
     public boolean mouseReleased(double d, double e, int i) {
         Minecraft mc = Minecraft.getInstance();
@@ -265,6 +264,13 @@ abstract class ChatScreenMixin extends Screen {
         //Ensure input box is always focused after input.
         setFocused(input);
         return super.mouseReleased(d, e, i);
+    }
+
+    @Override
+    public boolean keyReleased(int i, int j, int k) {
+        //Prevent focus from being directed away from text box via arrow keys
+        setFocused(input);
+        return super.keyReleased(i, j, k);
     }
 
     @Inject(
@@ -298,11 +304,6 @@ abstract class ChatScreenMixin extends Screen {
     )
     public void tick(CallbackInfo ci) {
         switchToVanillaIfCommand();
-
-        //Ok, so the sensible option had issues... Let's just make sure this is fixed properly this time.
-        if (getFocused() != input) {
-            setFocused(input);
-        }
 
         // If we are the vanilla chat, set things editable, and bail out.
         if (MineTogetherChat.getTarget() == ChatTarget.VANILLA) {
