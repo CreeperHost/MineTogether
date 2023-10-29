@@ -1,7 +1,6 @@
 package net.creeperhost.minetogether.serverlist.data;
 
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
-import net.creeperhost.minetogether.serverlist.gui.PublicServerEntry;
 import net.creeperhost.minetogether.serverlist.gui.ServerDataPublic;
 import net.creeperhost.minetogether.util.EnumFlag;
 import net.minecraft.network.chat.Component;

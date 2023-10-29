@@ -13,9 +13,7 @@ import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.serverlist.data.ListType;
 import net.creeperhost.minetogether.serverlist.data.Server;
-import net.creeperhost.minetogether.serverlist.gui.JoinMultiplayerScreenPublic;
 import net.creeperhost.minetogether.serverlist.gui.ServerListGui;
-import net.creeperhost.minetogether.serverlist.gui.ServerTypeScreen;
 import net.creeperhost.minetogether.serverlist.web.GetServerListRequest;
 import net.creeperhost.minetogether.util.ModPackInfo;
 import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
@@ -78,7 +76,6 @@ public class MineTogetherServerList {
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
         if (!(screen instanceof JoinMultiplayerScreen mpScreen)) return;
-        if (screen instanceof JoinMultiplayerScreenPublic) return;
 
         Button serverListButton = Button.builder(Component.translatable("minetogether:screen.multiplayer.serverlist"), e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new ServerListGui(), mpScreen)))
                 .bounds(screen.width - 105, 5, 100, 20)
