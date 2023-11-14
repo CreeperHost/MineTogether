@@ -17,16 +17,6 @@ public abstract class OrderServerScreen extends Screen {
     protected Button buttonCancel;
     private Screen parent;
 
-    public OrderServerScreen(Screen parent)
-    {
-        this(0, parent, new Order());
-    }
-
-    public OrderServerScreen()
-    {
-        this(0, new TitleScreen(), new Order());
-    }
-
     public OrderServerScreen(int stepId, Screen parent, Order order) {
         super(Component.translatable("minetogether.screen.order"));
         this.stepId = stepId;

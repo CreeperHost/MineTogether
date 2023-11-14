@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +29,17 @@ public class GeneralServerInfoScreen extends OrderServerScreen {
     private boolean nameChecked = false;
     private long lastKeyTyped;
     private Screen parent;
+
+
+    public GeneralServerInfoScreen()
+    {
+        this(0, new Order(), new TitleScreen());
+    }
+
+    public GeneralServerInfoScreen(Screen parent)
+    {
+        this(0, new Order(), parent);
+    }
 
     public GeneralServerInfoScreen(int stepId, Order order, Screen parent) {
         super(stepId, order);
