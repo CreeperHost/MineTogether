@@ -1,10 +1,10 @@
 package net.creeperhost.minetogether.orderform.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 
 public abstract class OrderServerScreen extends Screen {
@@ -16,6 +16,16 @@ public abstract class OrderServerScreen extends Screen {
     protected Button buttonNext;
     protected Button buttonCancel;
     private Screen parent;
+
+    public OrderServerScreen(Screen parent)
+    {
+        this(0, parent, new Order());
+    }
+
+    public OrderServerScreen()
+    {
+        this(0, new TitleScreen(), new Order());
+    }
 
     public OrderServerScreen(int stepId, Screen parent, Order order) {
         super(Component.translatable("minetogether.screen.order"));
