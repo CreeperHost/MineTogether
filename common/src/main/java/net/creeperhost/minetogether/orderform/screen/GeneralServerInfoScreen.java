@@ -30,17 +30,6 @@ public class GeneralServerInfoScreen extends OrderServerScreen {
     private long lastKeyTyped;
     private Screen parent;
 
-
-    public GeneralServerInfoScreen()
-    {
-        this(0, new Order(), new TitleScreen());
-    }
-
-    public GeneralServerInfoScreen(Screen parent)
-    {
-        this(0, new Order(), parent);
-    }
-
     public GeneralServerInfoScreen(int stepId, Order order, Screen parent) {
         super(stepId, order);
         this.parent = parent;
