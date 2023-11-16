@@ -99,7 +99,7 @@ abstract class ChatScreenMixin extends Screen {
         int cWidth = Mth.ceil((float) chat.getWidth() + (12 * cScale)); //Vanilla does some wired s%$#. This mostly accounts for it.
         int cHeight = Mth.ceil(chat.getHeight() * cScale);
 
-        vanillaChatButton = addRenderableWidget(new RadioButton(0, 0, 12, 100, Component.translatable("minetogether:ingame.chat.local")))
+        vanillaChatButton = addRenderableWidget(new RadioButton(0, 0, 12, 100, mc.isLocalServer() ? Component.translatable("minetogether:ingame.chat.local") : Component.translatable("minetogether:ingame.chat.server")))
                 .withAutoScaleText(3)
                 .withVerticalText()
                 .selectedSupplier(() -> MineTogetherChat.getTarget() == ChatTarget.VANILLA)
