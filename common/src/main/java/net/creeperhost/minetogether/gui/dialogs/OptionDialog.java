@@ -2,20 +2,21 @@ package net.creeperhost.minetogether.gui.dialogs;
 
 import net.creeperhost.minetogether.chat.gui.MTStyle;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
-import net.creeperhost.polylib.client.modulargui.elements.*;
+import net.creeperhost.polylib.client.modulargui.elements.GuiButton;
+import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
+import net.creeperhost.polylib.client.modulargui.elements.GuiRectangle;
+import net.creeperhost.polylib.client.modulargui.elements.GuiText;
 import net.creeperhost.polylib.client.modulargui.lib.BackgroundRender;
 import net.creeperhost.polylib.client.modulargui.lib.Constraints;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
-import net.creeperhost.polylib.client.modulargui.lib.geometry.Rectangle;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
-import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.literal;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
+import static net.minecraft.ChatFormatting.GREEN;
 
 /**
  * Created by brandon3055 on 14/10/2023
@@ -92,5 +93,31 @@ public class OptionDialog extends GuiElement<OptionDialog> implements Background
     @Override
     public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         render.toolTipBackground(xMin(), yMin(), xSize(), ySize(), 0xFF100010, 0xFF5000FF, 0xFF28007f);
+    }
+
+    /**
+     * Opens a simple dialog that can be used to display information with an "Ok" button that will close the dialog.
+     *
+     * @param parent     Can be any gui element (Will just be used to get the root element)
+     * @param dialogText
+     */
+    public static OptionDialog simpleInfoDialog(@NotNull GuiParent<?> parent, Component dialogText) {
+        return simpleInfoDialog(parent, dialogText, () ->{});
+    }
+
+    /**
+     * Opens a simple dialog that can be used to display information with an "Ok" button that will close the dialog.
+     *
+     * @param parent Can be any gui element (Will just be used to get the root element)
+     */
+    public static OptionDialog simpleInfoDialog(@NotNull GuiParent<?> parent, Component dialogText, Runnable onAccepted) {
+        OptionDialog dialog = new OptionDialog(parent.getModularGui().getRoot(),
+                dialogText,
+                Component.translatable("minetogether:gui.button.ok").withStyle(GREEN))
+                .onButtonPress(0, onAccepted);
+        
+        int height = parent.font().wordWrapHeight(dialogText, 190);
+        dialog.constrain(HEIGHT, literal(45 + height));
+        return dialog;
     }
 }

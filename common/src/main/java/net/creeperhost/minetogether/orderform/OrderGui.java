@@ -563,7 +563,7 @@ public class OrderGui implements GuiProvider {
                 .constrain(BOTTOM, relative(background.get(BOTTOM), -1))
                 .constrain(HEIGHT, literal(10));
 
-        GuiText totalValue = new GuiText(background, () -> Component.literal(summary.prefix + summary.total + " " + summary.suffix))
+        GuiText totalValue = new GuiText(background, () -> Component.literal(summary.prefix + String.format("%.2f", summary.total) + " " + summary.suffix))
                 .setAlignment(Align.RIGHT);
         Constraints.bind(totalValue, total);
 
@@ -575,7 +575,7 @@ public class OrderGui implements GuiProvider {
                 .constrain(BOTTOM, relative(total.get(TOP), -0))
                 .constrain(HEIGHT, dynamic(() -> summary.tax != 0 ? 10D : 0D));
 
-        GuiText taxValue = new GuiText(background, () -> Component.literal(summary.prefix + summary.tax + " " + summary.suffix))
+        GuiText taxValue = new GuiText(background, () -> Component.literal(summary.prefix + String.format("%.2f", summary.tax) + " " + summary.suffix))
                 .setEnabled(() -> summary.tax != 0)
                 .setAlignment(Align.RIGHT);
         Constraints.bind(taxValue, tax);
@@ -588,7 +588,7 @@ public class OrderGui implements GuiProvider {
                 .constrain(BOTTOM, relative(tax.get(TOP), -0))
                 .constrain(HEIGHT, dynamic(() -> summary.discount != 0 ? 10D : 0D));
 
-        GuiText discountValue = new GuiText(background, () -> Component.literal(summary.prefix + summary.discount + " " + summary.suffix))
+        GuiText discountValue = new GuiText(background, () -> Component.literal(summary.prefix + String.format("%.2f", summary.discount) + " " + summary.suffix))
                 .setEnabled(() -> summary.discount != 0)
                 .setAlignment(Align.RIGHT);
         Constraints.bind(discountValue, discount);
@@ -600,7 +600,7 @@ public class OrderGui implements GuiProvider {
                 .constrain(BOTTOM, relative(discount.get(TOP), -0))
                 .constrain(HEIGHT, literal(10));
 
-        GuiText subTotalValue = new GuiText(background, () -> Component.literal(summary.prefix + summary.subTotal + " " + summary.suffix))
+        GuiText subTotalValue = new GuiText(background, () -> Component.literal(summary.prefix + String.format("%.2f", summary.subTotal) + " " + summary.suffix))
                 .setAlignment(Align.RIGHT);
         Constraints.bind(subTotalValue, subTotal);
     }
@@ -672,7 +672,6 @@ public class OrderGui implements GuiProvider {
         Constraints.bind(pingLabel, button, 0, 4, 0, 14);
 
         GuiTexture signal = new GuiTexture(button, MTTextures.getter(() -> getSignalIcon(ping, distance)))
-//                .setTooltip(ping == -2 ? Component.translatable("minetogether:gui.order.region.pinging_fail") : ping == -1 ? Component.translatable("minetogether:gui.order.region.pinging") : Component.translatable("minetogether:gui.order.region.signal"))
                 .setTooltipSingle(() -> getSignalTooltip(ping, distance))
                 .constrain(TOP, match(button.get(TOP)))
                 .constrain(BOTTOM, match(button.get(BOTTOM)))
@@ -688,6 +687,11 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, right)
                 .constrain(HEIGHT, literal(12));
 
+        GuiElement<?> highlight = new GuiRectangle(background)
+                .border(0x50FFFFFF)
+                .fill(0x30FFFFFF);
+        Constraints.bind(highlight, background);
+
         GuiTextField textField = new GuiTextField(background)
                 .setSuggestion(Component.translatable("minetogether.info.e_mail"))
                 .setTextState(TextState.create(() -> order.emailAddress, s -> {
@@ -695,6 +699,7 @@ public class OrderGui implements GuiProvider {
                     emailDirty();
                 }));
         textField.setSuggestionColour(() -> 0xFFFFFF);
+        highlight.setEnabled(textField::isFocused);
 
         Constraints.bind(textField, background, 0, 2, 0, 2);
         return background;
@@ -706,11 +711,17 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, right)
                 .constrain(HEIGHT, literal(12));
 
+        GuiElement<?> highlight = new GuiRectangle(background)
+                .border(0x50FFFFFF)
+                .fill(0x30FFFFFF);
+        Constraints.bind(highlight, background);
+
         GuiTextField textField = new GuiTextField(background)
                 .setSuggestion(suggestion)
                 .setFormatter((s, integer) -> Component.literal(StringUtils.repeat('*', s.length())).getVisualOrderText())
                 .setTextState(textState);
         textField.setSuggestionColour(() -> 0xFFFFFF);
+        highlight.setEnabled(textField::isFocused);
 
         Constraints.bind(textField, background, 0, 2, 0, 2);
         return background;
@@ -722,10 +733,16 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, right)
                 .constrain(HEIGHT, literal(12));
 
+        GuiElement<?> highlight = new GuiRectangle(background)
+                .border(0x50FFFFFF)
+                .fill(0x30FFFFFF);
+        Constraints.bind(highlight, background);
+
         GuiTextField textField = new GuiTextField(background)
                 .setSuggestion(suggestion)
                 .setTextState(textState);
         textField.setSuggestionColour(() -> 0xFFFFFF);
+        highlight.setEnabled(textField::isFocused);
 
         Constraints.bind(textField, background, 0, 2, 0, 2);
         return background;

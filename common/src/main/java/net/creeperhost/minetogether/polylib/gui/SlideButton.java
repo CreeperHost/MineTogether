@@ -19,10 +19,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * A simple button which remains 'active' once clicked, capable of being linked
- * to multiple other buttons to clear their 'active' state.
+ * Simple slider control.
  * <p>
- * Created by covers1624 on 5/8/22.
+ * Created by brandon3055 on 06/29/2023
  */
 public class SlideButton extends Button {
 

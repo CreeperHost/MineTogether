@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.MTTextures;
 import net.creeperhost.minetogether.gui.SettingGui;
+import net.creeperhost.minetogether.gui.dialogs.OptionDialog;
 import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
@@ -14,7 +15,9 @@ import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
 import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.modulargui.elements.*;
-import net.creeperhost.polylib.client.modulargui.lib.*;
+import net.creeperhost.polylib.client.modulargui.lib.Constraints;
+import net.creeperhost.polylib.client.modulargui.lib.GuiProvider;
+import net.creeperhost.polylib.client.modulargui.lib.TextState;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Axis;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
@@ -84,7 +87,7 @@ public class FriendChatGui implements GuiProvider {
                 .constrain(BOTTOM, relative(textBoxBg.get(TOP), -4));
 
         codeBoxBg = MTStyle.Flat.contentArea(root)
-                .constrain(LEFT, relative(friendListBg.get(LEFT), 34))
+                .constrain(LEFT, midPoint(friendListBg.get(LEFT), friendListBg.get(RIGHT), -14))
                 .constrain(RIGHT, relative(friendListBg.get(RIGHT), -30))
                 .constrain(BOTTOM, relative(root.get(BOTTOM), -10))
                 .constrain(HEIGHT, literal(16));
@@ -174,31 +177,33 @@ public class FriendChatGui implements GuiProvider {
                 .setScrollableElement(friendList)
                 .setSliderState(friendList.scrollState());
 
-        GuiButton copyCode = MTStyle.Flat.button(root, Component.translatable("minetogether:gui.friends.copy_code"))
-                .onPress(() -> root.mc().keyboardHandler.setClipboard(MineTogetherChat.getOurProfile().getFriendCode()))
-                .setTooltip(Component.translatable("minetogether:gui.friends.copy_code.info"))
+        ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
+
+        GuiButton copyCode = MTStyle.Flat.button(root, () -> Component.literal(getFriendCode(profileManager.getOwnProfile())))
+                .onPress(() -> root.mc().keyboardHandler.setClipboard(getFriendCode(MineTogetherChat.getOurProfile())))
+                .setTooltip(Component.translatable("minetogether:gui.friends.friend_code.info1"), Component.translatable("minetogether:gui.friends.friend_code.info2"), Component.translatable("minetogether:gui.friends.friend_code.info3"))
                 .constrain(TOP, match(codeBoxBg.get(TOP)))
                 .constrain(BOTTOM, match(codeBoxBg.get(BOTTOM)))
                 .constrain(LEFT, match(friendListBg.get(LEFT)))
                 .constrain(RIGHT, relative(codeBoxBg.get(LEFT), -2));
 
         GuiTextField friendCode = new GuiTextField(codeBoxBg)
-                .setSuggestion(Component.translatable("minetogether:gui.friends.enter_code"));
+                .setSuggestion(Component.translatable("minetogether:gui.friends.code_box.suggestion"))
+                .setTooltip(Component.translatable("minetogether:gui.friends.code_box.info"));
         Constraints.bind(friendCode, codeBoxBg, 0, 3, 0, 3);
 
-        //TODO Needs to support friend codes
-
-        GuiButton addFriendViaCode = MTStyle.Flat.buttonPrimary(root, Component.translatable("minetogether:gui.friends.enter_code.add"))
-                .setTooltip(Component.translatable("minetogether:gui.friends.enter_code.info"))
+        GuiButton addFriendViaCode = MTStyle.Flat.buttonPrimary(root, Component.translatable("minetogether:gui.friends.code_send"))
+                .setTooltip(Component.translatable("minetogether:gui.friends.code_send.info"))
                 .onPress(() -> {
-                    ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
-
+                    if (friendCode.getValue().equals(getFriendCode(profileManager.getOwnProfile()))) {
+                        OptionDialog.simpleInfoDialog(root, Component.translatable("minetogether:gui.friends.error.own_code"));
+                        return;
+                    }
                     new TextInputDialog(root, Component.translatable("minetogether:screen.friendreq.desc.request"), "")
                             .setResultCallback(friendName -> {
-                                if (friendCode.getValue().equals(profileManager.getOwnProfile().getFriendCode())) {
-                                    return;
-                                }
-                                profileManager.sendFriendRequest(friendCode.getValue(), friendName.trim());
+                                profileManager.sendFriendRequest(friendCode.getValue(), friendName.trim(), success -> {
+                                    MineTogetherChat.simpleToast(Component.translatable(success ? "minetogether:gui.friends.request_sent" : "minetogether:gui.friends.request_fail"));
+                                });
                                 friendCode.setValue("");
                             });
                 })
@@ -286,7 +291,7 @@ public class FriendChatGui implements GuiProvider {
         friendList.add(new FriendElement(friendList, (Profile) null));
 
         for (ProfileManager.FriendRequest request : requests) {
-            if (!search.isEmpty() && !displayName(request.from).toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT))) {
+            if (!search.isEmpty() && !displayName(request.user).toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT))) {
                 continue;
             }
             friendList.add(new FriendElement(friendList, request));
@@ -328,6 +333,10 @@ public class FriendChatGui implements GuiProvider {
 
     public static String displayName(@Nullable Profile profile) {
         return profile == null ? "" : profile.isFriend() && profile.hasFriendName() ? profile.getFriendName() : profile.getDisplayName();
+    }
+
+    public static String getFriendCode(Profile profile) {
+        return profile.hasFriendCode() ? profile.getFriendCode() : "";
     }
 
     private void scheduleFriendUpdate() {

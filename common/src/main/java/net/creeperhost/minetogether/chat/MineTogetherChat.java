@@ -100,7 +100,7 @@ public class MineTogetherChat {
             if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ADDED) {
                 ProfileManager.FriendRequest fr = (ProfileManager.FriendRequest) e.data;
                 addToast(new SimpleToast(
-                        Component.translatable("minetogether:toast.fiend_request_received", displayName(fr.from)),
+                        Component.translatable("minetogether:toast.fiend_request_received", displayName(fr.user)),
                         Component.empty(),
                         MINETOGETHER_LOGO_25
                 ));
@@ -133,6 +133,14 @@ public class MineTogetherChat {
             Config.instance().firstConnect = CHAT_AUTH.getHash();
             Config.save();
         }
+    }
+
+    public static void simpleToast(Component toastText) {
+        addToast(new SimpleToast(
+                toastText,
+                Component.empty(),
+                MINETOGETHER_LOGO_25
+        ));
     }
 
     private static void addToast(Toast toast) {

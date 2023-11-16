@@ -21,6 +21,8 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -32,6 +34,8 @@ import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.HE
  * Created by brandon3055 on 23/09/2023
  */
 public class MessageElement extends GuiElement<MessageElement> implements ForegroundRender {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private final Message message;
     private final GuiTextField textField;
     private final boolean friendUI;
@@ -105,7 +109,18 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
                     case ADD_FRIEND -> menu.addOption(value.getTitle(true).copy().withStyle(ChatFormatting.AQUA), () -> {
                         ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
                         new TextInputDialog(getModularGui().getRoot(), Component.translatable("minetogether:screen.friendreq.desc.request"), displayName(message.sender))
-                                .setResultCallback(friendName -> profileManager.sendFriendRequest(message.sender, friendName.trim()));
+                                .setResultCallback(friendName -> {
+                                    Profile target = message.sender;
+                                    if (!target.hasFriendCode()) {
+                                        //TODO, Is this actually something we will run into? Do we need to add handling for this?
+                                        LOGGER.warn("User profile incomplete, unable to send friend request at this time.");
+                                        MineTogetherChat.simpleToast(Component.literal("Error, Profile Incomplete").withStyle(ChatFormatting.RED));
+                                        return;
+                                    }
+                                    profileManager.sendFriendRequest(target.getFriendCode(), friendName.trim(), success -> {
+                                        MineTogetherChat.simpleToast(Component.translatable(success ? "minetogether:gui.friends.request_sent" : "minetogether:gui.friends.request_fail"));
+                                    });
+                                });
                     });
                     case MENTION -> menu.addOption(value.getTitle(true).copy().withStyle(ChatFormatting.AQUA), () -> {
                         String val = textField.getValue();
