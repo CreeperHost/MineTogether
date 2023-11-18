@@ -10,10 +10,12 @@ import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.polylib.gui.PreviewRenderer;
 import net.creeperhost.minetogether.polylib.gui.RadioButton;
+import net.creeperhost.minetogether.polylib.gui.SlideButton;
 import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -46,6 +48,9 @@ abstract class ChatScreenMixin extends Screen {
 
     private RadioButton vanillaChatButton;
     private RadioButton mtChatButton;
+    private SlideButton chatScaleSlider;
+    private SlideButton chatWidthSlider;
+    private SlideButton chatHeightSlider;
     private DropdownButton<MessageDropdownOption> dropdownButton;
 
     @Nullable
@@ -53,6 +58,9 @@ abstract class ChatScreenMixin extends Screen {
 
     @Shadow
     protected EditBox input;
+
+    @Shadow
+    CommandSuggestions commandSuggestions;
 
     private Button newUserButton;
     private Button disableButton;
@@ -88,20 +96,61 @@ abstract class ChatScreenMixin extends Screen {
         Minecraft mc = Minecraft.getInstance();
         if (!Config.instance().chatEnabled || mc.options.hideGui) return;
 
-        int cWidth = mc.gui.getChat().getWidth();
-        int cHeight = mc.gui.getChat().getHeight();
-        int x = Mth.ceil(((float) cWidth)) + 6;
+        ChatComponent chat = mc.gui.getChat();
+        float cScale = (float) chat.getScale();
+        int cWidth = Mth.ceil((float) chat.getWidth() + (12 * cScale));
+        int cHeight = Mth.ceil(chat.getHeight() * cScale);
 
-        vanillaChatButton = new RadioButton(x, height - 215, 12, 87, Component.translatable("minetogether:ingame.chat.local"))
-                .withTextScale(0.75F)
+        vanillaChatButton = addRenderableWidget(new RadioButton(0, 0, 12, 100, mc.isLocalServer() ? Component.translatable("minetogether:ingame.chat.local") : Component.translatable("minetogether:ingame.chat.server")))
+                .withAutoScaleText(3)
                 .withVerticalText()
-                .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.VANILLA));
-        mtChatButton = new RadioButton(x, height - 215 + 87, 12, 87, Component.translatable("minetogether:ingame.chat.global"))
-                .withTextScale(0.75F)
+                .selectedSupplier(() -> MineTogetherChat.getTarget() == ChatTarget.VANILLA)
+                .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.VANILLA))
+                .onRelease(() -> setFocused(input));
+
+        mtChatButton = addRenderableWidget(new RadioButton(0, 0, 12, 100, Component.translatable("minetogether:ingame.chat.global")))
+                .withAutoScaleText(3)
                 .withVerticalText()
-                .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.PUBLIC));
-        addRenderableWidget(vanillaChatButton);
-        addRenderableWidget(mtChatButton);
+                .selectedSupplier(() -> MineTogetherChat.getTarget() == ChatTarget.PUBLIC)
+                .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.PUBLIC))
+                .onRelease(() -> setFocused(input));
+
+        chatScaleSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
+                .setDynamicMessage(() -> Component.translatable("options.percent_value", Component.translatable("options.chat.scale"), (int) (mc.options.chatScale().get() * 100.0)))
+                .bindValue(() -> mc.options.chatScale().get(), value -> {
+                    mc.options.chatScale().set(value);
+                    updateButtons();
+                })
+                .setRange(0.25, 1)
+                .withTextScale(0.75F)
+                .onRelease(() -> setFocused(input))
+                .setEnabled(() -> commandSuggestions.suggestions == null)
+                .withAutoScaleText(3);
+
+        chatWidthSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
+                .setDynamicMessage((newValue) -> Component.translatable("options.pixel_value", Component.translatable("options.chat.width"), ChatComponent.getWidth(newValue)))
+                .bindValue(() -> mc.options.chatWidth().get(), value -> {
+                    mc.options.chatWidth().set(value);
+                    updateButtons();
+                })
+                .withTextScale(0.75F)
+                .onRelease(() -> setFocused(input))
+                .setApplyOnRelease(true)
+                .setEnabled(() -> commandSuggestions.suggestions == null)
+                .withAutoScaleText(3);
+
+        chatHeightSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
+                .setDynamicMessage(() -> Component.translatable("options.pixel_value", Component.translatable("options.chat.height.focused"), ChatComponent.getHeight(mc.options.chatHeightFocused().get())))
+                .bindValue(() -> mc.options.chatHeightFocused().get(), value -> {
+                    mc.options.chatHeightFocused().set(value);
+                    updateButtons();
+                })
+                .withTextScale(0.75F)
+                .onRelease(() -> setFocused(input))
+                .setEnabled(() -> commandSuggestions.suggestions == null)
+                .withAutoScaleText(3);
+
+        updateButtons();
 
         dropdownButton = addRenderableWidget(new DropdownButton<>(100, 20, clicked -> {
             assert clickedMessage != null;
@@ -121,13 +170,6 @@ abstract class ChatScreenMixin extends Screen {
         }));
         dropdownButton.setEntries(MessageDropdownOption.VALUES);
         dropdownButton.setFlipped(true);
-
-        vanillaChatButton.linkButtons(mtChatButton);
-        mtChatButton.linkButtons(vanillaChatButton);
-        switch (MineTogetherChat.getTarget()) {
-            case VANILLA -> vanillaChatButton.setPressed(true);
-            case PUBLIC -> mtChatButton.setPressed(true);
-        }
 
         addRenderableOnly(previewRenderer);
 
@@ -153,6 +195,32 @@ abstract class ChatScreenMixin extends Screen {
         switchToVanillaIfCommand();
     }
 
+    private void updateButtons() {
+        Minecraft mc = Minecraft.getInstance();
+        if (!Config.instance().chatEnabled || mc.options.hideGui) {
+            return;
+        }
+        ChatComponent chat = mc.gui.getChat();
+        float cScale = (float) chat.getScale();
+        int cWidth = Mth.ceil((float) chat.getWidth() + (12 * cScale)); //Vanilla does some wired s%$#. This mostly accounts for it.
+        int cHeight = Mth.ceil(chat.getHeight() * cScale);
+        int guiHeight = height;
+        int cMaxYPos = guiHeight - 40;
+
+        int vPos = cMaxYPos - cHeight;
+        int vHeight = cHeight / 2;
+        int mtPos = vPos + vHeight;
+        int mtHeight = cMaxYPos - mtPos;
+
+        vanillaChatButton.updateBounds(cWidth, vPos, 12, vHeight);
+        mtChatButton.updateBounds(cWidth, mtPos, 12, mtHeight);
+
+        int sliderWidth = cWidth / 3;
+        chatWidthSlider.updateBounds(0, cMaxYPos + 2, sliderWidth, 10);
+        chatHeightSlider.updateBounds(sliderWidth + 2, cMaxYPos + 2, sliderWidth, 10);
+        chatScaleSlider.updateBounds((sliderWidth * 2) + 4, cMaxYPos + 2, cWidth - (sliderWidth * 2) - 4, 10);
+    }
+
     @Inject(
             method = "mouseClicked",
             at = @At ("HEAD"),
@@ -172,6 +240,45 @@ abstract class ChatScreenMixin extends Screen {
         if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && tryClickMTChat(MineTogetherChat.publicChat, mouseX, mouseY)) {
             cir.setReturnValue(true);
         }
+    }
+
+    @Override
+    public boolean mouseReleased(double d, double e, int i) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!Config.instance().chatEnabled || mc.options.hideGui) {
+            return super.mouseReleased(d, e, i);
+        }
+
+        //Needed because vanilla does not bother to send release if the mouse is not over the component.
+        chatWidthSlider.mouseReleased(d, e, i);
+        chatHeightSlider.mouseReleased(d, e, i);
+        chatScaleSlider.mouseReleased(d, e, i);
+
+        //Ensure input box is always focused after input.
+        setFocused(input);
+        return super.mouseReleased(d, e, i);
+    }
+
+    @Override
+    public boolean keyReleased(int i, int j, int k) {
+        if (!Config.instance().chatEnabled || minecraft.options.hideGui) {
+            return super.keyReleased(i, j, k);
+        }
+        //Prevent focus from being directed away from text box via arrow keys
+        setFocused(input);
+        return super.keyReleased(i, j, k);
+    }
+
+
+    @Override
+    public void mouseMoved(double d, double e) {
+        if (!Config.instance().chatEnabled || minecraft.options.hideGui) {
+            super.mouseMoved(d, e);
+        }
+        chatWidthSlider.mouseMove(d, e);
+        chatHeightSlider.mouseMove(d, e);
+        chatScaleSlider.mouseMove(d, e);
+        super.mouseMoved(d, e);
     }
 
     @Inject(
@@ -274,7 +381,6 @@ abstract class ChatScreenMixin extends Screen {
         if (!input.getValue().startsWith("/")) return false;
 
         MineTogetherChat.setTarget(ChatTarget.VANILLA);
-        vanillaChatButton.selectButton();
         return true;
     }
 }

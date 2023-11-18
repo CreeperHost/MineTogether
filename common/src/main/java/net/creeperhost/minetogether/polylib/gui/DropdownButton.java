@@ -108,7 +108,7 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
 
         if (dropdownOpen) {
             drawY += 1;
-            int yOffset = height - 2;
+            int yOffset = height;
             if (isFlipped) {
                 yOffset = -yOffset;
                 drawY -= 1;
@@ -123,11 +123,11 @@ public class DropdownButton<E extends DropdownButton.DropdownEntry> extends Butt
                 RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 // TODO: Fix rendering being dodgy, but it is "good enough" to avoid spending too much time on right now
-                blit(pStack, x, drawY, 0, 46 + subHovered * 20 + 1, width / 2, height - 1);
-                blit(pStack, x + width / 2, drawY, 200 - width / 2, 46 + subHovered * 20 + 1, width / 2, height - 1);
+                blit(pStack, x, drawY, 0, 46 + subHovered * 20, width / 2, height);
+                blit(pStack, x + width / 2, drawY, 200 - width / 2, 46 + subHovered * 20, width / 2, height);
 
                 int textColour = 14737632;
-                drawCenteredString(pStack, font, e.getTitle(true), x + width / 2, drawY + (height - 10) / 2, textColour);
+                drawCenteredString(pStack, font, e.getTitle(true), x + width / 2, drawY + 1 + (height - 10) / 2, textColour);
             }
         }
 
