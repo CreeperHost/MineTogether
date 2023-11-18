@@ -14,6 +14,8 @@ accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessag
 accessible field net/minecraft/client/gui/components/ChatComponent chatScrollbarPos I
 accessible field net/minecraft/client/gui/components/ChatComponent newMessageSinceScroll Z
 
+accessible field net/minecraft/client/gui/components/CommandSuggestions suggestions Lnet/minecraft/client/gui/components/CommandSuggestions$SuggestionsList;
+
 accessible field net/minecraft/client/gui/Gui chat Lnet/minecraft/client/gui/components/ChatComponent;
 
 extendable method net/minecraft/client/gui/components/AbstractSelectionList clearEntries ()V
