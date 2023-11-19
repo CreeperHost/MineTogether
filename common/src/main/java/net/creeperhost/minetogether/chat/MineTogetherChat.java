@@ -5,11 +5,11 @@ import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.hooks.client.screen.ScreenHooks;
 import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
-import net.creeperhost.minetogether.chat.gui.ChatScreen;
-import net.creeperhost.minetogether.chat.gui.FriendsListScreen;
+import net.creeperhost.minetogether.chat.gui.FriendChatGui;
+import net.creeperhost.minetogether.chat.gui.PublicChatGui;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
-import net.creeperhost.minetogether.gui.SettingsScreen;
+import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
@@ -18,24 +18,22 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.SimpleToast;
+import net.creeperhost.minetogether.polylib.gui.TooltipContainer;
 import net.creeperhost.minetogether.util.ModPackInfo;
+import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.toasts.Toast;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 import static net.creeperhost.minetogether.Constants.MINETOGETHER_LOGO_25;
 import static net.creeperhost.minetogether.MineTogether.API;
@@ -89,9 +87,11 @@ public class MineTogetherChat {
                 if (channel == CHAT_STATE.ircClient.getPrimaryChannel()) {
                     publicChat.attach(channel);
 
+                    Screen screen = Minecraft.getInstance().screen;
+
                     // If we have the ChatScreen open. Attach to main chat.
-                    if (Minecraft.getInstance().screen instanceof ChatScreen chat) {
-                        chat.attach(channel);
+                    if (screen instanceof ModularGuiScreen mgui && mgui.getModularGui().getProvider() instanceof PublicChatGui chat) {
+                        chat.chatMonitor.attach(channel);
                     }
                 }
             }
@@ -106,29 +106,29 @@ public class MineTogetherChat {
             if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ADDED) {
                 ProfileManager.FriendRequest fr = (ProfileManager.FriendRequest) e.data;
                 addToast(new SimpleToast(
-                        new TextComponent(fr.from.getDisplayName() + " has sent you a friend request"),
-                        new TextComponent(" "),
+                        new TranslatableComponent("minetogether:toast.fiend_request_received", displayName(fr.user)),
+                        TextComponent.EMPTY,
                         MINETOGETHER_LOGO_25
                 ));
             } else if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ACCEPTED) {
                 Profile fr = (Profile) e.data;
                 addToast(new SimpleToast(
-                        new TextComponent(fr.getDisplayName() + " has accepted your friend request"),
-                        new TextComponent(" "),
+                        TextComponent.EMPTY,
+                        new TranslatableComponent("minetogether:toast.fiend_request_accepted", displayName(fr)),
                         MINETOGETHER_LOGO_25
                 ));
             } else if (e.type == ProfileManager.EventType.FRIEND_ONLINE && Config.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
                 addToast(new SimpleToast(
-                        new TextComponent(fr.getFriendName() + " Is now online."),
-                        new TextComponent(" "),
+                        new TranslatableComponent("minetogether:toast.user_online", displayName(fr)),
+                        TextComponent.EMPTY,
                         MINETOGETHER_LOGO_25
                 ));
             } else if (e.type == ProfileManager.EventType.FRIEND_OFFLINE && Config.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
                 addToast(new SimpleToast(
-                        new TextComponent(fr.getFriendName() + " Is now offline."),
-                        new TextComponent(" "),
+                        new TranslatableComponent("minetogether:toast.user_offline", displayName(fr)),
+                        TextComponent.EMPTY,
                         MINETOGETHER_LOGO_25
                 ));
             }
@@ -139,6 +139,14 @@ public class MineTogetherChat {
             Config.instance().firstConnect = CHAT_AUTH.getHash();
             Config.save();
         }
+    }
+
+    public static void simpleToast(Component toastText) {
+        addToast(new SimpleToast(
+                toastText,
+                TextComponent.EMPTY,
+                MINETOGETHER_LOGO_25
+        ));
     }
 
     private static void addToast(Toast toast) {
@@ -169,13 +177,24 @@ public class MineTogetherChat {
     }
 
     private static void addMenuButtons(Screen screen) {
-        ScreenHooks.addRenderableWidget(screen, new Button(screen.width - 105, 5, 100, 20, new TranslatableComponent("minetogether:button.friends"), e -> {
-            Minecraft.getInstance().setScreen(new FriendsListScreen(screen));
-        }));
-        boolean chatEnabled = Config.instance().chatEnabled;
-        ScreenHooks.addRenderableWidget(screen, new IconButton(screen.width - 125, 5, chatEnabled ? 1 : 3, Constants.WIDGETS_SHEET, e -> {
-            Minecraft.getInstance().setScreen(chatEnabled ? new ChatScreen(screen) : new SettingsScreen(screen));
-        }));
+        int buttonPos = 4;
+        TooltipContainer tooltips = new TooltipContainer(screen);
+
+        IconButton settings = new IconButton(screen.width - (buttonPos += 21), 5, 3, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new SettingGui(), screen)));
+        ScreenHooks.addRenderableWidget(screen, settings);
+        tooltips.addTooltip(settings, new TranslatableComponent("minetogether:gui.button.settings.info"));
+
+        IconButton friendChat = new IconButton(screen.width - (buttonPos += 21), 5, 7, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new FriendChatGui(), screen)));
+        ScreenHooks.addRenderableWidget(screen, friendChat);
+        tooltips.addTooltip(friendChat, new TranslatableComponent("minetogether:gui.button.friends.info"));
+
+        if (Config.instance().chatEnabled) {
+            IconButton publicChat = new IconButton(screen.width - (buttonPos += 21), 5, 1, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(PublicChatGui.createGui(), screen)));
+            ScreenHooks.addRenderableWidget(screen, publicChat);
+            tooltips.addTooltip(publicChat, new TranslatableComponent("minetogether:gui.button.global_chat.info"));
+        }
+
+        ScreenHooks.addRenderableOnly(screen, tooltips);
     }
 
     public static boolean isNewUser() {
@@ -204,5 +223,9 @@ public class MineTogetherChat {
 
     public static ChatTarget getTarget() {
         return Config.instance().chatEnabled ? Config.instance().selectedTab : ChatTarget.VANILLA;
+    }
+
+    public static String displayName(@Nullable Profile profile) {
+        return profile == null ? "" : profile.isFriend() && profile.hasFriendName() ? profile.getFriendName() : profile.getDisplayName();
     }
 }

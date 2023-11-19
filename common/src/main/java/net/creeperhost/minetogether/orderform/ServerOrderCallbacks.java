@@ -133,7 +133,7 @@ public class ServerOrderCallbacks {
 
         } catch (Throwable t) {
             LOGGER.error("Unable to fetch summary", t);
-            return null;
+            return new OrderSummary("Unable to fetch summary");
         }
     }
 
@@ -173,10 +173,10 @@ public class ServerOrderCallbacks {
         return returnMap;
     }
 
-    public static Map<String, String> getDataCentres() throws IOException, URISyntaxException {
+    public static Map<String, Integer> getDataCentres() throws IOException, URISyntaxException {
         String url = "https://www.creeperhost.net/json/datacentre/closest";
         String resp = WebUtils.getWebResponse(url);
-        Map<String, String> map = new HashMap<>();
+        Map<String, Integer> map = new HashMap<>();
 
         JsonElement jElement = new JsonParser().parse(resp);
 
@@ -188,12 +188,56 @@ public class ServerOrderCallbacks {
                     JsonObject object = (JsonObject) serverEl;
                     String name = object.get("name").getAsString();
                     String distance = object.get("distance").getAsString();
-                    map.put(name, distance);
+                    try {
+                        map.put(name, Integer.parseInt(distance));
+                    } catch (NumberFormatException ignored) {
+                        map.put(name, -1);
+                    }
                 }
                 return map;
             }
         }
         return null;
+    }
+
+    public static Map<String, String> getDataCentreURLs() throws IOException, URISyntaxException {
+        String url = "https://api.creeper.host/api/datacentres";
+        String resp = WebUtils.getWebResponse(url);
+        Map<String, String> map = new HashMap<>();
+
+        JsonElement jElement = new JsonParser().parse(resp);
+        if (jElement.isJsonObject()) {
+            JsonArray array = jElement.getAsJsonObject().getAsJsonArray("datacentres");
+            if (array != null) {
+                for (JsonElement serverEl : array) {
+                    JsonObject object = (JsonObject) serverEl;
+                    String name = object.get("slug").getAsString();
+                    String latencyURL = object.get("latencyUrl").getAsString();
+                    map.put(name, latencyURL);
+                }
+                return map;
+            }
+        }
+        return null;
+    }
+
+    public static int getDataCentreLatency(String latencyUrl, int distance) throws IOException {
+        String resp = WebUtils.getWebResponse(latencyUrl);
+        JsonElement jElement = new JsonParser().parse(resp);
+
+        if (jElement.isJsonObject()) {
+            JsonObject obj = jElement.getAsJsonObject();
+            if ("success".equals(obj.get("status").getAsString()) && obj.has("latency")) {
+                double latency = obj.get("latency").getAsDouble();
+                double milesPerSecond = 124188; //This is the miles per second value for light using the average refractive index of single mode fibre.
+                double minMs = ((distance / milesPerSecond) * 1000) * 1.7; //Figure used against real world RTT time to get close.
+                double maxMs = ((distance / milesPerSecond) * 1000) * 5.8; //Figure used against real world RTT time to get close.
+                if (latency < minMs) latency = Math.round(minMs);
+                if (latency > maxMs) return -2; //Won't retry will just consider this a fail. latency is updated every 10 seconds, so it will retry eventually.
+                return (int) latency;
+            }
+        }
+        return -1;
     }
 
     public static boolean doesEmailExist(final String email) {
@@ -208,14 +252,14 @@ public class ServerOrderCallbacks {
                 JsonElement jElement = new JsonParser().parse(response);
                 JsonObject jObject = jElement.getAsJsonObject();
                 if (jObject.getAsJsonPrimitive("status").getAsString().equals("error")) {
-                    return false;
+                    return true; //"Error" status means email "does" exist
                 }
             }
         } catch (Throwable t) {
             LOGGER.error("Unable to check if email exists", t);
             return false;
         }
-        return true;
+        return false;
     }
 
     public static String doLogin(final String username, final String password) {

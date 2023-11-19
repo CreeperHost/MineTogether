@@ -5,7 +5,7 @@ import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
-import net.creeperhost.minetogether.polylib.gui.SimpleToast;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -36,7 +36,7 @@ public class FriendRequestScreen extends Screen {
     private EditBox nameBox;
 
     public FriendRequestScreen(Screen previous, ProfileManager.FriendRequest request) {
-        this(previous, request, request.from, Type.ACCEPT);
+        this(previous, request, request.user, Type.ACCEPT);
 
     }
 
@@ -104,7 +104,14 @@ public class FriendRequestScreen extends Screen {
         if (MineTogetherChat.CHAT_STATE.ircClient.getState() == IrcState.CONNECTED) {
             ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
             if (type == Type.REQUEST) {
-                profileManager.sendFriendRequest(target, nameBox.getValue().trim());
+                if (target.hasFriendCode()){
+                    profileManager.sendFriendRequest(target.getFriendCode(), nameBox.getValue().trim(), success -> {
+                        MineTogetherChat.simpleToast(new TranslatableComponent(success ? "minetogether:gui.friends.request_sent" : "minetogether:gui.friends.request_fail"));
+                    });
+                } else {
+                    //TODO, Are we going to have issues with stale profiles here? Do we need to handle this somehow?
+                    MineTogetherChat.simpleToast(new TextComponent("Error, Profile Incomplete").withStyle(ChatFormatting.RED));
+                }
             } else if (type == Type.ACCEPT) {
                 assert request != null;
                 profileManager.acceptFriendRequest(request, nameBox.getValue().trim());

@@ -43,5 +43,9 @@ public class IconButton extends Button {
         RenderSystem.setShaderTexture(0, sheet);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         blit(pStack, x, y, index * 20, yOffset, width, height);
+
+        if (this.isHoveredOrFocused()) {
+            this.renderToolTip(pStack, mx, my);
+        }
     }
 }
