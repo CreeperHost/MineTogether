@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.polylib.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.renderer.GameRenderer;
@@ -19,6 +20,15 @@ public class SimpleToast extends PolyToast {
     private final Component description;
     private ItemStack displayIconStack = ItemStack.EMPTY;
     private ResourceLocation iconResourceLocation;
+
+    public SimpleToast(Component title) {
+        this(title, Component.empty());
+    }
+
+    public SimpleToast(Component title, ResourceLocation resourceLocation) {
+        this(title, Component.empty());
+        this.iconResourceLocation = resourceLocation;
+    }
 
     public SimpleToast(Component title, Component description) {
         this.title = title;
@@ -48,21 +58,29 @@ public class SimpleToast extends PolyToast {
         }
 
         if (title != null) {
-            List<FormattedCharSequence> list = toastComponent.getMinecraft().font.split(description, 125);
+            Font font = toastComponent.getMinecraft().font;
+            List<FormattedCharSequence> titleList = font.split(title, 125);
+            List<FormattedCharSequence> descList = font.split(description, 125);
+            boolean titleOnly = description.getString().isEmpty();
+
             int n = 0xFF88FF;
-            if (list.size() == 1) {
-                toastComponent.getMinecraft().font.draw(poseStack, title, 30.0f, 7.0f, n | 0xFF000000);
-                toastComponent.getMinecraft().font.draw(poseStack, list.get(0), 30.0f, 18.0f, -1);
+            if (descList.size() == 1 && titleList.size() == 1) {
+                font.draw(poseStack, title, 30, 7, n | 0xFF000000);
+                font.draw(poseStack, descList.get(0), 30, 18, -1);
             } else {
-                if (l < 1500L) {
-                    int k = Mth.floor(Mth.clamp((float) (1500L - l) / 300.0f, 0.0f, 1.0f) * 255.0f) << 24 | 0x4000000;
-                    toastComponent.getMinecraft().font.draw(poseStack, title, 30.0f, 11.0f, n | k);
+                if (l < 1500L || titleOnly) {
+                    int yPos = this.height() / 2 - titleList.size() * font.lineHeight / 2;
+                    int alpha = titleOnly ? 0xFF000000 : Mth.floor(Mth.clamp((float) (1500L - l) / 300.0f, 0.0f, 1.0f) * 255.0f) << 24 | 0x4000000;
+                    for (FormattedCharSequence formattedCharSequence : titleList) {
+                        font.draw(poseStack, formattedCharSequence, 30, yPos, n | alpha);
+                        yPos += font.lineHeight;
+                    }
                 } else {
-                    int k = Mth.floor(Mth.clamp((float) (l - 1500L) / 300.0f, 0.0f, 1.0f) * 252.0f) << 24 | 0x4000000;
-                    int m = this.height() / 2 - list.size() * toastComponent.getMinecraft().font.lineHeight / 2;
-                    for (FormattedCharSequence formattedCharSequence : list) {
-                        toastComponent.getMinecraft().font.draw(poseStack, formattedCharSequence, 30.0f, (float) m, 0xFFFFFF | k);
-                        m += toastComponent.getMinecraft().font.lineHeight;
+                    int yPos = this.height() / 2 - descList.size() * font.lineHeight / 2;
+                    int alpha = Mth.floor(Mth.clamp((float) (l - 1500L) / 300.0f, 0.0f, 1.0f) * 252.0f) << 24 | 0x4000000;
+                    for (FormattedCharSequence formattedCharSequence : descList) {
+                        font.draw(poseStack, formattedCharSequence, 30, yPos, 0xFFFFFF | alpha);
+                        yPos += font.lineHeight;
                     }
                 }
             }

@@ -266,6 +266,7 @@ public class Countries {
             "YE", "Yemen",
             "ZM", "Zambia",
             "ZW", "Zimbabwe",
+            "XK", "Kosovo",
             "UNKNOWN", "Unknown" }
     );
 
