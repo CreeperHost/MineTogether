@@ -18,6 +18,7 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.polylib.gui.IconButton;
 import net.creeperhost.minetogether.polylib.gui.SimpleToast;
+import net.creeperhost.minetogether.polylib.gui.TooltipContainer;
 import net.creeperhost.minetogether.util.ModPackInfo;
 import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.minecraft.client.Minecraft;
@@ -175,25 +176,23 @@ public class MineTogetherChat {
 
     private static void addMenuButtons(Screen screen) {
         int buttonPos = 4;
-        IconButton settings = new IconButton(screen.width - (buttonPos += 21), 5, 3, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new SettingGui(), screen)), (button, poseStack, i, j) -> {
-            Component component = Component.translatable("minetogether:gui.button.settings.info");
-            screen.renderTooltip(poseStack, Minecraft.getInstance().font.split(component, Math.max(screen.width / 2 - 43, 170)), i, j);
-        });
-        ScreenHooks.addRenderableWidget(screen, settings);
+        TooltipContainer tooltips = new TooltipContainer(screen);
 
-        IconButton friendChat = new IconButton(screen.width - (buttonPos += 21), 5, 7, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new FriendChatGui(), screen)), (button, poseStack, i, j) -> {
-            Component component = Component.translatable("minetogether:gui.button.friends.info");
-            screen.renderTooltip(poseStack, Minecraft.getInstance().font.split(component, Math.max(screen.width / 2 - 43, 170)), i, j);
-        });
+        IconButton settings = new IconButton(screen.width - (buttonPos += 21), 5, 3, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new SettingGui(), screen)));
+        ScreenHooks.addRenderableWidget(screen, settings);
+        tooltips.addTooltip(settings, Component.translatable("minetogether:gui.button.settings.info"));
+
+        IconButton friendChat = new IconButton(screen.width - (buttonPos += 21), 5, 7, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new FriendChatGui(), screen)));
         ScreenHooks.addRenderableWidget(screen, friendChat);
+        tooltips.addTooltip(friendChat, Component.translatable("minetogether:gui.button.friends.info"));
 
         if (Config.instance().chatEnabled) {
-            IconButton publicChat = new IconButton(screen.width - (buttonPos += 21), 5, 1, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(PublicChatGui.createGui(), screen)), (button, poseStack, i, j) -> {
-                Component component = Component.translatable("minetogether:gui.button.global_chat.info");
-                screen.renderTooltip(poseStack, Minecraft.getInstance().font.split(component, Math.max(screen.width / 2 - 43, 170)), i, j);
-            });
+            IconButton publicChat = new IconButton(screen.width - (buttonPos += 21), 5, 1, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(PublicChatGui.createGui(), screen)));
             ScreenHooks.addRenderableWidget(screen, publicChat);
+            tooltips.addTooltip(publicChat, Component.translatable("minetogether:gui.button.global_chat.info"));
         }
+
+        ScreenHooks.addRenderableOnly(screen, tooltips);
     }
 
     public static boolean isNewUser() {
