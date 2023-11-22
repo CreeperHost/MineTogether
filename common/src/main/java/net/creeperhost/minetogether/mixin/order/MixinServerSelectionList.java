@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.mixin.order;
 
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.orderform.CreeperHostServerEntry;
-import net.creeperhost.minetogether.serverlist.gui.JoinMultiplayerScreenPublic;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.network.chat.Component;
@@ -23,7 +22,7 @@ public class MixinServerSelectionList {
 
     @Inject (at = @At ("RETURN"), method = "refreshEntries()V")
     private void afterRefreshEntries(CallbackInfo info) {
-        if (!Config.instance().mpMenuEnabled || screen instanceof JoinMultiplayerScreenPublic) return;
+        if (!Config.instance().mpMenuEnabled) return;
         ServerSelectionList thisFake = (ServerSelectionList) (Object) this;
         int size = thisFake.children().size();
 //        for (int i = 0; i < size; i++) {
