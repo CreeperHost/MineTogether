@@ -33,6 +33,6 @@ license = "GNU General Public License v3.0"
 [[dependencies.minetogether]]
     modId = "polylib"
     mandatory = true
-    versionRange = "[1200.0.2,)"
+    versionRange = "[2000.0.3,)"
     ordering = "AFTER"
     side = "BOTH"
