@@ -49,7 +49,6 @@ public class MineTogether {
         LOGGER.info("Initializing MineTogether!");
         AUTH.setHeader("Fingerprint", FINGERPRINT);
 
-        Config.loadConfig(Platform.getConfigFolder().resolve(MOD_ID + ".json"));
         if (Config.instance().debugMode) {
             LOGGER.warn("Debug mode enabled. Prepare for _VERY_ verbose logging!");
         }
