@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.util;
 
 import java.util.Random;
 
+@Deprecated
 public enum EnumFlag {
     AD(64, 106, 32, 22),
     AE(480, 94, 32, 16),
