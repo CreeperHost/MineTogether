@@ -5,6 +5,7 @@ import blue.endless.jankson.Jankson;
 import blue.endless.jankson.JsonGrammar;
 import blue.endless.jankson.JsonPrimitive;
 import blue.endless.jankson.api.SyntaxError;
+import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.chat.ChatTarget;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +17,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static net.creeperhost.minetogether.MineTogether.MOD_ID;
 
 /**
  * Created by covers1624 on 20/6/22.
@@ -35,7 +38,9 @@ public class Config {
     private static Path filePath;
 
     public static Config instance() {
-        if (INSTANCE == null) throw new IllegalStateException("Config not loaded.");
+        if (INSTANCE == null) {
+            loadConfig(Platform.getConfigFolder().resolve(MOD_ID + ".json"));
+        }
 
         return INSTANCE;
     }
@@ -55,7 +60,9 @@ public class Config {
         }
     }
 
-    public static void loadConfig(Path file) {
+    private static synchronized void loadConfig(Path file) {
+        if (INSTANCE != null) return; // Sync bailout.
+
         Config config;
         if (Files.exists(file)) {
             try (InputStream is = Files.newInputStream(file)) {
