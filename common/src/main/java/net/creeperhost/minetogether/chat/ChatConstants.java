@@ -17,7 +17,7 @@ public class ChatConstants {
             IrcState.RECONNECTING, ChatFormatting.GOLD,
             IrcState.CONNECTED, ChatFormatting.GREEN,
             IrcState.CRASHED, ChatFormatting.RED,
-            IrcState.BANNED, ChatFormatting.BLACK,
+            IrcState.BANNED, ChatFormatting.DARK_RED,
             IrcState.VERIFYING, ChatFormatting.GOLD
     );
     public static final Map<IrcState, String> STATE_DESC_LOOKUP = ImmutableMap.of(

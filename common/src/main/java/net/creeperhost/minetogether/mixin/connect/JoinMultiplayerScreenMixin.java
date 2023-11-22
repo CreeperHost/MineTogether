@@ -5,7 +5,6 @@ import net.creeperhost.minetogether.connect.gui.FriendConnectScreen;
 import net.creeperhost.minetogether.connect.gui.FriendServerEntry;
 import net.creeperhost.minetogether.connect.gui.ServerListAppender;
 import net.creeperhost.minetogether.orderform.CreeperHostServerEntry;
-import net.creeperhost.minetogether.serverlist.gui.JoinMultiplayerScreenPublic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
@@ -31,8 +30,6 @@ public abstract class JoinMultiplayerScreenMixin {
 
     @Inject (at = @At ("TAIL"), method = "init()V")
     public void init(CallbackInfo ci) {
-        if (getThis() instanceof JoinMultiplayerScreenPublic) return;
-
         if (ConnectHandler.isEnabled()){
             ServerListAppender.INSTANCE.init(serverSelectionList, getThis());
         }
@@ -40,15 +37,11 @@ public abstract class JoinMultiplayerScreenMixin {
 
     @Inject (at = @At ("TAIL"), method = "removed()V") // closed
     public void removed(CallbackInfo ci) {
-        if (getThis() instanceof JoinMultiplayerScreenPublic) return;
-
         ServerListAppender.INSTANCE.remove();
     }
 
     @Inject (at = @At ("HEAD"), method = "joinSelectedServer", cancellable = true)
     public void joinSelectedServer(CallbackInfo ci) {
-        if (getThis() instanceof JoinMultiplayerScreenPublic) return;
-
         ServerSelectionList.Entry entry = this.serverSelectionList.getSelected();
         if (entry instanceof CreeperHostServerEntry) {
             ci.cancel();
@@ -60,8 +53,6 @@ public abstract class JoinMultiplayerScreenMixin {
 
     @Inject (at = @At ("TAIL"), method = "tick()V")
     public void tick(CallbackInfo ci) {
-        if (getThis() instanceof JoinMultiplayerScreenPublic) return;
-
         if (ConnectHandler.isEnabled()){
             ServerListAppender.INSTANCE.tick();
         }
