@@ -28,7 +28,7 @@
         "fabric": "*",
         "minecraft": ">=1.19.2",
         "architectury": ">=6.2.46",
-        "polylib": "*"
+        "polylib": ">=1900.0.3-build.98"
     },
     "suggests": {
         "flamingo": "*"
