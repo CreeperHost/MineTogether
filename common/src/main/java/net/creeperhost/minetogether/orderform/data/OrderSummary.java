@@ -22,8 +22,9 @@ public class OrderSummary {
     public final String prefix;
     public final String currency;
     public final String productID;
+    public final int ram;
 
-    public OrderSummary(String productID, String serverHostName, List<String> serverFeatures, List<String> serverIncluded, double preDiscount, double subTotal, double total, double tax, double discount, String suffix, String prefix, String currency) {
+    public OrderSummary(String productID, String serverHostName, List<String> serverFeatures, List<String> serverIncluded, double preDiscount, double subTotal, double total, double tax, double discount, String suffix, String prefix, String currency, int ram) {
         this.productID = productID;
         this.serverHostName = serverHostName;
         this.serverFeatures = serverFeatures;
@@ -36,6 +37,7 @@ public class OrderSummary {
         this.suffix = suffix;
         this.prefix = prefix;
         this.currency = currency;
+        this.ram = ram;
         this.summaryError = "";
     }
 
@@ -53,5 +55,6 @@ public class OrderSummary {
         this.prefix = "";
         this.currency = "";
         this.summaryError = summaryError;
+        this.ram = 0;
     }
 }

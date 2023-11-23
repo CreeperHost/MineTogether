@@ -240,6 +240,11 @@ public class OrderGui implements GuiProvider {
                 .constrain(LEFT, midPos)
                 .constrain(RIGHT, relative(randomise.get(LEFT), -2));
 
+        GuiElement<?> highlight = new GuiRectangle(nameBackground)
+                .border(0x50FFFFFF)
+                .fill(0x30FFFFFF);
+        Constraints.bind(highlight, nameBackground);
+
         Pattern namePattern = Pattern.compile("([A-Za-z0-9]*)");
         nameField = new GuiTextField(nameBackground)
                 .setTextState(TextState.create(() -> order.name, s -> {
@@ -249,6 +254,7 @@ public class OrderGui implements GuiProvider {
                 .setMaxLength(16)
                 .setFilter(s -> s.isEmpty() || namePattern.matcher(s).matches());
         Constraints.bind(nameField, nameBackground, 0, 3, 0, 3);
+        highlight.setEnabled(nameField::isFocused);
 
         //Player Count
         lastElement = new GuiText(background, Component.translatable("minetogether:gui.order.player_count"))
@@ -284,14 +290,6 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, right);
         lastElement.constrain(HEIGHT, dynamic(() -> (double) background.font().wordWrapHeight(playerCountInfo, (int) right.get() - (int) left.get())));
 
-        lastElement = MTStyle.Flat.button(background, () -> Component.translatable("minetogether:gui.order.pregen_" + order.pregen))
-                .onPress(() -> order.pregen = !order.pregen)
-                .setToggleMode(() -> order.pregen)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 2))
-                .constrain(HEIGHT, literal(14))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right);
-
         return lastElement;
     }
 
@@ -313,6 +311,15 @@ public class OrderGui implements GuiProvider {
                 .setAlignment(Align.LEFT);
         Constraints.bind(locationLoading, locations);
 
+        Component pingInfo = Component.translatable("minetogether:gui.order.region.signal").withStyle(ChatFormatting.GRAY);
+        lastElement = new GuiText(background, pingInfo)
+                .setWrap(true)
+                .setAlignment(Align.LEFT)
+                .constrain(TOP, relative(lastElement.get(BOTTOM), 2))
+                .constrain(LEFT, left)
+                .constrain(RIGHT, right);
+        lastElement.constrain(HEIGHT, dynamic(() -> (double) background.font().wordWrapHeight(pingInfo, (int) right.get() - (int) left.get())));
+
         return lastElement;
     }
 
@@ -325,7 +332,7 @@ public class OrderGui implements GuiProvider {
             Constraints.bind(error, locations);
         } else {
             List<String> regionOrder = new ArrayList<>(regionPing.keySet());
-            regionOrder.sort(Comparator.comparingDouble(key -> regionPing.get(key) < 0 ? 9999999 : regionPing.get(key)));
+            regionOrder.sort(Comparator.comparingDouble(region -> regionPing.get(region) < 0 ? 5000 : regionPing.get(region) + (getAvailability(region) ? 0 : 5000)));
             GuiElement<?> element = null;
             for (String region : regionOrder) {
                 element = locationButton(locations, region)
@@ -969,9 +976,9 @@ public class OrderGui implements GuiProvider {
             });
         }
 
-        if (dataCenterAvailability.isEmpty() && availabilityTask == null) {
+        if (dataCenterAvailability.isEmpty() && availabilityTask == null && !summaryUpdateRequired && !summaryUpdating) {
             availabilityTask = CompletableFuture.runAsync(() -> {
-                dataCenterAvailability.putAll(ServerOrderCallbacks.getDataCentreAvailability(getRamRequirement()));
+                dataCenterAvailability.putAll(ServerOrderCallbacks.getDataCentreAvailability(summary.ram + 4096));
             });
         } else if (availabilityTask != null && availabilityTask.isDone()) {
             availabilityTask = null;
@@ -1044,7 +1051,7 @@ public class OrderGui implements GuiProvider {
     private String regionToDataCentre(String region) {
         return switch (region) {
             case "eu-west" -> "grantham";
-            case "na-east" -> "buffalo";
+            case "na-east" -> "newyork";
             case "na-west" -> "losangeles";
             case "na-south" -> "dallas";
             case "sub-saharan-africa" -> "johannesburg";
@@ -1078,15 +1085,6 @@ public class OrderGui implements GuiProvider {
 
     private String getRegionId(String region) {
         return regionMap.getOrDefault(region, region);
-    }
-
-    private int getRamRequirement() {
-        return switch (order.playerAmount) {
-            case 5 -> 8596;
-            case 10 -> 10096;
-            case 15 -> 12096;
-            default -> 16096;
-        };
     }
 
     private boolean getAvailability(String region) {

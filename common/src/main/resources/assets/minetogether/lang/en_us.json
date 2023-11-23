@@ -117,7 +117,7 @@
     "minetogether:gui.order.region.australia": "Australia",
     "minetogether:gui.order.region.eu-middle-east": "Eastern Europe & Middle East",
 
-    "minetogether:gui.order.region.signal": "Calculated by running a reverse trace from our servers to your IP, this may be inaccurate.",
+    "minetogether:gui.order.region.signal": "Ping is calculated by running a reverse trace from our servers to your IP, this may be inaccurate.",
     "minetogether:gui.order.region.pinging": "Attempting to determine latency to this region...",
     "minetogether:gui.order.region.pinging_fail": "Failed to determine distance or latency to this region.",
     "minetogether:gui.order.region.from_distance": "Latency estimation based on distance",
