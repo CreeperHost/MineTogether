@@ -63,6 +63,7 @@ public class ServerOrderCallbacks {
 
             JsonObject jObject = jElement.getAsJsonObject();
             String recommended = jObject.getAsJsonPrimitive("recommended").getAsString();
+            int ram = jObject.get("ram").getAsInt() + 4096;
 
             if (StringUtils.isNotEmpty(promo) && !promo.equalsIgnoreCase("Insert Promo Code here")) {
                 WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + promo);
@@ -126,7 +127,7 @@ public class ServerOrderCallbacks {
             vpsIncluded.add("minetogether.quote.vpsincluded6");
             vpsIncluded.add("minetogether.quote.vpsincluded7");
 
-            return new OrderSummary(recommended, vpsDisplay, vpsFeatures, vpsIncluded, preDiscount, subTotal, total, tax, discount, suffix, prefix, id);
+            return new OrderSummary(recommended, vpsDisplay, vpsFeatures, vpsIncluded, preDiscount, subTotal, total, tax, discount, suffix, prefix, id, ram);
 
         } catch (Throwable t) {
             LOGGER.error("Unable to fetch summary", t);
@@ -254,9 +255,9 @@ public class ServerOrderCallbacks {
                 double latency = obj.get("latency").getAsDouble();
                 double milesPerSecond = 124188; //This is the miles per second value for light using the average refractive index of single mode fibre.
                 double minMs = ((distance / milesPerSecond) * 1000) * 1.7; //Figure used against real world RTT time to get close.
-                double maxMs = ((distance / milesPerSecond) * 1000) * 5.8; //Figure used against real world RTT time to get close.
+//                double maxMs = ((distance / milesPerSecond) * 1000) * 5.8; //Figure used against real world RTT time to get close.
                 if (latency < minMs) latency = Math.round(minMs);
-                if (latency > maxMs) return -2; //Won't retry will just consider this a fail. latency is updated every 10 seconds, so it will retry eventually.
+//                if (latency > maxMs) return -2; //Won't retry will just consider this a fail. latency is updated every 10 seconds, so it will retry eventually.
                 return (int) latency;
             }
         }
