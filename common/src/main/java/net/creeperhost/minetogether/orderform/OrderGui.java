@@ -39,8 +39,7 @@ import java.util.regex.Pattern;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
-import static net.minecraft.ChatFormatting.GREEN;
-import static net.minecraft.ChatFormatting.RED;
+import static net.minecraft.ChatFormatting.*;
 
 /**
  * Created by brandon3055 on 04/10/2023
@@ -54,6 +53,8 @@ public class OrderGui implements GuiProvider {
     private final Map<String, Integer> regionPing = new ConcurrentHashMap<>();
     private final Map<String, Integer> dataCenterDistance = new ConcurrentHashMap<>();
     private final Map<String, String> dataCenterUrls = new HashMap<>();
+    private final Map<String, Boolean> dataCenterAvailability = new HashMap<>();
+    private final Map<String, String> regionMap = new HashMap<>();
 
     private GuiTextField nameField;
     private GuiElement<?> locations;
@@ -62,6 +63,7 @@ public class OrderGui implements GuiProvider {
     private CompletableFuture<?> initTask;
     private CompletableFuture<?> pingTask;
     private CompletableFuture<?> orderTask;
+    private CompletableFuture<?> availabilityTask;
     private volatile boolean nameValid = false;
     private volatile Component nameMessage = null;
     private int nameCheckTimer = 60;
@@ -102,7 +104,8 @@ public class OrderGui implements GuiProvider {
 
     private void initDefaults() {
         initTask = CompletableFuture.runAsync(() -> {
-            for (String region : ServerOrderCallbacks.getRegionMap().keySet()) {
+            regionMap.putAll(ServerOrderCallbacks.getRegionMap());
+            for (String region : regionMap.keySet()) {
                 regionPing.put(region, -1);
             }
             try {
@@ -111,6 +114,7 @@ public class OrderGui implements GuiProvider {
             } catch (IOException | URISyntaxException ex) {
                 LOGGER.error("Failed to poll Data Centers.", ex);
             }
+
             order.serverLocation = datacentreToRegion(ServerOrderCallbacks.getRecommendedLocation());
             order.country = Countries.getOurCountry();
             summaryUpdateRequired = true;
@@ -263,6 +267,8 @@ public class OrderGui implements GuiProvider {
                     .setToggleMode(() -> order.playerAmount == count)
                     .onPress(() -> {
                         order.playerAmount = count;
+                        dataCenterAvailability.clear();
+                        updateLocations();
                         summaryDirty();
                     })
                     .constrain(TOP, match(lastElement.get(TOP)))
@@ -654,31 +660,50 @@ public class OrderGui implements GuiProvider {
     //=== GUI Component Builders ===//
 
     private GuiElement<?> locationButton(GuiElement<?> parent, String region) {
+        boolean available = getAvailability(region);
         GuiButton button = MTStyle.Flat.button(parent, (Supplier<Component>) null)
                 .setToggleMode(() -> region.equals(order.serverLocation))
                 .onPress(() -> {
                     order.serverLocation = region;
                     summaryDirty();
                 })
-                .constrain(HEIGHT, literal(12));
+                .constrain(HEIGHT, literal(available ? 12 : 32));
 
         GuiText label = new GuiText(button, new TranslatableComponent("minetogether:gui.order.region." + region))
-                .setAlignment(Align.LEFT);
-        Constraints.bind(label, button, 0, 4, 0, 14);
+                .setAlignment(Align.LEFT)
+                .constrain(TOP, relative(button.get(TOP), 2))
+                .constrain(LEFT, relative(button.get(LEFT), 4))
+                .constrain(RIGHT, relative(button.get(RIGHT), -14))
+                .constrain(HEIGHT, literal(8));
 
         double ping = regionPing.getOrDefault(region, -2);
         int distance = dataCenterDistance.getOrDefault(regionToDataCentre(region), -1);
         GuiText pingLabel = new GuiText(button, new TextComponent(((int) Math.ceil(ping)) + " ms"))
                 .setEnabled(() -> ping > 0)
-                .setAlignment(Align.RIGHT);
-        Constraints.bind(pingLabel, button, 0, 4, 0, 14);
+                .setAlignment(Align.RIGHT)
+                .constrain(TOP, relative(button.get(TOP), 2))
+                .constrain(LEFT, relative(button.get(LEFT), 4))
+                .constrain(RIGHT, relative(button.get(RIGHT), -14))
+                .constrain(HEIGHT, literal(8));
 
         GuiTexture signal = new GuiTexture(button, MTTextures.getter(() -> getSignalIcon(ping, distance)))
                 .setTooltipSingle(() -> getSignalTooltip(ping, distance))
                 .constrain(TOP, match(button.get(TOP)))
-                .constrain(BOTTOM, match(button.get(BOTTOM)))
                 .constrain(RIGHT, match(button.get(RIGHT)))
+                .constrain(HEIGHT, literal(12))
                 .constrain(WIDTH, literal(12));
+
+        if (!available) {
+            GuiText lowAvail = new GuiText(button, new TranslatableComponent("minetogether:gui.order.low_availability").withStyle(RED))
+                    .setAlignment(Align.LEFT)
+                    .setWrap(true)
+                    .constrain(BOTTOM, relative(button.get(BOTTOM), -2))
+                    .constrain(LEFT, relative(button.get(LEFT), 4))
+                    .constrain(RIGHT, relative(button.get(RIGHT), -4))
+                    .autoHeight();
+
+            button.constrain(HEIGHT, dynamic(() -> 12 + lowAvail.ySize() + 4));
+        }
 
         return button;
     }
@@ -843,7 +868,7 @@ public class OrderGui implements GuiProvider {
 
             //Place Order
             setProcessing(null, null, new TranslatableComponent("minetogether:gui.order.order_placing"));
-            String result = ServerOrderCallbacks.createOrder(order, String.valueOf(Config.instance().pregenDiameter));
+            String result = ServerOrderCallbacks.createOrder(order, getRegionId(order.serverLocation), String.valueOf(Config.instance().pregenDiameter));
             String[] resultSplit = result.split(":");
             if (resultSplit[0].equals("success")) {
                 invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
@@ -946,6 +971,15 @@ public class OrderGui implements GuiProvider {
             });
         }
 
+        if (dataCenterAvailability.isEmpty() && availabilityTask == null) {
+            availabilityTask = CompletableFuture.runAsync(() -> {
+                dataCenterAvailability.putAll(ServerOrderCallbacks.getDataCentreAvailability(getRamRequirement()));
+            });
+        } else if (availabilityTask != null && availabilityTask.isDone()) {
+            availabilityTask = null;
+            updateLocations();
+        }
+
         if (orderTask != null && orderTask.isDone()) {
             orderTask = null;
         }
@@ -1031,6 +1065,7 @@ public class OrderGui implements GuiProvider {
             case "chicago" -> "na-east";
             case "miami" -> "na-south";
             case "dallas" -> "na-south";
+            case "newyork" -> "na-south";
             case "seattle" -> "na-west";
             case "losangeles" -> "na-west";
             case "johannesburg" -> "sub-saharan-africa";
@@ -1041,6 +1076,29 @@ public class OrderGui implements GuiProvider {
             case "bucharest" -> "eu-middle-east";
             default -> "";
         };
+    }
+
+    private String getRegionId(String region) {
+        return regionMap.getOrDefault(region, region);
+    }
+
+    private int getRamRequirement() {
+        return switch (order.playerAmount) {
+            case 5 -> 8596;
+            case 10 -> 10096;
+            case 15 -> 12096;
+            default -> 16096;
+        };
+    }
+
+    private boolean getAvailability(String region) {
+        if (availabilityTask != null || dataCenterAvailability.isEmpty()) return true;
+        for (String center : dataCenterAvailability.keySet()) {
+            if (datacentreToRegion(center).equals(region) && dataCenterAvailability.get(center)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String getDefaultName() {

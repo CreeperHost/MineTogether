@@ -52,7 +52,7 @@
 
     "minetogether:gui.friends.button.accept": "Accept",
     "minetogether:gui.friends.button.reject": "Reject",
-    "minetogether:gui.friends.button.block": "Block User",
+    "minetogether:gui.friends.button.block": "Mute User",
     "minetogether:gui.friends.button.remove": "Remove Friend",
     "minetogether:gui.friends.button.rename": "Edit friend's name",
     "minetogether:gui.friends.button.party": "Invite to party",
@@ -65,8 +65,8 @@
     "minetogether:gui.settings.button.enabled": "Enabled",
     "minetogether:gui.settings.button.disabled": "Disabled",
     "minetogether:gui.settings.button.link": "Link Account",
-    "minetogether:gui.settings.button.blocked": "Blocked Users",
-    "minetogether:gui.settings.button.unblock.info": "Un-Block User",
+    "minetogether:gui.settings.button.blocked": "Muted Users",
+    "minetogether:gui.settings.button.unblock.info": "Un-Mute User",
 
     "minetogether:gui.order.title": "Order a Server",
     "minetogether:gui.order.configure": "Configure Server",
@@ -84,6 +84,7 @@
     "minetogether:gui.order.order_in_progress":"Placing Order...",
     "minetogether:gui.order.pregen_false": "Agree to Mojang EULA and pre-generate world?",
     "minetogether:gui.order.pregen_true": "World will be pre-generated.",
+    "minetogether:gui.order.low_availability": "This region is currently in high demand, there will likely be delays of up to 72 hours in setting up your service.",
 
     "minetogether:gui.order.loading_locations": "Loading locations...",
     "minetogether:gui.order.loading_locations_fail": "Failed to load locations...",
