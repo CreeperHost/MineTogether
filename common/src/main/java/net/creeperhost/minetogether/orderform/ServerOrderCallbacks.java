@@ -14,10 +14,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -218,7 +215,33 @@ public class ServerOrderCallbacks {
                 return map;
             }
         }
-        return null;
+        return Collections.emptyMap();
+    }
+
+    public static Map<String, Boolean> getDataCentreAvailability(int ram) {
+        String url = "https://api.creeper.host/api/datacentres?ram=" + ram;
+        String resp;
+        try {
+            resp = WebUtils.getWebResponse(url);
+        } catch (IOException e) {
+            LOGGER.error("An error occurred while checking availability", e);
+            return Collections.emptyMap();
+        }
+        Map<String, Boolean> map = new HashMap<>();
+
+        JsonElement jElement = new JsonParser().parse(resp);
+        if (jElement.isJsonObject()) {
+            JsonArray array = jElement.getAsJsonObject().getAsJsonArray("datacentres");
+            if (array != null) {
+                for (JsonElement serverEl : array) {
+                    JsonObject object = (JsonObject) serverEl;
+                    String name = object.get("slug").getAsString();
+                    map.put(name, object.get("available").getAsBoolean());
+                }
+                return map;
+            }
+        }
+        return Collections.emptyMap();
     }
 
     public static int getDataCentreLatency(String latencyUrl, int distance) throws IOException {
@@ -287,9 +310,10 @@ public class ServerOrderCallbacks {
         }
     }
 
-    public static String createOrder(final Order order, String pregen) {
+    public static String createOrder(final Order order, String regionId, String pregen) {
+        String response = null;
         try {
-            String response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + order.serverLocation, new HashMap<String, String>() {{
+            response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + regionId, new HashMap<String, String>() {{
                 put("name", order.name);
                 put("swid", ModPackInfo.getInfo().curseID);
                 if (order.pregen) { put("pregen", pregen); }
@@ -310,6 +334,7 @@ public class ServerOrderCallbacks {
             return "Unknown error";
         } catch (Throwable t) {
             LOGGER.error("Unable to create order", t);
+            LOGGER.error("Server Response:\n{}", response);
             return "Unknown error";
         }
     }
