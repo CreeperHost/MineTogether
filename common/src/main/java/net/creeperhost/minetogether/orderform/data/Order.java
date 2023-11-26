@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.orderform.data;
 public class Order {
 
     public String name = "";
-    public int playerAmount = 5;
+    public int playerAmount = 10;
     public String serverLocation = "";
 
     public String emailAddress = "";
