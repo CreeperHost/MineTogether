@@ -55,9 +55,6 @@ public class MineTogetherChat {
     public static void init() {
         CHAT_STATE.logChatToConsole = Config.instance().logChatToConsole | Config.instance().debugMode;
 
-        // Class Initializer must be finished before MTChatComponent is constructed.
-        publicChat = new MTChatComponent(ChatTarget.PUBLIC, Minecraft.getInstance());
-
         if (Config.instance().debugMode) {
             System.setProperty("net.covers1624.pircbot.logging.info", "INFO");
             System.setProperty("net.covers1624.pircbot.logging.debug", "INFO");

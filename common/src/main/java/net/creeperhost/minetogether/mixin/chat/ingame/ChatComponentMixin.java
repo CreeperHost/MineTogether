@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.util.ArrayListDeque;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,7 +44,7 @@ abstract class ChatComponentMixin {
     protected abstract boolean isChatFocused();
 
     @Shadow
-    public abstract List<String> getRecentChat();
+    public abstract ArrayListDeque<String> getRecentChat();
 
     @Shadow
     public abstract int getLinesPerPage();

@@ -17,6 +17,7 @@ import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO, this needs a lot of work for the networking changes.
 public class ServerAuthTest {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -45,10 +46,9 @@ public class ServerAuthTest {
                     }
 
                     inetaddress = new InetSocketAddress(InetAddress.getByName(address), port);
-                    networkManager = Connection.connectToServer(inetaddress, true);
-                    networkManager.setListener(new NetHandlerLoginClientOurs(networkManager, mc));
-                    networkManager.send(new ClientIntentionPacket(address, port, ConnectionProtocol.LOGIN));
-                    networkManager.send(new ServerboundHelloPacket(mc.getUser().getName(), Optional.ofNullable(mc.getUser().getProfileId())));
+                    networkManager = Connection.connectToServer(inetaddress, true, null);
+                    networkManager.initiateServerboundPlayConnection(address, port, new NetHandlerLoginClientOurs(networkManager, mc));
+                    networkManager.send(new ServerboundHelloPacket(mc.getUser().getName(), mc.getUser().getProfileId()));
 
                 } catch (UnknownHostException unknownhostexception) {
                     if (ServerAuthTest.cancel) {

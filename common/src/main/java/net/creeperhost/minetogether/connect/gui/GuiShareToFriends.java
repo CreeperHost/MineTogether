@@ -66,7 +66,7 @@ public class GuiShareToFriends extends ShareToLanScreen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(graphics);
+        renderBackground(graphics, mouseX, mouseY, partialTicks);
 
         graphics.drawCenteredString(this.font, Component.translatable("minetogether.connect.open.title"), this.width / 2, 50, 16777215);
 

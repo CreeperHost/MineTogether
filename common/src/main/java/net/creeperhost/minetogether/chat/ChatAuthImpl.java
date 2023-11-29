@@ -21,18 +21,15 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * @author covers1624
  */
-@SuppressWarnings ("UnstableApiUsage")
 public class ChatAuthImpl implements ChatAuth {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final Minecraft mc;
     private final UUID uuid;
     private final String uuidHash;
 
     public ChatAuthImpl(Minecraft mc) {
-        this.mc = mc;
-        uuid = UUIDUtil.getOrCreatePlayerUUID(mc.getUser().getGameProfile());
+        uuid = mc.getUser().getProfileId();
         uuidHash = Hashing.sha256().hashString(uuid.toString(), UTF_8).toString().toUpperCase(Locale.ROOT);
     }
 
@@ -59,17 +56,5 @@ public class ChatAuthImpl implements ChatAuth {
             LOGGER.error("Error whilst waiting for token.", ex);
             return null;
         }
-    }
-
-    @Deprecated // Exists for old connect. Will be nuked with new connect.
-    public String beginMojangAuth() {
-        String serverId = Hashing.sha1().hashString(UUID.randomUUID().toString(), UTF_8).toString();
-        try {
-            mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
-            return serverId;
-        } catch (AuthenticationException ex) {
-            LOGGER.error("Failed to send 'joinServer' request.", ex);
-        }
-        return null;
     }
 }

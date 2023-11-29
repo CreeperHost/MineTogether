@@ -303,11 +303,8 @@ abstract class ChatScreenMixin extends Screen {
         }
     }
 
-    @Inject(
-            method = "tick",
-            at = @At("TAIL")
-    )
-    public void tick(CallbackInfo ci) {
+    @Override
+    public void tick() {
         switchToVanillaIfCommand();
 
         // If we are the vanilla chat, set things editable, and bail out.

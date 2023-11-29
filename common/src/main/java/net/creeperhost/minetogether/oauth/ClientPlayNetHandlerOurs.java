@@ -1,10 +1,11 @@
 package net.creeperhost.minetogether.oauth;
 
-import net.fabricmc.fabric.mixin.networking.client.accessor.ClientLoginNetworkHandlerAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.*;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.status.ClientboundPongResponsePacket;
 
 public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
 
@@ -24,11 +25,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
         networkManagerIn.disconnect(packetIn.getReason());
     }
 
-//    @Override
-//    public Connection getConnection() {
-//        return networkManagerIn;
-//    }
-
     @Override
     public boolean isAcceptingMessages() {
         return this.networkManagerIn.isConnected();
@@ -36,10 +32,13 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
 
     // NO-OP
     //@formatter:off
+    @Override public void handleKeepAlive(ClientboundKeepAlivePacket clientboundKeepAlivePacket) { }
+    @Override public void handlePing(ClientboundPingPacket clientboundPingPacket) { }
+    @Override public void handleCustomPayload(ClientboundCustomPayloadPacket clientboundCustomPayloadPacket) { }
+    @Override public void handleResourcePack(ClientboundResourcePackPacket clientboundResourcePackPacket) { }
     @Override public void handleAddEntity(ClientboundAddEntityPacket clientboundAddEntityPacket) { }
     @Override public void handleAddExperienceOrb(ClientboundAddExperienceOrbPacket clientboundAddExperienceOrbPacket) { }
     @Override public void handleAddObjective(ClientboundSetObjectivePacket clientboundSetObjectivePacket) { }
-    @Override public void handleAddPlayer(ClientboundAddPlayerPacket clientboundAddPlayerPacket) { }
     @Override public void handleAnimate(ClientboundAnimatePacket clientboundAnimatePacket) { }
     @Override public void handleAwardStats(ClientboundAwardStatsPacket clientboundAwardStatsPacket) { }
     @Override public void handleAddOrRemoveRecipes(ClientboundRecipePacket clientboundRecipePacket) { }
@@ -58,13 +57,11 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleHorseScreenOpen(ClientboundHorseScreenOpenPacket clientboundHorseScreenOpenPacket) { }
     @Override public void handleContainerSetData(ClientboundContainerSetDataPacket clientboundContainerSetDataPacket) { }
     @Override public void handleContainerSetSlot(ClientboundContainerSetSlotPacket clientboundContainerSetSlotPacket) { }
-    @Override public void handleCustomPayload(ClientboundCustomPayloadPacket clientboundCustomPayloadPacket) { }
     @Override public void handleEntityEvent(ClientboundEntityEventPacket clientboundEntityEventPacket) { }
     @Override public void handleEntityLinkPacket(ClientboundSetEntityLinkPacket clientboundSetEntityLinkPacket) { }
     @Override public void handleSetEntityPassengersPacket(ClientboundSetPassengersPacket clientboundSetPassengersPacket) { }
     @Override public void handleExplosion(ClientboundExplodePacket clientboundExplodePacket) { }
     @Override public void handleGameEvent(ClientboundGameEventPacket clientboundGameEventPacket) { }
-    @Override public void handleKeepAlive(ClientboundKeepAlivePacket clientboundKeepAlivePacket) { }
     @Override public void handleLevelChunkWithLight(ClientboundLevelChunkWithLightPacket clientboundLevelChunkWithLightPacket) { }
     @Override public void handleForgetLevelChunk(ClientboundForgetLevelChunkPacket clientboundForgetLevelChunkPacket) { }
     @Override public void handleLevelEvent(ClientboundLevelEventPacket clientboundLevelEventPacket) { }
@@ -72,7 +69,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleMoveEntity(ClientboundMoveEntityPacket clientboundMoveEntityPacket) { }
     @Override public void handleMovePlayer(ClientboundPlayerPositionPacket clientboundPlayerPositionPacket) { }
     @Override public void handleParticleEvent(ClientboundLevelParticlesPacket clientboundLevelParticlesPacket) { }
-    @Override public void handlePing(ClientboundPingPacket clientboundPingPacket) { }
     @Override public void handlePlayerAbilities(ClientboundPlayerAbilitiesPacket clientboundPlayerAbilitiesPacket) { }
     @Override public void handleRemoveEntities(ClientboundRemoveEntitiesPacket clientboundRemoveEntitiesPacket) { }
     @Override public void handleRemoveMobEffect(ClientboundRemoveMobEffectPacket clientboundRemoveMobEffectPacket) { }
@@ -108,7 +104,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleSetBorderWarningDistance(ClientboundSetBorderWarningDistancePacket clientboundSetBorderWarningDistancePacket) { }
     @Override public void handleSetBorderCenter(ClientboundSetBorderCenterPacket clientboundSetBorderCenterPacket) { }
     @Override public void handleTabListCustomisation(ClientboundTabListPacket clientboundTabListPacket) { }
-    @Override public void handleResourcePack(ClientboundResourcePackPacket clientboundResourcePackPacket) { }
     @Override public void handleBossUpdate(ClientboundBossEventPacket clientboundBossEventPacket) { }
     @Override public void handleItemCooldown(ClientboundCooldownPacket clientboundCooldownPacket) { }
     @Override public void handleMoveVehicle(ClientboundMoveVehiclePacket clientboundMoveVehiclePacket) { }
@@ -136,15 +131,17 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleTitlesClear(ClientboundClearTitlesPacket clientboundClearTitlesPacket) { }
     @Override public void handleServerData(ClientboundServerDataPacket clientboundServerDataPacket) { }
     @Override public void handleCustomChatCompletions(ClientboundCustomChatCompletionsPacket clientboundCustomChatCompletionsPacket) { }
-
     @Override public void handleHurtAnimation(ClientboundHurtAnimationPacket clientboundHurtAnimationPacket) { }
     @Override public void handleDisguisedChat(ClientboundDisguisedChatPacket clientboundDisguisedChatPacket) { }
     @Override public void handleChunksBiomes(ClientboundChunksBiomesPacket clientboundChunksBiomesPacket) { }
     @Override public void handlePlayerInfoRemove(ClientboundPlayerInfoRemovePacket clientboundPlayerInfoRemovePacket) { }
     @Override public void handlePlayerInfoUpdate(ClientboundPlayerInfoUpdatePacket clientboundPlayerInfoUpdatePacket) { }
-    @Override public void handleEnabledFeatures(ClientboundUpdateEnabledFeaturesPacket clientboundUpdateEnabledFeaturesPacket) { }
     @Override public void handleBundlePacket(ClientboundBundlePacket clientboundBundlePacket) { }
     @Override public void handleDamageEvent(ClientboundDamageEventPacket clientboundDamageEventPacket) { }
+    @Override public void handleConfigurationStart(ClientboundStartConfigurationPacket clientboundStartConfigurationPacket) { }
+    @Override public void handleChunkBatchStart(ClientboundChunkBatchStartPacket clientboundChunkBatchStartPacket) { }
+    @Override public void handleChunkBatchFinished(ClientboundChunkBatchFinishedPacket clientboundChunkBatchFinishedPacket) { }
+    @Override public void handlePongResponse(ClientboundPongResponsePacket clientboundPongResponsePacket) { }
 
     //@formatter:on
 }

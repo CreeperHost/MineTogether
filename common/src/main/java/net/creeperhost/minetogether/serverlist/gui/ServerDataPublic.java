@@ -14,7 +14,7 @@ public class ServerDataPublic extends ServerData {
     private FaviconTexture icon;
 
     public ServerDataPublic(Server server) {
-        super(server.name, server.ip + ":" + server.port, false);
+        super(server.name, server.ip + ":" + server.port, Type.OTHER);
         this.server = server;
     }
 

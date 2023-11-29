@@ -26,7 +26,8 @@ public class NetHandlerLoginClientOurs extends ClientHandshakePacketListenerImpl
     @Override
     public void handleGameProfile(ClientboundGameProfilePacket packetIn) {
         GameProfile gameProfile = packetIn.getGameProfile();
-        connection.setProtocol(ConnectionProtocol.PLAY);
+        // TODO
+//        connection.setProtocol(ConnectionProtocol.PLAY);
         ClientPlayNetHandlerOurs nhpc = new ClientPlayNetHandlerOurs(connection);
         connection.setListener(nhpc);
     }

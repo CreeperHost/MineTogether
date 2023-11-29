@@ -6,7 +6,6 @@ import net.creeperhost.minetogether.gui.dialogs.ContextMenu;
 import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
-import net.creeperhost.minetogether.polylib.gui.SimpleToast;
 import net.creeperhost.polylib.client.modulargui.elements.GuiButton;
 import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
 import net.creeperhost.polylib.client.modulargui.elements.GuiText;
@@ -22,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 
-import static net.creeperhost.minetogether.Constants.MINETOGETHER_LOGO_25;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
 
@@ -120,10 +118,13 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
 
         if (profile != null && profile.hasFriendUUID() && iconProfile == null) {
             iconProfile = new GameProfile(profile.getFriendUUID(), "");
-            SkullBlockEntity.updateGameprofile(iconProfile, e -> {
-                iconProfile = e;
-                icon.setProfile(e);
-            });
+            SkullBlockEntity.fillProfileTextures(iconProfile)
+                    .thenAcceptAsync(e -> {
+                        if (e.isPresent()) {
+                            iconProfile = e.get();
+                            icon.setProfile(iconProfile);
+                        }
+                    });
         }
     }
 

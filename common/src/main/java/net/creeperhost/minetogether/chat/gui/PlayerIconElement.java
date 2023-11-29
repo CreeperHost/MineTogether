@@ -10,6 +10,7 @@ import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.creeperhost.polylib.client.modulargui.sprite.Material;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.PlayerSkin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -73,12 +74,12 @@ public class PlayerIconElement extends GuiElement<PlayerIconElement> implements 
 
         if (!profile.getProperties().containsKey("textures")) {
             //TODO Off thread
-            mc().getMinecraftSessionService().fillProfileProperties(profile, true);
+            mc().getMinecraftSessionService().fetchProfile(profile.getId(), true);
         }
 
-        Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> map = mc().getSkinManager().getInsecureSkinInformation(profile);
-        if (map.containsKey(MinecraftProfileTexture.Type.SKIN)) {
-            skinType = GuiRender.texType(mc().getSkinManager().registerTexture(map.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN));
+        PlayerSkin skin = mc().getSkinManager().getOrLoad(profile).getNow(null);
+        if (skin != null) {
+            skinType = GuiRender.texType(skin.texture());
         } else {
             textureFail = true;
         }

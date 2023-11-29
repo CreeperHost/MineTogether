@@ -12,6 +12,7 @@ import net.creeperhost.minetogether.session.JWebToken;
 import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.network.Connection;
@@ -120,13 +121,13 @@ public class ServerListAppender {
 
     public void pingServer(RemoteServer server, Profile profile) throws Exception {
         JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
-        Connection connection = NettyClient.connect(ConnectHandler.getSpecificEndpoint(server.node), token, server.serverToken);
+        Connection connection = NettyClient.connect(ConnectHandler.getSpecificEndpoint(server.node), token, server.serverToken, Minecraft.getInstance().getDebugOverlay().getBandwidthLogger());
         connections.add(connection);
         server.motd = Component.translatable("multiplayer.status.pinging");
         server.ping = -1L;
         server.playerList = null;
 
-        connection.setListener(new ClientStatusPacketListener() {
+        ClientStatusPacketListener listener = new ClientStatusPacketListener() {
             private boolean success;
             private boolean receivedPing;
             private long pingStart;
@@ -202,11 +203,11 @@ public class ServerListAppender {
             public boolean isAcceptingMessages() {
                 return connection.isConnected();
             }
-        });
+        };
 
         try {
             ConnectHost endpoint = ConnectHandler.getEndpoint();
-            connection.send(new ClientIntentionPacket(endpoint.address(), endpoint.proxyPort(), ConnectionProtocol.STATUS));
+            connection.initiateServerboundStatusConnection(endpoint.address(), endpoint.proxyPort(), listener);
             connection.send(new ServerboundStatusRequestPacket());
         } catch (Throwable var8) {
             LOGGER.error("Failed to ping friend server {}", server.friend, var8);

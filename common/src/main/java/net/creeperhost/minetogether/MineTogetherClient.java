@@ -79,7 +79,7 @@ public class MineTogetherClient {
                 return;
             }
 
-            ServerData serverData = new ServerData(server.ip, String.valueOf(server.port), false);
+            ServerData serverData = new ServerData(server.ip, String.valueOf(server.port), ServerData.Type.OTHER);
             ConnectScreen.startConnecting(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData, false);
         } else if (screen instanceof PauseScreen) {
             @SuppressWarnings("unchecked")

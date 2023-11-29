@@ -3,7 +3,7 @@ package net.creeperhost.minetogether.forge;
 import net.minecraft.network.Connection;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModFileInfo;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.network.NetworkRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -34,6 +34,6 @@ public class MineTogetherPlatformImpl {
     }
 
     public static void prepareClientConnection(Connection connection) {
-        NetworkHooks.registerClientLoginChannel(connection);
+        NetworkRegistry.onConnectionStart(connection);
     }
 }

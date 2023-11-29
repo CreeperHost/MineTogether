@@ -24,9 +24,11 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.network.LegacyQueryHandler;
 import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.network.ServerHandshakePacketListenerImpl;
+import net.minecraft.util.SampleLogger;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.simple.SimpleLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -125,16 +127,17 @@ public class NettyClient {
         return connection;
     }
 
-    public static Connection connect(ConnectHost endpoint, JWebToken session, String serverToken) {
+    public static Connection connect(ConnectHost endpoint, JWebToken session, String serverToken, @Nullable SampleLogger bwLogger) {
         boolean[] isConnecting = { true };
         Throwable[] error = new Throwable[1];
         Connection connection = new Connection(PacketFlow.CLIENTBOUND);
+        connection.setBandwidthLogger(bwLogger);
         ProxyConnection proxyConnection = new ProxyConnection(endpoint) {
 
             @Override
             protected void buildPipeline(ChannelPipeline pipeline) {
                 pipeline.addLast("mt:raw", new RawCodec());
-                Connection.configureSerialization(pipeline, PacketFlow.CLIENTBOUND);
+                Connection.configureSerialization(pipeline, PacketFlow.CLIENTBOUND, connection.bandwidthDebugMonitor);
                 pipeline.addLast("packet_handler", connection);
             }
 
@@ -200,8 +203,8 @@ public class NettyClient {
             @Override
             protected void buildPipeline(ChannelPipeline pipeline) {
                 pipeline.addLast("mt:raw", new RawCodec());
-                pipeline.addLast("legacy_query", new LegacyQueryHandler(listener));
-                Connection.configureSerialization(pipeline, PacketFlow.SERVERBOUND);
+                pipeline.addLast("legacy_query", new LegacyQueryHandler(server));
+                Connection.configureSerialization(pipeline, PacketFlow.SERVERBOUND, null);
                 pipeline.addLast("packet_handler", connection);
             }
 
