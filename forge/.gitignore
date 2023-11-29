@@ -6,3 +6,6 @@
 
 # Git files
 !.gitignore
+
+!build.gradle
+!gradle.properties
