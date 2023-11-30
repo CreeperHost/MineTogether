@@ -275,6 +275,7 @@ abstract class ChatScreenMixin extends Screen {
     public void mouseMoved(double d, double e) {
         if (!Config.instance().chatEnabled || minecraft.options.hideGui) {
             super.mouseMoved(d, e);
+            return;
         }
         chatWidthSlider.mouseMove(d, e);
         chatHeightSlider.mouseMove(d, e);
