@@ -114,6 +114,9 @@ public class Config {
     @Comment ("If notifications for friends are enabled.")
     public boolean friendNotifications = true;
 
+    @Comment ("Enable / disable chat settings sliders.")
+    public boolean chatSettingsSliders = true;
+
     @Comment ("If menu buttons are enabled.")
     public boolean mainMenuButtons = true;
 

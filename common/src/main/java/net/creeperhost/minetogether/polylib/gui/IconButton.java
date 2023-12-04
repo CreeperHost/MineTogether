@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 public class IconButton extends Button {
 
     private final ResourceLocation sheet;
+    private final boolean single;
     private final int index;
 
     public IconButton(int x, int y, int index, ResourceLocation sheet, OnPress onPress) {
@@ -32,15 +33,41 @@ public class IconButton extends Button {
         super(x, y, 20, 20, Component.empty(), onPress, onTooltip);
         this.index = index;
         this.sheet = sheet;
+        this.single = false;
+    }
+
+    public IconButton(int x, int y, int width, int height, ResourceLocation sheet, OnPress onPress) {
+        super(x, y, width, height, Component.empty(), onPress);
+        this.sheet = sheet;
+        this.single = true;
+        this.index = 0;
+    }
+
+    public void updateBounds(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
 
     @Override
     public void renderButton(PoseStack pStack, int mx, int my, float partialTicks) {
         if (!visible) return;
 
-        int yOffset = !active ? 40 : isHovered ? 20 : 0;
-        RenderSystem.setShaderTexture(0, sheet);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        blit(pStack, x, y, index * 20, yOffset, width, height);
+        if (single) {
+            int fillColor = 0x80000000;
+            if (isHovered) {
+                fillColor = 0x64202020;
+            }
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            fill(pStack, x, y, x + width, y + height, fillColor);
+            RenderSystem.setShaderTexture(0, sheet);
+            blit(pStack, x, y, 0, 0, width, height, width, height);
+        } else {
+            int yOffset = !active ? 40 : isHovered ? 20 : 0;
+            RenderSystem.setShaderTexture(0, sheet);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            blit(pStack, x, y, index * 20, yOffset, width, height);
+        }
     }
 }

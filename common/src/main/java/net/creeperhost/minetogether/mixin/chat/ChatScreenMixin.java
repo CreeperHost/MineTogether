@@ -1,17 +1,17 @@
 package net.creeperhost.minetogether.mixin.chat;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.*;
 import net.creeperhost.minetogether.chat.gui.FriendRequestScreen;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
-import net.creeperhost.minetogether.polylib.gui.DropdownButton;
-import net.creeperhost.minetogether.polylib.gui.PreviewRenderer;
-import net.creeperhost.minetogether.polylib.gui.RadioButton;
-import net.creeperhost.minetogether.polylib.gui.SlideButton;
+import net.creeperhost.minetogether.polylib.gui.*;
 import net.creeperhost.minetogether.util.MessageFormatter;
+import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -20,23 +20,21 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 /**
  * Created by covers1624 on 5/8/22.
@@ -51,6 +49,7 @@ abstract class ChatScreenMixin extends Screen {
     private SlideButton chatScaleSlider;
     private SlideButton chatWidthSlider;
     private SlideButton chatHeightSlider;
+    private IconButton settingsButton;
     private DropdownButton<MessageDropdownOption> dropdownButton;
 
     @Nullable
@@ -115,6 +114,8 @@ abstract class ChatScreenMixin extends Screen {
                 .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.PUBLIC))
                 .onRelease(() -> setFocused(input));
 
+        settingsButton = addRenderableWidget(new IconButton(0, 0, 12, 12, new ResourceLocation(MineTogether.MOD_ID, "textures/gui/buttons/gear.png"), e -> mc.setScreen(new ModularGuiScreen(new SettingGui(), mc.screen))));
+
         chatScaleSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
                 .setDynamicMessage(() -> Component.translatable("options.percent_value", Component.translatable("options.chat.scale"), (int) (mc.options.chatScale().get() * 100.0)))
                 .bindValue(() -> mc.options.chatScale().get(), value -> {
@@ -124,7 +125,7 @@ abstract class ChatScreenMixin extends Screen {
                 .setRange(0.25, 1)
                 .withTextScale(0.75F)
                 .onRelease(() -> setFocused(input))
-                .setEnabled(() -> commandSuggestions.suggestions == null)
+                .setEnabled(() -> commandSuggestions.suggestions == null && Config.instance().chatSettingsSliders)
                 .withAutoScaleText(3);
 
         chatWidthSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
@@ -136,7 +137,7 @@ abstract class ChatScreenMixin extends Screen {
                 .withTextScale(0.75F)
                 .onRelease(() -> setFocused(input))
                 .setApplyOnRelease(true)
-                .setEnabled(() -> commandSuggestions.suggestions == null)
+                .setEnabled(() -> commandSuggestions.suggestions == null && Config.instance().chatSettingsSliders)
                 .withAutoScaleText(3);
 
         chatHeightSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
@@ -147,7 +148,7 @@ abstract class ChatScreenMixin extends Screen {
                 })
                 .withTextScale(0.75F)
                 .onRelease(() -> setFocused(input))
-                .setEnabled(() -> commandSuggestions.suggestions == null)
+                .setEnabled(() -> commandSuggestions.suggestions == null && Config.instance().chatSettingsSliders)
                 .withAutoScaleText(3);
 
         updateButtons();
@@ -203,17 +204,18 @@ abstract class ChatScreenMixin extends Screen {
         ChatComponent chat = mc.gui.getChat();
         float cScale = (float) chat.getScale();
         int cWidth = Mth.ceil((float) chat.getWidth() + (12 * cScale)); //Vanilla does some wired s%$#. This mostly accounts for it.
-        int cHeight = Mth.ceil(chat.getHeight() * cScale);
+        int cHeight = Mth.ceil(chat.getHeight() * cScale) - 12;
         int guiHeight = height;
         int cMaxYPos = guiHeight - 40;
 
-        int vPos = cMaxYPos - cHeight;
+        int vPos = cMaxYPos - cHeight - 12;
         int vHeight = cHeight / 2;
         int mtPos = vPos + vHeight;
-        int mtHeight = cMaxYPos - mtPos;
+        int mtHeight = cMaxYPos - mtPos - 12;
 
         vanillaChatButton.updateBounds(cWidth, vPos, 12, vHeight);
         mtChatButton.updateBounds(cWidth, mtPos, 12, mtHeight);
+        settingsButton.updateBounds(cWidth, mtPos + mtHeight, 12, 12);
 
         int sliderWidth = cWidth / 3;
         chatWidthSlider.updateBounds(0, cMaxYPos + 2, sliderWidth, 10);
