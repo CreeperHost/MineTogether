@@ -61,6 +61,7 @@
 
     "minetogether:gui.settings.button.chat": "Chat: ",
     "minetogether:gui.settings.button.friend_toasts": "Friend Toasts: ",
+    "minetogether:gui.settings.button.chat_sliders": "Chat Sliders: ",
     "minetogether:gui.settings.button.menu_buttons": "Menu Buttons: ",
     "minetogether:gui.settings.button.enabled": "Enabled",
     "minetogether:gui.settings.button.disabled": "Disabled",

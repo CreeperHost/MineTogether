@@ -88,6 +88,14 @@ public class SettingGui implements GuiProvider {
                 .constrain(HEIGHT, literal(16));
         toasts.getLabel().setTextSupplier(() -> new TranslatableComponent("minetogether:gui.settings.button.friend_toasts").append(state(Config.instance().friendNotifications)));
 
+        GuiButton chatSliders = MTStyle.Flat.button(toasts, TextComponent.EMPTY)
+                .onPress(() -> setConfig(() -> Config.instance().chatSettingsSliders ^= true))
+                .constrain(TOP, relative(menuButtons.get(BOTTOM), 4))
+                .constrain(LEFT, match(settings.get(LEFT)))
+                .constrain(RIGHT, match(settings.get(RIGHT)))
+                .constrain(HEIGHT, literal(16));
+        chatSliders.getLabel().setTextSupplier(() -> new TranslatableComponent("minetogether:gui.settings.button.chat_sliders").append(state(Config.instance().chatSettingsSliders)));
+
         GuiButton blocked = MTStyle.Flat.button(settings, new TranslatableComponent("minetogether:gui.settings.button.blocked"))
                 .onPress(() -> setConfig(() -> showBlocked ^= true))
                 .constrain(TOP, relative(toasts.get(BOTTOM), 4))
