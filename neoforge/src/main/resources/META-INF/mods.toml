@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[48,)"
+loaderVersion = "[1.0,)"
 issueTrackerURL = "https://github.com/CreeperHost/MineTogether/issues"
 license = "GNU General Public License v3.0"
 
@@ -11,9 +11,9 @@ license = "GNU General Public License v3.0"
     description = ''''''
 
 [[dependencies.minetogether]]
-    modId = "forge"
+    modId = "neoforge"
     mandatory = true
-    versionRange = "[48,)"
+    versionRange = "[20.2,)"
     ordering = "NONE"
     side = "BOTH"
 
@@ -36,3 +36,9 @@ license = "GNU General Public License v3.0"
     versionRange = "[2002.0.3,)"
     ordering = "AFTER"
     side = "BOTH"
+
+[[mixins]]
+config = "minetogether-neoforge.mixins.json"
+
+[[mixins]]
+config = "minetogether-common.mixins.json"

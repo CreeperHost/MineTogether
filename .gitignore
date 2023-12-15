@@ -5,6 +5,7 @@
 !common/
 !fabric/
 !forge/
+!neoforge/
 
 # Git files
 !.github/

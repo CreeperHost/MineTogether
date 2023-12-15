@@ -1,0 +1,106 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+
+architectury {
+    platformSetupLoomIde()
+    neoForge {
+        platformPackage = "forge"
+    }
+}
+
+configurations {
+    common
+    shadowLib
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    shadowCommon.extendsFrom shadowLib
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+    implementation.extendsFrom shadowLib
+    forgeRuntimeLibrary.extendsFrom shadowLib
+}
+
+dependencies {
+    neoForge("net.neoforged:neoforge:${rootProject.neoforge_version}")
+    modApi("dev.architectury:architectury-neoforge:${rootProject.architectury_version}")
+    modApi "net.creeperhost:polylib-neoforge:${polylib_version}"
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
+
+    shadowLib "blue.endless:jankson:${jankson_version}"
+    shadowLib("net.creeperhost:MineTogetherLib:${mtlib_version}") {
+        exclude group: "net.creeperhost", module: "MineTogetherSessions"
+    }
+    shadowLib("net.creeperhost:MineTogetherSessions:${mtsession_version}") {
+        transitive false
+    }
+    shadowLib("net.creeperhost:MTConnectProxyCommon:${mtproxy_version}") {
+        exclude group: "net.creeperhost", module: "MineTogetherSessions"
+        exclude group: "net.creeperhost", module: "MineTogetherLib"
+    }
+
+    shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
+    shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'
+    shadowLib 'com.github.scribejava:scribejava-core:6.9.0'
+
+    runtimeOnly "net.covers1624:DevLogin:0.1.+"
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier = "dev-shadow"
+    mergeServiceFiles()
+
+    relocate 'blue.endless', 'net.creeperhost.minetogether.repack.blue.endless'
+    relocate 'net.covers1624', 'net.creeperhost.minetogether.repack.net.covers1624'
+    relocate 'org.pircbotx', 'net.creeperhost.minetogether.repack.org.pircbotx'
+    relocate 'com.github.scribejava', 'net.creeperhost.minetogether.com.github.scribejava'
+    relocate 'fi.iki.elonen', 'net.creeperhost.minetogether.fi.iki.elonen'
+    // TODO can we switch scribble to using Gson?
+    relocate 'com.fasterxml.jackson', 'net.creeperhost.minetogether.com.fasterxml.jackson'
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveBaseName.set "${rootProject.archives_base_name}-${project.name}-${rootProject.minecraft_version}"
+    archiveClassifier = null
+    atAccessWideners.add('minetogether.accesswidener')
+}
+
+jar {
+    archiveClassifier = "dev"
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
+publishing {
+    publications {
+        mavenForge(MavenPublication) {
+            artifactId = rootProject.archives_base_name + "-" + project.name
+            from components.java
+        }
+    }
+}
