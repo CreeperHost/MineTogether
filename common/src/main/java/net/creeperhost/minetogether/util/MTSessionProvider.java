@@ -1,6 +1,10 @@
 package net.creeperhost.minetogether.util;
 
 import com.mojang.authlib.GameProfile;
+import dev.architectury.injectables.targets.ArchitecturyTarget;
+import dev.architectury.platform.Platform;
+import net.creeperhost.minetogether.MineTogetherPlatform;
+import net.creeperhost.minetogether.lib.MineTogetherLib;
 import net.creeperhost.minetogether.session.MojangUtils;
 import net.creeperhost.minetogether.session.SessionProvider;
 import net.creeperhost.minetogether.session.data.mc.ProfileKeyPairResponse;
@@ -19,6 +23,11 @@ import java.util.UUID;
 public class MTSessionProvider implements SessionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MTSessionProvider.class);
+    private static final String UA =
+            "MineTogether-lib/" + MineTogetherLib.VERSION +
+            " MineTogether-mod/" + MineTogetherPlatform.getVersion() +
+            " Minecraft/" + Platform.getMinecraftVersion() +
+            " Modloader/" + ArchitecturyTarget.getCurrentTarget();
     private final Minecraft MC = Minecraft.getInstance();
     private final User U = MC.getUser();
     private final GameProfile P = MC.getUser().getGameProfile();
@@ -31,5 +40,6 @@ public class MTSessionProvider implements SessionProvider {
     @Override public void infoLog(String msg, Object... args) { LOGGER.info(msg, args); }
     @Override public void warnLog(String msg, Object... args) { LOGGER.warn(msg, args); }
     @Override public void errorLog(String msg, Object... args) { LOGGER.error(msg, args); }
+    @Override public String describe() { return UA; }
     // @formatter:on
 }
