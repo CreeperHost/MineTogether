@@ -65,7 +65,7 @@ dependencies {
     shadow 'org.nanohttpd:nanohttpd:2.3.1'
     shadow 'com.github.scribejava:scribejava-apis:6.9.0'
     shadow 'com.github.scribejava:scribejava-core:6.9.0'
-    shadow("net.creeperhost:MineTogetherSessions:1.2.1") {
+    shadow("net.creeperhost:MineTogetherSessions:1.2.2") {
         transitive false
     }
 

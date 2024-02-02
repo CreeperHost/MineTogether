@@ -1,11 +1,13 @@
 package net.creeperhost.minetogether.util;
 
 import com.mojang.authlib.GameProfile;
+import net.creeperhost.minetogether.CreeperHost;
 import net.creeperhost.minetogether.session.MojangUtils;
 import net.creeperhost.minetogether.session.SessionProvider;
 import net.creeperhost.minetogether.session.data.mc.ProfileKeyPairResponse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Session;
+import net.minecraftforge.common.ForgeVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +21,10 @@ import java.util.UUID;
 public class MTSessionProvider implements SessionProvider {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final String UA =
+            "MineTogether-mod/" + CreeperHost.VERSION +
+            " Minecraft" + ForgeVersion.mcVersion +
+            " Modloader/Forge";
 
     private final Minecraft MC = Minecraft.getMinecraft();
     private final Session S = MC.getSession();
@@ -32,5 +38,6 @@ public class MTSessionProvider implements SessionProvider {
     @Override public void infoLog(String msg, Object... args) { LOGGER.info(msg, args); }
     @Override public void warnLog(String msg, Object... args) { LOGGER.warn(msg, args); }
     @Override public void errorLog(String msg, Object... args) { LOGGER.error(msg, args); }
+    @Override public String describe() { return UA; }
     // @formatter:on
 }
