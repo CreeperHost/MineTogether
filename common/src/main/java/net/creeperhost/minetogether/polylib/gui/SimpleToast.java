@@ -52,7 +52,7 @@ public class SimpleToast extends PolyToast {
     @Override
     public Toast.Visibility render(GuiGraphics graphics, ToastComponent toastComponent, long l) {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        graphics.blit(new ResourceLocation("toast/advancement"), 0, 0, 0, 0, this.width(), this.height());
+        graphics.blitSprite(new ResourceLocation("toast/advancement"), 0, 0, this.width(), this.height());
         if (iconResourceLocation != null) {
             renderImage(graphics, toastComponent, iconResourceLocation);
         }

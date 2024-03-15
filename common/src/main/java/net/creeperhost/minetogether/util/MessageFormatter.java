@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.util;
 
+import com.mojang.serialization.DataResult;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.lib.chat.message.MessageComponent;
@@ -21,7 +22,7 @@ import static net.minecraft.ChatFormatting.RESET;
  */
 public class MessageFormatter {
 
-    public static final HoverEvent.Action<Component> SHOW_URL_PREVIEW = new HoverEvent.Action("show_url_preview", true, null, null, null);
+    public static final HoverEvent.Action<Component> SHOW_URL_PREVIEW = new HoverEvent.Action<>("show_url_preview", true, ComponentSerialization.CODEC, DataResult::success);
     public static final String CLICK_NAME = "CE:CLICK_NAME";
 
     private static final Pattern URL_PATTERN = Pattern.compile(

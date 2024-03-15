@@ -4,12 +4,14 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.MineTogetherServer;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
 import net.creeperhost.minetogether.server.web.SendInviteRequest;
-import net.minecraft.commands.CommandRuntimeException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -29,22 +31,26 @@ import java.util.Arrays;
 public class CommandInvite {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final SimpleCommandExceptionType INVALID_USERNAME = new SimpleCommandExceptionType(Component.literal("Invalid username"));
+    private static final SimpleCommandExceptionType INVALID_GAME_PROFILE = new SimpleCommandExceptionType(Component.literal("Failed to load GameProfile, Username is not valid"));
+    private static final DynamicCommandExceptionType ALREADY_WHITELISTED = new DynamicCommandExceptionType(username -> Component.translatable(username + " Is already whitelisted"));
+
 
     public static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("invite").requires(cs -> cs.hasPermission(3)).then(Commands.argument("username", StringArgumentType.string()).executes(cs -> execute(cs, StringArgumentType.getString(cs, "username"))));
     }
 
-    private static int execute(CommandContext<CommandSourceStack> cs, String username) {
+    private static int execute(CommandContext<CommandSourceStack> cs, String username) throws CommandSyntaxException {
         MinecraftServer minecraftServer = cs.getSource().getServer();
-        if (username.isEmpty()) throw new CommandRuntimeException(Component.literal("Invalid username"));
+        if (username.isEmpty()) throw INVALID_USERNAME.create();
 
         GameProfile gameProfile = minecraftServer.getProfileCache().get(username).get();
         if (gameProfile == null) {
-            throw new CommandRuntimeException(Component.literal("Failed to load GameProfile, Username is not valid"));
+            throw INVALID_GAME_PROFILE.create();
         }
 
         if (minecraftServer.getPlayerList().getWhiteList().isWhiteListed(gameProfile)) {
-            throw new CommandRuntimeException(Component.translatable(username + " Is already whitelisted"));
+            throw ALREADY_WHITELISTED.create(username);
         }
 
         UserWhiteListEntry userWhiteListEntry = new UserWhiteListEntry(gameProfile);

@@ -36,6 +36,4 @@ accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/
 
 accessible field net/minecraft/client/gui/components/AbstractButton SPRITES Lnet/minecraft/client/gui/components/WidgetSprites;
 
-accessible method net/minecraft/world/level/block/entity/SkullBlockEntity fillProfileTextures (Lcom/mojang/authlib/GameProfile;)Ljava/util/concurrent/CompletableFuture;
-
 accessible field net/minecraft/network/Connection bandwidthDebugMonitor Lnet/minecraft/network/BandwidthDebugMonitor;

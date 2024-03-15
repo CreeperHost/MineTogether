@@ -9,7 +9,9 @@ import net.creeperhost.polylib.client.modulargui.lib.BackgroundRender;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.creeperhost.polylib.client.modulargui.sprite.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -74,14 +76,16 @@ public class PlayerIconElement extends GuiElement<PlayerIconElement> implements 
 
         if (!profile.getProperties().containsKey("textures")) {
             //TODO Off thread
+            // TODO Actually should not be needed due to how we pass profiles in here now.
             mc().getMinecraftSessionService().fetchProfile(profile.getId(), true);
         }
 
-        PlayerSkin skin = mc().getSkinManager().getOrLoad(profile).getNow(null);
-        if (skin != null) {
-            skinType = GuiRender.texType(skin.texture());
-        } else {
-            textureFail = true;
-        }
+        mc().getSkinManager().getOrLoad(profile).thenAcceptAsync(e -> {
+            if (!e.texture().equals(DefaultPlayerSkin.getDefaultTexture())) {
+                skinType = GuiRender.texType(e.texture());
+            } else {
+                textureFail = true;
+            }
+        }, Minecraft.getInstance());
     }
 }

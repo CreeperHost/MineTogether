@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.neoforge;
 
 import net.minecraft.network.Connection;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.network.NetworkHooks;
 import net.neoforged.neoforgespi.language.IModFileInfo;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +33,6 @@ public class MineTogetherPlatformImpl {
     }
 
     public static void prepareClientConnection(Connection connection) {
-        NetworkHooks.registerClientLoginChannel(connection);
+        // Not required on NeoForge.
     }
 }

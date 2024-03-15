@@ -32,10 +32,11 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
 
     // NO-OP
     //@formatter:off
+    @Override public void handleResourcePackPush(ClientboundResourcePackPushPacket clientboundResourcePackPushPacket) { }
+    @Override public void handleResourcePackPop(ClientboundResourcePackPopPacket clientboundResourcePackPopPacket) { }
     @Override public void handleKeepAlive(ClientboundKeepAlivePacket clientboundKeepAlivePacket) { }
     @Override public void handlePing(ClientboundPingPacket clientboundPingPacket) { }
     @Override public void handleCustomPayload(ClientboundCustomPayloadPacket clientboundCustomPayloadPacket) { }
-    @Override public void handleResourcePack(ClientboundResourcePackPacket clientboundResourcePackPacket) { }
     @Override public void handleAddEntity(ClientboundAddEntityPacket clientboundAddEntityPacket) { }
     @Override public void handleAddExperienceOrb(ClientboundAddExperienceOrbPacket clientboundAddExperienceOrbPacket) { }
     @Override public void handleAddObjective(ClientboundSetObjectivePacket clientboundSetObjectivePacket) { }
@@ -83,12 +84,15 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleSetHealth(ClientboundSetHealthPacket clientboundSetHealthPacket) { }
     @Override public void handleSetPlayerTeamPacket(ClientboundSetPlayerTeamPacket clientboundSetPlayerTeamPacket) { }
     @Override public void handleSetScore(ClientboundSetScorePacket clientboundSetScorePacket) { }
+    @Override public void handleResetScore(ClientboundResetScorePacket clientboundResetScorePacket) {}
     @Override public void handleSetSpawn(ClientboundSetDefaultSpawnPositionPacket clientboundSetDefaultSpawnPositionPacket) { }
     @Override public void handleSetTime(ClientboundSetTimePacket clientboundSetTimePacket) { }
     @Override public void handleSoundEvent(ClientboundSoundPacket clientboundSoundPacket) { }
     @Override public void handleSoundEntityEvent(ClientboundSoundEntityPacket clientboundSoundEntityPacket) { }
     @Override public void handleTakeItemEntity(ClientboundTakeItemEntityPacket clientboundTakeItemEntityPacket) { }
     @Override public void handleTeleportEntity(ClientboundTeleportEntityPacket clientboundTeleportEntityPacket) { }
+    @Override public void handleTickingState(ClientboundTickingStatePacket clientboundTickingStatePacket) {}
+    @Override public void handleTickingStep(ClientboundTickingStepPacket clientboundTickingStepPacket) {}
     @Override public void handleUpdateAttributes(ClientboundUpdateAttributesPacket clientboundUpdateAttributesPacket) { }
     @Override public void handleUpdateMobEffect(ClientboundUpdateMobEffectPacket clientboundUpdateMobEffectPacket) { }
     @Override public void handleUpdateTags(ClientboundUpdateTagsPacket clientboundUpdateTagsPacket) { }
@@ -142,6 +146,5 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleChunkBatchStart(ClientboundChunkBatchStartPacket clientboundChunkBatchStartPacket) { }
     @Override public void handleChunkBatchFinished(ClientboundChunkBatchFinishedPacket clientboundChunkBatchFinishedPacket) { }
     @Override public void handlePongResponse(ClientboundPongResponsePacket clientboundPongResponsePacket) { }
-
     //@formatter:on
 }
