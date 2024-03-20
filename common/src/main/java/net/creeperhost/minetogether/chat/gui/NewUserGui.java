@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.chat.gui;
 import net.creeperhost.minetogether.chat.ChatStatistics;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
 import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.modulargui.elements.GuiButton;
@@ -52,8 +53,8 @@ public class NewUserGui implements GuiProvider {
         GuiButton reject = MTStyle.Flat.buttonCaution(root, Component.translatable("minetogether:gui.join.button.reject"))
                 .onPress(() -> {
                     MineTogetherChat.disableChat();
-                    Config.instance().chatEnabled = false;
-                    Config.save();
+                    LocalConfig.instance().chatEnabled = false;
+                    LocalConfig.save();
                     MineTogetherChat.setNewUserResponded();
                     gui.mc().setScreen(gui.getParentScreen());
                 })
