@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.ChatTarget;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.LocalConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -54,7 +55,7 @@ abstract class ChatComponentMixin {
     )
     private void onRender(GuiGraphics graphics, int i, int mouseX, int mouseY, CallbackInfo ci) {
         // Don't render our additional background blackout if chat is not enabled, or chat is not focused.
-        if (!Config.instance().chatEnabled || Minecraft.getInstance().options.hideGui || !isChatFocused()) return;
+        if (!LocalConfig.instance().chatEnabled || Minecraft.getInstance().options.hideGui || !isChatFocused()) return;
 
         //This does not *perfectly* match vanilla, but its very close, and a lot less dumb.
         //It also just happens to fix the vanilla scroll bar
@@ -86,7 +87,7 @@ abstract class ChatComponentMixin {
     // When chat is focussed, this disables vanilla rendering the 'filled' background bellow a chat line.
     // We force-enable this fill if chat is disabled to revert to vanilla behaviour.
     private void onFill(GuiGraphics graphics, int i, int j, int k, int l, int m) {
-        if (!isChatFocused() || !Config.instance().chatEnabled || Minecraft.getInstance().options.hideGui) {
+        if (!isChatFocused() || !LocalConfig.instance().chatEnabled || Minecraft.getInstance().options.hideGui) {
             graphics.fill(i, j, k, l, m);
         }
     }
