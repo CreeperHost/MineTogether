@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.chat.*;
 import net.creeperhost.minetogether.chat.gui.FriendRequestScreen;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
@@ -94,7 +95,7 @@ abstract class ChatScreenMixin extends Screen {
     )
     private void onInit(CallbackInfo ci) {
         Minecraft mc = Minecraft.getInstance();
-        if (!Config.instance().chatEnabled || mc.options.hideGui) return;
+        if (!LocalConfig.instance().chatEnabled || mc.options.hideGui) return;
 
         ChatComponent chat = mc.gui.getChat();
         float cScale = (float) chat.getScale();
@@ -126,7 +127,7 @@ abstract class ChatScreenMixin extends Screen {
                 .setRange(0.25, 1)
                 .withTextScale(0.75F)
                 .onRelease(() -> setFocused(input))
-                .setEnabled(() -> commandSuggestions.suggestions == null && Config.instance().chatSettingsSliders)
+                .setEnabled(() -> commandSuggestions.suggestions == null && LocalConfig.instance().chatSettingsSliders)
                 .withAutoScaleText(3);
 
         chatWidthSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
@@ -138,7 +139,7 @@ abstract class ChatScreenMixin extends Screen {
                 .withTextScale(0.75F)
                 .onRelease(() -> setFocused(input))
                 .setApplyOnRelease(true)
-                .setEnabled(() -> commandSuggestions.suggestions == null && Config.instance().chatSettingsSliders)
+                .setEnabled(() -> commandSuggestions.suggestions == null && LocalConfig.instance().chatSettingsSliders)
                 .withAutoScaleText(3);
 
         chatHeightSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
@@ -149,7 +150,7 @@ abstract class ChatScreenMixin extends Screen {
                 })
                 .withTextScale(0.75F)
                 .onRelease(() -> setFocused(input))
-                .setEnabled(() -> commandSuggestions.suggestions == null && Config.instance().chatSettingsSliders)
+                .setEnabled(() -> commandSuggestions.suggestions == null && LocalConfig.instance().chatSettingsSliders)
                 .withAutoScaleText(3);
 
         updateButtons();
@@ -185,8 +186,8 @@ abstract class ChatScreenMixin extends Screen {
         );
         disableButton = addWidget(Button.builder(Component.literal("Don't ask me again."), e -> {
                             MineTogetherChat.disableChat();
-                            Config.instance().chatEnabled = false;
-                            Config.save();
+                            LocalConfig.instance().chatEnabled = false;
+                            LocalConfig.save();
                             MineTogetherChat.setNewUserResponded();
                             clearWidgets();
                             setFocused(input);
@@ -208,7 +209,7 @@ abstract class ChatScreenMixin extends Screen {
 
     private void updateButtons() {
         Minecraft mc = Minecraft.getInstance();
-        if (!Config.instance().chatEnabled || mc.options.hideGui) {
+        if (!LocalConfig.instance().chatEnabled || mc.options.hideGui) {
             return;
         }
         ChatComponent chat = mc.gui.getChat();
@@ -239,7 +240,7 @@ abstract class ChatScreenMixin extends Screen {
             cancellable = true
     )
     private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (!Config.instance().chatEnabled || Minecraft.getInstance().options.hideGui) return;
+        if (!LocalConfig.instance().chatEnabled || Minecraft.getInstance().options.hideGui) return;
 
         // Needs to be done explicitly here, so we prioritize button clicks
         // over message clicks. We can't move super.mouseClicked here as that would
@@ -257,7 +258,7 @@ abstract class ChatScreenMixin extends Screen {
     @Override
     public boolean mouseReleased(double d, double e, int i) {
         Minecraft mc = Minecraft.getInstance();
-        if (!Config.instance().chatEnabled || mc.options.hideGui) {
+        if (!LocalConfig.instance().chatEnabled || mc.options.hideGui) {
             return super.mouseReleased(d, e, i);
         }
 

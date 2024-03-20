@@ -1,14 +1,12 @@
 package net.creeperhost.minetogether.config;
 
-import blue.endless.jankson.Comment;
-import blue.endless.jankson.Jankson;
-import blue.endless.jankson.JsonGrammar;
-import blue.endless.jankson.JsonPrimitive;
+import blue.endless.jankson.*;
 import blue.endless.jankson.api.SyntaxError;
 import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.chat.ChatTarget;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
@@ -17,6 +15,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 import static net.creeperhost.minetogether.MineTogether.MOD_ID;
 
@@ -64,9 +63,11 @@ public class Config {
         if (INSTANCE != null) return; // Sync bailout.
 
         Config config;
+        JsonObject json = null;
         if (Files.exists(file)) {
             try (InputStream is = Files.newInputStream(file)) {
-                config = JANKSON.fromJson(JANKSON.load(is), Config.class);
+                json = JANKSON.load(is);
+                config = JANKSON.fromJson(json, Config.class);
             } catch (IOException | SyntaxError ex) {
                 LOGGER.fatal("Failed to read config file from '" + file.toAbsolutePath() + "' - Resetting to default.", ex);
                 config = new Config();
@@ -78,6 +79,71 @@ public class Config {
         filePath = file;
         INSTANCE = config;
         save();
+
+        // Do this after INSTANCE has been assigned.
+        // This allows LocalConfig to re-enter Config.instance() to trigger a load.
+        // We do this as we aren't sure which order the configs will be loaded in.
+        if (json != null) {
+            migrate(json);
+        }
+    }
+
+    private static void migrate(JsonObject json) {
+        LocalConfig config = LocalConfig.instance();
+        // Migrations
+        boolean migrated = false;
+        String firstConnect = getString(json, "firstConnect");
+        if (firstConnect != null) {
+            config.firstConnect.add(firstConnect.toLowerCase(Locale.ROOT));
+            migrated = true;
+        }
+        String selectedTab = getString(json, "selectedTab");
+        if (selectedTab != null) {
+            config.selectedTab = ChatTarget.valueOf(selectedTab);
+            migrated = true;
+        }
+        Boolean chatEnabled = getBoolean(json, "chatEnabled");
+        if (chatEnabled != null) {
+            config.chatEnabled = chatEnabled;
+            migrated = true;
+        }
+        Boolean friendNotifications = getBoolean(json, "friendNotifications");
+        if (friendNotifications != null) {
+            config.friendNotifications = friendNotifications;
+            migrated = true;
+        }
+        Boolean chatSettingsSliders = getBoolean(json, "chatSettingsSliders");
+        if (chatSettingsSliders != null) {
+            config.chatSettingsSliders = chatSettingsSliders;
+            migrated = true;
+        }
+        Boolean mainMenuButtons = getBoolean(json, "mainMenuButtons");
+        if (mainMenuButtons != null) {
+            config.mainMenuButtons = mainMenuButtons;
+            migrated = true;
+        }
+        Boolean mpMenuEnabled = getBoolean(json, "mpMenuEnabled");
+        if (mpMenuEnabled != null) {
+            config.mpMenuEnabled = mpMenuEnabled;
+            migrated = true;
+        }
+        if (migrated) {
+            LocalConfig.save();
+        }
+    }
+
+    private static @Nullable String getString(JsonObject obj, String key) {
+        JsonElement element = obj.get(key);
+        if (!(element instanceof JsonPrimitive)) return null;
+
+        return ((JsonPrimitive) element).asString();
+    }
+
+    private static @Nullable Boolean getBoolean(JsonObject obj, String key) {
+        JsonElement element = obj.get(key);
+        if (!(element instanceof JsonPrimitive)) return null;
+
+        return ((JsonPrimitive) element).asBoolean(true);
     }
 
     @Comment ("For modpack creators. Enter your CurseForge project id here.")
@@ -89,9 +155,6 @@ public class Config {
 
     @Comment ("For modpack creators. The pregen size when selected during orders.")
     public int pregenDiameter = 120;
-
-    @Comment ("If the Multiplayer server list should have CreeperHost adverts.")
-    public boolean mpMenuEnabled = true;
 
     @Comment ("If the realms button should be replaced.")
     public boolean replaceRealms = true;
@@ -108,29 +171,10 @@ public class Config {
     @Comment ("Enables dumping all MTConnect packets to logs.")
     public boolean dumpConnectPackets = false;
 
-    @Comment ("If the Chat component of MineTogether is enabled.")
-    public boolean chatEnabled = true;
-
-    @Comment ("If notifications for friends are enabled.")
-    public boolean friendNotifications = true;
-
-    @Comment ("Enable / disable chat settings sliders.")
-    public boolean chatSettingsSliders = true;
-
-    @Comment ("If menu buttons are enabled.")
-    public boolean mainMenuButtons = true;
-
     @Comment ("If pause screen buttons are enabled.")
     public boolean pauseScreenButtons = true;
-
-    // TODO Move to something in ~/.minetogether/?
-    @Comment ("INTERNAL: Marker for tracking first connections.")
-    public String firstConnect = "";
 
     @Nullable
     @Comment ("If not null, replaces the Bug Reports button on the pause screen to open this link.")
     public String issueTrackerUrl = "https://pste.ch/";
-
-    @Comment ("Stores the currently selected chat TAB, Ether VANILLA or PUBLIC")
-    public ChatTarget selectedTab = ChatTarget.PUBLIC;
 }
