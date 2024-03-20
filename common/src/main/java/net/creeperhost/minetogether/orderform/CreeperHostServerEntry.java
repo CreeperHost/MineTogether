@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.screen.widget.buttons.ButtonString;
 import net.minecraft.ChatFormatting;
@@ -33,8 +34,8 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
 
         removeButton = new ButtonString(0, 0, 10, 10, Component.translatable(ChatFormatting.RED + new String(Character.toChars(10006))), button ->
         {
-            Config.instance().mpMenuEnabled = false;
-            Config.save();
+            LocalConfig.instance().mpMenuEnabled = false;
+            LocalConfig.save();
             this.mc.setScreen(new JoinMultiplayerScreen(new TitleScreen()));
         });
     }
