@@ -7,6 +7,7 @@ import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.gui.PublicChatGui;
+import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.gui.SettingGui;
@@ -34,6 +35,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Locale;
 
 import static net.creeperhost.minetogether.Constants.MINETOGETHER_LOGO_25;
 import static net.creeperhost.minetogether.MineTogether.API;
@@ -77,7 +80,7 @@ public class MineTogetherChat {
         Minecraft mc = Minecraft.getInstance();
         vanillaChat = gui.chat;
         publicChat = new MTChatComponent(ChatTarget.PUBLIC, mc);
-        if (Config.instance().chatEnabled) {
+        if (LocalConfig.instance().chatEnabled) {
             CHAT_STATE.ircClient.start();
         }
         CHAT_STATE.ircClient.addChannelListener(new IrcClient.ChannelListener() {
@@ -117,14 +120,14 @@ public class MineTogetherChat {
                         new TranslatableComponent("minetogether:toast.fiend_request_accepted", displayName(fr)),
                         MINETOGETHER_LOGO_25
                 ));
-            } else if (e.type == ProfileManager.EventType.FRIEND_ONLINE && Config.instance().friendNotifications) {
+            } else if (e.type == ProfileManager.EventType.FRIEND_ONLINE && LocalConfig.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
                 addToast(new SimpleToast(
                         new TranslatableComponent("minetogether:toast.user_online", displayName(fr)),
                         TextComponent.EMPTY,
                         MINETOGETHER_LOGO_25
                 ));
-            } else if (e.type == ProfileManager.EventType.FRIEND_OFFLINE && Config.instance().friendNotifications) {
+            } else if (e.type == ProfileManager.EventType.FRIEND_OFFLINE && LocalConfig.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
                 addToast(new SimpleToast(
                         new TranslatableComponent("minetogether:toast.user_offline", displayName(fr)),
@@ -135,9 +138,10 @@ public class MineTogetherChat {
         }));
 
         // If the user has an account. Set firstConnect just incase.
-        if (!Config.instance().firstConnect.equalsIgnoreCase(CHAT_AUTH.getHash()) && CHAT_STATE.profileManager.getOwnProfile().hasAccount()) {
-            Config.instance().firstConnect = CHAT_AUTH.getHash();
-            Config.save();
+        String lowerHash = CHAT_AUTH.getHash().toLowerCase(Locale.ROOT);
+        if (!LocalConfig.instance().firstConnect.contains(lowerHash) && CHAT_STATE.profileManager.getOwnProfile().hasAccount()) {
+            LocalConfig.instance().firstConnect.add(lowerHash);
+            LocalConfig.save();
         }
     }
 
@@ -166,7 +170,7 @@ public class MineTogetherChat {
             if (!hasHitLoadingScreen) {
                 hasHitLoadingScreen = true;
             }
-            if (Config.instance().mainMenuButtons) {
+            if (LocalConfig.instance().mainMenuButtons) {
                 addMenuButtons(screen);
             }
         } else if (screen instanceof PauseScreen) {
@@ -188,7 +192,7 @@ public class MineTogetherChat {
         ScreenHooks.addRenderableWidget(screen, friendChat);
         tooltips.addTooltip(friendChat, new TranslatableComponent("minetogether:gui.button.friends.info"));
 
-        if (Config.instance().chatEnabled) {
+        if (LocalConfig.instance().chatEnabled) {
             IconButton publicChat = new IconButton(screen.width - (buttonPos += 21), 5, 1, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(PublicChatGui.createGui(), screen)));
             ScreenHooks.addRenderableWidget(screen, publicChat);
             tooltips.addTooltip(publicChat, new TranslatableComponent("minetogether:gui.button.global_chat.info"));
@@ -200,12 +204,12 @@ public class MineTogetherChat {
     public static boolean isNewUser() {
         if (MineTogetherChat.getOurProfile().hasAccount()) return false;
 
-        return !Config.instance().firstConnect.equalsIgnoreCase(CHAT_AUTH.getHash());
+        return !LocalConfig.instance().firstConnect.contains(CHAT_AUTH.getHash().toLowerCase(Locale.ROOT));
     }
 
     public static void setNewUserResponded() {
-        Config.instance().firstConnect = CHAT_AUTH.getHash();
-        Config.save();
+        LocalConfig.instance().firstConnect.add(CHAT_AUTH.getHash().toLowerCase(Locale.ROOT));
+        LocalConfig.save();
     }
 
     public static void disableChat() {
@@ -217,12 +221,12 @@ public class MineTogetherChat {
     }
 
     public static void setTarget(ChatTarget target) {
-        Config.instance().selectedTab = target;
-        Config.save();
+        LocalConfig.instance().selectedTab = target;
+        LocalConfig.save();
     }
 
     public static ChatTarget getTarget() {
-        return Config.instance().chatEnabled ? Config.instance().selectedTab : ChatTarget.VANILLA;
+        return LocalConfig.instance().chatEnabled ? LocalConfig.instance().selectedTab : ChatTarget.VANILLA;
     }
 
     public static String displayName(@Nullable Profile profile) {

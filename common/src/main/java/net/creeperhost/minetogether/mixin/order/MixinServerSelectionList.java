@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.mixin.order;
 
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.orderform.CreeperHostServerEntry;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
@@ -23,7 +24,7 @@ public class MixinServerSelectionList {
 
     @Inject (at = @At ("RETURN"), method = "refreshEntries()V")
     private void afterRefreshEntries(CallbackInfo info) {
-        if (!Config.instance().mpMenuEnabled) return;
+        if (!LocalConfig.instance().mpMenuEnabled) return;
         ServerSelectionList thisFake = (ServerSelectionList) (Object) this;
         int size = thisFake.children().size();
 //        for (int i = 0; i < size; i++) {
@@ -33,7 +34,7 @@ public class MixinServerSelectionList {
 //                }
 //            }
 //        }
-        if (Config.instance().mpMenuEnabled) {
+        if (LocalConfig.instance().mpMenuEnabled) {
             try {
                 thisFake.children().add(size, new CreeperHostServerEntry(thisFake));
             } catch (Exception e) {
