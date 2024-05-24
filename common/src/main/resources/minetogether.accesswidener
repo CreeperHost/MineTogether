@@ -31,6 +31,8 @@ extendable method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/mi
 accessible method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/network/chat/Component;)V
 
 accessible field net/minecraft/client/gui/screens/ShareToLanScreen portEdit Lnet/minecraft/client/gui/components/EditBox;
+accessible field net/minecraft/client/gui/screens/ShareToLanScreen gameMode Lnet/minecraft/world/level/GameType;
+accessible field net/minecraft/client/gui/screens/ShareToLanScreen commands Z
 
 accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
 
@@ -39,3 +41,8 @@ accessible field net/minecraft/client/gui/components/AbstractButton SPRITES Lnet
 accessible method net/minecraft/world/level/block/entity/SkullBlockEntity fillProfileTextures (Lcom/mojang/authlib/GameProfile;)Ljava/util/concurrent/CompletableFuture;
 
 accessible field net/minecraft/network/Connection bandwidthDebugMonitor Lnet/minecraft/network/BandwidthDebugMonitor;
+
+accessible field net/minecraft/client/gui/screens/multiplayer/ServerSelectionList THREAD_POOL Ljava/util/concurrent/ThreadPoolExecutor;
+
+extendable method net/minecraft/client/gui/screens/multiplayer/ServerSelectionList refreshEntries ()V
+accessible method net/minecraft/client/gui/screens/multiplayer/ServerSelectionList refreshEntries ()V
