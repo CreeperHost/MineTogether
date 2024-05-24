@@ -7,7 +7,6 @@ import net.creeperhost.minetogether.connect.ConnectHost;
 import net.creeperhost.minetogether.connect.RemoteServer;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
-import net.creeperhost.minetogether.mixin.connect.ServerSelectionListAccessor;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.minecraft.ChatFormatting;
@@ -84,7 +83,7 @@ public class ServerListAppender {
         }
 
         if (dirty) {
-            ((ServerSelectionListAccessor) serverList).invokeRefreshEntries();
+            serverList.refreshEntries();
         }
 
         synchronized (this.connections) {
