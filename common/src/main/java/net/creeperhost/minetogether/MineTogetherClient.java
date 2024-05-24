@@ -6,7 +6,6 @@ import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.connect.MineTogetherConnect;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
-import net.creeperhost.minetogether.orderform.OrderForm;
 import net.creeperhost.minetogether.serverlist.MineTogetherServerList;
 import net.creeperhost.minetogether.serverlist.data.Server;
 import net.creeperhost.minetogether.serverlist.web.GetServerRequest;
@@ -46,8 +45,14 @@ public class MineTogetherClient {
         LOGGER.info("Initializing MineTogetherClient!");
 
         MineTogetherSession.getDefault().setProvider(new MTSessionProvider());
-        // Trigger session validation early in the background.
-        MineTogetherSession.getDefault().getTokenAsync();
+        // Trigger session validation and set auth header.
+        MineTogetherSession.getDefault().getTokenAsync().thenAccept(token -> {
+            if (token != null) {
+                MineTogether.AUTH.setHeader("Authorization", "Bearer " + token);
+            } else {
+                LOGGER.error("Failed to retrieve Mine Together Session token!");
+            }
+        });
 
         MineTogetherChat.init();
         MineTogetherServerList.init();
@@ -82,7 +87,7 @@ public class MineTogetherClient {
             ServerData serverData = new ServerData(server.ip, String.valueOf(server.port), false);
             ConnectScreen.startConnecting(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData, false);
         } else if (screen instanceof PauseScreen) {
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings ("unchecked")
             List<GuiEventListener> children = (List<GuiEventListener>) screen.children();
             List<Renderable> renderables = screenAccess.getRenderables();
             List<NarratableEntry> narratables = screenAccess.getNarratables();
