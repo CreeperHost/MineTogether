@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.chat.gui;
 import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.MTTextures;
+import net.creeperhost.minetogether.gui.ProfileGui;
 import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
@@ -16,7 +17,6 @@ import net.creeperhost.polylib.client.modulargui.lib.geometry.Axis;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.sprite.PolyTextures;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -80,7 +80,7 @@ public class PublicChatGui implements GuiProvider {
                 });
 
         GuiElement<?> textBoxBg = MTStyle.Flat.contentArea(root)
-                .setEnabled(() -> MineTogetherChat.CHAT_STATE.ircClient.getState() != IrcState.BANNED)
+                .setEnabled(() -> !MineTogetherChat.getOurProfile().isBanned())
                 .constrain(LEFT, relative(root.get(LEFT), 10))
                 .constrain(RIGHT, relative(root.get(RIGHT), -10))
                 .constrain(BOTTOM, relative(root.get(BOTTOM), -10))
@@ -88,10 +88,10 @@ public class PublicChatGui implements GuiProvider {
 
         //If they are banned, then we can just replace the text box with the appeal button.
         GuiButton banned = MTStyle.Flat.buttonCaution(root, new TranslatableComponent("minetogether:gui.button.banned").withStyle(ChatFormatting.UNDERLINE))
-                .setEnabled(() -> MineTogetherChat.CHAT_STATE.ircClient.getState() == IrcState.BANNED)
+                .setEnabled(() -> MineTogetherChat.getOurProfile().isBanned())
                 .setTooltip(new TranslatableComponent("minetogether:gui.button.banned.info"))
                 .setTooltipDelay(0)
-                .onPress(() -> Util.getPlatform().openUri("https://minetogether.io/profile/standing"));
+                .onPress(() -> gui.mc().setScreen(new ProfileGui.Screen(gui.getScreen())));
 
         Constraints.bind(banned, textBoxBg);
 

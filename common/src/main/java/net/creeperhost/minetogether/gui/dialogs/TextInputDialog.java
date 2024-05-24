@@ -24,6 +24,8 @@ import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
 public class TextInputDialog extends GuiElement<TextInputDialog> implements BackgroundRender {
 
     private final GuiTextField textField;
+    public GuiButton okButton;
+    public GuiButton cancelButton;
     @Nullable
     private Consumer<String> resultCallback;
 
@@ -53,14 +55,14 @@ public class TextInputDialog extends GuiElement<TextInputDialog> implements Back
                 .setEnterPressed(this::accept);
         Constraints.bind(textField, textBg, 0, 3, 0, 3);
 
-        GuiButton accept = GuiButton.flatColourButton(this, () -> new TranslatableComponent("minetogether:gui.button.ok"), hovered -> hovered ? 0xFF44AA44 : 0xFF118811)
+        okButton = GuiButton.flatColourButton(this, () -> new TranslatableComponent("minetogether:gui.button.ok"), hovered -> hovered ? 0xFF44AA44 : 0xFF118811)
                 .onPress(this::accept)
                 .constrain(TOP, relative(textBg.get(BOTTOM), 3))
                 .constrain(LEFT, match(textBg.get(LEFT)))
                 .constrain(RIGHT, midPoint(textBg.get(LEFT), textBg.get(RIGHT), -1))
                 .constrain(HEIGHT, literal(14));
 
-        GuiButton cancel = GuiButton.flatColourButton(this, () -> new TranslatableComponent("minetogether:gui.button.cancel"), hovered -> hovered ? 0xFFAA4444 : 0xFF881111)
+        cancelButton = GuiButton.flatColourButton(this, () -> new TranslatableComponent("minetogether:gui.button.cancel"), hovered -> hovered ? 0xFFAA4444 : 0xFF881111)
                 .onPress(this::close)
                 .constrain(TOP, relative(textBg.get(BOTTOM), 3))
                 .constrain(LEFT, midPoint(textBg.get(LEFT), textBg.get(RIGHT), 1))
@@ -70,7 +72,7 @@ public class TextInputDialog extends GuiElement<TextInputDialog> implements Back
         ModularGui gui = getModularGui();
         constrain(TOP, midPoint(gui.get(TOP), gui.get(BOTTOM), -20));
         constrain(LEFT, midPoint(gui.get(LEFT), gui.get(RIGHT), -100));
-        constrain(BOTTOM, relative(cancel.get(BOTTOM), 5));
+        constrain(BOTTOM, relative(cancelButton.get(BOTTOM), 5));
         constrain(WIDTH, literal(200));
         textField.setValue(defaultText);
         textField.setFocus(true);

@@ -41,7 +41,7 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
     private int height = 9;
     private int inset = 0;
 
-    private List<FormattedCharSequence> wrappedLines = new ArrayList<>();
+    private final List<FormattedCharSequence> wrappedLines = new ArrayList<>();
 
     public MessageElement(GuiList<?> parent, Message message, GuiTextField textField) {
         this(parent, message, textField, false);
@@ -59,16 +59,18 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
     }
 
     private void updateMessage(boolean init) {
-        wrappedLines.clear();
-        Component formatted = MessageFormatter.formatMessage(message);
-        if (formatted.getString().startsWith("§f<§bSystem§f>")) {
-            inset = font().width("<System>");
+        synchronized (wrappedLines) {
+            wrappedLines.clear();
+            Component formatted = MessageFormatter.formatMessage(message);
+            if (formatted.getString().startsWith("§f<§bSystem§f>")) {
+                inset = font().width("<System>");
+            }
+            if (lastWidth - inset < 20) return;
+            wrappedLines.addAll(ComponentRenderUtils.wrapComponents(formatted, lastWidth - inset, font()));
+            int lines = Math.max(wrappedLines.size(), 1);
+            height = (lines * font().lineHeight) + (lines - 1);
+            if (!init) ((GuiList<?>) getParent()).markDirty();
         }
-        if (lastWidth - inset < 20) return;
-        wrappedLines.addAll(ComponentRenderUtils.wrapComponents(formatted, lastWidth - inset, font()));
-        int lines = Math.max(wrappedLines.size(), 1);
-        height = (lines * font().lineHeight) + (lines - 1);
-        if (!init) ((GuiList<?>) getParent()).markDirty();
     }
 
     @Override
@@ -82,10 +84,12 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
 
     @Override
     public void renderInFront(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-        double y = yMin();
-        for (FormattedCharSequence line : wrappedLines) {
-            render.drawString(line, xMin() + (y == yMin() ? 0 : inset), y, 0xFFFFFF);
-            y += font().lineHeight + 1;
+        synchronized (wrappedLines) {
+            double y = yMin();
+            for (FormattedCharSequence line : wrappedLines) {
+                render.drawString(line, xMin() + (y == yMin() ? 0 : inset), y, 0xFFFFFF);
+                y += font().lineHeight + 1;
+            }
         }
     }
 
@@ -151,12 +155,14 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
 
     @Nullable
     public Style getStyleAtPos(double x, double y) {
-        x -= xMin();
-        y -= yMin();
-        int index = (int) (y / (font().lineHeight + 1));
-        if (index < 0 || index >= wrappedLines.size()) return null;
-        FormattedCharSequence line = wrappedLines.get(index);
-        return font().getSplitter().componentStyleAtWidth(line, (int) Math.floor(x));
+        synchronized (wrappedLines) {
+            x -= xMin();
+            y -= yMin();
+            int index = (int) (y / (font().lineHeight + 1));
+            if (index < 0 || index >= wrappedLines.size()) return null;
+            FormattedCharSequence line = wrappedLines.get(index);
+            return font().getSplitter().componentStyleAtWidth(line, (int) Math.floor(x));
+        }
     }
 
     private String displayName(@Nullable Profile profile) {
