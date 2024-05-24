@@ -59,7 +59,7 @@ dependencies {
     shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowLib 'com.github.scribejava:scribejava-core:6.9.0'
 
-    runtimeClasspath "net.covers1624:DevLogin:0.1.+"
+    runtimeOnly "net.covers1624:DevLogin:0.1.+"
 }
 
 processResources {
@@ -74,7 +74,7 @@ shadowJar {
     exclude "fabric.mod.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    archiveClassifier = "dev-shadow"
     mergeServiceFiles()
 
     relocate 'blue.endless', 'net.creeperhost.minetogether.repack.blue.endless'
@@ -90,11 +90,11 @@ remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveBaseName.set "${rootProject.archives_base_name}-${project.name}-${rootProject.minecraft_version}"
-    classifier null
+    archiveClassifier = null
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier = "dev"
 }
 
 sourcesJar {
