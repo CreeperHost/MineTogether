@@ -5,9 +5,12 @@ import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.gui.MTStyle;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.LocalConfig;
+import net.creeperhost.minetogether.gui.dialogs.ContextMenu;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
+import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
+import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.*;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
@@ -21,12 +24,15 @@ import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.literal;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.RIGHT;
+import static net.minecraft.ChatFormatting.*;
 
 /**
  * Created by brandon3055 on 02/10/2023
@@ -117,13 +123,19 @@ public class SettingGui implements GuiProvider {
                 .constrain(RIGHT, match(settings.get(RIGHT)))
                 .constrain(HEIGHT, literal(16));
 
-        GuiButton back = MTStyle.Flat.button(settings, Component.translatable("minetogether:gui.button.back"))
-                .onPress(() -> gui.mc().setScreen(gui.getParentScreen()))
-                .constrain(TOP, relative(link.get(BOTTOM), 24))
+        GuiButton profileScreen = MTStyle.Flat.button(settings, () -> Component.translatable("minetogether:gui.settings.button.profile"))
+                .onPress(() -> gui.mc().setScreen(new ProfileGui.Screen(gui.getScreen())))
+                .constrain(TOP, relative(link.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
                 .constrain(HEIGHT, literal(16));
 
+        GuiButton back = MTStyle.Flat.button(settings, Component.translatable("minetogether:gui.button.back"))
+                .onPress(() -> gui.mc().setScreen(gui.getParentScreen()))
+                .constrain(TOP, relative(profileScreen.get(BOTTOM), 24))
+                .constrain(LEFT, match(settings.get(LEFT)))
+                .constrain(RIGHT, match(settings.get(RIGHT)))
+                .constrain(HEIGHT, literal(16));
 
         //Blocked Users
         GuiElement<?> blockedBg = MTStyle.Flat.contentArea(root)
@@ -133,7 +145,7 @@ public class SettingGui implements GuiProvider {
                 .constrain(TOP, midPoint(root.get(TOP), root.get(BOTTOM), -90))
                 .constrain(BOTTOM, midPoint(root.get(TOP), root.get(BOTTOM), 100));
 
-        GuiText blockedTitle = new GuiText(blockedBg, Component.translatable("minetogether:gui.settings.button.blocked").withStyle(ChatFormatting.UNDERLINE))
+        GuiText blockedTitle = new GuiText(blockedBg, Component.translatable("minetogether:gui.settings.button.blocked").withStyle(UNDERLINE))
                 .constrain(BOTTOM, relative(blockedBg.get(TOP), -3))
                 .constrain(HEIGHT, literal(8))
                 .constrain(LEFT, match(blockedBg.get(LEFT)))
