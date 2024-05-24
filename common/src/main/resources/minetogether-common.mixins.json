@@ -8,9 +8,7 @@
         "chat.ingame.ChatComponentMixin",
         "chat.ingame.GuiMixin",
         "connect.JoinMultiplayerScreenMixin",
-        "connect.ServerSelectionListAccessor",
         "connect.ServerSelectionListMixin",
-        "connect.ShareToLanScreenAccessor",
         "order.MixinServerSelectionList"
     ],
     "server": [

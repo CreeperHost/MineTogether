@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.RemoteServer;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
-import net.creeperhost.minetogether.mixin.connect.ServerSelectionListAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -72,7 +71,7 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
             remoteServer.ping = -2L;
             remoteServer.motd = TextComponent.EMPTY;
             remoteServer.status = TextComponent.EMPTY;
-            ServerSelectionListAccessor.getPingThreadPool().submit(() -> {
+            ServerSelectionList.THREAD_POOL.submit(() -> {
                 try {
                     listAppender.pingServer(remoteServer, friendProfile);
                 } catch (Exception var2) {

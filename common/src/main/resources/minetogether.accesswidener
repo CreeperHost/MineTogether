@@ -34,3 +34,11 @@ accessible field net/minecraft/client/gui/screens/ConnectScreen connection Lnet/
 
 extendable method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/minecraft/client/gui/screens/Screen;)V
 accessible method net/minecraft/client/gui/screens/ConnectScreen <init> (Lnet/minecraft/client/gui/screens/Screen;)V
+
+accessible field net/minecraft/client/gui/screens/ShareToLanScreen gameMode Lnet/minecraft/world/level/GameType;
+accessible field net/minecraft/client/gui/screens/ShareToLanScreen commands Z
+
+accessible field net/minecraft/client/gui/screens/multiplayer/ServerSelectionList THREAD_POOL Ljava/util/concurrent/ThreadPoolExecutor;
+
+extendable method net/minecraft/client/gui/screens/multiplayer/ServerSelectionList refreshEntries ()V
+accessible method net/minecraft/client/gui/screens/multiplayer/ServerSelectionList refreshEntries ()V
