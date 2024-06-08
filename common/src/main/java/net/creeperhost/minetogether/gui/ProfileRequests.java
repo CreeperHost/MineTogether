@@ -15,7 +15,9 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -253,27 +255,37 @@ public class ProfileRequests {
         ACTIVE_REQUESTS.put(future, onComplete);
     }
 
-    public static void submitAppeal(String appeal, Runnable onComplete) {
+    public static void submitAppeal(String appeal, BiConsumer<Boolean, Component> onComplete) {
         if (appeal.trim().isEmpty()) {
             errorHandler.accept(Component.translatable("minetogether:gui.profile.ban.appeal_is_empty").withStyle(ChatFormatting.RED));
             return;
         }
 
+        AtomicBoolean success = new AtomicBoolean(false);
+        AtomicReference<Component> message = new AtomicReference<>();
         errorHandler.accept(Component.translatable("minetogether:gui.profile.ban.submitting"));
         var future = CompletableFuture.runAsync(() -> {
             try {
                 Apiv2Response response = MineTogetherChat.CHAT_STATE.api.execute(new DeleteBanRequest(BAN_INFO.get().id, appeal)).apiResponse();
                 if (response.success) {
+                    success.set(true);
                     errorHandler.accept(Component.translatable("minetogether:gui.profile.ban.submitted").withStyle(ChatFormatting.GREEN));
+                    message.set(Component.translatable("minetogether:gui.profile.ban.submitted").withStyle(ChatFormatting.GREEN));
                 } else {
                     errorHandler.accept(Component.translatable("minetogether:gui.profile.ban.appeal_fail").withStyle(ChatFormatting.RED));
                     errorHandler.accept(Component.literal(response.reason).withStyle(ChatFormatting.RED));
+                    message.set(Component.translatable("minetogether:gui.profile.ban.appeal_fail").withStyle(ChatFormatting.RED).append("\n" + response.reason));
                 }
             } catch (Throwable e) {
                 LOGGER.error("An error occurred while trying send ban appeal", e);
                 errorHandler.accept(Component.literal("An error occurred while trying to send ban appeal").withStyle(ChatFormatting.RED));
+                message.set(Component.literal("An error occurred while trying to send ban appeal").withStyle(ChatFormatting.RED));
             }
         }, EXECUTOR);
-        ACTIVE_REQUESTS.put(future, onComplete);
+        ACTIVE_REQUESTS.put(future, () -> {
+            if (onComplete != null) {
+                onComplete.accept(success.get(), message.get());
+            }
+        });
     }
 }

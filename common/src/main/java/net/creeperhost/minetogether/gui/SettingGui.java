@@ -93,17 +93,17 @@ public class SettingGui implements GuiProvider {
                 .constrain(HEIGHT, literal(16));
         toasts.getLabel().setTextSupplier(() -> Component.translatable("minetogether:gui.settings.button.friend_toasts").append(state(LocalConfig.instance().friendNotifications)));
 
-        GuiButton chatSliders = MTStyle.Flat.button(toasts, Component.empty())
+        GuiButton chatSliders = MTStyle.Flat.button(settings, Component.empty())
                 .onPress(() -> setConfig(() -> LocalConfig.instance().chatSettingsSliders ^= true))
-                .constrain(TOP, relative(menuButtons.get(BOTTOM), 4))
+                .constrain(TOP, relative(toasts.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
                 .constrain(HEIGHT, literal(16));
         chatSliders.getLabel().setTextSupplier(() -> Component.translatable("minetogether:gui.settings.button.chat_sliders").append(state(LocalConfig.instance().chatSettingsSliders)));
 
-        GuiButton blocked = MTStyle.Flat.button(chatSliders, Component.translatable("minetogether:gui.settings.button.blocked"))
+        GuiButton blocked = MTStyle.Flat.button(settings, Component.translatable("minetogether:gui.settings.button.blocked"))
                 .onPress(() -> showBlocked ^= true)
-                .constrain(TOP, relative(toasts.get(BOTTOM), 4))
+                .constrain(TOP, relative(chatSliders.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
                 .constrain(HEIGHT, literal(16));

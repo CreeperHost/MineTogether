@@ -26,6 +26,8 @@ public class ItemSelectDialog<E> extends GuiElement<ItemSelectDialog<E>> impleme
 
     private final GuiTextField searchField;
     private final GuiList<E> itemList;
+    private boolean blockOutsideClicks = false;
+    private boolean closeOnOutsideClick = false;
     @Nullable
     private Consumer<E> onItemSelected;
     private final List<E> items;
@@ -145,6 +147,16 @@ public class ItemSelectDialog<E> extends GuiElement<ItemSelectDialog<E>> impleme
         return button;
     }
 
+    public ItemSelectDialog<E> setBlockOutsideClicks(boolean blockOutsideClicks) {
+        this.blockOutsideClicks = blockOutsideClicks;
+        return this;
+    }
+
+    public ItemSelectDialog<E> setCloseOnOutsideClick(boolean closeOnOutsideClick) {
+        this.closeOnOutsideClick = closeOnOutsideClick;
+        return this;
+    }
+
     public ItemSelectDialog<E> setOnItemSelected(Consumer<E> onItemSelected) {
         this.onItemSelected = onItemSelected;
         return this;
@@ -166,6 +178,15 @@ public class ItemSelectDialog<E> extends GuiElement<ItemSelectDialog<E>> impleme
 
     public void close() {
         getParent().removeChild(this);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
+        if (closeOnOutsideClick && !getRectangle().contains(mouseX, mouseY)) {
+            close();
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button, consumed) || blockOutsideClicks;
     }
 
     @Override
