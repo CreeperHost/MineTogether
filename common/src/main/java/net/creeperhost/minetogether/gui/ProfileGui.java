@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.gui;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
@@ -12,15 +11,14 @@ import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.*;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
-import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.creeperhost.polylib.client.modulargui.sprite.Material;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
+import java.util.Random;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
@@ -36,6 +34,7 @@ public class ProfileGui implements GuiProvider {
     private String nameRight = "";
     private ConsoleFeedbackElement feedbackElement;
     private TextState nameState;
+    private GuiButton submitButton;
 
     @Override
     public GuiElement<?> createRootElement(ModularGui gui) {
@@ -76,7 +75,7 @@ public class ProfileGui implements GuiProvider {
                 .onPress(() -> handleNameChange(premium, nameField.primary));
         Constraints.size(nameButton, uiWidth - nameField.container.xSize() - 1, 14);
         Constraints.placeOutside(nameButton, nameField.container, Constraints.LayoutPos.MIDDLE_RIGHT, 1, 0);
-        
+
         GuiTextList nextChange = new GuiTextList(root, () -> List.of(Component.translatable("minetogether:gui.profile.next_name_change").withStyle(ChatFormatting.YELLOW), ProfileRequests.getCanChangeComp().withStyle(ChatFormatting.GRAY)))
                 .setEnabled(() -> !ProfileRequests.canChangeName())
                 .constrain(WIDTH, literal(uiWidth))
@@ -135,12 +134,12 @@ public class ProfileGui implements GuiProvider {
                 .constrain(LEFT, midPoint(root.get(LEFT), root.get(RIGHT), -(uiWidth / 2D)));
 
         GuiButton left = MTStyle.Flat.button(root, () -> Component.literal(nameLeft))
-                .onPress(() -> new ItemSelectDialog<>(root, Component.translatable("minetogether:gui.profile.select_option"), ProfileRequests.getNameOptions()).setOnItemSelected(s -> nameLeft = s));
+                .onPress(() -> new ItemSelectDialog<>(root, Component.translatable("minetogether:gui.profile.select_option"), ProfileRequests.getNameOptions()).setCloseOnOutsideClick(true).setOnItemSelected(s -> nameLeft = s));
         Constraints.size(left, ((uiWidth - 50) / 2D) - 0.5, 14);
         Constraints.placeInside(left, title, Constraints.LayoutPos.BOTTOM_LEFT, 0, 20);
 
         GuiButton right = MTStyle.Flat.button(root, () -> Component.literal(nameRight))
-                .onPress(() -> new ItemSelectDialog<>(root, Component.translatable("minetogether:gui.profile.select_option"), ProfileRequests.getNameOptions()).setOnItemSelected(s -> nameRight = s));
+                .onPress(() -> new ItemSelectDialog<>(root, Component.translatable("minetogether:gui.profile.select_option"), ProfileRequests.getNameOptions()).setCloseOnOutsideClick(true).setOnItemSelected(s -> nameRight = s));
         Constraints.size(right, ((uiWidth - 50) / 2D) - 0.5, 14);
         Constraints.placeOutside(right, left, Constraints.LayoutPos.MIDDLE_RIGHT, 1, 0);
 
@@ -165,7 +164,7 @@ public class ProfileGui implements GuiProvider {
     private void buildBanScreen(GuiElement<?> uiRoot, int uiWidth) {
         GuiRectangle root = new GuiRectangle(uiRoot)
                 .setOpaque(true)
-                .fill(0xF0000000)
+                .fill(0xFF000000)
                 .setEnabled(ProfileRequests::isBanned);
         Constraints.bind(root, uiRoot);
 
@@ -245,14 +244,14 @@ public class ProfileGui implements GuiProvider {
                 .constrain(WIDTH, literal(uiWidth))
                 .constrain(HEIGHT, literal(14));
         appealText.primary
-                        .setSuggestion(Component.translatable("minetogether:gui.profile.ban.submit_an_appeal_hint"));
+                .setSuggestion(Component.translatable("minetogether:gui.profile.ban.submit_an_appeal_hint"));
         Constraints.placeOutside(appealText.container, submitAppeal, Constraints.LayoutPos.BOTTOM_CENTER, 0, 2);
 
-        GuiButton submit = MTStyle.Flat.buttonPrimary(root, Component.translatable("minetogether:gui.profile.button.submit"))
-                .onPress(() -> ProfileRequests.submitAppeal(appealText.primary.getValue(), null))
+        submitButton = MTStyle.Flat.buttonPrimary(root, Component.translatable("minetogether:gui.profile.button.submit"))
+                .onPress(() -> ProfileRequests.submitAppeal(appealText.primary.getValue(), (success, message) -> onAppealSubmitted(root.getModularGui(), success, message)))
                 .constrain(WIDTH, literal(150))
                 .constrain(HEIGHT, literal(16));
-        Constraints.placeOutside(submit, appealText.container, Constraints.LayoutPos.BOTTOM_CENTER, 0, 2);
+        Constraints.placeOutside(submitButton, appealText.container, Constraints.LayoutPos.BOTTOM_CENTER, 0, 2);
 
         GuiButton back = MTStyle.Flat.button(root, Component.translatable("minetogether:gui.button.back"))
                 .onPress(() -> root.mc().setScreen(root.getModularGui().getParentScreen()))
@@ -260,6 +259,14 @@ public class ProfileGui implements GuiProvider {
                 .constrain(LEFT, midPoint(root.get(LEFT), root.get(RIGHT), -150 / 2D))
                 .constrain(WIDTH, literal(150))
                 .constrain(HEIGHT, literal(16));
+    }
+
+    private void onAppealSubmitted(ModularGui gui, boolean success, Component message) {
+        if (success) submitButton.setEnabled(false);
+        GuiDialog.infoDialog(gui.getRoot(), null, message, 250, () -> {
+                    if (success) gui.getScreen().onClose();
+                })
+                .setBlockMouseInput(true);
     }
 
     private void randomizeName() {
