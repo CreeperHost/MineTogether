@@ -45,14 +45,11 @@ public class MineTogetherClient {
         LOGGER.info("Initializing MineTogetherClient!");
 
         MineTogetherSession.getDefault().setProvider(new MTSessionProvider());
-        // Trigger session validation and set auth header.
-        MineTogetherSession.getDefault().getTokenAsync().thenAccept(token -> {
-            if (token != null) {
-                MineTogether.AUTH.setHeader("Authorization", "Bearer " + token);
-            } else {
-                LOGGER.error("Failed to retrieve Mine Together Session token!");
-            }
+        MineTogetherSession.getDefault().onTokenRefreshed(token -> {
+            MineTogether.AUTH.setHeader("Authorization", "Bearer " + token);
         });
+        // Trigger session validation and set auth header.
+        MineTogetherSession.getDefault().getTokenAsync();
 
         MineTogetherChat.init();
         MineTogetherServerList.init();
