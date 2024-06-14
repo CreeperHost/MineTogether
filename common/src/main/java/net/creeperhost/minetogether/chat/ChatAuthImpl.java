@@ -1,20 +1,15 @@
 package net.creeperhost.minetogether.chat;
 
 import com.google.common.hash.Hashing;
-import com.mojang.authlib.exceptions.AuthenticationException;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.lib.chat.ChatAuth;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.UUIDUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletableFuture;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -22,8 +17,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author covers1624
  */
 public class ChatAuthImpl implements ChatAuth {
-
-    private static final Logger LOGGER = LogManager.getLogger();
 
     private final UUID uuid;
     private final String uuidHash;
@@ -49,12 +42,12 @@ public class ChatAuthImpl implements ChatAuth {
     }
 
     @Override
-    public @Nullable JWebToken getSessionToken() {
-        try {
-            return MineTogetherSession.getDefault().getTokenAsync().get();
-        } catch (InterruptedException | ExecutionException ex ){
-            LOGGER.error("Error whilst waiting for token.", ex);
-            return null;
-        }
+    public void resetSessionToken() {
+        MineTogetherSession.getDefault().forceResetToken();
+    }
+
+    @Override
+    public CompletableFuture<JWebToken> getSessionTokenAsync() {
+        return MineTogetherSession.getDefault().getTokenAsync();
     }
 }
