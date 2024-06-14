@@ -1,20 +1,16 @@
 package net.creeperhost.minetogether.chat;
 
 import com.google.common.hash.Hashing;
-import com.mojang.authlib.exceptions.AuthenticationException;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.lib.chat.ChatAuth;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.UUIDUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletableFuture;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -24,14 +20,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @SuppressWarnings ("UnstableApiUsage")
 public class ChatAuthImpl implements ChatAuth {
 
-    private static final Logger LOGGER = LogManager.getLogger();
-
-    private final Minecraft mc;
     private final UUID uuid;
     private final String uuidHash;
 
     public ChatAuthImpl(Minecraft mc) {
-        this.mc = mc;
         uuid = UUIDUtil.getOrCreatePlayerUUID(mc.getUser().getGameProfile());
         uuidHash = Hashing.sha256().hashString(uuid.toString(), UTF_8).toString().toUpperCase(Locale.ROOT);
     }
@@ -52,24 +44,12 @@ public class ChatAuthImpl implements ChatAuth {
     }
 
     @Override
-    public @Nullable JWebToken getSessionToken() {
-        try {
-            return MineTogetherSession.getDefault().getTokenAsync().get();
-        } catch (InterruptedException | ExecutionException ex ){
-            LOGGER.error("Error whilst waiting for token.", ex);
-            return null;
-        }
+    public void resetSessionToken() {
+        MineTogetherSession.getDefault().forceResetToken();
     }
 
-    @Deprecated // Exists for old connect. Will be nuked with new connect.
-    public String beginMojangAuth() {
-        String serverId = Hashing.sha1().hashString(UUID.randomUUID().toString(), UTF_8).toString();
-        try {
-            mc.getMinecraftSessionService().joinServer(mc.getUser().getGameProfile(), mc.getUser().getAccessToken(), serverId);
-            return serverId;
-        } catch (AuthenticationException ex) {
-            LOGGER.error("Failed to send 'joinServer' request.", ex);
-        }
-        return null;
+    @Override
+    public CompletableFuture<JWebToken> getSessionTokenAsync() {
+        return MineTogetherSession.getDefault().getTokenAsync();
     }
 }
