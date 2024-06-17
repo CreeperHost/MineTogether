@@ -20,7 +20,12 @@ import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.helpers.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.level.storage.LevelStorageException;
+import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.LevelSummary;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,9 +34,11 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -91,6 +98,8 @@ public class OrderGui implements GuiProvider {
     private Component processingText = Component.empty();
     private GuiButton processingButton;
     private boolean processingShowCloseButton = false;
+
+    private WorldUploader worldUploader = null;
 
     public OrderGui() {
     }
@@ -207,6 +216,9 @@ public class OrderGui implements GuiProvider {
         lastElement = configSection(background, left, right);
         lastElement = locationSection(background, lastElement, left, right);
         lastElement = detailsSection(background, lastElement, left, right);
+        lastElement = worldSection(background, lastElement, left, right);
+
+        Constraints.placeOutside(new GuiRectangle(background).setSize(10, 3), lastElement, Constraints.LayoutPos.BOTTOM_CENTER);
     }
 
     private GuiElement<?> configSection(GuiElement<?> background, Constraint left, Constraint right) {
@@ -320,6 +332,15 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, right);
         lastElement.constrain(HEIGHT, dynamic(() -> (double) background.font().wordWrapHeight(pingInfo, (int) right.get() - (int) left.get())));
 
+        lastElement = MTStyle.Flat.button(background, () -> order.useFallback ? Component.translatable("minetogether:gui.order.region.fallback_enabled") : Component.translatable("minetogether:gui.order.region.fallback_disabled"))
+                .setTooltipSingle(Component.translatable("minetogether:gui.order.region.fallback_info"))
+                .setTooltipDelay(5)
+                .onPress(() -> order.useFallback = !order.useFallback)
+                .constrain(TOP, relative(lastElement.get(BOTTOM), 3))
+                .constrain(LEFT, left)
+                .constrain(RIGHT, right)
+                .constrain(HEIGHT, literal(12));
+
         return lastElement;
     }
 
@@ -431,7 +452,116 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, right)
                 .constrain(HEIGHT, literal(30));
 
+        return country;
+    }
+
+    private GuiElement<?> worldSection(GuiElement<?> background, GuiElement<?> lastElement, Constraint left, Constraint right) {
+        lastElement = new GuiText(background, Component.translatable("minetogether:gui.order.world").withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD))
+                .setAlignment(Align.LEFT)
+                .constrain(TOP, relative(lastElement.get(BOTTOM), 4))
+                .constrain(LEFT, left)
+                .constrain(RIGHT, right)
+                .constrain(HEIGHT, literal(8));
+
+        Component worldInfo = Component.translatable("minetogether:gui.order.world.info").withStyle(ChatFormatting.GRAY);
+        lastElement = new GuiText(background, worldInfo)
+                .setWrap(true)
+                .setAlignment(Align.LEFT)
+                .constrain(TOP, relative(lastElement.get(BOTTOM), 3))
+                .constrain(LEFT, left)
+                .constrain(RIGHT, right);
+        lastElement.constrain(HEIGHT, dynamic(() -> (double) background.font().wordWrapHeight(worldInfo, (int) right.get() - (int) left.get())));
+
+        List<LevelSummary> levels = loadLevels(background.mc());
+        if (levels.isEmpty()) {
+            Component noWorlds = Component.translatable("minetogether:gui.order.world.no_worlds").withStyle(RED);
+            lastElement = new GuiText(background, noWorlds)
+                    .setWrap(true)
+                    .setAlignment(Align.LEFT)
+                    .constrain(TOP, relative(lastElement.get(BOTTOM), 3))
+                    .constrain(LEFT, left)
+                    .constrain(RIGHT, right);
+            lastElement.constrain(HEIGHT, dynamic(() -> (double) background.font().wordWrapHeight(noWorlds, (int) right.get() - (int) left.get())));
+            return lastElement;
+        }
+
+        lastElement = MTStyle.Flat.button(background, () -> worldUploader != null && worldUploader.errored() ? Component.literal(worldUploader.getError()).withStyle(RED) : Component.translatable("minetogether:gui.order.world.select"))
+                .setDisabled(() -> worldUploader != null || !StringUtil.isNullOrEmpty(order.worldUrl))
+                .onPress(() -> new ItemSelectDialog<>(background.getModularGui().getRoot(), Component.translatable("minetogether:gui.order.world.select"), levels, levels.get(0), e -> Component.empty().append(Component.literal(e.getLevelName()).withStyle(GREEN)).append("\n").append(e.getInfo()).withStyle(GRAY))
+                        .setCloseOnOutsideClick(true)
+                        .setOnItemSelected(selected -> {
+                            Path worldFolder = background.mc().getLevelSource().getLevelPath(selected.getLevelId());
+                            GuiDialog.optionsDialog(background, Component.translatable("minetogether:gui.order.confirm_upload",
+                                            Component.literal(selected.getLevelName()).withStyle(GOLD)).withStyle(BLUE),
+                                    Component.translatable("minetogether:gui.order.confirm_upload.info").withStyle(GRAY),
+                                    250,
+                                    GuiDialog.primary(Component.translatable("minetogether:gui.order.world.upload"), () -> startWorldUpload(worldFolder)),
+                                    GuiDialog.caution(Component.translatable("gui.cancel"), () -> {})
+                            );
+                        })
+                )
+                .constrain(TOP, relative(lastElement.get(BOTTOM), 3))
+                .constrain(LEFT, left)
+                .constrain(RIGHT, right)
+                .constrain(HEIGHT, literal(12));
+
+        //Right Cancel/Remove button
+        lastElement = MTStyle.Flat.buttonCaution(background, this::cancelWorldText)
+                .setDisabled(() -> worldUploader == null && StringUtil.isNullOrEmpty(order.worldUrl))
+                .onPress(this::cancelWorldAction)
+                .constrain(TOP, relative(lastElement.get(BOTTOM), 3))
+                .constrain(WIDTH, literal(60))
+                .constrain(RIGHT, right)
+                .constrain(HEIGHT, literal(12));
+
+        //Left Progress/Copy/Retry button
+        MTStyle.Flat.button(background, this::worldBtnLeft)
+                .setDisabled(() -> !(worldUploader != null && worldUploader.errored()))
+                .onPress(this::worldBtnLeftAction)
+                .constrain(TOP, match(lastElement.get(TOP)))
+                .constrain(LEFT, left)
+                .constrain(RIGHT, relative(lastElement.get(LEFT), -2))
+                .constrain(HEIGHT, literal(12));
+        
         return lastElement;
+    }
+
+    private Component worldBtnLeft() {
+        if (!StringUtil.isNullOrEmpty(order.worldUrl)) {
+            return Component.literal(order.worldUrl);
+        } else if (worldUploader != null) {
+            if (worldUploader.errored()) {
+                return Component.translatable("minetogether:gui.order.world.retry");
+            }
+            return worldUploader.getStatus();
+        }
+        return Component.empty();
+    }
+
+    private void worldBtnLeftAction() {
+        if (!StringUtil.isNullOrEmpty(order.worldUrl)) {
+            Minecraft.getInstance().keyboardHandler.setClipboard(order.worldUrl);
+        } else if (worldUploader != null && worldUploader.errored()) {
+            worldUploader.start();
+        }
+    }
+
+    private Component cancelWorldText() {
+        if (!StringUtil.isNullOrEmpty(order.worldUrl)) {
+            return Component.translatable("minetogether:gui.order.world.remove");
+        } else if (worldUploader != null) {
+            return Component.translatable("gui.cancel");
+        }
+        return Component.empty();
+    }
+
+    private void cancelWorldAction() {
+        if (!StringUtil.isNullOrEmpty(order.worldUrl)) {
+            order.worldUrl = "";
+        } else if (worldUploader != null) {
+            worldUploader.cancel();
+            worldUploader = null;
+        }
     }
 
     private void setupSummaryPanel(GuiElement<?> background) {
@@ -613,7 +743,7 @@ public class OrderGui implements GuiProvider {
                 .constrain(BOTTOM, relative(discount.get(TOP), -0))
                 .constrain(HEIGHT, literal(10));
 
-        GuiText subTotalValue = new GuiText(background, () -> Component.literal(summary.prefix + String.format("%.2f", summary.subTotal) + " " + summary.suffix))
+        GuiText subTotalValue = new GuiText(background, () -> Component.literal(summary.prefix + String.format("%.2f", summary.preDiscount) + " " + summary.suffix))
                 .setAlignment(Align.RIGHT);
         Constraints.bind(subTotalValue, subTotal);
     }
@@ -683,13 +813,24 @@ public class OrderGui implements GuiProvider {
 
         double ping = regionPing.getOrDefault(region, -2);
         int distance = dataCenterDistance.getOrDefault(regionToDataCentre(region), -1);
-        GuiText pingLabel = new GuiText(button, Component.literal(((int) Math.ceil(ping)) + " ms"))
+        Component pingText = Component.literal(((int) Math.ceil(ping)) + " ms");
+        GuiText pingLabel = new GuiText(button, pingText)
                 .setEnabled(() -> ping > 0)
                 .setAlignment(Align.RIGHT)
+                .setScroll(false)
                 .constrain(TOP, relative(button.get(TOP), 2))
-                .constrain(LEFT, relative(button.get(LEFT), 4))
+                .constrain(WIDTH, literal(parent.font().width(pingText)))
                 .constrain(RIGHT, relative(button.get(RIGHT), -14))
                 .constrain(HEIGHT, literal(8));
+
+//        GuiText fallback = new GuiText(button, Component.literal("[fallback]").withStyle(GRAY))
+//                .setEnabled(() -> region.equals(computeFallbackLocation()))
+//                .setAlignment(Align.RIGHT)
+//                .setShadow(false)
+//                .constrain(TOP, relative(button.get(TOP), 2))
+//                .constrain(LEFT, relative(button.get(LEFT), 4))
+//                .constrain(RIGHT, relative(pingLabel.get(LEFT), -3))
+//                .constrain(HEIGHT, literal(8));
 
         GuiTexture signal = new GuiTexture(button, MTTextures.getter(() -> getSignalIcon(ping, distance)))
                 .setTooltipSingle(() -> getSignalTooltip(ping, distance))
@@ -808,6 +949,8 @@ public class OrderGui implements GuiProvider {
             invalidMessage = Component.translatable("minetogether:gui.order.blank.phone");
         } else if (loginMode && !loggedIn) {
             invalidMessage = Component.translatable("minetogether:gui.order.login_required");
+        } else if (worldUploader != null) {
+            invalidMessage = Component.translatable("minetogether:gui.order.waiting_for_world_upload");
         } else {
             inputsValid = true;
         }
@@ -873,7 +1016,7 @@ public class OrderGui implements GuiProvider {
 
             //Place Order
             setProcessing(null, null, Component.translatable("minetogether:gui.order.order_placing"));
-            String result = ServerOrderCallbacks.createOrder(order, getRegionId(order.serverLocation), String.valueOf(Config.instance().pregenDiameter));
+            String result = ServerOrderCallbacks.createOrder(order, getRegionId(order.serverLocation), String.valueOf(Config.instance().pregenDiameter), computeFallbackLocation());
             String[] resultSplit = result.split(":");
             if (resultSplit[0].equals("success")) {
                 invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
@@ -989,7 +1132,20 @@ public class OrderGui implements GuiProvider {
             orderTask = null;
         }
 
+        if (worldUploader != null && !worldUploader.errored()) {
+            if (worldUploader.isFinished()) {
+                order.worldUrl = worldUploader.getResultFileURL();
+                worldUploader = null;
+            }
+        }
+
         validateInputs();
+    }
+
+    private void startWorldUpload(Path worldFolder) {
+        if (worldUploader != null) return;
+        worldUploader = new WorldUploader(worldFolder);
+        worldUploader.start();
     }
 
     //=== Getters ===//
@@ -1097,6 +1253,32 @@ public class OrderGui implements GuiProvider {
         return false;
     }
 
+    private String computeFallbackLocation() {
+        if (!order.useFallback) return "";
+        String fallBack = "";
+        int lowest = Integer.MAX_VALUE;
+        for (String region : regionPing.keySet()) {
+            int ping = regionPing.get(region);
+            if (ping > 0 && !region.equals(order.serverLocation) && ping < lowest) {
+                lowest = ping;
+                fallBack = region;
+            }
+        }
+
+        if (fallBack.isEmpty()) {
+            for (String dataCenter : dataCenterDistance.keySet()) {
+                int distance = dataCenterDistance.get(dataCenter);
+                String region = datacentreToRegion(dataCenter);
+                if (!region.isEmpty() && distance > 0 && !region.equals(order.serverLocation) && distance < lowest) {
+                    lowest = distance;
+                    fallBack = region;
+                }
+            }
+        }
+
+        return fallBack;
+    }
+
     public static String getDefaultName() {
         String[] nm1 = {"amber", "angel", "spirit", "basin", "lagoon", "basin", "arrow", "autumn", "bare", "bay", "beach", "bear", "bell", "black", "bleak", "blind", "bone", "boulder", "bridge", "brine", "brittle", "bronze", "castle", "cave", "chill", "clay", "clear", "cliff", "cloud", "cold", "crag", "crow", "crystal", "curse", "dark", "dawn", "dead", "deep", "deer", "demon", "dew", "dim", "dire", "dirt", "dog", "dragon", "dry", "dusk", "dust", "eagle", "earth", "east", "ebon", "edge", "elder", "ember", "ever", "fair", "fall", "false", "far", "fay", "fear", "flame", "flat", "frey", "frost", "ghost", "glimmer", "gloom", "gold", "grass", "gray", "green", "grim", "grime", "hazel", "heart", "high", "hollow", "honey", "hound", "ice", "iron", "kil", "knight", "lake", "last", "light", "lime", "little", "lost", "mad", "mage", "maple", "mid", "might", "mill", "mist", "moon", "moss", "mud", "mute", "myth", "never", "new", "night", "north", "oaken", "ocean", "old", "ox", "pearl", "pine", "pond", "pure", "quick", "rage", "raven", "red", "rime", "river", "rock", "rogue", "rose", "rust", "salt", "sand", "scorch", "shade", "shadow", "shimmer", "shroud", "silent", "silk", "silver", "sleek", "sleet", "sly", "small", "smooth", "snake", "snow", "south", "spring", "stag", "star", "steam", "steel", "steep", "still", "stone", "storm", "summer", "sun", "swamp", "swan", "swift", "thorn", "timber", "trade", "west", "whale", "whit", "white", "wild", "wilde", "wind", "winter", "wolf"};
         String[] nm2 = {"acre", "band", "barrow", "bay", "bell", "born", "borough", "bourne", "breach", "break", "brook", "burgh", "burn", "bury", "cairn", "call", "chill", "cliff", "coast", "crest", "cross", "dale", "denn", "drift", "fair", "fall", "falls", "fell", "field", "ford", "forest", "fort", "front", "frost", "garde", "gate", "glen", "grasp", "grave", "grove", "guard", "gulch", "gulf", "hall", "hallow", "ham", "hand", "harbor", "haven", "helm", "hill", "hold", "holde", "hollow", "horn", "host", "keep", "land", "light", "maw", "meadow", "mere", "mire", "mond", "moor", "more", "mount", "mouth", "pass", "peak", "point", "pond", "port", "post", "reach", "rest", "rock", "run", "scar", "shade", "shear", "shell", "shield", "shore", "shire", "side", "spell", "spire", "stall", "wich", "minster", "star", "storm", "strand", "summit", "tide", "town", "vale", "valley", "vault", "vein", "view", "ville", "wall", "wallow", "ward", "watch", "water", "well", "wharf", "wick", "wind", "wood", "yard"};
@@ -1108,6 +1290,34 @@ public class OrderGui implements GuiProvider {
         }
         return nm1[rnd] + nm2[rnd2] + RAND.nextInt(999);
     }
+
+    private List<LevelSummary> loadLevels(Minecraft minecraft) {
+        LevelStorageSource.LevelCandidates candidates;
+        try {
+            candidates = minecraft.getLevelSource().findLevelCandidates();
+        } catch (LevelStorageException e) {
+            LOGGER.error("Couldn't load level list", e);
+            return Collections.emptyList();
+        }
+
+        if (candidates.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            try {
+                return minecraft.getLevelSource()
+                        .loadLevelSummaries(candidates)
+                        .exceptionally((e) -> {
+                            LOGGER.error("Couldn't load level list", e);
+                            return List.of();
+                        })
+                        .get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error("Couldn't load level list", e);
+                return Collections.emptyList();
+            }
+        }
+    }
+
 
     record Country(String key, String name) {
         @Override

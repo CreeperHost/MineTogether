@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.OrderSummary;
 import net.creeperhost.minetogether.util.Countries;
 import net.creeperhost.minetogether.util.ModPackInfo;
+import net.minecraft.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -309,13 +310,15 @@ public class ServerOrderCallbacks {
         }
     }
 
-    public static String createOrder(final Order order, String regionId, String pregen) {
+    public static String createOrder(final Order order, String regionId, String pregen, String fallbackLocation) {
         String response = null;
         try {
-            response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + regionId, new HashMap<String, String>() {{
+            response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + regionId, new HashMap<>() {{
                 put("name", order.name);
                 put("swid", ModPackInfo.getInfo().curseID);
-                if (order.pregen) { put("pregen", pregen); }
+                if (order.pregen) put("pregen", pregen);
+                if (!StringUtil.isNullOrEmpty(order.worldUrl)) put("worldUrl", order.worldUrl);
+                if (!StringUtil.isNullOrEmpty(fallbackLocation)) put("fallback", fallbackLocation);
             }});
 
             if (response.equals("error")) {

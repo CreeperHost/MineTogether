@@ -123,6 +123,20 @@
     "minetogether:gui.order.location": "Choose Location",
     "minetogether:gui.order.details": "Enter Details",
 
+    "minetogether:gui.order.world": "Upload existing world",
+    "minetogether:gui.order.world.info": "You have the option of uploading an existing world from your client. You can ignore this section if you wish to start with a new world.",
+    "minetogether:gui.order.world.select": "Select World",
+    "minetogether:gui.order.world.no_worlds": "Did not find any single player worlds.",
+    "minetogether:gui.order.confirm_upload": "Are you sure you wish to upload %s",
+    "minetogether:gui.order.confirm_upload.info": "Please note, depending on world size and internet speed, this may take a while.",
+    "minetogether:gui.order.world.upload": "Upload",
+    "minetogether:gui.order.world.remove": "Remove",
+    "minetogether:gui.order.world.retry": "Retry Upload",
+
+    "minetogether:gui.order.upload_stage.start": "Initializing...",
+    "minetogether:gui.order.upload_stage.compress": "Compressing...",
+    "minetogether:gui.order.upload_stage.upload": "Uploading: %s%%",
+
     "minetogether:gui.order.server_name": "Server Name:",
     "minetogether:gui.order.player_count": "Player Count:",
     "minetogether:gui.order.player_count.info": "How many players do you estimate will be using this server? We do not limit players slots, this is just to help us tailor a service to your needs.",
@@ -156,6 +170,7 @@
     "minetogether:gui.order.email_invalid": "Invalid email address",
     "minetogether:gui.order.email_not_checked": "Email not yet checked",
     "minetogether:gui.order.name_not_checked": "Name not yet checked",
+    "minetogether:gui.order.waiting_for_world_upload": "World Upload Incomplete",
 
     "minetogether:gui.order.region.eu-west": "Western Europe",
     "minetogether:gui.order.region.na-east": "North America - East",
@@ -171,6 +186,10 @@
     "minetogether:gui.order.region.pinging": "Attempting to determine latency to this region...",
     "minetogether:gui.order.region.pinging_fail": "Failed to determine distance or latency to this region.",
     "minetogether:gui.order.region.from_distance": "Latency estimation based on distance",
+
+    "minetogether:gui.order.region.fallback_enabled": "Use fallback location: Enabled",
+    "minetogether:gui.order.region.fallback_disabled": "Use fallback location: Disabled",
+    "minetogether:gui.order.region.fallback_info": "Should we use the nearest available location if your selected location is unavailable?",
 
     "minetogether:gui.order.summary.location":"Server Location:",
     "minetogether:gui.order.summary.plan":"Server Plan:",
