@@ -136,9 +136,10 @@ public class NettyClient {
 
             @Override
             protected void buildPipeline(ChannelPipeline pipeline) {
+                Connection.setInitialProtocolAttributes(pipeline.channel());
                 pipeline.addLast("mt:raw", new RawCodec());
                 Connection.configureSerialization(pipeline, PacketFlow.CLIENTBOUND, connection.bandwidthDebugMonitor);
-                pipeline.addLast("packet_handler", connection);
+                connection.configurePacketHandler(pipeline);
             }
 
             @Override
@@ -195,21 +196,22 @@ public class NettyClient {
         assert listener != null;
 
         Connection connection = new Connection(PacketFlow.SERVERBOUND);
-        connection.setListener(new ServerHandshakePacketListenerImpl(server, connection));
 
         Throwable[] error = new Throwable[1];
         ProxyConnection proxyConnection = new ProxyConnection(endpoint) {
 
             @Override
             protected void buildPipeline(ChannelPipeline pipeline) {
+                Connection.setInitialProtocolAttributes(pipeline.channel());
                 pipeline.addLast("mt:raw", new RawCodec());
                 pipeline.addLast("legacy_query", new LegacyQueryHandler(server));
                 Connection.configureSerialization(pipeline, PacketFlow.SERVERBOUND, null);
-                pipeline.addLast("packet_handler", connection);
+                connection.configurePacketHandler(pipeline);
             }
 
             @Override
             public void channelReady() {
+                connection.setListener(new ServerHandshakePacketListenerImpl(server, connection));
                 sendPacket(new SHostConnect(session.toString(), linkToken));
             }
 
