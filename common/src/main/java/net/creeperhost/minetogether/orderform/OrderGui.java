@@ -100,6 +100,7 @@ public class OrderGui implements GuiProvider {
     private boolean processingShowCloseButton = false;
 
     private WorldUploader worldUploader = null;
+    private String worldName = "";
 
     public OrderGui() {
     }
@@ -215,10 +216,8 @@ public class OrderGui implements GuiProvider {
 
         lastElement = configSection(background, left, right);
         lastElement = locationSection(background, lastElement, left, right);
-        lastElement = detailsSection(background, lastElement, left, right);
         lastElement = worldSection(background, lastElement, left, right);
-
-        Constraints.placeOutside(new GuiRectangle(background).setSize(10, 3), lastElement, Constraints.LayoutPos.BOTTOM_CENTER);
+        lastElement = detailsSection(background, lastElement, left, right);
     }
 
     private GuiElement<?> configSection(GuiElement<?> background, Constraint left, Constraint right) {
@@ -495,7 +494,7 @@ public class OrderGui implements GuiProvider {
                                             Component.literal(selected.getLevelName()).withStyle(GOLD)).withStyle(BLUE),
                                     Component.translatable("minetogether:gui.order.confirm_upload.info").withStyle(GRAY),
                                     250,
-                                    GuiDialog.primary(Component.translatable("minetogether:gui.order.world.upload"), () -> startWorldUpload(worldFolder)),
+                                    GuiDialog.primary(Component.translatable("minetogether:gui.order.world.upload"), () -> startWorldUpload(worldFolder, selected)),
                                     GuiDialog.caution(Component.translatable("gui.cancel"), () -> {})
                             );
                         })
@@ -528,7 +527,7 @@ public class OrderGui implements GuiProvider {
 
     private Component worldBtnLeft() {
         if (!StringUtil.isNullOrEmpty(order.worldUrl)) {
-            return Component.literal(order.worldUrl);
+            return Component.translatable("minetogether:gui.order.world.upload_complete", worldName).withStyle(GREEN);
         } else if (worldUploader != null) {
             if (worldUploader.errored()) {
                 return Component.translatable("minetogether:gui.order.world.retry");
@@ -1142,8 +1141,9 @@ public class OrderGui implements GuiProvider {
         validateInputs();
     }
 
-    private void startWorldUpload(Path worldFolder) {
+    private void startWorldUpload(Path worldFolder, LevelSummary summary) {
         if (worldUploader != null) return;
+        worldName = summary.getLevelName();
         worldUploader = new WorldUploader(worldFolder);
         worldUploader.start();
     }

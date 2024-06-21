@@ -132,6 +132,7 @@
     "minetogether:gui.order.world.upload": "Upload",
     "minetogether:gui.order.world.remove": "Remove",
     "minetogether:gui.order.world.retry": "Retry Upload",
+    "minetogether:gui.order.world.upload_complete": "Upload Complete: %s",
 
     "minetogether:gui.order.upload_stage.start": "Initializing...",
     "minetogether:gui.order.upload_stage.compress": "Compressing...",

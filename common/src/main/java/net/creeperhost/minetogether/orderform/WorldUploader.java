@@ -142,7 +142,7 @@ public class WorldUploader {
     }
 
     private boolean upload() throws IOException {
-        HttpPut httpput = new HttpPut("https://transfer.ch.tools/" + URLEncoder.encode(worldFolder.getFileName().toString(), StandardCharsets.UTF_8) + ".zip");
+        HttpPut httpput = new HttpPut("https://transfer.ch.tools/world.zip");
         httpput.setEntity(new InputStreamEntity(new InputStreamWrapper(Files.newInputStream(tempZipFile), Files.size(tempZipFile))));
 
         try (CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGENT).build()) {
