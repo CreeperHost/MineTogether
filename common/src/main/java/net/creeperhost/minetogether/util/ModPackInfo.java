@@ -64,12 +64,15 @@ public class ModPackInfo {
 
     public static class VersionInfo {
         public String curseID = StringUtils.stripToEmpty(Config.instance().curseProjectID);
+        public String websiteID = "";
         public String base64FTBID = "";
         public String ftbPackID = "";
         public String realName = "{\"p\": \"-1\"}";
 
         public VersionInfo init() {
-            readVersionJson();
+            if (!readVersionJson()) {
+                fetchWebsiteIDCurse();
+            }
 
             Map<String, String> json = new HashMap<>();
             if (ftbPackID.isEmpty()) {
@@ -83,24 +86,36 @@ public class ModPackInfo {
             return this;
         }
 
-        private void readVersionJson() {
+        private boolean readVersionJson() {
             Path versionJson = Platform.getGameFolder().resolve("version.json");
             if (Files.exists(versionJson)) {
                 try {
                     ModpackVersionManifest manifest = JsonUtils.parse(GSON, versionJson, ModpackVersionManifest.class);
-                    base64FTBID = Base64.getEncoder().encodeToString((String.valueOf(manifest.parent) + manifest.id).getBytes(StandardCharsets.UTF_8));
-                    String resolvedID = MineTogether.API.execute(new GetCurseForgeVersionRequest(base64FTBID)).apiResponse().id;
-                    if (resolvedID.isEmpty()) {
-                        resolvedID = "-1";
-                    }
-                    curseID = resolvedID;
-                    Config.instance().curseProjectID = resolvedID;
-                    Config.save();
-
                     ftbPackID = "m" + manifest.parent;
+                    base64FTBID = Base64.getEncoder().encodeToString((String.valueOf(manifest.parent) + manifest.id).getBytes(StandardCharsets.UTF_8));
+                    String resolvedID = MineTogether.API.execute(new GetModpacksCHVersionRequest(base64FTBID)).apiResponse().id;
+                    if (resolvedID.isEmpty()) {
+                        return false;
+                    }
+                    websiteID = resolvedID;
+                    return true;
                 } catch (IOException ex) {
                     LOGGER.error("Failed to load version manifest.", ex);
                 }
+            }
+            return false;
+        }
+
+        private void fetchWebsiteIDCurse() {
+            try {
+                if (!NumberUtils.isParsable(curseID)) return;
+                String resolvedID = MineTogether.API.execute(new GetCurseForgeVersionRequest(curseID)).apiResponse().id;
+                if (resolvedID.isEmpty()) {
+                    return;
+                }
+                websiteID = resolvedID;
+            } catch (IOException ex) {
+                LOGGER.error("Failed to load version manifest.", ex);
             }
         }
     }
