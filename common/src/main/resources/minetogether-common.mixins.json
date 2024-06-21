@@ -9,7 +9,8 @@
         "chat.ingame.GuiMixin",
         "connect.JoinMultiplayerScreenMixin",
         "connect.ServerSelectionListMixin",
-        "order.MixinServerSelectionList"
+        "order.MixinServerSelectionList",
+        "order.TitleScreenMixin"
     ],
     "server": [
         "server.MixinDedicatedServerProperties"
