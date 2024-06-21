@@ -315,7 +315,7 @@ public class ServerOrderCallbacks {
         try {
             response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + regionId, new HashMap<>() {{
                 put("name", order.name);
-                put("swid", ModPackInfo.getInfo().curseID);
+                put("swid", ModPackInfo.getInfo().websiteID);
                 if (order.pregen) put("pregen", pregen);
                 if (!StringUtil.isNullOrEmpty(order.worldUrl)) put("worldUrl", order.worldUrl);
                 if (!StringUtil.isNullOrEmpty(fallbackLocation)) put("fallback", fallbackLocation);
