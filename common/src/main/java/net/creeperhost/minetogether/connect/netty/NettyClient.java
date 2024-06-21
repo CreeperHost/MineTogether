@@ -435,5 +435,10 @@ public class NettyClient {
         @Override
         public void handlePong(ChannelHandlerContext channelHandlerContext, CPong cPong) {
         }
+
+        @Override
+        public void handleMessage(ChannelHandlerContext ctx, CMessage packet) {
+            Minecraft.getInstance().gui.getChat().addMessage(Component.literal("[MTConnect Broadcast] " + packet.message));
+        }
     }
 }
