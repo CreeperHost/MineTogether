@@ -8,10 +8,10 @@ import static net.creeperhost.minetogether.lib.web.WebConstants.CH;
 /**
  * Created by covers1624 on 25/10/22.
  */
-public class GetCurseForgeVersionRequest extends ApiRequest<GetCurseForgeVersionRequest.Response> {
+public class GetModpacksCHVersionRequest extends ApiRequest<GetModpacksCHVersionRequest.Response> {
 
-    public GetCurseForgeVersionRequest(String project) {
-        super("GET", CH + "json/modpacks/curseforge/" + project, GetCurseForgeVersionRequest.Response.class);
+    public GetModpacksCHVersionRequest(String base64) {
+        super("GET", CH + "json/modpacks/modpacksch/" + base64, GetModpacksCHVersionRequest.Response.class);
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
     }
