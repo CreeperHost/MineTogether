@@ -55,11 +55,12 @@ public class OrderGui implements GuiProvider {
     private static final Random RAND = new Random();
 
     private final Order order = new Order();
-    private final Map<String, Integer> regionPing = new ConcurrentHashMap<>();
-    private final Map<String, Integer> dataCenterDistance = new ConcurrentHashMap<>();
-    private final Map<String, String> dataCenterUrls = new HashMap<>();
-    private final Map<String, Boolean> dataCenterAvailability = new HashMap<>();
-    private final Map<String, String> regionMap = new HashMap<>();
+    private final Map<String, Integer> dcPing = new ConcurrentHashMap<>();
+    private final Map<String, Integer> dcDistance = new ConcurrentHashMap<>();
+    private final Map<String, String> dcUrls = new HashMap<>();
+    private final Map<String, Boolean> dcAvailability = new HashMap<>();
+    private final Map<String, String> dcIdMap = new HashMap<>();
+    private final Map<String, String> dcNameMap = new HashMap<>();
 
     private GuiTextField nameField;
     private GuiElement<?> locations;
@@ -112,18 +113,19 @@ public class OrderGui implements GuiProvider {
 
     private void initDefaults() {
         initTask = CompletableFuture.runAsync(() -> {
-            regionMap.putAll(ServerOrderCallbacks.getRegionMap());
-            for (String region : regionMap.keySet()) {
-                regionPing.put(region, -1);
+            dcIdMap.putAll(ServerOrderCallbacks.getDCMap());
+            dcNameMap.putAll(ServerOrderCallbacks.getDCNameMap());
+            for (String dc : dcIdMap.keySet()) {
+                dcPing.put(dc, -1);
             }
             try {
-                dataCenterDistance.putAll(ServerOrderCallbacks.getDataCentres());
-                dataCenterUrls.putAll(ServerOrderCallbacks.getDataCentreURLs());
+                dcDistance.putAll(ServerOrderCallbacks.getDataCentres());
+                dcUrls.putAll(ServerOrderCallbacks.getDataCentreURLs());
             } catch (IOException | URISyntaxException ex) {
                 LOGGER.error("Failed to poll Data Centers.", ex);
             }
 
-            order.serverLocation = datacentreToRegion(ServerOrderCallbacks.getRecommendedLocation());
+            order.serverLocation = ServerOrderCallbacks.getRecommendedDCName();
             order.country = Countries.getOurCountry();
             summaryUpdateRequired = true;
         });
@@ -282,7 +284,7 @@ public class OrderGui implements GuiProvider {
                     .setToggleMode(() -> order.playerAmount == count)
                     .onPress(() -> {
                         order.playerAmount = count;
-                        dataCenterAvailability.clear();
+                        dcAvailability.clear();
                         updateLocations();
                         summaryDirty();
                     })
@@ -345,16 +347,16 @@ public class OrderGui implements GuiProvider {
 
     private void updateLocations() {
         locations.getChildren().forEach(locations::removeChild);
-        if (regionPing.isEmpty()) {
+        if (dcPing.isEmpty()) {
             locations.constrain(HEIGHT, literal(8));
             GuiText error = new GuiText(locations, Component.translatable("minetogether:gui.order.loading_locations_fail").withStyle(ChatFormatting.RED))
                     .setAlignment(Align.LEFT);
             Constraints.bind(error, locations);
         } else {
-            List<String> regionOrder = new ArrayList<>(regionPing.keySet());
-            regionOrder.sort(Comparator.comparingDouble(region -> regionPing.get(region) < 0 ? 5000 : regionPing.get(region) + (getAvailability(region) ? 0 : 5000)));
+            List<String> dcOrder = new ArrayList<>(dcPing.keySet());
             GuiElement<?> element = null;
-            for (String region : regionOrder) {
+            dcOrder.sort(Comparator.comparingDouble(dc -> dcPing.get(dc) < 0 ? 5000 : dcPing.get(dc) + (getDCAvailability(dc) ? 0 : 5000)));
+            for (String region : dcOrder) {
                 element = locationButton(locations, region)
                         .constrain(TOP, element == null ? match(locations.get(TOP)) : relative(element.get(BOTTOM), 1))
                         .constrain(LEFT, match(locations.get(LEFT)))
@@ -616,13 +618,14 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, right)
                 .constrain(HEIGHT, literal(8));
 
-        lastElement = new GuiText(scrollPane, () -> Component.translatable("minetogether:gui.order.region." + order.serverLocation))
+        lastElement = new GuiText(scrollPane, () -> Component.literal(getDCName(order.serverLocation)))
                 .setEnabled(() -> summary.summaryError.isEmpty())
                 .setTextColour(GREEN.getColor())
+                .setWrap(true)
                 .constrain(TOP, relative(lastElement.get(BOTTOM), 2))
                 .constrain(LEFT, left)
                 .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(8));
+                .autoHeight();
 
         //Plan
         lastElement = new GuiText(scrollPane, Component.translatable("minetogether:gui.order.summary.plan"))
@@ -793,25 +796,18 @@ public class OrderGui implements GuiProvider {
 
     //=== GUI Component Builders ===//
 
-    private GuiElement<?> locationButton(GuiElement<?> parent, String region) {
-        boolean available = getAvailability(region);
+    private GuiElement<?> locationButton(GuiElement<?> parent, String dc) {
+        boolean available = getDCAvailability(dc);
         GuiButton button = MTStyle.Flat.button(parent, (Supplier<Component>) null)
-                .setToggleMode(() -> region.equals(order.serverLocation))
+                .setToggleMode(() -> dc.equals(order.serverLocation))
                 .onPress(() -> {
-                    order.serverLocation = region;
+                    order.serverLocation = dc;
                     summaryDirty();
                 })
                 .constrain(HEIGHT, literal(available ? 12 : 32));
 
-        GuiText label = new GuiText(button, Component.translatable("minetogether:gui.order.region." + region))
-                .setAlignment(Align.LEFT)
-                .constrain(TOP, relative(button.get(TOP), 2))
-                .constrain(LEFT, relative(button.get(LEFT), 4))
-                .constrain(RIGHT, relative(button.get(RIGHT), -14))
-                .constrain(HEIGHT, literal(8));
-
-        double ping = regionPing.getOrDefault(region, -2);
-        int distance = dataCenterDistance.getOrDefault(regionToDataCentre(region), -1);
+        double ping = dcPing.getOrDefault(dc, -2);
+        int distance = dcDistance.getOrDefault(dc, -1);
         Component pingText = Component.literal(((int) Math.ceil(ping)) + " ms");
         GuiText pingLabel = new GuiText(button, pingText)
                 .setEnabled(() -> ping > 0)
@@ -822,14 +818,12 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, relative(button.get(RIGHT), -14))
                 .constrain(HEIGHT, literal(8));
 
-//        GuiText fallback = new GuiText(button, Component.literal("[fallback]").withStyle(GRAY))
-//                .setEnabled(() -> region.equals(computeFallbackLocation()))
-//                .setAlignment(Align.RIGHT)
-//                .setShadow(false)
-//                .constrain(TOP, relative(button.get(TOP), 2))
-//                .constrain(LEFT, relative(button.get(LEFT), 4))
-//                .constrain(RIGHT, relative(pingLabel.get(LEFT), -3))
-//                .constrain(HEIGHT, literal(8));
+        GuiText label = new GuiText(button, Component.literal(getDCName(dc)))
+                .setAlignment(Align.LEFT)
+                .constrain(TOP, relative(button.get(TOP), 2))
+                .constrain(LEFT, relative(button.get(LEFT), 4))
+                .constrain(RIGHT, relative(pingLabel.get(LEFT), -3))
+                .constrain(HEIGHT, literal(8));
 
         GuiTexture signal = new GuiTexture(button, MTTextures.getter(() -> getSignalIcon(ping, distance)))
                 .setTooltipSingle(() -> getSignalTooltip(ping, distance))
@@ -1015,7 +1009,7 @@ public class OrderGui implements GuiProvider {
 
             //Place Order
             setProcessing(null, null, Component.translatable("minetogether:gui.order.order_placing"));
-            String result = ServerOrderCallbacks.createOrder(order, getRegionId(order.serverLocation), String.valueOf(Config.instance().pregenDiameter), computeFallbackLocation());
+            String result = ServerOrderCallbacks.createOrder(order, getDCId(order.serverLocation), String.valueOf(Config.instance().pregenDiameter), computeFallbackLocation());
             String[] resultSplit = result.split(":");
             if (resultSplit[0].equals("success")) {
                 invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
@@ -1074,23 +1068,22 @@ public class OrderGui implements GuiProvider {
         if (initTask == null && pingTask == null && pingTimer-- <= 0) {
             pingTask = CompletableFuture.runAsync(() -> {
                 List<CompletableFuture<?>> pingers = new ArrayList<>();
-                for (String key : regionPing.keySet()) {
+                for (String dc : dcPing.keySet()) {
                     pingers.add(CompletableFuture.runAsync(() -> {
-                        String url = dataCenterUrls.get(regionToDataCentre(key));
-                        int distance = dataCenterDistance.get(regionToDataCentre(key));
+                        String url = dcUrls.get(dc);
+                        int distance = dcDistance.get(dc);
                         if (url == null || distance == -1) {
-                            regionPing.put(key, -2);
+                            dcPing.put(dc, -2);
                         } else {
                             try {
-                                regionPing.put(key, ServerOrderCallbacks.getDataCentreLatency(url, distance));
+                                dcPing.put(dc, ServerOrderCallbacks.getDataCentreLatency(url, distance));
                             } catch (IOException ignored) {
-                                regionPing.put(key, -2);
+                                dcPing.put(dc, -2);
                             }
                         }
                         pingUpdated = true;
                     }));
                 }
-
                 boolean allDone;
                 do {
                     allDone = pingers.stream().allMatch(CompletableFuture::isDone);
@@ -1118,9 +1111,9 @@ public class OrderGui implements GuiProvider {
             });
         }
 
-        if (dataCenterAvailability.isEmpty() && availabilityTask == null && !summaryUpdateRequired && !summaryUpdating) {
+        if (dcAvailability.isEmpty() && availabilityTask == null && !summaryUpdateRequired && !summaryUpdating) {
             availabilityTask = CompletableFuture.runAsync(() -> {
-                dataCenterAvailability.putAll(ServerOrderCallbacks.getDataCentreAvailability(summary.ram + 4096));
+                dcAvailability.putAll(ServerOrderCallbacks.getDataCentreAvailability(summary.ram + 4096));
             });
         } else if (availabilityTask != null && availabilityTask.isDone()) {
             availabilityTask = null;
@@ -1203,50 +1196,18 @@ public class OrderGui implements GuiProvider {
         return new Country(order.country, Countries.COUNTRIES.get(order.country));
     }
 
-    //This is only used to get an Approximate distance
-    private String regionToDataCentre(String region) {
-        return switch (region) {
-            case "eu-west" -> "grantham";
-            case "na-east" -> "newyork";
-            case "na-west" -> "losangeles";
-            case "na-south" -> "dallas";
-            case "sub-saharan-africa" -> "johannesburg";
-            case "south-america" -> "saopaulo";
-            case "asia" -> "hongkong";
-            case "australia" -> "sydney";
-            case "eu-middle-east" -> "bucharest";
-            default -> "";
-        };
+    private String getDCId(String dc) {
+        return dcIdMap.getOrDefault(dc, dc);
     }
 
-    private String datacentreToRegion(String centre) {
-        return switch (centre) {
-            case "grantham" -> "eu-west";
-            case "buffalo" -> "na-east";
-            case "chicago" -> "na-east";
-            case "miami" -> "na-south";
-            case "dallas" -> "na-south";
-            case "newyork" -> "na-south";
-            case "seattle" -> "na-west";
-            case "losangeles" -> "na-west";
-            case "johannesburg" -> "sub-saharan-africa";
-            case "tokyo" -> "asia";
-            case "saopaulo" -> "south-america";
-            case "hongkong" -> "asia";
-            case "sydney" -> "australia";
-            case "bucharest" -> "eu-middle-east";
-            default -> "";
-        };
+    private String getDCName(String dc) {
+        return dcNameMap.getOrDefault(dc, dc);
     }
 
-    private String getRegionId(String region) {
-        return regionMap.getOrDefault(region, region);
-    }
-
-    private boolean getAvailability(String region) {
-        if (availabilityTask != null || dataCenterAvailability.isEmpty()) return true;
-        for (String center : dataCenterAvailability.keySet()) {
-            if (datacentreToRegion(center).equals(region) && dataCenterAvailability.get(center)) {
+    private boolean getDCAvailability(String dcName) {
+        if (availabilityTask != null || dcAvailability.isEmpty()) return true;
+        for (String dc : dcAvailability.keySet()) {
+            if (dc.equals(dcName) && dcAvailability.get(dc)) {
                 return true;
             }
         }
@@ -1257,21 +1218,20 @@ public class OrderGui implements GuiProvider {
         if (!order.useFallback) return "";
         String fallBack = "";
         int lowest = Integer.MAX_VALUE;
-        for (String region : regionPing.keySet()) {
-            int ping = regionPing.get(region);
-            if (ping > 0 && !region.equals(order.serverLocation) && ping < lowest) {
+        for (String dc : dcPing.keySet()) {
+            int ping = dcPing.get(dc);
+            if (ping > 0 && !dc.equals(order.serverLocation) && ping < lowest) {
                 lowest = ping;
-                fallBack = region;
+                fallBack = dc;
             }
         }
 
         if (fallBack.isEmpty()) {
-            for (String dataCenter : dataCenterDistance.keySet()) {
-                int distance = dataCenterDistance.get(dataCenter);
-                String region = datacentreToRegion(dataCenter);
-                if (!region.isEmpty() && distance > 0 && !region.equals(order.serverLocation) && distance < lowest) {
+            for (String dc : dcDistance.keySet()) {
+                int distance = dcDistance.get(dc);
+                if (distance > 0 && !dc.equals(order.serverLocation) && distance < lowest) {
                     lowest = distance;
-                    fallBack = region;
+                    fallBack = dc;
                 }
             }
         }

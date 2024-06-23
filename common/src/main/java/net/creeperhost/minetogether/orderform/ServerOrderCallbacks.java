@@ -1,7 +1,7 @@
 package net.creeperhost.minetogether.orderform;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import net.creeperhost.minetogether.orderform.data.AvailableResult;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.OrderSummary;
@@ -48,7 +48,7 @@ public class ServerOrderCallbacks {
         }
 
         if (order.serverLocation.isEmpty()) {
-            order.serverLocation = getRecommendedLocation();
+            order.serverLocation = getRecommendedDCName();
         }
 
         try {
@@ -136,7 +136,7 @@ public class ServerOrderCallbacks {
         }
     }
 
-    public static String getRecommendedLocation() {
+    public static String getRecommendedDCName() {
         try {
             String freeGeoIP = WebUtils.getWebResponse("https://www.creeperhost.net/json/datacentre/closest");
 
@@ -150,19 +150,39 @@ public class ServerOrderCallbacks {
         return ""; // default
     }
 
-    public static Map<String, String> getRegionMap() {
+    public static Map<String, String> getDCMap() {
         Map<String, String> rawMap = new HashMap<String, String>();
         Map<String, String> returnMap = new HashMap<String, String>();
 
         try {
             String jsonData = WebUtils.getWebResponse("https://www.creeperhost.net/json/locations");
-
             Type type = new TypeToken<Map<String, String>>() { }.getType();
             Gson g = new Gson();
             JsonElement el = new JsonParser().parse(jsonData);
-            rawMap = g.fromJson(el.getAsJsonObject().get("regionMap"), type);
+            rawMap = g.fromJson(el.getAsJsonObject().get("locMap"), type);
         } catch (Exception e) {
             LOGGER.error("Unable to fetch server locations", e);
+        }
+        for (Map.Entry<String, String> entry : rawMap.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            returnMap.put(key, value);
+        }
+        return returnMap;
+    }
+
+    public static Map<String, String> getDCNameMap() {
+        Map<String, String> rawMap = new HashMap<String, String>();
+        Map<String, String> returnMap = new HashMap<String, String>();
+
+        try {
+            String jsonData = WebUtils.getWebResponse("https://www.creeperhost.net/json/locations");
+            Type type = new TypeToken<Map<String, String>>() { }.getType();
+            Gson g = new Gson();
+            JsonElement el = new JsonParser().parse(jsonData);
+            rawMap = g.fromJson(el.getAsJsonObject().get("nameMap"), type);
+        } catch (Exception e) {
+            LOGGER.error("Unable to fetch server names", e);
         }
         for (Map.Entry<String, String> entry : rawMap.entrySet()) {
             String key = entry.getKey();
@@ -310,15 +330,15 @@ public class ServerOrderCallbacks {
         }
     }
 
-    public static String createOrder(final Order order, String regionId, String pregen, String fallbackLocation) {
+    public static String createOrder(final Order order, String dcId, String pregen, String fallbackName) {
         String response = null;
         try {
-            response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + regionId, new HashMap<>() {{
+            response = WebUtils.postWebResponse("https://www.creeperhost.net/json/order/" + order.clientID + "/" + order.productID + "/" + dcId, new HashMap<>() {{
                 put("name", order.name);
                 put("swid", ModPackInfo.getInfo().websiteID);
                 if (order.pregen) put("pregen", pregen);
                 if (!StringUtil.isNullOrEmpty(order.worldUrl)) put("worldUrl", order.worldUrl);
-                if (!StringUtil.isNullOrEmpty(fallbackLocation)) put("fallback", fallbackLocation);
+                if (!StringUtil.isNullOrEmpty(fallbackName)) put("fallback", fallbackName);
             }});
 
             if (response.equals("error")) {
