@@ -1,13 +1,15 @@
 package net.creeperhost.minetogether.orderform;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.creeperhost.minetogether.chat.gui.MTStyle;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.gui.MTTextures;
 import net.creeperhost.minetogether.gui.dialogs.ItemSelectDialog;
 import net.creeperhost.minetogether.gui.dialogs.OptionDialog;
-import net.creeperhost.minetogether.orderform.data.AvailableResult;
+import net.creeperhost.minetogether.lib.web.ApiResponse;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.OrderSummary;
+import net.creeperhost.minetogether.orderform.requests.GetDataCentresRequest.DC;
 import net.creeperhost.minetogether.util.Countries;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
 import net.creeperhost.polylib.client.modulargui.elements.*;
@@ -17,10 +19,12 @@ import net.creeperhost.polylib.client.modulargui.lib.TextState;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Axis;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
+import net.creeperhost.polylib.client.modulargui.sprite.Material;
 import net.creeperhost.polylib.helpers.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.storage.LevelStorageException;
@@ -31,14 +35,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -50,17 +50,29 @@ import static net.minecraft.ChatFormatting.*;
  * Created by brandon3055 on 04/10/2023
  */
 public class OrderGui implements GuiProvider {
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2,
+            new ThreadFactoryBuilder()
+                    .setNameFormat("MT Order Requests Thread %d")
+                    .setDaemon(true)
+                    .build()
+    );
+
+    private static final ExecutorService PING_EXECUTOR = Executors.newFixedThreadPool(12,
+            new ThreadFactoryBuilder()
+                    .setNameFormat("MT Ping Thread %d")
+                    .setDaemon(true)
+                    .build()
+    );
+
     private static final Pattern EMAIL_PATTERN = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Random RAND = new Random();
 
     private final Order order = new Order();
+    private final Map<String, String> dcIdMap = new ConcurrentHashMap<>();
+    private final Map<String, DC> dcMap = new ConcurrentHashMap<>();
     private final Map<String, Integer> dcPing = new ConcurrentHashMap<>();
-    private final Map<String, Integer> dcDistance = new ConcurrentHashMap<>();
-    private final Map<String, String> dcUrls = new HashMap<>();
-    private final Map<String, Boolean> dcAvailability = new HashMap<>();
-    private final Map<String, String> dcIdMap = new HashMap<>();
-    private final Map<String, String> dcNameMap = new HashMap<>();
+    private final Map<String, Long> dcDistance = new ConcurrentHashMap<>();
 
     private GuiTextField nameField;
     private GuiElement<?> locations;
@@ -69,7 +81,8 @@ public class OrderGui implements GuiProvider {
     private CompletableFuture<?> initTask;
     private CompletableFuture<?> pingTask;
     private CompletableFuture<?> orderTask;
-    private CompletableFuture<?> availabilityTask;
+    private CompletableFuture<?> summaryTask;
+    //    private CompletableFuture<?> availabilityTask;
     private volatile boolean nameValid = false;
     private volatile Component nameMessage = null;
     private int nameCheckTimer = 60;
@@ -113,22 +126,19 @@ public class OrderGui implements GuiProvider {
 
     private void initDefaults() {
         initTask = CompletableFuture.runAsync(() -> {
-            dcIdMap.putAll(ServerOrderCallbacks.getDCMap());
-            dcNameMap.putAll(ServerOrderCallbacks.getDCNameMap());
-            for (String dc : dcIdMap.keySet()) {
-                dcPing.put(dc, -1);
-            }
-            try {
-                dcDistance.putAll(ServerOrderCallbacks.getDataCentres());
-                dcUrls.putAll(ServerOrderCallbacks.getDataCentreURLs());
-            } catch (IOException | URISyntaxException ex) {
-                LOGGER.error("Failed to poll Data Centers.", ex);
+            OrderRequests.getLocations().forEach((dc, id) -> dcIdMap.put(dc, String.valueOf(id)));
+            OrderRequests.getDataCenters(512).forEach(dc -> dcMap.put(dc.slug, dc));
+            dcIdMap.forEach((dc, i) -> dcPing.put(dc, -1));
+
+            var byDistance = OrderRequests.getDCsByDistance();
+            if (byDistance != null) {
+                order.serverLocation = byDistance.getDataCenter().getName();
+                byDistance.getDataCenters().forEach(dc -> dcDistance.put(dc.getName(), dc.getDistance()));
             }
 
-            order.serverLocation = ServerOrderCallbacks.getRecommendedDCName();
             order.country = Countries.getOurCountry();
             summaryUpdateRequired = true;
-        });
+        }, EXECUTOR);
         order.name = getDefaultName();
     }
 
@@ -284,7 +294,6 @@ public class OrderGui implements GuiProvider {
                     .setToggleMode(() -> order.playerAmount == count)
                     .onPress(() -> {
                         order.playerAmount = count;
-                        dcAvailability.clear();
                         updateLocations();
                         summaryDirty();
                     })
@@ -347,17 +356,17 @@ public class OrderGui implements GuiProvider {
 
     private void updateLocations() {
         locations.getChildren().forEach(locations::removeChild);
-        if (dcPing.isEmpty()) {
+        if (dcMap.isEmpty()) {
             locations.constrain(HEIGHT, literal(8));
             GuiText error = new GuiText(locations, Component.translatable("minetogether:gui.order.loading_locations_fail").withStyle(ChatFormatting.RED))
                     .setAlignment(Align.LEFT);
             Constraints.bind(error, locations);
         } else {
-            List<String> dcOrder = new ArrayList<>(dcPing.keySet());
+            List<DC> dcOrder = new ArrayList<>(dcMap.values());
             GuiElement<?> element = null;
-            dcOrder.sort(Comparator.comparingDouble(dc -> dcPing.get(dc) < 0 ? 5000 : dcPing.get(dc) + (getDCAvailability(dc) ? 0 : 5000)));
-            for (String region : dcOrder) {
-                element = locationButton(locations, region)
+            dcOrder.sort(Comparator.comparingDouble(dc -> dcPing.getOrDefault(dc.slug, -1) < 0 ? 5000 : dcPing.getOrDefault(dc.slug, -1) + (dc.available ? 0 : 5000)));
+            for (DC dc : dcOrder) {
+                element = locationButton(locations, dc)
                         .constrain(TOP, element == null ? match(locations.get(TOP)) : relative(element.get(BOTTOM), 1))
                         .constrain(LEFT, match(locations.get(LEFT)))
                         .constrain(RIGHT, match(locations.get(RIGHT)));
@@ -523,7 +532,7 @@ public class OrderGui implements GuiProvider {
                 .constrain(LEFT, left)
                 .constrain(RIGHT, relative(lastElement.get(LEFT), -2))
                 .constrain(HEIGHT, literal(12));
-        
+
         return lastElement;
     }
 
@@ -796,18 +805,18 @@ public class OrderGui implements GuiProvider {
 
     //=== GUI Component Builders ===//
 
-    private GuiElement<?> locationButton(GuiElement<?> parent, String dc) {
-        boolean available = getDCAvailability(dc);
+    private GuiElement<?> locationButton(GuiElement<?> parent, DC dc) {
+        String name = dc.slug == null ? "" : dc.slug;
         GuiButton button = MTStyle.Flat.button(parent, (Supplier<Component>) null)
-                .setToggleMode(() -> dc.equals(order.serverLocation))
+                .setToggleMode(() -> name.equals(order.serverLocation))
                 .onPress(() -> {
-                    order.serverLocation = dc;
+                    order.serverLocation = name;
                     summaryDirty();
                 })
-                .constrain(HEIGHT, literal(available ? 12 : 32));
+                .constrain(HEIGHT, literal(dc.available ? 12 : 32));
 
-        double ping = dcPing.getOrDefault(dc, -2);
-        int distance = dcDistance.getOrDefault(dc, -1);
+        double ping = dcPing.getOrDefault(name, -2);
+        long distance = dcDistance.getOrDefault(name, -1L);
         Component pingText = Component.literal(((int) Math.ceil(ping)) + " ms");
         GuiText pingLabel = new GuiText(button, pingText)
                 .setEnabled(() -> ping > 0)
@@ -818,10 +827,16 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, relative(button.get(RIGHT), -14))
                 .constrain(HEIGHT, literal(8));
 
-        GuiText label = new GuiText(button, Component.literal(getDCName(dc)))
+        GuiTexture flag = new GuiTexture(button, getFlag(dc))
+                .constrain(TOP, relative(button.get(TOP), 2))
+                .constrain(LEFT, relative(button.get(LEFT), 2))
+                .constrain(HEIGHT, literal(8))
+                .constrain(WIDTH, dynamic(() -> flagWidth(dc, 8)));
+
+        GuiText label = new GuiText(button, Component.literal(dc.name + ", " + dc.countryName))
                 .setAlignment(Align.LEFT)
                 .constrain(TOP, relative(button.get(TOP), 2))
-                .constrain(LEFT, relative(button.get(LEFT), 4))
+                .constrain(LEFT, dynamic(() -> Math.max(flag.xMax() + 2, button.xMin() + 21)))
                 .constrain(RIGHT, relative(pingLabel.get(LEFT), -3))
                 .constrain(HEIGHT, literal(8));
 
@@ -832,7 +847,7 @@ public class OrderGui implements GuiProvider {
                 .constrain(HEIGHT, literal(12))
                 .constrain(WIDTH, literal(12));
 
-        if (!available) {
+        if (!dc.available) {
             GuiText lowAvail = new GuiText(button, Component.translatable("minetogether:gui.order.low_availability").withStyle(RED))
                     .setAlignment(Align.LEFT)
                     .setWrap(true)
@@ -986,7 +1001,7 @@ public class OrderGui implements GuiProvider {
                 loggedIn = false;
                 loggingInError = result;
             }
-        });
+        }, EXECUTOR);
     }
 
     private void placeOrder(ModularGui gui) {
@@ -1029,7 +1044,7 @@ public class OrderGui implements GuiProvider {
                     LOGGER.error("Couldn't open link", throwable);
                 }
             }, Component.translatable("minetogether:gui.order.order_success"));
-        });
+        }, EXECUTOR);
     }
 
     private void tick(ModularGui gui) {
@@ -1039,10 +1054,10 @@ public class OrderGui implements GuiProvider {
             } else {
                 nameMessage = Component.translatable("minetogether:gui.order.name_checking");
                 CompletableFuture.runAsync(() -> {
-                    AvailableResult result = ServerOrderCallbacks.getNameAvailable(order.name);
-                    nameValid = result.getSuccess();
+                    ApiResponse result = OrderRequests.getNameAvailable(order.name);
+                    nameValid = "success".equals(result.getStatus());
                     nameMessage = Component.literal(result.getMessage());
-                });
+                }, EXECUTOR);
             }
         }
 
@@ -1055,7 +1070,7 @@ public class OrderGui implements GuiProvider {
                     loginMode = ServerOrderCallbacks.doesEmailExist(order.emailAddress);
                     emailValid = true;
                     emailMessage = null;
-                });
+                }, EXECUTOR);
             }
         }
 
@@ -1068,28 +1083,21 @@ public class OrderGui implements GuiProvider {
         if (initTask == null && pingTask == null && pingTimer-- <= 0) {
             pingTask = CompletableFuture.runAsync(() -> {
                 List<CompletableFuture<?>> pingers = new ArrayList<>();
-                for (String dc : dcPing.keySet()) {
-                    pingers.add(CompletableFuture.runAsync(() -> {
-                        String url = dcUrls.get(dc);
-                        int distance = dcDistance.get(dc);
-                        if (url == null || distance == -1) {
-                            dcPing.put(dc, -2);
-                        } else {
-                            try {
-                                dcPing.put(dc, ServerOrderCallbacks.getDataCentreLatency(url, distance));
-                            } catch (IOException ignored) {
-                                dcPing.put(dc, -2);
-                            }
-                        }
-                        pingUpdated = true;
-                    }));
-                }
+                dcMap.forEach((name, dc) -> pingers.add(CompletableFuture.runAsync(() -> {
+                    long distance = dcDistance.get(name);
+                    if (dc.latencyUrl == null || distance == -1) {
+                        dcPing.put(name, -2);
+                    } else {
+                        dcPing.put(name, OrderRequests.getDCLatency(dc.latencyUrl, distance));
+                    }
+                    pingUpdated = true;
+                }, PING_EXECUTOR)));
                 boolean allDone;
                 do {
                     allDone = pingers.stream().allMatch(CompletableFuture::isDone);
                 } while (!allDone);
                 pingTimer = 200;
-            });
+            }, PING_EXECUTOR);
         } else if (pingTask != null && pingTask.isDone()) {
             pingTask = null;
             updateLocations();
@@ -1103,20 +1111,17 @@ public class OrderGui implements GuiProvider {
         if (summaryUpdateRequired && !summaryUpdating) {
             summaryUpdating = true;
             summaryUpdateRequired = false;
-            CompletableFuture.runAsync(() -> {
-                summary = ServerOrderCallbacks.getSummary(order, Config.instance().promoCode);
+            summaryTask = CompletableFuture.runAsync(() -> {
+                summary = OrderRequests.getSummary(order, Config.instance().promoCode);
                 order.productID = summary.productID;
                 order.currency = summary.currency;
                 summaryUpdating = false;
-            });
+                CompletableFuture.runAsync(() -> OrderRequests.getDataCenters(summary.ram + 4096).forEach(dc -> dcMap.put(dc.slug, dc)), EXECUTOR);
+            }, EXECUTOR);
         }
 
-        if (dcAvailability.isEmpty() && availabilityTask == null && !summaryUpdateRequired && !summaryUpdating) {
-            availabilityTask = CompletableFuture.runAsync(() -> {
-                dcAvailability.putAll(ServerOrderCallbacks.getDataCentreAvailability(summary.ram + 4096));
-            });
-        } else if (availabilityTask != null && availabilityTask.isDone()) {
-            availabilityTask = null;
+        if (summaryTask != null && summaryTask.isDone()) {
+            summaryTask = null;
             updateLocations();
         }
 
@@ -1155,7 +1160,7 @@ public class OrderGui implements GuiProvider {
         }
     }
 
-    private String getSignalIcon(double ping, int distance) {
+    private String getSignalIcon(double ping, long distance) {
         if (ping > 0) {
             int icon = MathUtil.clamp(5 - (int) (ping / 42), 1, 5);
             return "signal/signal_" + icon;
@@ -1175,7 +1180,7 @@ public class OrderGui implements GuiProvider {
         return "signal/signal_0";
     }
 
-    private Component getSignalTooltip(double ping, int distance) {
+    private Component getSignalTooltip(double ping, long distance) {
         if (ping > 0) {
             return Component.translatable("minetogether:gui.order.region.signal");
         } else if (distance > 0) {
@@ -1201,23 +1206,13 @@ public class OrderGui implements GuiProvider {
     }
 
     private String getDCName(String dc) {
-        return dcNameMap.getOrDefault(dc, dc);
-    }
-
-    private boolean getDCAvailability(String dcName) {
-        if (availabilityTask != null || dcAvailability.isEmpty()) return true;
-        for (String dc : dcAvailability.keySet()) {
-            if (dc.equals(dcName) && dcAvailability.get(dc)) {
-                return true;
-            }
-        }
-        return false;
+        return dcMap.containsKey(dc) ? dcMap.get(dc).name : dc;
     }
 
     private String computeFallbackLocation() {
         if (!order.useFallback) return "";
         String fallBack = "";
-        int lowest = Integer.MAX_VALUE;
+        long lowest = Integer.MAX_VALUE;
         for (String dc : dcPing.keySet()) {
             int ping = dcPing.get(dc);
             if (ping > 0 && !dc.equals(order.serverLocation) && ping < lowest) {
@@ -1228,7 +1223,7 @@ public class OrderGui implements GuiProvider {
 
         if (fallBack.isEmpty()) {
             for (String dc : dcDistance.keySet()) {
-                int distance = dcDistance.get(dc);
+                long distance = dcDistance.get(dc);
                 if (distance > 0 && !dc.equals(order.serverLocation) && distance < lowest) {
                     lowest = distance;
                     fallBack = dc;
@@ -1278,6 +1273,20 @@ public class OrderGui implements GuiProvider {
         }
     }
 
+    private Material getFlag(DC dc) {
+        String code = dc.country.toUpperCase(Locale.ROOT);
+        if (Countries.COUNTRIES.containsKey(code)) {
+            code = code.toLowerCase(Locale.ROOT);
+        } else {
+            code = "unknown";
+        }
+        return MTTextures.get("flags/" + code);
+    }
+
+    private double flagWidth(DC dc, double height) {
+        TextureAtlasSprite sprite = getFlag(dc).sprite();
+        return (sprite.contents().width() / (double)sprite.contents().height()) * height;
+    }
 
     record Country(String key, String name) {
         @Override
