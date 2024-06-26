@@ -26,6 +26,8 @@ subprojects {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 
         mappings loom.officialMojangMappings()
+
+        localRuntime 'net.covers1624:DevLogin:0.1.0.5'
     }
 }
 

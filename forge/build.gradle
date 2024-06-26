@@ -12,6 +12,15 @@ loom {
         mixinConfig "minetogether-common.mixins.json"
         mixinConfig "minetogether-forge.mixins.json"
     }
+    runs {
+        clientLogin {
+            client()
+            ideConfigGenerated true
+            mainClass.set 'net.covers1624.devlogin.DevLogin'
+
+            programArgs '--launch_target', 'cpw.mods.bootstraplauncher.BootstrapLauncher'
+        }
+    }
 }
 
 loom {
@@ -38,7 +47,7 @@ configurations {
 dependencies {
     forge("net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}")
     modApi("dev.architectury:architectury-forge:${rootProject.architectury_version}")
-    modApi "net.creeperhost:polylib-forge:${polylib_version}"
+    modApi("net.creeperhost:polylib-forge:${polylib_version}") { transitive false }
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
@@ -58,8 +67,6 @@ dependencies {
     shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
     shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowLib 'com.github.scribejava:scribejava-core:6.9.0'
-
-    runtimeOnly "net.covers1624:DevLogin:0.1.+"
 }
 
 processResources {
