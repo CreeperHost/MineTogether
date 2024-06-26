@@ -9,6 +9,16 @@ architectury {
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
+
+    runs {
+        clientLogin {
+            client()
+            ideConfigGenerated true
+            mainClass.set 'net.covers1624.devlogin.DevLogin'
+
+            programArgs '--launch_target', 'net.fabricmc.loader.impl.launch.knot.KnotClient'
+        }
+    }
 }
 
 configurations {
@@ -46,8 +56,6 @@ dependencies {
     shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
     shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowLib 'com.github.scribejava:scribejava-core:6.9.0'
-
-    runtimeOnly "net.covers1624:DevLogin:0.1.+"
 }
 
 processResources {
