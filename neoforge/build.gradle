@@ -2,6 +2,20 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
+loom {
+    accessWidenerPath = project(":common").loom.accessWidenerPath
+
+    runs {
+        clientLogin {
+            client()
+            ideConfigGenerated true
+            mainClass.set 'net.covers1624.devlogin.DevLogin'
+
+            programArgs '--launch_target', 'cpw.mods.bootstraplauncher.BootstrapLauncher'
+        }
+    }
+}
+
 architectury {
     platformSetupLoomIde()
     neoForge {
@@ -24,7 +38,7 @@ configurations {
 dependencies {
     neoForge("net.neoforged:neoforge:${rootProject.neoforge_version}")
     modApi("dev.architectury:architectury-neoforge:${rootProject.architectury_version}")
-    modApi "net.creeperhost:polylib-neoforge:${polylib_version}"
+    modApi("net.creeperhost:polylib-neoforge:${polylib_version}") { transitive false }
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
@@ -44,8 +58,6 @@ dependencies {
     shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
     shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowLib 'com.github.scribejava:scribejava-core:6.9.0'
-
-    runtimeOnly "net.covers1624:DevLogin:0.1.+"
 }
 
 processResources {
