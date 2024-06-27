@@ -1,9 +1,12 @@
 package net.creeperhost.minetogether.orderform.requests;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.gson.annotations.SerializedName;
 import net.creeperhost.minetogether.lib.web.ApiRequest;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
+import net.creeperhost.minetogether.lib.web.WebBody;
+import org.jetbrains.annotations.Nullable;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import static net.creeperhost.minetogether.lib.web.WebConstants.CH;
 
@@ -17,17 +20,15 @@ public class PostLoginRequest extends ApiRequest<PostLoginRequest.Response> {
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 
-
-
-//        jsonBody(GSON, ImmutableMap.of(
-//                "email", email,
-//                "password", password
-//        ));
+        body = WebBody.string("email=" + URLEncoder.encode(email, StandardCharsets.UTF_8) + "&password=" + URLEncoder.encode(password, StandardCharsets.UTF_8) + "&", "application/x-www-form-urlencoded");
     }
 
     public static class Response extends ApiResponse {
+        public String userid;
+        public String currency;
 
+        public Response(@Nullable String status, @Nullable String message) {
+            super(status, message);
+        }
     }
-
-
 }

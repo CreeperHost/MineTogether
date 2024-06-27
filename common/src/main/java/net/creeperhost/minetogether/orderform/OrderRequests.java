@@ -1,23 +1,33 @@
 package net.creeperhost.minetogether.orderform;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
+import net.creeperhost.minetogether.lib.web.EngineRequest;
+import net.creeperhost.minetogether.lib.web.EngineResponse;
+import net.creeperhost.minetogether.lib.web.WebBody;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.OrderSummary;
 import net.creeperhost.minetogether.orderform.requests.*;
 import net.creeperhost.minetogether.util.Countries;
 import net.creeperhost.minetogether.util.GetClosestDCRequest;
 import net.creeperhost.minetogether.util.ModPackInfo;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static net.creeperhost.minetogether.MineTogether.WEB_ENGINE;
 
 /**
  * Created by brandon3055 on 24/06/2024
@@ -91,7 +101,8 @@ public class OrderRequests {
             var recResponse = MineTogetherChat.CHAT_STATE.api.execute(new GetRecommendRequest(version, order.playerAmount)).apiResponse();
             String recommended = String.valueOf(recResponse.recommended);
             if (StringUtils.isNotEmpty(promo) && !promo.equalsIgnoreCase("Insert Promo Code here")) {
-                WebUtils.getWebResponse("https://www.creeperhost.net/applyPromo/" + promo);
+                //TODO How to we do a simple get where we dont care about the response? Currently things break if the response is not json. This returns a web page.
+                getWebResponse("https://www.creeperhost.net/applyPromo/" + promo);
             }
 
             var summary = MineTogetherChat.CHAT_STATE.api.execute(new GetSummaryRequest(order.country, recommended)).apiResponse();
@@ -137,12 +148,81 @@ public class OrderRequests {
         }
     }
 
+    @Deprecated
+    private static String getWebResponse(String urlString) throws IOException {
+        EngineRequest request = WEB_ENGINE.newRequest()
+                .method("GET", null)
+                .url(urlString)
+                .header("User-Agent", WebUtils.userAgent)
+                .header("Fingerprint", MineTogether.FINGERPRINT)
+                .header("Identifier", ModPackInfo.getInfo().realName);
+
+        try (EngineResponse response = WEB_ENGINE.execute(request)) {
+            WebBody entity = response.body();
+            if (entity == null) {
+                return "";
+            }
+            return IOUtils.toString(entity.open(), StandardCharsets.UTF_8);
+        }
+    }
+
     public static ApiResponse getNameAvailable(String name) {
         try {
             return MineTogetherChat.CHAT_STATE.api.execute(new GetNameAvailableRequest(name)).apiResponse();
         } catch (Throwable e) {
             LOGGER.error("Failed to retrieve datacenter list", e);
             return new ApiResponse("error", "unknown");
+        }
+    }
+
+    public static boolean doesAccountExist(String email) {
+        try {
+            ApiResponse response = MineTogetherChat.CHAT_STATE.api.execute(new PostEmailExistsRequest(email)).apiResponse();
+            if ("error".equals(response.getStatus())) {
+                return true; //"Error" status means email "does" exist
+            }
+        } catch (Throwable e) {
+            LOGGER.error("Unable to check if email exists", e);
+        }
+        return false;
+    }
+
+    public static PostLoginRequest.Response doLogin(String email, String password) {
+        try {
+            PostLoginRequest.Response response = MineTogetherChat.CHAT_STATE.api.execute(new PostLoginRequest(email, password)).apiResponse();
+            if (!response.getStatus().equals("success")) {
+                LOGGER.error("Failed to complete login. Api returned: {}", response.getMessageOrNull());
+            }
+            return response;
+        } catch (Throwable e) {
+            LOGGER.error("An error occurred while attempting to login", e);
+            return new PostLoginRequest.Response("error", "Unknown Error");
+        }
+    }
+
+    public static PostOrderRequest.Response placeOrder(Order order, String dcId, String pregen, String fallbackName) {
+        try {
+            PostOrderRequest.Response response = MineTogetherChat.CHAT_STATE.api.execute(new PostOrderRequest(order, dcId, pregen, fallbackName)).apiResponse();
+            if (!response.getStatus().equals("success")) {
+                LOGGER.error("Failed to complete login. Api returned: {}", response.getMessageOrNull());
+            }
+            return response;
+        } catch (Throwable e) {
+            LOGGER.error("Unable to create order", e);
+            return new PostOrderRequest.Response("error", "Unknown Error");
+        }
+    }
+
+    public static PostCreateAccountRequest.Response createAccount(Order order) {
+        try {
+            PostCreateAccountRequest.Response response = MineTogetherChat.CHAT_STATE.api.execute(new PostCreateAccountRequest(order)).apiResponse();
+            if (!response.getStatus().equals("success")) {
+                LOGGER.error("Failed to create account. Api returned: {}", response.getMessageOrNull());
+            }
+            return response;
+        } catch (Throwable e) {
+            LOGGER.error("Unable to create account", e);
+            return new PostCreateAccountRequest.Response("error", "Unknown Error");
         }
     }
 }

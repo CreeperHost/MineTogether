@@ -82,7 +82,6 @@ public class OrderGui implements GuiProvider {
     private CompletableFuture<?> pingTask;
     private CompletableFuture<?> orderTask;
     private CompletableFuture<?> summaryTask;
-    //    private CompletableFuture<?> availabilityTask;
     private volatile boolean nameValid = false;
     private volatile Component nameMessage = null;
     private int nameCheckTimer = 60;
@@ -105,7 +104,6 @@ public class OrderGui implements GuiProvider {
     private boolean loggedIn = false;
     private String loggingInError = "";
 
-    private int orderNumber;
     private String invoiceID;
 
     private volatile boolean processing = false;
@@ -987,11 +985,10 @@ public class OrderGui implements GuiProvider {
     private void doLogin() {
         loggingIn = true;
         CompletableFuture.runAsync(() -> {
-            String result = ServerOrderCallbacks.doLogin(order.emailAddress, order.password);
-            String[] resultSplit = result.split(":");
-            if (resultSplit[0].equals("success")) {
-                order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
-                order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
+            var result = OrderRequests.doLogin(order.emailAddress, order.password);
+            if (result.getStatus().equals("success")) {
+                order.currency = result.currency != null ? result.currency : "1";
+                order.clientID = result.userid != null ? result.userid : "98874"; // random test account fallback
                 loggingIn = false;
                 loggedIn = true;
                 loggingInError = "";
@@ -999,7 +996,7 @@ public class OrderGui implements GuiProvider {
             } else {
                 loggingIn = false;
                 loggedIn = false;
-                loggingInError = result;
+                loggingInError = result.getMessage();
             }
         }, EXECUTOR);
     }
@@ -1011,11 +1008,10 @@ public class OrderGui implements GuiProvider {
             //Create Account
             if (!loginMode) {
                 setProcessing(null, null, Component.translatable("minetogether:gui.order.account_creating"));
-                String result = ServerOrderCallbacks.createAccount(order);
-                String[] resultSplit = result.split(":");
-                if (resultSplit[0].equals("success")) {
-                    order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
-                    order.clientID = resultSplit[2] != null ? resultSplit[2] : "0"; // random test account fallback
+                var result = OrderRequests.createAccount(order);
+                if (result.getStatus().equals("success")) {
+                    order.currency = result.currency != null ? result.currency : "1";
+                    order.clientID = result.userid != null ? result.userid : "0"; // random test account fallback
                 } else {
                     setProcessing(Component.translatable("minetogether:gui.button.ok"), this::clearProcessing, Component.translatable("minetogether:gui.order.account_error", result));
                     return;
@@ -1024,11 +1020,9 @@ public class OrderGui implements GuiProvider {
 
             //Place Order
             setProcessing(null, null, Component.translatable("minetogether:gui.order.order_placing"));
-            String result = ServerOrderCallbacks.createOrder(order, getDCId(order.serverLocation), String.valueOf(Config.instance().pregenDiameter), computeFallbackLocation());
-            String[] resultSplit = result.split(":");
-            if (resultSplit[0].equals("success")) {
-                invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
-                orderNumber = Integer.parseInt(resultSplit[2]);
+            var result = OrderRequests.placeOrder(order, getDCId(order.serverLocation), String.valueOf(Config.instance().pregenDiameter), computeFallbackLocation());
+            if (result.getStatus().equals("success")) {
+                invoiceID = result.more == null || result.more.invoiceid == null ? "0" : result.more.invoiceid;
             } else {
                 setProcessing(Component.translatable("minetogether:gui.button.ok"), this::clearProcessing, Component.translatable("minetogether:gui.order.order_error", result));
                 return;
@@ -1037,9 +1031,9 @@ public class OrderGui implements GuiProvider {
             processingShowCloseButton = true;
             setProcessing(Component.translatable("minetogether:gui.button.invoice"), () -> {
                 try {
-                    Util.getPlatform().openUri(new URI(ServerOrderCallbacks.getPaymentLink(invoiceID)));
+                    Util.getPlatform().openUri(new URI(getPaymentLink(invoiceID)));
                 } catch (Throwable throwable) {
-                    gui.mc().keyboardHandler.setClipboard(ServerOrderCallbacks.getPaymentLink(invoiceID));
+                    gui.mc().keyboardHandler.setClipboard(getPaymentLink(invoiceID));
                     processingText = Component.literal("Something went wrong while attempting to open the link,\nSo the link has been copied to your clipboard.");
                     LOGGER.error("Couldn't open link", throwable);
                 }
@@ -1067,7 +1061,7 @@ public class OrderGui implements GuiProvider {
             } else {
                 emailMessage = Component.translatable("minetogether:gui.order.email_checking");
                 CompletableFuture.runAsync(() -> {
-                    loginMode = ServerOrderCallbacks.doesEmailExist(order.emailAddress);
+                    loginMode = OrderRequests.doesAccountExist(order.emailAddress);
                     emailValid = true;
                     emailMessage = null;
                 }, EXECUTOR);
@@ -1286,6 +1280,10 @@ public class OrderGui implements GuiProvider {
     private double flagWidth(DC dc, double height) {
         TextureAtlasSprite sprite = getFlag(dc).sprite();
         return (sprite.contents().width() / (double)sprite.contents().height()) * height;
+    }
+
+    public static String getPaymentLink(String invoiceID) {
+        return "https://billing.creeperhost.net/viewinvoice.php?id=" + invoiceID;
     }
 
     record Country(String key, String name) {
