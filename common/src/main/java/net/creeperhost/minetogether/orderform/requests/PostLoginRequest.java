@@ -1,8 +1,8 @@
 package net.creeperhost.minetogether.orderform.requests;
 
+import net.covers1624.quack.net.httpapi.WebBody;
 import net.creeperhost.minetogether.lib.web.ApiRequest;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
-import net.creeperhost.minetogether.lib.web.WebBody;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URLEncoder;
