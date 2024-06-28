@@ -2,12 +2,13 @@ package net.creeperhost.minetogether;
 
 import dev.architectury.injectables.targets.ArchitecturyTarget;
 import dev.architectury.platform.Platform;
+import net.covers1624.quack.net.httpapi.HttpEngine;
+import net.covers1624.quack.net.httpapi.java11.Java11EngineResponse;
+import net.covers1624.quack.net.httpapi.java11.Java11HttpEngine;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.lib.MineTogetherLib;
 import net.creeperhost.minetogether.lib.web.ApiClient;
 import net.creeperhost.minetogether.lib.web.DynamicWebAuth;
-import net.creeperhost.minetogether.lib.web.WebEngine;
-import net.creeperhost.minetogether.lib.web.java11.Java11WebEngine;
 import net.creeperhost.minetogether.orderform.WebUtils;
 import net.creeperhost.minetogether.util.Log4jUtils;
 import net.creeperhost.minetogether.util.ModPackInfo;
@@ -28,9 +29,9 @@ public class MineTogether {
 
     public static final String FINGERPRINT = SignatureVerifier.generateSignature();
     public static final DynamicWebAuth AUTH = new DynamicWebAuth();
-    public static final WebEngine WEB_ENGINE = new Java11WebEngine();
+    public static final HttpEngine WEB_ENGINE = Java11HttpEngine.create();
     public static final ApiClient API = ApiClient.builder()
-            .webEngine(WEB_ENGINE)
+            .httpEngine(WEB_ENGINE)
             .addUserAgentSegment("MineTogether-lib/" + MineTogetherLib.VERSION)
             .addUserAgentSegment("MineTogether-mod/" + MineTogetherPlatform.getVersion())
             .addUserAgentSegment("Minecraft/" + Platform.getMinecraftVersion())
