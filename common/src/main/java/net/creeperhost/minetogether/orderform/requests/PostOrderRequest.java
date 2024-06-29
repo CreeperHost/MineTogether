@@ -1,16 +1,16 @@
 package net.creeperhost.minetogether.orderform.requests;
 
-import net.covers1624.quack.net.httpapi.WebBody;
 import net.creeperhost.minetogether.lib.web.ApiRequest;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
+import net.creeperhost.minetogether.lib.web.WebUtils.UrlParamPair;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.util.ModPackInfo;
 import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.creeperhost.minetogether.lib.web.WebConstants.CH;
 
 /**
@@ -23,21 +23,21 @@ public class PostOrderRequest extends ApiRequest<PostOrderRequest.Response> {
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 
-        StringBuilder builder = new StringBuilder();
-        builder.append("name=").append(URLEncoder.encode(order.name, UTF_8)).append("&");
-        builder.append("swid=").append(URLEncoder.encode(ModPackInfo.getInfo().websiteID, UTF_8)).append("&");
+        List<UrlParamPair> entries = new ArrayList<>();
+        entries.add(UrlParamPair.of("name", order.name));
+        entries.add(UrlParamPair.of("swid", ModPackInfo.getInfo().websiteID));
 
         if (order.pregen) {
-            builder.append("pregen=").append(URLEncoder.encode(pregen, UTF_8)).append("&");
+            entries.add(UrlParamPair.of("pregen", pregen));
         }
         if (!StringUtil.isNullOrEmpty(order.worldUrl)) {
-            builder.append("worldUrl=").append(URLEncoder.encode(order.worldUrl, UTF_8)).append("&");
+            entries.add(UrlParamPair.of("worldUrl", order.worldUrl));
         }
         if (!StringUtil.isNullOrEmpty(fallbackName)) {
-            builder.append("fallback=").append(URLEncoder.encode(fallbackName, UTF_8)).append("&");
+            entries.add(UrlParamPair.of("fallback", fallbackName));
         }
 
-        body = WebBody.string(builder.toString(), "application/x-www-form-urlencoded");
+        formBody(entries);
     }
 
     public static class Response extends ApiResponse {
