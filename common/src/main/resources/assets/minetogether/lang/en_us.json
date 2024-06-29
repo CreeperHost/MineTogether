@@ -220,7 +220,7 @@
 
     "minetogether:gui.order.account_error":"Error occurred while creating account. Error: %s\nPlease go back and correct the errors",
     "minetogether:gui.order.order_error":"Error occurred while placing order. Error: %s\nPlease contact support if the problem persists",
-    "minetogether:gui.order.order_success":"Order successful! Please click \"View Invoice\" the button to pay!",
+    "minetogether:gui.order.order_success":"Order successful! Please click the \"View Invoice\" button to pay!",
     "minetogether:gui.order.order_modpack":"Your server will then be set up with the latest modpack version!",
     "minetogether:gui.order.account_creating":"Please wait. Account being created",
     "minetogether:gui.order.order_placing":"Please wait. Order being placed",
