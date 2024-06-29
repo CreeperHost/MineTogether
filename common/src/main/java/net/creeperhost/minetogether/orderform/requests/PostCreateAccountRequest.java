@@ -1,17 +1,15 @@
 package net.creeperhost.minetogether.orderform.requests;
 
-import net.covers1624.quack.net.httpapi.WebBody;
 import net.creeperhost.minetogether.lib.web.ApiRequest;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
+import net.creeperhost.minetogether.lib.web.WebUtils.UrlParamPair;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.util.ModPackInfo;
-import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.creeperhost.minetogether.lib.web.WebConstants.CH;
 
 /**
@@ -24,22 +22,22 @@ public class PostCreateAccountRequest extends ApiRequest<PostCreateAccountReques
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 
-        StringBuilder builder = new StringBuilder();
-        builder.append("servername=").append(URLEncoder.encode(order.name, UTF_8)).append("&");
-        builder.append("modpack=").append(URLEncoder.encode(ModPackInfo.getInfo().curseID, UTF_8)).append("&");
-        builder.append("email=").append(URLEncoder.encode(order.emailAddress, UTF_8)).append("&");
-        builder.append("password=").append(URLEncoder.encode(order.password, UTF_8)).append("&");
-        builder.append("fname=").append(URLEncoder.encode(order.firstName, UTF_8)).append("&");
-        builder.append("lname=").append(URLEncoder.encode(order.lastName, UTF_8)).append("&");
-        builder.append("addr1=").append(URLEncoder.encode(order.address, UTF_8)).append("&");
-        builder.append("city=").append(URLEncoder.encode(order.city, UTF_8)).append("&");
-        builder.append("tel=").append(URLEncoder.encode(order.phone, UTF_8)).append("&");
-        builder.append("county=").append(URLEncoder.encode(order.state, UTF_8)).append("&");
-        builder.append("state=").append(URLEncoder.encode(order.state, UTF_8)).append("&");
-        builder.append("country=").append(URLEncoder.encode(order.country, UTF_8)).append("&");
-        builder.append("pcode=").append(URLEncoder.encode(order.zip, UTF_8)).append("&");
-        builder.append("currency=").append(URLEncoder.encode(order.currency, UTF_8)).append("&");
-        body = WebBody.string(builder.toString(), "application/x-www-form-urlencoded");
+        List<UrlParamPair> entries = new ArrayList<>();
+        entries.add(UrlParamPair.of("servername", order.name));
+        entries.add(UrlParamPair.of("modpack", ModPackInfo.getInfo().curseID));
+        entries.add(UrlParamPair.of("email", order.emailAddress));
+        entries.add(UrlParamPair.of("password", order.password));
+        entries.add(UrlParamPair.of("fname", order.firstName));
+        entries.add(UrlParamPair.of("lname", order.lastName));
+        entries.add(UrlParamPair.of("addr1", order.address));
+        entries.add(UrlParamPair.of("city", order.city));
+        entries.add(UrlParamPair.of("tel", order.phone));
+        entries.add(UrlParamPair.of("county", order.state));
+        entries.add(UrlParamPair.of("state", order.state));
+        entries.add(UrlParamPair.of("country", order.country));
+        entries.add(UrlParamPair.of("pcode", order.zip));
+        entries.add(UrlParamPair.of("currency", order.currency));
+        formBody(entries);
     }
 
     public static class Response extends ApiResponse {
