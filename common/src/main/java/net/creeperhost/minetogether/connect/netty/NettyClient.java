@@ -52,6 +52,7 @@ public class NettyClient {
 
             @Override
             public void channelReady() {
+                super.channelReady();
                 sendPacket(new SHostRegister(session.toString(), modpackKey));
             }
 
@@ -140,6 +141,7 @@ public class NettyClient {
 
             @Override
             public void channelReady() {
+                super.channelReady();
                 sendPacket(new SUserConnect(session.toString(), serverToken));
                 // Required for Forge to add channel attributes.
                 MineTogetherPlatform.prepareClientConnection(connection);
@@ -194,7 +196,6 @@ public class NettyClient {
         Connection connection = new Connection(PacketFlow.SERVERBOUND);
         connection.setListener(new ServerHandshakePacketListenerImpl(server, connection));
 
-        Throwable[] error = new Throwable[1];
         ProxyConnection proxyConnection = new ProxyConnection(endpoint) {
 
             @Override
@@ -207,23 +208,18 @@ public class NettyClient {
 
             @Override
             public void channelReady() {
+                super.channelReady();
                 sendPacket(new SHostConnect(session.toString(), linkToken));
             }
 
             @Override
             public void onDisconnected(String message) {
-                error[0] = new IOException("Failed to host server: " + message);
-                synchronized (error) {
-                    error.notifyAll();
-                }
+                LOGGER.warn("Link connection terminated: {}", message);
             }
 
             @Override
             public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) {
                 super.handleAccepted(ctx, cAccepted);
-                synchronized (error) {
-                    error.notifyAll();
-                }
             }
         };
         ChannelFuture channelFuture = openConnection(
@@ -241,17 +237,6 @@ public class NettyClient {
         synchronized (listener.connections) {
             listener.connections.add(connection);
         }
-
-        synchronized (error) {
-            try {
-                error.wait();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException("Interrupted whilst waiting.", ex);
-            }
-        }
-        if (error[0] != null) {
-            SneakyUtils.throwUnchecked(error[0]);
-        }
     }
 
     public static CFriendServers getFriendServers(ConnectHost endpoint, JWebToken session, @Nullable String modpackKey) throws IOException {
@@ -261,6 +246,7 @@ public class NettyClient {
         ProxyConnection connection = new ProxyConnection(endpoint) {
             @Override
             protected void channelReady() {
+                super.channelReady();
                 sendPacket(new SRequestFriendServers(session.toString(), modpackKey));
             }
 
@@ -361,6 +347,7 @@ public class NettyClient {
         }
 
         protected void channelReady() {
+            sendPacket(new SAccepted());
         }
 
         protected void onDisconnected(String message) {
