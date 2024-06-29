@@ -1,12 +1,12 @@
 package net.creeperhost.minetogether.orderform.requests;
 
-import net.covers1624.quack.net.httpapi.WebBody;
 import net.creeperhost.minetogether.lib.web.ApiRequest;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
+import net.creeperhost.minetogether.lib.web.WebUtils.UrlParamPair;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import static net.creeperhost.minetogether.lib.web.WebConstants.CH;
 
@@ -20,7 +20,10 @@ public class PostLoginRequest extends ApiRequest<PostLoginRequest.Response> {
         requiredAuthHeaders.add("Fingerprint");
         requiredAuthHeaders.add("Identifier");
 
-        body = WebBody.string("email=" + URLEncoder.encode(email, StandardCharsets.UTF_8) + "&password=" + URLEncoder.encode(password, StandardCharsets.UTF_8) + "&", "application/x-www-form-urlencoded");
+        List<UrlParamPair> entries = new ArrayList<>();
+        entries.add(UrlParamPair.of("email", email));
+        entries.add(UrlParamPair.of("password", password));
+        formBody(entries);
     }
 
     public static class Response extends ApiResponse {
