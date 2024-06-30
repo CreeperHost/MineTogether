@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
@@ -40,6 +41,10 @@ public class ItemSelectDialog<E> extends GuiElement<ItemSelectDialog<E>> impleme
     }
 
     public ItemSelectDialog(@NotNull GuiParent<?> parent, Component title, List<E> items, E defaultItem) {
+        this(parent, title, items, defaultItem, e -> new TextComponent(String.valueOf(e)));
+    }
+
+    public ItemSelectDialog(@NotNull GuiParent<?> parent, Component title, List<E> items, E defaultItem, Function<E, Component> toComponentFunction) {
         super(parent);
         this.items = items;
         this.selected = defaultItem;
@@ -96,7 +101,7 @@ public class ItemSelectDialog<E> extends GuiElement<ItemSelectDialog<E>> impleme
         Constraints.bind(itemList, listBg, 0);
 
         itemList.setDisplayBuilder((list, item) -> {
-            Component text = new TextComponent(String.valueOf(item));
+            Component text = toComponentFunction.apply(item);
 
             GuiButton button = GuiButton.flatColourButton(list, null, highlight -> highlight ? 0xA0808080 : 0xA0202020)
                     .setToggleMode(() -> item.equals(selected))

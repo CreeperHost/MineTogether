@@ -1,69 +1,82 @@
 package net.creeperhost.minetogether.orderform;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.creeperhost.minetogether.chat.gui.MTStyle;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.gui.MTTextures;
-import net.creeperhost.minetogether.gui.dialogs.ItemSelectDialog;
 import net.creeperhost.minetogether.gui.dialogs.OptionDialog;
-import net.creeperhost.minetogether.orderform.data.AvailableResult;
+import net.creeperhost.minetogether.lib.web.ApiResponse;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.orderform.data.OrderSummary;
+import net.creeperhost.minetogether.orderform.elements.DetailsElement;
+import net.creeperhost.minetogether.orderform.elements.LocationElement;
+import net.creeperhost.minetogether.orderform.elements.ServerConfigElement;
+import net.creeperhost.minetogether.orderform.elements.WorldElement;
+import net.creeperhost.minetogether.orderform.requests.GetDataCentresRequest.DC;
 import net.creeperhost.minetogether.util.Countries;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
 import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.Constraints;
 import net.creeperhost.polylib.client.modulargui.lib.GuiProvider;
-import net.creeperhost.polylib.client.modulargui.lib.TextState;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Axis;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
-import net.creeperhost.polylib.helpers.MathUtil;
+import net.creeperhost.polylib.client.modulargui.sprite.Material;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
-import static net.minecraft.ChatFormatting.*;
+import static net.minecraft.ChatFormatting.GREEN;
+import static net.minecraft.ChatFormatting.RED;
 
 /**
  * Created by brandon3055 on 04/10/2023
  */
 public class OrderGui implements GuiProvider {
+    public static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2,
+            new ThreadFactoryBuilder()
+                    .setNameFormat("MT Order Requests Thread %d")
+                    .setDaemon(true)
+                    .build()
+    );
+
+    private static final ExecutorService PING_EXECUTOR = Executors.newFixedThreadPool(12,
+            new ThreadFactoryBuilder()
+                    .setNameFormat("MT Ping Thread %d")
+                    .setDaemon(true)
+                    .build()
+    );
+
     private static final Pattern EMAIL_PATTERN = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
-    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
     private static final Random RAND = new Random();
 
-    private final Order order = new Order();
-    private final Map<String, Integer> regionPing = new ConcurrentHashMap<>();
-    private final Map<String, Integer> dataCenterDistance = new ConcurrentHashMap<>();
-    private final Map<String, String> dataCenterUrls = new HashMap<>();
-    private final Map<String, Boolean> dataCenterAvailability = new HashMap<>();
-    private final Map<String, String> regionMap = new HashMap<>();
-
-    private GuiTextField nameField;
-    private GuiElement<?> locations;
-    private String confirmPassword = "";
+    public final Order order = new Order();
+    private final Map<String, String> dcIdMap = new ConcurrentHashMap<>();
+    public final Map<String, DC> dcMap = new ConcurrentHashMap<>();
+    public final Map<String, Integer> dcPing = new ConcurrentHashMap<>();
+    public final Map<String, Long> dcDistance = new ConcurrentHashMap<>();
 
     private CompletableFuture<?> initTask;
     private CompletableFuture<?> pingTask;
     private CompletableFuture<?> orderTask;
-    private CompletableFuture<?> availabilityTask;
+    private CompletableFuture<?> summaryTask;
     private volatile boolean nameValid = false;
     private volatile Component nameMessage = null;
     private int nameCheckTimer = 60;
@@ -75,24 +88,22 @@ public class OrderGui implements GuiProvider {
     private int emailCheckTimer = 60;
 
     private boolean inputsValid = false;
-    private Component invalidMessage = null;
+    public Component invalidMessage = null;
 
     private boolean summaryUpdateRequired = false;
     private volatile boolean summaryUpdating = false;
     private volatile OrderSummary summary = new OrderSummary("Loading Summary...");
 
-    private volatile boolean loginMode = false;
-    private boolean loggingIn = false;
-    private boolean loggedIn = false;
-    private String loggingInError = "";
-
-    private int orderNumber;
     private String invoiceID;
 
     private volatile boolean processing = false;
     private Component processingText = TextComponent.EMPTY;
     private GuiButton processingButton;
     private boolean processingShowCloseButton = false;
+
+    public LocationElement locations;
+    public DetailsElement details;
+    public WorldElement world;
 
     public OrderGui() {
     }
@@ -104,21 +115,19 @@ public class OrderGui implements GuiProvider {
 
     private void initDefaults() {
         initTask = CompletableFuture.runAsync(() -> {
-            regionMap.putAll(ServerOrderCallbacks.getRegionMap());
-            for (String region : regionMap.keySet()) {
-                regionPing.put(region, -1);
-            }
-            try {
-                dataCenterDistance.putAll(ServerOrderCallbacks.getDataCentres());
-                dataCenterUrls.putAll(ServerOrderCallbacks.getDataCentreURLs());
-            } catch (IOException | URISyntaxException ex) {
-                LOGGER.error("Failed to poll Data Centers.", ex);
+            OrderRequests.getLocations().forEach((dc, id) -> dcIdMap.put(dc, String.valueOf(id)));
+            OrderRequests.getDataCenters(512).forEach(dc -> dcMap.put(dc.slug, dc));
+            dcIdMap.forEach((dc, i) -> dcPing.put(dc, -1));
+
+            var byDistance = OrderRequests.getDCsByDistance();
+            if (byDistance != null) {
+                order.serverLocation = byDistance.getDataCenter().getName();
+                byDistance.getDataCenters().forEach(dc -> dcDistance.put(dc.getName(), dc.getDistance()));
             }
 
-            order.serverLocation = datacentreToRegion(ServerOrderCallbacks.getRecommendedLocation());
             order.country = Countries.getOurCountry();
             summaryUpdateRequired = true;
-        });
+        }, EXECUTOR);
         order.name = getDefaultName();
     }
 
@@ -201,239 +210,30 @@ public class OrderGui implements GuiProvider {
     }
 
     private void setupOrderPanel(GuiElement<?> background) {
-        GuiElement<?> lastElement;
+        int sidePadding = 5;
+        int spacing = 4;
 
-        Constraint left = relative(background.get(LEFT), 5);
-        Constraint right = relative(background.get(RIGHT), -5);
+        ServerConfigElement config = new ServerConfigElement(background, this)
+                .constrain(LEFT, relative(background.get(LEFT), sidePadding))
+                .constrain(RIGHT, relative(background.get(RIGHT), -sidePadding))
+                .constrain(TOP, relative(background.get(TOP), spacing));
 
-        lastElement = configSection(background, left, right);
-        lastElement = locationSection(background, lastElement, left, right);
-        lastElement = detailsSection(background, lastElement, left, right);
-    }
+        locations = new LocationElement(background, this)
+                .constrain(LEFT, relative(background.get(LEFT), sidePadding))
+                .constrain(RIGHT, relative(background.get(RIGHT), -sidePadding))
+                .constrain(TOP, relative(config.get(BOTTOM), spacing));
 
-    private GuiElement<?> configSection(GuiElement<?> background, Constraint left, Constraint right) {
-        Constraint midPos = relative(background.get(LEFT), 90);
+        details = new DetailsElement(background, this)
+                .constrain(LEFT, relative(background.get(LEFT), sidePadding))
+                .constrain(RIGHT, relative(background.get(RIGHT), -sidePadding))
+                .constrain(TOP, relative(locations.get(BOTTOM), spacing));
 
-        GuiElement<?> lastElement = new GuiText(background, new TranslatableComponent("minetogether:gui.order.configure").withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD))
-                .setAlignment(Align.LEFT)
-                .constrain(TOP, relative(background.get(TOP), 4))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(8));
+        world = new WorldElement(background, this)
+                .constrain(LEFT, relative(background.get(LEFT), sidePadding))
+                .constrain(RIGHT, relative(background.get(RIGHT), -sidePadding))
+                .constrain(TOP, relative(details.get(BOTTOM), spacing));
 
-        //Server Name
-        lastElement = new GuiText(background, new TranslatableComponent("minetogether:gui.order.server_name"))
-                .setAlignment(Align.LEFT)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 5))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, midPos)
-                .constrain(HEIGHT, literal(14));
-
-        GuiButton randomise = MTStyle.Flat.button(background, new TranslatableComponent("minetogether:gui.order.button.randomize"))
-                .onPress(() -> nameField.setValue(getDefaultName()))
-                .constrain(TOP, match(lastElement.get(TOP)))
-                .constrain(BOTTOM, match(lastElement.get(BOTTOM)))
-                .constrain(RIGHT, right)
-                .constrain(WIDTH, literal(70));
-
-        GuiElement<?> nameBackground = MTStyle.Flat.contentArea(background)
-                .constrain(TOP, match(lastElement.get(TOP)))
-                .constrain(BOTTOM, match(lastElement.get(BOTTOM)))
-                .constrain(LEFT, midPos)
-                .constrain(RIGHT, relative(randomise.get(LEFT), -2));
-
-        GuiElement<?> highlight = new GuiRectangle(nameBackground)
-                .border(0x50FFFFFF)
-                .fill(0x30FFFFFF);
-        Constraints.bind(highlight, nameBackground);
-
-        Pattern namePattern = Pattern.compile("([A-Za-z0-9]*)");
-        nameField = new GuiTextField(nameBackground)
-                .setTextState(TextState.create(() -> order.name, s -> {
-                    order.name = s;
-                    nameDirty();
-                }))
-                .setMaxLength(16)
-                .setFilter(s -> s.isEmpty() || namePattern.matcher(s).matches());
-        Constraints.bind(nameField, nameBackground, 0, 3, 0, 3);
-        highlight.setEnabled(nameField::isFocused);
-
-        //Player Count
-        lastElement = new GuiText(background, new TranslatableComponent("minetogether:gui.order.player_count"))
-                .setAlignment(Align.LEFT)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 5))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, midPos)
-                .constrain(HEIGHT, literal(14));
-
-        for (int i = 0; i < 5; i++) {
-            int finalI = i;
-            int count = 5 + (i * 5);
-            MTStyle.Flat.button(background, new TextComponent(String.valueOf(count)))
-                    .setToggleMode(() -> order.playerAmount == count)
-                    .onPress(() -> {
-                        order.playerAmount = count;
-                        dataCenterAvailability.clear();
-                        updateLocations();
-                        summaryDirty();
-                    })
-                    .constrain(TOP, match(lastElement.get(TOP)))
-                    .constrain(BOTTOM, match(lastElement.get(BOTTOM)))
-                    .constrain(LEFT, dynamic(() -> midPos.get() + ((((right.get() + 1) - midPos.get()) / 5) * finalI)).precise())
-                    .constrain(WIDTH, dynamic(() -> (((right.get() + 1) - midPos.get()) / 5) - 1).precise());
-        }
-
-        Component playerCountInfo = new TranslatableComponent("minetogether:gui.order.player_count.info").withStyle(ChatFormatting.GRAY);
-        lastElement = new GuiText(background, playerCountInfo)
-                .setWrap(true)
-                .setAlignment(Align.LEFT)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 2))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right);
-        lastElement.constrain(HEIGHT, dynamic(() -> (double) background.font().wordWrapHeight(playerCountInfo.getString(), (int) right.get() - (int) left.get())));
-
-        return lastElement;
-    }
-
-    private GuiElement<?> locationSection(GuiElement<?> background, GuiElement<?> lastElement, Constraint left, Constraint right) {
-        lastElement = new GuiText(background, new TranslatableComponent("minetogether:gui.order.location").withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD))
-                .setAlignment(Align.LEFT)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 4))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(8));
-
-        lastElement = locations = new GuiElement<>(background)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 4))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(8));
-
-        GuiText locationLoading = new GuiText(locations, new TranslatableComponent("minetogether:gui.order.loading_locations").withStyle(ChatFormatting.YELLOW))
-                .setAlignment(Align.LEFT);
-        Constraints.bind(locationLoading, locations);
-
-        Component pingInfo = new TranslatableComponent("minetogether:gui.order.region.signal").withStyle(ChatFormatting.GRAY);
-        lastElement = new GuiText(background, pingInfo)
-                .setWrap(true)
-                .setAlignment(Align.LEFT)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 2))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right);
-        lastElement.constrain(HEIGHT, dynamic(() -> (double) background.font().wordWrapHeight(pingInfo.getString(), (int) right.get() - (int) left.get())));
-
-        return lastElement;
-    }
-
-    private void updateLocations() {
-        locations.getChildren().forEach(locations::removeChild);
-        if (regionPing.isEmpty()) {
-            locations.constrain(HEIGHT, literal(8));
-            GuiText error = new GuiText(locations, new TranslatableComponent("minetogether:gui.order.loading_locations_fail").withStyle(ChatFormatting.RED))
-                    .setAlignment(Align.LEFT);
-            Constraints.bind(error, locations);
-        } else {
-            List<String> regionOrder = new ArrayList<>(regionPing.keySet());
-            regionOrder.sort(Comparator.comparingDouble(region -> regionPing.get(region) < 0 ? 5000 : regionPing.get(region) + (getAvailability(region) ? 0 : 5000)));
-            GuiElement<?> element = null;
-            for (String region : regionOrder) {
-                element = locationButton(locations, region)
-                        .constrain(TOP, element == null ? match(locations.get(TOP)) : relative(element.get(BOTTOM), 1))
-                        .constrain(LEFT, match(locations.get(LEFT)))
-                        .constrain(RIGHT, match(locations.get(RIGHT)));
-            }
-            if (element != null) {
-                locations.constrain(BOTTOM, match(element.get(BOTTOM)));
-            }
-        }
-    }
-
-    private GuiElement<?> detailsSection(GuiElement<?> background, GuiElement<?> lastElement, Constraint left, Constraint right) {
-        lastElement = new GuiText(background, new TranslatableComponent("minetogether:gui.order.details").withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD))
-                .setAlignment(Align.LEFT)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 4))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(8));
-
-        Constraint centerLeft = Constraint.midPoint(background.get(LEFT), background.get(RIGHT), -1);
-        Constraint centerRight = Constraint.midPoint(background.get(LEFT), background.get(RIGHT), 1);
-
-        GuiElement<?> email = emailBox(background, left, right)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 4));
-
-        GuiElement<?> password = passwordBox(background, left, centerLeft, TextState.create(() -> order.password, val -> order.password = val), new TranslatableComponent("minetogether.info.password"))
-                .constrain(TOP, relative(email.get(BOTTOM), 4));
-        GuiElement<?> password2 = passwordBox(background, centerRight, right, TextState.create(() -> confirmPassword, val -> confirmPassword = val), new TranslatableComponent("minetogether.info.password_confirm"))
-                .setEnabled(() -> !loginMode)
-                .constrain(TOP, relative(email.get(BOTTOM), 4));
-
-        GuiElement<?> firstName = detailsBox(background, left, centerLeft, TextState.create(() -> order.firstName, val -> order.firstName = val), new TranslatableComponent("minetogether.info.first_name"))
-                .setEnabled(() -> !loginMode)
-                .constrain(TOP, relative(password.get(BOTTOM), 4));
-        GuiElement<?> lastName = detailsBox(background, centerRight, right, TextState.create(() -> order.lastName, val -> order.lastName = val), new TranslatableComponent("minetogether.info.last_name"))
-                .setEnabled(() -> !loginMode)
-                .constrain(TOP, relative(password.get(BOTTOM), 4));
-
-        GuiElement<?> address = detailsBox(background, left, centerLeft, TextState.create(() -> order.address, val -> order.address = val), new TranslatableComponent("minetogether.info.address"))
-                .setEnabled(() -> !loginMode)
-                .constrain(TOP, relative(firstName.get(BOTTOM), 4));
-        GuiElement<?> city = detailsBox(background, centerRight, right, TextState.create(() -> order.city, val -> order.city = val), new TranslatableComponent("minetogether.info.city"))
-                .setEnabled(() -> !loginMode)
-                .constrain(TOP, relative(firstName.get(BOTTOM), 4));
-
-        GuiElement<?> zipCode = detailsBox(background, left, centerLeft, TextState.create(() -> order.zip, val -> order.zip = val), new TranslatableComponent("minetogether.info.zip"))
-                .setEnabled(() -> !loginMode)
-                .constrain(TOP, relative(address.get(BOTTOM), 4));
-        GuiElement<?> state = detailsBox(background, centerRight, right, TextState.create(() -> order.state, val -> order.state = val), new TranslatableComponent("minetogether.info.state"))
-                .setEnabled(() -> !loginMode)
-                .constrain(TOP, relative(address.get(BOTTOM), 4));
-
-        Map<String, Country> countryMap = getCountries();
-        GuiButton country = MTStyle.Flat.button(background, () -> new TextComponent(getSelectedCountry().toString()))
-                .setEnabled(() -> !loginMode)
-                .onPress(() -> new ItemSelectDialog<>(background.getModularGui().getRoot(), new TranslatableComponent("minetogether:gui.order.select_country"), new ArrayList<>(countryMap.values()), countryMap.get(order.country)).setOnItemSelected(item -> {
-                    order.country = item.key;
-                    summaryDirty();
-                }))
-                .constrain(TOP, relative(zipCode.get(BOTTOM), 4))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, centerLeft)
-                .constrain(HEIGHT, literal(12));
-
-        GuiElement<?> phone = detailsBox(background, centerRight, right, TextState.create(() -> order.phone, val -> order.phone = val), new TranslatableComponent("minetogether.info.phone"))
-                .setEnabled(() -> !loginMode)
-                .constrain(TOP, relative(zipCode.get(BOTTOM), 4));
-
-        GuiButton login = MTStyle.Flat.button(background, new TranslatableComponent("minetogether:gui.button.login"))
-                .setEnabled(() -> loginMode)
-                .onPress(this::doLogin)
-                .setDisabled(() -> order.password.isEmpty() || loggingIn || loggedIn)
-                .constrain(TOP, relative(email.get(BOTTOM), 4))
-                .constrain(LEFT, centerRight)
-                .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(12));
-
-        new GuiText(background, TextComponent.EMPTY)
-                .setEnabled(() -> loginMode)
-                .setWrap(true)
-                .setTextSupplier(() -> {
-                    if (loggingIn) {
-                        return new TranslatableComponent("minetogether:gui.order.logging_in");
-                    } else if (loggedIn) {
-                        return new TranslatableComponent("minetogether:gui.order.login_success");
-                    } else if (!loggingInError.isEmpty()) {
-                        return new TranslatableComponent("minetogether:gui.order.login_error", loggingInError);
-                    }
-                    return new TranslatableComponent("minetogether:gui.order.account_exists");
-                })
-                .setAlignment(Align.CENTER)
-                .constrain(TOP, relative(login.get(BOTTOM), 4))
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(30));
-
-        return lastElement;
+        Constraints.placeOutside(new GuiElement<>(background).setSize(10, spacing), world, Constraints.LayoutPos.BOTTOM_CENTER);
     }
 
     private void setupSummaryPanel(GuiElement<?> background) {
@@ -489,13 +289,14 @@ public class OrderGui implements GuiProvider {
                 .constrain(RIGHT, right)
                 .constrain(HEIGHT, literal(8));
 
-        lastElement = new GuiText(scrollPane, () -> new TranslatableComponent("minetogether:gui.order.region." + order.serverLocation))
+        lastElement = new GuiText(scrollPane, () -> new TextComponent(getDCName(order.serverLocation)))
                 .setEnabled(() -> summary.summaryError.isEmpty())
                 .setTextColour(GREEN.getColor())
+                .setWrap(true)
                 .constrain(TOP, relative(lastElement.get(BOTTOM), 2))
                 .constrain(LEFT, left)
                 .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(8));
+                .autoHeight();
 
         //Plan
         lastElement = new GuiText(scrollPane, new TranslatableComponent("minetogether:gui.order.summary.plan"))
@@ -615,7 +416,7 @@ public class OrderGui implements GuiProvider {
                 .constrain(BOTTOM, relative(discount.get(TOP), -0))
                 .constrain(HEIGHT, literal(10));
 
-        GuiText subTotalValue = new GuiText(background, () -> new TextComponent(summary.prefix + String.format("%.2f", summary.subTotal) + " " + summary.suffix))
+        GuiText subTotalValue = new GuiText(background, () -> new TextComponent(summary.prefix + String.format("%.2f", summary.preDiscount) + " " + summary.suffix))
                 .setAlignment(Align.RIGHT);
         Constraints.bind(subTotalValue, subTotal);
     }
@@ -664,124 +465,6 @@ public class OrderGui implements GuiProvider {
         processing = false;
     }
 
-    //=== GUI Component Builders ===//
-
-    private GuiElement<?> locationButton(GuiElement<?> parent, String region) {
-        boolean available = getAvailability(region);
-        GuiButton button = MTStyle.Flat.button(parent, (Supplier<Component>) null)
-                .setToggleMode(() -> region.equals(order.serverLocation))
-                .onPress(() -> {
-                    order.serverLocation = region;
-                    summaryDirty();
-                })
-                .constrain(HEIGHT, literal(available ? 12 : 32));
-
-        GuiText label = new GuiText(button, new TranslatableComponent("minetogether:gui.order.region." + region))
-                .setAlignment(Align.LEFT)
-                .constrain(TOP, relative(button.get(TOP), 2))
-                .constrain(LEFT, relative(button.get(LEFT), 4))
-                .constrain(RIGHT, relative(button.get(RIGHT), -14))
-                .constrain(HEIGHT, literal(8));
-
-        double ping = regionPing.getOrDefault(region, -2);
-        int distance = dataCenterDistance.getOrDefault(regionToDataCentre(region), -1);
-        GuiText pingLabel = new GuiText(button, new TextComponent(((int) Math.ceil(ping)) + " ms"))
-                .setEnabled(() -> ping > 0)
-                .setAlignment(Align.RIGHT)
-                .constrain(TOP, relative(button.get(TOP), 2))
-                .constrain(LEFT, relative(button.get(LEFT), 4))
-                .constrain(RIGHT, relative(button.get(RIGHT), -14))
-                .constrain(HEIGHT, literal(8));
-
-        GuiTexture signal = new GuiTexture(button, MTTextures.getter(() -> getSignalIcon(ping, distance)))
-                .setTooltipSingle(() -> getSignalTooltip(ping, distance))
-                .constrain(TOP, match(button.get(TOP)))
-                .constrain(RIGHT, match(button.get(RIGHT)))
-                .constrain(HEIGHT, literal(12))
-                .constrain(WIDTH, literal(12));
-
-        if (!available) {
-            GuiText lowAvail = new GuiText(button, new TranslatableComponent("minetogether:gui.order.low_availability").withStyle(RED))
-                    .setAlignment(Align.LEFT)
-                    .setWrap(true)
-                    .constrain(BOTTOM, relative(button.get(BOTTOM), -2))
-                    .constrain(LEFT, relative(button.get(LEFT), 4))
-                    .constrain(RIGHT, relative(button.get(RIGHT), -4))
-                    .autoHeight();
-
-            button.constrain(HEIGHT, dynamic(() -> 12 + lowAvail.ySize() + 4));
-        }
-
-        return button;
-    }
-
-    private GuiElement<?> emailBox(GuiElement<?> parent, Constraint left, Constraint right) {
-        GuiElement<?> background = MTStyle.Flat.contentArea(parent)
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(12));
-
-        GuiElement<?> highlight = new GuiRectangle(background)
-                .border(0x50FFFFFF)
-                .fill(0x30FFFFFF);
-        Constraints.bind(highlight, background);
-
-        GuiTextField textField = new GuiTextField(background)
-                .setSuggestion(new TranslatableComponent("minetogether.info.e_mail"))
-                .setTextState(TextState.create(() -> order.emailAddress, s -> {
-                    order.emailAddress = s;
-                    emailDirty();
-                }));
-        textField.setSuggestionColour(() -> 0xFFFFFF);
-        highlight.setEnabled(textField::isFocused);
-
-        Constraints.bind(textField, background, 0, 2, 0, 2);
-        return background;
-    }
-
-    private GuiElement<?> passwordBox(GuiElement<?> parent, Constraint left, Constraint right, TextState textState, Component suggestion) {
-        GuiElement<?> background = MTStyle.Flat.contentArea(parent)
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(12));
-
-        GuiElement<?> highlight = new GuiRectangle(background)
-                .border(0x50FFFFFF)
-                .fill(0x30FFFFFF);
-        Constraints.bind(highlight, background);
-
-        GuiTextField textField = new GuiTextField(background)
-                .setSuggestion(suggestion)
-                .setFormatter((s, integer) -> new TextComponent(StringUtils.repeat('*', s.length())).getVisualOrderText())
-                .setTextState(textState);
-        textField.setSuggestionColour(() -> 0xFFFFFF);
-        highlight.setEnabled(textField::isFocused);
-
-        Constraints.bind(textField, background, 0, 2, 0, 2);
-        return background;
-    }
-
-    private GuiElement<?> detailsBox(GuiElement<?> parent, Constraint left, Constraint right, TextState textState, Component suggestion) {
-        GuiElement<?> background = MTStyle.Flat.contentArea(parent)
-                .constrain(LEFT, left)
-                .constrain(RIGHT, right)
-                .constrain(HEIGHT, literal(12));
-
-        GuiElement<?> highlight = new GuiRectangle(background)
-                .border(0x50FFFFFF)
-                .fill(0x30FFFFFF);
-        Constraints.bind(highlight, background);
-
-        GuiTextField textField = new GuiTextField(background)
-                .setSuggestion(suggestion)
-                .setTextState(textState);
-        textField.setSuggestionColour(() -> 0xFFFFFF);
-        highlight.setEnabled(textField::isFocused);
-
-        Constraints.bind(textField, background, 0, 2, 0, 2);
-        return background;
-    }
-
     //=== Logic ===//
 
     private void validateInputs() {
@@ -790,26 +473,28 @@ public class OrderGui implements GuiProvider {
             invalidMessage = nameMessage;
         } else if (!emailValid) {
             invalidMessage = emailMessage;
-        } else if (!loginMode && !confirmPassword.equals(order.password)) {
+        } else if (!details.loginMode && !details.confirmPassword.equals(order.password)) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.passwords_dont_match");
         } else if (order.password.isEmpty()) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.blank.password");
-        } else if (!loginMode && order.firstName.isEmpty()) {
+        } else if (!details.loginMode && order.firstName.isEmpty()) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.blank.first_name");
-        } else if (!loginMode && order.lastName.isEmpty()) {
+        } else if (!details.loginMode && order.lastName.isEmpty()) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.blank.last_name");
-        } else if (!loginMode && order.address.isEmpty()) {
+        } else if (!details.loginMode && order.address.isEmpty()) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.blank.address");
-        } else if (!loginMode && order.city.isEmpty()) {
+        } else if (!details.loginMode && order.city.isEmpty()) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.blank.city");
-        } else if (!loginMode && order.zip.isEmpty()) {
+        } else if (!details.loginMode && order.zip.isEmpty()) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.blank.zip");
-        } else if (!loginMode && order.state.isEmpty()) {
+        } else if (!details.loginMode && order.state.isEmpty()) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.blank.state");
-        } else if (!loginMode && order.phone.isEmpty()) {
+        } else if (!details.loginMode && order.phone.isEmpty()) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.blank.phone");
-        } else if (loginMode && !loggedIn) {
+        } else if (details.loginMode && !details.loggedIn) {
             invalidMessage = new TranslatableComponent("minetogether:gui.order.login_required");
+        } else if (world.worldUploader != null) {
+            invalidMessage = new TranslatableComponent("minetogether:gui.order.waiting_for_world_upload");
         } else {
             inputsValid = true;
         }
@@ -825,34 +510,14 @@ public class OrderGui implements GuiProvider {
         emailMessage = new TranslatableComponent("minetogether:gui.order.email_not_checked");
     }
 
-    private void nameDirty() {
+    public void nameDirty() {
         nameValid = false;
         nameMessage = new TranslatableComponent("minetogether:gui.order.name_not_checked");
         nameCheckTimer = 60;
     }
 
-    private void summaryDirty() {
+    public void summaryDirty() {
         summaryUpdateRequired = true;
-    }
-
-    private void doLogin() {
-        loggingIn = true;
-        CompletableFuture.runAsync(() -> {
-            String result = ServerOrderCallbacks.doLogin(order.emailAddress, order.password);
-            String[] resultSplit = result.split(":");
-            if (resultSplit[0].equals("success")) {
-                order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
-                order.clientID = resultSplit[2] != null ? resultSplit[2] : "98874"; // random test account fallback
-                loggingIn = false;
-                loggedIn = true;
-                loggingInError = "";
-                summaryDirty();
-            } else {
-                loggingIn = false;
-                loggedIn = false;
-                loggingInError = result;
-            }
-        });
     }
 
     private void placeOrder(ModularGui gui) {
@@ -860,13 +525,12 @@ public class OrderGui implements GuiProvider {
 
         orderTask = CompletableFuture.runAsync(() -> {
             //Create Account
-            if (!loginMode) {
+            if (!details.loginMode) {
                 setProcessing(null, null, new TranslatableComponent("minetogether:gui.order.account_creating"));
-                String result = ServerOrderCallbacks.createAccount(order);
-                String[] resultSplit = result.split(":");
-                if (resultSplit[0].equals("success")) {
-                    order.currency = resultSplit[1] != null ? resultSplit[1] : "1";
-                    order.clientID = resultSplit[2] != null ? resultSplit[2] : "0"; // random test account fallback
+                var result = OrderRequests.createAccount(order);
+                if (result.getStatus().equals("success")) {
+                    order.currency = result.currency != null ? result.currency : "1";
+                    order.clientID = result.userid != null ? result.userid : "0"; // random test account fallback
                 } else {
                     setProcessing(new TranslatableComponent("minetogether:gui.button.ok"), this::clearProcessing, new TranslatableComponent("minetogether:gui.order.account_error", result));
                     return;
@@ -875,11 +539,9 @@ public class OrderGui implements GuiProvider {
 
             //Place Order
             setProcessing(null, null, new TranslatableComponent("minetogether:gui.order.order_placing"));
-            String result = ServerOrderCallbacks.createOrder(order, getRegionId(order.serverLocation), String.valueOf(Config.instance().pregenDiameter));
-            String[] resultSplit = result.split(":");
-            if (resultSplit[0].equals("success")) {
-                invoiceID = resultSplit[1] != null ? resultSplit[1] : "0";
-                orderNumber = Integer.parseInt(resultSplit[2]);
+            var result = OrderRequests.placeOrder(order, getDCId(order.serverLocation), String.valueOf(Config.instance().pregenDiameter), computeFallbackLocation());
+            if (result.getStatus().equals("success")) {
+                invoiceID = result.more == null || result.more.invoiceid == null ? "0" : result.more.invoiceid;
             } else {
                 setProcessing(new TranslatableComponent("minetogether:gui.button.ok"), this::clearProcessing, new TranslatableComponent("minetogether:gui.order.order_error", result));
                 return;
@@ -888,14 +550,14 @@ public class OrderGui implements GuiProvider {
             processingShowCloseButton = true;
             setProcessing(new TranslatableComponent("minetogether:gui.button.invoice"), () -> {
                 try {
-                    Util.getPlatform().openUri(new URI(ServerOrderCallbacks.getPaymentLink(invoiceID)));
+                    Util.getPlatform().openUri(new URI(getPaymentLink(invoiceID)));
                 } catch (Throwable throwable) {
-                    gui.mc().keyboardHandler.setClipboard(ServerOrderCallbacks.getPaymentLink(invoiceID));
+                    gui.mc().keyboardHandler.setClipboard(getPaymentLink(invoiceID));
                     processingText = new TextComponent("Something went wrong while attempting to open the link,\nSo the link has been copied to your clipboard.");
                     LOGGER.error("Couldn't open link", throwable);
                 }
             }, new TranslatableComponent("minetogether:gui.order.order_success"));
-        });
+        }, EXECUTOR);
     }
 
     private void tick(ModularGui gui) {
@@ -905,10 +567,10 @@ public class OrderGui implements GuiProvider {
             } else {
                 nameMessage = new TranslatableComponent("minetogether:gui.order.name_checking");
                 CompletableFuture.runAsync(() -> {
-                    AvailableResult result = ServerOrderCallbacks.getNameAvailable(order.name);
-                    nameValid = result.getSuccess();
+                    ApiResponse result = OrderRequests.getNameAvailable(order.name);
+                    nameValid = "success".equals(result.getStatus());
                     nameMessage = new TextComponent(result.getMessage());
-                });
+                }, EXECUTOR);
             }
         }
 
@@ -918,77 +580,73 @@ public class OrderGui implements GuiProvider {
             } else {
                 emailMessage = new TranslatableComponent("minetogether:gui.order.email_checking");
                 CompletableFuture.runAsync(() -> {
-                    loginMode = ServerOrderCallbacks.doesEmailExist(order.emailAddress);
+                    details.loginMode = OrderRequests.doesAccountExist(order.emailAddress);
                     emailValid = true;
                     emailMessage = null;
-                });
+                }, EXECUTOR);
             }
         }
 
         if (initTask != null && initTask.isDone() && locations != null) {
             initTask = null;
-            updateLocations();
+            locations.updateLocations();
         }
 
         //Update data-center pings.
         if (initTask == null && pingTask == null && pingTimer-- <= 0) {
             pingTask = CompletableFuture.runAsync(() -> {
                 List<CompletableFuture<?>> pingers = new ArrayList<>();
-                for (String key : regionPing.keySet()) {
-                    pingers.add(CompletableFuture.runAsync(() -> {
-                        String url = dataCenterUrls.get(regionToDataCentre(key));
-                        int distance = dataCenterDistance.get(regionToDataCentre(key));
-                        if (url == null || distance == -1) {
-                            regionPing.put(key, -2);
-                        } else {
-                            try {
-                                regionPing.put(key, ServerOrderCallbacks.getDataCentreLatency(url, distance));
-                            } catch (IOException ignored) {
-                                regionPing.put(key, -2);
-                            }
-                        }
-                        pingUpdated = true;
-                    }));
-                }
-
+                dcMap.forEach((name, dc) -> pingers.add(CompletableFuture.runAsync(() -> {
+                    long distance = dcDistance.get(name);
+                    if (dc.latencyUrl == null || distance == -1) {
+                        dcPing.put(name, -2);
+                    } else {
+                        dcPing.put(name, OrderRequests.getDCLatency(dc.latencyUrl, distance));
+                    }
+                    pingUpdated = true;
+                }, PING_EXECUTOR)));
                 boolean allDone;
                 do {
                     allDone = pingers.stream().allMatch(CompletableFuture::isDone);
                 } while (!allDone);
                 pingTimer = 200;
-            });
+            }, PING_EXECUTOR);
         } else if (pingTask != null && pingTask.isDone()) {
             pingTask = null;
-            updateLocations();
+            locations.updateLocations();
         }
 
         if (pingUpdated) {
             pingUpdated = false;
-            updateLocations();
+            locations.updateLocations();
         }
 
         if (summaryUpdateRequired && !summaryUpdating) {
             summaryUpdating = true;
             summaryUpdateRequired = false;
-            CompletableFuture.runAsync(() -> {
-                summary = ServerOrderCallbacks.getSummary(order, Config.instance().promoCode);
+            summaryTask = CompletableFuture.runAsync(() -> {
+                summary = OrderRequests.getSummary(order, Config.instance().promoCode);
                 order.productID = summary.productID;
                 order.currency = summary.currency;
                 summaryUpdating = false;
-            });
+                CompletableFuture.runAsync(() -> OrderRequests.getDataCenters(summary.ram + 4096).forEach(dc -> dcMap.put(dc.slug, dc)), EXECUTOR);
+            }, EXECUTOR);
         }
 
-        if (dataCenterAvailability.isEmpty() && availabilityTask == null && !summaryUpdateRequired && !summaryUpdating) {
-            availabilityTask = CompletableFuture.runAsync(() -> {
-                dataCenterAvailability.putAll(ServerOrderCallbacks.getDataCentreAvailability(summary.ram + 4096));
-            });
-        } else if (availabilityTask != null && availabilityTask.isDone()) {
-            availabilityTask = null;
-            updateLocations();
+        if (summaryTask != null && summaryTask.isDone()) {
+            summaryTask = null;
+            locations.updateLocations();
         }
 
         if (orderTask != null && orderTask.isDone()) {
             orderTask = null;
+        }
+
+        if (world.worldUploader != null && !world.worldUploader.errored()) {
+            if (world.worldUploader.isFinished()) {
+                order.worldUrl = world.worldUploader.getResultFileURL();
+                world.worldUploader = null;
+            }
         }
 
         validateInputs();
@@ -1008,95 +666,41 @@ public class OrderGui implements GuiProvider {
         }
     }
 
-    private String getSignalIcon(double ping, int distance) {
-        if (ping > 0) {
-            int icon = MathUtil.clamp(5 - (int) (ping / 42), 1, 5);
-            return "signal/signal_" + icon;
-        } else if (distance != -1) {
-            if (distance < 1000) return "signal/signal_5";
-            if (distance > 1000 && distance < 3000) return "signal/signal_4";
-            if (distance > 3000 && distance < 5000) return "signal/signal_3";
-            if (distance > 5000 && distance < 6000) return "signal/signal_2";
-            return "signal/signal_1";
-        } else if (ping == -1) {
-            int l = (int) (Util.getMillis() / 100L & 7L);
-            if (l > 4) {
-                l = 8 - l;
-            }
-            return "signal/scan_" + l;
-        }
-        return "signal/signal_0";
-    }
-
-    private Component getSignalTooltip(double ping, int distance) {
-        if (ping > 0) {
-            return new TranslatableComponent("minetogether:gui.order.region.signal");
-        } else if (distance > 0) {
-            return new TranslatableComponent("minetogether:gui.order.region.from_distance");
-        } else if (ping == -1) {
-            return new TranslatableComponent("minetogether:gui.order.region.pinging");
-        }
-        return new TranslatableComponent("minetogether:gui.order.region.pinging_fail");
-    }
-
-    private Map<String, Country> getCountries() {
-        Map<String, Country> map = new LinkedHashMap<>();
-        Countries.COUNTRIES.forEach((key, name) -> map.put(key, new Country(key, name)));
-        return map;
-    }
-
-    private Country getSelectedCountry() {
+    public Country getSelectedCountry() {
         return new Country(order.country, Countries.COUNTRIES.get(order.country));
     }
 
-    //This is only used to get an Approximate distance
-    private String regionToDataCentre(String region) {
-        return switch (region) {
-            case "eu-west" -> "grantham";
-            case "na-east" -> "newyork";
-            case "na-west" -> "losangeles";
-            case "na-south" -> "dallas";
-            case "sub-saharan-africa" -> "johannesburg";
-            case "south-america" -> "saopaulo";
-            case "asia" -> "hongkong";
-            case "australia" -> "sydney";
-            case "eu-middle-east" -> "bucharest";
-            default -> "";
-        };
+    private String getDCId(String dc) {
+        return dcIdMap.getOrDefault(dc, dc);
     }
 
-    private String datacentreToRegion(String centre) {
-        return switch (centre) {
-            case "grantham" -> "eu-west";
-            case "buffalo" -> "na-east";
-            case "chicago" -> "na-east";
-            case "miami" -> "na-south";
-            case "dallas" -> "na-south";
-            case "newyork" -> "na-south";
-            case "seattle" -> "na-west";
-            case "losangeles" -> "na-west";
-            case "johannesburg" -> "sub-saharan-africa";
-            case "tokyo" -> "asia";
-            case "saopaulo" -> "south-america";
-            case "hongkong" -> "asia";
-            case "sydney" -> "australia";
-            case "bucharest" -> "eu-middle-east";
-            default -> "";
-        };
+    private String getDCName(String dc) {
+        return dcMap.containsKey(dc) ? dcMap.get(dc).name : dc;
     }
 
-    private String getRegionId(String region) {
-        return regionMap.getOrDefault(region, region);
-    }
-
-    private boolean getAvailability(String region) {
-        if (availabilityTask != null || dataCenterAvailability.isEmpty()) return true;
-        for (String center : dataCenterAvailability.keySet()) {
-            if (datacentreToRegion(center).equals(region) && dataCenterAvailability.get(center)) {
-                return true;
+    private String computeFallbackLocation() {
+        if (!order.useFallback) return "";
+        String fallBack = "";
+        long lowest = Integer.MAX_VALUE;
+        for (String dc : dcPing.keySet()) {
+            int ping = dcPing.get(dc);
+            if (ping > 0 && !dc.equals(order.serverLocation) && ping < lowest) {
+                lowest = ping;
+                fallBack = dc;
             }
         }
-        return false;
+
+        if (fallBack.isEmpty()) {
+            for (String dc : dcDistance.keySet()) {
+                long distance = dcDistance.get(dc);
+                if (distance > 0 && !dc.equals(order.serverLocation) && distance < lowest) {
+                    lowest = distance;
+                    fallBack = dc;
+                }
+            }
+        }
+
+        return fallBack;
     }
 
     public static String getDefaultName() {
@@ -1111,7 +715,26 @@ public class OrderGui implements GuiProvider {
         return nm1[rnd] + nm2[rnd2] + RAND.nextInt(999);
     }
 
-    record Country(String key, String name) {
+    public Material getFlag(DC dc) {
+        String code = dc.country.toUpperCase(Locale.ROOT);
+        if (Countries.COUNTRIES.containsKey(code)) {
+            code = code.toLowerCase(Locale.ROOT);
+        } else {
+            code = "unknown";
+        }
+        return MTTextures.get("flags/" + code);
+    }
+
+    public double flagWidth(DC dc, double height) {
+        TextureAtlasSprite sprite = getFlag(dc).sprite();
+        return (sprite.getWidth() / (double)sprite.getHeight()) * height;
+    }
+
+    public static String getPaymentLink(String invoiceID) {
+        return "https://billing.creeperhost.net/viewinvoice.php?id=" + invoiceID;
+    }
+
+    public record Country(String key, String name) {
         @Override
         public String toString() {
             return name == null ? "" : name;
