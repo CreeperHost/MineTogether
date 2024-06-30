@@ -1,7 +1,5 @@
 package net.creeperhost.minetogether.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.chat.gui.MTStyle;
 import net.creeperhost.minetogether.gui.dialogs.ItemSelectDialog;
@@ -11,11 +9,8 @@ import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.*;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
-import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
-import net.creeperhost.polylib.client.modulargui.sprite.Material;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Random;
@@ -300,39 +295,6 @@ public class ProfileGui implements GuiProvider {
 
     private void tick() {
         ProfileRequests.updateRequests();
-    }
-
-    public static class LoadingSpinner extends GuiElement<LoadingSpinner> implements ForegroundRender {
-        private int tick = 340;
-        public int colour = 0xFFFFFF;
-
-        public LoadingSpinner(@NotNull GuiParent parent) {
-            super(parent);
-        }
-
-        @Override
-        public void tick(double mouseX, double mouseY) {
-            super.tick(mouseX, mouseY);
-            tick++;
-        }
-
-        @Override
-        public void renderInFront(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-            Material tex = MTTextures.get("spinner_dot");
-            double size = Math.max(xSize(), ySize()) / 2;
-            PoseStack stack = render.pose();
-
-            stack.pushPose();
-            stack.translate(xCenter(), yCenter(), 0);
-
-            int segments = 10;
-            for (int i = 1; i < segments + 1; i++) {
-                stack.mulPose(Axis.ZP.rotationDegrees(20 + tick + partialTicks));
-                render.texRect(tex, -4D, -4D - size, 8D, 8D, (((int) ((i / (segments - 1D)) * 0xFF)) << 24) | colour);
-            }
-
-            stack.popPose();
-        }
     }
 
     public static class Screen extends ModularGuiScreen {
