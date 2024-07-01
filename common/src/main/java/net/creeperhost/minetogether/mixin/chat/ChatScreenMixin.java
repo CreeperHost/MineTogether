@@ -2,15 +2,16 @@ package net.creeperhost.minetogether.mixin.chat;
 
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.*;
-import net.creeperhost.minetogether.chat.gui.FriendRequestScreen;
+import net.creeperhost.minetogether.chat.gui.ChatScreenInjection;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.polylib.gui.*;
 import net.creeperhost.minetogether.util.MessageFormatter;
+import net.creeperhost.polylib.client.modulargui.ModularGui;
+import net.creeperhost.polylib.client.modulargui.ModularGuiInjector;
 import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -52,7 +53,6 @@ abstract class ChatScreenMixin extends Screen {
     private SlideButton chatWidthSlider;
     private SlideButton chatHeightSlider;
     private IconButton settingsButton;
-    private DropdownButton<MessageDropdownOption> dropdownButton;
 
     @Nullable
     private Message clickedMessage;
@@ -62,6 +62,10 @@ abstract class ChatScreenMixin extends Screen {
 
     @Shadow
     CommandSuggestions commandSuggestions;
+
+    @Shadow private String initial;
+
+    @Shadow @Nullable protected abstract Style getComponentStyleAt(double d, double e);
 
     private Button newUserButton;
     private Button disableButton;
@@ -155,26 +159,6 @@ abstract class ChatScreenMixin extends Screen {
 
         updateButtons();
 
-        dropdownButton = addRenderableWidget(new DropdownButton<>(100, 20, clicked -> {
-            assert clickedMessage != null;
-            assert clickedMessage.sender != null;
-            switch (clicked) {
-                case MUTE -> clickedMessage.sender.mute();
-                case ADD_FRIEND ->
-                        minecraft.setScreen(new FriendRequestScreen(this, clickedMessage.sender, FriendRequestScreen.Type.REQUEST));
-                case MENTION -> {
-                    String val = input.getValue();
-                    if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
-                        val = val + " ";
-                    }
-                    input.setValue(val + clickedMessage.sender.getDisplayName());
-                }
-                default -> LOGGER.info("Dropdown action not currently implemented! {}", clicked);
-            }
-        }));
-        dropdownButton.setEntries(MessageDropdownOption.VALUES);
-        dropdownButton.setFlipped(true);
-
         addRenderableOnly(previewRenderer);
 
         newUserButton = addWidget(Button.builder(Component.literal("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
@@ -242,12 +226,13 @@ abstract class ChatScreenMixin extends Screen {
     private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (!LocalConfig.instance().chatEnabled || Minecraft.getInstance().options.hideGui) return;
 
-        // Needs to be done explicitly here, so we prioritize button clicks
-        // over message clicks. We can't move super.mouseClicked here as that would
-        // let vanilla handle clicked styles before us.
-        if (dropdownButton.mouseClicked(mouseX, mouseY, button)) {
-            cir.setReturnValue(true);
-            return;
+        //Link clicks get blocked by our tryClickMTChat function, so we need to do it ourselves here.
+        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && button == 0) {
+            Style style = getComponentStyleAt(mouseX, mouseY);
+            if (style != null && this.handleComponentClicked(style)) {
+                this.initial = this.input.getValue();
+                cir.setReturnValue(true);
+            }
         }
 
         if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && tryClickMTChat(MineTogetherChat.publicChat, mouseX, mouseY)) {
@@ -339,11 +324,14 @@ abstract class ChatScreenMixin extends Screen {
         Message message = mtChat.getClickedMessage();
         if (message == null) return false;
 
-        clickedMessage = message;
-        mtChat.clearClickedMessage();
-
-        dropdownButton.openAt(mouseX, mouseY);
-        return true;
+        ModularGui gui = ModularGuiInjector.getActiveGui();
+        if (gui != null && gui.getProvider() instanceof ChatScreenInjection injection && injection.canShowDialog()) {
+            clickedMessage = message;
+            mtChat.clearClickedMessage();
+            injection.openMessageDialog(clickedMessage, input, mouseX, mouseY);
+            return true;
+        }
+        return false;
     }
 
     @Inject(

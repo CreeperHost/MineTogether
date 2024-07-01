@@ -1,6 +1,5 @@
 package net.creeperhost.minetogether.serverlist.data;
 
-import net.creeperhost.minetogether.polylib.gui.DropdownButton;
 import net.creeperhost.minetogether.serverlist.gui.ServerDataPublic;
 import net.creeperhost.minetogether.util.EnumFlag;
 import net.minecraft.network.chat.Component;
@@ -13,7 +12,7 @@ import static net.creeperhost.minetogether.util.Countries.getOurCountry;
 /**
  * Created by covers1624 on 25/10/22.
  */
-public enum SortType implements DropdownButton.DropdownEntry, Comparator<ServerDataPublic> {
+public enum SortType implements Comparator<ServerDataPublic> {
     RANDOM() {
         @Override
         public int compare(ServerDataPublic o1, ServerDataPublic o2) { return 0; }
@@ -67,7 +66,6 @@ public enum SortType implements DropdownButton.DropdownEntry, Comparator<ServerD
         }
     };
 
-    @Override
     public Component getTitle(boolean isOpen) {
         return Component.translatable("minetogether:screen.multiplayer.sort." + name().toLowerCase(Locale.ROOT));
     }
