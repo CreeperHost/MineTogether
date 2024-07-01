@@ -3,6 +3,7 @@ package net.creeperhost.minetogether;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.chat.gui.ChatScreenInjection;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.connect.MineTogetherConnect;
 import net.creeperhost.minetogether.lib.web.ApiClientResponse;
@@ -11,6 +12,7 @@ import net.creeperhost.minetogether.serverlist.data.Server;
 import net.creeperhost.minetogether.serverlist.web.GetServerRequest;
 import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.creeperhost.minetogether.util.MTSessionProvider;
+import net.creeperhost.polylib.client.modulargui.ModularGuiInjector;
 import net.creeperhost.polylib.client.screen.ButtonHelper;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -38,6 +40,7 @@ import java.util.List;
 public class MineTogetherClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    private static ModularGuiInjector<ChatScreen> chatScreenInjection = new ModularGuiInjector<>(e -> e instanceof ChatScreen, e -> new ChatScreenInjection());
 
     private static boolean first = true;
 
