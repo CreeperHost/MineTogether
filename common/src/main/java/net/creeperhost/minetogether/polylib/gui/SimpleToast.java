@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class SimpleToast extends PolyToast {
-
+    private static final ResourceLocation BACKGROUND_SPRITE = new ResourceLocation("toast/advancement");
     private final Component title;
     private final Component description;
     private ItemStack displayIconStack = ItemStack.EMPTY;
@@ -52,7 +52,7 @@ public class SimpleToast extends PolyToast {
     @Override
     public Toast.Visibility render(GuiGraphics graphics, ToastComponent toastComponent, long l) {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        graphics.blit(new ResourceLocation("toast/advancement"), 0, 0, 0, 0, this.width(), this.height());
+        graphics.blitSprite(BACKGROUND_SPRITE, 0, 0, this.width(), this.height());
         if (iconResourceLocation != null) {
             renderImage(graphics, toastComponent, iconResourceLocation);
         }
