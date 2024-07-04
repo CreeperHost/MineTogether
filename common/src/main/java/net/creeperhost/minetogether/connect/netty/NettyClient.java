@@ -5,6 +5,7 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.covers1624.quack.util.SneakyUtils;
 import net.creeperhost.minetogether.MineTogetherPlatform;
 import net.creeperhost.minetogether.config.Config;
@@ -264,6 +265,7 @@ public class NettyClient {
                 synchronized (error) {
                     error.notifyAll();
                 }
+                channel.close();
             }
 
             @Override
@@ -325,6 +327,7 @@ public class NettyClient {
                         }
 
                         ChannelPipeline pipe = ch.pipeline();
+                        pipe.addLast("timeout", new ReadTimeoutHandler(240));
                         pipe.addLast("mt:frame_codec", new FrameCodec());
                         pipe.addLast("mt:packet_codec", new PacketCodec());
                         if (Config.instance().dumpConnectPackets) {
