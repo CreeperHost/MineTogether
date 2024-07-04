@@ -8,6 +8,7 @@ import net.creeperhost.minetogether.lib.chat.message.Message;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.minetogether.util.MessageFormatter;
+import net.creeperhost.polylib.client.modulargui.ModularGui;
 import net.creeperhost.polylib.client.modulargui.elements.GuiButton;
 import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
 import net.creeperhost.polylib.client.modulargui.elements.GuiList;
@@ -167,7 +168,7 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
         }
     }
 
-    private String displayName(@Nullable Profile profile) {
+    public static String displayName(@Nullable Profile profile) {
         return profile == null ? "" : profile.isFriend() && profile.hasFriendName() ? profile.getFriendName() : profile.getDisplayName();
     }
 }
