@@ -80,12 +80,11 @@ abstract class GuiMixin {
         };
     }
 
-    //TODO, I dont think this is needed now as chat component has its own builtin tick function. But still need to confirm this.
-//    @Inject(
-//            method = "tick()V",
-//            at = @At("TAIL")
-//    )
-//    private void onTick(CallbackInfo ci) {
-//        MineTogetherChat.publicChat.tick();
-//    }
+    @Inject(
+            method = "tick()V",
+            at = @At("TAIL")
+    )
+    private void onTick(CallbackInfo ci) {
+        MineTogetherChat.publicChat.tick();
+    }
 }
