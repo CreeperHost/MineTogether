@@ -36,6 +36,9 @@ public class ChatMonitor {
         }
         pendingMessages.clear();
         messages.clear();
+        if (onMessagesUpdated != null) {
+            onMessagesUpdated.accept(messages);
+        }
         this.channel = channel;
         if (channel != null) {
             pendingMessages.addAll(channel.getMessages());
