@@ -2,6 +2,7 @@ package net.creeperhost.minetogether;
 
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
+import net.creeperhost.minetogether.chat.FriendChatNotifier;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.chat.gui.ChatScreenInjection;
 import net.creeperhost.minetogether.config.Config;
@@ -57,6 +58,7 @@ public class MineTogetherClient {
         MineTogetherChat.init();
         MineTogetherServerList.init();
         MineTogetherConnect.init();
+        FriendChatNotifier.init();
 
         ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
     }

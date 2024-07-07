@@ -271,6 +271,10 @@
     "minetogether:toast.fiend_request_accepted": "%s has accepted your friend request",
     "minetogether:toast.user_online": "%s Is now online.",
     "minetogether:toast.user_offline": "%s Is now offline.",
+    "minetogether:toast.friend_message": "New message(s) from %s",
+
+    "minetogether:chat.friend_message": "New message(s) from %s (click to view)",
+    "minetogether:chat.friend_message.info": "Click to open friend messages",
 
     "minetogether:screen.friendreq.title.accept": "Accept friend",
     "minetogether:screen.friendreq.button.accept": "Accept",
