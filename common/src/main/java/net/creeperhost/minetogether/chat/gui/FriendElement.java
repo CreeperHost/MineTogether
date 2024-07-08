@@ -1,6 +1,7 @@
 package net.creeperhost.minetogether.chat.gui;
 
 import com.mojang.authlib.GameProfile;
+import net.creeperhost.minetogether.chat.FriendChatNotifier;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.dialogs.ContextMenu;
 import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
@@ -8,8 +9,10 @@ import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
 import net.creeperhost.polylib.client.modulargui.elements.GuiButton;
 import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
+import net.creeperhost.polylib.client.modulargui.elements.GuiRectangle;
 import net.creeperhost.polylib.client.modulargui.elements.GuiText;
 import net.creeperhost.polylib.client.modulargui.lib.BackgroundRender;
+import net.creeperhost.polylib.client.modulargui.lib.Constraints;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
@@ -90,6 +93,21 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
                     .constrain(LEFT, relative(icon.get(RIGHT), 3))
                     .constrain(RIGHT, relative(get(RIGHT), -2))
                     .constrain(HEIGHT, literal(9));
+
+            GuiRectangle unreadBg = new GuiRectangle(this)
+                    .setEnabled(() -> FriendChatNotifier.getUnreadMessageCount(profile) > 0)
+                    .fill(0xFFFF0000)
+                    .constrain(BOTTOM, relative(icon.get(BOTTOM), -1))
+                    .constrain(RIGHT, relative(icon.get(RIGHT), -1))
+                    .constrain(HEIGHT, literal(10));
+
+            GuiText unread = new GuiText(unreadBg, () -> new TextComponent(String.valueOf(FriendChatNotifier.getUnreadMessageCount(profile))))
+                    .setScroll(false)
+                    .constrain(WIDTH, literal(20))
+                    .constrain(HEIGHT, literal(8));
+            unreadBg.constrain(WIDTH, dynamic(() -> font().width(unread.getText()) + 2D));
+            Constraints.center(unread, unreadBg);
+
         } else {
             GuiButton accept = MTStyle.Flat.buttonPrimary(this, new TranslatableComponent("minetogether:gui.friends.button.accept"))
                     .onPress(() -> {
@@ -136,6 +154,7 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
                     showOptions(mouseX, mouseY);
                 } else {
                     FriendChatGui.selected = profile;
+                    FriendChatNotifier.setActiveChat(profile);
                 }
                 return true;
             }

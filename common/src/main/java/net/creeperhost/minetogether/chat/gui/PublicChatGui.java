@@ -124,7 +124,7 @@ public class PublicChatGui implements GuiProvider {
                 //Keep the same parent screen, So the back button always takes us to the 'first' screen (Main Menu / Pause Menu)
                 .setTooltip(new TranslatableComponent("minetogether:gui.button.friends.info"))
                 .setTooltipDelay(0)
-                .onPress(() -> gui.mc().setScreen(new ModularGuiScreen(new FriendChatGui(), gui.getParentScreen())))
+                .onPress(() -> gui.mc().setScreen(new FriendChatGui.Screen(gui.getParentScreen())))
                 .constrain(BOTTOM, match(back.get(BOTTOM)))
                 .constrain(RIGHT, relative(settings.get(LEFT), -2))
                 .constrain(WIDTH, literal(16))

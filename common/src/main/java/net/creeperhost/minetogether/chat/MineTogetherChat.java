@@ -153,6 +153,14 @@ public class MineTogetherChat {
         ));
     }
 
+    public static void simpleToast(Component toastTitle, Component toastText) {
+        addToast(new SimpleToast(
+                toastTitle,
+                toastText,
+                MINETOGETHER_LOGO_25
+        ));
+    }
+
     private static void addToast(Toast toast) {
         if (hasHitLoadingScreen) {
             Minecraft.getInstance().getToasts().addToast(toast);
@@ -188,7 +196,7 @@ public class MineTogetherChat {
         ScreenHooks.addRenderableWidget(screen, settings);
         tooltips.addTooltip(settings, new TranslatableComponent("minetogether:gui.button.settings.info"));
 
-        IconButton friendChat = new IconButton(screen.width - (buttonPos += 21), 5, 7, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new FriendChatGui(), screen)));
+        IconButton friendChat = new IconButton(screen.width - (buttonPos += 21), 5, 7, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new FriendChatGui.Screen(screen)));
         ScreenHooks.addRenderableWidget(screen, friendChat);
         tooltips.addTooltip(friendChat, new TranslatableComponent("minetogether:gui.button.friends.info"));
 

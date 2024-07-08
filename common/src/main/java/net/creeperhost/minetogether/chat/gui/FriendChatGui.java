@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.chat.gui;
 
 import net.covers1624.quack.collection.FastStream;
 import net.creeperhost.minetogether.chat.ChatConstants;
+import net.creeperhost.minetogether.chat.FriendChatNotifier;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.MTTextures;
 import net.creeperhost.minetogether.gui.SettingGui;
@@ -55,7 +56,9 @@ public class FriendChatGui implements GuiProvider {
     private int friendCookie = -1;
 
     @Nullable //Made profile static so we remember the selected profile.
-    protected static Profile selected;
+    public static Profile selected;
+
+    private FriendChatGui() {}
 
     @Override
     public GuiElement<?> createRootElement(ModularGui gui) {
@@ -116,6 +119,7 @@ public class FriendChatGui implements GuiProvider {
             List<Profile> friends = FastStream.of(knownUsers).filter(Profile::isFriend).toLinkedList();
             if (!friends.contains(selected)) selected = null;
         }
+        FriendChatNotifier.setActiveChat(selected);
     }
 
     private void setupGuiHeader(ModularGui gui, GuiElement<?> root) {
@@ -343,5 +347,17 @@ public class FriendChatGui implements GuiProvider {
 
     private void scheduleFriendUpdate() {
         friendCookie = -1;
+    }
+
+    public static class Screen extends ModularGuiScreen {
+        public Screen(@Nullable net.minecraft.client.gui.screens.Screen parentScreen) {
+            super(new FriendChatGui(), parentScreen);
+        }
+
+        @Override
+        public void removed() {
+            super.removed();
+            FriendChatNotifier.setActiveChat(null);
+        }
     }
 }
