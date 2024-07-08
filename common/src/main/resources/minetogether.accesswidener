@@ -9,8 +9,6 @@ accessible method net/minecraft/client/gui/components/ChatComponent removeById (
 
 extendable method net/minecraft/client/gui/components/ChatComponent isChatFocused ()Z
 accessible method net/minecraft/client/gui/components/ChatComponent isChatFocused ()Z
-extendable method net/minecraft/client/gui/components/ChatComponent refreshTrimmedMessage ()V
-accessible method net/minecraft/client/gui/components/ChatComponent refreshTrimmedMessage ()V
 
 accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessages Ljava/util/List;
 accessible field net/minecraft/client/gui/components/ChatComponent allMessages Ljava/util/List;
