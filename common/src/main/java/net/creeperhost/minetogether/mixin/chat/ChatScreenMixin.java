@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.*;
 import net.creeperhost.minetogether.chat.gui.ChatScreenInjection;
+import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.gui.SettingGui;
@@ -215,11 +216,21 @@ abstract class ChatScreenMixin extends Screen {
             cancellable = true
     )
     private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+        //Should be able to do this with a client command, but client commands dont work through the "RUN_COMMAND" click event.
+        Style style = getComponentStyleAt(mouseX, mouseY);
+        if (style != null) {
+            ClickEvent clickEvent = style.getClickEvent();
+            if (clickEvent instanceof FriendChatNotifier.OpenFriendEvent event) {
+                FriendChatGui.selected = event.profile;
+                Minecraft.getInstance().setScreen(new FriendChatGui.Screen(null));
+                cir.setReturnValue(true);
+            }
+        }
+
         if (!LocalConfig.instance().chatEnabled || Minecraft.getInstance().options.hideGui) return;
 
         //Link clicks get blocked by our tryClickMTChat function, so we need to do it ourselves here.
         if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && button == 0) {
-            Style style = getComponentStyleAt(mouseX, mouseY);
             if (style != null && this.handleComponentClicked(style)) {
                 this.initial = this.input.getValue();
                 cir.setReturnValue(true);

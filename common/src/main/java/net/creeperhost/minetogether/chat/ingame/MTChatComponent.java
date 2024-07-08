@@ -1,11 +1,13 @@
 package net.creeperhost.minetogether.chat.ingame;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.covers1624.quack.collection.FastStream;
 import net.creeperhost.minetogether.chat.ChatTarget;
 import net.creeperhost.minetogether.chat.DisplayableMessage;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.message.Message;
+import net.creeperhost.minetogether.lib.chat.message.MessageComponent;
 import net.creeperhost.minetogether.util.MessageFormatter;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.GuiMessageTag;
@@ -21,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -149,6 +152,47 @@ public class MTChatComponent extends ChatComponent {
 
     private void addMessage(Message message) {
         InGameDisplayableMessage newMessage = new InGameDisplayableMessage(message);
+        processedMessages.add(newMessage);
+        newMessage.display();
+
+        if (isChatFocused() && chatScrollbarPos > 0) {
+            newMessageSinceScroll = true;
+            scrollChat(1);
+        }
+
+        while (processedMessages.size() > MAX_MESSAGE_HISTORY) {
+            InGameDisplayableMessage toRemove = processedMessages.remove(0);
+            trimmedMessages.removeAll(toRemove.getTrimmedLines());
+            toRemove.onDead();
+        }
+    }
+
+    /**
+     * Adds a message directly to the MT chat window bypassing IRC.
+     * This is a client side only message.
+     * <p>
+     * Warning, This implementation is kinda hacky and may not be entirely reliable.
+     *
+     * @param message   The message. or null to remove a previous message.
+     * @param signature The message signature, If a previous message exists with this signature it will be removed before the new message is added.
+     */
+    public void localMessage(@Nullable Component message, MessageSignature signature) {
+        LocalMessage oldMessage = FastStream.of(processedMessages)
+                .filter(e -> e instanceof LocalMessage msg && msg.signature.equals(signature))
+                .map(e -> (LocalMessage) e)
+                .findFirst()
+                .orElse(null);
+
+        if (oldMessage != null) {
+            processedMessages.remove(oldMessage);
+            if (oldMessage.line != null) {
+                trimmedMessages.remove(oldMessage.line);
+            }
+        }
+
+        if (message == null) return;
+
+        InGameDisplayableMessage newMessage = new LocalMessage(message, signature);
         processedMessages.add(newMessage);
         newMessage.display();
 
@@ -322,6 +366,24 @@ public class MTChatComponent extends ChatComponent {
         @Override
         protected double getChatWidth() {
             return (double) getWidth() / getScale();
+        }
+    }
+
+    private class LocalMessage extends InGameDisplayableMessage {
+        private final Component message;
+        private final MessageSignature signature;
+        @Nullable
+        private GuiMessage.Line line;
+
+        private LocalMessage(Component message, MessageSignature signature) {
+            super(new Message(Instant.now(), MineTogetherChat.getOurProfile(), MessageComponent.of(), MessageComponent.of()));
+            this.message = message;
+            this.signature = signature;
+        }
+
+        @Override
+        protected GuiMessage.Line createMessage(int addTime, FormattedCharSequence formattedCharSequence) {
+            return line = new GuiMessage.Line(addTime, message.getVisualOrderText(), null, true);
         }
     }
 }
