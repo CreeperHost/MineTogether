@@ -23,20 +23,20 @@ import java.util.*;
  * Created by brandon3055 on 21/04/2023
  */
 public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
-    private static final ResourceLocation INCOMPATIBLE_SPRITE = new ResourceLocation("server_list/incompatible");
-    private static final ResourceLocation UNREACHABLE_SPRITE = new ResourceLocation("server_list/unreachable");
-    private static final ResourceLocation PING_1_SPRITE = new ResourceLocation("server_list/ping_1");
-    private static final ResourceLocation PING_2_SPRITE = new ResourceLocation("server_list/ping_2");
-    private static final ResourceLocation PING_3_SPRITE = new ResourceLocation("server_list/ping_3");
-    private static final ResourceLocation PING_4_SPRITE = new ResourceLocation("server_list/ping_4");
-    private static final ResourceLocation PING_5_SPRITE = new ResourceLocation("server_list/ping_5");
-    private static final ResourceLocation PINGING_1_SPRITE = new ResourceLocation("server_list/pinging_1");
-    private static final ResourceLocation PINGING_2_SPRITE = new ResourceLocation("server_list/pinging_2");
-    private static final ResourceLocation PINGING_3_SPRITE = new ResourceLocation("server_list/pinging_3");
-    private static final ResourceLocation PINGING_4_SPRITE = new ResourceLocation("server_list/pinging_4");
-    private static final ResourceLocation PINGING_5_SPRITE = new ResourceLocation("server_list/pinging_5");
-    private static final ResourceLocation JOIN_HIGHLIGHTED_SPRITE = new ResourceLocation("server_list/join_highlighted");
-    private static final ResourceLocation JOIN_SPRITE = new ResourceLocation("server_list/join");
+    private static final ResourceLocation INCOMPATIBLE_SPRITE = ResourceLocation.withDefaultNamespace("server_list/incompatible");
+    private static final ResourceLocation UNREACHABLE_SPRITE = ResourceLocation.withDefaultNamespace("server_list/unreachable");
+    private static final ResourceLocation PING_1_SPRITE = ResourceLocation.withDefaultNamespace("server_list/ping_1");
+    private static final ResourceLocation PING_2_SPRITE = ResourceLocation.withDefaultNamespace("server_list/ping_2");
+    private static final ResourceLocation PING_3_SPRITE = ResourceLocation.withDefaultNamespace("server_list/ping_3");
+    private static final ResourceLocation PING_4_SPRITE = ResourceLocation.withDefaultNamespace("server_list/ping_4");
+    private static final ResourceLocation PING_5_SPRITE = ResourceLocation.withDefaultNamespace("server_list/ping_5");
+    private static final ResourceLocation PINGING_1_SPRITE = ResourceLocation.withDefaultNamespace("server_list/pinging_1");
+    private static final ResourceLocation PINGING_2_SPRITE = ResourceLocation.withDefaultNamespace("server_list/pinging_2");
+    private static final ResourceLocation PINGING_3_SPRITE = ResourceLocation.withDefaultNamespace("server_list/pinging_3");
+    private static final ResourceLocation PINGING_4_SPRITE = ResourceLocation.withDefaultNamespace("server_list/pinging_4");
+    private static final ResourceLocation PINGING_5_SPRITE = ResourceLocation.withDefaultNamespace("server_list/pinging_5");
+    private static final ResourceLocation JOIN_HIGHLIGHTED_SPRITE = ResourceLocation.withDefaultNamespace("server_list/join_highlighted");
+    private static final ResourceLocation JOIN_SPRITE = ResourceLocation.withDefaultNamespace("server_list/join");
     private static final Component INCOMPATIBLE_TOOLTIP = Component.translatable("multiplayer.status.incompatible");
     private static final Component NO_CONNECTION_TOOLTIP = Component.translatable("multiplayer.status.no_connection");
     private static final Component PINGING_TOOLTIP = Component.translatable("multiplayer.status.pinging");
@@ -160,10 +160,10 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
         int u = mouseY - y;
         if (t >= entryWidth - 15 && t <= entryWidth - 5 && u >= 0 && u <= 8) {
             //Draw Status Tool Tip
-            this.screen.setToolTip(Collections.singletonList(statusToolTip));
+            this.screen.setTooltipForNextRenderPass(Collections.singletonList(statusToolTip.getVisualOrderText()));
         } else if (t >= entryWidth - statusWidth - 15 - 2 && t <= entryWidth - 15 - 2 && u >= 0 && u <= 8) {
             //Draw Players Tool Tip
-            this.screen.setToolTip(playersToolTip);
+            this.screen.setTooltipForNextRenderPass(playersToolTip.stream().map(Component::getVisualOrderText).toList());
         }
 
         if (this.minecraft.options.touchscreen().get() || selected) {

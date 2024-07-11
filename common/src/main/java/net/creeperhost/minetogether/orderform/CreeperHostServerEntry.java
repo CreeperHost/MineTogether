@@ -21,9 +21,9 @@ import net.minecraft.resources.ResourceLocation;
 public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEntry {
 
     private final Minecraft mc = Minecraft.getInstance();
-    private final ResourceLocation serverIcon = new ResourceLocation(MineTogether.MOD_ID, "textures/creeperhost.png");
+    private final ResourceLocation serverIcon = ResourceLocation.fromNamespaceAndPath(MineTogether.MOD_ID, "textures/creeperhost.png");
     private float transparency = 0.5F;
-    protected final ResourceLocation BUTTON_TEXTURES = new ResourceLocation(MineTogether.MOD_ID, "textures/hidebtn.png");
+    protected final ResourceLocation BUTTON_TEXTURES = ResourceLocation.fromNamespaceAndPath(MineTogether.MOD_ID, "textures/hidebtn.png");
     private ServerSelectionList serverSelectionList;
     private Button removeButton;
 

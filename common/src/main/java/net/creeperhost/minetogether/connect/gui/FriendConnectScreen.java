@@ -18,6 +18,7 @@ import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.TransferState;
 import net.minecraft.client.multiplayer.chat.report.ReportEnvironment;
 import net.minecraft.client.quickplay.QuickPlayLog;
 import net.minecraft.client.server.LanServer;
@@ -71,7 +72,7 @@ public class FriendConnectScreen extends ConnectScreen {
                         connection.initiateServerboundPlayConnection(
                                 endpoint.address(),
                                 endpoint.proxyPort(),                                        //TODO This v may break....
-                                new ClientHandshakePacketListenerImpl(connection, minecraft, new ServerData("", "", ServerData.Type.OTHER), parent, false, (Duration) null, FriendConnectScreen.this::updateStatus)
+                                new ClientHandshakePacketListenerImpl(connection, minecraft, new ServerData("", "", ServerData.Type.OTHER), parent, false, (Duration) null, FriendConnectScreen.this::updateStatus, null)
                         );
                         connection.send(new ServerboundHelloPacket(minecraft.getUser().getName(), minecraft.getUser().getProfileId()));
                     }

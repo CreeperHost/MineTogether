@@ -18,7 +18,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -185,14 +189,11 @@ public class PregenHandler {
     }
 
     private static void serializePreload() {
-        FileOutputStream pregenOut = null;
-        Type listOfPregenTask = new TypeToken<HashMap<Integer, PregenTask>>() {
-        }.getType();
-        try {
-            pregenOut = new FileOutputStream(new File(MineTogetherServer.minecraftServer.getServerDirectory(), "pregenData.json"));
+        Type listOfPregenTask = new TypeToken<HashMap<Integer, PregenTask>>() {}.getType();
+        try (OutputStream os = Files.newOutputStream(MineTogetherServer.minecraftServer.getServerDirectory().resolve("pregenData.json"))) {
             Gson gson = new GsonBuilder().create();
             String output = gson.toJson(pregenTasks, listOfPregenTask);
-            IOUtils.write(output, pregenOut);
+            IOUtils.write(output, os, StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -204,8 +205,8 @@ public class PregenHandler {
         HashMap output = null;
         Type listOfPregenTask = new TypeToken<HashMap<Integer, PregenTask>>() {
         }.getType();
-        try {
-            output = gson.fromJson(IOUtils.toString(new File(MineTogetherServer.minecraftServer.getServerDirectory(), "pregenData.json").toURI()), listOfPregenTask);
+        try (InputStream is = Files.newInputStream(MineTogetherServer.minecraftServer.getServerDirectory().resolve("pregenData.json"))) {
+            output = gson.fromJson(IOUtils.toString(is, StandardCharsets.UTF_8), listOfPregenTask);
         } catch (Exception ignored) { }
         if (output == null) { pregenTasks = new HashMap<ResourceKey<Level>, PregenTask>(); } else pregenTasks = output;
 

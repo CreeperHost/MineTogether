@@ -54,7 +54,7 @@ abstract class ChatComponentMixin {
             method = "render",
             at = @At("HEAD")
     )
-    private void onRender(GuiGraphics graphics, int i, int mouseX, int mouseY, CallbackInfo ci) {
+    private void onRender(GuiGraphics graphics, int i, int mouseX, int mouseY, boolean bl, CallbackInfo ci) {
         // Don't render our additional background blackout if chat is not enabled, or chat is not focused.
         if (!LocalConfig.instance().chatEnabled || Minecraft.getInstance().options.hideGui || !isChatFocused()) return;
 

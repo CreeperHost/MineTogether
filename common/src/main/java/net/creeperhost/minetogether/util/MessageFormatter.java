@@ -22,7 +22,7 @@ import static net.minecraft.ChatFormatting.RESET;
  */
 public class MessageFormatter {
 
-    public static final HoverEvent.Action<Component> SHOW_URL_PREVIEW = new HoverEvent.Action<>("show_url_preview", true, ComponentSerialization.CODEC, DataResult::success);
+    public static final HoverEvent.Action<Component> SHOW_URL_PREVIEW = new HoverEvent.Action<>("show_url_preview", true, ComponentSerialization.CODEC, (component, registryOps) -> DataResult.success(component));
     public static final String CLICK_NAME = "CE:CLICK_NAME";
 
     private static final Pattern URL_PATTERN = Pattern.compile(

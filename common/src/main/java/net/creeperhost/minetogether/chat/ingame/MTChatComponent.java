@@ -86,7 +86,7 @@ public class MTChatComponent extends ChatComponent {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int i, int j, int k) {
+    public void render(GuiGraphics graphics, int i, int j, int k, boolean bl) {
         if (!pendingMessages.isEmpty()) {
             internalUpdate = true;
             synchronized (pendingMessages) {
@@ -105,7 +105,7 @@ public class MTChatComponent extends ChatComponent {
                 changedMessages.clear();
             }
         }
-        super.render(graphics, i, j, k);
+        super.render(graphics, i, j, k, bl);
     }
 
     @Override
@@ -222,13 +222,6 @@ public class MTChatComponent extends ChatComponent {
         assert !internalUpdate; // We don't use this to add messages.
 
         MineTogetherChat.vanillaChat.addMessage(component, messageSignature, guiMessageTag);
-    }
-
-    @Override
-    public void addMessage(Component component, @Nullable MessageSignature messageSignature, int i, @Nullable GuiMessageTag guiMessageTag, boolean bl) {
-        assert !internalUpdate; // We don't use this to add messages.
-
-        MineTogetherChat.vanillaChat.addMessage(component, messageSignature, i, guiMessageTag, bl);
     }
 
     @Override

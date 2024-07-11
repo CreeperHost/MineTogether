@@ -87,7 +87,7 @@ public class MineTogetherClient {
             }
 
             ServerData serverData = new ServerData(server.ip, String.valueOf(server.port), ServerData.Type.OTHER);
-            ConnectScreen.startConnecting(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData, false);
+            ConnectScreen.startConnecting(new JoinMultiplayerScreen(screen), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData, false, null);
         } else if (screen instanceof PauseScreen) {
             @SuppressWarnings ("unchecked")
             List<GuiEventListener> children = (List<GuiEventListener>) screen.children();

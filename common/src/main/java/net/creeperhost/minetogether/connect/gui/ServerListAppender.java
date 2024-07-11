@@ -15,11 +15,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
-import net.minecraft.network.protocol.status.*;
+import net.minecraft.network.protocol.ping.ClientboundPongResponsePacket;
+import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket;
+import net.minecraft.network.protocol.status.ClientStatusPacketListener;
+import net.minecraft.network.protocol.status.ClientboundStatusResponsePacket;
+import net.minecraft.network.protocol.status.ServerStatus;
+import net.minecraft.network.protocol.status.ServerboundStatusRequestPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -191,9 +195,9 @@ public class ServerListAppender {
             }
 
             @Override
-            public void onDisconnect(Component component) {
+            public void onDisconnect(DisconnectionDetails details) {
                 if (!this.success) {
-                    onPingFailed(component, server, profile);
+                    onPingFailed(details.reason(), server, profile);
 //                    pingLegacyServer(inetSocketAddress, server);
                 }
             }
@@ -207,7 +211,7 @@ public class ServerListAppender {
         try {
             ConnectHost endpoint = ConnectHandler.getEndpoint();
             connection.initiateServerboundStatusConnection(endpoint.address(), endpoint.proxyPort(), listener);
-            connection.send(new ServerboundStatusRequestPacket());
+            connection.send(ServerboundStatusRequestPacket.INSTANCE);
         } catch (Throwable var8) {
             LOGGER.error("Failed to ping friend server {}", server.friend, var8);
         }

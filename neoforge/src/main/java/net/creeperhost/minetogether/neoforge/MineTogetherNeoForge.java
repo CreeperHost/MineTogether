@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.neoforge;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.orderform.OrderForm;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.ScreenEvent;
@@ -16,12 +17,12 @@ import static net.creeperhost.minetogether.MineTogether.MOD_ID;
 @Mod (MOD_ID)
 public class MineTogetherNeoForge {
 
-    public MineTogetherNeoForge() {
+    public MineTogetherNeoForge(IEventBus eventBus) {
         MineTogether.init();
 
         if (FMLEnvironment.dist.isClient()) {
             NeoForge.EVENT_BUS.addListener(this::clientInit);
-            NeoForgeClientEvents.init();
+            NeoForgeClientEvents.init(eventBus);
         }
     }
 

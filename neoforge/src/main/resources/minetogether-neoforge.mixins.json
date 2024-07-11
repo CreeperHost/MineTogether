@@ -3,7 +3,5 @@
     "minVersion": "0.7.11",
     "package": "net.creeperhost.minetogether.neoforge.mixin",
     "client": [
-        "ExtendedGuiMixin",
-        "I18nExtensionMixin"
     ]
 }

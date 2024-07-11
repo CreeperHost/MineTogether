@@ -63,10 +63,10 @@ public class PlayerIconElement extends GuiElement<PlayerIconElement> implements 
 
         VertexConsumer buffer = render.buffers().getBuffer(skinType);
         Matrix4f mat = render.pose().last().pose();
-        buffer.vertex(mat, (float) xMax(), (float) yMax(), 0).uv(texMax, texMax).endVertex();  //R-B
-        buffer.vertex(mat, (float) xMax(), (float) yMin(), 0).uv(texMax, texMin).endVertex();  //R-T
-        buffer.vertex(mat, (float) xMin(), (float) yMin(), 0).uv(texMin, texMin).endVertex();  //L-T
-        buffer.vertex(mat, (float) xMin(), (float) yMax(), 0).uv(texMin, texMax).endVertex();  //L-B
+        buffer.addVertex(mat, (float) xMax(), (float) yMax(), 0).setUv(texMax, texMax);//.endVertex();  //R-B
+        buffer.addVertex(mat, (float) xMax(), (float) yMin(), 0).setUv(texMax, texMin);//.endVertex();  //R-T
+        buffer.addVertex(mat, (float) xMin(), (float) yMin(), 0).setUv(texMin, texMin);//.endVertex();  //L-T
+        buffer.addVertex(mat, (float) xMin(), (float) yMax(), 0).setUv(texMin, texMax);//.endVertex();  //L-B
         render.flush();
     }
 

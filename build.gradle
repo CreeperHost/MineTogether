@@ -2,7 +2,7 @@ import org.jetbrains.gradle.ext.ActionDelegationConfig.TestRunner
 
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.4-SNAPSHOT" apply false
+    id "dev.architectury.loom" version "1.6-SNAPSHOT" apply false
     id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.5"
 }
 
@@ -50,7 +50,7 @@ allprojects {
 
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
-        options.release = 17
+        options.release = 21
     }
 
     java {

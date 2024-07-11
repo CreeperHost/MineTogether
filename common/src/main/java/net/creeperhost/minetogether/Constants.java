@@ -7,8 +7,8 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class Constants {
 
-    public static final ResourceLocation WIDGETS_SHEET = new ResourceLocation(MineTogether.MOD_ID, "textures/widgets.png");
+    public static final ResourceLocation WIDGETS_SHEET = ResourceLocation.fromNamespaceAndPath(MineTogether.MOD_ID, "textures/widgets.png");
 
-    public static final ResourceLocation CREEPERHOST_LOGO_25 = new ResourceLocation(MineTogether.MOD_ID, "textures/creeperhost_logo_1-25.png");
-    public static final ResourceLocation MINETOGETHER_LOGO_25 = new ResourceLocation(MineTogether.MOD_ID, "textures/minetogether25.png");
+    public static final ResourceLocation CREEPERHOST_LOGO_25 = ResourceLocation.fromNamespaceAndPath(MineTogether.MOD_ID, "textures/creeperhost_logo_1-25.png");
+    public static final ResourceLocation MINETOGETHER_LOGO_25 = ResourceLocation.fromNamespaceAndPath(MineTogether.MOD_ID, "textures/minetogether25.png");
 }

@@ -18,6 +18,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
 import net.minecraft.client.gui.screens.FaviconTexture;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerStatusPinger;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -147,7 +148,7 @@ public class ServerEntry extends GuiElement<ServerEntry> implements BackgroundRe
         render.rect(xMin(), yMax(), xSize(), 1, MTStyle.Flat.listEntryBackground(true));
         render.rect(xMin(), yMax(), xSize(), 1, MTStyle.Flat.listEntryBackground(true));
 
-        if (!this.serverData.pinged){
+        if (this.serverData.state() == ServerData.State.INITIAL){
             doPing();
         }
 
@@ -164,21 +165,21 @@ public class ServerEntry extends GuiElement<ServerEntry> implements BackgroundRe
 
     public void update() {
         tick+=4;
-        if (!this.serverData.pinged && tick > index) {
+        if (this.serverData.state() == ServerData.State.INITIAL && tick > index) {
             doPing();
         }
     }
 
     private void doPing() {
-        if (!this.serverData.pinged) {
-            this.serverData.pinged = true;
+        if (this.serverData.state() == ServerData.State.INITIAL) {
+            this.serverData.setState(ServerData.State.PINGING);
             this.serverData.ping = -2L;
             this.serverData.motd = Component.empty();
             this.serverData.status = Component.empty();
             THREAD_POOL.submit(() ->
             {
                 try {
-                    gui.getPinger().pingServer(this.serverData, () -> {});
+                    gui.getPinger().pingServer(this.serverData, () -> {}, () -> {});
                     gui.sortDirty = true;
                 } catch (UnknownHostException var2) {
                     this.serverData.ping = -1L;
@@ -207,7 +208,7 @@ public class ServerEntry extends GuiElement<ServerEntry> implements BackgroundRe
     }
 
     private String getSignalIcon() {
-        if (this.serverData.pinged && this.serverData.ping != -2L) {
+        if (this.serverData.state() == ServerData.State.SUCCESSFUL && this.serverData.ping != -2L) {
             if (this.serverData.ping < 0L) {
                 return "signal/signal_0";
             } else if (this.serverData.ping < 150L) {
@@ -231,7 +232,7 @@ public class ServerEntry extends GuiElement<ServerEntry> implements BackgroundRe
     }
 
     private Component signalInfo() {
-        if (this.serverData.pinged && this.serverData.ping != -2L) {
+        if (this.serverData.state() == ServerData.State.SUCCESSFUL && this.serverData.ping != -2L) {
             return this.serverData.ping < 0L ? Component.translatable("multiplayer.status.no_connection").withStyle(ChatFormatting.DARK_RED) : Component.translatable("multiplayer.status.ping", new Object[]{this.serverData.ping});
         } else {
             return Component.translatable("multiplayer.status.pinging");

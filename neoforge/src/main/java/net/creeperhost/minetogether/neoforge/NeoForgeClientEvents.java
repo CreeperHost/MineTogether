@@ -2,7 +2,6 @@ package net.creeperhost.minetogether.neoforge;
 
 import net.creeperhost.minetogether.gui.MTTextures;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 /**
@@ -10,8 +9,7 @@ import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
  */
 public class NeoForgeClientEvents {
 
-    public static void init() {
-        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public static void init(IEventBus eventBus) {
         eventBus.addListener(NeoForgeClientEvents::registerReloadListeners);
     }
 

@@ -270,7 +270,7 @@ public class ServerListGui implements GuiProvider {
     }
 
     public void join(ServerData serverData) {
-        ConnectScreen.startConnecting(gui.getScreen(), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData, false);
+        ConnectScreen.startConnecting(gui.getScreen(), Minecraft.getInstance(), ServerAddress.parseString(serverData.ip), serverData, false, null);
     }
 
     public ServerStatusPinger getPinger() {

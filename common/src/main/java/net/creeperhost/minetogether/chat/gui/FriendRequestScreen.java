@@ -97,7 +97,7 @@ public class FriendRequestScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int i, int j, float f) {
-        renderDirtBackground(graphics);
+        renderMenuBackground(graphics);
         super.render(graphics, i, j, f);
         graphics.drawCenteredString(minecraft.font, type.title, width / 2, 5, 0xFFFFFFFF);
         graphics.drawCenteredString(minecraft.font, type.desc, width / 2, height / 2 - 30, 0xFFFFFFFF);
