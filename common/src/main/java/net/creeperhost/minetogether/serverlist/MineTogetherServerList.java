@@ -47,7 +47,7 @@ public class MineTogetherServerList {
 
     public static void init() {
         ModPackInfo.waitForInfo(versionInfo -> {
-            incorrectlyConfigured = versionInfo.curseID.isEmpty();
+            incorrectlyConfigured = versionInfo.curseID.isEmpty() && versionInfo.base64FTBID.isEmpty();
             if (incorrectlyConfigured) {
                 Server server = new Server();
                 server.name = "No project ID! Please fix the MineTogether config or ensure a version.json exists.";
