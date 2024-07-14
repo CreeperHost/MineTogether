@@ -287,6 +287,32 @@ public class MTChatComponent extends ChatComponent {
         return null;
     }
 
+    @Nullable
+    public Message getMessageUnderMouse(double mouseX, double mouseY) {
+        if (!isChatFocused()) return null;
+
+        double x = mouseX - 2.0;
+        double y = (double) minecraft.getWindow().getGuiScaledHeight() - mouseY - 40.0;
+        x = Mth.floor(x / getScale());
+        y = Mth.floor(y / (getScale() * (minecraft.options.chatLineSpacing().get() + 1.0)));
+        if (x < 0.0 || y < 0.0) return null;
+
+        int i = Math.min(getLinesPerPage(), trimmedMessages.size());
+        if (x <= (double) Mth.floor((double) getWidth() / getScale())) {
+            Objects.requireNonNull(minecraft.font);
+            if (y < (double) (9 * i + i)) {
+                Objects.requireNonNull(minecraft.font);
+                int j = (int) (y / 9.0 + (double) chatScrollbarPos);
+                if (j >= 0 && j < trimmedMessages.size()) {
+                    InGameDisplayableMessage message = findMessageForTrimmedMessage(trimmedMessages.get(j));
+                    return message == null ? null : message.getMessage();
+                }
+            }
+        }
+
+        return null;
+    }
+
     private boolean handleClickedMessage(@Nullable InGameDisplayableMessage clickedMessage, double x) {
         if (clickedMessage == null) return false;
 
