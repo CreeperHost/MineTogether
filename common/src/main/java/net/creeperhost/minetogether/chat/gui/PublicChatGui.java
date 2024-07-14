@@ -3,10 +3,9 @@ package net.creeperhost.minetogether.chat.gui;
 import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.MTTextures;
+import net.creeperhost.minetogether.gui.PreviewElement;
 import net.creeperhost.minetogether.gui.ProfileGui;
-import net.creeperhost.minetogether.gui.ProfileRequests;
 import net.creeperhost.minetogether.gui.SettingGui;
-import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
@@ -19,7 +18,6 @@ import net.creeperhost.polylib.client.modulargui.lib.geometry.Axis;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.sprite.PolyTextures;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 
 import java.util.function.Supplier;
@@ -187,6 +185,10 @@ public class PublicChatGui implements GuiProvider {
         chatList.scrollState().setPos(1);
         gui.onTick(this::tick);
         gui.onClose(chatMonitor::onGuiClose);
+
+        PreviewElement preview = new PreviewElement(root);
+        Constraints.bind(preview, root);
+        preview.setUrlProvider((mouseX, mouseY) -> PreviewElement.getHoveredURL(chatList, mouseX, mouseY));
     }
 
     private void tick() {

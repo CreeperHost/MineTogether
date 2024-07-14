@@ -6,11 +6,13 @@ import net.creeperhost.minetogether.chat.gui.ChatScreenInjection;
 import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.LocalConfig;
+import net.creeperhost.minetogether.gui.PreviewElement;
 import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
-import net.creeperhost.minetogether.polylib.gui.*;
-import net.creeperhost.minetogether.util.MessageFormatter;
+import net.creeperhost.minetogether.polylib.gui.IconButton;
+import net.creeperhost.minetogether.polylib.gui.RadioButton;
+import net.creeperhost.minetogether.polylib.gui.SlideButton;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
 import net.creeperhost.polylib.client.modulargui.ModularGuiInjector;
 import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
@@ -24,7 +26,6 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -38,7 +39,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -71,25 +71,6 @@ abstract class ChatScreenMixin extends Screen {
 
     private Button newUserButton;
     private Button disableButton;
-
-    private final PreviewRenderer previewRenderer = new PreviewRenderer(5, 5, 80, 60) {
-        @Override
-        protected URL getUrlUnderMouse(int mouseX, int mouseY) {
-            if (MineTogetherChat.getTarget() != ChatTarget.PUBLIC) return null;
-
-            Style style = MineTogetherChat.publicChat.getStyleUnderMouse(mouseX, mouseY);
-            if (style == null) return null;
-            HoverEvent event = style.getHoverEvent();
-            if (event == null || event.getAction() != MessageFormatter.SHOW_URL_PREVIEW) return null;
-            Component value = event.getValue(MessageFormatter.SHOW_URL_PREVIEW);
-
-            try {
-                return new URL(value.getString());
-            } catch (MalformedURLException ex) {
-                return null;
-            }
-        }
-    };
 
     protected ChatScreenMixin(Component component) {
         super(component);
@@ -161,8 +142,6 @@ abstract class ChatScreenMixin extends Screen {
 
         updateButtons();
 
-        addRenderableOnly(previewRenderer);
-
         newUserButton = addWidget(Button.builder(Component.literal("Join " + ChatStatistics.onlineCount + " online users now!"), e -> {
                             MineTogetherChat.setNewUserResponded();
                             setFocused(input);
@@ -191,6 +170,11 @@ abstract class ChatScreenMixin extends Screen {
         }
 
         switchToVanillaIfCommand();
+
+        ModularGui gui = ModularGuiInjector.getActiveGui();
+        if (gui != null && gui.getProvider() instanceof ChatScreenInjection) {
+            ChatScreenInjection.setURLProvider(this::getUrlUnderMouse);
+        }
     }
 
     private void updateButtons() {
@@ -344,6 +328,17 @@ abstract class ChatScreenMixin extends Screen {
             return true;
         }
         return false;
+    }
+
+    @Nullable
+    private PreviewElement.URLInfo getUrlUnderMouse(double mouseX, double mouseY) {
+        if (MineTogetherChat.getTarget() != ChatTarget.PUBLIC) return null;
+
+        Style style = MineTogetherChat.publicChat.getStyleUnderMouse(mouseX, mouseY);
+        URL url = PreviewElement.urlFromStyle(style);
+        if (url == null) return null;
+        Message message = MineTogetherChat.publicChat.getMessageUnderMouse(mouseX, mouseY);
+        return new PreviewElement.URLInfo(url, message != null && message.sender == null);
     }
 
     @Inject(
