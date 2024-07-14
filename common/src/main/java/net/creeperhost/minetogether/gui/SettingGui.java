@@ -20,6 +20,7 @@ import net.creeperhost.polylib.helpers.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +43,9 @@ public class SettingGui implements GuiProvider {
     private boolean showBlocked = false;
     private double blockedAnim;
     private GuiList<Profile> blockedList;
+
+    //TODO Make private after FTB companion removes old MT integration
+//    private SettingGui() {}
 
     @Override
     public GuiElement<?> createRootElement(ModularGui gui) {
@@ -254,6 +258,12 @@ public class SettingGui implements GuiProvider {
         @Override
         public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
             render.rect(getRectangle(), MTStyle.Flat.listEntryBackground(true));
+        }
+    }
+
+    public static class Screen extends ModularGuiScreen {
+        public Screen(net.minecraft.client.gui.screens.Screen parentScreen) {
+            super(new SettingGui(), parentScreen);
         }
     }
 }

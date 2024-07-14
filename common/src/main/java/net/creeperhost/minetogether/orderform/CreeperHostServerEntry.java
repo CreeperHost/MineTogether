@@ -79,7 +79,7 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (removeButton != null && removeButton.mouseClicked(mouseX, mouseY, button)) return true;
-        Minecraft.getInstance().setScreen(new ModularGuiScreen(new OrderGui(), new JoinMultiplayerScreen(new TitleScreen())));
+        Minecraft.getInstance().setScreen(new OrderGui.Screen(new JoinMultiplayerScreen(new TitleScreen())));
         return true;
     }
 
