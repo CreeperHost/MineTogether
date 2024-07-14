@@ -5,6 +5,7 @@ import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.FriendChatNotifier;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.MTTextures;
+import net.creeperhost.minetogether.gui.PreviewElement;
 import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.gui.dialogs.OptionDialog;
 import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
@@ -100,7 +101,7 @@ public class FriendChatGui implements GuiProvider {
         setupGuiHeader(gui, root);
         setupFriendList(root, friendListBg);
         setupTextBox(textBoxBg);
-        setupChatWindow(chatBg);
+        setupChatWindow(chatBg, root);
 
         GuiText title = new GuiText(root, () -> selected == null ? gui.getGuiTitle() : gui.getGuiTitle().copy().append(" - ").append(displayName(selected)))
                 .setAlignment(Align.LEFT)
@@ -235,7 +236,7 @@ public class FriendChatGui implements GuiProvider {
         Constraints.bind(textField, background, 0, 3, 0, 3);
     }
 
-    private void setupChatWindow(GuiElement<?> background) {
+    private void setupChatWindow(GuiElement<?> background, GuiElement<?> root) {
         GuiList<Message> chatList = new GuiList<>(background);
         chatList.setDisplayBuilder((parent, message) -> new MessageElement(parent, message, textField, true));
         Constraints.bind(chatList, background, 2);
@@ -266,6 +267,11 @@ public class FriendChatGui implements GuiProvider {
         });
 
         chatList.scrollState().setPos(1);
+
+        PreviewElement preview = new PreviewElement(root);
+        preview.setEnforceDomains(false);
+        Constraints.bind(preview, root);
+        preview.setUrlProvider((mouseX, mouseY) -> PreviewElement.getHoveredURL(chatList, mouseX, mouseY));
     }
 
     private void tickFriendList() {

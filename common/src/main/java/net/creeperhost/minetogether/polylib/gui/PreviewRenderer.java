@@ -1,206 +1,55 @@
 package net.creeperhost.minetogether.polylib.gui;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiComponent;
+import net.creeperhost.minetogether.gui.PreviewElement;
+import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Widget;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by covers1624 on 19/10/22.
+ * <p>
+ * 1.18 is missing some required bits to use the new PreviewElement in ingame chat, so I am just wrapping its logic with the old PreviewRenderer.
  */
 public abstract class PreviewRenderer implements Widget {
 
-    private static final Set<String> SUPPORTED_IMAGES = ImmutableSet.of(
-            "image/jpeg",
-            "image/png",
-            "image/tga",
-            "image/psd",
-            "image/hdr",
-            "image/pic",
-            "image/pnm"
-    );
+    private final int imageSize;
 
-    private static final Set<String> ALLOWED_DOMAINS = ImmutableSet.of(
-            "blockshot.ch"
-    );
-
-    private static final boolean DEBUG = Boolean.getBoolean("PreviewRenderer.debug");
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final CloseableHttpClient HTTP_CLIENT = HttpClientBuilder.create().build();
-    private static final ExecutorService PREVIEW_EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("preview-render-%d").setDaemon(true).build());
-    private static final Set<URL> NO_PREVIEW = Collections.synchronizedSet(new HashSet<>());
-    private static final Cache<URL, Preview> CACHE = CacheBuilder.newBuilder() // TODO, weak values? we dont have anything else holding onto them, which should mean they die only when required by memory pressure.
-            .expireAfterAccess(5, TimeUnit.MINUTES) // TODO Tweak this.
-            .removalListener(e -> {
-                if (e.wasEvicted()) {
-                    try {
-                        ((Preview) e.getValue()).close();
-                    } catch (Exception ex) {
-                        LOGGER.warn("Failed to close Preview: {}", e.getKey(), ex);
-                    }
-                }
-            })
-            .build();
-
-    private final int xOffset;
-    private final int yOffset;
-    private final int width;
-    private final int height;
-
-    protected PreviewRenderer(int xOffset, int yOffset, int width, int height) {
-        this.xOffset = xOffset;
-        this.yOffset = yOffset;
-        this.width = width;
-        this.height = height;
+    protected PreviewRenderer(int imageSize) {
+        this.imageSize = imageSize;
     }
 
     @Override
     public void render(PoseStack pStack, int mouseX, int mouseY, float partialTicks) {
-        URL url = getUrlUnderMouse(mouseX, mouseY);
+        PreviewElement.URLInfo url = getUrlUnderMouse(mouseX, mouseY);
         if (url == null) return;
+        PreviewElement.ImageLoader image = PreviewElement.getImage(url, true);
+        if (image == null) return;
 
-        Preview preview = getPreview(url);
-        if (preview == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        GuiRender render = new GuiRender(mc, pStack, mc.renderBuffers().bufferSource());
 
-        preview.render(pStack, mouseX + xOffset, mouseY + yOffset, width, height, partialTicks);
+        pStack.pushPose();
+        pStack.translate(0, 0, 150);
+        if (image.isLoaded()) {
+            double aspect = image.width() / (double) image.height();
+            double width = aspect > 1 ? imageSize : imageSize * aspect;
+            double height = aspect > 1 ? imageSize / aspect : imageSize;
+            double border = 3;
+
+            double x = Math.min(mouseX, mc.getWindow().getGuiScaledWidth() - (width + (border * 2)));
+            double y = Math.min(mouseY, mc.getWindow().getGuiScaledHeight() - (height + (border * 2)));
+
+            render.toolTipBackground(x, y, width + (border * 2), height + (border * 2));
+            image.render(render, x + border, y + border, width, height);
+        } else {
+            render.renderTooltip(new TranslatableComponent("minetogether:gui.chat.loading_preview"), mouseX, mouseY);
+        }
+        pStack.popPose();
     }
 
     @Nullable
-    protected abstract URL getUrlUnderMouse(int mouseX, int mouseY);
-
-    @Nullable
-    private static Preview getPreview(URL url) {
-        if (!ALLOWED_DOMAINS.contains(url.getHost())) return null;
-        if (NO_PREVIEW.contains(url)) return null;
-
-        Preview preview = CACHE.getIfPresent(url);
-        if (preview != null) return preview;
-        synchronized (CACHE) {
-            preview = CACHE.getIfPresent(url);
-            if (preview != null) return preview;
-
-            preview = compute(url);
-            CACHE.put(url, preview);
-
-            return preview;
-        }
-    }
-
-    private static Preview compute(URL url) {
-        LoadingPreview preview = new LoadingPreview();
-        PREVIEW_EXECUTOR.execute(() -> load(url, preview));
-        return preview;
-    }
-
-    private static void load(URL url, LoadingPreview preview) {
-        try (CloseableHttpResponse response = HTTP_CLIENT.execute(new HttpGet(url.toURI()))) {
-            HttpEntity entity = response.getEntity();
-            if (entity == null || !SUPPORTED_IMAGES.contains(entity.getContentType().getValue())) {
-                if (DEBUG) {
-                    LOGGER.info("Ignoring {} for preview, returned content type: {}", url, entity != null ? entity.getContentType() : "Entity null");
-                }
-                // Nope..
-                NO_PREVIEW.add(url);
-                return;
-            }
-
-            NativeImage image = NativeImage.read(entity.getContent());
-            preview.setWrapped(new ImagePreview(image));
-        } catch (IOException | URISyntaxException ex) {
-            LOGGER.error("Failed to load preview for: {}", url, ex);
-            NO_PREVIEW.add(url);
-        }
-    }
-
-    private static abstract class Preview implements AutoCloseable {
-
-        public abstract void render(PoseStack pStack, int x, int y, int w, int h, float partialTicks);
-    }
-
-    private static class LoadingPreview extends Preview {
-
-        private Preview wrapped;
-        public boolean closed;
-
-        public LoadingPreview() {
-        }
-
-        @Override
-        public void render(PoseStack pStack, int x, int y, int w, int h, float partialTicks) {
-            if (closed) return;
-            if (wrapped != null) {
-                wrapped.render(pStack, x, y, w, h, partialTicks);
-            } else {
-                // TODO render LOADING dirt or gif.
-            }
-
-        }
-
-        public void setWrapped(Preview wrapped) {
-            this.wrapped = wrapped;
-        }
-
-        @Override
-        public void close() throws Exception {
-            closed = true;
-            if (wrapped != null) {
-                wrapped.close();
-            }
-        }
-    }
-
-    private static class ImagePreview extends Preview {
-
-        private final NativeImage image;
-        private int glTexture = -1;
-
-        private ImagePreview(NativeImage image) {
-            this.image = image;
-        }
-
-        @Override
-        public void render(PoseStack pStack, int x, int y, int w, int h, float partialTicks) {
-            if (glTexture == -1) {
-                glTexture = TextureUtil.generateTextureId();
-                TextureUtil.prepareImage(glTexture, 0, image.getWidth(), image.getHeight());
-                image.upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, true);
-            }
-
-            RenderSystem.enableTexture();
-            RenderSystem.setShaderTexture(0, glTexture);
-            GuiComponent.blit(pStack, x, y, 0.0F, 0.0F, w, h, w, h);
-        }
-
-        @Override
-        public void close() throws Exception {
-            TextureUtil.releaseTextureId(glTexture);
-            glTexture = -1;
-            image.close();
-        }
-    }
-
+    protected abstract PreviewElement.URLInfo getUrlUnderMouse(int mouseX, int mouseY);
 }

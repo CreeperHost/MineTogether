@@ -58,6 +58,10 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
         updateMessage(true);
     }
 
+    public Message getMessage() {
+        return message;
+    }
+
     private void updateMessage(boolean init) {
         synchronized (wrappedLines) {
             wrappedLines.clear();
@@ -95,14 +99,14 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (friendUI || !isMouseOver() || (button != GuiButton.LEFT_CLICK && button != GuiButton.RIGHT_CLICK)) return false;
+        if (!isMouseOver() || (button != GuiButton.LEFT_CLICK && button != GuiButton.RIGHT_CLICK)) return false;
         Style style = getStyleAtPos(mouseX, mouseY);
         if (style == null) return false;
 
         ClickEvent event = style.getClickEvent();
         if (event == null) return false;
 
-        if (MessageFormatter.CLICK_NAME.equals(event.getValue()) && message.sender != null && message.sender != MineTogetherChat.getOurProfile()) {
+        if (!friendUI && MessageFormatter.CLICK_NAME.equals(event.getValue()) && message.sender != null && message.sender != MineTogetherChat.getOurProfile()) {
             ContextMenu menu = new ContextMenu(getModularGui().getRoot());
             menu.addTitle(new TextComponent(message.senderName.getMessage()).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD));
             for (MessageDropdownOption value : MessageDropdownOption.VALUES) {
@@ -161,7 +165,7 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
             int index = (int) (y / (font().lineHeight + 1));
             if (index < 0 || index >= wrappedLines.size()) return null;
             FormattedCharSequence line = wrappedLines.get(index);
-            return font().getSplitter().componentStyleAtWidth(line, (int) Math.floor(x));
+            return font().getSplitter().componentStyleAtWidth(line, (int) Math.floor(x - inset));
         }
     }
 

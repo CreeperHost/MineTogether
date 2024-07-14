@@ -8,6 +8,7 @@ import net.creeperhost.minetogether.chat.gui.FriendRequestScreen;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.LocalConfig;
+import net.creeperhost.minetogether.gui.PreviewElement;
 import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.message.Message;
@@ -69,22 +70,11 @@ abstract class ChatScreenMixin extends Screen {
     private Button newUserButton;
     private Button disableButton;
 
-    private final PreviewRenderer previewRenderer = new PreviewRenderer(5, 5, 80, 60) {
+    private final PreviewRenderer previewRenderer = new PreviewRenderer(80) {
         @Override
-        protected URL getUrlUnderMouse(int mouseX, int mouseY) {
+        protected PreviewElement.URLInfo getUrlUnderMouse(int mouseX, int mouseY) {
             if (MineTogetherChat.getTarget() != ChatTarget.PUBLIC) return null;
-
-            Style style = MineTogetherChat.publicChat.getStyleUnderMouse(mouseX, mouseY);
-            if (style == null) return null;
-            HoverEvent event = style.getHoverEvent();
-            if (event == null || event.getAction() != MessageFormatter.SHOW_URL_PREVIEW) return null;
-            Component value = event.getValue(MessageFormatter.SHOW_URL_PREVIEW);
-
-            try {
-                return new URL(value.getString());
-            } catch (MalformedURLException ex) {
-                return null;
-            }
+            return ChatScreenMixin.this.getUrlUnderMouse(mouseX, mouseY);
         }
     };
 
@@ -248,6 +238,13 @@ abstract class ChatScreenMixin extends Screen {
 
         if (!LocalConfig.instance().chatEnabled || Minecraft.getInstance().options.hideGui) return;
 
+        //Link clicks get blocked by our tryClickMTChat function, so we need to do it ourselves here.
+        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && button == 0) {
+            if (style != null && this.handleComponentClicked(style)) {
+                cir.setReturnValue(true);
+            }
+        }
+
         // Needs to be done explicitly here, so we prioritize button clicks
         // over message clicks. We can't move super.mouseClicked here as that would
         // let vanilla handle clicked styles before us.
@@ -371,6 +368,17 @@ abstract class ChatScreenMixin extends Screen {
 
         dropdownButton.openAt(mouseX, mouseY);
         return true;
+    }
+
+    @Nullable
+    private PreviewElement.URLInfo getUrlUnderMouse(double mouseX, double mouseY) {
+        if (MineTogetherChat.getTarget() != ChatTarget.PUBLIC) return null;
+
+        Style style = MineTogetherChat.publicChat.getClickedComponentStyleAt(mouseX, mouseY);
+        URL url = PreviewElement.urlFromStyle(style);
+        if (url == null) return null;
+        Message message = MineTogetherChat.publicChat.getMessageUnderMouse(mouseX, mouseY);
+        return new PreviewElement.URLInfo(url, message != null && message.sender == null);
     }
 
     @Redirect (

@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.chat.gui;
 import net.creeperhost.minetogether.chat.ChatConstants;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.gui.MTTextures;
+import net.creeperhost.minetogether.gui.PreviewElement;
 import net.creeperhost.minetogether.gui.ProfileGui;
 import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
@@ -186,6 +187,10 @@ public class PublicChatGui implements GuiProvider {
         chatList.scrollState().setPos(1);
         gui.onTick(this::tick);
         gui.onClose(chatMonitor::onGuiClose);
+
+        PreviewElement preview = new PreviewElement(root);
+        Constraints.bind(preview, root);
+        preview.setUrlProvider((mouseX, mouseY) -> PreviewElement.getHoveredURL(chatList, mouseX, mouseY));
     }
 
     private void tick() {
