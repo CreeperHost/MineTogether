@@ -7,6 +7,7 @@ import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
+import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.*;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
@@ -38,6 +39,9 @@ public class SettingGui implements GuiProvider {
     private boolean showBlocked = false;
     private double blockedAnim;
     private GuiList<Profile> blockedList;
+
+    //TODO Make private after FTB companion removes old MT integration
+//    private SettingGui() {}
 
     @Override
     public GuiElement<?> createRootElement(ModularGui gui) {
@@ -250,6 +254,12 @@ public class SettingGui implements GuiProvider {
         @Override
         public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
             render.rect(getRectangle(), MTStyle.Flat.listEntryBackground(true));
+        }
+    }
+
+    public static class Screen extends ModularGuiScreen {
+        public Screen(net.minecraft.client.gui.screens.Screen parentScreen) {
+            super(new SettingGui(), parentScreen);
         }
     }
 }

@@ -192,7 +192,7 @@ public class MineTogetherChat {
         int buttonPos = 4;
         TooltipContainer tooltips = new TooltipContainer(screen);
 
-        IconButton settings = new IconButton(screen.width - (buttonPos += 21), 5, 3, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new SettingGui(), screen)));
+        IconButton settings = new IconButton(screen.width - (buttonPos += 21), 5, 3, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new SettingGui.Screen(screen)));
         ScreenHooks.addRenderableWidget(screen, settings);
         tooltips.addTooltip(settings, new TranslatableComponent("minetogether:gui.button.settings.info"));
 
@@ -201,7 +201,7 @@ public class MineTogetherChat {
         tooltips.addTooltip(friendChat, new TranslatableComponent("minetogether:gui.button.friends.info"));
 
         if (LocalConfig.instance().chatEnabled) {
-            IconButton publicChat = new IconButton(screen.width - (buttonPos += 21), 5, 1, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(PublicChatGui.createGui(), screen)));
+            IconButton publicChat = new IconButton(screen.width - (buttonPos += 21), 5, 1, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new PublicChatGui.Screen(screen)));
             ScreenHooks.addRenderableWidget(screen, publicChat);
             tooltips.addTooltip(publicChat, new TranslatableComponent("minetogether:gui.button.global_chat.info"));
         }

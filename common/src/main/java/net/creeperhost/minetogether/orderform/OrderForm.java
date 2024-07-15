@@ -27,7 +27,7 @@ public class OrderForm {
             AbstractWidget realms = ButtonHelper.removeButton("menu.online", screen);
             if (realms != null) {
                 ScreenHooks.addRenderableWidget(screen, new Button(realms.x, realms.y, realms.getWidth(), realms.getHeight(), new TranslatableComponent("minetogether:button.getserver"), p ->
-                        Minecraft.getInstance().setScreen(new ModularGuiScreen(new OrderGui())))
+                        Minecraft.getInstance().setScreen(new OrderGui.Screen(null)))
                 );
             }
         }

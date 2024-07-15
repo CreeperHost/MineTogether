@@ -35,9 +35,10 @@ public class PublicChatGui implements GuiProvider {
     public final ChatMonitor chatMonitor = new ChatMonitor();
     private GuiTextField textField;
 
-    private PublicChatGui() {
-    }
+    private PublicChatGui() {}
 
+    //TODO Remove after FTB companion removes old MT integration
+    @Deprecated
     public static GuiProvider createGui() {
         if (MineTogetherChat.isNewUser()) {
             return new NewUserGui();
@@ -112,7 +113,7 @@ public class PublicChatGui implements GuiProvider {
         GuiButton settings = MTStyle.Flat.button(root, (Supplier<Component>) null)
                 .setTooltip(new TranslatableComponent("minetogether:gui.button.settings.info"))
                 .setTooltipDelay(0)
-                .onPress(() -> gui.mc().setScreen(new ModularGuiScreen(new SettingGui(), gui.getScreen())))
+                .onPress(() -> gui.mc().setScreen(new SettingGui.Screen(gui.getScreen())))
                 .constrain(BOTTOM, match(back.get(BOTTOM)))
                 .constrain(RIGHT, match(chatBg.get(RIGHT)))
                 .constrain(WIDTH, literal(14))
@@ -217,6 +218,12 @@ public class PublicChatGui implements GuiProvider {
             return new String[]{"|", "/", "-", "\\"}[(int) ((System.currentTimeMillis() / 100) % 4)];
         } else {
             return "❌";
+        }
+    }
+
+    public static class Screen extends ModularGuiScreen {
+        public Screen(net.minecraft.client.gui.screens.Screen parentScreen) {
+            super(MineTogetherChat.isNewUser() ? new NewUserGui() : new PublicChatGui(), parentScreen);
         }
     }
 }
