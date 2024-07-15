@@ -87,7 +87,7 @@ public class MineTogetherServerList {
 
         boolean chatEnabled = LocalConfig.instance().chatEnabled;
         ScreenHooks.addRenderableWidget(screen, new IconButton(screen.width - 125, 5, chatEnabled ? 1 : 3, Constants.WIDGETS_SHEET, e -> {
-            Minecraft.getInstance().setScreen(chatEnabled ? new ModularGuiScreen(PublicChatGui.createGui(), screen) : new ModularGuiScreen(new SettingGui(), screen));
+            Minecraft.getInstance().setScreen(chatEnabled ? new PublicChatGui.Screen(screen) : new SettingGui.Screen(screen));
         }));
     }
 }

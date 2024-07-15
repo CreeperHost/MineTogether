@@ -15,6 +15,7 @@ import net.creeperhost.minetogether.orderform.elements.WorldElement;
 import net.creeperhost.minetogether.orderform.requests.GetDataCentresRequest.DC;
 import net.creeperhost.minetogether.util.Countries;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
+import net.creeperhost.polylib.client.modulargui.ModularGuiScreen;
 import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.Constraints;
 import net.creeperhost.polylib.client.modulargui.lib.GuiProvider;
@@ -103,8 +104,7 @@ public class OrderGui implements GuiProvider {
     public DetailsElement details;
     public WorldElement world;
 
-    public OrderGui() {
-    }
+    private OrderGui() {}
 
     @Override
     public GuiElement<?> createRootElement(ModularGui gui) {
@@ -749,6 +749,12 @@ public class OrderGui implements GuiProvider {
         @Override
         public int hashCode() {
             return Objects.hash(key, name);
+        }
+    }
+
+    public static class Screen extends ModularGuiScreen {
+        public Screen(net.minecraft.client.gui.screens.Screen parentScreen) {
+            super(new OrderGui(), parentScreen);
         }
     }
 }
