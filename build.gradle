@@ -46,6 +46,7 @@ allprojects {
             name "CreeperHost"
             url 'https://maven.creeperhost.net'
         }
+        maven { url "https://maven.ftb.dev/releases" }
     }
 
     tasks.withType(JavaCompile) {
