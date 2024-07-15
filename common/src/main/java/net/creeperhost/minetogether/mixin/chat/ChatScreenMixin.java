@@ -103,7 +103,7 @@ abstract class ChatScreenMixin extends Screen {
                 .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.PUBLIC))
                 .onRelease(() -> setFocused(input));
 
-        settingsButton = addRenderableWidget(new IconButton(0, 0, 12, 12, ResourceLocation.fromNamespaceAndPath(MineTogether.MOD_ID, "textures/gui/buttons/gear.png"), e -> mc.setScreen(new ModularGuiScreen(new SettingGui(), mc.screen))));
+        settingsButton = addRenderableWidget(new IconButton(0, 0, 12, 12, ResourceLocation.fromNamespaceAndPath(MineTogether.MOD_ID, "textures/gui/buttons/gear.png"), e -> mc.setScreen(new SettingGui.Screen(mc.screen))));
 
         chatScaleSlider = addRenderableWidget(new SlideButton(0, 0, 12, 200))
                 .setDynamicMessage(() -> Component.translatable("options.percent_value", Component.translatable("options.chat.scale"), (int) (mc.options.chatScale().get() * 100.0)))

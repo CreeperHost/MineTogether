@@ -43,7 +43,7 @@ public class NewUserGui implements GuiProvider {
         GuiButton join = MTStyle.Flat.button(root, () -> Component.translatable("minetogether:gui.join.button.accept", ChatStatistics.onlineCount))
                 .onPress(() -> {
                     MineTogetherChat.setNewUserResponded();
-                    gui.mc().setScreen(new ModularGuiScreen(PublicChatGui.createGui(), gui.getParentScreen()));
+                    gui.mc().setScreen(new PublicChatGui.Screen(gui.getParentScreen()));
                 })
                 .constrain(LEFT, midPoint(root.get(LEFT), root.get(RIGHT), -150))
                 .constrain(TOP, relative(last.get(BOTTOM), 5))
