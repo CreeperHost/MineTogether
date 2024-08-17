@@ -46,6 +46,7 @@ abstract class GuiMixin {
         return switch (MineTogetherChat.getTarget()) {
             case VANILLA -> chat;
             case PUBLIC -> MineTogetherChat.publicChat;
+            case GROUP -> MineTogetherChat.groupChat;
         };
     }
 
@@ -61,6 +62,7 @@ abstract class GuiMixin {
         return switch (MineTogetherChat.getTarget()) {
             case VANILLA -> chat;
             case PUBLIC -> MineTogetherChat.publicChat;
+            case GROUP -> MineTogetherChat.groupChat;
         };
     }
 
@@ -76,6 +78,7 @@ abstract class GuiMixin {
         return switch (MineTogetherChat.getTarget()) {
             case VANILLA -> chat;
             case PUBLIC -> MineTogetherChat.publicChat;
+            case GROUP -> MineTogetherChat.groupChat;
         };
     }
 
