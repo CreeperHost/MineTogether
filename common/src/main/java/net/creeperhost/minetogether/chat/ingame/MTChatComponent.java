@@ -171,6 +171,8 @@ public class MTChatComponent extends ChatComponent {
      * <p>
      * Warning, This implementation is kinda hacky and may not be entirely reliable.
      *
+     * Oh, and it seems this does not support text wrapping so... yay....
+     *
      * @param message   The message. or null to remove a previous message.
      * @param signature The message signature, If a previous message exists with this signature it will be removed before the new message is added.
      */
