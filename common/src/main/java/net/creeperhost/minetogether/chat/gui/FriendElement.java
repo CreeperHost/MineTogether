@@ -7,17 +7,16 @@ import net.creeperhost.minetogether.gui.dialogs.ContextMenu;
 import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.lib.chat.profile.ProfileManager;
-import net.creeperhost.polylib.client.modulargui.elements.GuiButton;
-import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
-import net.creeperhost.polylib.client.modulargui.elements.GuiRectangle;
-import net.creeperhost.polylib.client.modulargui.elements.GuiText;
+import net.creeperhost.polylib.client.modulargui.elements.*;
 import net.creeperhost.polylib.client.modulargui.lib.BackgroundRender;
 import net.creeperhost.polylib.client.modulargui.lib.Constraints;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,9 +39,11 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
     private GameProfile iconProfile = null;
 
     private PlayerIconElement icon;
+    @Nullable
+    private Component divider = null;
 
     public FriendElement(@NotNull GuiParent<?> parent, @Nullable Profile profile) {
-        this(parent, null, profile);
+        this(parent, (ProfileManager.FriendRequest) null, profile);
     }
 
     public FriendElement(@NotNull GuiParent<?> parent, ProfileManager.FriendRequest request) {
@@ -130,6 +131,75 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
         }
     }
 
+    public FriendElement(@NotNull GuiParent<?> parent, ProfileManager.PrivateGroup invite, Profile sender) {
+        super(parent);
+        this.profile = sender;
+        request = null;
+        this.constrain(HEIGHT, literal(32));
+
+        icon = new PlayerIconElement(this, null)
+                .constrain(TOP, relative(get(TOP), 2))
+                .constrain(LEFT, relative(get(LEFT), 2))
+                .constrain(WIDTH, literal(28))
+                .constrain(HEIGHT, literal(28));
+
+        icon.setTooltip(() -> {
+            if (!sender.isOnline()) {
+                return Collections.singletonList(Component.translatable("minetogether:gui.friends.icon.offline"));
+            } else if (!sender.hasFriendUUID()) {
+                return Collections.singletonList(Component.translatable("minetogether:gui.friends.icon.no_uuid"));
+            } else if (icon.textureFail) {
+                return Collections.singletonList(Component.translatable("minetogether:gui.friends.icon.fail"));
+            }
+            return Collections.emptyList();
+        }, 0);
+
+        GuiText name = new GuiText(this, Component.empty())
+                .setTextSupplier(() -> Component.literal(FriendChatGui.displayName(sender)))
+                .setShadow(false)
+                .setAlignment(Align.LEFT)
+                .constrain(TOP, relative(get(TOP), 5))
+                .constrain(LEFT, relative(icon.get(RIGHT), 3))
+                .constrain(RIGHT, relative(get(RIGHT), -2))
+                .constrain(HEIGHT, literal(9));
+
+        GuiButton accept = MTStyle.Flat.buttonPrimary(this, Component.translatable("minetogether:gui.friends.button.accept"))
+                .onPress(() -> {
+                    ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
+                    ProfileManager.PrivateGroup current = profileManager.getPrivateGroup();
+                    if (current == null) {
+                        profileManager.acceptGroupInvite(invite);
+                        FriendChatGui.selectGroupChat();
+                    } else {
+                        GuiDialog.optionsDialog(getModularGui().getRoot(),
+                                Component.translatable(current.ownerHash == null ? "minetogether:gui.friends.group.confirm_leave_own" : "minetogether:gui.friends.group.confirm_leave"),
+                                250,
+                                GuiDialog.primary(Component.translatable("gui.yes"), () -> {
+                                    profileManager.acceptGroupInvite(invite);
+                                    FriendChatGui.selectGroupChat();
+                                }),
+                                GuiDialog.neutral(Component.translatable("gui.cancel"), () -> {}));
+                    }
+                })
+                .constrain(BOTTOM, relative(get(BOTTOM), -2))
+                .constrain(LEFT, relative(get(LEFT), 34))
+                .constrain(HEIGHT, literal(14));
+
+        GuiButton reject = MTStyle.Flat.buttonCaution(this, Component.translatable("minetogether:gui.friends.button.reject"))
+                .onPress(() -> MineTogetherChat.CHAT_STATE.profileManager.rejectGroupInvite(invite))
+                .constrain(BOTTOM, relative(get(BOTTOM), -2))
+                .constrain(HEIGHT, literal(14))
+                .constrain(RIGHT, relative(get(RIGHT), -2));
+
+        accept.constrain(RIGHT, midPoint(accept.get(LEFT), reject.get(RIGHT), -0.5));
+        reject.constrain(LEFT, midPoint(accept.get(LEFT), reject.get(RIGHT), 0.5));
+    }
+
+    public FriendElement setDivider(@Nullable Component divider) {
+        this.divider = divider;
+        return this;
+    }
+
     @Override
     public void tick(double mouseX, double mouseY) {
         super.tick(mouseX, mouseY);
@@ -152,11 +222,12 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
 
         if (button == GuiButton.LEFT_CLICK) {
             if (request == null) {
-                if (FriendChatGui.selected == profile) {
+                if (FriendChatGui.getSelected() == profile) {
                     showOptions(mouseX, mouseY);
                 } else {
-                    FriendChatGui.selected = profile;
+                    FriendChatGui.setSelected(profile);
                     FriendChatNotifier.setActiveChat(profile);
+                    mc().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1F));
                 }
                 return true;
             }
@@ -173,6 +244,23 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
         menu.addTitle(Component.literal(FriendChatGui.displayName(profile)).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD));
 
         if (request == null) {
+            menu.addOption(Component.translatable("minetogether:gui.friends.button.invite").withStyle(ChatFormatting.GREEN), () -> {
+                ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
+                ProfileManager.PrivateGroup group = profileManager.getPrivateGroup();
+                if (group != null && group.ownerHash != null) {
+                    GuiDialog.optionsDialog(getModularGui().getRoot(),
+                            Component.translatable("minetogether:gui.friends.group.confirm_leave"),
+                            250,
+                            GuiDialog.primary(Component.translatable("gui.yes"), () -> {
+                                FriendChatGui.selectGroupChat();
+                                MineTogetherChat.CHAT_STATE.profileManager.sendGroupInvite(profile);
+                            }),
+                            GuiDialog.neutral(Component.translatable("gui.cancel"), () -> {}));
+                } else {
+                    FriendChatGui.selectGroupChat();
+                    MineTogetherChat.CHAT_STATE.profileManager.sendGroupInvite(profile);
+                }
+            });
             menu.addOption(Component.translatable("minetogether:gui.friends.button.rename").withStyle(ChatFormatting.AQUA), () -> {
                 ProfileManager profileManager = MineTogetherChat.CHAT_STATE.profileManager;
                 new TextInputDialog(getModularGui().getRoot(), Component.translatable("minetogether:screen.friendreq.desc.request"), FriendChatGui.displayName(profile))
@@ -182,16 +270,15 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
                             });
                         });
             });
-//                menu.addOption(Component.translatable("minetogether:gui.friends.button.party").withStyle(ChatFormatting.AQUA), () -> {});
             menu.addOption(Component.translatable("minetogether:gui.friends.button.remove").withStyle(ChatFormatting.YELLOW), () -> {
                 MineTogetherChat.CHAT_STATE.profileManager.removeFriend(profile);
-                FriendChatGui.selected = null;
+                FriendChatGui.setSelected(null);
             });
         }
 
         menu.addOption(Component.translatable("minetogether:gui.friends.button.block").withStyle(ChatFormatting.RED), () -> {
             profile.mute();
-            FriendChatGui.selected = null;
+            FriendChatGui.setSelected(null);
         });
         menu.setPosition(mouseX, mouseY);
     }
@@ -203,10 +290,10 @@ class FriendElement extends GuiElement<FriendElement> implements BackgroundRende
 
     @Override
     public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-        if (profile == null) {
-            render.drawCenteredString(Component.translatable("minetogether:gui.friends.requests").withStyle(ChatFormatting.UNDERLINE), xCenter(), yMin() + 2, 0xFFFFFF, false);
+        if (divider != null) {
+            render.drawCenteredString(divider, xCenter(), yMin() + 2, 0xFFFFFF, false);
             return;
         }
-        render.rect(getRectangle(), MTStyle.Flat.listEntryBackground((isMouseOver() && request == null) || FriendChatGui.selected == profile));
+        render.rect(getRectangle(), MTStyle.Flat.listEntryBackground((isMouseOver() && request == null) || FriendChatGui.getSelected() == profile));
     }
 }
