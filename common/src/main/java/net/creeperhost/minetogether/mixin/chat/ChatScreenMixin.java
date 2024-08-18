@@ -51,6 +51,7 @@ abstract class ChatScreenMixin extends Screen {
 
     private RadioButton vanillaChatButton;
     private RadioButton mtChatButton;
+    private RadioButton groupChatButton;
     private SlideButton chatScaleSlider;
     private SlideButton chatWidthSlider;
     private SlideButton chatHeightSlider;
@@ -101,6 +102,13 @@ abstract class ChatScreenMixin extends Screen {
                 .withVerticalText()
                 .selectedSupplier(() -> MineTogetherChat.getTarget() == ChatTarget.PUBLIC)
                 .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.PUBLIC))
+                .onRelease(() -> setFocused(input));
+
+        groupChatButton = addRenderableWidget(new RadioButton(0, 0, 12, 100, Component.translatable("minetogether:ingame.chat.group")))
+                .withAutoScaleText(3)
+                .withVerticalText()
+                .selectedSupplier(() -> MineTogetherChat.getTarget() == ChatTarget.GROUP)
+                .onPressed(e -> MineTogetherChat.setTarget(ChatTarget.GROUP))
                 .onRelease(() -> setFocused(input));
 
         settingsButton = addRenderableWidget(new IconButton(0, 0, 12, 12, new ResourceLocation(MineTogether.MOD_ID, "textures/gui/buttons/gear.png"), e -> mc.setScreen(new SettingGui.Screen(mc.screen))));
@@ -189,14 +197,22 @@ abstract class ChatScreenMixin extends Screen {
         int guiHeight = height;
         int cMaxYPos = guiHeight - 40;
 
-        int vPos = cMaxYPos - cHeight - 12;
-        int vHeight = cHeight / 2;
-        int mtPos = vPos + vHeight;
-        int mtHeight = cMaxYPos - mtPos - 12;
+        boolean groupChat = MineTogetherChat.CHAT_STATE.profileManager.getPrivateGroup() != null;
 
-        vanillaChatButton.updateBounds(cWidth, vPos, 12, vHeight);
-        mtChatButton.updateBounds(cWidth, mtPos, 12, mtHeight);
-        settingsButton.updateBounds(cWidth, mtPos + mtHeight, 12, 12);
+        int vanillaYPos = cMaxYPos - cHeight - 12;
+        int vanillaHeight = groupChat ? cHeight / 3 : cHeight / 2;
+        vanillaChatButton.updateBounds(cWidth, vanillaYPos, 12, vanillaHeight);
+
+        int mtYPos = vanillaYPos + vanillaHeight;
+        int mtHeight = groupChat ? cHeight / 3 : cMaxYPos - mtYPos - 12;
+        mtChatButton.updateBounds(cWidth, mtYPos, 12, mtHeight);
+
+        int groupYPos = mtYPos + mtHeight;
+        int groupHeight = groupChat ? cMaxYPos - groupYPos - 12 : 0;
+        groupChatButton.updateBounds(cWidth, groupYPos, 12, groupHeight);
+        groupChatButton.visible = groupChat;
+
+        settingsButton.updateBounds(cWidth, groupChat ? groupYPos + groupHeight : mtYPos + mtHeight, 12, 12);
 
         int sliderWidth = cWidth / 3;
         chatWidthSlider.updateBounds(0, cMaxYPos + 2, sliderWidth, 10);
@@ -215,7 +231,7 @@ abstract class ChatScreenMixin extends Screen {
         if (style != null) {
             ClickEvent clickEvent = style.getClickEvent();
             if (clickEvent instanceof FriendChatNotifier.OpenFriendEvent event) {
-                FriendChatGui.selected = event.profile;
+                FriendChatGui.setSelected(event.profile);
                 Minecraft.getInstance().setScreen(new FriendChatGui.Screen(null));
                 cir.setReturnValue(true);
             }
@@ -288,6 +304,10 @@ abstract class ChatScreenMixin extends Screen {
     @Override
     public void tick() {
         switchToVanillaIfCommand();
+
+        if (groupChatButton != null && groupChatButton.visible == (MineTogetherChat.CHAT_STATE.profileManager.getPrivateGroup() == null)) {
+            updateButtons();
+        }
 
         // If we are the vanilla chat, set things editable, and bail out.
         if (MineTogetherChat.getTarget() == ChatTarget.VANILLA) {
