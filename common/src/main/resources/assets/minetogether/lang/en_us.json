@@ -12,6 +12,7 @@
     "minetogether:ingame.chat.global": "MineTogether",
     "minetogether:ingame.chat.local": "Commands",
     "minetogether:ingame.chat.server": "Server",
+    "minetogether:ingame.chat.group": "Party",
 
     "minetogether:gui.join.button.accept": "Join %s online users now!",
     "minetogether:gui.join.button.reject": "Don't ask me again.",
@@ -46,6 +47,15 @@
     "minetogether:gui.friends.icon.no_uuid": "Waiting for profile sync...",
     "minetogether:gui.friends.icon.fail": "Failed to fetch player icon",
 
+    "minetogether:gui.friends.group.own": "Our Party",
+    "minetogether:gui.friends.group.user": "%s's Party",
+    "minetogether:gui.friends.group.channel_waiting": "Waiting for channel...",
+    "minetogether:gui.friends.group.invites": "Party Invites",
+    "minetogether:gui.friends.group.user_count": "%s in party",
+
+    "minetogether:gui.friends.group.confirm_leave": "Are you sure you want to leave your current party?",
+    "minetogether:gui.friends.group.confirm_leave_own": "Are you sure you want to disband your current party?",
+
     "minetogether:gui.friends.error.own_code": "Can not send a friend request to yourself!",
     "minetogether:gui.friends.request_sent": "Friend request has been sent!",
     "minetogether:gui.friends.request_fail": "Failed to send friend request!",
@@ -57,7 +67,9 @@
     "minetogether:gui.friends.button.block": "Mute User",
     "minetogether:gui.friends.button.remove": "Remove Friend",
     "minetogether:gui.friends.button.rename": "Edit friend's name",
-    "minetogether:gui.friends.button.party": "Invite to party",
+    "minetogether:gui.friends.button.invite": "Invite to party",
+    "minetogether:gui.friends.button.leave_group": "Leave party",
+    "minetogether:gui.friends.button.disband_group": "Disband party",
 
     "minetogether:gui.settings.title": "MineTogether Settings",
 
@@ -274,6 +286,12 @@
     "minetogether:toast.user_online": "%s Is now online.",
     "minetogether:toast.user_offline": "%s Is now offline.",
     "minetogether:toast.friend_message": "New message(s) from %s",
+    "minetogether:toast.group_invite_received": "%s has sent you a party invite",
+    "minetogether:toast.left_group": "Left Party",
+    "minetogether:toast.left_group.owner_left": "Owner left",
+    "minetogether:toast.left_group.starting_group": "Starting own party",
+    "minetogether:toast.left_group.switching_group": "Switching party",
+    "minetogether:toast.left_group.leaving": "Leaving",
 
     "minetogether:chat.friend_message": "New message(s) from %s (click to view)",
     "minetogether:chat.friend_message.info": "Click to open friend messages",
