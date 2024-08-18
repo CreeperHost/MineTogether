@@ -97,6 +97,7 @@ public class FriendChatNotifier {
         }
     }
 
+    //TODO, This is now also used by blockshot, so it should be moved somewhere that makes more sense for general use.
     public static void addNotificationMessage(@Nullable Component message, MessageSignature signature) {
         if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC) {
             MineTogetherChat.publicChat.localMessage(message, signature);

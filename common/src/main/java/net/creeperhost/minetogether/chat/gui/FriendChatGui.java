@@ -9,6 +9,8 @@ import net.creeperhost.minetogether.gui.PreviewElement;
 import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.gui.dialogs.OptionDialog;
 import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
+import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
+import net.creeperhost.minetogether.lib.chat.irc.IrcClient;
 import net.creeperhost.minetogether.lib.chat.irc.IrcState;
 import net.creeperhost.minetogether.lib.chat.irc.IrcUser;
 import net.creeperhost.minetogether.lib.chat.message.Message;
@@ -24,9 +26,11 @@ import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Axis;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.creeperhost.polylib.client.modulargui.sprite.PolyTextures;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
+import java.security.Provider;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +50,7 @@ public class FriendChatGui implements GuiProvider {
     private GuiList<FriendElement> friendList;
 
     private GuiElement<?> friendListBg;
+    private GuiElement<?> groupChatBg;
     private GuiElement<?> textBoxBg;
     private GuiElement<?> chatBg;
     private GuiElement<?> codeBoxBg;
@@ -55,9 +60,11 @@ public class FriendChatGui implements GuiProvider {
     private int friendCookie = -1;
 
     @Nullable //Made profile static so we remember the selected profile.
-    public static Profile selected;
+    private static Profile selected;
+    public static boolean groupChat = false;
 
-    private FriendChatGui() {}
+    private FriendChatGui() {
+    }
 
     @Override
     public GuiElement<?> createRootElement(ModularGui gui) {
@@ -76,7 +83,15 @@ public class FriendChatGui implements GuiProvider {
                 .constrain(TOP, relative(root.get(TOP), 22))
                 .constrain(LEFT, relative(root.get(LEFT), 10))
                 .constrain(WIDTH, literal(150))
-                .constrain(BOTTOM, relative(root.get(BOTTOM), -30));
+                .constrain(BOTTOM, relative(root.get(BOTTOM), -30 - 25));
+
+        groupChatBg = MTStyle.Flat.contentArea(root)
+                .constrain(TOP, relative(friendListBg.get(BOTTOM), 2))
+                .constrain(LEFT, relative(root.get(LEFT), 10))
+                .constrain(WIDTH, literal(150))
+                .constrain(HEIGHT, literal(26));
+
+        Constraints.bind(new GroupChatElement(groupChatBg), groupChatBg, 2);
 
         textBoxBg = MTStyle.Flat.contentArea(root)
                 .constrain(LEFT, relative(friendListBg.get(RIGHT), 4))
@@ -297,19 +312,37 @@ public class FriendChatGui implements GuiProvider {
         }
 
         List<ProfileManager.FriendRequest> requests = profileManager.getFriendRequests();
-        if (requests.isEmpty()) return;
-        friendList.add(new FriendElement(friendList, (Profile) null));
+        if (!requests.isEmpty()) {
+            friendList.add(new FriendElement(friendList, (Profile) null).setDivider(Component.translatable("minetogether:gui.friends.requests").withStyle(ChatFormatting.UNDERLINE)));
 
-        for (ProfileManager.FriendRequest request : requests) {
-            if (!search.isEmpty() && !displayName(request.user).toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT))) {
-                continue;
+            for (ProfileManager.FriendRequest request : requests) {
+                if (!search.isEmpty() && !displayName(request.user).toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT))) {
+                    continue;
+                }
+                friendList.add(new FriendElement(friendList, request));
             }
-            friendList.add(new FriendElement(friendList, request));
         }
+
+        List<ProfileManager.PrivateGroup> groupInvites = profileManager.getGroupInvites();
+        if (!groupInvites.isEmpty()) {
+            friendList.add(new FriendElement(friendList, (Profile) null).setDivider(Component.translatable("minetogether:gui.friends.group.invites").withStyle(ChatFormatting.UNDERLINE)));
+
+            for (ProfileManager.PrivateGroup invite : groupInvites) {
+                if (invite.ownerHash == null) continue;
+                Profile sender = profileManager.lookupProfile(invite.ownerHash);
+                if (!search.isEmpty() && !displayName(sender).toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT))) {
+                    continue;
+                }
+                friendList.add(new FriendElement(friendList, invite, sender));
+            }
+        }
+
     }
 
     private void updateSelected() {
-        IrcState state = MineTogetherChat.CHAT_STATE.ircClient.getState();
+        ProfileManager manager = MineTogetherChat.CHAT_STATE.profileManager;
+        IrcClient client = MineTogetherChat.CHAT_STATE.ircClient;
+        IrcState state = client.getState();
         boolean textBoxActive = false;
         if (selected != null && state == IrcState.CONNECTED) {
             IrcUser user = MineTogetherChat.CHAT_STATE.ircClient.getUser(selected);
@@ -320,6 +353,12 @@ public class FriendChatGui implements GuiProvider {
                 chatMonitor.attach(null);
                 textField.setSuggestion(Component.translatable("minetogether:gui.friends.user_offline"));
             }
+        } else if (groupChat && manager.getPrivateGroup() != null) {
+            ProfileManager.PrivateGroup group = manager.getPrivateGroup();
+            IrcChannel channel = client.getChannel(group.channelName);
+            chatMonitor.attach(channel);
+            textBoxActive = channel != null;
+            textField.setSuggestion(Component.translatable("minetogether:gui.friends.group.channel_waiting"));
         } else {
             chatMonitor.attach(null);
             if (state == IrcState.CONNECTED) {
@@ -351,6 +390,20 @@ public class FriendChatGui implements GuiProvider {
 
     private void scheduleFriendUpdate() {
         friendCookie = -1;
+    }
+
+    public static void setSelected(@Nullable Profile newSelected) {
+        selected = newSelected;
+        groupChat = false;
+    }
+
+    public static void selectGroupChat() {
+        selected = null;
+        groupChat = true;
+    }
+
+    public static @Nullable Profile getSelected() {
+        return selected;
     }
 
     public static class Screen extends ModularGuiScreen {

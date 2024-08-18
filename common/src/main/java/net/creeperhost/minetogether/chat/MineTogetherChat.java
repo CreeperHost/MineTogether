@@ -53,6 +53,7 @@ public class MineTogetherChat {
 
     public static ChatComponent vanillaChat;
     public static MTChatComponent publicChat;
+    public static MTChatComponent groupChat;
     private static boolean hasHitLoadingScreen = false;
 
     public static void init() {
@@ -74,6 +75,7 @@ public class MineTogetherChat {
         Minecraft mc = Minecraft.getInstance();
         vanillaChat = gui.chat;
         publicChat = new MTChatComponent(ChatTarget.PUBLIC, mc);
+        groupChat = new MTChatComponent(ChatTarget.GROUP, mc);
         if (LocalConfig.instance().chatEnabled) {
             CHAT_STATE.ircClient.start();
         }
@@ -90,6 +92,10 @@ public class MineTogetherChat {
                     if (screen instanceof ModularGuiScreen mgui && mgui.getModularGui().getProvider() instanceof PublicChatGui chat) {
                         chat.chatMonitor.attach(channel);
                     }
+                }
+                ProfileManager.PrivateGroup group = CHAT_STATE.profileManager.getPrivateGroup();
+                if (group != null && group.channelName.equals(channel.getName())) {
+                    groupChat.attach(channel);
                 }
             }
 
@@ -126,6 +132,25 @@ public class MineTogetherChat {
                 addToast(new SimpleToast(
                         Component.translatable("minetogether:toast.user_offline", displayName(fr)),
                         Component.empty(),
+                        MINETOGETHER_LOGO_25
+                ));
+            } else if (e.type == ProfileManager.EventType.GROUP_INVITE_RECEIVED) {
+                ProfileManager.PrivateGroup group = (ProfileManager.PrivateGroup) e.data;
+                if (group != null && group.ownerHash != null) {
+                    Profile sender = CHAT_STATE.profileManager.lookupProfile(group.ownerHash);
+                    addToast(new SimpleToast(
+                            Component.translatable("minetogether:toast.group_invite_received", displayName(sender)),
+                            Component.empty(),
+                            MINETOGETHER_LOGO_25
+                    ));
+                }
+            } else if (e.type == ProfileManager.EventType.LEFT_GROUP) {
+                if (getTarget() == ChatTarget.GROUP) {
+                    setTarget(ChatTarget.VANILLA);//Switch to vanilla rather than public to avoid situations where a user starts sending private messages without realizing they have left the group.
+                }
+                addToast(new SimpleToast(
+                        Component.translatable("minetogether:toast.left_group"),
+                        Component.translatable("minetogether:toast.left_group." + e.data),
                         MINETOGETHER_LOGO_25
                 ));
             }
