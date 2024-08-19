@@ -206,7 +206,8 @@
     "minetogether:gui.order.region.fallback_disabled": "Use fallback location: Disabled",
     "minetogether:gui.order.region.fallback_info": "Should we use the nearest available location if your selected location is unavailable?",
 
-    "minetogether:gui.order.summary.location":"Server Location:",
+    "minetogether:gui.order.summary.location":"Preferred Location:",
+    "minetogether:gui.order.summary.location_fallback":"If we are unable to provision your service in %s, we will automatically provision your service in %s, you can move your service later at no cost.",
     "minetogether:gui.order.summary.plan":"Server Plan:",
     "minetogether:gui.order.summary.features":"Includes:",
     "minetogether:gui.order.summary.feature1":"Free Dedicated IPv4",
