@@ -43,8 +43,7 @@ import java.util.regex.Pattern;
 
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint.*;
 import static net.creeperhost.polylib.client.modulargui.lib.geometry.GeoParam.*;
-import static net.minecraft.ChatFormatting.GREEN;
-import static net.minecraft.ChatFormatting.RED;
+import static net.minecraft.ChatFormatting.*;
 
 /**
  * Created by brandon3055 on 04/10/2023
@@ -282,11 +281,25 @@ public class OrderGui implements GuiProvider {
                 .autoHeight();
 
         //Location
-        lastElement = new GuiText(scrollPane, new TranslatableComponent("minetogether:gui.order.summary.location"))
+        Component locText = new TranslatableComponent("minetogether:gui.order.summary.location");
+        int locWidth = scrollPane.font().width(locText);
+        lastElement = new GuiText(scrollPane, locText)
                 .setEnabled(() -> summary.summaryError.isEmpty())
+                .setTooltipSingle(this::fallbackToolTip)
+                .setTooltipDelay(0)
                 .constrain(TOP, relative(lastElement.get(BOTTOM), 4))
                 .constrain(LEFT, left)
                 .constrain(RIGHT, right)
+                .constrain(HEIGHT, literal(8));
+
+        new GuiText(lastElement, new TranslatableComponent("I").withStyle(UNDERLINE, GREEN))
+                .setEnabled(() -> summary.summaryError.isEmpty())
+                .setTooltipSingle(this::fallbackToolTip)
+                .setTooltipDelay(0)
+                .setScroll(false)
+                .constrain(TOP, match(lastElement.get(TOP)))
+                .constrain(LEFT, relative(lastElement.get(RIGHT), () -> 2 - ((right.get() - left.get()) - locWidth) / 2D))
+                .constrain(WIDTH, literal(10))
                 .constrain(HEIGHT, literal(8));
 
         lastElement = new GuiText(scrollPane, () -> new TextComponent(getDCName(order.serverLocation)))
@@ -367,6 +380,10 @@ public class OrderGui implements GuiProvider {
                 .constrain(LEFT, left)
                 .constrain(RIGHT, right)
                 .autoHeight();
+    }
+
+    private Component fallbackToolTip() {
+        return new TranslatableComponent("minetogether:gui.order.summary.location_fallback", new TextComponent(getDCName(order.serverLocation)).withStyle(GOLD), new TextComponent(getDCName(computeFallbackLocation())).withStyle(GOLD));
     }
 
     private void setupPricePanel(GuiElement<?> background) {

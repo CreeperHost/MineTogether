@@ -63,15 +63,6 @@ public class LocationElement extends GuiElement<LocationElement> {
                 .constrain(RIGHT, match(get(RIGHT)));
         lastElement.constrain(HEIGHT, dynamic(() -> (double) this.font().wordWrapHeight(pingInfo.getString(), (int) xMax() - (int) xMin())));
 
-        lastElement = MTStyle.Flat.button(this, () -> gui.order.useFallback ? new TranslatableComponent("minetogether:gui.order.region.fallback_enabled") : new TranslatableComponent("minetogether:gui.order.region.fallback_disabled"))
-                .setTooltipSingle(new TranslatableComponent("minetogether:gui.order.region.fallback_info"))
-                .setTooltipDelay(5)
-                .onPress(() -> gui.order.useFallback = !gui.order.useFallback)
-                .constrain(TOP, relative(lastElement.get(BOTTOM), 3))
-                .constrain(LEFT, match(get(LEFT)))
-                .constrain(RIGHT, match(get(RIGHT)))
-                .constrain(HEIGHT, literal(12));
-
         constrain(BOTTOM, match(lastElement.get(BOTTOM)));
 //        Constraints.bind(new GuiRectangle(this).border(0xFF00FF00), this);
     }
