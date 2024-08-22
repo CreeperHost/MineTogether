@@ -367,11 +367,14 @@ abstract class ChatScreenMixin extends Screen {
             cancellable = true
     )
     private void onHandleChatInput(String message, boolean bl, CallbackInfo ci) {
-        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC) {
-            MineTogetherChat.publicChat.addRecentChat(message);
+        String normalized = normalizeChatMessage(message);
+        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && !normalized.isEmpty()) {
+            MineTogetherChat.publicChat.addRecentChat(normalized);
             ci.cancel();
         }
     }
+
+    @Shadow public abstract String normalizeChatMessage(String string);
 
     //TODO looks like the code this references has been completely removed. Not sure if this is going to be an issue.
 //    @Inject(
