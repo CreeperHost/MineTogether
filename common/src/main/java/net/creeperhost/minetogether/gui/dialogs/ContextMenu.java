@@ -1,5 +1,6 @@
 package net.creeperhost.minetogether.gui.dialogs;
 
+import net.covers1624.quack.collection.FastStream;
 import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
 import net.creeperhost.polylib.client.modulargui.elements.GuiRectangle;
 import net.creeperhost.polylib.client.modulargui.elements.GuiText;
@@ -104,9 +105,11 @@ public class ContextMenu extends GuiElement<ContextMenu> implements BackgroundRe
     public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
         if (isMouseOver()) {
             for (GuiElement<?> element : menuElements) {
-                if (element.isMouseOver() && options.containsKey(element)) {
+                if (!options.containsKey(element)) continue;
+                if (element.isMouseOver() || FastStream.of(element.getChildren()).anyMatch(GuiElement::isMouseOver)) {
                     options.get(element).run();
                     mc().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                    break;
                 }
             }
         }
