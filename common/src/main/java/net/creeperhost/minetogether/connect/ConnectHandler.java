@@ -47,6 +47,7 @@ public class ConnectHandler {
     private static long lastSearch = 0;
     private static CompletableFuture<?> activeSearch = null;
     private static List<CFriendServers.ServerEntry> searchResult = null;
+    private static int defaultMaxPlayers = 8;
 
     // Useful for testing, can connect to specific node.
     private static final String FORCED_NODE = System.getProperty("connect.node");
@@ -157,6 +158,8 @@ public class ConnectHandler {
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer server = mc.getSingleplayerServer();
         if (server == null) return;
+        defaultMaxPlayers = server.getPlayerList().maxPlayers;
+        server.getPlayerList().maxPlayers = 2; //Set to the minimum, here, later it may be increased as appropriate inside NettyClient.publishServer
         mc.prepareForMultiplayer();
 
         if (server.isPublished()) {
@@ -199,6 +202,7 @@ public class ConnectHandler {
             server.publishedPort = -1;
             server.publishedGameType = null;
         }
+        server.getPlayerList().maxPlayers = Math.max(defaultMaxPlayers, 8);
     }
 
     public static boolean isPublished() {

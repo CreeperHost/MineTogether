@@ -124,7 +124,7 @@ public class ServerListAppender {
 
     public void pingServer(RemoteServer server, Profile profile) throws Exception {
         JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
-        Connection connection = NettyClient.connect(ConnectHandler.getSpecificEndpoint(server.node), token, server.serverToken, Minecraft.getInstance().getDebugOverlay().getBandwidthLogger());
+        Connection connection = NettyClient.connect(ConnectHandler.getSpecificEndpoint(server.node), token, server.serverToken, Minecraft.getInstance().getDebugOverlay().getBandwidthLogger(), true);
         connections.add(connection);
         server.motd = Component.translatable("multiplayer.status.pinging");
         server.ping = -1L;
