@@ -24,6 +24,7 @@ public class MineTogetherFabric implements ModInitializer {
 
         if (Platform.getEnv() == EnvType.CLIENT) {
             ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new ResourceReloadListenerWrapper(MTTextures::getUploader, new ResourceLocation(MineTogether.MOD_ID, "gui_atlas_reload")));
+            FabricClientEvents.init();
         }
     }
 }

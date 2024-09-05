@@ -77,6 +77,7 @@
     "minetogether:gui.settings.button.friend_toasts": "Friend Toasts: ",
     "minetogether:gui.settings.button.chat_sliders": "Chat Sliders: ",
     "minetogether:gui.settings.button.menu_buttons": "Menu Buttons: ",
+    "minetogether:gui.settings.button.pause_buttons": "Pause Buttons: ",
     "minetogether:gui.settings.button.enabled": "Enabled",
     "minetogether:gui.settings.button.disabled": "Disabled",
     "minetogether:gui.settings.button.link": "Link Account",
@@ -281,6 +282,10 @@
     "minetogether:gui.server_list.sort.location": "Location",
     "minetogether:gui.server_list.sort.ping": "Ping",
 
+    "minetogether:keybind.category": "MineTogether",
+    "minetogether:keybind.friend_chat": "Open friend chat",
+    "minetogether:keybind.global_chat": "Open global chat",
+    "minetogether:keybind.settings": "Open Settings",
 
     "minetogether:toast.fiend_request_received": "%s has sent you a friend request",
     "minetogether:toast.fiend_request_accepted": "%s has accepted your friend request",
