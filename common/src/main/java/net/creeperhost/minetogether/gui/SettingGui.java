@@ -3,6 +3,7 @@ package net.creeperhost.minetogether.gui;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.gui.MTStyle;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.lib.chat.profile.Profile;
 import net.creeperhost.minetogether.oauth.KeycloakOAuth;
@@ -64,7 +65,7 @@ public class SettingGui implements GuiProvider {
                 .constrain(RIGHT, relative(root.get(RIGHT), -10));
 
         GuiElement<?> settings = new GuiElement<>(root)
-                .constrain(TOP, midPoint(root.get(TOP), root.get(BOTTOM), (7*20) / -2D))
+                .constrain(TOP, midPoint(root.get(TOP), root.get(BOTTOM), (8*20) / -2D))
                 .constrain(LEFT, dynamic(() -> buttonPanelPos(root)))
                 .constrain(WIDTH, literal(panelWidth))
                 .constrain(HEIGHT, literal(0));
@@ -78,23 +79,31 @@ public class SettingGui implements GuiProvider {
         enabled.getLabel().setTextSupplier(() -> new TranslatableComponent("minetogether:gui.settings.button.chat").append(state(LocalConfig.instance().chatEnabled)));
 
         GuiButton menuButtons = MTStyle.Flat.button(settings, TextComponent.EMPTY)
-                .onPress(() -> setConfig(() -> LocalConfig.instance().mainMenuButtons ^= true))
+                .onPress(() -> setLocalConfig(() -> LocalConfig.instance().mainMenuButtons ^= true))
                 .constrain(TOP, relative(enabled.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
                 .constrain(HEIGHT, literal(16));
         menuButtons.getLabel().setTextSupplier(() -> new TranslatableComponent("minetogether:gui.settings.button.menu_buttons").append(state(LocalConfig.instance().mainMenuButtons)));
 
-        GuiButton toasts = MTStyle.Flat.button(settings, TextComponent.EMPTY)
-                .onPress(() -> setConfig(() -> LocalConfig.instance().friendNotifications ^= true))
+        GuiButton pauseButtons = MTStyle.Flat.button(settings, TextComponent.EMPTY)
+                .onPress(() -> setLocalConfig(() -> Config.instance().pauseScreenButtons ^= true))
                 .constrain(TOP, relative(menuButtons.get(BOTTOM), 4))
+                .constrain(LEFT, match(settings.get(LEFT)))
+                .constrain(RIGHT, match(settings.get(RIGHT)))
+                .constrain(HEIGHT, literal(16));
+        pauseButtons.getLabel().setTextSupplier(() -> new TranslatableComponent("minetogether:gui.settings.button.pause_buttons").append(state(Config.instance().pauseScreenButtons)));
+
+        GuiButton toasts = MTStyle.Flat.button(settings, TextComponent.EMPTY)
+                .onPress(() -> setLocalConfig(() -> LocalConfig.instance().friendNotifications ^= true))
+                .constrain(TOP, relative(pauseButtons.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
                 .constrain(HEIGHT, literal(16));
         toasts.getLabel().setTextSupplier(() -> new TranslatableComponent("minetogether:gui.settings.button.friend_toasts").append(state(LocalConfig.instance().friendNotifications)));
 
-        GuiButton chatSliders = MTStyle.Flat.button(toasts, TextComponent.EMPTY)
-                .onPress(() -> setConfig(() -> LocalConfig.instance().chatSettingsSliders ^= true))
+        GuiButton chatSliders = MTStyle.Flat.button(settings, TextComponent.EMPTY)
+                .onPress(() -> setLocalConfig(() -> LocalConfig.instance().chatSettingsSliders ^= true))
                 .constrain(TOP, relative(toasts.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
@@ -132,7 +141,7 @@ public class SettingGui implements GuiProvider {
 
         GuiButton back = MTStyle.Flat.button(settings, new TranslatableComponent("minetogether:gui.button.back"))
                 .onPress(() -> gui.mc().setScreen(gui.getParentScreen()))
-                .constrain(TOP, relative(profileScreen.get(BOTTOM), 24))
+                .constrain(TOP, relative(profileScreen.get(BOTTOM), 16))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
                 .constrain(HEIGHT, literal(16));
@@ -142,8 +151,8 @@ public class SettingGui implements GuiProvider {
                 .setEnabled(() -> blockedAnim == 1)
                 .constrain(LEFT, midPoint(root.get(LEFT), root.get(RIGHT), 5))
                 .constrain(WIDTH, literal(panelWidth))
-                .constrain(TOP, midPoint(root.get(TOP), root.get(BOTTOM), -90))
-                .constrain(BOTTOM, midPoint(root.get(TOP), root.get(BOTTOM), 100));
+                .constrain(TOP, match(enabled.get(TOP)))
+                .constrain(BOTTOM, match(back.get(BOTTOM)));
 
         GuiText blockedTitle = new GuiText(blockedBg, new TranslatableComponent("minetogether:gui.settings.button.blocked").withStyle(UNDERLINE))
                 .constrain(BOTTOM, relative(blockedBg.get(TOP), -3))
@@ -216,9 +225,10 @@ public class SettingGui implements GuiProvider {
         LocalConfig.save();
     }
 
-    private void setConfig(Runnable set) {
+    private void setLocalConfig(Runnable set) {
         set.run();
         LocalConfig.save();
+        Config.save();
     }
 
     private class BlockedEntry extends GuiElement<BlockedEntry> implements BackgroundRender {

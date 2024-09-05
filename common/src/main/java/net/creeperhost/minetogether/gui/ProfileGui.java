@@ -242,6 +242,7 @@ public class ProfileGui implements GuiProvider {
                 .constrain(WIDTH, literal(uiWidth))
                 .constrain(HEIGHT, literal(14));
         appealText.primary
+                .setMaxLength(140)
                 .setSuggestion(new TranslatableComponent("minetogether:gui.profile.ban.submit_an_appeal_hint"));
         Constraints.placeOutside(appealText.container, submitAppeal, Constraints.LayoutPos.BOTTOM_CENTER, 0, 2);
 
