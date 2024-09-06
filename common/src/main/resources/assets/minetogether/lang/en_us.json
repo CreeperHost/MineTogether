@@ -376,6 +376,11 @@
     "minetogether.connect.scan":"Scanning MineTogether Connect and LAN for available worlds",
     "minetogether.connect.scan.offline":"Scanning LAN for available worlds",
     "minetogether.connect.friendentry.title":"MineTogether Friend Server",
+    "minetogether.connect.open.max_players":"Max players",
+    "minetogether.connect.open.max_players.info":"The maximum allowed players (Including the host)",
+    "minetogether.connect.open.max_players_error":"An error occurred while attempting to get player limit from the Connect server...",
+    "minetogether.connect.open.mt_supporter_info":"If you would like to invite more players to your server, you can increase your connect player limit by becoming a MineTogether supporter. Click here to learn more.",
+
 
     "minetogether.connect.friend.server.title":"%s's Shared MineTogether Server"
 
