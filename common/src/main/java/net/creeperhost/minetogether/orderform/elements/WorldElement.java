@@ -4,6 +4,7 @@ import net.creeperhost.minetogether.chat.gui.MTStyle;
 import net.creeperhost.minetogether.gui.dialogs.ItemSelectDialog;
 import net.creeperhost.minetogether.orderform.OrderGui;
 import net.creeperhost.minetogether.orderform.WorldUploader;
+import net.creeperhost.polylib.client.modulargui.ModularGui;
 import net.creeperhost.polylib.client.modulargui.elements.GuiDialog;
 import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
 import net.creeperhost.polylib.client.modulargui.elements.GuiRectangle;
@@ -13,11 +14,13 @@ import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.storage.LevelStorageException;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
+import net.minecraft.world.level.storage.WorldData;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -76,13 +79,7 @@ public class WorldElement extends GuiElement<WorldElement> {
                             .setCloseOnOutsideClick(true)
                             .setOnItemSelected(selected -> {
                                 Path worldFolder = this.mc().getLevelSource().getLevelPath(selected.getLevelId());
-                                GuiDialog.optionsDialog(this, Component.translatable("minetogether:gui.order.confirm_upload",
-                                                Component.literal(selected.getLevelName()).withStyle(GOLD)).withStyle(BLUE),
-                                        Component.translatable("minetogether:gui.order.confirm_upload.info").withStyle(GRAY),
-                                        250,
-                                        GuiDialog.primary(Component.translatable("minetogether:gui.order.world.upload"), () -> startWorldUpload(worldFolder, selected)),
-                                        GuiDialog.caution(Component.translatable("gui.cancel"), () -> {})
-                                );
+                                confirmStartUpload(worldFolder, selected.getLevelName());
                             })
                     )
                     .constrain(TOP, relative(lastElement.get(BOTTOM), 3))
@@ -178,10 +175,35 @@ public class WorldElement extends GuiElement<WorldElement> {
         }
     }
 
-    private void startWorldUpload(Path worldFolder, LevelSummary summary) {
+    private void confirmStartUpload(Path worldFolder, String levelName) {
+        GuiDialog.optionsDialog(this, Component.translatable("minetogether:gui.order.confirm_upload",
+                        Component.literal(levelName).withStyle(GOLD)).withStyle(BLUE),
+                Component.translatable("minetogether:gui.order.confirm_upload.info").withStyle(GRAY),
+                250,
+                GuiDialog.primary(Component.translatable("minetogether:gui.order.world.upload"), () -> startWorldUpload(worldFolder, levelName)),
+                GuiDialog.caution(Component.translatable("gui.cancel"), () -> {})
+        );
+    }
+
+    private void startWorldUpload(Path worldFolder, String levelName) {
         if (worldUploader != null) return;
-        worldName = summary.getLevelName();
+        worldName = levelName;
         worldUploader = new WorldUploader(worldFolder);
         worldUploader.start();
     }
+
+    public void uploadCurrentWorld(ModularGui gui) {
+        IntegratedServer server = gui.mc().getSingleplayerServer();
+        if (server == null) return;
+        LevelStorageSource.LevelStorageAccess storage = server.storageSource;
+        Path levelPath = storage.getLevelDirectory().path().toAbsolutePath();
+        confirmStartUpload(levelPath, server.getWorldData().getLevelName());
+    }
+
+//    private void uploadCurrentWorld(ModularGui gui) {
+
+//        world.startWorldUpload();
+//
+//
+//    }
 }

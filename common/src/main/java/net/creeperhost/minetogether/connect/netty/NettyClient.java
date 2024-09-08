@@ -47,7 +47,7 @@ public class NettyClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static ProxyConnection publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session, @Nullable String modpackKey) {
+    public static ProxyConnection publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session, @Nullable String modpackKey, int maxPlayers) {
         Throwable[] error = new Throwable[1];
         ProxyConnection connection = new ProxyConnection(endpoint) {
 
@@ -91,7 +91,8 @@ public class NettyClient {
 
             @Override
             public void handleMaxPlayers(ChannelHandlerContext channelHandlerContext, CMaxPlayers cMaxPlayers) {
-                server.getPlayerList().maxPlayers = cMaxPlayers.maxPlayers > 0 ? cMaxPlayers.maxPlayers : 100;
+                int playerCap = cMaxPlayers.maxPlayers > 0 ? cMaxPlayers.maxPlayers : Integer.MAX_VALUE;
+                server.getPlayerList().maxPlayers = Math.min(playerCap, maxPlayers);
             }
 
             @Override

@@ -2,10 +2,12 @@ package net.creeperhost.minetogether.connect.gui;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.creeperhost.minetogether.chat.gui.MTStyle;
+import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.netty.NettyClient;
 import net.creeperhost.minetogether.gui.LoadingSpinner;
 import net.creeperhost.minetogether.gui.MTTextures;
+import net.creeperhost.minetogether.orderform.OrderGui;
 import net.creeperhost.minetogether.session.JWebToken;
 import net.creeperhost.minetogether.session.MineTogetherSession;
 import net.creeperhost.polylib.client.modulargui.ModularGui;
@@ -17,6 +19,7 @@ import net.creeperhost.polylib.client.modulargui.lib.SliderState;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Axis;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.CommonComponents;
@@ -40,7 +43,7 @@ public class GuiShareToFriends implements GuiProvider {
     private boolean commands = false;
     private int maxPlayers = 2;
     private double extraPlayers = maxPlayers - 1;
-    private final SliderState playersState = SliderState.forSlider(() -> extraPlayers / (maxPlayers - 1), pos -> extraPlayers = (pos * (maxPlayers - 1)), () -> 1D / (maxPlayers - 1));
+    private final SliderState playersState = SliderState.forSlider(() -> extraPlayers / (maxPlayers - 1), pos -> extraPlayers = (pos * (maxPlayers - 1)), () -> -1D / (maxPlayers - 1));
 
     private CompletableFuture<?> getPlayersTask = null;
     private boolean playerCheckError = false;
@@ -61,23 +64,30 @@ public class GuiShareToFriends implements GuiProvider {
         GuiElement<?> root = gui.getRoot();
 
         GuiRectangle bounds = new GuiRectangle(root);//.border(0xFFFF0000);
-        Constraints.size(bounds, 310, 216);
+        Constraints.size(bounds, 310, 226);
         Constraints.center(bounds, root);
 
 
         GuiTexture mineTogetherLogo = new GuiTexture(root, MTTextures.get("minetogether_connect"));
         Constraints.size(mineTogetherLogo, 256, 64);
-        Constraints.placeInside(mineTogetherLogo, bounds, Constraints.LayoutPos.TOP_CENTER, 0, -10);
+        Constraints.placeInside(mineTogetherLogo, bounds, Constraints.LayoutPos.TOP_CENTER, 0, -15);
 
-        GuiText shareInfo = new GuiText(root, Component.literal("Open your world to your MineTogether friends!").withStyle(BLUE))
-                .constrain(WIDTH, match(root.get(WIDTH)))
-                .constrain(HEIGHT, literal(9));
-        Constraints.placeOutside(shareInfo, mineTogetherLogo, Constraints.LayoutPos.BOTTOM_CENTER, 0, -10);
+        GuiText shareInfo = new GuiText(root, Component.translatable("minetogether.connect.open.connect_intro").withStyle(BLUE))
+                .constrain(WIDTH, match(bounds.get(WIDTH)))
+                .setWrap(true)
+                .autoHeight();
+        Constraints.placeOutside(shareInfo, mineTogetherLogo, Constraints.LayoutPos.BOTTOM_CENTER, 0, -5);
+
+        GuiText connectInfo = new GuiText(root, Component.translatable("minetogether.connect.open.connect_security").withStyle(GRAY))
+                .constrain(WIDTH, match(bounds.get(WIDTH)))
+                .setWrap(true)
+                .autoHeight();
+        Constraints.placeOutside(connectInfo, shareInfo, Constraints.LayoutPos.BOTTOM_CENTER, 0, 5);
 
         GuiText settingsInfo = new GuiText(root, Component.translatable("minetogether.connect.open.settings"))
                 .constrain(WIDTH, match(root.get(WIDTH)))
                 .constrain(HEIGHT, literal(9));
-        Constraints.placeOutside(settingsInfo, shareInfo, Constraints.LayoutPos.BOTTOM_CENTER, 0, 20);
+        Constraints.placeOutside(settingsInfo, connectInfo, Constraints.LayoutPos.BOTTOM_CENTER, 0, 5);
 
         GuiButton gameModeButton = MTStyle.Flat.button(root, Component.empty())
                 .onPress(() -> gameMode = GameType.values()[(gameMode.ordinal() + 1) % GameType.values().length])
@@ -99,9 +109,10 @@ public class GuiShareToFriends implements GuiProvider {
         GuiRectangle sliderBg = new GuiRectangle(root)
                 .setEnabled(() -> getPlayersTask == null)
                 .border(0xFF909090)
-                .constrain(WIDTH, match(bounds.get(WIDTH)))
+                .constrain(LEFT, match(gameModeButton.get(LEFT)))
+                .constrain(RIGHT, match(cheatsButton.get(RIGHT)))
+                .constrain(TOP, relative(gameModeButton.get(BOTTOM), 5))
                 .constrain(HEIGHT, literal(16));
-        Constraints.placeOutside(sliderBg, settingsInfo, Constraints.LayoutPos.BOTTOM_CENTER, 0, 35);
 
         GuiSlider slider = new GuiSlider(sliderBg, Axis.X)
                 .setTooltip(Component.translatable("minetogether.connect.open.max_players.info"))
@@ -128,7 +139,7 @@ public class GuiShareToFriends implements GuiProvider {
         GuiText maxPlayersText = new GuiText(sliderBg)
                 .constrain(WIDTH, relative(sliderBg.get(WIDTH), -10))
                 .constrain(HEIGHT, literal(16))
-                .setTextSupplier(() -> Component.translatable("minetogether.connect.open.max_players").append(": " + getPlayersSetting()));
+                .setTextSupplier(() -> Component.translatable("minetogether.connect.open.max_players").append(": ").append(playersDisplay(getPlayersSetting())));
         Constraints.center(maxPlayersText, sliderBg);
 
         //Loading Spinner / error info
@@ -150,7 +161,6 @@ public class GuiShareToFriends implements GuiProvider {
                 .setWrap(true)
                 .constrain(WIDTH, match(bounds.get(WIDTH)))
                 .autoHeight();
-//      TODO Finalise this text
         supporterInfo.setTextSupplier(() -> Component.translatable("minetogether.connect.open.mt_supporter_info").withStyle(supporterInfo.isMouseOver() ? UNDERLINE : GRAY).withStyle(supporterInfo.isMouseOver() ? BLUE : GRAY));
         Constraints.placeOutside(supporterInfo, sliderBg, Constraints.LayoutPos.BOTTOM_CENTER, 0, 5);
 
@@ -159,6 +169,20 @@ public class GuiShareToFriends implements GuiProvider {
                 .onClick(() -> openLink(gui, "https://minetogether.io/profile/subscriptions"));
         Constraints.bind(supporterLink, supporterInfo);
 
+        //Order page link
+        GuiText orderInfo = new GuiText(sliderBg)
+                .setWrap(true)
+                .constrain(WIDTH, match(bounds.get(WIDTH)))
+                .autoHeight();
+        orderInfo.setTextSupplier(() -> Component.translatable("minetogether.connect.open.order_info").withStyle(orderInfo.isMouseOver() ? UNDERLINE : GRAY).withStyle(orderInfo.isMouseOver() ? BLUE : GRAY));
+        Constraints.placeOutside(orderInfo, supporterInfo, Constraints.LayoutPos.BOTTOM_CENTER, 0, 5);
+
+        GuiButton orderLink = new GuiButton(sliderBg)
+                .setEnabled(orderInfo::isEnabled)
+                .onClick(() -> gui.mc().setScreen(new OrderGui.Screen(gui.getScreen(), true)));
+        Constraints.bind(orderLink, orderInfo);
+
+        //Go / Cancel
         GuiButton openButton = MTStyle.Flat.buttonPrimary(root, Component.translatable("minetogether.connect.open.start"))
                 .onPress(() -> openWorld(gui))
                 .constrain(BOTTOM, match(bounds.get(BOTTOM)))
@@ -182,13 +206,18 @@ public class GuiShareToFriends implements GuiProvider {
     }
 
     private int getPlayersSetting() {
-        return 1 + Math.max(0, Math.min((int) Math.round(extraPlayers), maxPlayers));
+        int value = 1 + Math.max(0, Math.min((int) Math.round(extraPlayers), maxPlayers));
+        return value >= 100 ? Integer.MAX_VALUE : value;
+    }
+
+    private Component playersDisplay(int players) {
+        return Component.literal(players == Integer.MAX_VALUE ? "\u221E" : String.valueOf(players));
     }
 
     private void openWorld(ModularGui gui) {
         gui.mc().setScreen(null);
         gui.mc().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.attempting"));
-        ConnectHandler.publishToFriends(gameMode, commands);
+        ConnectHandler.publishToFriends(gameMode, commands, getPlayersSetting());
     }
 
     private void startPlayersCheck() {
@@ -224,6 +253,7 @@ public class GuiShareToFriends implements GuiProvider {
     public static class Screen extends ModularGuiScreen {
         public Screen(net.minecraft.client.gui.screens.Screen parentScreen) {
             super(new GuiShareToFriends(), parentScreen);
+            modularGui.setPauseScreen(true);
         }
     }
 }

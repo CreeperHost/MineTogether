@@ -153,13 +153,13 @@ public class ConnectHandler {
         return true; //TODO v2
     }
 
-    public static void publishToFriends(GameType gameType, boolean cheats) {
+    public static void publishToFriends(GameType gameType, boolean cheats, int maxPlayers) {
         // Mostly copy of IntegratedServer#publishServer
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer server = mc.getSingleplayerServer();
         if (server == null) return;
         defaultMaxPlayers = server.getPlayerList().maxPlayers;
-        server.getPlayerList().maxPlayers = 2; //Set to the minimum, here, later it may be increased as appropriate inside NettyClient.publishServer
+        server.getPlayerList().maxPlayers = Math.min(2, maxPlayers); //Set to the minimum, here, later it may be increased as appropriate inside NettyClient.publishServer
         mc.prepareForMultiplayer();
 
         if (server.isPublished()) {
@@ -179,7 +179,7 @@ public class ConnectHandler {
         CompletableFuture.runAsync(() -> {
             try { // TODO, This should be done outside somewhere.
                 JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
-                publishedServer = NettyClient.publishServer(server, getEndpoint(), token, getModpackKey());
+                publishedServer = NettyClient.publishServer(server, getEndpoint(), token, getModpackKey(), maxPlayers);
             } catch (Exception e) {
                 Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed", e.getMessage()));
                 LOGGER.error("Failed to open to friends", e);

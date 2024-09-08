@@ -217,8 +217,9 @@ public class ServerListAppender {
         }
     }
 
-    private static Component formatPlayerCount(int i, int j) {
-        return Component.literal(Integer.toString(i)).append(Component.literal("/").withStyle(ChatFormatting.DARK_GRAY)).append(Integer.toString(j)).withStyle(ChatFormatting.GRAY);
+    private static Component formatPlayerCount(int players, int maxPlayers) {
+        Component maxComp = Component.literal(maxPlayers == Integer.MAX_VALUE ? "\u221E" : String.valueOf(maxPlayers));
+        return Component.literal(Integer.toString(players)).append(Component.literal("/").withStyle(ChatFormatting.DARK_GRAY)).append(maxComp).withStyle(ChatFormatting.GRAY);
     }
 
     private void onPingFailed(Component component, RemoteServer server, Profile profile) {
