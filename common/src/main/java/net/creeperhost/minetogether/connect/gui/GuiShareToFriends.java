@@ -64,9 +64,8 @@ public class GuiShareToFriends implements GuiProvider {
         GuiElement<?> root = gui.getRoot();
 
         GuiRectangle bounds = new GuiRectangle(root);//.border(0xFFFF0000);
-        Constraints.size(bounds, 310, 226);
+        Constraints.size(bounds, 340, 226);
         Constraints.center(bounds, root);
-
 
         GuiTexture mineTogetherLogo = new GuiTexture(root, MTTextures.get("minetogether_connect"));
         Constraints.size(mineTogetherLogo, 256, 64);
@@ -76,7 +75,7 @@ public class GuiShareToFriends implements GuiProvider {
                 .constrain(WIDTH, match(bounds.get(WIDTH)))
                 .setWrap(true)
                 .autoHeight();
-        Constraints.placeOutside(shareInfo, mineTogetherLogo, Constraints.LayoutPos.BOTTOM_CENTER, 0, -5);
+        Constraints.placeOutside(shareInfo, mineTogetherLogo, Constraints.LayoutPos.BOTTOM_CENTER, 0, -8);
 
         GuiText connectInfo = new GuiText(root, Component.translatable("minetogether.connect.open.connect_security").withStyle(GRAY))
                 .constrain(WIDTH, match(bounds.get(WIDTH)))
@@ -115,9 +114,9 @@ public class GuiShareToFriends implements GuiProvider {
                 .constrain(HEIGHT, literal(16));
 
         GuiSlider slider = new GuiSlider(sliderBg, Axis.X)
-                .setTooltip(Component.translatable("minetogether.connect.open.max_players.info"))
+//                .setTooltip(Component.translatable("minetogether.connect.open.max_players.info"))
                 .setSliderState(playersState);
-        slider.setEnableToolTip(() -> !slider.isDragging());
+//        slider.setEnableToolTip(() -> !slider.isDragging());
         Constraints.bind(slider, sliderBg, 1);
 
         sliderBg.fill(() -> slider.isMouseOver() || slider.isDragging() ? 0xFF202020 : 0xFF000000);

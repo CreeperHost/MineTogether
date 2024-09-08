@@ -377,13 +377,13 @@
     "minetogether.connect.scan":"Scanning MineTogether Connect and LAN for available worlds",
     "minetogether.connect.scan.offline":"Scanning LAN for available worlds",
     "minetogether.connect.friendentry.title":"MineTogether Friend Server",
-    "minetogether.connect.open.max_players":"Max players",
+    "minetogether.connect.open.max_players":"Max players (Including Host)",
     "minetogether.connect.open.max_players.info":"The maximum allowed players (Including the host)",
     "minetogether.connect.open.max_players_error":"An error occurred while attempting to get player limit from the Connect server...",
     "minetogether.connect.open.connect_intro":"Open your world to your MineTogether friends!",
     "minetogether.connect.open.connect_security":"Connect routes all network traffic through CreeperHost's Proxy servers. This provides DDoS protection, and ensures your IP address is kept safe.",
     "minetogether.connect.open.mt_supporter_info":"Want to invite more players? You can increase your player limit by becoming a MineTogether supporter. Click here to learn more.",
-    "minetogether.connect.open.order_info":"Looking to move to a 24/7 server solution? You may want to consider ordering a Dedicated server from CreeperHost. Click here for the in-game order page.",
+    "minetogether.connect.open.order_info":"Want to level up your Minecraft experience? Upgrade to a dedicated CreeperHost server for uninterrupted gameplay, more control, and superior performance! Click here for the in-game order page.",
 
 
     "minetogether.connect.friend.server.title":"%s's Shared MineTogether Server"
