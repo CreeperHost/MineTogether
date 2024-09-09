@@ -12,7 +12,9 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,6 +64,15 @@ public class ModPackInfo {
         public long parent;
     }
 
+    public static class CurseInstance {
+        public long projectID = -1;
+    }
+
+    public static class FTBInstance {
+        public long id = -1;
+        public int packType = -1;
+    }
+
     public static class VersionInfo {
         public String curseID = StringUtils.stripToEmpty(Config.instance().curseProjectID);
         public String websiteID = "";
@@ -69,8 +80,18 @@ public class ModPackInfo {
         public String ftbPackID = "";
         public String realName = "{\"p\": \"-1\"}";
 
+        public VersionInfo() {
+            if (!curseID.isEmpty() && !NumberUtils.isParsable(curseID)) {
+                LOGGER.error("Detected invalid curseID: {}", curseID);
+                curseID = "";
+            }
+        }
+
         public VersionInfo init() {
             if (!readVersionJson()) {
+                if (curseID.isEmpty()) {
+                    tryParseLauncherFiles();
+                }
                 fetchWebsiteIDCurse();
             }
 
@@ -93,11 +114,11 @@ public class ModPackInfo {
                     ModpackVersionManifest manifest = JsonUtils.parse(GSON, versionJson, ModpackVersionManifest.class);
                     ftbPackID = "m" + manifest.parent;
                     base64FTBID = Base64.getEncoder().encodeToString((String.valueOf(manifest.parent) + manifest.id).getBytes(StandardCharsets.UTF_8));
-                    String resolvedID = MineTogether.API.execute(new GetModpacksCHVersionRequest(base64FTBID)).apiResponse().id;
-                    if (resolvedID.isEmpty()) {
+                    GetModpacksCHVersionRequest.Response response = MineTogether.API.execute(new GetModpacksCHVersionRequest(base64FTBID)).apiResponse();
+                    if (response.getStatus().equals("error") || response.id.isEmpty()) {
                         return false;
                     }
-                    websiteID = resolvedID;
+                    websiteID = response.id;
                     return true;
                 } catch (IOException ex) {
                     LOGGER.error("Failed to load version manifest.", ex);
@@ -106,17 +127,75 @@ public class ModPackInfo {
             return false;
         }
 
-        private void fetchWebsiteIDCurse() {
+        private boolean fetchWebsiteIDCurse() {
             try {
-                if (!NumberUtils.isParsable(curseID)) return;
+                if (!NumberUtils.isParsable(curseID)) return false;
                 String resolvedID = MineTogether.API.execute(new GetCurseForgeVersionRequest(curseID)).apiResponse().id;
                 if (resolvedID.isEmpty()) {
-                    return;
+                    return false;
                 }
                 websiteID = resolvedID;
+                return true;
             } catch (IOException ex) {
                 LOGGER.error("Failed to load version manifest.", ex);
             }
+            return false;
+        }
+
+        private void tryParseLauncherFiles() {
+            //Curse App
+            Path instanceJson = Platform.getGameFolder().resolve("instance.json");
+            if (Files.exists(instanceJson)) {
+                try {
+                    FTBInstance instance = JsonUtils.parse(GSON, instanceJson, FTBInstance.class);
+                    if (instance.packType == 1 && instance.id > 0) {
+                        curseID = String.valueOf(instance.id);
+                        LOGGER.info("Extracted CurseID {} from instance.json", curseID);
+                        return;
+                    }
+                } catch (IOException ex) {
+                    LOGGER.warn("Failed to load pack id from instance.json", ex);
+                }
+            }
+
+            //Curse Launcher
+            Path versionJson = Platform.getGameFolder().resolve("minecraftinstance.json");
+            if (Files.exists(versionJson)) {
+                try {
+                    CurseInstance instance = JsonUtils.parse(GSON, versionJson, CurseInstance.class);
+                    if (instance.projectID > 0) {
+                        curseID = String.valueOf(instance.projectID);
+                        LOGGER.info("Extracted CurseID {} from minecraftinstance.json", curseID);
+                        return;
+                    }
+                } catch (IOException ex) {
+                    LOGGER.warn("Failed to load pack id from minecraftinstance.json", ex);
+                }
+            }
+
+            //Prism
+            Path instanceCfg = Platform.getGameFolder().getParent().resolve("instance.cfg");
+            if (Files.exists(instanceCfg)) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(instanceCfg)))){
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith("ManagedPackID=")) {
+                            if (line.length() > 14) {
+                                line = line.substring(14);
+                                long id = Long.parseLong(line);
+                                if (id > 0) {
+                                    curseID = String.valueOf(id);
+                                    LOGGER.info("Extracted CurseID {} from instance.cfg", curseID);
+                                }
+                            }
+                            return;
+                        }
+                    }
+                } catch (Throwable ex) {
+                    LOGGER.warn("Failed to load pack id from instance.cfg", ex);
+                }
+            }
+            LOGGER.info("Could not find curse pack id, Not a curse modpack, or unsupported launcher.");
         }
     }
 }
