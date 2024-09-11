@@ -73,6 +73,19 @@ public class ModPackInfo {
         public int packType = -1;
     }
 
+    public static class Auxilium
+    {
+        public int id = -1;
+        public AuxiliumVersion version = null;
+    }
+
+    public static class AuxiliumVersion
+    {
+        int id = -1;
+        String name = "";
+        String type = "";
+    }
+
     public static class VersionInfo {
         public String curseID = StringUtils.stripToEmpty(Config.instance().curseProjectID);
         public String websiteID = "";
@@ -143,6 +156,21 @@ public class ModPackInfo {
         }
 
         private void tryParseLauncherFiles() {
+            Path auxilium = Platform.getConfigFolder().resolve("metadata.json");
+            if(Files.exists(auxilium)) {
+                try {
+                    Auxilium aux = JsonUtils.parse(GSON, auxilium, Auxilium.class);
+                    if(aux.id > 0 && aux.version != null) {
+                        LOGGER.info("Found auxilium id: {} version: {}", aux.id, aux.version.id);
+                        ftbPackID = "m" + aux.id;
+                        base64FTBID = Base64.getEncoder().encodeToString((String.valueOf(aux.id) + aux.version.id).getBytes(StandardCharsets.UTF_8));
+                        return;
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to load pack id from metadata.json", e);
+                }
+            }
+
             //Curse App
             Path instanceJson = Platform.getGameFolder().resolve("instance.json");
             if (Files.exists(instanceJson)) {
@@ -195,6 +223,7 @@ public class ModPackInfo {
                     LOGGER.warn("Failed to load pack id from instance.cfg", ex);
                 }
             }
+
             LOGGER.info("Could not find curse pack id, Not a curse modpack, or unsupported launcher.");
         }
     }
