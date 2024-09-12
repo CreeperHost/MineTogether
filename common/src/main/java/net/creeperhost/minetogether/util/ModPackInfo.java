@@ -164,6 +164,11 @@ public class ModPackInfo {
                         LOGGER.info("Found auxilium id: {} version: {}", aux.id, aux.version.id);
                         ftbPackID = "m" + aux.id;
                         base64FTBID = Base64.getEncoder().encodeToString((String.valueOf(aux.id) + aux.version.id).getBytes(StandardCharsets.UTF_8));
+                        GetModpacksCHVersionRequest.Response response = MineTogether.API.execute(new GetModpacksCHVersionRequest(base64FTBID)).apiResponse();
+                        if (response.getStatus().equals("error") || response.id.isEmpty()) {
+                            return;
+                        }
+                        websiteID = response.id;
                         return;
                     }
                 } catch (Exception e) {
@@ -179,6 +184,11 @@ public class ModPackInfo {
                     if (instance.packType == 1 && instance.id > 0) {
                         curseID = String.valueOf(instance.id);
                         LOGGER.info("Extracted CurseID {} from instance.json", curseID);
+                        GetCurseForgeVersionRequest.Response response = MineTogether.API.execute(new GetCurseForgeVersionRequest(curseID)).apiResponse();
+                        if (response.getStatus().equals("error") || response.id.isEmpty()) {
+                            return;
+                        }
+                        websiteID = response.id;
                         return;
                     }
                 } catch (IOException ex) {
@@ -194,6 +204,11 @@ public class ModPackInfo {
                     if (instance.projectID > 0) {
                         curseID = String.valueOf(instance.projectID);
                         LOGGER.info("Extracted CurseID {} from minecraftinstance.json", curseID);
+                        GetCurseForgeVersionRequest.Response response = MineTogether.API.execute(new GetCurseForgeVersionRequest(curseID)).apiResponse();
+                        if (response.getStatus().equals("error") || response.id.isEmpty()) {
+                            return;
+                        }
+                        websiteID = response.id;
                         return;
                     }
                 } catch (IOException ex) {
@@ -214,6 +229,11 @@ public class ModPackInfo {
                                 if (id > 0) {
                                     curseID = String.valueOf(id);
                                     LOGGER.info("Extracted CurseID {} from instance.cfg", curseID);
+                                    GetCurseForgeVersionRequest.Response response = MineTogether.API.execute(new GetCurseForgeVersionRequest(curseID)).apiResponse();
+                                    if (response.getStatus().equals("error") || response.id.isEmpty()) {
+                                        return;
+                                    }
+                                    websiteID = response.id;
                                 }
                             }
                             return;
