@@ -94,7 +94,7 @@ public class OrderRequests {
             order.serverLocation = getDCsByDistance().getDataCenter().getName();
         }
 
-        String version = ModPackInfo.getInfo().curseID;
+        String version = ModPackInfo.getInfo().websiteID;
         if (version.isEmpty()) version = "0";
 
         try {
