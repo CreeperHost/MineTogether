@@ -163,7 +163,9 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
             this.screen.setTooltipForNextRenderPass(Collections.singletonList(statusToolTip.getVisualOrderText()));
         } else if (t >= entryWidth - statusWidth - 15 - 2 && t <= entryWidth - 15 - 2 && u >= 0 && u <= 8) {
             //Draw Players Tool Tip
-            this.screen.setTooltipForNextRenderPass(playersToolTip.stream().map(Component::getVisualOrderText).toList());
+            if (playersToolTip != null) {
+                this.screen.setTooltipForNextRenderPass(playersToolTip.stream().map(Component::getVisualOrderText).toList());
+            }
         }
 
         if (this.minecraft.options.touchscreen().get() || selected) {
