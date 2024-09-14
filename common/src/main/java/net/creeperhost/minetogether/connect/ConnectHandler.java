@@ -47,6 +47,7 @@ public class ConnectHandler {
     private static long lastSearch = 0;
     private static CompletableFuture<?> activeSearch = null;
     private static List<CFriendServers.ServerEntry> searchResult = null;
+    private static int defaultMaxPlayers = 8;
 
     // Useful for testing, can connect to specific node.
     private static final String FORCED_NODE = System.getProperty("connect.node");
@@ -152,11 +153,13 @@ public class ConnectHandler {
         return true; //TODO v2
     }
 
-    public static void publishToFriends(GameType gameType, boolean cheats) {
+    public static void publishToFriends(GameType gameType, boolean cheats, int maxPlayers) {
         // Mostly copy of IntegratedServer#publishServer
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer server = mc.getSingleplayerServer();
         if (server == null) return;
+        defaultMaxPlayers = server.getPlayerList().maxPlayers;
+        server.getPlayerList().maxPlayers = Math.min(2, maxPlayers); //Set to the minimum, here, later it may be increased as appropriate inside NettyClient.publishServer
         mc.prepareForMultiplayer();
 
         if (server.isPublished()) {
@@ -176,7 +179,7 @@ public class ConnectHandler {
         CompletableFuture.runAsync(() -> {
             try { // TODO, This should be done outside somewhere.
                 JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
-                publishedServer = NettyClient.publishServer(server, getEndpoint(), token, getModpackKey());
+                publishedServer = NettyClient.publishServer(server, getEndpoint(), token, getModpackKey(), maxPlayers);
             } catch (Exception e) {
                 Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("minetogether.connect.open.failed", e.getMessage()));
                 LOGGER.error("Failed to open to friends", e);
@@ -199,6 +202,7 @@ public class ConnectHandler {
             server.publishedPort = -1;
             server.publishedGameType = null;
         }
+        server.getPlayerList().maxPlayers = Math.max(defaultMaxPlayers, 8);
     }
 
     public static boolean isPublished() {
