@@ -45,7 +45,7 @@ public class NettyClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static ProxyConnection publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session, @Nullable String modpackKey) {
+    public static ProxyConnection publishServer(IntegratedServer server, ConnectHost endpoint, JWebToken session, @Nullable String modpackKey, int maxPlayers) {
         Throwable[] error = new Throwable[1];
         ProxyConnection connection = new ProxyConnection(endpoint) {
 
@@ -88,6 +88,12 @@ public class NettyClient {
             }
 
             @Override
+            public void handleMaxPlayers(ChannelHandlerContext channelHandlerContext, CMaxPlayers cMaxPlayers) {
+                int playerCap = cMaxPlayers.maxPlayers > 0 ? cMaxPlayers.maxPlayers : Integer.MAX_VALUE;
+                server.getPlayerList().maxPlayers = Math.min(playerCap, maxPlayers);
+            }
+
+            @Override
             public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {
                 link(server, endpoint, session, packet.linkToken);
             }
@@ -127,7 +133,64 @@ public class NettyClient {
         return connection;
     }
 
-    public static Connection connect(ConnectHost endpoint, JWebToken session, String serverToken) {
+    public static int getMaxPlayers(ConnectHost endpoint, JWebToken session) throws IOException {
+        IOException[] error = new IOException[1];
+        int[] result = new int[1];
+        result[0] = -2;
+
+        ProxyConnection connection = new ProxyConnection(endpoint) {
+            @Override
+            protected void channelReady() {
+                super.channelReady();
+                sendPacket(new SRequestMaxPlayers(session.toString()));
+            }
+
+            @Override
+            public void handleMaxPlayers(ChannelHandlerContext channelHandlerContext, CMaxPlayers packet) {
+                result[0] = packet.maxPlayers;
+                synchronized (error) {
+                    error.notifyAll();
+                }
+                channel.close();
+            }
+
+            @Override
+            public void onDisconnected(String message) {
+                error[0] = new IOException("Failed to get max players: " + message);
+                synchronized (error) {
+                    error.notifyAll();
+                }
+            }
+        };
+
+        ChannelFuture channelFuture = openConnection(
+                endpoint,
+                connection,
+                Connection.NETWORK_EPOLL_WORKER_GROUP::get,
+                Connection.NETWORK_WORKER_GROUP::get
+        );
+
+        synchronized (error) {
+            try {
+                error.wait(TimeUnit.MINUTES.toMillis(1)); // 1 Minute timeout on waiting.
+            } catch (InterruptedException ex) {
+                throw new RuntimeException("Interrupted whilst waiting.", ex);
+            }
+
+            if (error[0] != null) {
+                throw error[0];
+            }
+
+            if (result[0] == -2) {
+                channelFuture.channel().close();
+                throw new IOException("Timeout reached whilst waiting for server response.");
+            }
+
+            return result[0];
+        }
+    }
+
+    public static Connection connect(ConnectHost endpoint, JWebToken session, String serverToken, boolean isQuery) {
         boolean[] isConnecting = { true };
         Throwable[] error = new Throwable[1];
         Connection connection = new Connection(PacketFlow.CLIENTBOUND);
@@ -143,7 +206,7 @@ public class NettyClient {
             @Override
             public void channelReady() {
                 super.channelReady();
-                sendPacket(new SUserConnect(session.toString(), serverToken));
+                sendPacket(new SUserConnect(session.toString(), serverToken, isQuery));
                 // Required for Forge to add channel attributes.
                 MineTogetherPlatform.prepareClientConnection(connection);
             }
@@ -400,6 +463,9 @@ public class NettyClient {
 
         @Override
         public void handleAccepted(ChannelHandlerContext ctx, CAccepted cAccepted) { }
+
+        @Override
+        public void handleMaxPlayers(ChannelHandlerContext channelHandlerContext, CMaxPlayers cMaxPlayers) { }
 
         @Override
         public void handleServerLink(ChannelHandlerContext ctx, CServerLink packet) {

@@ -67,7 +67,7 @@ public class FriendConnectScreen extends ConnectScreen {
                     synchronized (FriendConnectScreen.this) {
                         ConnectHost endpoint = ConnectHandler.getSpecificEndpoint(server.node);
                         JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
-                        connection = NettyClient.connect(endpoint, token, server.serverToken);
+                        connection = NettyClient.connect(endpoint, token, server.serverToken, false);
                                                                                                              //TODO This v may break....
                         connection.setListener(new ClientHandshakePacketListenerImpl(connection, minecraft, new ServerData("", "", false), parent, false, (Duration) null, FriendConnectScreen.this::updateStatus));
                         connection.send(new ClientIntentionPacket(endpoint.address(), endpoint.proxyPort(), ConnectionProtocol.LOGIN));

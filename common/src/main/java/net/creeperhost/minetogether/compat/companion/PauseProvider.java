@@ -34,7 +34,7 @@ public class PauseProvider implements AdditionalPauseProvider {
                     ConnectHandler.unPublish();
                     Minecraft.getInstance().setScreen(new PauseScreen(true));
                 } else {
-                    Minecraft.getInstance().setScreen(new GuiShareToFriends(screen.unsafeScreenAccess()));
+                    Minecraft.getInstance().setScreen(new GuiShareToFriends.Screen(screen.unsafeScreenAccess()));
                 }
             };
 
