@@ -1,16 +1,19 @@
 package net.creeperhost.minetogether.orderform.elements;
 
+import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.gui.MTStyle;
 import net.creeperhost.minetogether.gui.dialogs.GuiDialog;
 import net.creeperhost.minetogether.gui.dialogs.ItemSelectDialog;
 import net.creeperhost.minetogether.orderform.OrderGui;
 import net.creeperhost.minetogether.orderform.WorldUploader;
+import net.creeperhost.polylib.client.modulargui.ModularGui;
 import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
 import net.creeperhost.polylib.client.modulargui.elements.GuiText;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Align;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -18,6 +21,7 @@ import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.storage.LevelStorageException;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
+import net.minecraft.world.level.storage.WorldData;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -76,13 +80,7 @@ public class WorldElement extends GuiElement<WorldElement> {
                             .setCloseOnOutsideClick(true)
                             .setOnItemSelected(selected -> {
                                 Path worldFolder = this.mc().getLevelSource().getBaseDir().resolve(selected.getLevelId());
-                                GuiDialog.optionsDialog(this, new TranslatableComponent("minetogether:gui.order.confirm_upload",
-                                                new TextComponent(selected.getLevelName()).withStyle(GOLD)).withStyle(BLUE),
-                                        new TranslatableComponent("minetogether:gui.order.confirm_upload.info").withStyle(GRAY),
-                                        250,
-                                        GuiDialog.primary(new TranslatableComponent("minetogether:gui.order.world.upload"), () -> startWorldUpload(worldFolder, selected)),
-                                        GuiDialog.caution(new TranslatableComponent("gui.cancel"), () -> {})
-                                );
+                                confirmStartUpload(worldFolder, selected.getLevelName());
                             })
                     )
                     .constrain(TOP, relative(lastElement.get(BOTTOM), 3))
@@ -163,10 +161,27 @@ public class WorldElement extends GuiElement<WorldElement> {
         return levels;
     }
 
-    private void startWorldUpload(Path worldFolder, LevelSummary summary) {
+    private void confirmStartUpload(Path worldFolder, String levelName) {
+        GuiDialog.optionsDialog(this,
+                new TranslatableComponent("minetogether:gui.order.confirm_upload"),
+                new TranslatableComponent("minetogether:gui.order.confirm_upload.info"),
+                250,
+                GuiDialog.primary(new TranslatableComponent("minetogether:gui.order.world.upload"), () -> startWorldUpload(worldFolder, levelName)),
+                GuiDialog.neutral(new TranslatableComponent("gui.cancel"), () -> {}));
+    }
+
+    private void startWorldUpload(Path worldFolder, String levelName) {
         if (worldUploader != null) return;
-        worldName = summary.getLevelName();
+        worldName = levelName;
         worldUploader = new WorldUploader(worldFolder);
         worldUploader.start();
+    }
+
+    public void uploadCurrentWorld(ModularGui gui) {
+        IntegratedServer server = gui.mc().getSingleplayerServer();
+        if (server == null) return;
+        LevelStorageSource.LevelStorageAccess storage = server.storageSource;
+        Path levelPath = storage.levelPath.toAbsolutePath();
+        confirmStartUpload(levelPath, server.getWorldData().getLevelName());
     }
 }

@@ -45,7 +45,7 @@ public class MineTogetherConnect {
                 ConnectHandler.unPublish();
                 Minecraft.getInstance().setScreen(new PauseScreen(true));
             } else {
-                Minecraft.getInstance().setScreen(new GuiShareToFriends(screen));
+                Minecraft.getInstance().setScreen(new GuiShareToFriends.Screen(screen));
             }
         };
 

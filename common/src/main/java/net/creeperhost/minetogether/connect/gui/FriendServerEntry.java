@@ -172,7 +172,9 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
             this.screen.setToolTip(Collections.singletonList(statusToolTip));
         } else if (t >= entryWidth - statusWidth - 15 - 2 && t <= entryWidth - 15 - 2 && u >= 0 && u <= 8) {
             //Draw Players Tool Tip
-            this.screen.setToolTip(playersToolTip);
+            if (playersToolTip != null) {
+                this.screen.setToolTip(playersToolTip);
+            }
         }
 
         if (this.minecraft.options.touchscreen || selected) {

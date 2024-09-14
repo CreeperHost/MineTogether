@@ -129,7 +129,7 @@ public class ServerListAppender {
 
     public void pingServer(RemoteServer server, Profile profile) throws Exception {
         JWebToken token = MineTogetherSession.getDefault().getTokenAsync().get();
-        Connection connection = NettyClient.connect(ConnectHandler.getSpecificEndpoint(server.node), token, server.serverToken);
+        Connection connection = NettyClient.connect(ConnectHandler.getSpecificEndpoint(server.node), token, server.serverToken, true);
         connections.add(connection);
         server.motd = new TranslatableComponent("multiplayer.status.pinging");
         server.ping = -1L;
@@ -231,8 +231,9 @@ public class ServerListAppender {
         }
     }
 
-    private static Component formatPlayerCount(int i, int j) {
-        return new TextComponent(Integer.toString(i)).append(new TextComponent("/").withStyle(ChatFormatting.DARK_GRAY)).append(Integer.toString(j)).withStyle(ChatFormatting.GRAY);
+    private static Component formatPlayerCount(int players, int maxPlayers) {
+        Component maxComp = new TextComponent(maxPlayers == Integer.MAX_VALUE ? "\u221E" : String.valueOf(maxPlayers));
+        return new TextComponent(Integer.toString(players)).append(new TextComponent("/").withStyle(ChatFormatting.DARK_GRAY)).append(maxComp).withStyle(ChatFormatting.GRAY);
     }
 
     private void onPingFailed(Component component, RemoteServer server, Profile profile) {

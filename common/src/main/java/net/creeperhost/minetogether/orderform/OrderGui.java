@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.creeperhost.minetogether.chat.gui.MTStyle;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.gui.MTTextures;
+import net.creeperhost.minetogether.gui.dialogs.GuiDialog;
 import net.creeperhost.minetogether.gui.dialogs.OptionDialog;
 import net.creeperhost.minetogether.lib.web.ApiResponse;
 import net.creeperhost.minetogether.orderform.data.Order;
@@ -26,6 +27,7 @@ import net.creeperhost.polylib.client.modulargui.sprite.Material;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -72,6 +74,7 @@ public class OrderGui implements GuiProvider {
     public final Map<String, DC> dcMap = new ConcurrentHashMap<>();
     public final Map<String, Integer> dcPing = new ConcurrentHashMap<>();
     public final Map<String, Long> dcDistance = new ConcurrentHashMap<>();
+    private final boolean suggestWorld;
 
     private CompletableFuture<?> initTask;
     private CompletableFuture<?> pingTask;
@@ -105,7 +108,9 @@ public class OrderGui implements GuiProvider {
     public DetailsElement details;
     public WorldElement world;
 
-    private OrderGui() {}
+    private OrderGui(boolean suggestWorld) {
+        this.suggestWorld = suggestWorld;
+    }
 
     @Override
     public GuiElement<?> createRootElement(ModularGui gui) {
@@ -171,14 +176,7 @@ public class OrderGui implements GuiProvider {
                 .constrain(HEIGHT, literal(14));
 
         GuiButton placeOrder = MTStyle.Flat.buttonPrimary(root, this::getOrderButtonText)
-                .onPress(() -> {
-                    new OptionDialog(locations.getModularGui().getRoot(),
-                            new TranslatableComponent("minetogether:gui.order.place_order.confirm"),
-                            new TranslatableComponent("minetogether:gui.button.confirm").withStyle(GREEN),
-                            new TranslatableComponent("minetogether:gui.button.cancel").withStyle(RED))
-                            .onButtonPress(0, () -> placeOrder(gui))
-                            .constrain(HEIGHT, literal(70));
-                })
+                .onPress(() -> onPlaceOrderPress(gui))
                 .setDisabled(() -> !inputsValid || orderTask != null || summaryUpdateRequired || summaryUpdating)
                 .constrain(TOP, relative(priceBg.get(BOTTOM), 2))
                 .constrain(LEFT, match(priceBg.get(LEFT)))
@@ -537,6 +535,27 @@ public class OrderGui implements GuiProvider {
         summaryUpdateRequired = true;
     }
 
+    private void onPlaceOrderPress(ModularGui gui) {
+        if (suggestWorld && order.worldUrl.isEmpty()) {
+            GuiDialog.optionsDialog(gui, new TranslatableComponent("minetogether:gui.order.world.upload_suggestion"),
+                    250,
+                    GuiDialog.primary(new TranslatableComponent("gui.yes"), () -> world.uploadCurrentWorld(gui)),
+                    GuiDialog.caution(new TranslatableComponent("gui.no"), () -> confirmPlaceOrder(gui))
+            );
+            return;
+        }
+        confirmPlaceOrder(gui);
+    }
+
+    private void confirmPlaceOrder(ModularGui gui) {
+        new OptionDialog(locations.getModularGui().getRoot(),
+                new TranslatableComponent("minetogether:gui.order.place_order.confirm"),
+                new TranslatableComponent("minetogether:gui.button.confirm").withStyle(GREEN),
+                new TranslatableComponent("minetogether:gui.button.cancel").withStyle(RED))
+                .onButtonPress(0, () -> placeOrder(gui))
+                .constrain(HEIGHT, literal(70));
+    }
+
     private void placeOrder(ModularGui gui) {
         if (orderTask != null) return;
 
@@ -773,7 +792,12 @@ public class OrderGui implements GuiProvider {
 
     public static class Screen extends ModularGuiScreen {
         public Screen(net.minecraft.client.gui.screens.Screen parentScreen) {
-            super(new OrderGui(), parentScreen);
+            this(parentScreen, false);
+        }
+
+        public Screen(net.minecraft.client.gui.screens.Screen parentScreen, boolean suggestWorld) {
+            super(new OrderGui(suggestWorld), parentScreen);
+            modularGui.setPauseScreen(true);
         }
     }
 }
