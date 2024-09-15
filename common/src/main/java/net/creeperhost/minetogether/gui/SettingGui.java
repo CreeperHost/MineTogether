@@ -51,12 +51,14 @@ public class SettingGui implements GuiProvider {
 
     @Override
     public void buildGui(ModularGui gui) {
+        gui.setPauseScreen(true);
         gui.renderScreenBackground(false);
         gui.initFullscreenGui();
         gui.setGuiTitle(Component.translatable("minetogether:gui.settings.title"));
 
         GuiElement<?> root = gui.getRoot();
         int panelWidth = 150;
+        int buttonHeight = 14;
 
         GuiText title = new GuiText(root, gui.getGuiTitle())
                 .constrain(TOP, relative(root.get(TOP), 10))
@@ -75,7 +77,7 @@ public class SettingGui implements GuiProvider {
                 .constrain(TOP, match(settings.get(TOP)))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
-                .constrain(HEIGHT, literal(16));
+                .constrain(HEIGHT, literal(buttonHeight));
         enabled.getLabel().setTextSupplier(() -> Component.translatable("minetogether:gui.settings.button.chat").append(state(LocalConfig.instance().chatEnabled)));
 
         GuiButton menuButtons = MTStyle.Flat.button(settings, Component.empty())
@@ -83,7 +85,7 @@ public class SettingGui implements GuiProvider {
                 .constrain(TOP, relative(enabled.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
-                .constrain(HEIGHT, literal(16));
+                .constrain(HEIGHT, literal(buttonHeight));
         menuButtons.getLabel().setTextSupplier(() -> Component.translatable("minetogether:gui.settings.button.menu_buttons").append(state(LocalConfig.instance().mainMenuButtons)));
 
         GuiButton pauseButtons = MTStyle.Flat.button(settings, Component.empty())
@@ -91,7 +93,7 @@ public class SettingGui implements GuiProvider {
                 .constrain(TOP, relative(menuButtons.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
-                .constrain(HEIGHT, literal(16));
+                .constrain(HEIGHT, literal(buttonHeight));
         pauseButtons.getLabel().setTextSupplier(() -> Component.translatable("minetogether:gui.settings.button.pause_buttons").append(state(Config.instance().pauseScreenButtons)));
 
         GuiButton toasts = MTStyle.Flat.button(settings, Component.empty())
@@ -99,7 +101,7 @@ public class SettingGui implements GuiProvider {
                 .constrain(TOP, relative(pauseButtons.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
-                .constrain(HEIGHT, literal(16));
+                .constrain(HEIGHT, literal(buttonHeight));
         toasts.getLabel().setTextSupplier(() -> Component.translatable("minetogether:gui.settings.button.friend_toasts").append(state(LocalConfig.instance().friendNotifications)));
 
         GuiButton chatSliders = MTStyle.Flat.button(settings, Component.empty())
@@ -107,15 +109,23 @@ public class SettingGui implements GuiProvider {
                 .constrain(TOP, relative(toasts.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
-                .constrain(HEIGHT, literal(16));
+                .constrain(HEIGHT, literal(buttonHeight));
         chatSliders.getLabel().setTextSupplier(() -> Component.translatable("minetogether:gui.settings.button.chat_sliders").append(state(LocalConfig.instance().chatSettingsSliders)));
 
-        GuiButton blocked = MTStyle.Flat.button(settings, Component.translatable("minetogether:gui.settings.button.blocked"))
-                .onPress(() -> showBlocked ^= true)
+        GuiButton shiftClickMention = MTStyle.Flat.button(settings, Component.empty())
+                .onPress(() -> setLocalConfig(() -> LocalConfig.instance().shiftClickMention ^= true))
                 .constrain(TOP, relative(chatSliders.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
-                .constrain(HEIGHT, literal(16));
+                .constrain(HEIGHT, literal(buttonHeight));
+        shiftClickMention.getLabel().setTextSupplier(() -> Component.translatable("minetogether:gui.settings.button.shift_click_mention").append(state(LocalConfig.instance().shiftClickMention)));
+
+        GuiButton blocked = MTStyle.Flat.button(settings, Component.translatable("minetogether:gui.settings.button.blocked"))
+                .onPress(() -> showBlocked ^= true)
+                .constrain(TOP, relative(shiftClickMention.get(BOTTOM), 4))
+                .constrain(LEFT, match(settings.get(LEFT)))
+                .constrain(RIGHT, match(settings.get(RIGHT)))
+                .constrain(HEIGHT, literal(buttonHeight));
 
         GuiButton link = MTStyle.Flat.button(settings, Component.translatable("minetogether:gui.settings.button.link"))
                 .onPress(() -> {
@@ -130,21 +140,21 @@ public class SettingGui implements GuiProvider {
                 .constrain(TOP, relative(blocked.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
-                .constrain(HEIGHT, literal(16));
+                .constrain(HEIGHT, literal(buttonHeight));
 
         GuiButton profileScreen = MTStyle.Flat.button(settings, () -> Component.translatable("minetogether:gui.settings.button.profile"))
                 .onPress(() -> gui.mc().setScreen(new ProfileGui.Screen(gui.getScreen())))
                 .constrain(TOP, relative(link.get(BOTTOM), 4))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
-                .constrain(HEIGHT, literal(16));
+                .constrain(HEIGHT, literal(buttonHeight));
 
         GuiButton back = MTStyle.Flat.button(settings, Component.translatable("minetogether:gui.button.back"))
                 .onPress(() -> gui.mc().setScreen(gui.getParentScreen()))
                 .constrain(TOP, relative(profileScreen.get(BOTTOM), 16))
                 .constrain(LEFT, match(settings.get(LEFT)))
                 .constrain(RIGHT, match(settings.get(RIGHT)))
-                .constrain(HEIGHT, literal(16));
+                .constrain(HEIGHT, literal(buttonHeight));
 
         //Blocked Users
         GuiElement<?> blockedBg = MTStyle.Flat.contentArea(root)
