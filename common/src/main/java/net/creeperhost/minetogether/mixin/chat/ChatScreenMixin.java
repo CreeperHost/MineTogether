@@ -238,7 +238,7 @@ abstract class ChatScreenMixin extends Screen {
             }
         }
 
-        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && tryClickMTChat(MineTogetherChat.publicChat, mouseX, mouseY)) {
+        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && tryClickMTChat(MineTogetherChat.publicChat, mouseX, mouseY, button)) {
             cir.setReturnValue(true);
         }
     }
@@ -346,7 +346,7 @@ abstract class ChatScreenMixin extends Screen {
         input.setSuggestion("");
     }
 
-    private boolean tryClickMTChat(MTChatComponent mtChat, double mouseX, double mouseY) {
+    private boolean tryClickMTChat(MTChatComponent mtChat, double mouseX, double mouseY, int button) {
         if (!mtChat.handleClick(mouseX, mouseY)) return false;
 
         Message message = mtChat.getClickedMessage();
@@ -356,7 +356,7 @@ abstract class ChatScreenMixin extends Screen {
         if (gui != null && gui.getProvider() instanceof ChatScreenInjection injection && injection.canShowDialog()) {
             clickedMessage = message;
             mtChat.clearClickedMessage();
-            injection.openMessageDialog(clickedMessage, input, mouseX, mouseY);
+            injection.openMessageDialog(clickedMessage, input, mouseX, mouseY, button);
             return true;
         }
         return false;

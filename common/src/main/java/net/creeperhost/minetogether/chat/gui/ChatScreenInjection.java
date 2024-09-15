@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.chat.gui;
 
 import net.creeperhost.minetogether.chat.MessageDropdownOption;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.gui.PreviewElement;
 import net.creeperhost.minetogether.gui.dialogs.ContextMenu;
 import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
@@ -17,6 +18,7 @@ import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,7 +60,12 @@ public class ChatScreenInjection implements GuiProvider {
         return activeMenu == null || !gui.getRoot().getChildren().contains(activeMenu);
     }
 
-    public void openMessageDialog(Message message, EditBox input, double mouseX, double mouseY) {
+    public void openMessageDialog(Message message, EditBox input, double mouseX, double mouseY, int button) {
+        if (LocalConfig.instance().shiftClickMention && button == 0 && Screen.hasShiftDown()) {
+            mention(input, message);
+            return;
+        }
+
         activeMenu = new ContextMenu(gui.getRoot());
         activeMenu.addTitle(Component.literal(message.senderName.getMessage()).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD));
         for (MessageDropdownOption value : MessageDropdownOption.VALUES) {
@@ -81,16 +88,18 @@ public class ChatScreenInjection implements GuiProvider {
                                 });
                             });
                 });
-                case MENTION -> activeMenu.addOption(value.getTitle(true).copy().withStyle(ChatFormatting.AQUA), () -> {
-                    String val = input.getValue();
-                    if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
-                        val = val + " ";
-                    }
-                    input.setValue(val + message.sender.getDisplayName());
-                });
+                case MENTION -> activeMenu.addOption(value.getTitle(true).copy().withStyle(ChatFormatting.AQUA), () -> mention(input, message));
             }
         }
         activeMenu.setPosition(mouseX, mouseY);
+    }
+
+    private void mention(EditBox input, Message message) {
+        String val = input.getValue();
+        if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
+            val = val + " ";
+        }
+        input.setValue(val + message.sender.getDisplayName());
     }
 
     //Parts of the chat screen are offset by as much as 100 in the z direction, So we use a custom root element that applies some padding under our elements.
