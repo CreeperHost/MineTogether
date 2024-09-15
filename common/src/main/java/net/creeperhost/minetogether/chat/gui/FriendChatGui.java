@@ -73,6 +73,7 @@ public class FriendChatGui implements GuiProvider {
 
     @Override
     public void buildGui(ModularGui gui) {
+        gui.setPauseScreen(true);
         gui.renderScreenBackground(false);
         gui.initFullscreenGui();
         gui.setGuiTitle(Component.translatable("minetogether:gui.friends.title"));

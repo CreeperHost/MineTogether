@@ -26,6 +26,7 @@ public class NewUserGui implements GuiProvider {
 
     @Override
     public void buildGui(ModularGui gui) {
+        gui.setPauseScreen(true);
         gui.renderScreenBackground(false);
         gui.initFullscreenGui();
 
