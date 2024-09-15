@@ -42,8 +42,7 @@ public class SettingGui implements GuiProvider {
     private double blockedAnim;
     private GuiList<Profile> blockedList;
 
-    //TODO Make private after FTB companion removes old MT integration
-//    private SettingGui() {}
+    private SettingGui() {}
 
     @Override
     public GuiElement<?> createRootElement(ModularGui gui) {
