@@ -92,6 +92,9 @@ public class LocalConfig {
     @Comment ("If menu buttons are enabled.")
     public boolean mainMenuButtons = true;
 
+    @Comment ("Shift-Click user to mention")
+    public boolean shiftClickMention = true;
+
     @Comment ("If the Multiplayer server list should have CreeperHost adverts.")
     public boolean mpMenuEnabled = true;
 

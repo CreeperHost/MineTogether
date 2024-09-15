@@ -2,6 +2,7 @@ package net.creeperhost.minetogether.chat.gui;
 
 import net.creeperhost.minetogether.chat.MessageDropdownOption;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.gui.dialogs.ContextMenu;
 import net.creeperhost.minetogether.gui.dialogs.TextInputDialog;
 import net.creeperhost.minetogether.lib.chat.message.Message;
@@ -17,6 +18,7 @@ import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.Constraint;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.*;
 import net.minecraft.util.FormattedCharSequence;
 import org.apache.logging.log4j.LogManager;
@@ -107,6 +109,11 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
         if (event == null) return false;
 
         if (!friendUI && MessageFormatter.CLICK_NAME.equals(event.getValue()) && message.sender != null && message.sender != MineTogetherChat.getOurProfile()) {
+            if (LocalConfig.instance().shiftClickMention && button == 0 && Screen.hasShiftDown()) {
+                mention(message);
+                return true;
+            }
+
             ContextMenu menu = new ContextMenu(getModularGui().getRoot());
             menu.addTitle(new TextComponent(message.senderName.getMessage()).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.GOLD));
             for (MessageDropdownOption value : MessageDropdownOption.VALUES) {
@@ -128,13 +135,7 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
                                     });
                                 });
                     });
-                    case MENTION -> menu.addOption(value.getTitle(true).copy().withStyle(ChatFormatting.AQUA), () -> {
-                        String val = textField.getValue();
-                        if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
-                            val = val + " ";
-                        }
-                        textField.setValue(val + message.sender.getDisplayName());
-                    });
+                    case MENTION -> menu.addOption(value.getTitle(true).copy().withStyle(ChatFormatting.AQUA), () -> mention(message));
                 }
             }
             menu.setPosition(mouseX, mouseY);
@@ -142,6 +143,14 @@ public class MessageElement extends GuiElement<MessageElement> implements Foregr
             getModularGui().getScreen().handleComponentClicked(style);
         }
         return false;
+    }
+
+    private void mention(Message message) {
+        String val = textField.getValue();
+        if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
+            val = val + " ";
+        }
+        textField.setValue(val + message.sender.getDisplayName());
     }
 
     @Override

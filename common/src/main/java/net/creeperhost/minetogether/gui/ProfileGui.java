@@ -41,6 +41,7 @@ public class ProfileGui implements GuiProvider {
 
     @Override
     public void buildGui(ModularGui gui) {
+        gui.setPauseScreen(true);
         gui.renderScreenBackground(false);
         gui.initFullscreenGui();
         gui.setGuiTitle(new TranslatableComponent("minetogether:gui.profile.title"));

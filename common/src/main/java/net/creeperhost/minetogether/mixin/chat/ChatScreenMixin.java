@@ -269,7 +269,7 @@ abstract class ChatScreenMixin extends Screen {
             return;
         }
 
-        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && tryClickMTChat(MineTogetherChat.publicChat, mouseX, mouseY)) {
+        if (MineTogetherChat.getTarget() == ChatTarget.PUBLIC && tryClickMTChat(MineTogetherChat.publicChat, mouseX, mouseY, button)) {
             cir.setReturnValue(true);
         }
     }
@@ -377,7 +377,7 @@ abstract class ChatScreenMixin extends Screen {
         input.setSuggestion("");
     }
 
-    private boolean tryClickMTChat(MTChatComponent mtChat, double mouseX, double mouseY) {
+    private boolean tryClickMTChat(MTChatComponent mtChat, double mouseX, double mouseY, int button) {
         if (!mtChat.handleClick(mouseX, mouseY)) return false;
 
         Message message = mtChat.getClickedMessage();
@@ -385,6 +385,15 @@ abstract class ChatScreenMixin extends Screen {
 
         clickedMessage = message;
         mtChat.clearClickedMessage();
+
+        if (LocalConfig.instance().shiftClickMention && button == 0 && Screen.hasShiftDown()) {
+            String val = input.getValue();
+            if (!val.isEmpty() && val.charAt(val.length() - 1) != ' ') {
+                val = val + " ";
+            }
+            input.setValue(val + clickedMessage.sender.getDisplayName());
+            return true;
+        }
 
         dropdownButton.openAt(mouseX, mouseY);
         return true;

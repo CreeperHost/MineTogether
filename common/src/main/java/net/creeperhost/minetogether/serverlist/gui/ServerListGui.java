@@ -55,6 +55,7 @@ public class ServerListGui implements GuiProvider {
 
     @Override
     public void buildGui(ModularGui gui) {
+        gui.setPauseScreen(true);
         this.gui = gui;
         gui.renderScreenBackground(false);
         gui.initFullscreenGui();
