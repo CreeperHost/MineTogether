@@ -156,8 +156,15 @@
     "minetogether:gui.order.upload_stage.upload": "Uploading: %s%%",
 
     "minetogether:gui.order.server_name": "Server Name:",
-    "minetogether:gui.order.player_count": "Player Count:",
-    "minetogether:gui.order.player_count.info": "How many players do you estimate will be using this server? We do not limit players slots, this is just to help us tailor a service to your needs.",
+    "minetogether:gui.order.player_count": "Who will be playing on this server with you?",
+    "minetogether:gui.order.player_count.info": "This question just helps us create a personalised recommendation on what package is right for you. Complex worlds, additional mods, configuration changes and playing in separate parts of the game world may all require more resources. You can upgrade at any time if you have issues, so it's best to start small.",
+    "minetogether:gui.order.player_count.5": "Just me and a friend",
+    "minetogether:gui.order.player_count.10": "A couple of friends",
+    "minetogether:gui.order.player_count.15": "A few friends",
+    "minetogether:gui.order.player_count.20": "A small group of friends",
+    "minetogether:gui.order.player_count.25": "A gaming group",
+
+
     "minetogether:gui.order.button.randomize": "Randomize",
     "minetogether:gui.order.select_country": "Select your Country",
     "minetogether:gui.order.summary": " Summary ",
