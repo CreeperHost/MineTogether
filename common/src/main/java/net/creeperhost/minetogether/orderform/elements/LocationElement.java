@@ -91,6 +91,8 @@ public class LocationElement extends GuiElement<LocationElement> {
     }
 
     private GuiElement<?> locationButton(GuiElement<?> parent, GetDataCentresRequest.DC dc) {
+        dc.available = true; //No longer display the low availability warning, It's all just handled behind the scenes.
+
         String name = dc.slug == null ? "" : dc.slug;
         GuiButton button = MTStyle.Flat.button(parent, (Supplier<Component>) null)
                 .setToggleMode(() -> name.equals(gui.order.serverLocation))
