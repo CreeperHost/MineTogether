@@ -5,11 +5,17 @@ import net.creeperhost.minetogether.lib.web.ApiResponse;
 import net.creeperhost.minetogether.lib.web.WebUtils.UrlParamPair;
 import net.creeperhost.minetogether.orderform.data.Order;
 import net.creeperhost.minetogether.util.ModPackInfo;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.entity.player.ProfileKeyPair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static net.creeperhost.minetogether.lib.web.WebConstants.CH;
 
@@ -36,6 +42,22 @@ public class PostOrderRequest extends ApiRequest<PostOrderRequest.Response> {
         if (!StringUtil.isNullOrEmpty(fallbackName)) {
             entries.add(UrlParamPair.of("fallback", fallbackName));
         }
+
+        entries.add(UrlParamPair.of("ownerUuid", Minecraft.getInstance().getUser().getProfileId().toString()));
+
+        try {
+            CompletableFuture<Optional<ProfileKeyPair>> pair = Minecraft.getInstance().getProfileKeyPairManager().prepareKeyPair();
+            while (!pair.isDone())
+            {
+                Thread.sleep(100);
+            }
+
+            if(pair.get().isPresent())
+            {
+                String auth = Base64.getEncoder().encodeToString(pair.get().get().privateKey().getEncoded());
+                entries.add(UrlParamPair.of("pubkey", auth));
+            }
+        } catch (InterruptedException | ExecutionException ignored) {}
 
         formBody(entries);
     }
