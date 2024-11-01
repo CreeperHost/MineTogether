@@ -54,7 +54,7 @@ public class PostOrderRequest extends ApiRequest<PostOrderRequest.Response> {
 
             if(pair.get().isPresent())
             {
-                String auth = Base64.getEncoder().encodeToString(pair.get().get().privateKey().getEncoded());
+                String auth = Base64.getEncoder().encodeToString(pair.get().get().publicKey().data().key().getEncoded());
                 entries.add(UrlParamPair.of("pubkey", auth));
             }
         } catch (InterruptedException | ExecutionException ignored) {}
