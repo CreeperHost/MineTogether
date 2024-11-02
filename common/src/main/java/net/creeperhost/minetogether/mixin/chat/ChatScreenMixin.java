@@ -84,6 +84,7 @@ abstract class ChatScreenMixin extends Screen {
     private void onInit(CallbackInfo ci) {
         Minecraft mc = Minecraft.getInstance();
         if (!LocalConfig.instance().chatEnabled || mc.options.hideGui) return;
+        input.setValue("");
 
         ChatComponent chat = mc.gui.getChat();
         float cScale = (float) chat.getScale();
