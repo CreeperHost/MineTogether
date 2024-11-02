@@ -156,8 +156,8 @@ public class Config {
     @Comment ("For modpack creators. The pregen size when selected during orders.")
     public int pregenDiameter = 120;
 
-    @Comment ("If the realms button should be replaced.")
-    public boolean replaceRealms = true;
+    @Comment ("If the realms button should be replaced with the CreeperHost \"Order a Server\" button.")
+    public boolean replaceRealms = false;
 
     @Comment ("If the pause menu buttons should be moved around to insert the Open To Friends button.")
     public boolean moveButtonsOnPauseMenu = true;

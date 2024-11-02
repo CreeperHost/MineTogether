@@ -96,7 +96,7 @@ public class LocalConfig {
     public boolean shiftClickMention = true;
 
     @Comment ("If the Multiplayer server list should have CreeperHost adverts.")
-    public boolean mpMenuEnabled = true;
+    public boolean mpMenuEnabled = false;
 
     @Comment ("INTERNAL: Marker for tracking first connections.")
     public Set<String> firstConnect = new HashSet<>();
