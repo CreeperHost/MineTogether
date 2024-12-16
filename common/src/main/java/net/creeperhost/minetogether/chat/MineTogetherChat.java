@@ -5,10 +5,10 @@ import dev.architectury.platform.Platform;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.gui.PublicChatGui;
-import net.creeperhost.minetogether.config.LocalConfig;
-import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.chat.ingame.MTChatComponent;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.LocalConfig;
+import net.creeperhost.minetogether.gui.SettingGui;
 import net.creeperhost.minetogether.lib.chat.ChatState;
 import net.creeperhost.minetogether.lib.chat.MutedUserList;
 import net.creeperhost.minetogether.lib.chat.irc.IrcChannel;
@@ -28,13 +28,15 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
-import static net.creeperhost.minetogether.Constants.MINETOGETHER_LOGO_25;
+import static net.creeperhost.minetogether.Constants.MINETOGETHER_LOGO_SOLID;
 import static net.creeperhost.minetogether.MineTogether.API;
 
 /**
@@ -105,51 +107,28 @@ public class MineTogetherChat {
         CHAT_STATE.profileManager.addListener(mc, (m, e) -> m.submit(() -> {
             if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ADDED) {
                 ProfileManager.FriendRequest fr = (ProfileManager.FriendRequest) e.data;
-                addToast(new SimpleToast(
-                        Component.translatable("minetogether:toast.fiend_request_received", displayName(fr.user)),
-                        Component.empty(),
-                        MINETOGETHER_LOGO_25
-                ));
+                simpleToast(Component.translatable("minetogether:toast.fiend_request_received", displayName(fr.user)));
             } else if (e.type == ProfileManager.EventType.FRIEND_REQUEST_ACCEPTED) {
                 Profile fr = (Profile) e.data;
-                addToast(new SimpleToast(
-                        Component.translatable("minetogether:toast.fiend_request_accepted", displayName(fr)),
-                        Component.empty(),
-                        MINETOGETHER_LOGO_25
-                ));
+                simpleToast(Component.translatable("minetogether:toast.fiend_request_accepted", displayName(fr)));
             } else if (e.type == ProfileManager.EventType.FRIEND_ONLINE && LocalConfig.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
-                addToast(new SimpleToast(
-                        Component.translatable("minetogether:toast.user_online", displayName(fr)),
-                        Component.empty(),
-                        MINETOGETHER_LOGO_25
-                ));
+                simpleToast(Component.translatable("minetogether:toast.user_online", displayName(fr)));
             } else if (e.type == ProfileManager.EventType.FRIEND_OFFLINE && LocalConfig.instance().friendNotifications) {
                 Profile fr = (Profile) e.data;
-                addToast(new SimpleToast(
-                        Component.translatable("minetogether:toast.user_offline", displayName(fr)),
-                        Component.empty(),
-                        MINETOGETHER_LOGO_25
-                ));
+                simpleToast(Component.translatable("minetogether:toast.user_offline", displayName(fr)));
             } else if (e.type == ProfileManager.EventType.GROUP_INVITE_RECEIVED) {
                 ProfileManager.PrivateGroup group = (ProfileManager.PrivateGroup) e.data;
                 if (group != null && group.ownerHash != null) {
                     Profile sender = CHAT_STATE.profileManager.lookupProfile(group.ownerHash);
-                    addToast(new SimpleToast(
-                            Component.translatable("minetogether:toast.group_invite_received", displayName(sender)),
-                            Component.empty(),
-                            MINETOGETHER_LOGO_25
-                    ));
+                    simpleToast(Component.translatable("minetogether:toast.group_invite_received", displayName(sender)));
                 }
             } else if (e.type == ProfileManager.EventType.LEFT_GROUP) {
                 if (getTarget() == ChatTarget.GROUP) {
                     setTarget(ChatTarget.VANILLA);//Switch to vanilla rather than public to avoid situations where a user starts sending private messages without realizing they have left the group.
                 }
-                addToast(new SimpleToast(
-                        Component.translatable("minetogether:toast.left_group"),
-                        Component.translatable("minetogether:toast.left_group." + e.data),
-                        MINETOGETHER_LOGO_25
-                ));
+                simpleToast(Component.translatable("minetogether:toast.left_group"),
+                        Component.translatable("minetogether:toast.left_group." + e.data));
             }
         }));
 
@@ -165,7 +144,7 @@ public class MineTogetherChat {
         addToast(new SimpleToast(
                 toastText,
                 Component.empty(),
-                MINETOGETHER_LOGO_25
+                MINETOGETHER_LOGO_SOLID
         ));
     }
 
@@ -173,13 +152,13 @@ public class MineTogetherChat {
         addToast(new SimpleToast(
                 toastTitle,
                 toastText,
-                MINETOGETHER_LOGO_25
+                MINETOGETHER_LOGO_SOLID
         ));
     }
 
     private static void addToast(Toast toast) {
         if (hasHitLoadingScreen) {
-            Minecraft.getInstance().getToasts().addToast(toast);
+            Minecraft.getInstance().getToastManager().addToast(toast);
         } else {
             // YEET, too bad.
         }

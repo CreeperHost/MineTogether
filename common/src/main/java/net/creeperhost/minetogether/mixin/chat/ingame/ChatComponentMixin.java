@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.ArrayListDeque;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Final;
@@ -123,7 +124,7 @@ abstract class ChatComponentMixin {
         g.pose().scale(createdScale, createdScale, createdScale);
 
         RenderSystem.enableBlend();
-        g.blit(Constants.CREEPERHOST_LOGO_25, createdWidth - creeperWidth, creeperOffset, 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
+        g.blit(RenderType::guiTextured, Constants.CREEPERHOST_LOGO_25, createdWidth - creeperWidth, creeperOffset, 0.0F, 0.0F, creeperWidth, creeperHeight, creeperWidth, creeperHeight);
         g.drawString(font, created, 0, 0, 0x40FFFFFF, true);
 
         g.pose().popPose();
@@ -132,7 +133,7 @@ abstract class ChatComponentMixin {
         int mtWidth = (int) (mtHeight * (348D / 318D));
 
         RenderSystem.enableBlend();
-        g.blit(Constants.MINETOGETHER_LOGO_25, x + (int) ((width / 2D) - (mtWidth / 2D)), y, 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
+        g.blit(RenderType::guiTextured, Constants.MINETOGETHER_LOGO_25, x + (int) ((width / 2D) - (mtWidth / 2D)), y, 0.0F, 0.0F, mtWidth, mtHeight, mtWidth, mtHeight);
 
         RenderSystem.disableBlend();
     }

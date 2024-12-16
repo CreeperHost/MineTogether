@@ -364,7 +364,8 @@
     "minetogether.multiplayerscreen.clickhere":"Click here!",
     "minetogether.multiplayerscreen.clickherebrand":"Click here to get one from CreeperHost!",
     "minetogether.multiplayerscreen.partner":"Support the modpack creator!",
-    
+    "minetogether.multiplayerscreen.hide_ad":"Hide until next update",
+
     "minetogether.connect.open": "Open to friends",
     "minetogether.connect.close": "Close to friends",
     "minetogether.connect.open.title":"MineTogether Connect",

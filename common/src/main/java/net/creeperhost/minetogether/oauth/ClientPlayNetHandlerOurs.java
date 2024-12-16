@@ -43,7 +43,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleAddObjective(ClientboundSetObjectivePacket clientboundSetObjectivePacket) { }
     @Override public void handleAnimate(ClientboundAnimatePacket clientboundAnimatePacket) { }
     @Override public void handleAwardStats(ClientboundAwardStatsPacket clientboundAwardStatsPacket) { }
-    @Override public void handleAddOrRemoveRecipes(ClientboundRecipePacket clientboundRecipePacket) { }
     @Override public void handleBlockDestruction(ClientboundBlockDestructionPacket clientboundBlockDestructionPacket) { }
     @Override public void handleOpenSignEditor(ClientboundOpenSignEditorPacket clientboundOpenSignEditorPacket) { }
     @Override public void handleBlockEntityData(ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket) { }
@@ -76,7 +75,6 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleRemoveMobEffect(ClientboundRemoveMobEffectPacket clientboundRemoveMobEffectPacket) { }
     @Override public void handleRespawn(ClientboundRespawnPacket clientboundRespawnPacket) { }
     @Override public void handleRotateMob(ClientboundRotateHeadPacket clientboundRotateHeadPacket) { }
-    @Override public void handleSetCarriedItem(ClientboundSetCarriedItemPacket clientboundSetCarriedItemPacket) { }
     @Override public void handleSetDisplayObjective(ClientboundSetDisplayObjectivePacket clientboundSetDisplayObjectivePacket) { }
     @Override public void handleSetEntityData(ClientboundSetEntityDataPacket clientboundSetEntityDataPacket) { }
     @Override public void handleSetEntityMotion(ClientboundSetEntityMotionPacket clientboundSetEntityMotionPacket) { }
@@ -155,5 +153,15 @@ public class ClientPlayNetHandlerOurs implements ClientGamePacketListener {
     @Override public void handleCustomReportDetails(ClientboundCustomReportDetailsPacket clientboundCustomReportDetailsPacket) { }
     @Override public void handleServerLinks(ClientboundServerLinksPacket clientboundServerLinksPacket) { }
     @Override public void handleRequestCookie(ClientboundCookieRequestPacket clientboundCookieRequestPacket) { }
+
+    @Override public void handleRecipeBookAdd(ClientboundRecipeBookAddPacket clientboundRecipeBookAddPacket) { }
+    @Override public void handleRecipeBookRemove(ClientboundRecipeBookRemovePacket clientboundRecipeBookRemovePacket) { }
+    @Override public void handleRecipeBookSettings(ClientboundRecipeBookSettingsPacket clientboundRecipeBookSettingsPacket) { }
+    @Override public void handleMinecartAlongTrack(ClientboundMoveMinecartPacket clientboundMoveMinecartPacket) { }
+    @Override public void handleRotatePlayer(ClientboundPlayerRotationPacket clientboundPlayerRotationPacket) { }
+    @Override public void handleSetHeldSlot(ClientboundSetHeldSlotPacket clientboundSetHeldSlotPacket) { }
+    @Override public void handleEntityPositionSync(ClientboundEntityPositionSyncPacket clientboundEntityPositionSyncPacket) { }
+    @Override public void handleSetCursorItem(ClientboundSetCursorItemPacket clientboundSetCursorItemPacket) { }
+    @Override public void handleSetPlayerInventory(ClientboundSetPlayerInventoryPacket clientboundSetPlayerInventoryPacket) { }
     //@formatter:on
 }

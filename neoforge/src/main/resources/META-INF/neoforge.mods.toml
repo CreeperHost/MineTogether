@@ -13,21 +13,21 @@ license = "GNU General Public License v3.0"
 [[dependencies.minetogether]]
     modId = "neoforge"
     type="required"
-    versionRange = "[21.0.0-beta,)"
+    versionRange = "[20.3,)"
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.minetogether]]
     modId = "minecraft"
     type="required"
-    versionRange = "[1.21,)"
+    versionRange = "[1.21.3,)"
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.minetogether]]
     modId = "architectury"
     type="required"
-    versionRange = "[11.0.9,)"
+    versionRange = "[14.0.3,)"
     ordering = "AFTER"
     side = "BOTH"
 [[dependencies.minetogether]]

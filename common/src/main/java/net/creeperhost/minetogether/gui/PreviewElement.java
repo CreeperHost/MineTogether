@@ -15,6 +15,7 @@ import net.creeperhost.polylib.client.modulargui.elements.GuiElement;
 import net.creeperhost.polylib.client.modulargui.elements.GuiList;
 import net.creeperhost.polylib.client.modulargui.lib.GuiRender;
 import net.creeperhost.polylib.client.modulargui.lib.geometry.GuiParent;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -204,12 +205,7 @@ public class PreviewElement extends GuiElement<PreviewElement> {
                     image = new NativeImage(NativeImage.Format.RGBA, bufferedImage.getWidth(), bufferedImage.getHeight(), false);
                     for (int x = 0; x < bufferedImage.getWidth(); x++) {
                         for (int y = 0; y < bufferedImage.getHeight(); y++) {
-                            int argb = bufferedImage.getRGB(x, y);
-                            int a = argb >>> 24;
-                            int r = argb >> 16 & 0xFF;
-                            int g = argb >> 8 & 0xFF;
-                            int b = argb & 0xFF;
-                            image.setPixelRGBA(x, y, a << 24 | b << 16 | g << 8 | r);
+                            image.setPixel(x, y, bufferedImage.getRGB(x, y));
                         }
                     }
                     loaded = true;
@@ -264,7 +260,7 @@ public class PreviewElement extends GuiElement<PreviewElement> {
             double x2 = x + width;
             double y2 = y + height;
             RenderSystem.setShaderTexture(0, glTexture);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShader(CoreShaders.POSITION_TEX);
             Matrix4f matrix4f = render.pose().last().pose();
 
             BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);

@@ -211,7 +211,7 @@ public class SettingGui implements GuiProvider {
     }
 
     private double buttonPanelPos(GuiElement<?> root) {
-        double partial = (showBlocked ? 0.2 : -0.2) * Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        double partial = (showBlocked ? 0.2 : -0.2) * Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
         double anim = MathUtil.clamp(blockedAnim + partial, 0, 1);
         return (root.xCenter() - 75D - (80D * anim));
     }

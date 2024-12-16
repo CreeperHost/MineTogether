@@ -30,7 +30,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
-import java.security.Provider;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;

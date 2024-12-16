@@ -102,7 +102,7 @@ public class GuiShareToFriends implements GuiProvider {
                 .constrain(RIGHT, match(bounds.get(RIGHT)))
                 .constrain(LEFT, midPoint(bounds.get(LEFT), bounds.get(RIGHT), 5))
                 .constrain(HEIGHT, literal(16));
-        cheatsButton.getLabel().setTextSupplier(() -> Component.translatable("selectWorld.allowCommands.new").append(": ").append(commands ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF));
+        cheatsButton.getLabel().setTextSupplier(() -> Component.translatable("selectWorld.allowCommands").append(": ").append(commands ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF));
 
         //Players
         GuiRectangle sliderBg = new GuiRectangle(root)

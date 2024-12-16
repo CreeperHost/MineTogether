@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -141,7 +142,7 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
 
         //Draw Signal / Scanning Bars.
         if (statusIcon != null) {
-            graphics.blitSprite(statusIcon, x + entryWidth - 15, y, 10, 8);
+            graphics.blitSprite(RenderType::guiTextured, statusIcon, x + entryWidth - 15, y, 10, 8);
         }
 
         //Update server icon.
@@ -173,9 +174,9 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
             int v = mouseX - x;
             //Draw "Join Arrow"
             if (v < 32 && v > 16) {
-                graphics.blitSprite(JOIN_HIGHLIGHTED_SPRITE, x, y, 32, 32);
+                graphics.blitSprite(RenderType::guiTextured, JOIN_HIGHLIGHTED_SPRITE, x, y, 32, 32);
             } else {
-                graphics.blitSprite(JOIN_SPRITE, x, y, 32, 32);
+                graphics.blitSprite(RenderType::guiTextured, JOIN_SPRITE, x, y, 32, 32);
             }
         }
     }
@@ -185,7 +186,7 @@ public class FriendServerEntry extends ServerSelectionList.NetworkServerEntry {
     }
 
     protected void drawIcon(GuiGraphics graphics, int i, int j, ResourceLocation resourceLocation) {
-        graphics.blit(resourceLocation, i, j, 0.0F, 0.0F, 32, 32, 32, 32);
+        graphics.blit(RenderType::guiTextured, resourceLocation, i, j, 0.0F, 0.0F, 32, 32, 32, 32);
     }
 
     private boolean uploadServerIcon(@Nullable byte[] bs) {

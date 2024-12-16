@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.network.chat.Component;
@@ -47,15 +48,11 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             if (transparency >= 0.5F) transparency -= 0.04;
         }
 
-        RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, transparency);
-        graphics.blit(serverIcon, x, y, 0.0F, 0.0F, 32, 32, 32, 32);
-        int transparentString = (int) (transparency * 254) << 24;
-        graphics.drawString(mc.font, I18n.get("minetogether.multiplayerscreen.partner"), x + 35, y, 16777215 + transparentString);
-        RenderSystem.enableBlend();
-        graphics.drawString(mc.font, I18n.get("minetogether.multiplayerscreen.getserver"), x + 32 + 3, y + this.mc.font.lineHeight + 1, 16777215 + transparentString);
-        String s = I18n.get("minetogether.multiplayerscreen.clickherebrand");
-        graphics.drawString(mc.font, s, x + 32 + 3, y + (this.mc.font.lineHeight * 2) + 3, 8421504 + transparentString);
+        int transparentString = (int) (Math.clamp(transparency * 254, 0, 255)) << 24;
+        graphics.blit(RenderType::guiTextured, serverIcon, x, y, 0.0F, 0.0F, 32, 32, 32, 32, 0xffffff + transparentString);
+        graphics.drawString(mc.font, Component.translatable("minetogether.multiplayerscreen.partner"), x + 35, y, 0xffffff + transparentString);
+        graphics.drawString(mc.font, Component.translatable("minetogether.multiplayerscreen.getserver"), x + 32 + 3, y + this.mc.font.lineHeight + 1, 0xffffff + transparentString);
+        graphics.drawString(mc.font, Component.translatable("minetogether.multiplayerscreen.clickherebrand"), x + 32 + 3, y + (this.mc.font.lineHeight * 2) + 3, 0x808080 + transparentString);
 
         if (removeButton != null) {
             removeButton.render(graphics, x, y, p_render_9_);
@@ -63,9 +60,7 @@ public class CreeperHostServerEntry extends ServerSelectionList.NetworkServerEnt
             removeButton.setY(y);
 
             if (removeButton.isMouseOver(mouseX, mouseY)) {
-                final int tooltipY = mouseY + ((mc.screen.width / 2 >= mouseY) ? 11 : -11);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, transparency);
-                graphics.blit(BUTTON_TEXTURES, mouseX - 74, tooltipY - 1, 0.0F, 0.0F, 60, 10, 60, 10);
+                graphics.renderTooltip(mc.font, Component.translatable("minetogether.multiplayerscreen.hide_ad"), mouseX, mouseY);
             }
         }
     }
