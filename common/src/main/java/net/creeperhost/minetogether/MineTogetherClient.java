@@ -7,7 +7,6 @@ import net.creeperhost.minetogether.chat.FriendChatNotifier;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
 import net.creeperhost.minetogether.chat.gui.ChatScreenInjection;
 import net.creeperhost.minetogether.compat.Integration;
-import net.creeperhost.minetogether.compat.companion.FTBPackCompanionCompat;
 import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.connect.MineTogetherConnect;
 import net.creeperhost.minetogether.gui.SettingGui;
@@ -68,7 +67,7 @@ public class MineTogetherClient {
 
         ClientGuiEvent.INIT_POST.register(MineTogetherClient::onScreenOpen);
 
-        Integration.loadOptionalIntegration("ftbpc", () -> FTBPackCompanionCompat::init);
+//        Integration.loadOptionalIntegration("ftbpc", () -> FTBPackCompanionCompat::init);
     }
 
     private static void onScreenOpen(Screen screen, ScreenAccess screenAccess) {
