@@ -1,7 +1,10 @@
 package net.creeperhost.minetogether.neoforge;
 
+import dev.ftb.mods.pmapi.api.PauseMenuApi;
 import net.creeperhost.minetogether.MineTogether;
 import net.creeperhost.minetogether.chat.MineTogetherChat;
+import net.creeperhost.minetogether.compat.Integration;
+import net.creeperhost.minetogether.compat.pausemenu.PauseMenuIntegration;
 import net.creeperhost.minetogether.orderform.OrderForm;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -23,6 +26,7 @@ public class MineTogetherNeoForge {
         if (FMLEnvironment.dist.isClient()) {
             NeoForge.EVENT_BUS.addListener(this::clientInit);
             NeoForgeClientEvents.init(eventBus);
+            Integration.loadOptionalIntegration("ftbpmapi", () -> PauseMenuIntegration::init);
         }
     }
 

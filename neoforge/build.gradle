@@ -56,6 +56,10 @@ dependencies {
         exclude group: "net.creeperhost", module: "MineTogetherLib"
     }
 
+    modApi ("dev.ftb.mods:ftb-pause-menu-api:21.1.0:api") {
+        transitive false
+    }
+
     shadowLib 'org.nanohttpd:nanohttpd:2.3.1'
     shadowLib 'com.github.scribejava:scribejava-apis:6.9.0'
     shadowLib 'com.github.scribejava:scribejava-core:6.9.0'

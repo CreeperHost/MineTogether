@@ -205,6 +205,9 @@ public class MineTogetherChat {
     }
 
     private static void addMenuButtons(Screen screen) {
+        if (Platform.isModLoaded("ftbpmapi") && Platform.isNeoForge()) {
+            return; //TODO, When porting, dont forget that this exists! If you disable the ftbpmapi integration, then this also needs to be removed.
+        }
         int buttonPos = 4;
         IconButton settings = new IconButton(screen.width - (buttonPos += 21), 5, 3, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new SettingGui.Screen(screen)));
         settings.setTooltip(Tooltip.create(Component.translatable("minetogether:gui.button.settings.info")));
